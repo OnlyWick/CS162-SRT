@@ -1,0 +1,4596 @@
+1
+00:00:00,000 --> 00:00:24,480
+ So, hello, everyone.
+
+2
+00:00:24,480 --> 00:00:31,200
+ So today we are going to finish the discussion on scheduling.
+
+3
+00:00:31,200 --> 00:00:39,960
+ And then we are going to start the discussion on deadlocks.
+
+4
+00:00:39,960 --> 00:00:46,880
+ So last time we discussed quite a bit about a few scheduling disciplines.
+
+5
+00:00:46,880 --> 00:00:53,920
+ And if you remember one scheduling disciplines, which has been very popular and is still popular,
+
+6
+00:00:53,920 --> 00:00:57,880
+ it's priority scheduling.
+
+7
+00:00:57,880 --> 00:01:03,160
+ And one of the reason it's popular, it's very simple.
+
+8
+00:01:03,160 --> 00:01:09,000
+ The pure priority scheduling, if you remember, you have different levels of priorities and
+
+9
+00:01:09,000 --> 00:01:19,080
+ you always start from the highest priority and then you run the jobs at the highest priority.
+
+10
+00:01:19,080 --> 00:01:27,480
+ And only after you are done with those jobs, you can go to the lower priority.
+
+11
+00:01:27,480 --> 00:01:37,760
+ And one obvious question is does prioritizing some jobs necessarily starve those that aren't
+
+12
+00:01:37,760 --> 00:01:38,960
+ prioritized?
+
+13
+00:01:38,960 --> 00:01:47,960
+ So do higher priority jobs necessarily starve lower priority jobs?
+
+14
+00:01:47,960 --> 00:01:58,160
+ And this is what we are going to talk a little bit about here and what kind of tweaks you
+
+15
+00:01:58,160 --> 00:02:06,000
+ can do to priority scheduling to avoid starvation.
+
+16
+00:02:06,000 --> 00:02:17,540
+ Because if you remember, if you have always high priority jobs, then you'll never serve
+
+17
+00:02:17,540 --> 00:02:19,460
+ the low priority jobs.
+
+18
+00:02:19,460 --> 00:02:29,600
+ So therefore, you are going to starve the low priority jobs.
+
+19
+00:02:29,600 --> 00:02:34,160
+ So let's look through some of these mechanisms.
+
+20
+00:02:34,160 --> 00:02:43,880
+ So one mechanism, it's an API which is provided by early Unix systems, which is called Nice.
+
+21
+00:02:43,880 --> 00:02:52,040
+ And this, as the name implies, it allows you as a user to be nice to others.
+
+22
+00:02:52,040 --> 00:03:00,340
+ And the way you are going to be nice to others is by lowering the priority of your job, of
+
+23
+00:03:00,340 --> 00:03:04,080
+ your application.
+
+24
+00:03:04,080 --> 00:03:12,360
+ So in this case, in the case of Unix, lower values of priorities mean high priority.
+
+25
+00:03:12,360 --> 00:03:17,760
+ And the nice value ranges from minus 20 to 19.
+
+26
+00:03:17,760 --> 00:03:21,520
+ So negative values are not nice.
+
+27
+00:03:21,520 --> 00:03:33,280
+ And in order to be nice, you can increase this value, which means lower priority.
+
+28
+00:03:33,280 --> 00:03:41,800
+ So that's very interesting.
+
+29
+00:03:41,800 --> 00:03:44,140
+ So now a few words about Linux.
+
+30
+00:03:44,140 --> 00:03:51,420
+ Let's see how Linux, the basic scheduler, it's organized and it's implemented.
+
+31
+00:03:51,420 --> 00:03:54,920
+ So you have 140 priorities.
+
+32
+00:03:54,920 --> 00:03:59,680
+ And the first 100 are for the kernel and the real time tasks.
+
+33
+00:03:59,680 --> 00:04:07,160
+ Again, the real time tasks are the ones who are predictable, you want to be predictable.
+
+34
+00:04:07,160 --> 00:04:20,600
+ And then the last 40 are for the user tasks.
+
+35
+00:04:20,600 --> 00:04:27,320
+ And again, lower priority values, it means higher priority.
+
+36
+00:04:27,320 --> 00:04:29,320
+ And the algorithm is O(1).
+
+37
+00:04:29,320 --> 00:04:41,320
+ O(1) complexity meaning that it takes constant time to select the next process to run.
+
+38
+00:04:41,320 --> 00:04:48,400
+ And you also have time slices, so it's preemptive scheduler.
+
+39
+00:04:48,400 --> 00:04:53,840
+ So a job or a process doesn't run to completion is going to be interrupted when its time slice
+
+40
+00:04:53,840 --> 00:04:54,840
+ expires.
+
+41
+00:04:54,840 --> 00:05:02,400
+ There is also 140 bit mask, which indicates the presence or absence of a job at the given
+
+42
+00:05:02,400 --> 00:05:04,180
+ priority level.
+
+43
+00:05:04,180 --> 00:05:13,000
+ So why do you have that bit mask?
+
+44
+00:05:13,000 --> 00:05:21,880
+ So the reason you have that bit mask is that, think about you want to be very quick and
+
+45
+00:05:21,880 --> 00:05:25,820
+ you select the next job or next process to run.
+
+46
+00:05:25,820 --> 00:05:33,000
+ And now assume that you have two processes in the system, one process at priority zero
+
+47
+00:05:33,000 --> 00:05:39,720
+ and one process at priority 139.
+
+48
+00:05:39,720 --> 00:05:45,560
+ So once you're finished to run the process at priority zero, you need to run the process
+
+49
+00:05:45,560 --> 00:05:49,160
+ at priority 139.
+
+50
+00:05:49,160 --> 00:05:55,320
+ But you need to find that process.
+
+51
+00:05:55,320 --> 00:06:03,120
+ And the simple implementation is to have a list of priorities and each head of that,
+
+52
+00:06:03,120 --> 00:06:11,000
+ for each item in this priority list, it's a list of processes at that priority.
+
+53
+00:06:11,000 --> 00:06:16,080
+ So now you start from zero and you are done with the process.
+
+54
+00:06:16,080 --> 00:06:20,880
+ And now you have to go to next one, which is the next level and the next level and the
+
+55
+00:06:20,880 --> 00:06:26,560
+ next level until you get to 139 in order to find the next process to run.
+
+56
+00:06:26,560 --> 00:06:31,760
+ If you have a bit mask, then basically the bit mask, I'm just going to look at the bit
+
+57
+00:06:31,760 --> 00:06:34,560
+ mask, which is 140 bits.
+
+58
+00:06:34,560 --> 00:06:41,360
+ And the bit mask will say that the next automatic will say that only there are processes active
+
+59
+00:06:41,360 --> 00:06:45,800
+ at level priority level 139.
+
+60
+00:06:45,800 --> 00:06:48,100
+ In between, there is no process active.
+
+61
+00:06:48,100 --> 00:06:51,580
+ So the bits in the bit mask are not set.
+
+62
+00:06:51,580 --> 00:06:54,120
+ So it's very easy to do.
+
+63
+00:06:54,120 --> 00:07:07,240
+ The other thing which is doing is that you have two priority queues in terms of for active
+
+64
+00:07:07,240 --> 00:07:16,760
+ processes, the processes which you have to, they are still to run and then expired processes.
+
+65
+00:07:16,760 --> 00:07:22,760
+ Expired means after you are going to run a process, you are going to put it in the expired
+
+66
+00:07:22,760 --> 00:07:26,160
+ queue.
+
+67
+00:07:26,160 --> 00:07:34,960
+ And then once you are done with all the processes in the active queue, so the active queue is
+
+68
+00:07:34,960 --> 00:07:40,100
+ empty, you just switch to expired.
+
+69
+00:07:40,100 --> 00:07:45,120
+ So active become expired queue and expired becomes the active queue.
+
+70
+00:07:45,120 --> 00:07:46,680
+ You swap them.
+
+71
+00:07:46,680 --> 00:07:51,480
+ Okay, so this is what an example.
+
+72
+00:07:51,480 --> 00:07:57,200
+ You go through the active queues, you have here all these priorities, each task with
+
+73
+00:07:57,200 --> 00:08:02,160
+ its own priorities.
+
+74
+00:08:02,160 --> 00:08:10,840
+ And once you are done with all the tasks from the active queue, you are going to put them
+
+75
+00:08:10,840 --> 00:08:14,280
+ all in the expired queue.
+
+76
+00:08:14,280 --> 00:08:22,080
+ And then you are just going to swap the expired queue with the run queue.
+
+77
+00:08:22,080 --> 00:08:31,120
+ Any questions?
+
+78
+00:08:31,120 --> 00:08:36,560
+ And then in order to avoid kind of starvation, like we discussed last time, there are many
+
+79
+00:08:36,560 --> 00:08:38,180
+ heuristics.
+
+80
+00:08:38,180 --> 00:08:46,040
+ Like if a task is IO bound, you try to boost this priority, to increase this priority.
+
+81
+00:08:46,040 --> 00:08:58,200
+ If a task running for too long, you are going to lower like his priority.
+
+82
+00:08:58,200 --> 00:09:01,320
+ More precisely, here is a list of heuristics.
+
+83
+00:09:01,320 --> 00:09:14,440
+ The user task priority is adjusted in plus minus five increments.
+
+84
+00:09:14,440 --> 00:09:23,960
+ It's again, you have the user task priority is between 100 and 139.
+
+85
+00:09:23,960 --> 00:09:33,320
+ And basically you are going to update it like for instance, if the sleep time minus run
+
+86
+00:09:33,320 --> 00:09:43,080
+ time, if the process sleeps much longer than it runs, you increase its priority.
+
+87
+00:09:43,080 --> 00:09:46,720
+ This is probably because it's an IO bound task.
+
+88
+00:09:46,720 --> 00:09:49,840
+ If it's running for a long time, you are going to decrease its priority.
+
+89
+00:09:49,840 --> 00:09:56,680
+ And if it doesn't sleep at all.
+
+90
+00:09:56,680 --> 00:10:02,720
+ So yeah, again, if your task sleep for a long time, you are going to accrue credit, you
+
+91
+00:10:02,720 --> 00:10:05,120
+ are going to increase the priority.
+
+92
+00:10:05,120 --> 00:10:08,200
+ When it's going to run, you are going to spend this credit, you're going to decrease this
+
+93
+00:10:08,200 --> 00:10:16,960
+ priority if it's running for too long.
+
+94
+00:10:16,960 --> 00:10:26,080
+ And for interactive tasks, you give them special treatment because you want to always have
+
+95
+00:10:26,080 --> 00:10:27,080
+ high priority.
+
+96
+00:10:27,080 --> 00:10:33,900
+ Although in general, many of the interactive tasks are IO bound because they are waiting
+
+97
+00:10:33,900 --> 00:10:37,920
+ for the user input, many of them.
+
+98
+00:10:37,920 --> 00:10:43,080
+ So then they can go automatically higher priority because they are going to sleep more than
+
+99
+00:10:43,080 --> 00:10:45,980
+ they are.
+
+100
+00:10:45,980 --> 00:10:50,040
+ So let's see, there are two questions here.
+
+101
+00:10:50,040 --> 00:10:55,560
+ That's a very good question.
+
+102
+00:10:55,560 --> 00:11:02,160
+ So the question is, does this mean getting a new process scheduled takes a long time
+
+103
+00:11:02,160 --> 00:11:07,400
+ since the existing queue needs to be exhausted before new things can be added?
+
+104
+00:11:07,400 --> 00:11:10,080
+ Yeah, you are right.
+
+105
+00:11:10,080 --> 00:11:15,040
+ It's a strategy in the process is getting scheduled, not the process itself.
+
+106
+00:11:15,040 --> 00:11:24,340
+ So you are again, when you have one process, one thread, we are going to use interchangeable.
+
+107
+00:11:24,340 --> 00:11:31,880
+ So this very much depends on the scheduler.
+
+108
+00:11:31,880 --> 00:11:37,720
+ But when you are going to run a new process, typically you put the process as the highest
+
+109
+00:11:37,720 --> 00:11:40,040
+ priority.
+
+110
+00:11:40,040 --> 00:11:45,680
+ So this means that you are going to start executing that process or thread quickly,
+
+111
+00:11:45,680 --> 00:11:50,180
+ which is the highest priority.
+
+112
+00:11:50,180 --> 00:11:57,120
+ You can start executing that thread as soon as you finish executing the current thread,
+
+113
+00:11:57,120 --> 00:12:06,720
+ when the time slice of the current thread you are executing is expiring.
+
+114
+00:12:06,720 --> 00:12:11,920
+ It's also here, you see the word of hysteresis.
+
+115
+00:12:11,920 --> 00:12:18,720
+ You use hysteresis to avoid changing interactivity from temporarily changing changes in behavior.
+
+116
+00:12:18,720 --> 00:12:20,720
+ What is hysteresis?
+
+117
+00:12:20,720 --> 00:12:23,360
+ Do you know?
+
+118
+00:12:23,360 --> 00:12:31,960
+ Anyone you can say on the chat?
+
+119
+00:12:31,960 --> 00:12:45,040
+ Okay, we are not going to go into a lot of details here, but hysteresis means that when
+
+120
+00:12:45,040 --> 00:12:52,360
+ you have a process, a control system in general, and you have a threshold, and when that exceeds
+
+121
+00:12:52,360 --> 00:12:58,680
+ that threshold, you change the output and you decrease the threshold, you reduce the
+
+122
+00:12:58,680 --> 00:13:01,520
+ gain change output.
+
+123
+00:13:01,520 --> 00:13:08,400
+ So if you have a system which is just around that threshold, the system changes its behavior
+
+124
+00:13:08,400 --> 00:13:09,400
+ quite frequently.
+
+125
+00:13:09,400 --> 00:13:13,660
+ So you get one, two, and even if you have noise, if you have to imagine that you have
+
+126
+00:13:13,660 --> 00:13:16,600
+ noise around that threshold.
+
+127
+00:13:16,600 --> 00:13:18,360
+ So you want to avoid that.
+
+128
+00:13:18,360 --> 00:13:22,480
+ So in order to avoid that, you have actually in general two thresholds.
+
+129
+00:13:22,480 --> 00:13:27,040
+ You have one threshold, low threshold and high thresholds.
+
+130
+00:13:27,040 --> 00:13:33,360
+ And you change the behavior when you exceed a high threshold or when you go under the
+
+131
+00:13:33,360 --> 00:13:35,160
+ low threshold.
+
+132
+00:13:35,160 --> 00:13:39,120
+ So in that sense, you have a range in which the system behavior doesn't change it.
+
+133
+00:13:39,120 --> 00:13:45,180
+ So if there is a noise and we are within that range, the system will become constant.
+
+134
+00:13:45,180 --> 00:13:49,880
+ So for instance, in this particular case, you don't want to change the behavior.
+
+135
+00:13:49,880 --> 00:13:56,080
+ Like for instance, imagine that you have an editor.
+
+136
+00:13:56,080 --> 00:14:01,480
+ And with an editor, not editor, maybe, I don't know whether you use LaTeX or something like
+
+137
+00:14:01,480 --> 00:14:02,480
+ that.
+
+138
+00:14:02,480 --> 00:14:04,920
+ So you have an editor.
+
+139
+00:14:04,920 --> 00:14:07,640
+ Okay, let's take an editor.
+
+140
+00:14:07,640 --> 00:14:10,880
+ So you take an editor and there are two different regimes.
+
+141
+00:14:10,880 --> 00:14:14,900
+ One you are entering the text, editing the text.
+
+142
+00:14:14,900 --> 00:14:20,280
+ And another one is for instance, you save or load.
+
+143
+00:14:20,280 --> 00:14:26,200
+ So you don't want, say save or load or even worse, the editor doing some rendering and
+
+144
+00:14:26,200 --> 00:14:30,600
+ doing some compute heavy, say maybe operations.
+
+145
+00:14:30,600 --> 00:14:36,880
+ You don't want that just because you do a little bit of computation, that to make the
+
+146
+00:14:36,880 --> 00:14:39,200
+ editor less responsive.
+
+147
+00:14:39,200 --> 00:14:44,160
+ You want to be more robust and only if it's for a long, long time, the editor is just
+
+148
+00:14:44,160 --> 00:14:49,240
+ doing a lot of rendering, maybe you are going to deprioritize it.
+
+149
+00:14:49,240 --> 00:14:53,040
+ That's what hysteresis means.
+
+150
+00:14:53,040 --> 00:15:01,280
+ Real-time tasks, they have lower than 100 priority.
+
+151
+00:15:01,280 --> 00:15:06,500
+ They also preempt the non-RTH task.
+
+152
+00:15:06,500 --> 00:15:10,900
+ For each queue at each level, there are two kinds of schemes.
+
+153
+00:15:10,900 --> 00:15:15,380
+ So at each priority level, again, you have multiple, at each priority level, you have
+
+154
+00:15:15,380 --> 00:15:20,200
+ a queue which contains multiple processes or threads.
+
+155
+00:15:20,200 --> 00:15:27,160
+ And you can use all the FIFO without no time slice or round-robin, in which there is a
+
+156
+00:15:27,160 --> 00:15:29,660
+ time slice.
+
+157
+00:15:29,660 --> 00:15:30,660
+ Here is a real-time task.
+
+158
+00:15:30,660 --> 00:15:37,960
+ They are not scheduled using the early deadline first, which we learned last time, the last
+
+159
+00:15:37,960 --> 00:15:38,960
+ lecture.
+
+160
+00:15:38,960 --> 00:15:40,800
+ They are assigned priorities.
+
+161
+00:15:40,800 --> 00:15:46,720
+ There are other scheduling algorithms, real-time scheduling algorithms, which can use priorities
+
+162
+00:15:46,720 --> 00:15:55,140
+ to schedule these tasks and still guarantees you can meet the deadlines.
+
+163
+00:15:55,140 --> 00:16:01,940
+ Another thing, like if you remember, we can do and to be more robust and avoid starvation,
+
+164
+00:16:01,940 --> 00:16:06,380
+ is basically using proportional share scheduling.
+
+165
+00:16:06,380 --> 00:16:09,060
+ And this is related with lottery scheduling.
+
+166
+00:16:09,060 --> 00:16:18,060
+ lottery scheduling is an implementation of proportional share scheduling.
+
+167
+00:16:18,060 --> 00:16:27,360
+ And basically here, it's again, if you remember, you allocate these tickets and you have say
+
+168
+00:16:27,360 --> 00:16:33,280
+ 100 tickets, and maybe you are going to give to one thread, you are going to give 10 tickets
+
+169
+00:16:33,280 --> 00:16:37,040
+ and the other 190 tickets.
+
+170
+00:16:37,040 --> 00:16:42,780
+ And now you are going to do the lottery so every time you select a winning ticket.
+
+171
+00:16:42,780 --> 00:16:51,460
+ Now obviously, the probability of selecting the second thread, which has 90 tickets, is
+
+172
+00:16:51,460 --> 00:16:59,020
+ nine times higher than probably to select the first thread, which has only 10 tickets.
+
+173
+00:16:59,020 --> 00:17:07,980
+ So this means that you give to the second thread 90% of the CPU on the average, and
+
+174
+00:17:07,980 --> 00:17:11,700
+ the first thread only 10%.
+
+175
+00:17:11,700 --> 00:17:18,320
+ So you can see that you can use this kind of weights, these different number of tickets,
+
+176
+00:17:18,320 --> 00:17:25,380
+ you are giving to each thread to approximate priorities.
+
+177
+00:17:25,380 --> 00:17:31,620
+ Because clearly, you can see that the thread with 90 tickets has a higher priority than
+
+178
+00:17:31,620 --> 00:17:36,020
+ the task with 10 tickets.
+
+179
+00:17:36,020 --> 00:17:43,920
+ And the nice thing about this kind of scheme is that it avoids starvation.
+
+180
+00:17:43,920 --> 00:17:55,020
+ So even if you give a task, a thread 99 tickets and another thread only one, still out on
+
+181
+00:17:55,020 --> 00:18:05,940
+ the average, out of 100 time slices or quanta, the thread which has only one ticket is going
+
+182
+00:18:05,940 --> 00:18:08,060
+ to get a chance to run.
+
+183
+00:18:08,060 --> 00:18:11,720
+ So it's not stopped.
+
+184
+00:18:11,720 --> 00:18:15,700
+ And this is basically tells you a little bit more, giving you a little bit more math on
+
+185
+00:18:15,700 --> 00:18:16,700
+ that.
+
+186
+00:18:16,700 --> 00:18:23,180
+ Now, you may ask, well, then why we don't do only this lottery scheduling or this proportional
+
+187
+00:18:23,180 --> 00:18:25,020
+ sharing?
+
+188
+00:18:25,020 --> 00:18:27,300
+ The answer is that it's harder to implement.
+
+189
+00:18:27,300 --> 00:18:29,300
+ It's more complex to implement.
+
+190
+00:18:29,300 --> 00:18:31,620
+ It's slower than the priority.
+
+191
+00:18:31,620 --> 00:18:37,680
+ The priority or so is so on of one super simple to implement.
+
+192
+00:18:37,680 --> 00:18:42,260
+ So that's the answer.
+
+193
+00:18:42,260 --> 00:18:47,140
+ So look, let's again, Unix has a lot of schedulers, actually.
+
+194
+00:18:47,140 --> 00:18:49,220
+ The first one was a basic scheduler.
+
+195
+00:18:49,220 --> 00:18:55,060
+ You have this kind of two queues, active and expired.
+
+196
+00:18:55,060 --> 00:18:58,380
+ And it's all fun, very simple.
+
+197
+00:18:58,380 --> 00:19:01,900
+ But it has also a more sophisticated scheduler.
+
+198
+00:19:01,900 --> 00:19:05,900
+ And one of that, this is completely fair scheduler.
+
+199
+00:19:05,900 --> 00:19:12,420
+ And the idea here is to track the CPU time per thread and schedule threads to match up
+
+200
+00:19:12,420 --> 00:19:15,720
+ on average rate of execution.
+
+201
+00:19:15,720 --> 00:19:20,500
+ So basically, in other words, you want different threads.
+
+202
+00:19:20,500 --> 00:19:24,840
+ If you don't have different threads, more than one thread, you want all of them to make
+
+203
+00:19:24,840 --> 00:19:29,300
+ kind of progress at the same rate.
+
+204
+00:19:29,300 --> 00:19:30,300
+ That's it.
+
+205
+00:19:30,300 --> 00:19:33,460
+ That's a high level.
+
+206
+00:19:33,460 --> 00:19:39,820
+ So this is if the CPU time, like this is CPU time and this is one over n, you have three
+
+207
+00:19:39,820 --> 00:19:40,820
+ threads.
+
+208
+00:19:40,820 --> 00:19:42,020
+ So in this case, n is three.
+
+209
+00:19:42,020 --> 00:19:46,120
+ So this is each of them, you get one third of the CPU.
+
+210
+00:19:46,120 --> 00:19:52,360
+ Then you look at how long each of them they run, starting for a given time.
+
+211
+00:19:52,360 --> 00:19:57,920
+ And in this case, the one that are longer than T2 and T3.
+
+212
+00:19:57,920 --> 00:20:04,440
+ And therefore, here you are going to give the next time when you are going to schedule,
+
+213
+00:20:04,440 --> 00:20:05,560
+ you are going to schedule.
+
+214
+00:20:05,570 --> 00:20:09,450
+ select probability two, because you want to catch up with,
+
+215
+00:20:09,450 --> 00:20:11,470
+ T2 to catch up with T1 and T3.
+
+216
+00:20:11,470 --> 00:20:16,110
+ Of course, it's again, this is a simple one,
+
+217
+00:20:16,110 --> 00:20:19,130
+ a simple case, but it's sort of complicated, right?
+
+218
+00:20:19,130 --> 00:20:22,930
+ Because threads do not start at the same time.
+
+219
+00:20:22,930 --> 00:20:27,930
+ Threads, excuse me, threads are IO bounded, right?
+
+220
+00:20:27,930 --> 00:20:31,010
+ They instead of, you know,
+
+221
+00:20:31,010 --> 00:20:34,010
+ they don't use their entire full quanta, okay?
+
+222
+00:20:34,010 --> 00:20:36,490
+ So there are many things and that's why these schedulers
+
+223
+00:20:36,490 --> 00:20:37,810
+ are much more complicated.
+
+224
+00:20:37,810 --> 00:20:40,610
+ There are a lot of papers, research papers,
+
+225
+00:20:40,610 --> 00:20:42,190
+ written about the schedulers.
+
+226
+00:20:42,190 --> 00:20:44,530
+ This is discussion is to give you a sense,
+
+227
+00:20:44,530 --> 00:20:47,250
+ some intuition about what are the problems
+
+228
+00:20:47,250 --> 00:20:50,570
+ and how these schedulers are working, okay?
+
+229
+00:20:50,570 --> 00:20:53,810
+ So this is, it's again, this is a goal here
+
+230
+00:20:53,810 --> 00:20:57,050
+ is to provide this illusion of complete, of fairness.
+
+231
+00:20:57,050 --> 00:21:00,010
+ Each of the tasks thread gets the same kind of,
+
+232
+00:21:00,010 --> 00:21:02,970
+ makes progress at the same rate, gets CPU at the same rate.
+
+233
+00:21:03,970 --> 00:21:07,350
+ And it's closely related to its fair queuing, okay?
+
+234
+00:21:07,350 --> 00:21:09,850
+ How do you implement it?
+
+235
+00:21:09,850 --> 00:21:12,770
+ You can use a heap scheduler, but it's hard.
+
+236
+00:21:12,770 --> 00:21:14,810
+ A heap scheduler is log N, right?
+
+237
+00:21:14,810 --> 00:21:16,290
+ Or N is a number of threads.
+
+238
+00:21:16,290 --> 00:21:19,850
+ And if you look about the number of threads on your Mac
+
+239
+00:21:19,850 --> 00:21:23,570
+ or on your probably PC, you'll see that you can have
+
+240
+00:21:23,570 --> 00:21:26,770
+ on your machine, you can have like tens of thousands
+
+241
+00:21:26,770 --> 00:21:29,430
+ of threads at a given time, tens of thousands.
+
+242
+00:21:29,430 --> 00:21:32,310
+ So this is, can be quite slow, the log N.
+
+243
+00:21:32,310 --> 00:21:34,370
+ Hard to remove threads, right?
+
+244
+00:21:34,370 --> 00:21:37,850
+ Right, but this is a very easy, you know,
+
+245
+00:21:37,850 --> 00:21:41,870
+ using a heap like scheduling, it's easy because you are,
+
+246
+00:21:41,870 --> 00:21:44,650
+ you can always from a heap, you are going to get,
+
+247
+00:21:44,650 --> 00:21:49,030
+ select the task, which has a lowest CPU time,
+
+248
+00:21:49,030 --> 00:21:52,450
+ which use a CPU as a list, okay?
+
+249
+00:21:52,450 --> 00:21:55,110
+ Now, we said that these things are more complicated.
+
+250
+00:21:55,110 --> 00:21:57,430
+ You can have a sleeping, you know, threads.
+
+251
+00:21:57,430 --> 00:21:59,550
+ What do you do if a thread is slipping?
+
+252
+00:21:59,550 --> 00:22:03,010
+ Because, you know, waits for some event to happen,
+
+253
+00:22:03,010 --> 00:22:07,230
+ or, you know, it's like, think about the thread is slipping,
+
+254
+00:22:07,230 --> 00:22:12,230
+ which as a process, when forks, another process
+
+255
+00:22:12,230 --> 00:22:17,290
+ is going to slip and to wait for the other process
+
+256
+00:22:17,290 --> 00:22:20,550
+ to finish and to join back.
+
+257
+00:22:20,550 --> 00:22:26,970
+ So basically one thing to hear is like when you,
+
+258
+00:22:27,050 --> 00:22:31,910
+ when a thread slips, you don't add basic CPU types.
+
+259
+00:22:31,910 --> 00:22:36,670
+ If you don't advance your CPU time, then when it wakes up,
+
+260
+00:22:36,670 --> 00:22:38,630
+ it's going to have low CPU time,
+
+261
+00:22:38,630 --> 00:22:40,710
+ so it's going to have priority,
+
+262
+00:22:40,710 --> 00:22:43,030
+ it's going to be scheduled, right?
+
+263
+00:22:43,030 --> 00:22:46,750
+ But now the problem is that you cannot do that unbounded.
+
+264
+00:22:46,750 --> 00:22:49,230
+ Like what happens if I have a thread,
+
+265
+00:22:49,230 --> 00:22:53,270
+ which is slips from here since yesterday, right?
+
+266
+00:22:53,270 --> 00:22:56,750
+ That will have a higher than, a lower CPU times
+
+267
+00:22:56,750 --> 00:22:58,390
+ than anything in the system.
+
+268
+00:22:58,390 --> 00:22:59,910
+ And basically, you know,
+
+269
+00:22:59,910 --> 00:23:02,490
+ it's going to have priority over all of them.
+
+270
+00:23:02,490 --> 00:23:04,390
+ So you need to adjust for that as well.
+
+271
+00:23:04,390 --> 00:23:09,490
+ It's again, we are not going to go into all the details.
+
+272
+00:23:09,490 --> 00:23:16,770
+ So, but at the high level, one trade off with the schedulers,
+
+273
+00:23:16,770 --> 00:23:19,610
+ like we also discussed last lecture,
+
+274
+00:23:19,610 --> 00:23:22,110
+ it's about between being very responsive
+
+275
+00:23:22,110 --> 00:23:26,370
+ and between, within responsibility and fairness.
+
+276
+00:23:27,290 --> 00:23:31,050
+ Right? You remember, it's like an algorithm,
+
+277
+00:23:31,050 --> 00:23:33,210
+ which is fair, it's round robin, right?
+
+278
+00:23:33,210 --> 00:23:36,130
+ Each of them, you know, you go over, you know,
+
+279
+00:23:36,130 --> 00:23:40,930
+ around the threads and every round you are going to schedule
+
+280
+00:23:40,930 --> 00:23:45,050
+ to give a time quanta to each thread, right?
+
+281
+00:23:45,050 --> 00:23:46,370
+ So that's very fair.
+
+282
+00:23:46,370 --> 00:23:48,530
+ However, maybe don't be very responsive
+
+283
+00:23:48,530 --> 00:23:50,010
+ because you have any threads,
+
+284
+00:23:50,010 --> 00:23:54,570
+ you need to wait for N minus up to N minus one times quanta.
+
+285
+00:23:54,570 --> 00:23:59,570
+ To get a time quanta to a thread, right?
+
+286
+00:23:59,570 --> 00:24:03,030
+ So thread, particular thread can wait
+
+287
+00:24:03,030 --> 00:24:04,830
+ for N minus one times quanta.
+
+288
+00:24:04,830 --> 00:24:10,590
+ On the other hand, the priority, it's very effective
+
+289
+00:24:10,590 --> 00:24:14,310
+ and provide you low response time,
+
+290
+00:24:14,310 --> 00:24:17,390
+ at least for the threads with a high priority, right?
+
+291
+00:24:17,390 --> 00:24:20,190
+ If you have, say 10 threads
+
+292
+00:24:20,190 --> 00:24:22,510
+ and the interactive thread is priority,
+
+293
+00:24:22,510 --> 00:24:25,930
+ the highest priority, that is going to serve very fast,
+
+294
+00:24:25,930 --> 00:24:27,410
+ but it's not going to be fair, right?
+
+295
+00:24:27,410 --> 00:24:30,030
+ Because the high priority threads are going to get
+
+296
+00:24:30,030 --> 00:24:34,030
+ all the CPU at the expense of low priority threads.
+
+297
+00:24:34,030 --> 00:24:37,750
+ Right? So that's a fundamental trade-off.
+
+298
+00:24:37,750 --> 00:24:41,170
+ And what Linux is doing, it has this kind of,
+
+299
+00:24:41,170 --> 00:24:44,690
+ you have put this constraint about target latency.
+
+300
+00:24:44,690 --> 00:24:46,270
+ So it's a period of time over which
+
+301
+00:24:46,270 --> 00:24:48,050
+ every process gets serviced, right?
+
+302
+00:24:48,050 --> 00:24:50,730
+ I am guaranteed that, you know, target latency.
+
+303
+00:24:50,730 --> 00:24:52,910
+ So say it is 100 milliseconds,
+
+304
+00:24:52,910 --> 00:24:56,130
+ I am guaranteed that I'm going to get access to the CPU
+
+305
+00:24:56,130 --> 00:24:59,810
+ within every 100 milliseconds.
+
+306
+00:24:59,810 --> 00:25:00,890
+ Okay?
+
+307
+00:25:00,890 --> 00:25:03,690
+ And this defines a time quanta,
+
+308
+00:25:03,690 --> 00:25:08,250
+ because if you have N number is a number of processes
+
+309
+00:25:08,250 --> 00:25:10,290
+ or thread, then the time quanta
+
+310
+00:25:10,290 --> 00:25:12,730
+ is a target latency over N, right?
+
+311
+00:25:12,730 --> 00:25:15,170
+ So for instance, if you have the target latency,
+
+312
+00:25:15,170 --> 00:25:17,570
+ 20 milliseconds, and you have four processes,
+
+313
+00:25:17,570 --> 00:25:20,550
+ but it's a time quanta, it has to be five, right?
+
+314
+00:25:20,550 --> 00:25:22,530
+ Because if it's longer, you cannot guarantee
+
+315
+00:25:22,530 --> 00:25:25,690
+ that each process is going to get access to the CPU
+
+316
+00:25:25,690 --> 00:25:26,890
+ within 20 milliseconds.
+
+317
+00:25:26,890 --> 00:25:28,970
+ Right?
+
+318
+00:25:28,970 --> 00:25:31,850
+ But now if you have 20 milliseconds,
+
+319
+00:25:31,850 --> 00:25:33,650
+ and you have 200 processes,
+
+320
+00:25:33,650 --> 00:25:36,450
+ the time quanta can be 0.1 milliseconds,
+
+321
+00:25:36,450 --> 00:25:38,310
+ which is too little, right?
+
+322
+00:25:38,310 --> 00:25:40,330
+ You remember, if it's a time slice
+
+323
+00:25:40,330 --> 00:25:42,330
+ or time quanta is too small,
+
+324
+00:25:42,330 --> 00:25:46,450
+ then the overhead of context switching can dominate.
+
+325
+00:25:46,450 --> 00:25:48,510
+ So you are doing more context switches
+
+326
+00:25:48,510 --> 00:25:50,450
+ between these kinds of processes
+
+327
+00:25:50,450 --> 00:25:54,670
+ than really running these processes.
+
+328
+00:25:54,670 --> 00:25:55,510
+ Right?
+
+329
+00:25:55,510 --> 00:25:59,030
+ So this is one thing.
+
+330
+00:25:59,030 --> 00:26:00,750
+ The other thing is about,
+
+331
+00:26:00,750 --> 00:26:08,650
+ obviously, the reason you want to avoid
+
+332
+00:26:08,650 --> 00:26:10,450
+ a lot of overhead in context switching
+
+333
+00:26:10,450 --> 00:26:13,530
+ is to preserve the throughput, right?
+
+334
+00:26:13,530 --> 00:26:17,770
+ The throughput is defined as a useful work done by a system.
+
+335
+00:26:17,770 --> 00:26:20,930
+ Context switching is not useful work, okay?
+
+336
+00:26:20,930 --> 00:26:24,490
+ And therefore, in order to make sure
+
+337
+00:26:24,490 --> 00:26:26,410
+ that the throughput is not going to plummet,
+
+338
+00:26:26,410 --> 00:26:28,090
+ it's not going to be too low,
+
+339
+00:26:28,090 --> 00:26:31,470
+ you are going to, we are going to say,
+
+340
+00:26:31,470 --> 00:26:34,330
+ what is the minimum length of any time slice?
+
+341
+00:26:34,330 --> 00:26:36,730
+ So it's a minimum granularity constraints.
+
+342
+00:26:36,730 --> 00:26:39,890
+ So you have a target latency and minimum granularity,
+
+343
+00:26:39,890 --> 00:26:41,970
+ which in general can be at odds, right?
+
+344
+00:26:41,970 --> 00:26:44,210
+ So,
+
+345
+00:26:45,850 --> 00:26:49,370
+ so, but, and because they are at odds in,
+
+346
+00:26:49,370 --> 00:26:52,730
+ sometimes you have to violate one.
+
+347
+00:26:52,730 --> 00:26:54,890
+ Like for instance, if you have target latency
+
+348
+00:26:54,890 --> 00:26:57,010
+ of 20 milliseconds and minimum granularity
+
+349
+00:26:57,010 --> 00:26:58,050
+ of one millisecond,
+
+350
+00:26:58,050 --> 00:27:03,210
+ then in this case, you can,
+
+351
+00:27:03,210 --> 00:27:06,930
+ minimum granularity is going to prevail and is going,
+
+352
+00:27:06,930 --> 00:27:09,450
+ you know, you cannot reduce the time slice
+
+353
+00:27:09,450 --> 00:27:11,250
+ to less than one milliseconds.
+
+354
+00:27:11,250 --> 00:27:14,930
+ And, you know, the target latency, you cannot do it
+
+355
+00:27:14,930 --> 00:27:19,450
+ if you just do round robin, right?
+
+356
+00:27:19,450 --> 00:27:20,970
+ Because if you do round robin,
+
+357
+00:27:20,970 --> 00:27:25,490
+ it's going to take 100 milliseconds
+
+358
+00:27:25,490 --> 00:27:27,330
+ to a process to get it's turn.
+
+359
+00:27:27,330 --> 00:27:30,570
+ So you need to wait for 99 milliseconds to get your turn.
+
+360
+00:27:30,570 --> 00:27:32,890
+ So of course, we are going to violate
+
+361
+00:27:32,890 --> 00:27:34,250
+ the target latency here.
+
+362
+00:27:34,250 --> 00:27:37,330
+ Okay?
+
+363
+00:27:37,330 --> 00:27:39,170
+ Okay, it's a question here.
+
+364
+00:27:39,170 --> 00:27:40,890
+ Oh, what is granularity?
+
+365
+00:27:40,890 --> 00:27:43,370
+ Oh,
+
+366
+00:27:43,370 --> 00:27:44,210
+ yeah.
+
+367
+00:27:44,210 --> 00:27:57,770
+ Okay, so these are very good questions.
+
+368
+00:27:57,770 --> 00:27:59,290
+ So what is granularity?
+
+369
+00:27:59,290 --> 00:28:02,970
+ Granularity is how granular you are going to,
+
+370
+00:28:02,970 --> 00:28:04,730
+ what is the granularity at which you are going
+
+371
+00:28:04,730 --> 00:28:05,730
+ to provide the service?
+
+372
+00:28:05,730 --> 00:28:09,410
+ I mean, it's, this is what we mean.
+
+373
+00:28:09,410 --> 00:28:11,370
+ It's like, what we mean is about
+
+374
+00:28:11,370 --> 00:28:14,610
+ what is the minimum length of the time slice in this case?
+
+375
+00:28:14,610 --> 00:28:18,650
+ This is what I mean by granularity.
+
+376
+00:28:18,650 --> 00:28:20,210
+ What is the time slice size?
+
+377
+00:28:20,210 --> 00:28:21,970
+ Okay.
+
+378
+00:28:21,970 --> 00:28:24,930
+ Why would we have both?
+
+379
+00:28:24,930 --> 00:28:27,210
+ It seems like minimum length is the only real
+
+380
+00:28:27,210 --> 00:28:29,130
+ powerful constraint.
+
+381
+00:28:29,130 --> 00:28:30,050
+ Yes, you are correct.
+
+382
+00:28:30,050 --> 00:28:32,570
+ And this is, in this example, we illustrated that.
+
+383
+00:28:32,570 --> 00:28:37,570
+ That minimum granularity is a stronger constraint
+
+384
+00:28:37,570 --> 00:28:40,250
+ if you want, because if you go too low,
+
+385
+00:28:40,250 --> 00:28:42,690
+ then the system doesn't, may not do any work, right?
+
+386
+00:28:42,690 --> 00:28:46,450
+ It's, again, spend all the time doing context switching.
+
+387
+00:28:46,450 --> 00:28:50,010
+ But target latency, it's also a constraint if you want,
+
+388
+00:28:50,010 --> 00:28:55,010
+ you know, if you want to support interactive workloads.
+
+389
+00:28:55,010 --> 00:28:56,370
+ Right?
+
+390
+00:28:56,370 --> 00:28:58,810
+ How we are going to, you know, it's,
+
+391
+00:28:58,810 --> 00:29:01,970
+ there is, there has to be, there are limits
+
+392
+00:29:01,970 --> 00:29:06,370
+ in terms of how responsive your editor
+
+393
+00:29:06,370 --> 00:29:07,850
+ or your computer should be,
+
+394
+00:29:07,850 --> 00:29:09,530
+ different applications should be,
+
+395
+00:29:09,530 --> 00:29:11,730
+ to provide you a good experience.
+
+396
+00:29:11,730 --> 00:29:12,570
+ Okay?
+
+397
+00:29:12,570 --> 00:29:16,330
+ So you should strive to provide that kind of level
+
+398
+00:29:16,330 --> 00:29:18,370
+ of interactivity and the level of interactivity,
+
+399
+00:29:18,370 --> 00:29:23,370
+ it's obviously related with this target latency.
+
+400
+00:29:23,370 --> 00:29:25,650
+ Right?
+
+401
+00:29:25,650 --> 00:29:28,970
+ Because if you, if you are going, if the target latency,
+
+402
+00:29:28,970 --> 00:29:31,970
+ you know, like if you cannot get your turn,
+
+403
+00:29:31,970 --> 00:29:35,890
+ say in 500 milliseconds, this means that your application,
+
+404
+00:29:35,890 --> 00:29:38,370
+ you know, you may wait, you may have to wait
+
+405
+00:29:38,370 --> 00:29:40,650
+ for half a second for your application to respond,
+
+406
+00:29:40,650 --> 00:29:43,850
+ your text application, editor, whatever.
+
+407
+00:29:43,850 --> 00:29:52,730
+ So in summary, yes, the minimum granularity,
+
+408
+00:29:52,730 --> 00:29:55,610
+ it's a stronger constraint,
+
+409
+00:29:55,610 --> 00:29:58,010
+ but target latency captures the demands
+
+410
+00:29:58,010 --> 00:29:59,690
+ of the interactive applications.
+
+411
+00:29:59,690 --> 00:30:02,010
+ So it's also important.
+
+412
+00:30:06,610 --> 00:30:10,690
+ The other question here is about priority,
+
+413
+00:30:10,690 --> 00:30:13,050
+ like this kind of a little bit prioritization.
+
+414
+00:30:13,050 --> 00:30:15,250
+ What if we want to give more CPU to some,
+
+415
+00:30:15,250 --> 00:30:19,330
+ to some threads or less to another,
+
+416
+00:30:19,330 --> 00:30:23,330
+ so allowed for different rate of execution,
+
+417
+00:30:23,330 --> 00:30:24,250
+ is very similar.
+
+418
+00:30:24,250 --> 00:30:26,730
+ It's like, it's a weight, it's like you give,
+
+419
+00:30:26,730 --> 00:30:31,090
+ you give a weight in some sense, you see that is W.
+
+420
+00:30:31,090 --> 00:30:34,770
+ So basically you have the equal share is basically the,
+
+421
+00:30:34,770 --> 00:30:38,050
+ the equal share here, it's about how much of the CPU
+
+422
+00:30:38,050 --> 00:30:40,730
+ you are going to give and its target latency over there,
+
+423
+00:30:40,730 --> 00:30:44,490
+ right, like we discussed earlier on.
+
+424
+00:30:44,490 --> 00:30:48,010
+ And here is a way to sharing, you are going to basically,
+
+425
+00:30:48,010 --> 00:30:52,250
+ you are going to give within one of these target shares,
+
+426
+00:30:52,250 --> 00:30:57,250
+ you are going to run one thread more times, multiple times.
+
+427
+00:30:57,250 --> 00:31:01,930
+ Okay, so this is very, very similar,
+
+428
+00:31:01,930 --> 00:31:03,610
+ but it's using different notation,
+
+429
+00:31:03,610 --> 00:31:08,610
+ but the outcome is basically identical.
+
+430
+00:31:08,610 --> 00:31:14,050
+ It's another implementation to having different number
+
+431
+00:31:14,050 --> 00:31:17,170
+ of tickets, to giving different number of tickets
+
+432
+00:31:17,170 --> 00:31:21,930
+ to different threads or processes, right?
+
+433
+00:31:21,930 --> 00:31:26,970
+ So that's basically what it is, right?
+
+434
+00:31:26,970 --> 00:31:30,810
+ So this is basic equal share, it's one over N.
+
+435
+00:31:30,810 --> 00:31:34,570
+ And if you want weighted share, you do W,
+
+436
+00:31:34,570 --> 00:31:37,250
+ you give up higher weight to one process.
+
+437
+00:31:37,250 --> 00:31:40,810
+ And this, so then you get the fraction
+
+438
+00:31:40,810 --> 00:31:42,810
+ you are going to get from the CPU.
+
+439
+00:31:42,810 --> 00:31:47,370
+ It's your weight divided by the sum of the weights
+
+440
+00:31:47,370 --> 00:31:52,130
+ of all the other threads or processes.
+
+441
+00:31:58,730 --> 00:32:01,290
+ And they use a value nice,
+
+442
+00:32:01,290 --> 00:32:04,010
+ value to reflect shares rather than priority.
+
+443
+00:32:04,010 --> 00:32:10,370
+ And this is over using an API, an existing API,
+
+444
+00:32:10,370 --> 00:32:16,010
+ and this is how you use it.
+
+445
+00:32:16,010 --> 00:32:20,890
+ You have the nice is becoming the exponent.
+
+446
+00:32:20,890 --> 00:32:23,370
+ This is how you are basically think about that.
+
+447
+00:32:23,370 --> 00:32:26,810
+ When you are going to use nice, what will happen?
+
+448
+00:32:26,810 --> 00:32:29,290
+ You are going to change the weight
+
+449
+00:32:29,290 --> 00:32:32,410
+ as provided by this formula, right?
+
+450
+00:32:32,410 --> 00:32:37,410
+ So your weight by default is 1024 over 125, it's 1024.
+
+451
+00:32:37,410 --> 00:32:41,330
+ If you are going to increase your nice,
+
+452
+00:32:41,330 --> 00:32:44,130
+ so you have to basically being nice,
+
+453
+00:32:44,130 --> 00:32:48,170
+ it means that you get less access to the CPU.
+
+454
+00:32:48,170 --> 00:32:52,210
+ So you let others use a CPU for longer, right?
+
+455
+00:32:52,210 --> 00:32:54,370
+ That means to be nice.
+
+456
+00:32:54,370 --> 00:32:57,610
+ And this is reflected in getting a lower weight.
+
+457
+00:32:57,610 --> 00:33:01,090
+ And the way you, again, the particular weight
+
+458
+00:33:01,090 --> 00:33:03,490
+ you are going to get by using nice
+
+459
+00:33:03,490 --> 00:33:08,490
+ is given by this formula 1024 over 1.25 at power nice.
+
+460
+00:33:08,490 --> 00:33:12,050
+ And it's here just to give you a sense,
+
+461
+00:33:12,050 --> 00:33:16,450
+ if it's nice, it's incremented of in terms of incremented.
+
+462
+00:33:16,450 --> 00:33:19,690
+ If you remember, it's that you can increment
+
+463
+00:33:22,450 --> 00:33:27,450
+ units of five, 1.25 power five is three, right?
+
+464
+00:33:27,450 --> 00:33:31,330
+ So if you increase your nice by five,
+
+465
+00:33:31,330 --> 00:33:33,930
+ this means that your weight will decrease by three.
+
+466
+00:33:33,930 --> 00:33:38,930
+ Okay, yeah, there is a concept of virtual time.
+
+467
+00:33:38,930 --> 00:33:40,770
+ We are not going to discuss it here,
+
+468
+00:33:40,770 --> 00:33:44,090
+ but if you have questions,
+
+469
+00:33:44,090 --> 00:33:46,730
+ I'll be more than happy to talk about this virtual time.
+
+470
+00:33:46,730 --> 00:33:49,530
+ I did a lot of research during my PhD
+
+471
+00:33:49,530 --> 00:33:51,050
+ many years back on this one.
+
+472
+00:33:51,050 --> 00:33:56,050
+ So really, really again, scheduling is a complex problem.
+
+473
+00:33:56,050 --> 00:34:03,850
+ There are many hundreds of scheduling algorithms,
+
+474
+00:34:03,850 --> 00:34:06,250
+ hundreds, thousands of research papers
+
+475
+00:34:06,250 --> 00:34:09,450
+ that are probably only about,
+
+476
+00:34:09,450 --> 00:34:11,970
+ you know, just talking about fair queuing
+
+477
+00:34:11,970 --> 00:34:14,530
+ or proportional sharing is the same name
+
+478
+00:34:14,530 --> 00:34:15,930
+ for the kind of the same scheduler,
+
+479
+00:34:15,930 --> 00:34:18,690
+ but in different domains like CPU or networking.
+
+480
+00:34:18,690 --> 00:34:20,810
+ There are probably hundreds or thousands of papers
+
+481
+00:34:20,810 --> 00:34:24,130
+ only for this particular discipline, okay?
+
+482
+00:34:24,130 --> 00:34:25,250
+ So it's huge.
+
+483
+00:34:25,250 --> 00:34:26,890
+ And why is that?
+
+484
+00:34:26,890 --> 00:34:30,730
+ Is because, you know, the scheduler is hard
+
+485
+00:34:30,730 --> 00:34:33,250
+ because you want to do it extremely fast.
+
+486
+00:34:33,250 --> 00:34:37,010
+ And then there are different competing priorities,
+
+487
+00:34:37,010 --> 00:34:40,650
+ competing demands from the applications, right?
+
+488
+00:34:40,650 --> 00:34:44,010
+ You want to be fair, you want to be interactive,
+
+489
+00:34:44,010 --> 00:34:47,210
+ you want to have high throughput and so forth.
+
+490
+00:34:48,290 --> 00:34:53,290
+ And therefore, that's why for different demands
+
+491
+00:34:53,290 --> 00:34:54,890
+ from the applications,
+
+492
+00:34:54,890 --> 00:34:57,810
+ you can come up with different schedulers,
+
+493
+00:34:57,810 --> 00:35:00,850
+ which are best fit to satisfy those demands.
+
+494
+00:35:00,850 --> 00:35:03,250
+ So for instance, if you want CPU throughput,
+
+495
+00:35:03,250 --> 00:35:04,690
+ it's first come first serve
+
+496
+00:35:04,690 --> 00:35:07,130
+ because what you want to minimize,
+
+497
+00:35:07,130 --> 00:35:10,130
+ you want to minimize the overhead for the scheduler.
+
+498
+00:35:10,130 --> 00:35:13,730
+ First come first serve, picking a new job,
+
+499
+00:35:13,730 --> 00:35:15,770
+ it's super easy, it's all fun, right?
+
+500
+00:35:15,770 --> 00:35:17,010
+ It's ahead of the queue.
+
+501
+00:35:17,010 --> 00:35:18,850
+ And then there is no context switching.
+
+502
+00:35:18,850 --> 00:35:23,850
+ And you are going to continue to run that job to completion.
+
+503
+00:35:23,850 --> 00:35:25,810
+ Okay?
+
+504
+00:35:25,810 --> 00:35:27,570
+ So minimizing the operation to select,
+
+505
+00:35:27,570 --> 00:35:29,810
+ you know, the overhead to select the next job,
+
+506
+00:35:29,810 --> 00:35:33,530
+ minimizes the overhead, the number of context switches.
+
+507
+00:35:33,530 --> 00:35:38,490
+ Average response time is shortest time first, right?
+
+508
+00:35:38,490 --> 00:35:40,290
+ This is provable optimal
+
+509
+00:35:40,290 --> 00:35:43,570
+ to minimize average response time.
+
+510
+00:35:45,450 --> 00:35:47,690
+ And so forth, you know, fairness here,
+
+511
+00:35:47,690 --> 00:35:51,330
+ you have Linux CFS, you can lay lottery scheduling.
+
+512
+00:35:51,330 --> 00:35:55,130
+ This is for CPU time.
+
+513
+00:35:55,130 --> 00:35:57,890
+ Also fairness, and fairness,
+
+514
+00:35:57,890 --> 00:36:01,010
+ if you want to be very predictable
+
+515
+00:36:01,010 --> 00:36:04,490
+ or however long to wait until to get the CPU,
+
+516
+00:36:04,490 --> 00:36:06,570
+ just do the round robin.
+
+517
+00:36:06,570 --> 00:36:08,730
+ This is related to target latency,
+
+518
+00:36:08,730 --> 00:36:11,290
+ meeting the early deadline first.
+
+519
+00:36:12,330 --> 00:36:15,810
+ If you want to have some very few important tasks,
+
+520
+00:36:15,810 --> 00:36:19,210
+ which they cannot be delayed, you can use priority.
+
+521
+00:36:19,210 --> 00:36:24,210
+ And for IO support is SRDP approximation.
+
+522
+00:36:24,210 --> 00:36:27,650
+ Again, we discuss about that, I think two lectures ago,
+
+523
+00:36:27,650 --> 00:36:29,770
+ where we have these examples of two tasks,
+
+524
+00:36:29,770 --> 00:36:32,170
+ which each of them takes one week,
+
+525
+00:36:32,170 --> 00:36:35,530
+ and then you have this other task, which is IO bounded,
+
+526
+00:36:35,530 --> 00:36:37,770
+ takes, runs for one millisecond
+
+527
+00:36:37,770 --> 00:36:40,770
+ and waits for nine milliseconds, if I remember correctly.
+
+528
+00:36:41,050 --> 00:36:44,890
+ Okay.
+
+529
+00:36:44,890 --> 00:36:48,930
+ Now how to evaluate this scheduling algorithms, right?
+
+530
+00:36:48,930 --> 00:36:51,330
+ You have all of those different properties,
+
+531
+00:36:51,330 --> 00:36:53,010
+ how, and you are going to design them,
+
+532
+00:36:53,010 --> 00:36:54,890
+ how you are going to evaluate it.
+
+533
+00:36:54,890 --> 00:36:56,170
+ There are several ways.
+
+534
+00:36:56,170 --> 00:36:58,930
+ First of all, deterministic.
+
+535
+00:36:58,930 --> 00:37:01,490
+ You basically, you get a workload
+
+536
+00:37:01,490 --> 00:37:03,370
+ and given this workload,
+
+537
+00:37:03,370 --> 00:37:06,130
+ you compute the performance of the algorithms
+
+538
+00:37:06,130 --> 00:37:07,570
+ in the face of that workload.
+
+539
+00:37:07,570 --> 00:37:11,770
+ Performance meaning, response times, throughput,
+
+540
+00:37:11,770 --> 00:37:14,730
+ latency, whatever metrics you care about
+
+541
+00:37:14,730 --> 00:37:18,370
+ for your application, right?
+
+542
+00:37:18,370 --> 00:37:20,850
+ And a deterministic preterm workload,
+
+543
+00:37:20,850 --> 00:37:22,810
+ you say, okay, you are going to have,
+
+544
+00:37:22,810 --> 00:37:29,810
+ each processes continue,
+
+545
+00:37:29,810 --> 00:37:32,970
+ one process, you have one process arriving
+
+546
+00:37:32,970 --> 00:37:35,730
+ every one seconds,
+
+547
+00:37:35,730 --> 00:37:38,170
+ and each process is going to have,
+
+548
+00:37:38,170 --> 00:37:42,610
+ 10 seconds or so of compute, right?
+
+549
+00:37:42,610 --> 00:37:44,890
+ Or things like that, okay?
+
+550
+00:37:44,890 --> 00:37:45,970
+ Queuing models.
+
+551
+00:37:45,970 --> 00:37:49,250
+ This is a mathematical approach for stochastic workloads.
+
+552
+00:37:49,250 --> 00:37:51,010
+ So in this particular case,
+
+553
+00:37:51,010 --> 00:37:53,450
+ basically you are saying that
+
+554
+00:37:53,450 --> 00:37:57,970
+ the load is non-deterministic, right?
+
+555
+00:37:57,970 --> 00:38:01,450
+ You give the load in statistical terms,
+
+556
+00:38:01,450 --> 00:38:03,970
+ is all you say on the average,
+
+557
+00:38:03,970 --> 00:38:08,290
+ you have one process arriving every seconds.
+
+558
+00:38:08,290 --> 00:38:12,810
+ And this process on the average has,
+
+559
+00:38:12,810 --> 00:38:16,730
+ it takes, running time is 10 seconds.
+
+560
+00:38:16,730 --> 00:38:21,530
+ And those numbers are drawn from a particular distribution.
+
+561
+00:38:21,530 --> 00:38:25,210
+ Like for instance, the length of that process
+
+562
+00:38:25,210 --> 00:38:28,170
+ is exponentially distributed, right?
+
+563
+00:38:28,170 --> 00:38:30,770
+ The average, the mean is 10 seconds.
+
+564
+00:38:30,770 --> 00:38:32,730
+ And the arrival time is like say,
+
+565
+00:38:32,730 --> 00:38:33,770
+ Poisson distributed.
+
+566
+00:38:33,770 --> 00:38:38,090
+ Poisson means that the inter arrival between processes
+
+567
+00:38:38,090 --> 00:38:40,610
+ is drawn from an exponential distribution.
+
+568
+00:38:40,610 --> 00:38:41,570
+ This is just an example.
+
+569
+00:38:41,570 --> 00:38:45,010
+ And for that, you are going to get statistic,
+
+570
+00:38:45,010 --> 00:38:49,330
+ you are going to be able to compute statistically,
+
+571
+00:38:49,330 --> 00:38:51,690
+ what are the performance of the scheduler,
+
+572
+00:38:51,690 --> 00:38:54,290
+ like for instance, again, mean response time,
+
+573
+00:38:54,290 --> 00:38:56,410
+ or anything like that.
+
+574
+00:38:56,410 --> 00:39:00,130
+ And the other one, you just implement it,
+
+575
+00:39:00,130 --> 00:39:02,490
+ you just text, Python,
+
+576
+00:39:02,490 --> 00:39:07,490
+ you implement a simple simulator and run it,
+
+577
+00:39:07,490 --> 00:39:09,330
+ and see what results you get.
+
+578
+00:39:09,330 --> 00:39:13,290
+ This is general flexible,
+
+579
+00:39:13,290 --> 00:39:17,610
+ as long as you don't have bugs in your simulator.
+
+580
+00:39:17,610 --> 00:39:20,410
+ So,
+
+581
+00:39:20,410 --> 00:39:25,250
+ a final word on scheduling.
+
+582
+00:39:25,250 --> 00:39:31,250
+ The scheduling matters
+
+583
+00:39:31,250 --> 00:39:34,210
+ when there are not enough resources.
+
+584
+00:39:34,210 --> 00:39:38,810
+ And many of the things we learn in this class,
+
+585
+00:39:38,810 --> 00:39:42,290
+ many of the algorithms and many of the problem we solve,
+
+586
+00:39:42,290 --> 00:39:46,090
+ these problems occur
+
+587
+00:39:46,090 --> 00:39:52,410
+ because there are not enough resources.
+
+588
+00:39:52,410 --> 00:39:53,690
+ We'll see virtual memory.
+
+589
+00:39:53,690 --> 00:39:55,650
+ Why do we have virtual memory that I'm that?
+
+590
+00:39:55,650 --> 00:39:58,170
+ Oh, because there is not enough physical memory.
+
+591
+00:39:58,170 --> 00:39:59,570
+ It's one of the reasons.
+
+592
+00:39:59,570 --> 00:40:01,330
+ No, right?
+
+593
+00:40:01,330 --> 00:40:02,170
+ Scheduling.
+
+594
+00:40:02,170 --> 00:40:04,130
+ Why do we need to have a scheduling,
+
+595
+00:40:04,130 --> 00:40:05,170
+ a sophisticated scheduling?
+
+596
+00:40:05,170 --> 00:40:06,810
+ Because there are not enough CPUs.
+
+597
+00:40:06,810 --> 00:40:08,850
+ If you have one CPU per thread,
+
+598
+00:40:08,850 --> 00:40:10,850
+ there is no scheduling, right?
+
+599
+00:40:11,140 --> 00:40:16,100
+ Okay.
+
+600
+00:40:16,100 --> 00:40:22,660
+ Why should you simply buy a faster computer or highways?
+
+601
+00:40:22,660 --> 00:40:28,580
+ Well, look, you can buy it if you can afford it.
+
+602
+00:40:28,580 --> 00:40:32,760
+ But remember, the more slow is ending.
+
+603
+00:40:32,760 --> 00:40:38,420
+ So now if you buy a new computer, you could buy your Mac or your PC, it's not a lot of
+
+604
+00:40:38,420 --> 00:40:45,860
+ more powerful than the one you have from three years back.
+
+605
+00:40:45,860 --> 00:40:49,140
+ Okay.
+
+606
+00:40:49,140 --> 00:40:56,020
+ And of course, you need to be careful about not...
+
+607
+00:40:56,020 --> 00:40:59,140
+ You don't want to spend too much money.
+
+608
+00:40:59,140 --> 00:41:06,140
+ The other thing what you need to understand, and this is a curve on this right hand side,
+
+609
+00:41:06,140 --> 00:41:11,260
+ maybe you should do a lecture on it because it's extremely important.
+
+610
+00:41:11,260 --> 00:41:13,900
+ It's an extremely important curve.
+
+611
+00:41:13,900 --> 00:41:16,780
+ And this is what I say this curve.
+
+612
+00:41:16,780 --> 00:41:23,320
+ Say your system has a certain capacity.
+
+613
+00:41:23,320 --> 00:41:30,900
+ When you are approaching the capacity of the system, the response time is growing super
+
+614
+00:41:30,900 --> 00:41:33,820
+ linearly.
+
+615
+00:41:33,820 --> 00:41:42,300
+ This almost goes to infinity if you go to 100%.
+
+616
+00:41:42,300 --> 00:41:44,700
+ Okay.
+
+617
+00:41:44,700 --> 00:41:54,220
+ And again, we don't have time here to say why, but intuitively think about the highway
+
+618
+00:41:54,220 --> 00:41:55,680
+ and the rush hour.
+
+619
+00:41:55,680 --> 00:42:05,160
+ So it's like the difference where you start to be to approach the capacity of the highway.
+
+620
+00:42:05,160 --> 00:42:15,160
+ And if you just inject a few cars, a few more cars, then the delay is going to shut up.
+
+621
+00:42:15,160 --> 00:42:22,080
+ For instance, if there are on the highway, now there are 100 cars per hour and the capacity
+
+622
+00:42:22,080 --> 00:42:25,740
+ of the system is 120.
+
+623
+00:42:25,740 --> 00:42:31,700
+ And now you have a speed and the latency is 50 miles per hour.
+
+624
+00:42:31,700 --> 00:42:36,860
+ Now if you add 10 more cars, so it's still a less than capacity.
+
+625
+00:42:36,860 --> 00:42:42,860
+ Instead of going 50 miles per hour, you are going to go suddenly 20 miles per hour.
+
+626
+00:42:42,860 --> 00:42:44,700
+ And again, think about your experience.
+
+627
+00:42:44,700 --> 00:42:51,540
+ Just a few more cars, everything can bring everything to a crawl.
+
+628
+00:42:51,540 --> 00:42:56,360
+ So again, let me see where I can have a lecture on that.
+
+629
+00:42:56,360 --> 00:43:07,560
+ So now, let me see.
+
+630
+00:43:07,560 --> 00:43:11,120
+ What if all the cars are managed by computer and all of them move simultaneously?
+
+631
+00:43:11,120 --> 00:43:14,840
+ Yeah, in that case, you can achieve the capacity.
+
+632
+00:43:14,840 --> 00:43:16,880
+ But the point is that that's not the case.
+
+633
+00:43:16,880 --> 00:43:21,480
+ And the car leaves gap between them and these gaps, you cannot recover them.
+
+634
+00:43:21,480 --> 00:43:23,840
+ So these gaps take from the capacity of the system.
+
+635
+00:43:23,840 --> 00:43:26,700
+ That's kind of the intuition.
+
+636
+00:43:26,700 --> 00:43:27,700
+ So announcements.
+
+637
+00:43:27,700 --> 00:43:30,320
+ I know that everyone waits for that.
+
+638
+00:43:30,320 --> 00:43:35,100
+ Mittermon, we are planning to release the grades by next Monday.
+
+639
+00:43:35,100 --> 00:43:39,200
+ So we are grading your Mittermon.
+
+640
+00:43:39,200 --> 00:43:42,080
+ Project due is due this Wednesday.
+
+641
+00:43:42,080 --> 00:43:47,280
+ Code, final report, peer evaluation, everything.
+
+642
+00:43:47,280 --> 00:43:51,440
+ If any of them is late, you are going to incur sleep days.
+
+643
+00:43:51,440 --> 00:43:53,600
+ Okay, remember that.
+
+644
+00:43:53,600 --> 00:43:57,160
+ Group evaluation coming for Project ON, right?
+
+645
+00:43:57,160 --> 00:44:02,820
+ Every person, I believe you get 20 points per partner, which, you know, so everyone,
+
+646
+00:44:02,820 --> 00:44:05,160
+ every person get 20 points.
+
+647
+00:44:05,160 --> 00:44:13,880
+ And you are going to hand out these points to other members in your group, not to yourself.
+
+648
+00:44:13,880 --> 00:44:14,880
+ Okay.
+
+649
+00:44:14,880 --> 00:44:22,480
+ So this is a way to measure what is the contribution of other members in your team.
+
+650
+00:44:22,480 --> 00:44:24,480
+ Okay.
+
+651
+00:44:24,480 --> 00:44:25,480
+ Office hours.
+
+652
+00:44:25,480 --> 00:44:31,920
+ You know, there are a lot of students, and we all want to, again, to answer all your
+
+653
+00:44:31,920 --> 00:44:33,960
+ questions.
+
+654
+00:44:33,960 --> 00:44:40,560
+ But like you say, like you see in this lecture, you know, when the resources are scared, we
+
+655
+00:44:40,560 --> 00:44:46,200
+ need to put some conditions, some policies in place, right, to try to provide some level
+
+656
+00:44:46,200 --> 00:44:49,120
+ of fairness to you guys.
+
+657
+00:44:49,120 --> 00:44:55,120
+ And so, TAs are spent, in general, are bound to spend 15 minutes per student.
+
+658
+00:44:55,120 --> 00:45:00,240
+ It's again to give, to not starve other students from their attention.
+
+659
+00:45:00,240 --> 00:45:06,700
+ And you need to have a detailed ticket filled out and the GDP pulled up, right?
+
+660
+00:45:06,700 --> 00:45:08,640
+ So to be absolutely ready.
+
+661
+00:45:08,640 --> 00:45:13,040
+ So the context switching is minimal, right, between students.
+
+662
+00:45:13,040 --> 00:45:14,040
+ Okay.
+
+663
+00:45:14,040 --> 00:45:18,200
+ And from these 15 minutes, you get the full value for these 15 minutes.
+
+664
+00:45:18,200 --> 00:45:25,460
+ You don't have to wait for five minutes to set up your GDP and provide the ticket detail
+
+665
+00:45:25,460 --> 00:45:30,720
+ explaining to the TA and thing like that.
+
+666
+00:45:30,720 --> 00:45:31,720
+ Okay.
+
+667
+00:45:31,720 --> 00:45:32,720
+ Great.
+
+668
+00:45:32,720 --> 00:45:39,960
+ So now we are going to switch gears and we are going to talk about deadlocks.
+
+669
+00:45:39,960 --> 00:45:45,000
+ And deadlock is a particular type of starvation.
+
+670
+00:45:45,000 --> 00:45:47,160
+ Yes.
+
+671
+00:45:47,160 --> 00:45:49,120
+ Yes.
+
+672
+00:45:49,120 --> 00:45:58,960
+ Thank you for, of course, this is, my date is wrong.
+
+673
+00:45:58,960 --> 00:46:01,960
+ The Wednesday, it was Wednesday.
+
+674
+00:46:01,960 --> 00:46:02,960
+ Thanks.
+
+675
+00:46:02,960 --> 00:46:13,160
+ So deadlock is a deadly type of starvation.
+
+676
+00:46:13,160 --> 00:46:14,160
+ Okay.
+
+677
+00:46:14,160 --> 00:46:18,040
+ Starvation, the stress may wait indefinitely, right?
+
+678
+00:46:18,040 --> 00:46:22,440
+ Allow priorities, try waiting for resources, because there are many other high priority
+
+679
+00:46:22,440 --> 00:46:23,440
+ threats.
+
+680
+00:46:23,440 --> 00:46:28,560
+ The deadlock, it's a circular waiting for resources.
+
+681
+00:46:28,560 --> 00:46:34,200
+ And this is a very simple example.
+
+682
+00:46:34,200 --> 00:46:44,960
+ Say you have two threats and both threats in order to make progress, require to get
+
+683
+00:46:44,960 --> 00:46:50,520
+ access to two resources, resource one and resource two.
+
+684
+00:46:50,520 --> 00:46:57,580
+ And now one threat gets access to resource one and the other said, get access to resource
+
+685
+00:46:57,580 --> 00:47:00,200
+ two.
+
+686
+00:47:00,200 --> 00:47:03,720
+ And both of them, they hold these resources.
+
+687
+00:47:03,720 --> 00:47:05,880
+ So none of them can get the other resource.
+
+688
+00:47:05,880 --> 00:47:07,220
+ So they are deadlocked.
+
+689
+00:47:07,220 --> 00:47:08,920
+ They cannot make progress.
+
+690
+00:47:08,920 --> 00:47:09,920
+ Okay.
+
+691
+00:47:09,920 --> 00:47:12,900
+ This is what it is.
+
+692
+00:47:12,900 --> 00:47:16,720
+ So deadlock implies starvation.
+
+693
+00:47:16,720 --> 00:47:25,080
+ Because starvation, because you are guaranteed that in a deadlock, now one will make progress.
+
+694
+00:47:25,080 --> 00:47:29,340
+ Starvation doesn't imply deadlock because starvation can end.
+
+695
+00:47:29,340 --> 00:47:38,900
+ Eventually, if the high priority task finish, the low priority tasks can be executed.
+
+696
+00:47:38,900 --> 00:47:44,100
+ Deadlock cannot finish without some external intervention.
+
+697
+00:47:44,100 --> 00:47:45,100
+ Here is example.
+
+698
+00:47:45,100 --> 00:47:49,700
+ It's a real example.
+
+699
+00:47:49,700 --> 00:47:55,360
+ It's a one line bridge.
+
+700
+00:47:55,360 --> 00:48:04,240
+ And as you probably know it, if you went to Yosemite on California on 140.
+
+701
+00:48:04,240 --> 00:48:08,700
+ And so the point here is, again, there are two directions.
+
+702
+00:48:08,700 --> 00:48:12,920
+ Now typically you have a traffic light for these ones.
+
+703
+00:48:12,920 --> 00:48:14,680
+ But assume that you don't have a traffic light.
+
+704
+00:48:14,680 --> 00:48:19,320
+ So if you don't have a traffic light, what happens?
+
+705
+00:48:19,320 --> 00:48:20,820
+ What can happen intuitively?
+
+706
+00:48:20,820 --> 00:48:21,820
+ What is the problem?
+
+707
+00:48:21,820 --> 00:48:26,380
+ The problem is that two cars come from both ends.
+
+708
+00:48:26,380 --> 00:48:30,460
+ And because there is no line, they are stuck.
+
+709
+00:48:30,460 --> 00:48:32,820
+ They are deadlocked.
+
+710
+00:48:32,820 --> 00:48:41,820
+ And the way you can model this is basically thinking that you have two halves to the entrance,
+
+711
+00:48:41,820 --> 00:48:44,340
+ two halves of the bridge.
+
+712
+00:48:44,340 --> 00:48:49,300
+ And each car acquire one half.
+
+713
+00:48:49,300 --> 00:48:52,660
+ But in order to cross the bridge, you need two both halves.
+
+714
+00:48:52,660 --> 00:48:57,140
+ So it's exactly like the previous example.
+
+715
+00:48:57,140 --> 00:48:58,980
+ Each car has one half.
+
+716
+00:48:58,980 --> 00:49:01,060
+ Each car require both halves.
+
+717
+00:49:01,060 --> 00:49:06,460
+ They are stuck.
+
+718
+00:49:06,460 --> 00:49:14,300
+ So in order, how you solve this, the only way to solve this deadlock is for one car
+
+719
+00:49:14,300 --> 00:49:15,300
+ to back up.
+
+720
+00:49:15,300 --> 00:49:25,900
+ And this is equivalent with the other car who didn't back up to preempt the resource
+
+721
+00:49:25,900 --> 00:49:28,920
+ which is hauled by the car who backed up.
+
+722
+00:49:28,920 --> 00:49:37,700
+ Because now the car which didn't back up is going to acquire the second half of the bridge.
+
+723
+00:49:37,700 --> 00:49:53,380
+ Now it has the first half, second half, and then it's going to cross the bridge.
+
+724
+00:49:53,380 --> 00:50:03,860
+ Now the equivalent of starvation here is basically saying you have a lot of cars from one side
+
+725
+00:50:03,860 --> 00:50:09,620
+ east and you have cars after car after car and the car which comes from the other direction
+
+726
+00:50:09,620 --> 00:50:13,580
+ will not get an opportunity even to get on the bridge.
+
+727
+00:50:13,580 --> 00:50:14,740
+ Just starvation.
+
+728
+00:50:14,740 --> 00:50:20,860
+ Again, starvation eventually can end when there are no longer cars coming in this case
+
+729
+00:50:20,860 --> 00:50:27,260
+ from the west or from the east.
+
+730
+00:50:27,260 --> 00:50:30,820
+ Now let's look about what does it seem from the point of view of the program.
+
+731
+00:50:30,820 --> 00:50:36,200
+ You have two threads here and let's go to, you know, it's like locks, right?
+
+732
+00:50:36,200 --> 00:50:37,700
+ These resources are like locks.
+
+733
+00:50:37,700 --> 00:50:40,780
+ Locks are resources.
+
+734
+00:50:40,780 --> 00:50:50,100
+ And this figure and the examples we consider so far can be expressed the following way.
+
+735
+00:50:50,100 --> 00:50:53,940
+ Thread A, you have two locks, X and Y.
+
+736
+00:50:53,940 --> 00:50:59,400
+ Acquires lock X and Y and then releases Y and X.
+
+737
+00:50:59,400 --> 00:51:13,420
+ And B, acquires the locks in the different order and releases them in the different order.
+
+738
+00:51:13,420 --> 00:51:17,860
+ So in this case, you can get that lock, right?
+
+739
+00:51:17,860 --> 00:51:19,820
+ When does this happen?
+
+740
+00:51:19,820 --> 00:51:33,380
+ Well, when this kind of order, you know, the CPU interleaves execution of instruction from
+
+741
+00:51:33,380 --> 00:51:35,020
+ different threads.
+
+742
+00:51:35,020 --> 00:51:42,200
+ So for instance, when this happens on thread A acquire X, then thread B acquire Y, now
+
+743
+00:51:42,200 --> 00:51:54,140
+ thread A is stalled because thread B owns Y and thread B cannot progress further either
+
+744
+00:51:54,140 --> 00:52:07,400
+ because it wants to acquire X, which is owned by A. So this is that lock, right?
+
+745
+00:52:07,400 --> 00:52:14,740
+ Start to debug because this happens, now doesn't happen all the time.
+
+746
+00:52:14,740 --> 00:52:21,820
+ And again, you want to avoid it.
+
+747
+00:52:21,820 --> 00:52:26,180
+ Because it's again, like for instance, if this happens, you don't have that lock, right?
+
+748
+00:52:26,180 --> 00:52:29,660
+ So this is non-terministic.
+
+749
+00:52:29,660 --> 00:52:33,280
+ It will be a non-terministic bug, right?
+
+750
+00:52:33,280 --> 00:52:39,460
+ And you always need to be afraid of non-terministic bugs because you cannot reproduce them.
+
+751
+00:52:39,460 --> 00:52:44,820
+ If you can reproduce a bug, it's relatively easy to fix it.
+
+752
+00:52:44,820 --> 00:52:51,860
+ If you cannot reproduce it, how you are going to fix it?
+
+753
+00:52:51,860 --> 00:52:54,860
+ Here is another classic example.
+
+754
+00:52:54,860 --> 00:53:00,340
+ Here are four trains and in this configuration, none of them can make progress.
+
+755
+00:53:00,340 --> 00:53:02,460
+ You have a deadlock.
+
+756
+00:53:02,460 --> 00:53:06,360
+ So you have here a deadlock just basically to illustrate the point.
+
+757
+00:53:06,360 --> 00:53:12,180
+ So far, the examples we had, you have two entities which are in deadlock, two cars or
+
+758
+00:53:12,180 --> 00:53:13,420
+ two threads.
+
+759
+00:53:13,420 --> 00:53:17,900
+ But obviously, deadlock can happen between multiple, more than two entities.
+
+760
+00:53:17,900 --> 00:53:22,900
+ And here is an example for four.
+
+761
+00:53:22,900 --> 00:53:27,420
+ So here each train wants to turn to right.
+
+762
+00:53:27,420 --> 00:53:33,820
+ This is real.
+
+763
+00:53:33,820 --> 00:53:42,820
+ This is a real problem which are in different systems, encountering different systems.
+
+764
+00:53:42,820 --> 00:53:43,820
+ Yeah.
+
+765
+00:53:43,820 --> 00:53:47,900
+ Yes, it's exactly San Francisco traffic.
+
+766
+00:53:47,900 --> 00:53:54,340
+ Yeah, that's a good one.
+
+767
+00:53:54,340 --> 00:53:56,860
+ So how you fix it?
+
+768
+00:53:56,860 --> 00:54:00,380
+ So one way to fix it, it's actually for some ordering.
+
+769
+00:54:00,380 --> 00:54:03,500
+ You'll see this as a recurrent theme.
+
+770
+00:54:03,500 --> 00:54:11,540
+ One way to fix deadlock is to have an order.
+
+771
+00:54:11,540 --> 00:54:18,660
+ So for instance, in this case, always go east, west first and north, south, then back first.
+
+772
+00:54:18,660 --> 00:54:22,180
+ Don't go north, south and east, west.
+
+773
+00:54:22,180 --> 00:54:26,100
+ Only east, west and north, south.
+
+774
+00:54:26,100 --> 00:54:27,360
+ Okay.
+
+775
+00:54:27,360 --> 00:54:32,400
+ And as you'll see, like for our previous example, okay, so this is a lot.
+
+776
+00:54:32,400 --> 00:54:38,060
+ So as you see in our previous examples, when you have this kind of deadlock, and we'll
+
+777
+00:54:38,060 --> 00:54:44,980
+ say it a few more times, but it's good to remember, that one way you can avoid the deadlock
+
+778
+00:54:44,980 --> 00:54:53,300
+ in the previous case is to enforce that both threads are going to acquire the locks in
+
+779
+00:54:53,300 --> 00:54:57,820
+ the same order.
+
+780
+00:54:57,820 --> 00:55:04,540
+ So again, if I go back here, if you enforce that both A and B acquire threads in the same
+
+781
+00:55:04,540 --> 00:55:17,300
+ order, first X and then Y, you are going to solve this problem.
+
+782
+00:55:17,300 --> 00:55:25,860
+ And again, we have the deadlock here because we do not have enough resources.
+
+783
+00:55:25,860 --> 00:55:30,980
+ If we have enough resources, it's not a problem.
+
+784
+00:55:30,980 --> 00:55:36,420
+ You wait for a resource that multiple threads compete to.
+
+785
+00:55:36,420 --> 00:55:47,900
+ There are also threads that are blocking waiting for other threads like pipe or sockets or
+
+786
+00:55:47,900 --> 00:55:53,780
+ wait like for instance, I am blocked to wait for a get to get a message.
+
+787
+00:55:53,780 --> 00:56:04,420
+ What I am waiting for, if I am remember about bounded queues, I am waiting for queue to
+
+788
+00:56:04,420 --> 00:56:10,300
+ become to get a free slot in order if I am a producer, I can wait if the queue is full,
+
+789
+00:56:10,300 --> 00:56:20,740
+ I am waiting until the queue is drained so I can put more and more items in the queue.
+
+790
+00:56:20,740 --> 00:56:26,160
+ So it's again, deadlock with space is an example like here.
+
+791
+00:56:26,160 --> 00:56:33,440
+ If you don't have enough resources, you have two threads, each threads want to allocate
+
+792
+00:56:33,440 --> 00:56:40,400
+ two megabytes, but they want to allocate that in two different calls.
+
+793
+00:56:40,400 --> 00:56:44,140
+ And now assume that you have two megabytes of space.
+
+794
+00:56:44,140 --> 00:56:49,340
+ So each thread allocates two megabytes, three two megabytes, but it's doing that one megabyte
+
+795
+00:56:49,340 --> 00:56:51,300
+ at a time.
+
+796
+00:56:51,300 --> 00:57:01,340
+ So you can get here a deadlock situation because if one thread gets one megabyte and one thread
+
+797
+00:57:01,340 --> 00:57:09,120
+ gets another one megabyte, they are deadlocked because none of the thread can get an extra
+
+798
+00:57:09,120 --> 00:57:12,840
+ megabyte in order to finish.
+
+799
+00:57:12,840 --> 00:57:27,740
+ Okay, so here is another very famous problem to illustrate the deadlock.
+
+800
+00:57:27,740 --> 00:57:31,380
+ I think it was called philosopher problem.
+
+801
+00:57:31,380 --> 00:57:35,780
+ This is a little bit of a joke with the lawyers.
+
+802
+00:57:35,780 --> 00:57:46,500
+ But think about this, you have five people and there are only five chopsticks.
+
+803
+00:57:46,500 --> 00:57:53,920
+ Now in order to eat, you need two chopsticks.
+
+804
+00:57:53,920 --> 00:58:06,520
+ So if everyone grabs one chopstick, it's deadlock because no one can eat.
+
+805
+00:58:06,520 --> 00:58:09,080
+ So how do you do that?
+
+806
+00:58:09,080 --> 00:58:17,180
+ Well, in order to break this deadlock, you need to give someone two chopsticks.
+
+807
+00:58:17,180 --> 00:58:24,780
+ So if everyone has one chopstick, we need to get someone to give up her chopstick to
+
+808
+00:58:24,780 --> 00:58:26,100
+ her neighbor.
+
+809
+00:58:26,100 --> 00:58:30,100
+ So now the neighbor has two chopsticks.
+
+810
+00:58:30,100 --> 00:58:38,960
+ She can eat, she can finish, and now she can give the chopsticks to her neighbors.
+
+811
+00:58:38,960 --> 00:58:53,440
+ And now her neighbors can finish.
+
+812
+00:58:53,440 --> 00:58:58,280
+ So this was solving the deadlock after it occurred.
+
+813
+00:58:58,280 --> 00:59:02,320
+ But of course, ideally, you even want to prevent that lock.
+
+814
+00:59:02,320 --> 00:59:07,240
+ So you have to have an algorithm if you want to prevent the deadlock, you don't get in
+
+815
+00:59:07,240 --> 00:59:11,680
+ the deadlock situation in the first case.
+
+816
+00:59:11,680 --> 00:59:17,500
+ We'll talk about those, but keep that in mind.
+
+817
+00:59:17,500 --> 00:59:23,080
+ Now if you remember, when you have these kind of situations, you have some concurrency,
+
+818
+00:59:23,080 --> 00:59:29,600
+ this is also an example of concurrent access to the resources.
+
+819
+00:59:29,600 --> 00:59:34,480
+ We saw something similar with this when we talk about critical section.
+
+820
+00:59:34,480 --> 00:59:40,280
+ We really want to have some to formalize the problem.
+
+821
+00:59:40,280 --> 00:59:45,520
+ And if we formalize a problem and say, what are the conditions a solution should meet,
+
+822
+00:59:45,520 --> 00:59:50,280
+ then we should focus on, we can only focus when developing a solution to meeting these
+
+823
+00:59:50,280 --> 00:59:55,280
+ conditions.
+
+824
+00:59:55,280 --> 00:59:58,960
+ So what are the requirements?
+
+825
+00:59:58,960 --> 01:00:05,580
+ First of all, let's think about when does a deadlock occurs.
+
+826
+01:00:05,580 --> 01:00:11,820
+ Because if we know the requirements on the deadlock occurs, then if we basically break
+
+827
+01:00:11,820 --> 01:00:15,920
+ one of these requirements, then we can break the deadlock.
+
+828
+01:00:16,720 --> 01:00:20,260
+ So there are four requirements for a deadlock docker.
+
+829
+01:00:20,260 --> 01:00:22,920
+ Mutual exclusion.
+
+830
+01:00:22,920 --> 01:00:26,480
+ Only once at a time can use a resource.
+
+831
+01:00:26,480 --> 01:00:29,440
+ Hold and wait.
+
+832
+01:00:29,440 --> 01:00:32,280
+ A threat holding at least one resource
+
+833
+01:00:32,280 --> 01:00:34,760
+ is waiting to acquire additional resources
+
+834
+01:00:34,760 --> 01:00:36,680
+ held by other threats.
+
+835
+01:00:36,680 --> 01:00:38,640
+ Because if you don't wait, you can proceed,
+
+836
+01:00:38,640 --> 01:00:39,800
+ you can finish it.
+
+837
+01:00:39,800 --> 01:00:41,200
+ You can release a resource
+
+838
+01:00:41,200 --> 01:00:43,440
+ and now there are no resources in the system.
+
+839
+01:00:43,440 --> 01:00:46,120
+ So maybe other threats can finish
+
+840
+01:00:46,120 --> 01:00:49,240
+ which you're waiting for the resources you are holding.
+
+841
+01:00:49,240 --> 01:00:50,320
+ No preemption.
+
+842
+01:00:50,320 --> 01:00:54,720
+ If a threat holds a resource,
+
+843
+01:00:54,720 --> 01:00:59,300
+ that threat is not going to release a resource voluntarily.
+
+844
+01:00:59,300 --> 01:01:02,320
+ Okay?
+
+845
+01:01:02,320 --> 01:01:04,040
+ Before it finishes with it.
+
+846
+01:01:04,040 --> 01:01:07,000
+ And then it is circular wait.
+
+847
+01:01:07,000 --> 01:01:10,400
+ There exists a set of threats
+
+848
+01:01:10,400 --> 01:01:12,480
+ such that T1 is waiting for a resource
+
+849
+01:01:12,480 --> 01:01:13,320
+ that is held by T2,
+
+850
+01:01:13,320 --> 01:01:14,800
+ T2 is waiting for a resource
+
+851
+01:01:14,800 --> 01:01:16,640
+ that is held by T3 and so forth.
+
+852
+01:01:16,640 --> 01:01:23,720
+ So this means the last,
+
+853
+01:01:23,720 --> 01:01:26,320
+ the last actually requirement
+
+854
+01:01:26,320 --> 01:01:34,360
+ give us a way to detect deadlocks.
+
+855
+01:01:34,360 --> 01:01:36,760
+ Okay?
+
+856
+01:01:36,760 --> 01:01:38,600
+ So how is that?
+
+857
+01:01:41,360 --> 01:01:44,720
+ So basically you want to detect that cycle.
+
+858
+01:01:44,720 --> 01:01:48,360
+ So let's use the same symbols.
+
+859
+01:01:48,360 --> 01:01:49,680
+ You already use them, but.
+
+860
+01:01:49,680 --> 01:01:53,460
+ The threats are circles.
+
+861
+01:01:53,460 --> 01:01:58,840
+ The resources are rectangles
+
+862
+01:01:58,840 --> 01:02:01,260
+ and you have multiple dots.
+
+863
+01:02:01,260 --> 01:02:03,240
+ So this resource,
+
+864
+01:02:03,240 --> 01:02:08,240
+ each dot represent an instance of a particular resource.
+
+865
+01:02:09,400 --> 01:02:14,400
+ So for instance, you have a CPU is four cores.
+
+866
+01:02:14,400 --> 01:02:19,120
+ You are going to have four dots,
+
+867
+01:02:19,120 --> 01:02:20,720
+ each representing one core.
+
+868
+01:02:20,720 --> 01:02:24,740
+ Okay?
+
+869
+01:02:24,740 --> 01:02:32,320
+ And the pattern of manipulating a resource is very simple.
+
+870
+01:02:32,320 --> 01:02:35,080
+ You request the resource, you use the resource,
+
+871
+01:02:35,080 --> 01:02:37,240
+ you release the resource after you are done.
+
+872
+01:02:38,360 --> 01:02:40,960
+ And now we can have a resource allocation graph.
+
+873
+01:02:40,960 --> 01:02:42,900
+ And there are two types of,
+
+874
+01:02:42,900 --> 01:02:46,200
+ we have two types of vertices,
+
+875
+01:02:46,200 --> 01:02:49,920
+ threads and resources, resource types,
+
+876
+01:02:49,920 --> 01:02:54,880
+ and two types of vertices or edges.
+
+877
+01:02:54,880 --> 01:02:56,440
+ Sorry, and two types of edges.
+
+878
+01:02:56,440 --> 01:03:00,460
+ These are directed edge.
+
+879
+01:03:00,460 --> 01:03:06,520
+ If a thread, you have a edge from a thread TI
+
+880
+01:03:07,800 --> 01:03:09,680
+ to a resource RJ,
+
+881
+01:03:09,680 --> 01:03:15,360
+ if thread TI request the resource J.
+
+882
+01:03:15,360 --> 01:03:19,680
+ And then you have assignment edge,
+
+883
+01:03:19,680 --> 01:03:24,240
+ which it's a direct edge from RJ
+
+884
+01:03:24,240 --> 01:03:28,160
+ to thread TI,
+
+885
+01:03:28,160 --> 01:03:32,640
+ when thread TI allocates
+
+886
+01:03:32,640 --> 01:03:36,160
+ or has allocated resource RJ.
+
+887
+01:03:36,160 --> 01:03:40,080
+ Okay?
+
+888
+01:03:40,080 --> 01:03:42,420
+ So basically here in this example,
+
+889
+01:03:42,420 --> 01:03:48,520
+ this edge from R1 to T2 basically says that T2 own R1.
+
+890
+01:03:48,520 --> 01:03:57,720
+ The edge from T1 to R1 says that T1 request resource R1.
+
+891
+01:03:57,720 --> 01:04:03,440
+ Okay?
+
+892
+01:04:05,920 --> 01:04:08,160
+ So this is some examples.
+
+893
+01:04:08,160 --> 01:04:10,080
+ Okay?
+
+894
+01:04:10,080 --> 01:04:20,640
+ So you see here,
+
+895
+01:04:20,640 --> 01:04:25,000
+ let's see which are,
+
+896
+01:04:25,000 --> 01:04:31,360
+ it turns out and we are going to learn more about that,
+
+897
+01:04:31,360 --> 01:04:35,040
+ but it turns out that this middle examples,
+
+898
+01:04:35,040 --> 01:04:36,200
+ it seems that that look.
+
+899
+01:04:36,200 --> 01:04:38,320
+ Why?
+
+900
+01:04:38,320 --> 01:04:43,160
+ Because two reasons.
+
+901
+01:04:43,160 --> 01:04:44,760
+ First of all, you have a cycle.
+
+902
+01:04:44,760 --> 01:04:46,920
+ You see here,
+
+903
+01:04:46,920 --> 01:04:50,680
+ T1 was for R1,
+
+904
+01:04:50,680 --> 01:04:53,360
+ which is own R1 is owned by T2.
+
+905
+01:04:53,360 --> 01:04:56,680
+ And T2 ways are for R...
+
+906
+01:04:56,680 --> 01:04:59,800
+ Oh, I'm sorry.
+
+907
+01:04:59,800 --> 01:05:00,960
+ I am sorry.
+
+908
+01:05:00,960 --> 01:05:03,600
+ The cycle is this one.
+
+909
+01:05:03,600 --> 01:05:07,080
+ R3, T2, R2, T3.
+
+910
+01:05:07,080 --> 01:05:10,000
+ So T2 owns R3,
+
+911
+01:05:10,000 --> 01:05:11,880
+ request R2,
+
+912
+01:05:11,880 --> 01:05:13,440
+ which is owned by T3.
+
+913
+01:05:13,440 --> 01:05:17,840
+ And finally, T3 request for R3,
+
+914
+01:05:17,840 --> 01:05:20,760
+ which is owned by T2.
+
+915
+01:05:20,760 --> 01:05:25,880
+ So this is a deadlock because you have the cycle
+
+916
+01:05:25,880 --> 01:05:29,280
+ and the other condition, if you remember here,
+
+917
+01:05:29,280 --> 01:05:31,800
+ another requirement is hold on wait.
+
+918
+01:05:31,800 --> 01:05:33,880
+ Threat holding at least one resource is waiting
+
+919
+01:05:33,880 --> 01:05:37,160
+ to acquire additional resource held by other threats.
+
+920
+01:05:37,160 --> 01:05:40,640
+ So every threat here in this example,
+
+921
+01:05:40,640 --> 01:05:43,040
+ it's in this situation, right?
+
+922
+01:05:43,040 --> 01:05:50,040
+ It's waiting for a resource handled by another threat.
+
+923
+01:05:50,040 --> 01:05:54,320
+ Here is an example,
+
+924
+01:05:54,320 --> 01:05:57,800
+ which is, there is a cycle,
+
+925
+01:05:57,800 --> 01:06:01,400
+ T1, R1, T3, R2.
+
+926
+01:06:01,400 --> 01:06:02,760
+ But this is not deadlock
+
+927
+01:06:02,760 --> 01:06:09,000
+ because T2 and T4 own a resource,
+
+928
+01:06:09,000 --> 01:06:11,800
+ but they don't do it for any other resource.
+
+929
+01:06:11,800 --> 01:06:15,400
+ Okay?
+
+930
+01:06:15,400 --> 01:06:19,440
+ And the reason this is not a deadlock,
+
+931
+01:06:19,440 --> 01:06:21,000
+ again, we'll learn more in the next,
+
+932
+01:06:21,000 --> 01:06:26,000
+ in the remaining of this lecture and the next lecture,
+
+933
+01:06:26,000 --> 01:06:30,120
+ is that T2 and T4 can proceed.
+
+934
+01:06:31,120 --> 01:06:32,680
+ Can run to completion.
+
+935
+01:06:32,680 --> 01:06:34,720
+ And once they run to completion,
+
+936
+01:06:34,720 --> 01:06:39,360
+ they free an instance of R1 and R2 respectively.
+
+937
+01:06:39,360 --> 01:06:48,520
+ I see, yeah.
+
+938
+01:06:48,520 --> 01:06:52,000
+ How does R3 have two assignment edges?
+
+939
+01:06:52,000 --> 01:06:54,400
+ Assignment, good answer.
+
+940
+01:06:54,400 --> 01:06:55,960
+ There are two instances.
+
+941
+01:06:55,960 --> 01:06:59,920
+ Yes, like I said, so you can look about this R3 and R4.
+
+942
+01:06:59,920 --> 01:07:02,160
+ As type of resources.
+
+943
+01:07:02,160 --> 01:07:07,120
+ And the dots within these rectangles
+
+944
+01:07:07,120 --> 01:07:10,720
+ are the number of instances of that particular type.
+
+945
+01:07:10,720 --> 01:07:15,760
+ And typically one thread here
+
+946
+01:07:15,760 --> 01:07:20,560
+ will require one instance of a particular resource type.
+
+947
+01:07:20,560 --> 01:07:26,640
+ Okay.
+
+948
+01:07:27,560 --> 01:07:31,600
+ So we do have also a deadlock detection algorithms.
+
+949
+01:07:31,600 --> 01:07:32,720
+ You want an algorithm.
+
+950
+01:07:32,720 --> 01:07:38,400
+ And the deadlock detection algorithms is very simple.
+
+951
+01:07:38,400 --> 01:07:40,320
+ Okay?
+
+952
+01:07:40,320 --> 01:07:47,120
+ So you keep an array of free resources.
+
+953
+01:07:47,120 --> 01:07:51,400
+ Then you have an array of requests,
+
+954
+01:07:51,400 --> 01:07:55,960
+ threads of the current, you know,
+
+955
+01:07:55,960 --> 01:07:58,160
+ current request from thread X.
+
+956
+01:07:58,160 --> 01:08:02,600
+ And you have also, so for each thread X,
+
+957
+01:08:02,600 --> 01:08:06,000
+ you have the current request of that thread
+
+958
+01:08:06,000 --> 01:08:09,040
+ and the current resources are located by that thread.
+
+959
+01:08:09,040 --> 01:08:12,600
+ Okay?
+
+960
+01:08:12,600 --> 01:08:20,680
+ So you initialize the available resources
+
+961
+01:08:20,680 --> 01:08:23,720
+ to the free resources, right?
+
+962
+01:08:23,720 --> 01:08:26,360
+ The free resources are the one which are available.
+
+963
+01:08:26,360 --> 01:08:31,280
+ Then you look at all the nodes which are unfinished.
+
+964
+01:08:31,280 --> 01:08:34,320
+ You keep all the nodes, which are all threads.
+
+965
+01:08:34,320 --> 01:08:38,000
+ This represents all threads, which are not finished.
+
+966
+01:08:38,000 --> 01:08:42,880
+ And you take one by one,
+
+967
+01:08:42,880 --> 01:08:48,560
+ and you look whether you have enough available resources
+
+968
+01:08:48,560 --> 01:08:50,680
+ for that thread to finish.
+
+969
+01:08:50,680 --> 01:08:55,680
+ In other words, if the requested resources
+
+970
+01:08:55,680 --> 01:09:02,240
+ by that thread can be satisfied
+
+971
+01:09:02,240 --> 01:09:04,760
+ by the existing available resources.
+
+972
+01:09:04,760 --> 01:09:11,320
+ And if yes, you are going to run the thread,
+
+973
+01:09:11,320 --> 01:09:16,680
+ and then now all the resources, once the thread finishes
+
+974
+01:09:16,680 --> 01:09:20,160
+ are going to be added to the availability.
+
+975
+01:09:21,160 --> 01:09:23,320
+ Set, because they are available now.
+
+976
+01:09:23,320 --> 01:09:26,520
+ Okay?
+
+977
+01:09:26,520 --> 01:09:27,600
+ So you do that.
+
+978
+01:09:27,600 --> 01:09:33,720
+ And if there are no longer unfinished resources,
+
+979
+01:09:33,720 --> 01:09:37,800
+ when, if there are no longer items in,
+
+980
+01:09:37,800 --> 01:09:44,320
+ or threads in the finished list, you are done.
+
+981
+01:09:44,320 --> 01:09:46,960
+ There is not a deadlock.
+
+982
+01:09:46,960 --> 01:09:49,800
+ Otherwise, there is a deadlock.
+
+983
+01:09:49,800 --> 01:09:51,960
+ (silence)
+
+984
+01:09:51,960 --> 01:10:00,680
+ So not left in unfinished are deadlocked.
+
+985
+01:10:00,680 --> 01:10:01,520
+ Okay?
+
+986
+01:10:01,520 --> 01:10:03,280
+ So let me, there is a question here,
+
+987
+01:10:03,280 --> 01:10:06,520
+ but T1 and T2, T3 is still in deadlock.
+
+988
+01:10:06,520 --> 01:10:15,000
+ Oh, okay.
+
+989
+01:10:15,000 --> 01:10:17,560
+ So I can say, so, okay.
+
+990
+01:10:17,560 --> 01:10:19,640
+ So let me say here.
+
+991
+01:10:20,560 --> 01:10:21,880
+ So this is a question.
+
+992
+01:10:21,880 --> 01:10:23,840
+ It's a great timing for that question.
+
+993
+01:10:23,840 --> 01:10:28,000
+ So,
+
+994
+01:10:28,000 --> 01:10:36,280
+ so the question here, yes, you know, T2 and T4 finishes,
+
+995
+01:10:36,280 --> 01:10:38,480
+ but T1 and T3 are still in deadlock.
+
+996
+01:10:38,480 --> 01:10:41,320
+ So here is a thing.
+
+997
+01:10:41,320 --> 01:10:43,560
+ If you run this algorithm, what will happen?
+
+998
+01:10:44,880 --> 01:10:49,880
+ You see, T2 actually will finish execution.
+
+999
+01:10:49,880 --> 01:10:53,960
+ And once T2 finishes execution,
+
+1000
+01:10:53,960 --> 01:10:57,320
+ it releases the instance of R1.
+
+1001
+01:10:57,320 --> 01:11:04,760
+ Now there is one available R1 instance.
+
+1002
+01:11:04,760 --> 01:11:07,720
+ So T1 can acquire that instance.
+
+1003
+01:11:07,720 --> 01:11:13,560
+ And now T1 has both instance of R2 and R1.
+
+1004
+01:11:13,560 --> 01:11:16,120
+ So it can run and complete.
+
+1005
+01:11:16,120 --> 01:11:18,600
+ Okay?
+
+1006
+01:11:18,600 --> 01:11:22,840
+ So that's a trick because the T2,
+
+1007
+01:11:22,840 --> 01:11:27,240
+ whenever you have a threat, which can complete,
+
+1008
+01:11:27,240 --> 01:11:32,560
+ think that is going to release, you know,
+
+1009
+01:11:32,560 --> 01:11:36,560
+ once it finishes, the number of free resources,
+
+1010
+01:11:36,560 --> 01:11:39,000
+ available resources is going to increase,
+
+1011
+01:11:39,000 --> 01:11:41,760
+ which will give an opportunity to other threat,
+
+1012
+01:11:41,760 --> 01:11:46,240
+ which are blocked until then, to acquire the newly,
+
+1013
+01:11:46,240 --> 01:11:51,000
+ the new release resources and to finish themself.
+
+1014
+01:11:51,000 --> 01:11:52,480
+ And then they're going to finish,
+
+1015
+01:11:52,480 --> 01:11:54,520
+ even more resources are going to be available
+
+1016
+01:11:54,520 --> 01:11:58,000
+ for the, in the system for the other threats to finish.
+
+1017
+01:11:58,000 --> 01:12:03,720
+ So how should we deal with a deadlock?
+
+1018
+01:12:03,720 --> 01:12:06,720
+ There are four different approaches.
+
+1019
+01:12:06,720 --> 01:12:09,720
+ Deadlock prevention,
+
+1020
+01:12:09,720 --> 01:12:14,720
+ so you write your code in a way that is not,
+
+1021
+01:12:14,720 --> 01:12:18,680
+ deadlock cannot happen.
+
+1022
+01:12:18,680 --> 01:12:19,520
+ It can't happen.
+
+1023
+01:12:19,520 --> 01:12:22,400
+ Deadlock recovery, you let the deadlock happen
+
+1024
+01:12:22,400 --> 01:12:25,480
+ and then figure out how to recover from it.
+
+1025
+01:12:25,480 --> 01:12:28,360
+ Remember it's those like, you know,
+
+1026
+01:12:28,360 --> 01:12:30,920
+ on the bridge, a car which can back up.
+
+1027
+01:12:30,920 --> 01:12:34,320
+ You can preempt the resource or things like that.
+
+1028
+01:12:34,320 --> 01:12:38,920
+ Deadlock avoidance, with deadlock avoidance,
+
+1029
+01:12:38,920 --> 01:12:41,080
+ you can dynamically delay resource requests
+
+1030
+01:12:41,080 --> 01:12:42,560
+ so deadlock doesn't happen.
+
+1031
+01:12:42,560 --> 01:12:47,560
+ You can order and impose the order and the time
+
+1032
+01:12:47,560 --> 01:12:51,120
+ when different threats, they request resources.
+
+1033
+01:12:51,120 --> 01:12:56,200
+ Right, so now a very simple example from the beginning,
+
+1034
+01:12:56,200 --> 01:12:59,440
+ if you remember, you just say, well, you know,
+
+1035
+01:12:59,440 --> 01:13:04,640
+ first you let duty one acquire the resources
+
+1036
+01:13:04,640 --> 01:13:07,840
+ and then duty two, and then there is no deadlock.
+
+1037
+01:13:07,840 --> 01:13:12,200
+ Well, the last one, you know,
+
+1038
+01:13:12,200 --> 01:13:14,440
+ it's obviously not a solution.
+
+1039
+01:13:14,440 --> 01:13:19,440
+ It's, you can deny the deadlock and see what happens.
+
+1040
+01:13:19,440 --> 01:13:21,640
+ Maybe you are lucky.
+
+1041
+01:13:21,640 --> 01:13:30,720
+ What is the difference between deadlock avoidance
+
+1042
+01:13:30,720 --> 01:13:32,520
+ and deadlock prevention?
+
+1043
+01:13:32,520 --> 01:13:33,560
+ That's a very good question.
+
+1044
+01:13:33,560 --> 01:13:38,560
+ Deadlock avoidance is that you can write your code,
+
+1045
+01:13:38,560 --> 01:13:41,160
+ for instance, deadlock prevention, meaning that,
+
+1046
+01:13:41,160 --> 01:13:46,400
+ for instance, you make sure that you never had
+
+1047
+01:13:46,400 --> 01:13:48,320
+ more threats than the resources.
+
+1048
+01:13:48,320 --> 01:13:52,000
+ Right, you have plenty of resources.
+
+1049
+01:13:52,000 --> 01:13:54,080
+ Then you prevent the deadlock.
+
+1050
+01:13:54,080 --> 01:13:56,480
+ Deadlock avoidance is that deadlock can happen,
+
+1051
+01:13:56,480 --> 01:14:02,440
+ but you can make sure and you write your,
+
+1052
+01:14:02,440 --> 01:14:07,440
+ you know, your code and you are trying to schedule
+
+1053
+01:14:07,440 --> 01:14:16,120
+ your threats and you are trying to order
+
+1054
+01:14:16,120 --> 01:14:18,840
+ as a resource request so that all doesn't happen.
+
+1055
+01:14:18,840 --> 01:14:25,520
+ So like in our examples of, you know, trains,
+
+1056
+01:14:29,360 --> 01:14:34,360
+ when you go south, east, west, and then north, south,
+
+1057
+01:14:34,360 --> 01:14:37,160
+ then you don't go first north, south,
+
+1058
+01:14:37,160 --> 01:14:40,120
+ and then east, west.
+
+1059
+01:14:40,120 --> 01:14:45,560
+ But they are related and yeah.
+
+1060
+01:14:45,560 --> 01:14:52,240
+ Okay, so many operating systems avoid the deadlock.
+
+1061
+01:14:52,240 --> 01:14:56,800
+ You know, they don't, you know, ignore the deadlock.
+
+1062
+01:14:56,800 --> 01:14:59,120
+ When can you ignore the deadlock?
+
+1063
+01:14:59,120 --> 01:15:01,920
+ To let me, you know, here we are making a little bit of fun
+
+1064
+01:15:01,920 --> 01:15:04,840
+ that, you know, denial in this Oistrich algorithm.
+
+1065
+01:15:04,840 --> 01:15:08,240
+ So, you know, you pretend the problem is not,
+
+1066
+01:15:08,240 --> 01:15:11,960
+ doesn't happen, is not happening.
+
+1067
+01:15:11,960 --> 01:15:16,120
+ But when actually deadlock denial, it's okay.
+
+1068
+01:15:16,120 --> 01:15:27,760
+ When crashing, freezing isn't that big of a problem, yes.
+
+1069
+01:15:27,760 --> 01:15:31,760
+ And when they are very, very, happen very rarely.
+
+1070
+01:15:31,760 --> 01:15:38,120
+ When it happens very rarely, okay.
+
+1071
+01:15:38,120 --> 01:15:42,520
+ That's what, when it's okay.
+
+1072
+01:15:42,520 --> 01:15:46,400
+ And if you were to push a deadlock, you know,
+
+1073
+01:15:46,400 --> 01:15:51,320
+ to do deadlock prevention or avoidance,
+
+1074
+01:15:51,320 --> 01:15:53,440
+ will require very expensive algorithms,
+
+1075
+01:15:53,440 --> 01:15:56,420
+ will dramatically increase the complexity of the system.
+
+1076
+01:15:56,420 --> 01:15:57,260
+ Right?
+
+1077
+01:15:57,260 --> 01:16:04,740
+ So preventing deadlocks, like I mentioned,
+
+1078
+01:16:04,740 --> 01:16:05,940
+ you have enough resources
+
+1079
+01:16:05,940 --> 01:16:10,580
+ so that no one ever runs out of resources, right?
+
+1080
+01:16:10,580 --> 01:16:15,580
+ But other things, every source can be shared,
+
+1081
+01:16:15,580 --> 01:16:17,900
+ like the CPU.
+
+1082
+01:16:17,900 --> 01:16:24,180
+ You have 100, you have one thread, fine.
+
+1083
+01:16:24,180 --> 01:16:25,900
+ You have 10 threads, fine.
+
+1084
+01:16:25,900 --> 01:16:27,620
+ You have 1000 threads, fine.
+
+1085
+01:16:27,620 --> 01:16:28,940
+ Everyone will be slower,
+
+1086
+01:16:28,940 --> 01:16:32,140
+ but still you are going to get your share of the CPU.
+
+1087
+01:16:32,140 --> 01:16:39,980
+ And finally, like you don't allow waiting, right?
+
+1088
+01:16:39,980 --> 01:16:44,980
+ And this is what happens in many cases, right?
+
+1089
+01:16:44,980 --> 01:16:50,100
+ When you call and the other part is not available
+
+1090
+01:16:50,100 --> 01:16:52,860
+ or when the system is overloaded,
+
+1091
+01:16:52,860 --> 01:16:56,420
+ you get a busy signal, right?
+
+1092
+01:16:56,420 --> 01:16:57,260
+ Failure.
+
+1093
+01:16:57,260 --> 01:16:58,900
+ Try again.
+
+1094
+01:16:58,900 --> 01:17:02,420
+ The same in ethernet, in the networking.
+
+1095
+01:17:02,420 --> 01:17:04,460
+ There are a collision between the packets.
+
+1096
+01:17:04,460 --> 01:17:05,980
+ Try again.
+
+1097
+01:17:05,980 --> 01:17:07,140
+ Okay?
+
+1098
+01:17:07,140 --> 01:17:09,860
+ So it's again, it's inefficient.
+
+1099
+01:17:09,860 --> 01:17:11,500
+ And in some cases you cannot do it,
+
+1100
+01:17:11,500 --> 01:17:17,500
+ but it can be inefficient in some cases,
+
+1101
+01:17:17,500 --> 01:17:19,020
+ but it's a very simple method.
+
+1102
+01:17:22,300 --> 01:17:23,140
+ So this is an example,
+
+1103
+01:17:23,140 --> 01:17:25,140
+ if you have infinite resources in our case
+
+1104
+01:17:25,140 --> 01:17:26,780
+ in which the deadlock happened
+
+1105
+01:17:26,780 --> 01:17:29,900
+ because limited resources, no longer a problem.
+
+1106
+01:17:29,900 --> 01:17:43,460
+ Another way to, yeah.
+
+1107
+01:17:43,460 --> 01:17:46,860
+ Another way to do it is to prevent the deadlock
+
+1108
+01:17:49,900 --> 01:17:53,220
+ is to require everything at the beginning.
+
+1109
+01:17:53,220 --> 01:17:57,980
+ Everyone requires everything at the beginning.
+
+1110
+01:17:57,980 --> 01:18:00,500
+ And therefore, you know,
+
+1111
+01:18:00,500 --> 01:18:05,500
+ and you know exactly what everyone is using.
+
+1112
+01:18:05,500 --> 01:18:12,060
+ So you can allocate from, at the beginning,
+
+1113
+01:18:12,060 --> 01:18:14,420
+ resources to everyone so that you make sure
+
+1114
+01:18:14,420 --> 01:18:18,900
+ there is no prevention, there is no deadlock.
+
+1115
+01:18:18,900 --> 01:18:23,900
+ And then force all stress to request resources
+
+1116
+01:18:23,900 --> 01:18:27,180
+ in particular order, like we discussed.
+
+1117
+01:18:27,180 --> 01:18:33,340
+ But here, you know, it's a very, very important thing
+
+1118
+01:18:33,340 --> 01:18:37,380
+ is that one thing this happens
+
+1119
+01:18:37,380 --> 01:18:41,940
+ when you acquire the locks X and Y and Y and X
+
+1120
+01:18:41,940 --> 01:18:46,940
+ is because these two operations of acquiring the two locks,
+
+1121
+01:18:48,420 --> 01:18:51,980
+ they are not atomic.
+
+1122
+01:18:51,980 --> 01:18:58,300
+ But what if the operation of acquiring these locks is atomic?
+
+1123
+01:18:58,300 --> 01:19:02,780
+ Then everything will work, right?
+
+1124
+01:19:02,780 --> 01:19:06,060
+ Because only one of the threads will be successful.
+
+1125
+01:19:06,060 --> 01:19:07,500
+ And the thread which is successful
+
+1126
+01:19:07,500 --> 01:19:09,500
+ is going to run to completion,
+
+1127
+01:19:09,500 --> 01:19:12,860
+ is going to release the two resources, two locks,
+
+1128
+01:19:12,860 --> 01:19:15,300
+ and the other strand is going to come up and run.
+
+1129
+01:19:15,300 --> 01:19:18,260
+ And how do you do that?
+
+1130
+01:19:18,260 --> 01:19:19,740
+ In practice?
+
+1131
+01:19:19,740 --> 01:19:22,620
+ Well, use another lock to make sure
+
+1132
+01:19:22,620 --> 01:19:25,900
+ that acquiring the locks X and Y are atomic.
+
+1133
+01:19:25,900 --> 01:19:29,620
+ Okay?
+
+1134
+01:19:29,620 --> 01:19:30,860
+ So that's why I do it.
+
+1135
+01:19:30,860 --> 01:19:36,220
+ You can also do it, like I said earlier on,
+
+1136
+01:19:36,220 --> 01:19:37,700
+ that by enforcing the order.
+
+1137
+01:19:37,700 --> 01:19:40,940
+ So in this case, if you both threads A and B
+
+1138
+01:19:40,940 --> 01:19:44,700
+ acquire the same order, again, you are fine.
+
+1139
+01:19:47,420 --> 01:19:50,020
+ Does it matter in which order the locks are released?
+
+1140
+01:19:50,020 --> 01:19:54,300
+ No, because the release is not awaiting operation.
+
+1141
+01:19:54,300 --> 01:19:57,620
+ Okay.
+
+1142
+01:19:57,620 --> 01:20:00,140
+ So we are going to stop here
+
+1143
+01:20:00,140 --> 01:20:04,100
+ and we are going to continue talking about deadlocks
+
+1144
+01:20:04,100 --> 01:20:04,980
+ next lecture.
+
+1145
+01:20:04,980 --> 01:20:10,140
+ Good luck with project one
+
+1146
+01:20:10,140 --> 01:20:14,780
+ and see you all virtually on a Saturday.
+
+1147
+01:20:14,780 --> 01:20:15,620
+ Thank you.
+
+1148
+01:20:15,620 --> 01:20:18,220
+ (upbeat music)
+
+1149
+01:20:18,220 --> 01:20:46,220
+ [ Silence ]
+

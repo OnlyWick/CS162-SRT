@@ -1,0 +1,2880 @@
+1
+00:00:00,000 --> 00:00:17,240
+ Hello, everyone. So today we are going to talk about demand paging. And before starting,
+
+2
+00:00:17,240 --> 00:00:25,080
+ thanks a lot, everyone, for filling in the survey about the class. Great feedback. And
+
+3
+00:00:25,080 --> 00:00:35,840
+ we are going to try to act on it. So before, let me start with this same figure, which
+
+4
+00:00:35,840 --> 00:00:42,880
+ I think you went over last lecture. But let me do it again, because it's a very important
+
+5
+00:00:42,880 --> 00:00:49,980
+ figure, because with everything together, all the memory related concepts we have learned
+
+6
+00:00:49,980 --> 00:00:59,760
+ so far. And as always, if you have any questions, please do not hesitate to let me know. So
+
+7
+00:00:59,760 --> 00:01:06,760
+ here we have the virtual address on the left. And you remember the virtual address is what
+
+8
+00:01:06,760 --> 00:01:13,560
+ the programs and what the processor sees. And the right hand side, you have the physical
+
+9
+00:01:13,560 --> 00:01:21,640
+ memory address. And what we learn, we learn about the address translation in which these
+
+10
+00:01:21,640 --> 00:01:31,560
+ virtual addresses are translated to physical addresses. And one way we did that is through
+
+11
+00:01:31,560 --> 00:01:43,920
+ multi-level paging. In this example, we are showing two level paging. And therefore, the
+
+12
+00:01:43,920 --> 00:01:51,040
+ virtual address consists of three fields. The last one, the blue is blue in this figure,
+
+13
+00:01:51,040 --> 00:01:56,840
+ is the offset. And the offset, the bit in the offset remains unchanged in the physical
+
+14
+00:01:56,840 --> 00:02:05,840
+ address. And then the first field of the virtual address, it's an index to the first level
+
+15
+00:02:05,840 --> 00:02:14,920
+ in the first level page table. And at that address in the first, at that location in
+
+16
+00:02:14,920 --> 00:02:22,240
+ the first page table, you find the address of another page table at the second level.
+
+17
+00:02:22,240 --> 00:02:31,440
+ And the second field in the address, the virtual P2 index, denoted here, it's an index to the
+
+18
+00:02:31,440 --> 00:02:42,000
+ second level page table, which is referenced from the first level page table. And as a
+
+19
+00:02:42,000 --> 00:02:52,240
+ corresponding location in the second level page table, you have the physical page number.
+
+20
+00:02:52,240 --> 00:02:57,760
+ And now you concatenate the physical page number with the offset, and you got the physical
+
+21
+00:02:57,760 --> 00:03:06,480
+ address. Okay? It's the physical page number, as you see here depicted, and the offset represents
+
+22
+00:03:06,480 --> 00:03:15,920
+ the offset within that page. So this is virtual address, the address translation from virtual
+
+23
+00:03:15,920 --> 00:03:25,680
+ addresses to physical addresses using two-level paging. Okay? In addition, what you also learn
+
+24
+00:03:25,680 --> 00:03:39,200
+ about is about translation lookaside buffers. Okay? Can someone tell me why do we need a
+
+25
+00:03:39,200 --> 00:03:52,000
+ translation lookaside buffer or TLB for short? What problem does it solve? It's exact. Thanks,
+
+26
+00:03:52,000 --> 00:04:02,720
+ Alison and Gilbert. You are correct. So fundamentally, as you see, with the two-level page tables,
+
+27
+00:04:02,720 --> 00:04:09,840
+ you need in order to do the translation, you need to do multiple memory accesses. We need
+
+28
+00:04:09,840 --> 00:04:20,160
+ to get a location from the first level page table, then to access the second level page
+
+29
+00:04:20,160 --> 00:04:26,800
+ table, there are a bunch, this means a bunch of memory accesses. Right? So when you are
+
+30
+00:04:26,800 --> 00:04:33,800
+ going to look to a physical, to try to just look at location in memory, to fetch an instruction
+
+31
+00:04:33,800 --> 00:04:42,360
+ or to access data, you have to do multiple memory accesses, which is very slow. Right?
+
+32
+00:04:42,360 --> 00:04:48,200
+ So translation lookaside buffer solve this problem. So it's a small table, which takes
+
+33
+00:04:48,200 --> 00:04:56,600
+ a virtual address, you know, that takes the first two fields in the virtual address, which
+
+34
+00:04:56,600 --> 00:05:07,000
+ contains a page information and maps that to the physical page number. So the, and this
+
+35
+00:05:07,000 --> 00:05:15,400
+ is happening, it's in hardware, so the translation is very quick. This TLB is in the processor.
+
+36
+00:05:15,400 --> 00:05:20,840
+ And then what is the other way we are going to try to improve the performance? Because
+
+37
+00:05:20,840 --> 00:05:28,560
+ even if we make one access to the RAM, to the memory, the time to make that access,
+
+38
+00:05:28,560 --> 00:05:36,280
+ the latency is much larger than accessing say registers or in the processor. It's order
+
+39
+00:05:36,280 --> 00:05:43,840
+ of magnitude slower to access physical memory. So to solve this problem, what you learned
+
+40
+00:05:43,840 --> 00:05:52,240
+ last lecture, we can and also at 61C earlier on, it's about you are using cache, right?
+
+41
+00:05:52,240 --> 00:05:59,360
+ A cache. So cache, it's a smaller memory. And because it's smaller, it can be either
+
+42
+00:05:59,360 --> 00:06:06,360
+ closer or it can be directly on the chip on the processor. So therefore the latency to
+
+43
+00:06:06,360 --> 00:06:13,400
+ access this cache is much lower than the latency to access the physical memory. So if the data
+
+44
+00:06:13,400 --> 00:06:22,360
+ you are looking for is already in cache, the access will be much quicker. And here we show
+
+45
+00:06:22,360 --> 00:06:28,840
+ set associative cache. You remember that the set associative cache, you have multiple sets
+
+46
+00:06:28,840 --> 00:06:44,040
+ of this kind of multiple sets of blocks. And each of them is identified by attack. And
+
+47
+00:06:44,040 --> 00:06:56,680
+ within each set, you can associatively identify one of these, here is represented by a line,
+
+48
+00:06:56,680 --> 00:07:12,800
+ one of these rows. Okay. And how do you do that? So now the cache is addressed with a
+
+49
+00:07:12,800 --> 00:07:21,120
+ physical address. So the physical address now is divided into other three fields, which
+
+50
+00:07:21,120 --> 00:07:34,960
+ is very tag, index and byte. And the index, if you have a memory set associative cache,
+
+51
+00:07:34,960 --> 00:07:46,560
+ the index points to a particular set of such rows. And then the tag is going to identify
+
+52
+00:07:46,560 --> 00:08:02,880
+ a row in the set. And finally, or in a byte will specify a index of the byte you are looking
+
+53
+00:08:02,880 --> 00:08:16,600
+ for in that row. So also we also refer it as a block to these rows. Okay. So this is
+
+54
+00:08:16,600 --> 00:08:25,240
+ it. Okay. So you have address translation. To speed up the address translation, you use
+
+55
+00:08:25,240 --> 00:08:41,320
+ a TLB, which maps in hardware, the virtual page number to the physical page number. And
+
+56
+00:08:41,320 --> 00:08:52,200
+ then to further speed up the access to the memory, we use cache, a cache. And to locate
+
+57
+00:08:52,200 --> 00:09:09,360
+ the data in the cache, we use these three fields, tag, index and byte. Any questions?
+
+58
+00:09:09,360 --> 00:09:19,040
+ Just remember that the TLB, you address a TLB with a virtual page number and you address
+
+59
+00:09:19,040 --> 00:09:35,960
+ a cache with a physical address. So now the one question, if you remember, is that the
+
+60
+00:09:35,960 --> 00:09:43,120
+ virtual address space can be larger than the physical address. Also, you have multiple
+
+61
+00:09:43,120 --> 00:09:49,160
+ virtual address spaces, which are going to multiplex the same physical address because
+
+62
+00:09:49,160 --> 00:09:59,960
+ each process has its own virtual address space. Okay. So this means that at a given time,
+
+63
+00:09:59,960 --> 00:10:08,960
+ you may not be able to store all the virtual address, all the data in the virtual address
+
+64
+00:10:08,960 --> 00:10:18,800
+ space across all processes in the physical memory. And if you cannot do that, some of
+
+65
+00:10:18,800 --> 00:10:25,440
+ these pages, you need to put somewhere else. Typically somewhere else is on the disk or
+
+66
+00:10:25,440 --> 00:10:36,000
+ SSD. So now the question is about when you need a page, which is not in the memory, it's
+
+67
+00:10:36,000 --> 00:10:48,000
+ on the disk. How do you go about getting that page in memory? Okay. That's what we are going
+
+68
+00:10:48,000 --> 00:10:57,360
+ to learn and focus on is the remaining of this lecture. And when we are going to access
+
+69
+00:10:57,360 --> 00:11:13,960
+ a page, which is not in physical memory, then what happens, you have a page fault. And the
+
+70
+00:11:13,960 --> 00:11:19,040
+ way this is indicated, remember that when you do the address translation, you look in
+
+71
+00:11:19,040 --> 00:11:24,840
+ the page table. In the page table, you find a page table entry corresponding to that page.
+
+72
+00:11:24,840 --> 00:11:32,720
+ So that page table entry has a bit, which is saying, for instance, it's invalid bit.
+
+73
+00:11:32,720 --> 00:11:41,840
+ And if that bit is set, this means that the page is not present in the physical memory.
+
+74
+00:11:41,840 --> 00:11:52,080
+ Okay. So now a page fault will occur and what happens? Okay. So on page fault, you will
+
+75
+00:11:52,080 --> 00:11:57,780
+ have to engage the operating system and the operating system will make sure to bring the
+
+76
+00:11:57,780 --> 00:12:05,080
+ right page from the disk to memory. So then you are going to be able to continue the execution
+
+77
+00:12:05,080 --> 00:12:14,040
+ of the program. Of course, to bring a page from the disk to the physical memory, you
+
+78
+00:12:14,040 --> 00:12:21,000
+ need to find a place to put it. If you have free space, you bring it in, you bring it
+
+79
+00:12:21,000 --> 00:12:29,320
+ up. If you don't have free space, they need to take an existing page and replace it with
+
+80
+00:12:29,320 --> 00:12:35,680
+ a new page you want to bring in memory. Now, if that page you want to replace has been
+
+81
+00:12:35,680 --> 00:12:43,560
+ written, has been modified, then you need to put it on the disk, save it on the disk
+
+82
+00:12:43,560 --> 00:12:53,240
+ before you replace it with a new page. Okay. So that's what it is. We are going to go through
+
+83
+00:12:53,240 --> 00:13:02,720
+ this process several times during this lecture to make sure that the concepts are clear.
+
+84
+00:13:02,720 --> 00:13:09,240
+ And before going forward, notice that it's a fundamental inversion here that you have
+
+85
+00:13:09,240 --> 00:13:17,680
+ the hardware. The hardware causes a page fault in this case because the invalid bit on the
+
+86
+00:13:17,680 --> 00:13:26,680
+ page table entry set, which then this fault is treated in software, right? As opposed
+
+87
+00:13:26,680 --> 00:13:34,920
+ to interrupts, where the interrupts are treated in hardware. And then once you select the
+
+88
+00:13:34,920 --> 00:13:44,240
+ handle of the interrupt, only then you go into software. Okay. So again, to put things
+
+89
+00:13:44,240 --> 00:13:52,260
+ into perspective right now, this is you have different levels of memory or storage. You
+
+90
+00:13:52,260 --> 00:13:59,640
+ have on-chip cache here is a processor and in today's processors, you actually have multiple
+
+91
+00:13:59,640 --> 00:14:07,400
+ caches, level of caches, even on a single processor, because you may have a cache for
+
+92
+00:14:07,400 --> 00:14:15,000
+ each core. And then you may have a unified cache, which is across all cores. Then you
+
+93
+00:14:15,000 --> 00:14:22,920
+ have second level cache. It's a main memory. Then is this like secondary storage. And then
+
+94
+00:14:22,920 --> 00:14:30,480
+ of course you can even have tertiary storage, tape or some kind of storage in the cloud.
+
+95
+00:14:30,480 --> 00:14:44,000
+ Okay. So the key here, what is the key here? What we are trying to do is caching with everything
+
+96
+00:14:44,000 --> 00:14:53,680
+ else. We're trying to do something very simple. Yeah. We want to try to have the cake and
+
+97
+00:14:53,680 --> 00:15:02,080
+ eat it too. So you want to have, we want to build a system which behaves like it has a
+
+98
+00:15:02,080 --> 00:15:15,040
+ storage of the largest storage device it has access to, but the latency to access that
+
+99
+00:15:15,040 --> 00:15:30,880
+ storage it's the same as accessing the on-chip cache. That's a holy grail. Right? And again,
+
+100
+00:15:30,880 --> 00:15:38,120
+ the key here is that at every level, the key technique is using caching. You cache the
+
+101
+00:15:38,120 --> 00:15:45,540
+ data from the next level and you hope that for the vast majority of time, the program
+
+102
+00:15:45,540 --> 00:15:58,160
+ will only use the data in that cache. You don't go to the next level. Okay. And if the
+
+103
+00:15:58,160 --> 00:16:04,400
+ program execute locality, so therefore he spends most of the time in a reasonably small
+
+104
+00:16:04,400 --> 00:16:11,400
+ portion of the code or touching small portion of the data, you are in luck because as long
+
+105
+00:16:11,400 --> 00:16:18,320
+ as you put this heavily accessed region of memory of a program in the cache, you are
+
+106
+00:16:18,320 --> 00:16:22,280
+ fine.
+
+107
+00:16:22,280 --> 00:16:28,400
+ And the last point to make here is a way to think about the main memory. It says a cache
+
+108
+00:16:28,400 --> 00:16:34,680
+ for the secondary storage for the disk. Right? It's again, at each level, you can think it's
+
+109
+00:16:34,680 --> 00:16:47,880
+ a cache for the next level. But we don't call it cache. We call it paging. So here is again,
+
+110
+00:16:47,880 --> 00:16:55,760
+ another figure showing you the page fault. What I described earlier in words, this is
+
+111
+00:16:55,760 --> 00:17:02,120
+ using some animation to drive the point home. So say you have an instruction and you do
+
+112
+00:17:02,120 --> 00:17:07,680
+ the instruction fetch, then you go to the memory management unit. The memory management
+
+113
+00:17:07,680 --> 00:17:16,040
+ unit, it handles the page table, TLB and all of this great stuff to do address translation.
+
+114
+00:17:16,040 --> 00:17:26,560
+ And now you go, you find the page table entry and then from the page entry, you are going
+
+115
+00:17:26,560 --> 00:17:37,360
+ to have the page number and the offset. The offset keeps coming from the virtual address,
+
+116
+00:17:37,360 --> 00:17:42,960
+ the page number comes after translation.
+
+117
+00:17:42,960 --> 00:17:49,080
+ But now let's assume that you do when you execute the next instruction, you go to the
+
+118
+00:17:49,080 --> 00:17:57,600
+ page table, but the entry doesn't exist or it exists and it's invalid. So then you have
+
+119
+00:17:57,600 --> 00:18:08,440
+ a page fault. So you go to the operating system to take care of things. The operating system
+
+120
+00:18:08,440 --> 00:18:21,020
+ on fault is going to do what? It's going basically to load, to locate the page on the disk, which
+
+121
+00:18:21,020 --> 00:18:28,360
+ is required by the program, load that page in the physical memory and then update the
+
+122
+00:18:28,360 --> 00:18:37,040
+ page table entry. And finally, you restart the program and the program will retry the
+
+123
+00:18:37,040 --> 00:18:43,360
+ previous instruction, which calls a page fault. Now the previous instruction is going to have
+
+124
+00:18:43,360 --> 00:18:50,120
+ the same look to do the same page from the same virtual address. But now the page is
+
+125
+00:18:50,120 --> 00:18:58,060
+ already in the memory. So you are going to access that page and continue execution. Is
+
+126
+00:18:58,060 --> 00:19:10,080
+ that clear? Any questions?
+
+127
+00:19:10,080 --> 00:19:17,060
+ So now we just said that the main page paging is like caching. The memory act as a cache
+
+128
+00:19:17,060 --> 00:19:25,760
+ for the persistent storage like disk or SSD. So now let's look from the point of view of
+
+129
+00:19:25,760 --> 00:19:33,580
+ the caching, from the point of view of a cache and characterize the demand paging. First
+
+130
+00:19:33,580 --> 00:19:43,020
+ of all, what is the block size? What is the cache granularity? The block size, it's basically
+
+131
+00:19:43,020 --> 00:19:51,480
+ in this case, as you know, it's one page, which is say four kilobytes, between one kilobytes
+
+132
+00:19:51,480 --> 00:20:00,720
+ and 16 kilobytes. What is your organization of the cache? We learned about direct map
+
+133
+00:20:00,720 --> 00:20:03,240
+ cache, fully associative.
+
+134
+00:20:03,250 --> 00:20:04,250
+ set associative.
+
+135
+00:20:04,250 --> 00:20:14,450
+ And the answer here is that it's fully associative.
+
+136
+00:20:14,450 --> 00:20:17,050
+ Fully associative provides you the most,
+
+137
+00:20:17,050 --> 00:20:26,450
+ is the most efficient in using the cache, if you remember.
+
+138
+00:20:26,450 --> 00:20:27,610
+ Why?
+
+139
+00:20:27,610 --> 00:20:31,970
+ Why is a fully associative memory
+
+140
+00:20:31,970 --> 00:20:36,970
+ the most effective in using the cache storage?
+
+141
+00:20:36,970 --> 00:20:53,850
+ Yes, you can place it anywhere.
+
+142
+00:20:53,850 --> 00:20:56,330
+ So there are no conflicts.
+
+143
+00:20:56,330 --> 00:20:58,150
+ There are no conflict misses.
+
+144
+00:20:58,150 --> 00:21:01,650
+ Like you remember, it's direct mapped cache.
+
+145
+00:21:01,650 --> 00:21:03,290
+ You have conflict misses.
+
+146
+00:21:03,290 --> 00:21:08,290
+ You don't have conflict misses here with associative cache.
+
+147
+00:21:08,290 --> 00:21:12,310
+ Okay.
+
+148
+00:21:12,310 --> 00:21:18,970
+ There is a question here.
+
+149
+00:21:18,970 --> 00:21:22,050
+ So the page fault we see in the error message
+
+150
+00:21:22,050 --> 00:21:24,130
+ happened on the demand paging,
+
+151
+00:21:24,130 --> 00:21:27,610
+ does not save the program.
+
+152
+00:21:27,610 --> 00:21:28,450
+ Okay.
+
+153
+00:21:28,450 --> 00:21:36,490
+ Maybe you can ask again the question.
+
+154
+00:21:36,490 --> 00:21:40,050
+ I'm afraid I do not understand what error
+
+155
+00:21:40,050 --> 00:21:41,370
+ we are talking about here.
+
+156
+00:21:41,370 --> 00:21:44,010
+ We are talking about the, yeah,
+
+157
+00:21:44,010 --> 00:21:46,650
+ please ask the question again,
+
+158
+00:21:46,650 --> 00:21:48,010
+ and I'll be happy to answer.
+
+159
+00:21:48,010 --> 00:21:54,810
+ So now how do you locate the page?
+
+160
+00:21:54,810 --> 00:21:56,970
+ First, you check the TLB.
+
+161
+00:21:56,970 --> 00:22:00,290
+ Then you do the page traversal if it's not in the TLB.
+
+162
+00:22:00,290 --> 00:22:02,130
+ Right?
+
+163
+00:22:02,130 --> 00:22:03,330
+ This is how you locate the page.
+
+164
+00:22:03,330 --> 00:22:06,010
+ What is a page replacement policy?
+
+165
+00:22:06,010 --> 00:22:11,370
+ As you'll see, we want ALEREO,
+
+166
+00:22:11,370 --> 00:22:15,570
+ at least recently used.
+
+167
+00:22:15,570 --> 00:22:20,790
+ We are going to look at other replacement policies,
+
+168
+00:22:20,790 --> 00:22:25,890
+ but typically we try to have an approximation of ALEREO,
+
+169
+00:22:25,890 --> 00:22:28,330
+ and we have to have an approximation of ALEREO
+
+170
+00:22:28,330 --> 00:22:32,070
+ because you just implemented ALEREO can be too expensive.
+
+171
+00:22:32,070 --> 00:22:35,570
+ We'll learn about that.
+
+172
+00:22:35,570 --> 00:22:37,610
+ What happened on a miss?
+
+173
+00:22:37,610 --> 00:22:39,370
+ You saw that, right?
+
+174
+00:22:39,370 --> 00:22:41,830
+ When there is a miss,
+
+175
+00:22:41,830 --> 00:22:46,370
+ you are going to find the page on the disk
+
+176
+00:22:46,370 --> 00:22:48,010
+ and bring the page in the memory.
+
+177
+00:22:48,010 --> 00:22:51,970
+ What happens on a write?
+
+178
+00:22:51,970 --> 00:22:56,970
+ Remember that the cache has a copy of the data from memory.
+
+179
+00:22:56,970 --> 00:23:02,530
+ So if you modify the data in the cache,
+
+180
+00:23:02,530 --> 00:23:07,470
+ you need also to modify the copy of that data in memory.
+
+181
+00:23:07,470 --> 00:23:11,250
+ And there are two ways to modify it.
+
+182
+00:23:11,250 --> 00:23:14,010
+ One is write through.
+
+183
+00:23:14,010 --> 00:23:19,010
+ This means that as soon as you update the cache,
+
+184
+00:23:19,010 --> 00:23:21,550
+ also you update the main memory.
+
+185
+00:23:21,550 --> 00:23:26,550
+ The second method is write back.
+
+186
+00:23:26,550 --> 00:23:30,110
+ You just update the cache.
+
+187
+00:23:30,110 --> 00:23:32,990
+ And when you want to replace the data in the cache
+
+188
+00:23:32,990 --> 00:23:37,150
+ with some other data to bring it in,
+
+189
+00:23:37,150 --> 00:23:41,990
+ then you are going to write back the data
+
+190
+00:23:41,990 --> 00:23:47,630
+ from the cache to the memory before replacing it.
+
+191
+00:23:49,070 --> 00:23:52,890
+ In this case, we are talking about memory on the disk.
+
+192
+00:23:52,890 --> 00:23:57,030
+ We are definitely talking about write back.
+
+193
+00:23:57,030 --> 00:23:59,030
+ Why write back in this case?
+
+194
+00:23:59,030 --> 00:24:01,410
+ Tell me.
+
+195
+00:24:01,410 --> 00:24:02,910
+ Why don't we do write through?
+
+196
+00:24:02,910 --> 00:24:05,070
+ (silence)
+
+197
+00:24:05,070 --> 00:24:21,790
+ Yes, excellent.
+
+198
+00:24:21,790 --> 00:24:24,910
+ So, Alison and Tyrell.
+
+199
+00:24:24,910 --> 00:24:29,910
+ So this is because it's very expensive
+
+200
+00:24:31,030 --> 00:24:32,790
+ to read the data from the disk.
+
+201
+00:24:32,790 --> 00:24:37,670
+ It can be order of magnitude more expensive.
+
+202
+00:24:37,670 --> 00:24:40,950
+ Just to give you a sense, the latency,
+
+203
+00:24:40,950 --> 00:24:48,310
+ the latency to memory is maybe between 50 nanoseconds
+
+204
+00:24:48,310 --> 00:24:52,470
+ and 100 nanoseconds.
+
+205
+00:24:52,470 --> 00:24:57,030
+ The latency to read and write from a disk
+
+206
+00:24:57,030 --> 00:24:58,610
+ can be in milliseconds.
+
+207
+00:24:59,710 --> 00:25:02,590
+ So what, it's three, four order of magnitude.
+
+208
+00:25:02,590 --> 00:25:04,470
+ Okay?
+
+209
+00:25:04,470 --> 00:25:07,950
+ So it's huge difference.
+
+210
+00:25:07,950 --> 00:25:09,950
+ So that's how you avoid,
+
+211
+00:25:09,950 --> 00:25:13,630
+ you try to minimize the number of times
+
+212
+00:25:13,630 --> 00:25:16,950
+ you write data back to the storage, to the disk.
+
+213
+00:25:16,950 --> 00:25:21,690
+ I see.
+
+214
+00:25:21,690 --> 00:25:26,690
+ So this is a question,
+
+215
+00:25:26,690 --> 00:25:29,550
+ it seems that I like when the page fault happens
+
+216
+00:25:29,550 --> 00:25:32,630
+ for the first time, it tries a program again
+
+217
+00:25:32,630 --> 00:25:33,710
+ after the man paging,
+
+218
+00:25:33,710 --> 00:25:35,870
+ instead of killing the program right away.
+
+219
+00:25:35,870 --> 00:25:39,450
+ But on a debug, we often see page fault message.
+
+220
+00:25:39,450 --> 00:25:42,030
+ The page fault message you are seeing
+
+221
+00:25:42,030 --> 00:25:44,550
+ when you are debugging is different.
+
+222
+00:25:44,550 --> 00:25:48,830
+ That is, for instance, when you are going to try to access
+
+223
+00:25:48,830 --> 00:25:51,830
+ some invalid region on the memory, right?
+
+224
+00:25:51,830 --> 00:25:55,270
+ Something you didn't allocate, for instance.
+
+225
+00:25:55,270 --> 00:25:57,750
+ Then you have page fault, right?
+
+226
+00:25:57,750 --> 00:26:02,750
+ It's like you just have an address
+
+227
+00:26:02,750 --> 00:26:05,070
+ which doesn't belong to one to read
+
+228
+00:26:05,070 --> 00:26:06,270
+ or write to another address
+
+229
+00:26:06,270 --> 00:26:07,710
+ which doesn't belong to the program
+
+230
+00:26:07,710 --> 00:26:09,310
+ because it's not allocated yet.
+
+231
+00:26:09,310 --> 00:26:13,150
+ So that's different.
+
+232
+00:26:13,150 --> 00:26:15,070
+ This page fault I was talking about
+
+233
+00:26:15,070 --> 00:26:18,590
+ is not visible to the programmer.
+
+234
+00:26:18,590 --> 00:26:20,030
+ This happens under the hood.
+
+235
+00:26:20,030 --> 00:26:23,950
+ And what you said is correct.
+
+236
+00:26:23,950 --> 00:26:26,710
+ That is only this page fault happens.
+
+237
+00:26:26,710 --> 00:26:28,930
+ Yes, you are going to do a trap,
+
+238
+00:26:28,930 --> 00:26:33,230
+ then exception, trap to the operating system.
+
+239
+00:26:33,230 --> 00:26:37,270
+ The operating system gets a page from the disk,
+
+240
+00:26:37,270 --> 00:26:41,070
+ put in the memory, and then you retry it
+
+241
+00:26:41,070 --> 00:26:44,210
+ and you restart the program from the same instruction.
+
+242
+00:26:44,210 --> 00:26:48,150
+ Okay.
+
+243
+00:26:48,150 --> 00:26:55,910
+ So remember we want to provide,
+
+244
+00:26:56,630 --> 00:26:57,990
+ with virtual memory,
+
+245
+00:26:57,990 --> 00:27:01,150
+ the illusion of infinite physical memory.
+
+246
+00:27:01,150 --> 00:27:03,510
+ So this is one example.
+
+247
+00:27:03,510 --> 00:27:04,870
+ Virtual memory is huge.
+
+248
+00:27:04,870 --> 00:27:05,710
+ It's 40 gigabytes.
+
+249
+00:27:05,710 --> 00:27:07,630
+ You have 32 bits addresses.
+
+250
+00:27:07,630 --> 00:27:10,470
+ But now most of the machines,
+
+251
+00:27:10,470 --> 00:27:13,350
+ even including your phone, has 64 bits.
+
+252
+00:27:13,350 --> 00:27:17,510
+ So it's huge amount of memory, of virtual memory.
+
+253
+00:27:17,510 --> 00:27:19,630
+ There is no way you can have a physical memory
+
+254
+00:27:19,630 --> 00:27:21,870
+ large enough to call the entire virtual memory
+
+255
+00:27:21,870 --> 00:27:25,470
+ of an application.
+
+256
+00:27:25,470 --> 00:27:27,870
+ And then you map these kind of pages
+
+257
+00:27:27,870 --> 00:27:29,950
+ from the virtual memory using the page table
+
+258
+00:27:29,950 --> 00:27:31,790
+ to the physical memory.
+
+259
+00:27:31,790 --> 00:27:34,430
+ And then some of the page,
+
+260
+00:27:34,430 --> 00:27:36,670
+ which are not fitting the physical memory,
+
+261
+00:27:36,670 --> 00:27:38,550
+ are going to be on the disk.
+
+262
+00:27:38,550 --> 00:27:39,390
+ Okay.
+
+263
+00:27:39,390 --> 00:27:41,310
+ And why is that?
+
+264
+00:27:41,310 --> 00:27:43,230
+ Because of course the disk is much higher,
+
+265
+00:27:43,230 --> 00:27:47,710
+ even as ST is much larger than a physical memory.
+
+266
+00:27:47,710 --> 00:27:49,550
+ So you have a lot of more space.
+
+267
+00:27:54,190 --> 00:27:59,190
+ And it's again,
+
+268
+00:27:59,190 --> 00:28:01,630
+ going to the disk and getting the page.
+
+269
+00:28:01,630 --> 00:28:05,510
+ So demand paging happen transparently.
+
+270
+00:28:05,510 --> 00:28:06,350
+ Okay.
+
+271
+00:28:06,350 --> 00:28:08,430
+ It's not visible to the application.
+
+272
+00:28:08,430 --> 00:28:10,990
+ The only way the application may notice
+
+273
+00:28:10,990 --> 00:28:13,230
+ is that it's a little bit slower.
+
+274
+00:28:13,230 --> 00:28:14,070
+ Because you need,
+
+275
+00:28:14,070 --> 00:28:16,390
+ instead of getting the data directly from memory,
+
+276
+00:28:16,390 --> 00:28:18,430
+ you have to go first to the disk,
+
+277
+00:28:18,430 --> 00:28:19,670
+ move the data into memory,
+
+278
+00:28:19,670 --> 00:28:20,830
+ and then get the data.
+
+279
+00:28:20,830 --> 00:28:23,910
+ Okay.
+
+280
+00:28:23,910 --> 00:28:24,750
+ Okay.
+
+281
+00:28:24,750 --> 00:28:29,190
+ So,
+
+282
+00:28:29,190 --> 00:28:32,870
+ this is a page table entry.
+
+283
+00:28:32,870 --> 00:28:36,590
+ If you remember from two lectures ago,
+
+284
+00:28:36,590 --> 00:28:38,190
+ you have the page frame numbers,
+
+285
+00:28:38,190 --> 00:28:41,110
+ the first is 32 bits addresses, address.
+
+286
+00:28:41,110 --> 00:28:42,390
+ The first page,
+
+287
+00:28:42,390 --> 00:28:43,590
+ the page frame number,
+
+288
+00:28:43,590 --> 00:28:47,430
+ this represent the surface 20 bits,
+
+289
+00:28:47,430 --> 00:28:51,550
+ and the last 12 bits are some,
+
+290
+00:28:51,550 --> 00:28:54,110
+ a bunch of bits of,
+
+291
+00:28:54,110 --> 00:29:00,550
+ and each bit has a different semantics.
+
+292
+00:29:00,550 --> 00:29:03,670
+ And for the purpose of this lecture,
+
+293
+00:29:03,670 --> 00:29:05,830
+ we care about two bits.
+
+294
+00:29:05,830 --> 00:29:07,910
+ One is p,
+
+295
+00:29:07,910 --> 00:29:11,470
+ which is called present or valid.
+
+296
+00:29:11,470 --> 00:29:16,470
+ And this basically says that the page,
+
+297
+00:29:16,470 --> 00:29:19,830
+ the corresponding page is in memory.
+
+298
+00:29:19,830 --> 00:29:24,350
+ If p is zero, the bit is zero,
+
+299
+00:29:24,350 --> 00:29:25,830
+ then the page is not in memory,
+
+300
+00:29:25,830 --> 00:29:26,950
+ some are on the disk.
+
+301
+00:29:26,950 --> 00:29:31,470
+ And d is a dirty bit.
+
+302
+00:29:31,470 --> 00:29:38,110
+ And this says that the page has been modified recently.
+
+303
+00:29:38,110 --> 00:29:42,470
+ So it's been modified since it was brought in memory,
+
+304
+00:29:42,470 --> 00:29:44,870
+ for example.
+
+305
+00:29:44,870 --> 00:29:47,190
+ Okay.
+
+306
+00:29:49,590 --> 00:29:50,790
+ So this means that,
+
+307
+00:29:50,790 --> 00:29:52,630
+ why do you think,
+
+308
+00:29:52,630 --> 00:29:55,030
+ how do you think you are going to use a dirty bit?
+
+309
+00:29:55,030 --> 00:30:05,030
+ Why do we need it?
+
+310
+00:30:05,030 --> 00:30:12,670
+ It's exactly,
+
+311
+00:30:12,670 --> 00:30:14,710
+ it's to determine, yeah,
+
+312
+00:30:14,710 --> 00:30:19,510
+ it's if you need to write the page back,
+
+313
+00:30:19,510 --> 00:30:20,350
+ if we need to,
+
+314
+00:30:20,350 --> 00:30:22,550
+ if we have to replace that page,
+
+315
+00:30:22,550 --> 00:30:23,550
+ because we don't have,
+
+316
+00:30:23,550 --> 00:30:26,270
+ we no longer have room in the physical memory
+
+317
+00:30:26,270 --> 00:30:28,190
+ to bring a new page,
+
+318
+00:30:28,190 --> 00:30:33,190
+ then if the page we want to replace has been modified,
+
+319
+00:30:33,190 --> 00:30:34,950
+ we need first to write to the disk,
+
+320
+00:30:34,950 --> 00:30:36,270
+ not lose the information.
+
+321
+00:30:36,270 --> 00:30:41,230
+ That's great.
+
+322
+00:30:45,430 --> 00:30:49,750
+ So this is a demand paging mechanism,
+
+323
+00:30:49,750 --> 00:30:50,710
+ it's very simple.
+
+324
+00:30:50,710 --> 00:30:53,110
+ Again, it's like repeating it.
+
+325
+00:30:53,110 --> 00:31:01,070
+ You look at the PTE,
+
+326
+00:31:01,070 --> 00:31:02,630
+ page table entry of the page.
+
+327
+00:31:02,630 --> 00:31:06,630
+ If the bit of the PTE is valid,
+
+328
+00:31:06,630 --> 00:31:10,030
+ then the means that the page in memory,
+
+329
+00:31:10,030 --> 00:31:13,470
+ so you go and access the data from the memory.
+
+330
+00:31:13,470 --> 00:31:15,190
+ If it's not valid,
+
+331
+00:31:15,190 --> 00:31:19,230
+ then this means that the page is not in memory,
+
+332
+00:31:19,230 --> 00:31:20,750
+ it's on the disk.
+
+333
+00:31:20,750 --> 00:31:23,510
+ And when you do that,
+
+334
+00:31:23,510 --> 00:31:27,190
+ you, this results in a trap.
+
+335
+00:31:27,190 --> 00:31:29,990
+ It's a page fault.
+
+336
+00:31:29,990 --> 00:31:32,110
+ And on page fault,
+
+337
+00:31:32,110 --> 00:31:35,030
+ you choose an old page to replace,
+
+338
+00:31:35,030 --> 00:31:38,870
+ if you don't have enough room in the memory.
+
+339
+00:31:38,870 --> 00:31:43,510
+ If that old page has a dirty bit set,
+
+340
+00:31:43,510 --> 00:31:47,470
+ this means that you have to write that page to the disk.
+
+341
+00:31:47,470 --> 00:31:49,830
+ And then once you are done with that,
+
+342
+00:31:49,830 --> 00:31:54,430
+ you also need to invalidate the PTE entry for the page,
+
+343
+00:31:54,430 --> 00:31:56,910
+ because now you are going to remove from the,
+
+344
+00:31:56,910 --> 00:32:00,470
+ you are going to remove it from the memory,
+
+345
+00:32:00,470 --> 00:32:04,390
+ and also you need to invalidate the TLB entry for that page.
+
+346
+00:32:04,390 --> 00:32:06,430
+ And once you are done with it,
+
+347
+00:32:06,430 --> 00:32:10,470
+ you are going to bring the new page from the disk memory,
+
+348
+00:32:11,910 --> 00:32:13,870
+ in place of the old page.
+
+349
+00:32:13,870 --> 00:32:16,830
+ And once you bring the new page,
+
+350
+00:32:16,830 --> 00:32:21,510
+ you update the PTE of the new page,
+
+351
+00:32:21,510 --> 00:32:25,150
+ and you are ready to go.
+
+352
+00:32:25,150 --> 00:32:34,350
+ And by the way, when this happens,
+
+353
+00:32:34,350 --> 00:32:41,070
+ an operating system is doing all this kind of work
+
+354
+00:32:41,070 --> 00:32:44,110
+ to bring the page from the disk to memory.
+
+355
+00:32:44,110 --> 00:32:48,910
+ It's a lot of IO, and in the meantime,
+
+356
+00:32:48,910 --> 00:32:53,830
+ you try to schedule and run other processes,
+
+357
+00:32:53,830 --> 00:32:54,910
+ which are not blocked.
+
+358
+00:32:54,910 --> 00:33:00,670
+ So what are the origins of the paging?
+
+359
+00:33:00,670 --> 00:33:04,310
+ And the origin of the paging dates long time ago,
+
+360
+00:33:04,310 --> 00:33:05,270
+ from the '70s.
+
+361
+00:33:05,270 --> 00:33:06,470
+ And in the '70s,
+
+362
+00:33:07,750 --> 00:33:11,870
+ it was a time before everyone has a personal computer.
+
+363
+00:33:11,870 --> 00:33:14,070
+ And what you have, you have a terminal.
+
+364
+00:33:14,070 --> 00:33:17,790
+ It looks like a computer, but it's just a terminal.
+
+365
+00:33:17,790 --> 00:33:19,510
+ And they are connected to the computers.
+
+366
+00:33:19,510 --> 00:33:22,310
+ You have many people running their programs
+
+367
+00:33:22,310 --> 00:33:23,830
+ on the same computer,
+
+368
+00:33:23,830 --> 00:33:27,070
+ and they are using the computer from these terminals.
+
+369
+00:33:27,070 --> 00:33:31,750
+ And now, because you have so many users,
+
+370
+00:33:31,750 --> 00:33:34,750
+ and the physical memory was quite small,
+
+371
+00:33:34,750 --> 00:33:37,270
+ again, not all the users' programs could fit in
+
+372
+00:33:37,270 --> 00:33:38,430
+ the memory.
+
+373
+00:33:38,430 --> 00:33:40,190
+ So now you need to,
+
+374
+00:33:40,190 --> 00:33:47,230
+ you need the ability to swap
+
+375
+00:33:47,230 --> 00:33:49,830
+ and to put some of these pages,
+
+376
+00:33:49,830 --> 00:33:52,790
+ of these pages which are not used often,
+
+377
+00:33:52,790 --> 00:33:55,190
+ or they haven't used for a while,
+
+378
+00:33:55,190 --> 00:33:57,790
+ to put them on the disk, right?
+
+379
+00:33:57,790 --> 00:34:00,950
+ So this is what happened early on.
+
+380
+00:34:00,950 --> 00:34:02,310
+ That's why you have paging.
+
+381
+00:34:02,310 --> 00:34:06,030
+ Okay.
+
+382
+00:34:06,030 --> 00:34:06,870
+ So,
+
+383
+00:34:06,870 --> 00:34:20,270
+ and this is basically the model you have,
+
+384
+00:34:20,270 --> 00:34:21,310
+ we should, you know,
+
+385
+00:34:21,310 --> 00:34:23,270
+ we are going to have in mind,
+
+386
+00:34:23,270 --> 00:34:26,630
+ and we are going to discuss,
+
+387
+00:34:26,630 --> 00:34:29,550
+ continue to discuss the demand paging
+
+388
+00:34:29,550 --> 00:34:30,950
+ for the rest of the lecture.
+
+389
+00:34:30,950 --> 00:34:33,990
+ Now, what happens when the PC is,
+
+390
+00:34:33,990 --> 00:34:38,710
+ with the personal computers?
+
+391
+00:34:38,710 --> 00:34:40,270
+ Actually, with personal computers,
+
+392
+00:34:40,270 --> 00:34:42,310
+ initially you don't have virtual memory.
+
+393
+00:34:42,310 --> 00:34:45,590
+ You have one program only running on a machine,
+
+394
+00:34:45,590 --> 00:34:48,190
+ and that program taking the entire physical memory.
+
+395
+00:34:48,190 --> 00:34:51,710
+ However, as personal computers became more
+
+396
+00:34:51,710 --> 00:34:52,790
+ and more sophisticated,
+
+397
+00:34:52,790 --> 00:34:55,990
+ and you run multiple programs on the same computer,
+
+398
+00:34:55,990 --> 00:34:59,270
+ now you're still, you are back in square one,
+
+399
+00:34:59,270 --> 00:35:02,710
+ because like we discussed several times,
+
+400
+00:35:02,710 --> 00:35:07,710
+ the aggregate memory required by all processes,
+
+401
+00:35:07,710 --> 00:35:10,630
+ all the application running at a given time,
+
+402
+00:35:10,630 --> 00:35:12,230
+ exceeds the physical memory.
+
+403
+00:35:12,230 --> 00:35:15,070
+ So again, what is the solution here?
+
+404
+00:35:15,070 --> 00:35:18,150
+ We need to virtualize the memory,
+
+405
+00:35:18,150 --> 00:35:22,350
+ and you need to keep some of this memory
+
+406
+00:35:22,350 --> 00:35:24,830
+ of this application on the disk.
+
+407
+00:35:24,830 --> 00:35:27,750
+ The memory, hopefully, which is not accessed very often.
+
+408
+00:35:30,790 --> 00:35:34,270
+ Of course, all these now machines
+
+409
+00:35:34,270 --> 00:35:37,070
+ are connected to the cloud,
+
+410
+00:35:37,070 --> 00:35:41,510
+ all of your phones and laptops,
+
+411
+00:35:41,510 --> 00:35:45,910
+ and you have the same situation in the cloud, right?
+
+412
+00:35:45,910 --> 00:35:48,830
+ The cloud, you have very powerful computers,
+
+413
+00:35:48,830 --> 00:35:51,510
+ and they run a lot of applications,
+
+414
+00:35:51,510 --> 00:35:54,190
+ and they also obviously use virtual memory.
+
+415
+00:35:58,590 --> 00:36:03,070
+ So this is, again, if you look at one machine,
+
+416
+00:36:03,070 --> 00:36:06,350
+ if you do the PS program status,
+
+417
+00:36:06,350 --> 00:36:07,790
+ this is kind of what you get.
+
+418
+00:36:07,790 --> 00:36:12,070
+ And here I'm just showing the memory
+
+419
+00:36:12,070 --> 00:36:15,070
+ in this particular case is pretty utilized.
+
+420
+00:36:15,070 --> 00:36:19,470
+ It says that you have certain gigabytes of memory used,
+
+421
+00:36:19,470 --> 00:36:21,990
+ and only 2.7 is not used,
+
+422
+00:36:21,990 --> 00:36:24,790
+ so it's more than 80% it's used.
+
+423
+00:36:24,790 --> 00:36:28,230
+ And some of them is shared memory.
+
+424
+00:36:28,230 --> 00:36:33,230
+ Remember that different application can share memory.
+
+425
+00:36:33,230 --> 00:36:36,630
+ For instance, if they use the same libraries,
+
+426
+00:36:36,630 --> 00:36:39,030
+ they share the code of those libraries,
+
+427
+00:36:39,030 --> 00:36:42,150
+ because it doesn't make sense to make a copy
+
+428
+00:36:42,150 --> 00:36:45,190
+ of the same code for each of the application.
+
+429
+00:36:45,190 --> 00:36:52,390
+ So there are many uses of virtual memory
+
+430
+00:36:52,390 --> 00:36:53,510
+ and demand paging.
+
+431
+00:36:55,830 --> 00:36:59,070
+ Remember that in the virtual memory,
+
+432
+00:36:59,070 --> 00:37:02,190
+ one segment you have is a stack,
+
+433
+00:37:02,190 --> 00:37:04,430
+ and the stack grows downwards
+
+434
+00:37:04,430 --> 00:37:08,310
+ from the high addresses to the low addresses.
+
+435
+00:37:08,310 --> 00:37:11,990
+ And as you allocate and to push more data on the stack,
+
+436
+00:37:11,990 --> 00:37:14,430
+ you may have to extend the stack.
+
+437
+00:37:14,430 --> 00:37:17,350
+ So this is how you are going to do it.
+
+438
+00:37:17,350 --> 00:37:20,230
+ If you are going to want to expand the stack,
+
+439
+00:37:20,230 --> 00:37:22,750
+ then it's again what will happen.
+
+440
+00:37:22,750 --> 00:37:24,190
+ You have a page fault,
+
+441
+00:37:24,190 --> 00:37:26,870
+ and you are going to go to the operating system,
+
+442
+00:37:26,870 --> 00:37:29,390
+ and the operating system is going to increase
+
+443
+00:37:29,390 --> 00:37:31,790
+ the size of the stack, okay?
+
+444
+00:37:31,790 --> 00:37:34,430
+ And allocate more memory for that stack.
+
+445
+00:37:34,430 --> 00:37:37,350
+ Another way is process fork.
+
+446
+00:37:37,350 --> 00:37:38,430
+ We discuss about that.
+
+447
+00:37:38,430 --> 00:37:40,670
+ Here we are going to rediscuss again.
+
+448
+00:37:40,670 --> 00:37:43,190
+ When you do a fork,
+
+449
+00:37:43,190 --> 00:37:46,470
+ you remember that the child process
+
+450
+00:37:46,470 --> 00:37:50,470
+ has the same code as the same instance,
+
+451
+00:37:50,470 --> 00:37:55,470
+ and it has the same resources as the parent process, okay?
+
+452
+00:37:55,470 --> 00:38:00,470
+ But because you have the same code,
+
+453
+00:38:00,470 --> 00:38:04,910
+ one simple solution will be you copy the entire code
+
+454
+00:38:04,910 --> 00:38:10,070
+ and the data from the parent process to the child process
+
+455
+00:38:10,070 --> 00:38:12,430
+ before you can start the child process.
+
+456
+00:38:12,430 --> 00:38:16,190
+ Of course, the problem is that this will take a lot of time.
+
+457
+00:38:16,190 --> 00:38:19,830
+ So instead, what you do here is that
+
+458
+00:38:19,830 --> 00:38:22,550
+ when you create the child process,
+
+459
+00:38:22,550 --> 00:38:23,710
+ you create it immediately,
+
+460
+00:38:23,710 --> 00:38:27,910
+ and you have it point to all the memory
+
+461
+00:38:27,910 --> 00:38:32,190
+ of the parent process, so they share the same memory.
+
+462
+00:38:32,190 --> 00:38:34,950
+ The only difference is that
+
+463
+00:38:34,950 --> 00:38:42,470
+ from the point of view of the child process,
+
+464
+00:38:42,470 --> 00:38:47,470
+ all the memory is marked as read-only, no writes, right?
+
+465
+00:38:49,670 --> 00:38:53,310
+ And now when you read, everything is perfect, right?
+
+466
+00:38:53,310 --> 00:38:56,110
+ Because you are going to read the same content,
+
+467
+00:38:56,110 --> 00:39:01,110
+ which is not modified as from the parent.
+
+468
+00:39:01,110 --> 00:39:08,310
+ But now if the child wants to modify a piece of data,
+
+469
+00:39:08,310 --> 00:39:13,070
+ then because the pages are read-only,
+
+470
+00:39:13,070 --> 00:39:17,190
+ then it's going to cause a trap, an exception.
+
+471
+00:39:17,190 --> 00:39:20,470
+ It's going to be intercepted by the operating system.
+
+472
+00:39:20,470 --> 00:39:25,470
+ And the operating system now is going to copy the page,
+
+473
+00:39:25,470 --> 00:39:28,470
+ read-only page, it's going to create another copy now
+
+474
+00:39:28,470 --> 00:39:31,790
+ for the child, and now it's going to give access
+
+475
+00:39:31,790 --> 00:39:36,670
+ to write to its own copy of that page to the child, right?
+
+476
+00:39:36,670 --> 00:39:43,230
+ So when you exec,
+
+477
+00:39:43,230 --> 00:39:46,470
+ you only bring in parts of the binary in active use,
+
+478
+00:39:46,470 --> 00:39:50,070
+ you'll just bring a few pages in the memory,
+
+479
+00:39:50,070 --> 00:39:54,470
+ you don't bring the entire program into memory
+
+480
+00:39:54,470 --> 00:39:56,190
+ because that can be too big.
+
+481
+00:39:56,190 --> 00:40:00,030
+ And some parts of the program you may never touch
+
+482
+00:40:00,030 --> 00:40:01,230
+ when you are running it.
+
+483
+00:40:01,230 --> 00:40:03,630
+ The similarly with the stack,
+
+484
+00:40:03,630 --> 00:40:06,390
+ you can extend the heap and so forth.
+
+485
+00:40:06,500 --> 00:40:23,500
+ This is another example about an animation about what happens when you, it's an end-to-end example and showing you what happens when you start a new program.
+
+486
+00:40:23,500 --> 00:40:35,500
+ So you have a new program, the program is on the disk, it's typically, you know, it's got an extension and you have the code, you have some data, static data and some other information.
+
+487
+00:40:35,500 --> 00:40:53,500
+ Okay, so you need to bring that in memory, you need to bring the code in memory in order to run. And when you are going to start, you are going to bring some part of the code in memory and then you are going to bring some data in memory and then you are going to allocate heap and the stack for that particular program.
+
+488
+00:40:53,500 --> 00:41:05,500
+ And this is the view from the virtual address space, VAS stands for virtual address space of the process, which was instantiated to run the program.
+
+489
+00:41:05,500 --> 00:41:24,500
+ And let's see, and then you obviously are going to back all these virtual addresses, everything in the virtual address, which is used by the program, you are going to be backed into the disk.
+
+490
+00:41:24,500 --> 00:41:40,500
+ Finally, between the virtual address and the memory, you need to do the translation, the translation is done with the page table. Some entries from the page table are going to point to pages in the physical memory.
+
+491
+00:41:40,500 --> 00:42:05,500
+ And if a page table, you know, it's invalid, so it doesn't exist in memory, the corresponding page table entry is going to point to the location of that page on the disk.
+
+492
+00:42:05,500 --> 00:42:21,500
+ So fundamentally what you need to do if that page is on the disk is to have a function, something like that, it's a find block which takes an argument, the process ID and the page number of that.
+
+493
+00:42:21,500 --> 00:42:34,500
+ And then for that page number and the process ID, you are going to get a disk location on the disk where you can find that page.
+
+494
+00:42:34,500 --> 00:42:39,500
+ So this is very similar with the page table concept.
+
+495
+00:42:39,500 --> 00:42:44,500
+ Okay. But it is purely done purely in software.
+
+496
+00:42:44,500 --> 00:42:52,500
+ No TLD, no nothing like that.
+
+497
+00:42:52,500 --> 00:43:13,500
+ And why do you think the PID? Why do you take the argument, the PID argument here?
+
+498
+00:43:13,500 --> 00:43:17,500
+ Anyone?
+
+499
+00:43:17,500 --> 00:43:23,500
+ Because the virtual address space is per process.
+
+500
+00:43:23,500 --> 00:43:24,500
+ Okay.
+
+501
+00:43:24,500 --> 00:43:28,500
+ The page tables are per process.
+
+502
+00:43:28,500 --> 00:43:38,500
+ So if I give you only the page number, it's not well defined, because multiple processes, they can have the same page numbers.
+
+503
+00:43:38,500 --> 00:43:48,500
+ And because the page number represents something in their virtual address space, and each of them has a different virtual address space.
+
+504
+00:43:48,500 --> 00:43:49,500
+ Okay.
+
+505
+00:43:49,500 --> 00:43:59,500
+ So that's why you need to give the process identifier to identify the virtual address space.
+
+506
+00:43:59,500 --> 00:44:01,500
+ Okay.
+
+507
+00:44:01,500 --> 00:44:15,500
+ Where do you store it? Obviously you want to store it in memory, because if you store it on the disk, then you need to bring it from the disk. It's going to be even slower.
+
+508
+00:44:15,500 --> 00:44:19,500
+ And that's pretty much it.
+
+509
+00:44:19,500 --> 00:44:31,500
+ So,
+
+510
+00:44:31,500 --> 00:44:39,500
+ any questions?
+
+511
+00:44:39,500 --> 00:44:51,500
+ So like in the case of the shared memory, we also can share the disk between different applications, processes.
+
+512
+00:44:51,500 --> 00:44:55,500
+ So for instance, I'll show you next.
+
+513
+00:44:55,500 --> 00:45:09,500
+ And the way I'll show you that is like for instance here, again, this is virtual address space for one process, and you can have another process and another process will have its own virtual address space, its own Pi page table.
+
+514
+00:45:09,500 --> 00:45:10,500
+ Okay.
+
+515
+00:45:10,500 --> 00:45:17,500
+ And here it's about the stack and the heap and the data of the second process.
+
+516
+00:45:17,500 --> 00:45:23,500
+ And assume that the second process and the first process running the same program.
+
+517
+00:45:23,500 --> 00:45:34,500
+ So the two processes that are just two instances of the same program. So in this particular case, as you can see, the code is shared, because the code is read only.
+
+518
+00:45:34,500 --> 00:45:57,500
+ So if you have two programs, which use instances, or sorry, it's you have two instances of the same program, then the virtual address space of the two, the two instances, the two processes, they can share the same code.
+
+519
+00:45:57,500 --> 00:46:10,500
+ And they can share the same code, obviously, and you can share also, we can share the same old code also in the physical memory.
+
+520
+00:46:10,500 --> 00:46:13,500
+ Make sense?
+
+521
+00:46:13,500 --> 00:46:19,500
+ Any questions?
+
+522
+00:46:19,500 --> 00:46:23,500
+ Okay.
+
+523
+00:46:23,500 --> 00:46:25,500
+ And again,
+
+524
+00:46:25,500 --> 00:46:36,500
+ the page table, the second process, some of the pages have been memory, some of them, the ones which are not in memory are backed on disk.
+
+525
+00:46:36,500 --> 00:46:37,500
+ Okay.
+
+526
+00:46:37,500 --> 00:47:00,500
+ Now, say the process active, the first process is active, then if you are going to have fetching instruction on access some physical memory, then you look at the page table, if say the page table entry is invalid, then you have a page fault, the operating system
+
+527
+00:47:00,500 --> 00:47:09,500
+ is a block on the disk which contains the page, and then move it to
+
+528
+00:47:09,500 --> 00:47:11,500
+ the memory.
+
+529
+00:47:11,500 --> 00:47:13,500
+ Okay.
+
+530
+00:47:13,500 --> 00:47:17,500
+ This is another summary step by step of handling a page fault.
+
+531
+00:47:17,500 --> 00:47:21,500
+ Again, you access the memory,
+
+532
+00:47:21,500 --> 00:47:42,500
+ virtual memory, this is step one, say the associated page table entry is invalid. This results in a trap page fault to the operating system.
+
+533
+00:47:42,500 --> 00:47:59,500
+ This block, locate the block where the page is stored on the disk, brings the page in memory in a free frame, page frame, updates the page table entries and restart the instruction.
+
+534
+00:47:59,500 --> 00:48:01,500
+ Okay, a few announcements.
+
+535
+00:48:01,500 --> 00:48:05,500
+ The Hallmark 4 has been released.
+
+536
+00:48:05,500 --> 00:48:14,500
+ This week, please attend the design reviews. Remember the design review starts at the hour.
+
+537
+00:48:14,500 --> 00:48:17,500
+ They are not on the Berkeley time.
+
+538
+00:48:17,500 --> 00:48:19,500
+ Please.
+
+539
+00:48:19,500 --> 00:48:28,500
+ So give time to everyone, so they can get the feedback from the TA.
+
+540
+00:48:28,500 --> 00:48:35,500
+ Remember that you need to participate during design reviews. Part of your grade is based on that.
+
+541
+00:48:35,500 --> 00:48:47,500
+ And other than that, you know, I know that there are now many deadlines, there are no deadlines for the next two weeks, but the next following weeks on November 1 will be pretty brutal.
+
+542
+00:48:47,500 --> 00:49:03,500
+ So, as such, please, please make progress on homework for Project 2 and start studying about midterm 2, which is mostly the materials we are learning.
+
+543
+00:49:03,500 --> 00:49:15,500
+ We have been learned since the first midterm. So midterm 2 will still have some of, you know, like maybe 10-20% for the materials of midterm 1.
+
+544
+00:49:15,500 --> 00:49:32,500
+ But this means that 80-90% of the materials will be from the lectures since midterm 1.
+
+545
+00:49:32,500 --> 00:49:35,500
+ Okay.
+
+546
+00:49:35,500 --> 00:49:45,500
+ So now let's switch the gears and answer the following key question.
+
+547
+00:49:45,500 --> 00:49:56,500
+ During a page fault, you need to bring a page from the disk to the memory.
+
+548
+00:49:56,500 --> 00:50:06,500
+ How do you find room for that page?
+
+549
+00:50:06,500 --> 00:50:18,500
+ And if there is no room, like we discussed, we are going to find a page. If it is dirty, save it on the disk and replace it with a new page.
+
+550
+00:50:18,500 --> 00:50:21,500
+ But typically this is quite expensive.
+
+551
+00:50:21,500 --> 00:50:30,500
+ You know, writing page, bring a page in is very expensive. So what many operating systems do in the background,
+
+552
+00:50:30,500 --> 00:50:39,500
+ they kick off some of the, they write back some of the dirty pages to the disk.
+
+553
+00:50:39,500 --> 00:50:44,500
+ So if you need to replace one, then you don't need to write it back.
+
+554
+00:50:44,500 --> 00:50:49,500
+ So this is kind of periodically the cleaning process.
+
+555
+00:50:49,500 --> 00:50:56,500
+ So to reduce the overhead of the demand paging.
+
+556
+00:50:56,500 --> 00:51:02,500
+ Now, but even if you have this,
+
+557
+00:51:02,500 --> 00:51:08,500
+ you know, this background mechanism, you still need to answer the following question.
+
+558
+00:51:08,500 --> 00:51:18,500
+ Which pages are you going to write to the disk? Or which pages you are going to evict to bring a new page in?
+
+559
+00:51:18,500 --> 00:51:29,500
+ OK. And the way you think about that, as you know by now, when we talk about scheduling and so forth,
+
+560
+00:51:29,500 --> 00:51:35,500
+ you need to come up with a policy. And when you come up with a policy to dictate which guides,
+
+561
+00:51:35,500 --> 00:51:42,500
+ which pages are written back or are evicted from the main memory,
+
+562
+00:51:42,500 --> 00:51:48,500
+ there are certain properties you want, you know, you need to think about. About utilization.
+
+563
+00:51:48,500 --> 00:51:54,500
+ You want to have high utilization of the memory because it's a scarce resource.
+
+564
+00:51:54,500 --> 00:52:03,500
+ You may want fairness between different processes. Or you want to enforce priority.
+
+565
+00:52:03,500 --> 00:52:13,500
+ So that's kind of you keep in mind that we are not going to implement different policies here.
+
+566
+00:52:13,500 --> 00:52:29,500
+ But this is for you to keep in mind that these are typical questions you are going to be faced with when you are going to design a page replacement policy.
+
+567
+00:52:29,500 --> 00:52:41,500
+ So the key model you have in mind when you run a program, one of these models, it's about the working set.
+
+568
+00:52:41,500 --> 00:52:55,500
+ So that what is the working set? A working set, roughly speaking, is the set of addresses whose content,
+
+569
+00:52:55,500 --> 00:53:04,500
+ if you have in the physical memory, then the programs works well. There are very few page faults.
+
+570
+00:53:04,500 --> 00:53:16,500
+ If any. Right. And this tried to show a depiction of a, this is for a program on the x axis, you have the time.
+
+571
+00:53:16,500 --> 00:53:29,500
+ And on the y axis, you have the address. And each rectangle, the height of the rectangle represents what addresses are accessed at a given time by the program.
+
+572
+00:53:29,500 --> 00:53:36,500
+ And the length represents for how long you access content from these addresses.
+
+573
+00:53:36,500 --> 00:53:50,500
+ So this is, and as you can see here, this is execution, this red stuff, it's execution of the program. And at different times, you have different working sets.
+
+574
+00:53:50,500 --> 00:54:07,500
+ So working set here is that if you draw a vertical line at a given time, then everything, all the blue rectangle, this line intersects,
+
+575
+00:54:07,500 --> 00:54:20,500
+ represent the working set, represent the addresses whose content should be in the physical memory, so that we do not have page faults.
+
+576
+00:54:20,500 --> 00:54:31,500
+ Okay. And the working set, one property in general is that is much smaller than the entire address space of the program.
+
+577
+00:54:31,500 --> 00:54:37,500
+ And also is changing over time.
+
+578
+00:54:37,500 --> 00:54:47,500
+ And obviously you can keep all the working set in memory or in the cache, then is great. The hit rate will be one.
+
+579
+00:54:47,500 --> 00:54:54,500
+ If you cannot, then the hit rate will not be one, and you are going to have also some miss rates.
+
+580
+00:54:54,500 --> 00:55:05,500
+ This also shows the cache size, how much of the program is stored in the cache for this previous example.
+
+581
+00:55:05,500 --> 00:55:15,500
+ And you start with very little, and you have here a lot of, and the hit rate is also very low.
+
+582
+00:55:15,500 --> 00:55:25,500
+ Sorry, let me backtrack here. So on the x axis here is a cache size, right? So you are looking here at caches of different sizes.
+
+583
+00:55:25,500 --> 00:55:33,500
+ On the y axis, you have the hit rate. If the cache size is infinite, the hit rate will be one.
+
+584
+00:55:33,500 --> 00:55:42,500
+ So when the cache size, or in other words, when the cache size is larger than the working set,
+
+585
+00:55:42,500 --> 00:55:46,500
+ or the working set is in the cache, then the hit rate is one.
+
+586
+00:55:46,500 --> 00:55:58,500
+ And then if the cache size is very small, then the hit rate will be very little, because probably all the working set will be,
+
+587
+00:55:58,500 --> 00:56:22,500
+ doesn't fit in the cache. So any fetch of an instruction, every access of the data will result on, it is going to result in a miss.
+
+588
+00:56:22,500 --> 00:56:38,500
+ Okay, any questions here?
+
+589
+00:56:38,500 --> 00:56:53,500
+ So if the cache is shared between different processes, like it's a second level cache, then you need to feed multiple working set in the same cache.
+
+590
+00:56:53,500 --> 00:57:04,500
+ And actually this figure shows when you have multiple working sets in the same cache. Each of these inflection points is when a new working set is feeding in the cache.
+
+591
+00:57:04,500 --> 00:57:08,500
+ Okay.
+
+592
+00:57:08,500 --> 00:57:18,500
+ So obviously you are going to have a very similar behavior for demand paging. Demand paging is just caching.
+
+593
+00:57:18,500 --> 00:57:32,500
+ Now, when we are talking about the working set, we have this kind of nice model, like I mentioned that actually the program is spending most of the time or all the time in a relatively small region of the address space.
+
+594
+00:57:32,500 --> 00:57:36,500
+ And this makes the cache very effective.
+
+595
+00:57:36,500 --> 00:57:45,500
+ However, there are other models for locality, like Ziffian distribution.
+
+596
+00:57:45,500 --> 00:57:59,500
+ And in this case, yes, you do have, this is for instance, on this figure what you see, here is a rank. So this represents, say, think about each of these is a page.
+
+597
+00:57:59,500 --> 00:58:10,500
+ And there are pages are ranked in the decreasing order of their popularity about how often they are accessed. And the popularity of access is on the y axis.
+
+598
+00:58:10,500 --> 00:58:21,500
+ So this says that the first page is accessed 20% of the time you access a memory, you access the first page.
+
+599
+00:58:21,500 --> 00:58:25,500
+ This is what it says.
+
+600
+00:58:25,500 --> 00:58:33,500
+ Now, the problem with this distribution and this popularity is shown by the blue line.
+
+601
+00:58:33,500 --> 00:58:42,500
+ The problem with this one is that with this distribution is a very challenging distribution is that it also has a long tail.
+
+602
+00:58:42,500 --> 00:59:03,500
+ Yes, most of the access are on a very few pages, but there is some pages, a lot of pages, a huge amount of pages are accessed frequently.
+
+603
+00:59:03,500 --> 00:59:17,500
+ And this creates problems, because, you know, no matter, you know, even if you have a big cache, you are still going to have misses because of this very rare items.
+
+604
+00:59:17,500 --> 00:59:28,500
+ So what this shows you is that even if you have a small cache, you get quite a bit of value because a few pages are responsible for most accesses.
+
+605
+00:59:28,500 --> 00:59:41,500
+ The second thing is that if you have a very large cache, it's a diminishing return, it may not benefit a lot, you still have substantial misses.
+
+606
+00:59:41,500 --> 00:59:50,500
+ Okay, questions.
+
+607
+00:59:50,500 --> 01:00:01,500
+ I don't know that video but yeah, there are many situations in which you are going this distribution is very common. One is web pages.
+
+608
+01:00:01,500 --> 01:00:07,500
+ I'm talking about web pages, right, when you access the web pages, they have a VPN distribution.
+
+609
+01:00:07,500 --> 01:00:09,760
+ And...
+
+610
+01:00:09,760 --> 01:00:21,750
+ is very common. It's a population of cities. There are a few cities with very large population and a few of them, but there are many, many, many of them with a smaller population.
+
+611
+01:00:21,750 --> 01:00:25,750
+ So it's a very common situation.
+
+612
+01:00:29,750 --> 01:00:43,750
+ So cost model, again, what we care about is estimated access time. And the estimated access time is a hit rate times hit time. So this is the latency to access the data in memory,
+
+613
+01:00:43,750 --> 01:00:53,750
+ plus miss rate plus the miss time. And the miss time is the time it takes to bring the data in memory from the disk if it's not there.
+
+614
+01:00:53,750 --> 01:00:57,750
+ And it's not there because we missed.
+
+615
+01:00:58,750 --> 01:01:11,750
+ The hit rate plus the miss rate, as you know, is one. You can also rewrite the equation by having miss penalty by denoting miss time minus hit time.
+
+616
+01:01:11,750 --> 01:01:21,750
+ This is the overhead, do it to miss. This is miss penalty. So you can rewrite the equation and hit time plus miss rate times miss penalty.
+
+617
+01:01:22,750 --> 01:01:37,750
+ And here is a very simple example. Memory access time is 200 nanoseconds. Average page fault service time, so bringing the page from the disk into memory, it's 8 milliseconds.
+
+618
+01:01:37,750 --> 01:01:43,750
+ Let's say p is the probability of miss, 1 minus p is the probability of hit.
+
+619
+01:01:44,750 --> 01:02:00,750
+ So this means that, and we are using the same, the second equation, the access time estimated access time is 200 nanoseconds plus p times 8 million nanoseconds.
+
+620
+01:02:00,750 --> 01:02:10,750
+ So if just one out of 1000 pages, page access, it's a fault.
+
+621
+01:02:11,750 --> 01:02:20,750
+ So this is 0.1%. The access time is over 8 microseconds, or 40 times more than just accessing the memory.
+
+622
+01:02:20,750 --> 01:02:32,750
+ So the slowdown is huge. So if you want to have a slowdown only by 10% to 10% slowdown, then you can, you know, fit this in the equation.
+
+623
+01:02:33,750 --> 01:02:46,750
+ And the p is the probability of miss should be lower than one page in 400,000 accesses.
+
+624
+01:02:47,750 --> 01:03:03,750
+ Okay. So that gives you a sense about how important is a page replacement policies in minimizing the miss rate. And that's how you use this, it's right here is an example.
+
+625
+01:03:04,750 --> 01:03:17,750
+ And of why here the demand paging is fully associative, right, because you just want to avoid any misses at any cost.
+
+626
+01:03:26,750 --> 01:03:34,750
+ Oh, it's a question here, what is the intuition behind why the hit rate is higher for the lower ranks?
+
+627
+01:03:34,750 --> 01:03:42,750
+ So here, right, let me see.
+
+628
+01:03:42,750 --> 01:03:49,750
+ So actually, the rank is a rank of popularity.
+
+629
+01:03:50,750 --> 01:03:58,750
+ Right. So actually, these pages are ordered in the decreasing order of their popularity.
+
+630
+01:03:58,750 --> 01:04:03,750
+ So the rank is equal to the popularity. So there is nothing subtle here.
+
+631
+01:04:03,750 --> 01:04:11,750
+ Okay. So rank doesn't mean anything else than being, you know, a measure of popularity.
+
+632
+01:04:15,750 --> 01:04:31,750
+ Okay, again, see, remember about caching. What are the type of misses, compulsory misses? So pages that have never been paid into memory, this is when you start the program, you need to read the code, right, for instance.
+
+633
+01:04:31,750 --> 01:04:39,750
+ Capacity misses, you don't have enough memory. What do you do in this case?
+
+634
+01:04:40,750 --> 01:04:58,750
+ You know, obviously, you can increase the number, increase the memory size, or, you know, you can share the memory between processes and give each process certain, you know, amount of memory.
+
+635
+01:04:59,750 --> 01:05:10,750
+ So in some cases, as you'll see, one solution is to kill one of the processes. So the remaining processes, they have enough physical memory.
+
+636
+01:05:10,750 --> 01:05:24,750
+ Conflict misses, you don't have those, technically, because it's a fully associative cache, right? And policy misses, it's about depends on the replacement policy we are going to use.
+
+637
+01:05:26,750 --> 01:05:31,750
+ So here we just want a better replacement policy to minimize the misses.
+
+638
+01:05:31,750 --> 01:05:37,750
+ Okay. So page replacement policies.
+
+639
+01:05:37,750 --> 01:05:45,750
+ It's again, you know, those, you know, you know, you learn a few of them last time.
+
+640
+01:05:45,750 --> 01:05:48,750
+ The same is similar here.
+
+641
+01:05:48,750 --> 01:05:53,750
+ FIFO.
+
+642
+01:05:55,750 --> 01:06:00,750
+ First in, first out, you throw out the oldest page, you evict the oldest page.
+
+643
+01:06:00,750 --> 01:06:07,750
+ It's some degree of fairness in terms of access.
+
+644
+01:06:07,750 --> 01:06:19,750
+ But it can be also bad. Why, when it's FIFO bad? It's when you have a very popular page which is accessed over and over again, right?
+
+645
+01:06:20,750 --> 01:06:25,750
+ And this is also one of the pages which are going to be the oldest.
+
+646
+01:06:25,750 --> 01:06:37,750
+ You know, could be the oldest or the program started, it loaded this page, like, for instance, the code, like for this PowerPoint slides, right?
+
+647
+01:06:37,750 --> 01:06:47,750
+ The code which is responsible for going from one slide and displaying the next slide.
+
+648
+01:06:48,750 --> 01:06:59,750
+ And this, I'm, you know, I am using that code from the beginning of the lecture. So that was one of the first pieces of code which was loaded in memory.
+
+649
+01:06:59,750 --> 01:07:04,750
+ But if I use FIFO, that will be also a piece of code which will be evicted.
+
+650
+01:07:04,750 --> 01:07:12,750
+ And if you're evicted, you know, it's just to be loaded again next time I'm turning to the next slide.
+
+651
+01:07:12,750 --> 01:07:15,750
+ Random is very simple.
+
+652
+01:07:16,750 --> 01:07:27,750
+ And so they're very fast to implement also in hardware. And typically you have this in TLB when you need to be super fast.
+
+653
+01:07:27,750 --> 01:07:32,750
+ On the downside, it's random. It's not predictable, right?
+
+654
+01:07:32,750 --> 01:07:43,750
+ And then it's minimum. And the minimum, it's the optimal one, right?
+
+655
+01:07:44,750 --> 01:07:50,750
+ What is the optimal replacement policy? You should know that from cash. What is the optimal replacement policy?
+
+656
+01:07:50,750 --> 01:07:58,750
+ You want to replace the page which won't be used for the longest time.
+
+657
+01:07:58,750 --> 01:08:04,750
+ It's as simple as that. The problem with this is that you need to predict the future and you don't know.
+
+658
+01:08:05,750 --> 01:08:16,750
+ And the way around it is to use the past as a good predictor of the future. That is, if a page has not been used for a while,
+
+659
+01:08:16,750 --> 01:08:22,750
+ then the page will not, I assume that the page will not be again accessed for a while.
+
+660
+01:08:22,750 --> 01:08:30,750
+ And if the page was just used before recently, it's going to be likely used again in the future.
+
+661
+01:08:30,750 --> 01:08:34,750
+ Any questions here?
+
+662
+01:08:34,750 --> 01:08:51,750
+ Okay, so this is approximation of min, it's recently used, right? Just replace the page that hasn't been used for the longest time.
+
+663
+01:08:51,750 --> 01:08:59,750
+ And if the programs have every locality, this is a pretty good policy.
+
+664
+01:09:00,750 --> 01:09:08,750
+ How we implement it? One, you can simply implement it, you can keep a list of pages.
+
+665
+01:09:08,750 --> 01:09:23,750
+ And when you have a new page, when you access a page, you put it as a head, you move it to the head of the cube.
+
+666
+01:09:24,750 --> 01:09:33,750
+ And the last in this list is a page which hasn't been accessed for the longest time.
+
+667
+01:09:44,750 --> 01:09:54,750
+ It's a great question. Is there anything you can do when you are writing code to help decrease page misses?
+
+668
+01:09:54,750 --> 01:10:00,750
+ It's a great question. Yes, you can do it. I'll give you one example.
+
+669
+01:10:00,750 --> 01:10:08,750
+ Like for instance, and this is used and known by people, you know, do high performance computing.
+
+670
+01:10:09,750 --> 01:10:17,750
+ Say you have a matrix and say you want to multiply the matrix or do some operation on the matrix.
+
+671
+01:10:17,750 --> 01:10:22,750
+ You can iterate on rows or you can iterate on columns.
+
+672
+01:10:22,750 --> 01:10:31,750
+ Now, it's very important about how this matrix is stored in memory.
+
+673
+01:10:32,750 --> 01:10:39,750
+ You store row by row, you store first the first row, then the next row and the next row.
+
+674
+01:10:39,750 --> 01:10:52,750
+ And if the matrix is large, if I want to grid set all the elements of the matrix, if I can, I'm going to iterate by row, it's going to have a good cache locality.
+
+675
+01:10:53,750 --> 01:11:04,750
+ So with the first row matrix, I'm already going to start to bring the first page. The first page contains a lot of elements from the first row.
+
+676
+01:11:04,750 --> 01:11:09,750
+ So they are going to be all already in the cache when I'm going to access them.
+
+677
+01:11:09,750 --> 01:11:16,750
+ Okay. Now, say I'm going to write the same program, but I'm going to access columns.
+
+678
+01:11:17,750 --> 01:11:29,750
+ I'm going to access the first element and I'm going to bring a page in. Now, the next element I'm going to access is going to be from the next row, not in the same row.
+
+679
+01:11:29,750 --> 01:11:41,750
+ So the next row that can result in another miss and I need to bring another page just to access only one element from that page and so forth.
+
+680
+01:11:42,750 --> 01:11:48,750
+ But by the time I go back to access the second element from the first row, that page may be already gone.
+
+681
+01:11:48,750 --> 01:11:56,750
+ Right. Because not all the pages may fit in cache. So that's what you can do. That's one example.
+
+682
+01:11:56,750 --> 01:12:03,750
+ You want or the TLDR here, you want to write your program to preserve locality.
+
+683
+01:12:04,750 --> 01:12:15,750
+ Another way, another thing which kind of destroy locality, if you have go tos, right, if you write a program, it jumps around the go to. That destroys the code locality.
+
+684
+01:12:15,750 --> 01:12:33,750
+ I know that a large number of random accesses on the heap is generally bad for cache hit rates, but that's the same generally applies to minimize page misses.
+
+685
+01:12:33,750 --> 01:12:47,750
+ I mean, it's again, it's like random is not going, you use random because it's fast.
+
+686
+01:12:47,750 --> 01:12:59,750
+ But in this particular case, because it's so costly to the page fault is so costly, you really want to avoid random.
+
+687
+01:13:00,750 --> 01:13:08,750
+ And we still TLB use random because you want to be extremely, extremely fast. Right.
+
+688
+01:13:08,750 --> 01:13:22,750
+ That happens actually in hardware. Hopefully I answered this question. If I didn't answer, you know, ask, ask it again and maybe rephrase what you think I may have missed from your question.
+
+689
+01:13:23,750 --> 01:13:35,750
+ What does this mean? We have to take a software fault on every access. Yes, this I think refers to the examples I gave you about matrices going by columns.
+
+690
+01:13:35,750 --> 01:13:45,750
+ Yes. In the worst case, this means that you can take us a page fault on every access to a record.
+
+691
+01:13:45,750 --> 01:14:05,750
+ No, it's either you're not. It's because it's again, it's like if you have something which is used very often,
+
+692
+01:14:06,750 --> 01:14:24,750
+ then every time when you access it, you are going to again, when you put here in this example, sorry, when you put here in this example, is again, if I access page seven, I'm going to put it as a head of the queue.
+
+693
+01:14:25,750 --> 01:14:39,750
+ Or the head of the list accessing page one, I'm going to put it ahead of the list. Accessing page two now the page three is going to head of the list. So, and if I access something very often,
+
+694
+01:14:40,750 --> 01:15:00,750
+ then they are going to be close to the head of the list. So they are not going to be removed. They are not going to be evicted.
+
+695
+01:15:01,750 --> 01:15:17,750
+ So, that's a good question. Does that mean that we have to work all PTEs and scans valid bits every so often to build the list? It's a great access piece, use piece, the use piece. You are referring to the use piece.
+
+696
+01:15:17,750 --> 01:15:26,750
+ That's a good point. You could do that. But as we are going to see next,
+
+697
+01:15:28,750 --> 01:15:36,750
+ this is a precise implementation of the list recently used, but it's expensive to implement.
+
+698
+01:15:36,750 --> 01:15:43,750
+ So what we are going to implement, it's an approximation of Alerio.
+
+699
+01:15:43,750 --> 01:15:47,750
+ Right. That's what we are going to implement.
+
+700
+01:15:51,750 --> 01:15:58,750
+ So, but before we go there and we are going to show how we are going to implement an approximation of Alerio.
+
+701
+01:15:58,750 --> 01:16:09,750
+ And again, we want to implement an approximation of Alerio because we don't want to manipulate pointers to do many, many more accesses whenever we access a page.
+
+702
+01:16:11,750 --> 01:16:29,750
+ Before that, let's look at a few other replacement policies. This is FIFO. And here we have a cache which has three slots, or you know, you have three frames.
+
+703
+01:16:29,750 --> 01:16:40,750
+ And this is your order in which we access, the sequence we access these pages. As the pages are denoted A, B, C, D, there are four pages.
+
+704
+01:16:40,750 --> 01:16:48,750
+ So I'm going to first access A's and B's and C and so forth.
+
+705
+01:16:48,750 --> 01:17:07,750
+ So let's access A. Initially the cache or memory is empty. So we are going to save, use the first page frame to store A.
+
+706
+01:17:08,750 --> 01:17:17,750
+ Then B still have available slot, available frames. I'm going to use the second one and then use a server.
+
+707
+01:17:17,750 --> 01:17:30,750
+ Okay. Now things become interesting here. Now I'm going to come to access A again and A it's already in. So it's fine. I'm happy.
+
+708
+01:17:30,750 --> 01:17:41,750
+ I'm not going to do anything. I'm going to access it. It's already in memory. B is the same, but now it's D. D is not in the memory.
+
+709
+01:17:41,750 --> 01:17:51,750
+ So what do I need to do? And the memory is full. So I need to make room for it. So which page I'm going to evict here? It's first in, first out.
+
+710
+01:17:51,750 --> 01:18:06,750
+ So I'm going to evict the page, which was the first, which was the first which was brought in the memory, right? Which is A.
+
+711
+01:18:06,750 --> 01:18:19,750
+ So I'm going to replace it with D. Now, after D it's A. Well, now A is again, the memory is full.
+
+712
+01:18:19,750 --> 01:18:30,750
+ So I need to pick a page to evict. And I'm going to pick which one? B. Okay. Now the next one is D again.
+
+713
+01:18:30,750 --> 01:18:40,750
+ It's in memory. Now I don't need to do anything. Then B. Now I don't have B in memory. In memory I have only A, C and D.
+
+714
+01:18:40,750 --> 01:18:56,750
+ Right? So I need to replace one. So which one was the oldest? It's C. Okay. So and then C, I'm going to replace D.
+
+715
+01:18:56,750 --> 01:19:10,750
+ And then finally B. B is already in. So here, how many pagefalls I had? One, two, three, four. Right?
+
+716
+01:19:10,750 --> 01:19:28,750
+ These are capacity misses. And in addition to that, I have three other misses and these are what kind of misses are those?
+
+717
+01:19:28,750 --> 01:19:40,750
+ Compulsory misses. So I have three compulsory misses, four capacity misses, seven false. Seven misses. Okay.
+
+718
+01:19:40,750 --> 01:19:52,750
+ And here, just notice that this was a bad decision to replace A when we brought D in because the next access was to A.
+
+719
+01:19:52,750 --> 01:20:06,750
+ So let's keep this in mind and with that, I'll stop here and we are going to continue to discuss about the page replacement policies next lecture.
+
+720
+01:20:06,750 --> 01:20:12,750
+ Thank you.
+

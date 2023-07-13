@@ -1,0 +1,3452 @@
+1
+00:00:00,000 --> 00:00:25,620
+ Hello everyone.
+
+2
+00:00:25,620 --> 00:00:31,400
+ So today we are going to continue our discussion about file systems.
+
+3
+00:00:31,400 --> 00:00:39,000
+ And in particular, we are going to go through a few examples to see how some of the most
+
+4
+00:00:39,000 --> 00:00:46,600
+ popular file systems in the past have been implemented.
+
+5
+00:00:46,600 --> 00:00:59,440
+ Just to recall, these are the main data structures which are maintained by a file system.
+
+6
+00:00:59,440 --> 00:01:06,760
+ First of all, we are going to have directory structures, which is, as you know, it's a
+
+7
+00:01:06,760 --> 00:01:08,880
+ radical.
+
+8
+00:01:08,880 --> 00:01:14,320
+ And here you are going to use a file path to locate a particular file in this directory
+
+9
+00:01:14,320 --> 00:01:23,320
+ structure and an entering the directory structures associate the file with an inumber.
+
+10
+00:01:23,320 --> 00:01:31,840
+ An inumber is an index in an index structure called file header structure.
+
+11
+00:01:31,840 --> 00:01:37,400
+ And this index points to what is called an inode.
+
+12
+00:01:37,400 --> 00:01:45,000
+ And the inode contains all the information which is relevant to the file and which helps
+
+13
+00:01:45,000 --> 00:01:55,080
+ the operating system to locate the data for that file on the disk.
+
+14
+00:01:55,080 --> 00:02:00,280
+ So the first case we are going to go over, it's FAT.
+
+15
+00:02:00,280 --> 00:02:04,520
+ FAT stands for file allocation table.
+
+16
+00:02:04,520 --> 00:02:18,220
+ And this was the first file system employed by Microsoft Disk Operating System, which
+
+17
+00:02:18,220 --> 00:02:24,880
+ is the first operating system released by Microsoft all the way in 1977.
+
+18
+00:02:24,880 --> 00:02:38,240
+ And it's still quite used today, despite after what, after 50, 44 years.
+
+19
+00:02:38,240 --> 00:02:46,360
+ And the FAT file system is quite simple.
+
+20
+00:02:46,360 --> 00:02:56,200
+ So first of all, what you have here on the right, it's blocks on the disk and the disk
+
+21
+00:02:56,200 --> 00:02:57,200
+ blocks.
+
+22
+00:02:57,200 --> 00:03:02,680
+ And you have a file for each file you have where the block is located.
+
+23
+00:03:02,680 --> 00:03:05,880
+ Each file has a bunch of blocks.
+
+24
+00:03:05,880 --> 00:03:17,480
+ And like you say, for file system 31, this is where the disks are located.
+
+25
+00:03:17,480 --> 00:03:27,280
+ And then you need to maintain in the FAT table a pointer or the identity of where the disks,
+
+26
+00:03:27,280 --> 00:03:38,880
+ the blocks are located, therefore to the index of that block.
+
+27
+00:03:38,880 --> 00:03:43,960
+ So the disk block, you can think about of an array of blocks.
+
+28
+00:03:43,960 --> 00:03:47,240
+ Each block has an identifier.
+
+29
+00:03:47,240 --> 00:03:52,360
+ Typically it's a logical identifier, which is mapped then on a physical identifier to
+
+30
+00:03:52,360 --> 00:03:53,360
+ the disk.
+
+31
+00:03:53,360 --> 00:04:02,680
+ And the FAT maintains a mapping between the files and the list of blocks identifiers,
+
+32
+00:04:02,680 --> 00:04:05,960
+ logical identifiers.
+
+33
+00:04:05,960 --> 00:04:10,360
+ So how does FAT maintain that?
+
+34
+00:04:10,360 --> 00:04:14,960
+ It's again, this is maintained in the inode.
+
+35
+00:04:14,960 --> 00:04:19,840
+ The inode is indexed by the inumber.
+
+36
+00:04:19,840 --> 00:04:24,200
+ Let's assume that the file number here is 31.
+
+37
+00:04:24,200 --> 00:04:28,480
+ And the FAT is just basically a linked list.
+
+38
+00:04:28,480 --> 00:04:32,960
+ Each entry in the linked list corresponds to a block of a file.
+
+39
+00:04:32,960 --> 00:04:42,400
+ And each entry will maintain the index of a block and then a pointer to the next entry,
+
+40
+00:04:42,400 --> 00:04:46,360
+ which points to the next block.
+
+41
+00:04:46,360 --> 00:04:53,800
+ So here, assume that you are going to have in three blocks in this file, 0, 1, and 2,
+
+42
+00:04:53,800 --> 00:04:58,560
+ you have three corresponding entries in the FAT table.
+
+43
+00:04:58,560 --> 00:05:07,200
+ And each entry will have an index to a corresponding block and then a pointer to the next entry,
+
+44
+00:05:07,200 --> 00:05:24,360
+ to the next entry corresponding to the next block in the file.
+
+45
+00:05:24,360 --> 00:05:32,280
+ Also as you know, when I am opening a file, another important data I need is basically
+
+46
+00:05:32,280 --> 00:05:33,680
+ the offset.
+
+47
+00:05:33,680 --> 00:05:37,300
+ So what is the current position in the file?
+
+48
+00:05:37,300 --> 00:05:42,120
+ The current position in the file here is given by a tuple.
+
+49
+00:05:42,120 --> 00:05:46,680
+ The first tuple is a block in the file.
+
+50
+00:05:46,680 --> 00:05:57,040
+ And the second part of the tuple, it's basically the offset within that block.
+
+51
+00:05:57,040 --> 00:06:00,140
+ Yeah.
+
+52
+00:06:00,140 --> 00:06:06,900
+ So the question is, where does x, the second element of the 2x tuple, comes into the place?
+
+53
+00:06:06,900 --> 00:06:16,400
+ Again, x, it's offset within the block 2 in this case.
+
+54
+00:06:16,400 --> 00:06:25,100
+ So that's why in order to access the data here from block 2, you start from block 0,
+
+55
+00:06:25,100 --> 00:06:29,840
+ then you have to follow the linked list to block 1, then to block 2, and now block 2,
+
+56
+00:06:29,840 --> 00:06:31,640
+ this is a block I care about.
+
+57
+00:06:31,640 --> 00:06:42,040
+ Now I can retrieve block 2, and then I'm going to the offset x within the block 2.
+
+58
+00:06:42,040 --> 00:06:45,460
+ So it's a very simple technique.
+
+59
+00:06:45,460 --> 00:06:54,800
+ So now you read the block 2 in the memory and then you access offset x within that block.
+
+60
+00:06:54,800 --> 00:07:06,880
+ So again, it's a collection of blocks, and each entry in this linked list, in the fat
+
+61
+00:07:06,880 --> 00:07:12,040
+ linked list, corresponds to a block.
+
+62
+00:07:12,040 --> 00:07:25,380
+ And the file number, it's basically the file number for simplicity in the case of fat,
+
+63
+00:07:25,380 --> 00:07:32,000
+ it's exactly the index of the root block in the file.
+
+64
+00:07:32,000 --> 00:07:39,880
+ So in this case, 31, it's also the index of the root block on the disk.
+
+65
+00:07:39,880 --> 00:07:51,640
+ Okay, so what about, obviously, what about free blocks?
+
+66
+00:07:51,640 --> 00:07:56,680
+ So you need free blocks in order, obviously, to extend the file.
+
+67
+00:07:56,680 --> 00:08:02,320
+ Remember that the file expands as you write more in the file.
+
+68
+00:08:02,320 --> 00:08:05,360
+ So there are four new files you need to follow.
+
+69
+00:08:05,360 --> 00:08:12,760
+ If you want to write a new file, you need to look at, to find these free blocks.
+
+70
+00:08:12,760 --> 00:08:18,280
+ The free blocks, typically there are two ways to manage these free blocks.
+
+71
+00:08:18,280 --> 00:08:21,440
+ One is to have a list of free blocks.
+
+72
+00:08:21,440 --> 00:08:26,520
+ The other one, you can have a bitmap of free blocks.
+
+73
+00:08:26,520 --> 00:08:32,840
+ So basically, in this bitmap case, you have for each block, you have a bit, one or zero,
+
+74
+00:08:32,840 --> 00:08:39,400
+ one if it's, that block is not free, it's used by a file, zero if it's free.
+
+75
+00:08:39,400 --> 00:08:42,480
+ Okay, so this is how you find it.
+
+76
+00:08:42,480 --> 00:08:46,680
+ In this particular case, for instance, if you are going to write, if the file for now
+
+77
+00:08:46,680 --> 00:08:55,240
+ has only three blocks, and you want to write more data, like in this case, I want to write
+
+78
+00:08:55,240 --> 00:09:02,160
+ in file 71 in block C, so this means the fourth block, then what happens again, the file,
+
+79
+00:09:02,160 --> 00:09:09,480
+ the operating system, the file system expands the file and finds them by finding a new block
+
+80
+00:09:09,480 --> 00:09:15,120
+ in the empty list and then allocating that block and now that block is part of the file
+
+81
+00:09:15,120 --> 00:09:26,880
+ and it's also part of the linked list of all the blocks which belong to that file.
+
+82
+00:09:26,880 --> 00:09:31,160
+ So now, what is fast thought?
+
+83
+00:09:31,160 --> 00:09:38,560
+ So it's again, this is persistent storage, all these modifications needs to persist after
+
+84
+00:09:38,560 --> 00:09:44,400
+ I am going, I write a file, for instance, I modify the file, and then I close the application
+
+85
+00:09:44,400 --> 00:09:48,880
+ because next time when I open the application and I want to read the files, I want my changes
+
+86
+00:09:48,880 --> 00:09:49,880
+ to be reflected.
+
+87
+00:09:49,880 --> 00:09:56,080
+ So therefore, by default, this, all this information is a fact, not only the data, but also the
+
+88
+00:09:56,080 --> 00:10:02,680
+ metadata, it has to be on persistent restored in this and the obvious place to restore it
+
+89
+00:10:02,680 --> 00:10:08,080
+ is on the disk.
+
+90
+00:10:08,080 --> 00:10:10,600
+ How do you format a disk?
+
+91
+00:10:10,600 --> 00:10:21,320
+ Do you know what formatting a disk means for people?
+
+92
+00:10:21,320 --> 00:10:33,120
+ So, formatting meaning, you know, I want to make the disk as new, right?
+
+93
+00:10:33,120 --> 00:10:41,480
+ I want to basically erase everything and the way you do it is basically you zero the blocks
+
+94
+00:10:41,480 --> 00:10:47,760
+ and in the fact table, you mark everything being free.
+
+95
+00:10:47,760 --> 00:10:52,240
+ There is a question here from Gilbert.
+
+96
+00:10:52,240 --> 00:10:58,400
+ Do the blocks not have to be in order in the linked list?
+
+97
+00:10:58,400 --> 00:11:04,280
+ So I'm afraid I don't understand that question.
+
+98
+00:11:04,280 --> 00:11:09,280
+ Can you be more precise Gilbert about this question?
+
+99
+00:11:09,280 --> 00:11:14,480
+ So are you asking that because the linked list is fundamentally ordered.
+
+100
+00:11:14,480 --> 00:11:19,720
+ Ah, like block three is before the block two.
+
+101
+00:11:19,720 --> 00:11:24,640
+ That's exactly why we have a linked list because when you are going to read from a block, we
+
+102
+00:11:24,640 --> 00:11:27,400
+ are going to go along the linked list.
+
+103
+00:11:27,400 --> 00:11:28,400
+ Okay.
+
+104
+00:11:28,400 --> 00:11:30,680
+ So that's the main point, right?
+
+105
+00:11:30,680 --> 00:11:36,680
+ So in this particular case, we are going, again, if you follow the linked list, the
+
+106
+00:11:36,680 --> 00:11:41,120
+ linked list will link the blocks in the order, you know, it's all written.
+
+107
+00:11:41,120 --> 00:11:42,120
+ Okay.
+
+108
+00:11:42,120 --> 00:11:43,680
+ They are appended to the file.
+
+109
+00:11:43,680 --> 00:11:47,520
+ That's exactly why I need a linked list.
+
+110
+00:11:47,520 --> 00:11:54,320
+ To preserve that, to store that order.
+
+111
+00:11:54,320 --> 00:12:01,360
+ What happens if we try to insert something in the middle of a file for FAT?
+
+112
+00:12:01,360 --> 00:12:05,520
+ Do we insert a new block into the linked list or is there something more clever?
+
+113
+00:12:05,520 --> 00:12:13,360
+ Well, if you insert, you see in any file system and most file systems actually, you cannot
+
+114
+00:12:13,360 --> 00:12:16,200
+ insert a block in the middle, right?
+
+115
+00:12:16,200 --> 00:12:21,160
+ Because from the file system, think about what is the interface.
+
+116
+00:12:21,160 --> 00:12:23,680
+ You can just write to the block.
+
+117
+00:12:23,680 --> 00:12:28,640
+ So or read from the, sorry, you write through the file and read from the file.
+
+118
+00:12:28,640 --> 00:12:36,520
+ If you write from the file, if you write in a place where already contains data, you override
+
+119
+00:12:36,520 --> 00:12:38,240
+ that data, right?
+
+120
+00:12:38,240 --> 00:12:42,160
+ So you write in an already existing block, right?
+
+121
+00:12:42,160 --> 00:12:53,240
+ And if you write at the end of the file, then if you run out of existing, the block at the
+
+122
+00:12:53,240 --> 00:12:56,040
+ end of the file, you are going to add a new block.
+
+123
+00:12:56,040 --> 00:13:00,840
+ So you are going to expand the file.
+
+124
+00:13:00,840 --> 00:13:07,640
+ Good question.
+
+125
+00:13:07,640 --> 00:13:11,600
+ How to quick format a disk?
+
+126
+00:13:11,600 --> 00:13:17,240
+ You can mark all the FAT entries to free.
+
+127
+00:13:17,240 --> 00:13:19,400
+ And this can be easily implemented.
+
+128
+00:13:19,400 --> 00:13:24,000
+ The main point here, it's again, it's like you can actually, and there are two ways to
+
+129
+00:13:24,000 --> 00:13:25,000
+ format it.
+
+130
+00:13:25,000 --> 00:13:32,800
+ And again, format meanings in, it just, you want to have the disk as new.
+
+131
+00:13:32,800 --> 00:13:38,840
+ Now if you just remove all the information in the FAT without doing anything with the
+
+132
+00:13:38,840 --> 00:13:45,200
+ disk blocks, the disk block still remains, you know, you don't zero them.
+
+133
+00:13:45,200 --> 00:13:50,600
+ Then from the point of view of the operating of the file system, the disk is free.
+
+134
+00:13:50,600 --> 00:14:00,880
+ You can allocate everything because you removed, you just mark all the FAT entries being free,
+
+135
+00:14:00,880 --> 00:14:01,880
+ right?
+
+136
+00:14:01,880 --> 00:14:06,280
+ So you are going to allocate from the previous blocks, which you'll return for a different
+
+137
+00:14:06,280 --> 00:14:07,960
+ file, so just override them.
+
+138
+00:14:07,960 --> 00:14:08,960
+ No problem.
+
+139
+00:14:08,960 --> 00:14:15,800
+ Now, obviously this is not a hard format because it maintains the information from the previous
+
+140
+00:14:15,800 --> 00:14:17,600
+ files.
+
+141
+00:14:17,600 --> 00:14:22,040
+ And typically when people format, they also want to erase this information for security
+
+142
+00:14:22,040 --> 00:14:23,040
+ reasons.
+
+143
+00:14:23,040 --> 00:14:27,600
+ So you need to be careful about what kind of format is going to happen on your formatted
+
+144
+00:14:27,600 --> 00:14:28,600
+ disk.
+
+145
+00:14:28,600 --> 00:14:33,000
+ If you care about the information from your previous files to not be visible.
+
+146
+00:14:33,000 --> 00:14:40,600
+ Again, for instance, you hand down, you hand back your computer to your employee or something
+
+147
+00:14:40,600 --> 00:14:43,080
+ like that.
+
+148
+00:14:43,080 --> 00:14:50,560
+ The FAT directory is again, it's like, you know, directory you have to remember, you
+
+149
+00:14:50,560 --> 00:14:54,400
+ have this and it topples.
+
+150
+00:14:54,400 --> 00:14:55,960
+ One is a file name.
+
+151
+00:14:55,960 --> 00:14:57,320
+ The first part is a file name.
+
+152
+00:14:57,320 --> 00:15:01,280
+ The second one is a file number.
+
+153
+00:15:01,280 --> 00:15:06,920
+ And here is a FAT we also have, it's a linked list, right?
+
+154
+00:15:06,920 --> 00:15:09,000
+ It's like we know.
+
+155
+00:15:09,000 --> 00:15:13,800
+ And all the directory, you know, what you see in a directory, which is basically a list
+
+156
+00:15:13,800 --> 00:15:21,400
+ of names, what happens here, you are going to have each of these, what you see entering
+
+157
+00:15:21,400 --> 00:15:28,020
+ this directory is going to be linked, all of them, you know, in a linked list.
+
+158
+00:15:28,020 --> 00:15:35,820
+ If you remove a file, then you are going to update the pointers so that you are going
+
+159
+00:15:35,820 --> 00:15:43,300
+ to step over that file, which was over that entry, which was deleted.
+
+160
+00:15:43,300 --> 00:15:45,280
+ So that's how you have here.
+
+161
+00:15:45,280 --> 00:15:49,540
+ So it's very simple.
+
+162
+00:15:49,540 --> 00:15:56,960
+ So one, there are a few things about the FAT directory, which is worth mention.
+
+163
+00:15:56,960 --> 00:15:59,860
+ It's where do you have the attributes, the attributes for a file?
+
+164
+00:15:59,860 --> 00:16:03,340
+ The attributes for a file is like protection and permission attributes.
+
+165
+00:16:03,340 --> 00:16:09,500
+ You know, who has access to the file to read it, to write it, to execute that file, if
+
+166
+00:16:09,500 --> 00:16:11,420
+ it's a binary file.
+
+167
+00:16:11,420 --> 00:16:16,960
+ And in the FAT, these attributes are maintained here in the directory.
+
+168
+00:16:16,960 --> 00:16:26,060
+ Like we'll see in other file systems, these attributes are associated with the file itself.
+
+169
+00:16:26,060 --> 00:16:33,500
+ The other question, which in general is, it's an important question for all the file systems.
+
+170
+00:16:33,500 --> 00:16:34,500
+ Where do you find the root?
+
+171
+00:16:34,500 --> 00:16:36,500
+ Where do you start from?
+
+172
+00:16:36,500 --> 00:16:37,500
+ Right?
+
+173
+00:16:37,500 --> 00:16:38,940
+ To get the root.
+
+174
+00:16:38,940 --> 00:16:44,140
+ If I give you a file name, you need to go and get the root directory and then go through
+
+175
+00:16:44,140 --> 00:16:50,560
+ the path names in that directory to find the particular file name and then the I number
+
+176
+00:16:50,560 --> 00:16:53,200
+ for the file.
+
+177
+00:16:53,200 --> 00:17:02,520
+ And typically this root, it's a well defined place on the disk.
+
+178
+00:17:02,520 --> 00:17:05,960
+ For instance, in the case of FAT, it's block two.
+
+179
+00:17:05,960 --> 00:17:07,420
+ So what else here?
+
+180
+00:17:07,420 --> 00:17:12,240
+ Obviously, because this is maintaining a link list, then in order to read a directory and
+
+181
+00:17:12,240 --> 00:17:17,080
+ to display the content of the directory, you need to go over this link list.
+
+182
+00:17:17,080 --> 00:17:21,480
+ You need also to go over, which is called "conf" defined because when you do a display,
+
+183
+00:17:21,480 --> 00:17:27,980
+ like all the entries in a directory, you want to display all the files in the directory.
+
+184
+00:17:27,980 --> 00:17:33,880
+ But when you want to find a file in a directory, you still need to have to go over this link
+
+185
+00:17:33,880 --> 00:17:37,500
+ list, which can be expensive.
+
+186
+00:17:37,500 --> 00:17:40,500
+ Any questions?
+
+187
+00:17:40,500 --> 00:17:48,880
+ Okay, so here are a few questions.
+
+188
+00:17:48,880 --> 00:17:54,420
+ So suppose you start with a file number, the file number is everyone, like in our previous
+
+189
+00:17:54,420 --> 00:17:56,000
+ example.
+
+190
+00:17:56,000 --> 00:18:02,760
+ And here you see also yellow is you have a file too.
+
+191
+00:18:02,760 --> 00:18:09,000
+ Let's see, what is the time to find a block?
+
+192
+00:18:09,000 --> 00:18:14,000
+ What do you need to find a block?
+
+193
+00:18:14,000 --> 00:18:30,480
+ Yes, you take this, it's O(n) where n is the number of blocks.
+
+194
+00:18:30,480 --> 00:18:37,400
+ Actually, in this case, you say root then traverse to the desired number.
+
+195
+00:18:37,400 --> 00:18:40,400
+ Here you already have the file number, the 31.
+
+196
+00:18:40,400 --> 00:18:47,800
+ So you don't need to do the directory traversal.
+
+197
+00:18:47,800 --> 00:18:50,440
+ But yes, this is correct and Gilbert.
+
+198
+00:18:50,440 --> 00:18:55,760
+ So basically in this particular case, you need, it's a linear search, right?
+
+199
+00:18:55,760 --> 00:18:58,960
+ You need to find a particular block.
+
+200
+00:18:58,960 --> 00:19:03,080
+ You need to follow the pointers in the link list.
+
+201
+00:19:03,080 --> 00:19:08,280
+ And everyone knows that link list to find something in a link list is linear search
+
+202
+00:19:08,280 --> 00:19:13,880
+ in the ER file.
+
+203
+00:19:13,880 --> 00:19:20,520
+ So what is a block layout for files?
+
+204
+00:19:20,520 --> 00:19:24,080
+ It was a previous question, do they need to be contiguous?
+
+205
+00:19:24,080 --> 00:19:25,080
+ Not...
+
+206
+00:19:25,080 --> 00:19:30,080
+ Yes, it's correct.
+
+207
+00:19:30,080 --> 00:19:44,640
+ Actually, they don't need to be contiguous, they can be random because then we are going
+
+208
+00:19:44,640 --> 00:19:50,760
+ to have our link list in the fat table to maintain the order, the logical order of the
+
+209
+00:19:50,760 --> 00:19:59,000
+ blocks, which provides you a lot of flexibility about where to allocate the blocks and which
+
+210
+00:19:59,000 --> 00:20:00,400
+ is good.
+
+211
+00:20:00,400 --> 00:20:04,400
+ Sequential access.
+
+212
+00:20:04,400 --> 00:20:05,960
+ What do you think about sequential access?
+
+213
+00:20:05,960 --> 00:20:15,880
+ Is that fast, slow?
+
+214
+00:20:15,880 --> 00:20:23,560
+ Yes.
+
+215
+00:20:23,560 --> 00:20:31,080
+ The directories are linked lists also are presented in the fat in the...
+
+216
+00:20:31,080 --> 00:20:39,040
+ And yes, they are also linked lists, but with directories is a linked list between the entries
+
+217
+00:20:39,040 --> 00:20:41,880
+ in the directories.
+
+218
+00:20:41,880 --> 00:20:50,040
+ Here for the files themselves, you have the linked list basically between the blocks of
+
+219
+00:20:50,040 --> 00:20:53,600
+ that file.
+
+220
+00:20:53,600 --> 00:21:01,480
+ Now the answer to the question sequential access can be somewhat slow because we need
+
+221
+00:21:01,480 --> 00:21:09,600
+ to linearly scan for every access because we do not have a guaranteed order.
+
+222
+00:21:09,600 --> 00:21:11,260
+ It's correct.
+
+223
+00:21:11,260 --> 00:21:21,420
+ So the sequential access can be slow because if you look at how block 0, 1 and 3 are located
+
+224
+00:21:21,420 --> 00:21:26,940
+ here, block 0 and 1 are consecutive.
+
+225
+00:21:26,940 --> 00:21:34,380
+ And because they are consecutive, you do not need to incur a seek latency or rotation latency
+
+226
+00:21:34,380 --> 00:21:39,320
+ if to go from block 0 to block 1.
+
+227
+00:21:39,320 --> 00:21:45,360
+ But now to go from block 1 to block 2, you have to incur a seek latency or rotation latency.
+
+228
+00:21:45,360 --> 00:21:49,460
+ As you know, this is huge.
+
+229
+00:21:49,460 --> 00:21:54,360
+ So yes, you have a lot of flexibility where to put the blocks on the disk, but if you
+
+230
+00:21:54,360 --> 00:22:03,440
+ are not careful and you put them randomly, then it's going to hurt your access time.
+
+231
+00:22:03,440 --> 00:22:04,440
+ Random access.
+
+232
+00:22:04,440 --> 00:22:09,840
+ How is random access?
+
+233
+00:22:09,840 --> 00:22:28,760
+ Yes, it's even slower since you have to incur, you need to sequentially search for the block
+
+234
+00:22:28,760 --> 00:22:33,580
+ which contains the data you want to read or write.
+
+235
+00:22:33,580 --> 00:22:37,220
+ So it's quite slow.
+
+236
+00:22:37,220 --> 00:22:39,220
+ Fragmentation.
+
+237
+00:22:39,220 --> 00:22:45,180
+ How is fragmentation?
+
+238
+00:22:45,180 --> 00:22:58,940
+ Yes, fragmentation is pretty good.
+
+239
+00:22:58,940 --> 00:23:03,940
+ It's not much fragmentation because remember you can put the blocks anywhere.
+
+240
+00:23:03,940 --> 00:23:07,860
+ So if you have just some free blocks, you are going to get it.
+
+241
+00:23:07,860 --> 00:23:09,500
+ No problem.
+
+242
+00:23:09,500 --> 00:23:11,220
+ It's okay.
+
+243
+00:23:11,220 --> 00:23:16,260
+ It's going to hurt your performance, but you can have very, you know, your fragmentation
+
+244
+00:23:16,260 --> 00:23:18,540
+ will be very low.
+
+245
+00:23:18,540 --> 00:23:19,540
+ Small files.
+
+246
+00:23:19,540 --> 00:23:23,940
+ Is this a vision for small files?
+
+247
+00:23:23,940 --> 00:23:49,300
+ Remember, what if you know, if the file fits in one block is very efficient.
+
+248
+00:23:49,300 --> 00:23:50,300
+ It's very good.
+
+249
+00:23:50,300 --> 00:23:52,980
+ If a file fits only in one block.
+
+250
+00:23:52,980 --> 00:23:54,140
+ Why?
+
+251
+00:23:54,140 --> 00:24:02,380
+ Because you already, the file number, it's indexed into the block, the first block.
+
+252
+00:24:02,380 --> 00:24:06,540
+ So you find it immediately.
+
+253
+00:24:06,540 --> 00:24:08,260
+ Right?
+
+254
+00:24:08,260 --> 00:24:15,980
+ As you have, you know, more blocks in the file, then it becomes more efficient for the
+
+255
+00:24:15,980 --> 00:24:17,300
+ reason I mentioned.
+
+256
+00:24:17,300 --> 00:24:18,300
+ Right?
+
+257
+00:24:18,300 --> 00:24:19,300
+ We mentioned.
+
+258
+00:24:19,300 --> 00:24:26,140
+ Yes, it's even more inefficient is again, because the blocks can be layout, their layout
+
+259
+00:24:26,140 --> 00:24:29,580
+ on the disk can end up being random.
+
+260
+00:24:29,580 --> 00:24:35,620
+ And then you pay a lot of sick time, rotation, latency to read and write from the file.
+
+261
+00:24:35,620 --> 00:24:36,620
+ Okay.
+
+262
+00:24:36,620 --> 00:24:38,860
+ So this is fat, right?
+
+263
+00:24:38,860 --> 00:24:43,140
+ Very simple and very influential.
+
+264
+00:24:43,140 --> 00:24:44,140
+ Right?
+
+265
+00:24:44,140 --> 00:24:53,660
+ This was for many, many years, for decades, this was a file system for personal computers.
+
+266
+00:24:53,660 --> 00:25:00,100
+ Because obviously 90% of the personal computers were running Microsoft operating system.
+
+267
+00:25:00,100 --> 00:25:01,420
+ Okay.
+
+268
+00:25:01,420 --> 00:25:08,380
+ Now, let's switch gears and talk about Unix file system.
+
+269
+00:25:08,380 --> 00:25:16,740
+ And the Unix file system, this is Berkeley standard distribution, 4.1 is what we are
+
+270
+00:25:16,740 --> 00:25:18,780
+ looking to now.
+
+271
+00:25:18,780 --> 00:25:22,420
+ And yes, this is a part of your heritage.
+
+272
+00:25:22,420 --> 00:25:28,300
+ And the similar Linux today has very similar file structure.
+
+273
+00:25:28,300 --> 00:25:33,980
+ So it's again, a hugely influential file system.
+
+274
+00:25:33,980 --> 00:25:41,620
+ The file number or I number is again, it's an index into an array of inodes.
+
+275
+00:25:41,620 --> 00:25:46,220
+ And the inodes corresponds to a file, right?
+
+276
+00:25:46,220 --> 00:25:52,580
+ Inodes contains the indexes to the blocks on the disk.
+
+277
+00:25:52,580 --> 00:26:03,380
+ And in this case, it also contains other metadata associated with a file.
+
+278
+00:26:03,380 --> 00:26:08,100
+ It's pretty good for both little and large files.
+
+279
+00:26:08,100 --> 00:26:16,740
+ And all the assumes that still all the blocks have the same, are the same size.
+
+280
+00:26:16,740 --> 00:26:19,800
+ And the trees, what you are going to see is asymmetrical.
+
+281
+00:26:19,800 --> 00:26:22,380
+ So here is how it looks like.
+
+282
+00:26:22,380 --> 00:26:30,700
+ So you have an inode array, the file number, it's an index in this array.
+
+283
+00:26:30,700 --> 00:26:41,120
+ The inode in this array is basically, this is the inode data structure.
+
+284
+00:26:41,120 --> 00:26:45,020
+ The first part, there are a bunch of attributes.
+
+285
+00:26:45,020 --> 00:26:50,540
+ Like for instance, nine basic control bits you have here.
+
+286
+00:26:50,540 --> 00:27:01,340
+ You have typically owner or user, group and others.
+
+287
+00:27:01,340 --> 00:27:08,220
+ So it's basically whether the owner of the file, and for each of them, you have three
+
+288
+00:27:08,220 --> 00:27:12,040
+ bits, read, write, execute.
+
+289
+00:27:12,040 --> 00:27:19,660
+ So for owner of the file, for the group and for others, right?
+
+290
+00:27:19,660 --> 00:27:22,060
+ Basically for everyone else.
+
+291
+00:27:22,060 --> 00:27:30,180
+ And typically, obviously the owner has the most rights than the group and then everyone
+
+292
+00:27:30,180 --> 00:27:35,980
+ else.
+
+293
+00:27:35,980 --> 00:27:43,780
+ And also you have a few other bits, which basically you can execute only at the owner
+
+294
+00:27:43,780 --> 00:27:50,300
+ permission rather than users and to execute at the group's permission.
+
+295
+00:27:50,300 --> 00:27:57,940
+ So it's again, it's pretty classic.
+
+296
+00:27:57,940 --> 00:28:00,260
+ And the more interesting part is after this.
+
+297
+00:28:00,260 --> 00:28:01,260
+ Okay.
+
+298
+00:28:01,260 --> 00:28:08,740
+ But remember this permission bits and information is associated with the inode, with a file
+
+299
+00:28:08,740 --> 00:28:09,740
+ in this case.
+
+300
+00:28:09,740 --> 00:28:17,420
+ In the case of FAD, it was this information was maintained in the directory.
+
+301
+00:28:17,420 --> 00:28:28,540
+ And then you have 13 other entries in this inode structure.
+
+302
+00:28:28,540 --> 00:28:31,360
+ Each entry points to a block.
+
+303
+00:28:31,360 --> 00:28:42,240
+ The first 10 entries are called, each of them, they are pointing to one block.
+
+304
+00:28:42,240 --> 00:28:54,480
+ The 11th entry points is called indirect pointer and points to a block, which each element
+
+305
+00:28:54,480 --> 00:28:56,860
+ is a block.
+
+306
+00:28:56,860 --> 00:29:01,240
+ It's a pointer to a real block.
+
+307
+00:29:01,240 --> 00:29:08,020
+ And you have double indirection pointers where this points to a block, which is full of pointers
+
+308
+00:29:08,020 --> 00:29:14,980
+ or each pointer points to another block, which is full of pointers to finally two blocks.
+
+309
+00:29:14,980 --> 00:29:23,220
+ And then you have triple indirection pointers, which is again going three levels.
+
+310
+00:29:23,220 --> 00:29:33,800
+ So in this case, you have, if you have four kilobytes blocks, it's efficient.
+
+311
+00:29:33,800 --> 00:29:43,820
+ You have, here you have, yeah, sorry.
+
+312
+00:29:43,820 --> 00:29:49,020
+ I said the first, the direct number of direct pointers was 10.
+
+313
+00:29:49,020 --> 00:29:52,520
+ It's actually, sorry, it's 12.
+
+314
+00:29:52,520 --> 00:30:00,480
+ And then you have three other ones, one for indirect, double indirect and triple indirect.
+
+315
+00:30:00,480 --> 00:30:03,000
+ Okay, so you have 12.
+
+316
+00:30:03,000 --> 00:30:09,540
+ And if you have 12 pointers, this means that if you have 4k blocks, you can have, you can
+
+317
+00:30:09,540 --> 00:30:16,780
+ store using only direct pointers, you can store 48 kilobytes.
+
+318
+00:30:16,780 --> 00:30:21,580
+ And if you remember from last time, when you're looking at these results from this paper,
+
+319
+00:30:21,580 --> 00:30:28,440
+ which are looking at the statistics of the length of the file system or the size of the
+
+320
+00:30:28,440 --> 00:30:37,520
+ file systems, in that paper, in the plots we presented last time, we are seeing that
+
+321
+00:30:37,520 --> 00:30:40,400
+ most of the files are small files.
+
+322
+00:30:40,400 --> 00:30:49,200
+ So therefore, for most of the files, you are using only the direct pointers.
+
+323
+00:30:49,200 --> 00:30:58,340
+ And then for the bigger files, you are going to use the indirect pointers, double indirect
+
+324
+00:30:58,340 --> 00:31:01,660
+ pointers and triple indirect pointers.
+
+325
+00:31:01,660 --> 00:31:08,380
+ So just to give you a sense, you can get, for double indirect pointers, you can get
+
+326
+00:31:08,380 --> 00:31:10,000
+ to four megabytes.
+
+327
+00:31:10,000 --> 00:31:11,000
+ Why?
+
+328
+00:31:11,000 --> 00:31:20,560
+ Because in this particular case, it's again, this pointer here is a certain pointer.
+
+329
+00:31:20,560 --> 00:31:23,160
+ It points you to one block.
+
+330
+00:31:23,160 --> 00:31:25,560
+ A block has four kilobytes.
+
+331
+00:31:25,560 --> 00:31:29,020
+ Each pointer in this case is four bytes.
+
+332
+00:31:29,020 --> 00:31:35,400
+ So therefore, in a block you have 1024 pointers.
+
+333
+00:31:35,400 --> 00:31:40,360
+ Each of these pointers points to a block.
+
+334
+00:31:40,360 --> 00:31:42,200
+ A block has four kilobytes.
+
+335
+00:31:42,200 --> 00:31:49,200
+ So now you have 1024 times four, you have four kilobytes, you have four megabytes.
+
+336
+00:31:49,200 --> 00:31:51,040
+ This is level two.
+
+337
+00:31:51,040 --> 00:31:54,040
+ It's one indirect.
+
+338
+00:31:54,040 --> 00:32:03,640
+ Then double indirect is going to add another layer and it's basically you have four gigabytes.
+
+339
+00:32:03,640 --> 00:32:14,280
+ And then for if you have triple indirect pointers, you have four terabytes.
+
+340
+00:32:14,280 --> 00:32:17,760
+ So it's a lot of storage.
+
+341
+00:32:17,760 --> 00:32:25,360
+ Now the disadvantage for this one, what is the disadvantage with going with indirect,
+
+342
+00:32:25,360 --> 00:32:28,120
+ double indirect and triple indirect blocks?
+
+343
+00:32:28,120 --> 00:32:34,480
+ What is the disadvantage here?
+
+344
+00:32:34,480 --> 00:32:45,880
+ Yes, longer access times.
+
+345
+00:32:45,880 --> 00:32:52,400
+ Because right now, if I'm going to have, if I'm going to go to this, you know, the first
+
+346
+00:32:52,400 --> 00:32:59,920
+ level pointers, I'm going to get the inode and then from inode I get the pointers, all
+
+347
+00:32:59,920 --> 00:33:01,120
+ the pointers to the block.
+
+348
+00:33:01,120 --> 00:33:05,980
+ So I have another access to get to the data, one extra access.
+
+349
+00:33:05,980 --> 00:33:11,360
+ If I'm going to have triple indirect in order to get to these data blocks, I have to get
+
+350
+00:33:11,360 --> 00:33:18,480
+ one other access to get the first level block, which contains pointers at the first level.
+
+351
+00:33:18,480 --> 00:33:23,680
+ Then another pointer, another, I need to access another, they get another block at the second
+
+352
+00:33:23,680 --> 00:33:29,680
+ level to contain against pointers and another block at the third level contains again pointers.
+
+353
+00:33:29,680 --> 00:33:35,840
+ And finally, I'm going to get to the data block, to the real block.
+
+354
+00:33:35,840 --> 00:33:43,960
+ So here I have for each of these levels, I have an extra access.
+
+355
+00:33:43,960 --> 00:33:46,280
+ On the other hand, it's pretty cool design, right?
+
+356
+00:33:46,280 --> 00:33:51,000
+ Because for the small blocks, you know, it's pretty efficient.
+
+357
+00:33:51,000 --> 00:33:53,920
+ Small block less than 48 kilobytes.
+
+358
+00:33:53,920 --> 00:33:59,400
+ All these pointers here are to data blocks.
+
+359
+00:33:59,400 --> 00:34:11,480
+ At the same time, you can store huge files, like up to four terabytes in this design.
+
+360
+00:34:11,480 --> 00:34:20,320
+ Yeah, it's a question here.
+
+361
+00:34:20,320 --> 00:34:23,500
+ This seems really similar to page tables.
+
+362
+00:34:23,500 --> 00:34:30,480
+ Do file systems have the equivalent of super pages or huge pages?
+
+363
+00:34:30,480 --> 00:34:36,440
+ It's very similar to the files, you know, it's similar to the page table in some respects,
+
+364
+00:34:36,440 --> 00:34:37,440
+ right?
+
+365
+00:34:37,440 --> 00:34:48,040
+ One is that the unit of allocation, it's a block, it's a page.
+
+366
+00:34:48,040 --> 00:34:50,520
+ It's also they are connected, right?
+
+367
+00:34:50,520 --> 00:34:59,760
+ Because the reason for which you have pages when we do demand paging is why?
+
+368
+00:34:59,760 --> 00:35:06,080
+ Because these pages need to be stored eventually on the disk when they are evicted, right?
+
+369
+00:35:06,080 --> 00:35:08,160
+ And they need to be read from the disk.
+
+370
+00:35:08,160 --> 00:35:12,340
+ And the unit, again, it has to be the same unit, it's a block, right?
+
+371
+00:35:12,340 --> 00:35:15,640
+ So block and the pages are basically the same unit.
+
+372
+00:35:15,640 --> 00:35:19,520
+ Otherwise, it makes things much more complicated.
+
+373
+00:35:19,520 --> 00:35:23,680
+ And you'll see towards the end of the lecture, hopefully we can get there, where you'll see
+
+374
+00:35:23,680 --> 00:35:28,080
+ the similarity even more because we are going to talk about memory map files.
+
+375
+00:35:28,080 --> 00:35:33,280
+ So then you are going to map the files into memory, and then you'll see even more of the
+
+376
+00:35:33,280 --> 00:35:34,280
+ similarity.
+
+377
+00:35:34,280 --> 00:35:44,800
+ So in terms of file system having the equivalent of super pages of huge pages, you do have
+
+378
+00:35:44,800 --> 00:35:57,000
+ that not in Unix, but you do have that in the Windows, the more modern Windows file
+
+379
+00:35:57,000 --> 00:35:59,640
+ system, Microsoft file system.
+
+380
+00:35:59,640 --> 00:36:04,040
+ And in that case, you have what is called extents, what we are going to learn later
+
+381
+00:36:04,040 --> 00:36:11,120
+ in this lecture in which the blocks can have variable size.
+
+382
+00:36:11,120 --> 00:36:15,120
+ Great questions.
+
+383
+00:36:15,120 --> 00:36:17,840
+ So let's take an example here.
+
+384
+00:36:17,840 --> 00:36:27,640
+ So right now, and that's why I was a little, you know, in this particular, it's a different
+
+385
+00:36:27,640 --> 00:36:35,160
+ example and we here assume that each block is one kilobyte.
+
+386
+00:36:35,160 --> 00:36:49,040
+ And we assume that there are 10 direct pointers and in indirect block, so these 10 direct
+
+387
+00:36:49,040 --> 00:37:00,480
+ pointers, so directly you can access only one kilobyte, 10 times, 10 kilobytes files.
+
+388
+00:37:00,480 --> 00:37:06,320
+ And then because you have only one kilobyte, if each entry, each point there is four bytes,
+
+389
+00:37:06,320 --> 00:37:11,760
+ then you have only 25, six indirect blocks at the first level.
+
+390
+00:37:11,760 --> 00:37:20,720
+ And then you have 256 power 2 double indirect blocks and 256 power 3 triple indirect blocks.
+
+391
+00:37:20,720 --> 00:37:23,320
+ So that's kind of the layout in this case.
+
+392
+00:37:23,320 --> 00:37:30,320
+ And now the question is that how many accesses you need, how many accesses to get to the
+
+393
+00:37:30,320 --> 00:37:31,840
+ block 20 string?
+
+394
+00:37:31,840 --> 00:37:35,760
+ Assume the file is everything is open.
+
+395
+00:37:35,760 --> 00:37:39,640
+ Now I'm just one process block 20 string.
+
+396
+00:37:39,640 --> 00:37:49,220
+ How many accesses?
+
+397
+00:37:49,220 --> 00:37:56,440
+ So is this 23 in a direct pointers part?
+
+398
+00:37:56,440 --> 00:38:03,000
+ It's not right because I have only 10.
+
+399
+00:38:03,000 --> 00:38:14,920
+ Is 23 in a, yeah, yes, 23 will be in the single indirect block.
+
+400
+00:38:14,920 --> 00:38:18,000
+ So you need two accesses, right?
+
+401
+00:38:18,000 --> 00:38:27,160
+ You need the first access to get to the root of the first level indirect blocks.
+
+402
+00:38:27,160 --> 00:38:38,080
+ And then from here, once you get there, you are going to read the data block.
+
+403
+00:38:38,080 --> 00:38:44,160
+ What about block five?
+
+404
+00:38:44,160 --> 00:38:47,180
+ Block five is in the first 10.
+
+405
+00:38:47,180 --> 00:38:54,000
+ So you are going to have only one access to read the data block number five.
+
+406
+00:38:54,000 --> 00:38:57,440
+ Blocks are 340.
+
+407
+00:38:57,440 --> 00:39:06,000
+ That's 340 fits in the first level indirect blocks.
+
+408
+00:39:06,000 --> 00:39:07,840
+ Does it fit?
+
+409
+00:39:07,840 --> 00:39:08,840
+ How many you have there?
+
+410
+00:39:08,840 --> 00:39:13,720
+ You have 2556 plus 10, which are direct.
+
+411
+00:39:13,720 --> 00:39:21,600
+ It's only 266 indirect blocks or direct blocks.
+
+412
+00:39:21,600 --> 00:39:28,620
+ So therefore, it has to be in double indirect.
+
+413
+00:39:28,620 --> 00:39:31,440
+ So then you are going to have how many accesses?
+
+414
+00:39:31,440 --> 00:39:35,480
+ Again, one access per level, each level.
+
+415
+00:39:35,480 --> 00:39:38,580
+ So you need, you have double.
+
+416
+00:39:38,580 --> 00:39:49,680
+ So for each level, you need one access or two and the third one for access to the data.
+
+417
+00:39:49,680 --> 00:39:51,720
+ Okay, some announcements again.
+
+418
+00:39:51,720 --> 00:39:55,880
+ Many congrats for finishing the second midterm.
+
+419
+00:39:55,880 --> 00:39:58,240
+ We are making progress here.
+
+420
+00:39:58,240 --> 00:40:00,480
+ Block five has been released.
+
+421
+00:40:00,480 --> 00:40:06,920
+ It will be due on Monday, November 22nd.
+
+422
+00:40:06,920 --> 00:40:12,280
+ And the project two, obviously now is due on Sunday.
+
+423
+00:40:12,280 --> 00:40:19,600
+ So hopefully everyone here is in a good state with that project.
+
+424
+00:40:19,600 --> 00:40:22,520
+ If not, please feel free to ask any questions.
+
+425
+00:40:22,520 --> 00:40:26,960
+ We are here to help you.
+
+426
+00:40:26,960 --> 00:40:36,080
+ Okay, so that was the initial file system in Unix 4.1.
+
+427
+00:40:36,080 --> 00:40:44,240
+ Now people, obviously after they use it for a while, they figure out there are some limitations
+
+428
+00:40:44,240 --> 00:40:47,840
+ and they try to address these limitations.
+
+429
+00:40:47,840 --> 00:40:55,080
+ And the address is limitation in what is called Berkeley FAST file system, FFS, which is BSD
+
+430
+00:40:55,080 --> 00:40:56,080
+ 0.4.2.
+
+431
+00:40:56,080 --> 00:40:57,080
+ Right?
+
+432
+00:40:57,080 --> 00:41:04,080
+ This was released in '84, so still a long time ago.
+
+433
+00:41:04,080 --> 00:41:06,660
+ And it's very similar with 4.1.
+
+434
+00:41:06,660 --> 00:41:14,560
+ The differences are that while in 4.1, typically the block size of one kilobyte, in 4.2, one
+
+435
+00:41:14,560 --> 00:41:16,200
+ to four kilobytes.
+
+436
+00:41:16,200 --> 00:41:17,240
+ Why?
+
+437
+00:41:17,240 --> 00:41:22,240
+ Because obviously the discovery has increased in size.
+
+438
+00:41:22,240 --> 00:41:23,640
+ And it's a very good paper.
+
+439
+00:41:23,640 --> 00:41:26,480
+ I recommend you to read it in the reading material.
+
+440
+00:41:26,480 --> 00:41:32,600
+ If not, you can search on the web and you can get it, but it's very interesting.
+
+441
+00:41:32,600 --> 00:41:39,160
+ And there are a bunch of optimization and we are going to go briefly through these optimizations
+
+442
+00:41:39,160 --> 00:41:45,440
+ and compare with 4.1.
+
+443
+00:41:45,440 --> 00:41:52,640
+ And so let me go through, I'm not going to go now through this list.
+
+444
+00:41:52,640 --> 00:41:59,360
+ I'm going while I am going to explain this optimization, but the middle things about,
+
+445
+00:41:59,360 --> 00:42:03,960
+ first of all, let's talk about what are the motivation?
+
+446
+00:42:03,960 --> 00:42:13,040
+ What are the problems with the file systems in Unix BSD 4.1?
+
+447
+00:42:13,040 --> 00:42:14,360
+ Okay.
+
+448
+00:42:14,360 --> 00:42:30,480
+ So, the one thing is that the file system, the FAD table and all of these inode data
+
+449
+00:42:30,480 --> 00:42:33,440
+ structures, right?
+
+450
+00:42:33,440 --> 00:42:39,800
+ They were in a fixed disk, in the fixed place on the disk.
+
+451
+00:42:39,800 --> 00:42:41,880
+ Okay.
+
+452
+00:42:41,880 --> 00:42:53,000
+ So, and the problem with that, if you have all these inodes on the disk in one place,
+
+453
+00:42:53,000 --> 00:43:06,120
+ then it's very likely that they are going to be far from most of the data blocks, right?
+
+454
+00:43:06,120 --> 00:43:13,680
+ The data blocks are all over, obviously, and the inodes are only at the edge.
+
+455
+00:43:13,680 --> 00:43:18,240
+ In order to access the data blocks, you need the information from the inode of that particular
+
+456
+00:43:18,240 --> 00:43:19,240
+ file, right?
+
+457
+00:43:19,240 --> 00:43:24,240
+ So, you need to read an inode and you are almost guaranteed that the place where the
+
+458
+00:43:24,240 --> 00:43:30,400
+ inode was stored on the disk is far away from where the data is located on the disk.
+
+459
+00:43:30,400 --> 00:43:34,800
+ So it's seek time, you are going to pay for the seek time.
+
+460
+00:43:34,800 --> 00:43:37,120
+ The other thing is reliability.
+
+461
+00:43:37,120 --> 00:43:46,480
+ If somehow the outer edges, tracks of the disk are destroyed because sometimes when
+
+462
+00:43:46,480 --> 00:43:53,620
+ some of the failures happen is that when you have a power outage and the disk was rotating
+
+463
+00:43:53,620 --> 00:44:02,480
+ and sometimes the heads were kind of scratching the disk in that particular case.
+
+464
+00:44:02,480 --> 00:44:16,160
+ Then if you lose this kind of the inode information, you lost everything.
+
+465
+00:44:16,160 --> 00:44:20,200
+ So that's a problem.
+
+466
+00:44:20,200 --> 00:44:30,280
+ The other thing, it's hard to allocate for performance, right?
+
+467
+00:44:30,280 --> 00:44:33,960
+ Because in Unix, most writes, in many writes are by appending.
+
+468
+00:44:33,960 --> 00:44:38,800
+ It's again, when you write, either you write to existing block because what the existing
+
+469
+00:44:38,800 --> 00:44:41,240
+ data is, so you override the data.
+
+470
+00:44:41,240 --> 00:44:46,520
+ But if you append, in many cases, you just append to a file, then you are going to add
+
+471
+00:44:46,520 --> 00:44:50,080
+ new blocks.
+
+472
+00:44:50,080 --> 00:45:02,040
+ And the problem here is that you want to allocate in some sense, obviously you want to allocate
+
+473
+00:45:02,040 --> 00:45:05,160
+ blocks which are contiguous, right?
+
+474
+00:45:05,160 --> 00:45:07,400
+ But that's kind of what's difficult.
+
+475
+00:45:07,400 --> 00:45:14,800
+ In the case of 4.1, you need to be able to do 4.1, you have a link list for the free
+
+476
+00:45:14,800 --> 00:45:17,760
+ blocks like in the FAT table.
+
+477
+00:45:17,760 --> 00:45:23,240
+ And then the way you allocate, you go through this list and well, you allocate always the
+
+478
+00:45:23,240 --> 00:45:25,440
+ first block which is available.
+
+479
+00:45:25,440 --> 00:45:32,520
+ But going through the list of the free blocks, all these blocks can be all over the place.
+
+480
+00:45:32,520 --> 00:45:34,080
+ So what have they done?
+
+481
+00:45:34,080 --> 00:45:36,440
+ So here what have they done?
+
+482
+00:45:36,440 --> 00:45:40,840
+ Basically, they define this kind of block groups.
+
+483
+00:45:40,840 --> 00:45:50,400
+ So the tracks which are nearby are in the same block and correspondingly also they define
+
+484
+00:45:50,400 --> 00:45:53,480
+ the cylinder group.
+
+485
+00:45:53,480 --> 00:46:10,400
+ All the blocks which fall under block groups, which are falling under the head, the drive
+
+486
+00:46:10,400 --> 00:46:15,120
+ heads on all the platters are in the same cylinder.
+
+487
+00:46:15,120 --> 00:46:21,360
+ You imagine a cylinder which are going to contain all these data blocks which are overlay
+
+488
+00:46:21,360 --> 00:46:27,440
+ one over another.
+
+489
+00:46:27,440 --> 00:46:40,080
+ So right now, then instead of having these inodes and only at the edge, stored at the
+
+490
+00:46:40,080 --> 00:46:50,240
+ edge of the disk, you are associating these inodes to the files, the inodes which for
+
+491
+00:46:50,240 --> 00:46:57,440
+ the files whose data is stored in the same block are also in the same block.
+
+492
+00:46:57,440 --> 00:47:05,680
+ So you see, this is the inodes information for the files which are stored in block group
+
+493
+00:47:05,680 --> 00:47:07,400
+ one.
+
+494
+00:47:07,400 --> 00:47:20,080
+ And these are the inodes information for the files with data, it's in block group two.
+
+495
+00:47:20,080 --> 00:47:30,880
+ Furthermore, instead of maintaining the available free blocks in a list, you have a bitmap.
+
+496
+00:47:30,880 --> 00:47:34,320
+ And I'll tell you, I'll show you next what you can do if you have a bitmap.
+
+497
+00:47:34,320 --> 00:47:35,320
+ Right?
+
+498
+00:47:35,320 --> 00:47:36,320
+ But this is what it is.
+
+499
+00:47:36,320 --> 00:47:45,160
+ Now, in terms of performance, if you have this kind of layout now because the inodes
+
+500
+00:47:45,160 --> 00:47:55,520
+ are in the same block groups with the files, with the corresponding files, what do I gain
+
+501
+00:47:55,520 --> 00:47:56,520
+ here?
+
+502
+00:47:56,520 --> 00:48:04,200
+ What do I save here in terms of performance?
+
+503
+00:48:04,200 --> 00:48:10,120
+ What is the big deal about this?
+
+504
+00:48:10,120 --> 00:48:20,240
+ Again, for a file to access a file, I need to get its inode and then I need to access
+
+505
+00:48:20,240 --> 00:48:23,240
+ its data.
+
+506
+00:48:23,240 --> 00:48:28,520
+ Because once I get the inode, I have the information or the blocks of the file are located, I'm
+
+507
+00:48:28,520 --> 00:48:30,960
+ going to read or write.
+
+508
+00:48:30,960 --> 00:48:36,920
+ So that is a big deal about this layout.
+
+509
+00:48:36,920 --> 00:48:58,080
+ If the inode is near the file blocks, then it will be much faster to read, especially
+
+510
+00:48:58,080 --> 00:48:59,080
+ for small files.
+
+511
+00:48:59,080 --> 00:49:00,080
+ This is good.
+
+512
+00:49:00,080 --> 00:49:02,080
+ It's a sick time.
+
+513
+00:49:02,080 --> 00:49:06,320
+ It's exactly, Alison.
+
+514
+00:49:06,320 --> 00:49:15,240
+ And it's basically the sick time will be smaller, will be much lower.
+
+515
+00:49:15,240 --> 00:49:20,040
+ Because the sick time, it's about how far the two tracks are from each other.
+
+516
+00:49:20,040 --> 00:49:22,760
+ This is a sick time, it is given by.
+
+517
+00:49:22,760 --> 00:49:30,880
+ And now the blocks are on tracks which are closer together.
+
+518
+00:49:30,880 --> 00:49:31,880
+ So this is what it is.
+
+519
+00:49:31,880 --> 00:49:38,760
+ It's not only that I read the inode and I'm going to read these files, but also all the
+
+520
+00:49:38,760 --> 00:49:44,520
+ blocks of the file are in a block group.
+
+521
+00:49:44,520 --> 00:49:49,520
+ If they're in a block group, then going from one block to another, even if they are not
+
+522
+00:49:49,520 --> 00:49:55,840
+ contiguous, the sick time is going to be low.
+
+523
+00:49:55,840 --> 00:50:13,200
+ Also, here, one thing which I didn't mention is that the inode for files and the entire
+
+524
+00:50:13,200 --> 00:50:24,360
+ directories with the files, the file system tries to put them on the same cylinder.
+
+525
+00:50:24,360 --> 00:50:30,200
+ So on different corresponding blocks on different platter of the disk.
+
+526
+00:50:30,200 --> 00:50:32,240
+ So it's again to minimize the sick time.
+
+527
+00:50:32,240 --> 00:50:42,680
+ In this case, going to do an alias from directory, all the information is within the same cylinder.
+
+528
+00:50:42,680 --> 00:50:53,680
+ OK, we discussed about this data block metadata and free space are within each block.
+
+529
+00:50:53,680 --> 00:50:59,480
+ A voice huge sick time between user data and system structures.
+
+530
+00:50:59,480 --> 00:51:06,520
+ And you also put the directory, like I mentioned, and these files in the common block group.
+
+531
+00:51:06,520 --> 00:51:11,600
+ So basically, you try to preserve some locality between the metadata of the files and the
+
+532
+00:51:11,600 --> 00:51:19,560
+ data blocks of the files by being careful how you store them on the disk.
+
+533
+00:51:19,560 --> 00:51:24,440
+ But I try to be close to each other.
+
+534
+00:51:24,440 --> 00:51:35,080
+ Like I mentioned, the list of free block allocation, here we use Bitmap.
+
+535
+00:51:35,080 --> 00:51:39,960
+ Before, we used List.
+
+536
+00:51:39,960 --> 00:51:45,360
+ And by using Bitmap, you can actually avoid some fragmentation.
+
+537
+00:51:45,360 --> 00:51:59,160
+ One important thing which is true both for the Unix file systems in Unix DSD 4.1 and
+
+538
+00:51:59,160 --> 00:52:08,560
+ 4.2 is that you need to keep some 10%, 20% of free space always.
+
+539
+00:52:08,560 --> 00:52:13,880
+ Because if you don't have any kind of free space, really, really you have no freedom
+
+540
+00:52:13,880 --> 00:52:18,000
+ about where to allocate the new blocks.
+
+541
+00:52:18,000 --> 00:52:20,200
+ And they are going to become pretty very random.
+
+542
+00:52:20,200 --> 00:52:27,600
+ So the performance of the disk will slow down to a crawl.
+
+543
+00:52:27,600 --> 00:52:30,600
+ But I'll say a few more words about that.
+
+544
+00:52:30,600 --> 00:52:36,160
+ But now let's see what is the big difference and what is the advantage of maintaining a
+
+545
+00:52:36,160 --> 00:52:44,200
+ Bitmap for the free blocks instead of linked lists.
+
+546
+00:52:44,200 --> 00:52:49,960
+ So here is the difference.
+
+547
+00:52:49,960 --> 00:52:52,240
+ So and we'll go over the summary here.
+
+548
+00:52:52,240 --> 00:52:54,520
+ So here is the difference.
+
+549
+00:52:54,520 --> 00:52:57,400
+ So here is a Bitmap.
+
+550
+00:52:57,400 --> 00:53:04,120
+ And the dark shades, each rectangle, it's a corresponds to a block, each square corresponds
+
+551
+00:53:04,120 --> 00:53:05,800
+ to a block.
+
+552
+00:53:05,800 --> 00:53:11,520
+ And the shaded one represents blocks which are in use.
+
+553
+00:53:11,520 --> 00:53:17,000
+ And the white ones represent free blocks.
+
+554
+00:53:17,000 --> 00:53:20,680
+ So here is a very nice characteristic.
+
+555
+00:53:20,680 --> 00:53:31,600
+ So let's say that I am starting to add, to expand the file, and I'm going to allocate
+
+556
+00:53:31,600 --> 00:53:32,600
+ new blocks.
+
+557
+00:53:32,600 --> 00:53:35,480
+ I have to allocate new blocks.
+
+558
+00:53:35,480 --> 00:53:40,240
+ So what I'm going to do here, I'm going to go through this Bitmap.
+
+559
+00:53:40,240 --> 00:53:43,520
+ I'm going to start reading from the beginning.
+
+560
+00:53:43,520 --> 00:53:50,200
+ And whenever I'm going to see a free block, I'm going to allocate it.
+
+561
+00:53:50,200 --> 00:53:54,360
+ So this one, the blue one, starts the one which has been allocated.
+
+562
+00:53:54,360 --> 00:53:55,800
+ So so far, so good.
+
+563
+00:53:55,800 --> 00:54:00,360
+ Again, it's like I'm going to allocate what I see and encounter first.
+
+564
+00:54:00,360 --> 00:54:06,680
+ So these blocks actually, in terms of the location, can be quite random if they are
+
+565
+00:54:06,680 --> 00:54:09,640
+ not one near each other.
+
+566
+00:54:09,640 --> 00:54:21,080
+ However, when I am going to start allocating, the more I allocate to a file, the more I'm
+
+567
+00:54:21,080 --> 00:54:33,400
+ going to start looking for bigger gaps, for more contiguous regions.
+
+568
+00:54:33,400 --> 00:54:37,000
+ And I think that's basically the key.
+
+569
+00:54:37,000 --> 00:54:47,120
+ So initially, I am allocating as I find these blocks available, empty.
+
+570
+00:54:47,120 --> 00:54:53,360
+ But then after a while, when I start to allocate more and more new blocks to a file, I'm starting
+
+571
+00:54:53,360 --> 00:54:58,240
+ to look more and more for contiguous blocks.
+
+572
+00:54:58,240 --> 00:55:04,240
+ And because I have a Bitmap, it's much easier to look for contiguous blocks because I know
+
+573
+00:55:04,240 --> 00:55:05,600
+ I just look at the Bitmap.
+
+574
+00:55:05,600 --> 00:55:10,160
+ In the case of the linked list, it's much harder because I need to pop up to go from
+
+575
+00:55:10,160 --> 00:55:13,840
+ one to another entry with a linked list.
+
+576
+00:55:13,840 --> 00:55:20,160
+ And with a linked list, really, I'm going to look in the order in which I am going to
+
+577
+00:55:20,160 --> 00:55:26,240
+ see to find in the linked list the free blocks.
+
+578
+00:55:26,240 --> 00:55:28,760
+ Does it make sense?
+
+579
+00:55:28,760 --> 00:55:42,100
+ So the PLDR here is that if I have a Bitmap, then it's much easier for me to identify contiguous
+
+580
+00:55:42,100 --> 00:55:46,540
+ regions of free blocks.
+
+581
+00:55:46,540 --> 00:55:51,280
+ It's as simple as that.
+
+582
+00:55:51,280 --> 00:55:53,380
+ More efficient.
+
+583
+00:55:53,380 --> 00:55:58,180
+ And then as I have larger and larger files which allocate more and more blocks, I'm going
+
+584
+00:55:58,180 --> 00:56:05,680
+ to start using and allocate more of these contiguous blocks.
+
+585
+00:56:05,680 --> 00:56:19,540
+ Yeah, it's a Bitmap.
+
+586
+00:56:19,540 --> 00:56:24,060
+ So the question here, the blocks here are in an array rather than a linked list.
+
+587
+00:56:24,060 --> 00:56:25,060
+ Yes, it's a Bitmap.
+
+588
+00:56:25,060 --> 00:56:28,640
+ A Bitmap is by definition an array.
+
+589
+00:56:28,640 --> 00:56:32,540
+ But it's very efficient.
+
+590
+00:56:32,540 --> 00:56:34,580
+ A pointer, how many bits you have.
+
+591
+00:56:34,580 --> 00:56:39,760
+ For a pointer, you have four bytes, like 32 bits at least.
+
+592
+00:56:39,760 --> 00:56:45,780
+ Here you have for one block, you have one bit.
+
+593
+00:56:45,780 --> 00:56:48,260
+ Right.
+
+594
+00:56:48,260 --> 00:56:50,780
+ Okay.
+
+595
+00:56:50,780 --> 00:56:57,600
+ Now let's go back and...
+
+596
+00:56:57,600 --> 00:57:01,140
+ So a summary for these fast file systems.
+
+597
+00:57:01,140 --> 00:57:04,380
+ I now layout.
+
+598
+00:57:04,380 --> 00:57:10,060
+ If you have a small directory, you can fit all the data of the files in the directory
+
+599
+00:57:10,060 --> 00:57:11,580
+ in the same cylinder.
+
+600
+00:57:11,580 --> 00:57:17,460
+ There is no very little six.
+
+601
+00:57:17,460 --> 00:57:30,300
+ And so if the file headers are smaller than the whole blocks, you can obviously fetch
+
+602
+00:57:30,300 --> 00:57:33,700
+ many of those at the same time.
+
+603
+00:57:33,700 --> 00:57:42,300
+ And the last one, remember that one of the disadvantage of 4.1, it was big reliability,
+
+604
+00:57:42,300 --> 00:57:45,220
+ because all the inodes are in one place.
+
+605
+00:57:45,220 --> 00:57:51,220
+ If that place is corrupted, you lost all the information from the entire disk.
+
+606
+00:57:51,220 --> 00:57:59,300
+ But here, it's basically if some part is corrupted, and maybe you lose some inodes, the information
+
+607
+00:57:59,300 --> 00:58:03,260
+ about some files, you can never access those files.
+
+608
+00:58:03,260 --> 00:58:08,340
+ But many other files, they are still going to be accessible, because their inodes are
+
+609
+00:58:08,340 --> 00:58:14,140
+ going to be intact because they are stored on different places on the disk.
+
+610
+00:58:14,140 --> 00:58:15,380
+ Okay.
+
+611
+00:58:15,380 --> 00:58:18,900
+ So here is another very interesting aspect, is the rotation latency.
+
+612
+00:58:18,900 --> 00:58:20,660
+ We talk about the seek.
+
+613
+00:58:20,660 --> 00:58:27,700
+ So the block groups are intended to reduce the overhead for the seek time.
+
+614
+00:58:27,700 --> 00:58:29,620
+ What about rotation latency?
+
+615
+00:58:29,620 --> 00:58:31,020
+ Okay.
+
+616
+00:58:31,020 --> 00:58:35,060
+ So here is one interesting thing.
+
+617
+00:58:35,060 --> 00:58:42,860
+ Initially with Unix, a lot of these blocks, you know, the block, a lot of functionality
+
+618
+00:58:42,860 --> 00:58:48,860
+ of the file system was implemented in the operating system.
+
+619
+00:58:48,860 --> 00:58:53,920
+ The controllers of the drive, this drive was very simple.
+
+620
+00:58:53,920 --> 00:58:58,740
+ So now the operating system was getting a block.
+
+621
+00:58:58,740 --> 00:58:59,740
+ Right?
+
+622
+00:58:59,740 --> 00:59:00,740
+ Right?
+
+623
+00:59:00,740 --> 00:59:06,880
+ So the block, say, and then needs to transfer the data from the block.
+
+624
+00:59:06,880 --> 00:59:15,260
+ But while transferring the data from the block, the head was on top of the next sector.
+
+625
+00:59:15,260 --> 00:59:17,980
+ Okay.
+
+626
+00:59:17,980 --> 00:59:26,100
+ And then you don't know, right, and then you are going to miss reading the data from the
+
+627
+00:59:26,100 --> 00:59:27,340
+ next sector.
+
+628
+00:59:27,340 --> 00:59:28,340
+ Right?
+
+629
+00:59:28,340 --> 00:59:29,980
+ So basically, think about this.
+
+630
+00:59:29,980 --> 00:59:36,260
+ I want to transfer the data from sectors one by one.
+
+631
+00:59:36,260 --> 00:59:39,320
+ Assume that the data is on contiguous sectors.
+
+632
+00:59:39,320 --> 00:59:40,320
+ So it's great.
+
+633
+00:59:40,320 --> 00:59:41,320
+ Right?
+
+634
+00:59:41,320 --> 00:59:45,740
+ But now the problem is that I read the data from a sector and while I'm transferring the
+
+635
+00:59:45,740 --> 00:59:51,180
+ data from the sector to read it, the head is on the next sector.
+
+636
+00:59:51,180 --> 00:59:52,600
+ Right?
+
+637
+00:59:52,600 --> 00:59:55,580
+ And then I missed that.
+
+638
+00:59:55,580 --> 00:59:58,100
+ I missed the beginning of the next sector.
+
+639
+00:59:58,100 --> 00:59:59,420
+ Right?
+
+640
+00:59:59,420 --> 01:00:05,940
+ And then I need to wait for the entire rotation of the disk to get the next sector.
+
+641
+01:00:05,940 --> 01:00:14,580
+ So one original techniques to address this problem, it was when I am writing data on
+
+642
+01:00:14,580 --> 01:00:25,020
+ sectors is to interlink, to not write data on subsequent sectors, but skip one sector.
+
+643
+01:00:25,020 --> 01:00:29,700
+ So that when I read the data, then I'm reading the data on a sector.
+
+644
+01:00:29,700 --> 01:00:38,540
+ And while I'm transferring the data from that sector to the operating system, I am not going
+
+645
+01:00:38,540 --> 01:00:41,120
+ to the next sector.
+
+646
+01:00:41,120 --> 01:00:45,580
+ It's fine if I'm skipping it because it doesn't contain the data from the file.
+
+647
+01:00:45,580 --> 01:00:50,900
+ And by the time the head is over the next sector, which contains the data from the file,
+
+648
+01:00:50,900 --> 01:00:56,460
+ I am ready to read it.
+
+649
+01:00:56,460 --> 01:01:01,780
+ OK, makes sense.
+
+650
+01:01:01,780 --> 01:01:10,340
+ So basically here you overlap the transfer time, right?
+
+651
+01:01:10,340 --> 01:01:13,340
+ With the rotation.
+
+652
+01:01:13,340 --> 01:01:18,540
+ This is pretty cool.
+
+653
+01:01:18,540 --> 01:01:26,980
+ But it turns out that actually the other solution was you just read ahead.
+
+654
+01:01:26,980 --> 01:01:32,620
+ I read a sector and while I am transferring it after that, I'm not sure whether I need
+
+655
+01:01:32,620 --> 01:01:37,160
+ the data from the next sector or not.
+
+656
+01:01:37,160 --> 01:01:38,160
+ But it's OK.
+
+657
+01:01:38,160 --> 01:01:41,580
+ I'm just assuming that I'm needing it.
+
+658
+01:01:41,580 --> 01:01:43,820
+ So I'm going to read ahead.
+
+659
+01:01:43,820 --> 01:01:45,640
+ OK.
+
+660
+01:01:45,640 --> 01:01:50,680
+ And if I don't need it, I'm going to discard it.
+
+661
+01:01:50,680 --> 01:01:51,920
+ And I'm just going to buffer it.
+
+662
+01:01:51,920 --> 01:01:55,000
+ I just need a buffer to push more data.
+
+663
+01:01:55,000 --> 01:01:59,480
+ OK, so that's another solution.
+
+664
+01:01:59,480 --> 01:02:02,240
+ It's more flexible solution.
+
+665
+01:02:02,240 --> 01:02:08,000
+ And this is actually what today it's used.
+
+666
+01:02:08,000 --> 01:02:13,500
+ And this is implemented mostly in the controllers of the disk.
+
+667
+01:02:13,500 --> 01:02:15,920
+ The disk has a RAM, has a buffer, if you remember.
+
+668
+01:02:15,920 --> 01:02:23,740
+ So you read in that buffer, and then you transfer to the operating system.
+
+669
+01:02:23,740 --> 01:02:35,520
+ Any questions about this?
+
+670
+01:02:35,520 --> 01:02:39,520
+ So the first solution is implementing your rewriting, while the second one is implementing
+
+671
+01:02:39,520 --> 01:02:40,520
+ your reading.
+
+672
+01:02:40,520 --> 01:02:41,520
+ It's a question.
+
+673
+01:02:41,520 --> 01:02:42,520
+ No, not really.
+
+674
+01:02:42,520 --> 01:02:47,320
+ In both cases, you can think about this optimization for reading.
+
+675
+01:02:47,320 --> 01:02:54,060
+ It's again, the problem here is that you read a sector, and then I want to-- I am going
+
+676
+01:02:54,060 --> 01:02:58,780
+ to send the request for reading the next sector, and the next sector, and the next sector.
+
+677
+01:02:58,780 --> 01:03:03,140
+ So I'm reading the sector, and then I need to transfer the data from the sectors.
+
+678
+01:03:03,140 --> 01:03:10,300
+ And by the time I am going to issue the request for reading the next sector, the head, it's
+
+679
+01:03:10,300 --> 01:03:14,920
+ already over the next sector on the disk.
+
+680
+01:03:14,920 --> 01:03:15,920
+ Right?
+
+681
+01:03:15,920 --> 01:03:22,200
+ Okay, so I'm reading this sector, and then I am-- by the time I am going to issue the
+
+682
+01:03:22,200 --> 01:03:29,680
+ request for reading the next sector from the file, the next-- I'm already over the next
+
+683
+01:03:29,680 --> 01:03:30,680
+ sector.
+
+684
+01:03:30,680 --> 01:03:37,340
+ So I'm going-- so if it happened that actually the sector I want to read is just after the
+
+685
+01:03:37,340 --> 01:03:44,480
+ sector I am reading, then I'm going to miss it.
+
+686
+01:03:44,480 --> 01:03:45,600
+ Right?
+
+687
+01:03:45,600 --> 01:03:50,360
+ Because I don't get in time the command to read the next sector.
+
+688
+01:03:50,360 --> 01:03:56,560
+ So therefore, I am going to-- I have to wait all the way for the disk to rotate once to
+
+689
+01:03:56,560 --> 01:03:58,700
+ read the next sector.
+
+690
+01:03:58,700 --> 01:04:05,480
+ So what this first optimization says that I am reading a sector, and now I am transferring
+
+691
+01:04:05,480 --> 01:04:10,880
+ and giving some time before I get the next command.
+
+692
+01:04:10,880 --> 01:04:17,260
+ And if I get the next command, then I am going to know-- I'm going to be close to this next
+
+693
+01:04:17,260 --> 01:04:20,000
+ sector after I skip one.
+
+694
+01:04:20,000 --> 01:04:21,900
+ Okay?
+
+695
+01:04:21,900 --> 01:04:29,880
+ So if I want to contiguously in this mode to have maximized performance, I need to interleave
+
+696
+01:04:29,880 --> 01:04:32,840
+ the sectors when I write them.
+
+697
+01:04:32,840 --> 01:04:40,920
+ So when I read them, I am going to read once, and while I am transferring and getting command
+
+698
+01:04:40,920 --> 01:04:48,080
+ for reading the next sector, I have enough time.
+
+699
+01:04:48,080 --> 01:04:51,800
+ So I am ready to read the next sector.
+
+700
+01:04:51,800 --> 01:04:58,600
+ This makes sense?
+
+701
+01:04:58,600 --> 01:05:03,040
+ How big does a track buffer usually need to be to store the entire track?
+
+702
+01:05:03,040 --> 01:05:05,600
+ That's a very good question.
+
+703
+01:05:05,600 --> 01:05:09,840
+ So you can read ahead the entire track.
+
+704
+01:05:09,840 --> 01:05:14,920
+ I don't know on top of my head what is how much.
+
+705
+01:05:14,920 --> 01:05:23,340
+ Yeah, I'll probably-- I'll try to get back to you, but I assume a few tens of megabytes
+
+706
+01:05:23,340 --> 01:05:27,360
+ depending on the disk.
+
+707
+01:05:27,360 --> 01:05:31,040
+ But yeah.
+
+708
+01:05:31,040 --> 01:05:37,040
+ So Gilbert, did I answer your question?
+
+709
+01:05:37,040 --> 01:05:43,980
+ Okay.
+
+710
+01:05:43,980 --> 01:05:50,160
+ So it's again, remember that the disks and this controller do a lot of things under the
+
+711
+01:05:50,160 --> 01:05:51,160
+ hood, right?
+
+712
+01:05:51,160 --> 01:05:56,920
+ Like, remember we did last time, we learned about C-scan and other scheduling algorithms.
+
+713
+01:05:56,920 --> 01:06:02,920
+ You should order the request so therefore you reduce the six-time rotation latency.
+
+714
+01:06:02,920 --> 01:06:04,800
+ Okay.
+
+715
+01:06:04,800 --> 01:06:14,440
+ So the pros of 4.2, you have efficient storage for both small and large files.
+
+716
+01:06:14,440 --> 01:06:19,480
+ And this is because you have these direct blocks, indirect block pointers, and double
+
+717
+01:06:19,480 --> 01:06:22,660
+ indirect and triple indirect.
+
+718
+01:06:22,660 --> 01:06:28,720
+ So you can accommodate both small files and large files.
+
+719
+01:06:28,720 --> 01:06:33,140
+ You have locality for both small and large files to try to do that because you try to
+
+720
+01:06:33,140 --> 01:06:41,680
+ store them within the same block group or cylinder group.
+
+721
+01:06:41,680 --> 01:06:48,080
+ And you also try to-- you have the locality between the metadata and data because the
+
+722
+01:06:48,080 --> 01:06:57,800
+ metadata that is inodes, we try to store them on the same block group where the files themselves
+
+723
+01:06:57,800 --> 01:07:02,240
+ are stored.
+
+724
+01:07:02,240 --> 01:07:06,620
+ We didn't talk about this when we say non-defragmentation is necessary.
+
+725
+01:07:06,620 --> 01:07:11,820
+ Non-defragmentation is necessary here because we have the bitmap.
+
+726
+01:07:11,820 --> 01:07:18,500
+ In what happens with-- and I remember that when I used it a long time ago.
+
+727
+01:07:18,500 --> 01:07:28,340
+ When you use FAT and when you-- or this Microsoft, early Microsoft operating systems and the file
+
+728
+01:07:28,340 --> 01:07:32,860
+ systems, what you have from time to time, you need to defragment the disk.
+
+729
+01:07:32,860 --> 01:07:40,060
+ Defragment the disk, what meant is this to rewrite the information from the disk so the
+
+730
+01:07:40,060 --> 01:07:44,020
+ files are more contiguously stored.
+
+731
+01:07:44,020 --> 01:07:45,380
+ Because the disk was fragmented.
+
+732
+01:07:45,380 --> 01:07:53,060
+ As you delete disks, as you delete files and you write more files, it's more and more fragmented,
+
+733
+01:07:53,060 --> 01:07:58,520
+ meaning that the data of the files is stored more and more randomly.
+
+734
+01:07:58,520 --> 01:08:00,700
+ The blocks are more and more randomly.
+
+735
+01:08:00,700 --> 01:08:03,320
+ And from time to time, you do defragmentation.
+
+736
+01:08:03,320 --> 01:08:08,880
+ So you are going to try again to rewrite the files.
+
+737
+01:08:08,880 --> 01:08:16,100
+ So to move the blocks around, so to speak, so that the files are stored on contiguous
+
+738
+01:08:16,100 --> 01:08:20,320
+ blocks and the performance will be much better.
+
+739
+01:08:20,320 --> 01:08:24,220
+ Here is not really necessary because I told you about these heuristics in which you try
+
+740
+01:08:24,220 --> 01:08:35,600
+ to find a large bunch of free blocks for large files to store the data.
+
+741
+01:08:35,600 --> 01:08:42,620
+ The cost is inefficient for tiny files.
+
+742
+01:08:42,620 --> 01:08:49,540
+ It's a little bit unfair because it's not-- you still fundamentally need a block to store--
+
+743
+01:08:49,540 --> 01:08:52,700
+ so you need to have storage, it's a block.
+
+744
+01:08:52,700 --> 01:08:59,820
+ So even if you have one byte, you still are going to read or write an entire block, which
+
+745
+01:08:59,820 --> 01:09:00,820
+ is 40 kilobytes.
+
+746
+01:09:00,820 --> 01:09:05,460
+ And in addition, also you need an inode for this data block.
+
+747
+01:09:05,460 --> 01:09:10,720
+ Most of the file systems will have this big advantage.
+
+748
+01:09:10,720 --> 01:09:16,220
+ And inefficient encoding when a file is mostly contiguous on the disk, this basically says
+
+749
+01:09:16,220 --> 01:09:22,500
+ that you know you are going to have this bitmap to tell you what the blocks are.
+
+750
+01:09:22,500 --> 01:09:27,320
+ And if you have, you have one bit for each block.
+
+751
+01:09:27,320 --> 01:09:33,240
+ But for instance, if the file is contiguous, stored on the disk, then you need only two
+
+752
+01:09:33,240 --> 01:09:39,680
+ pieces of information, what is the beginning, the pointer to the first block, and the pointer
+
+753
+01:09:39,680 --> 01:09:42,900
+ to the last block, right?
+
+754
+01:09:42,900 --> 01:09:44,940
+ Because everything in between is contiguous.
+
+755
+01:09:44,940 --> 01:09:52,780
+ This is what it means it's inefficient encoding when files is mostly contiguous on the disk.
+
+756
+01:09:52,780 --> 01:09:59,400
+ And still in order to avoid this defragmentation, you need to have this kind of sprees space
+
+757
+01:09:59,400 --> 01:10:00,400
+ on the disk.
+
+758
+01:10:00,400 --> 01:10:05,620
+ So you cannot allocate the entire 100% of the disk space.
+
+759
+01:10:05,620 --> 01:10:11,100
+ You need to leave around 10, 20%.
+
+760
+01:10:11,100 --> 01:10:19,580
+ Okay, Linux is pretty similar.
+
+761
+01:10:19,580 --> 01:10:28,380
+ You have 12 direct pointers, like in our previous examples, if you remember, when I was a little
+
+762
+01:10:28,380 --> 01:10:33,380
+ kid, I was confused between 12 and 10.
+
+763
+01:10:33,380 --> 01:10:36,440
+ In this case, you have 12.
+
+764
+01:10:36,440 --> 01:10:45,440
+ And the other thing you can configure is the size of the blocks to be different sizes,
+
+765
+01:10:45,440 --> 01:10:46,440
+ right?
+
+766
+01:10:46,440 --> 01:10:51,040
+ You can have one kilobyte, two kilobytes, four kilobytes, eight kilobytes, and so forth.
+
+767
+01:10:51,040 --> 01:10:57,040
+ It's again, you don't have in the same system, blocks of different sizes, but when you configure
+
+768
+01:10:57,040 --> 01:11:03,460
+ the system to start with, you can choose different blocks sizes.
+
+769
+01:11:03,460 --> 01:11:13,920
+ And this X2 and X3 are different versions of Linux in terms of particular or disk layout.
+
+770
+01:11:13,920 --> 01:11:15,440
+ You also have journaling.
+
+771
+01:11:15,440 --> 01:11:22,060
+ We are going to talk about journaling later, but it's a particular way to store the files
+
+772
+01:11:22,060 --> 01:11:27,000
+ to provide fault tolerance.
+
+773
+01:11:27,000 --> 01:11:31,100
+ Okay, we'll talk more about that.
+
+774
+01:11:31,100 --> 01:11:36,000
+ And other than that, it's the same kind of organization here.
+
+775
+01:11:36,000 --> 01:11:43,560
+ You have, these are the pointers in the group descriptor table.
+
+776
+01:11:43,560 --> 01:11:45,080
+ You have pointers to the blocks.
+
+777
+01:11:45,080 --> 01:11:49,920
+ In each blocks, you have inot tables.
+
+778
+01:11:49,920 --> 01:11:53,460
+ And then the inot tables are going to go, going to go to directories.
+
+779
+01:11:53,460 --> 01:11:58,860
+ This is how the directories are organized in EX2-3.
+
+780
+01:11:58,860 --> 01:12:05,080
+ Okay, it's setting up.
+
+781
+01:12:05,080 --> 01:12:09,500
+ Hard links.
+
+782
+01:12:09,500 --> 01:12:11,420
+ Okay, sorry.
+
+783
+01:12:11,420 --> 01:12:18,260
+ So here, we remember last time, we looked through this directory structure and the directory
+
+784
+01:12:18,260 --> 01:12:23,180
+ structure, it's an ROG.
+
+785
+01:12:23,180 --> 01:12:35,340
+ And what you have, typically what you can do in Unix, you can have a different, you
+
+786
+01:12:35,340 --> 01:12:42,220
+ can have another hard link, it's called hard link, another link to the same file, right?
+
+787
+01:12:42,220 --> 01:12:50,280
+ You can have the same file, which is basically, you can have two names for that file and these
+
+788
+01:12:50,280 --> 01:12:54,540
+ names can appear in different directories.
+
+789
+01:12:54,540 --> 01:12:55,940
+ When do you want to do that?
+
+790
+01:12:55,940 --> 01:13:03,900
+ Well, obviously when I want to share a file from different directories, right?
+
+791
+01:13:03,900 --> 01:13:08,660
+ And I want to appear to be local to that directory.
+
+792
+01:13:08,660 --> 01:13:13,340
+ It's like, for instance, library files or things like that.
+
+793
+01:13:13,340 --> 01:13:21,220
+ And in this case, again, I'm going to have pointers, the same, two different file names
+
+794
+01:13:21,220 --> 01:13:24,380
+ are going to point to the same file.
+
+795
+01:13:24,380 --> 01:13:29,340
+ And in the inode, I'm going to maintain a reference count.
+
+796
+01:13:29,340 --> 01:13:30,760
+ Why I need that?
+
+797
+01:13:30,760 --> 01:13:38,380
+ Because only when all the references to the same inode, to the same underlying file are
+
+798
+01:13:38,380 --> 01:13:44,340
+ removed, I can remove the file.
+
+799
+01:13:44,340 --> 01:13:47,500
+ In addition, I have also soft links.
+
+800
+01:13:47,500 --> 01:13:50,460
+ The soft links provide the same kind of behavior.
+
+801
+01:13:50,460 --> 01:13:58,660
+ It's again, they are used to create another entry in my current directory to a file which
+
+802
+01:13:58,660 --> 01:14:02,140
+ exists in a different directory.
+
+803
+01:14:02,140 --> 01:14:06,020
+ But this is symbolic link or soft link.
+
+804
+01:14:06,020 --> 01:14:11,100
+ In this case, it's actually a symbolic link, it's another entry in the directory, which
+
+805
+01:14:11,100 --> 01:14:19,140
+ basically it's about, it has a file name, the new file name, and then it's linked to
+
+806
+01:14:19,140 --> 01:14:20,540
+ the destination file name.
+
+807
+01:14:20,540 --> 01:14:25,780
+ So it's a symbolic link, just an entry, just something you write in your directory, which
+
+808
+01:14:25,780 --> 01:14:30,180
+ basically links the file name, the new file name, with the destination file name, the
+
+809
+01:14:30,180 --> 01:14:34,900
+ one which I want to link.
+
+810
+01:14:34,900 --> 01:14:44,420
+ And in this particular case, though, if the destination file name is removed, the openings
+
+811
+01:14:44,420 --> 01:14:54,460
+ are filed using the symbolic link name, it can fail.
+
+812
+01:14:54,460 --> 01:15:02,340
+ Because there is no one under the hood to keep the reference counting how many other
+
+813
+01:15:02,340 --> 01:15:05,420
+ file names are pointing to the same file.
+
+814
+01:15:05,420 --> 01:15:10,100
+ But this is easier to implement.
+
+815
+01:15:10,100 --> 01:15:18,380
+ So this is what it is.
+
+816
+01:15:18,380 --> 01:15:25,460
+ And you can create both command line, the symbolic links, also hard links, also you
+
+817
+01:15:25,460 --> 01:15:33,540
+ can have a system call to programmatically manipulate the symbolic links.
+
+818
+01:15:33,540 --> 01:15:41,300
+ So let's look here as an example, and we are close to the end of the lecture, about what
+
+819
+01:15:41,300 --> 01:15:43,400
+ happens under the hood.
+
+820
+01:15:43,400 --> 01:15:54,840
+ And let's say we want to access this file staff.txt and the path name is home/cs on
+
+821
+01:15:54,840 --> 01:15:59,520
+ c2 and then is the name of the file staff.txt.
+
+822
+01:15:59,520 --> 01:16:04,360
+ So first of all, we need to start from the root.
+
+823
+01:16:04,360 --> 01:16:13,360
+ So you need to have the ID number of the root and say that's the position 2.
+
+824
+01:16:13,360 --> 01:16:21,820
+ And this one is going, obviously, is going to have here an inode.
+
+825
+01:16:21,820 --> 01:16:27,220
+ The inode is going to contain a pointer to the data.
+
+826
+01:16:27,220 --> 01:16:37,120
+ And this data in this case contains the directory data, directory entries.
+
+827
+01:16:37,120 --> 01:16:44,440
+ Remember a directory entry maps a file to a file number.
+
+828
+01:16:44,440 --> 01:16:57,080
+ Let's assume that the file number is 8086.
+
+829
+01:16:57,080 --> 01:17:04,580
+ So now, and this is what you have in memory, what you have here down, it's in memory.
+
+830
+01:17:04,580 --> 01:17:10,160
+ Now you read the block 8086, right?
+
+831
+01:17:10,160 --> 01:17:12,140
+ And what do you get there?
+
+832
+01:17:12,140 --> 01:17:20,340
+ You are going to get the I number of the file.
+
+833
+01:17:20,340 --> 01:17:32,000
+ You have the I number and the I number for this, the subdirectory cs162.
+
+834
+01:17:32,000 --> 01:17:38,580
+ And you are going to get from that I number, you are going to get data in that directory.
+
+835
+01:17:38,580 --> 01:17:48,540
+ And data in the directory is going to maintain the entry and mapping between cs162 and its
+
+836
+01:17:48,540 --> 01:17:53,760
+ I number, let's say 732.
+
+837
+01:17:53,760 --> 01:18:03,500
+ So you go to 732 now with the I number and you are going now finally to get all the information
+
+838
+01:18:03,500 --> 01:18:11,400
+ which is in cs162 directory, which is also you have file staff.txt here.
+
+839
+01:18:11,400 --> 01:18:17,480
+ And once you read the data in the directory, you are going to find the mapping between
+
+840
+01:18:17,480 --> 01:18:21,000
+ staff.txt and its I number.
+
+841
+01:18:21,000 --> 01:18:25,080
+ So the number now is 9909.
+
+842
+01:18:25,080 --> 01:18:30,160
+ So finally, I have 9909, which is the I number of staff.txt.
+
+843
+01:18:30,160 --> 01:18:33,500
+ Now I can start reading the data from staff.txt.
+
+844
+01:18:33,500 --> 01:18:39,480
+ This may require to read additional blocks before I get to the data blocks.
+
+845
+01:18:39,480 --> 01:18:47,240
+ If this file is large and we need to have single indirected or double indirect or triple
+
+846
+01:18:47,240 --> 01:18:52,560
+ indirect data blocks.
+
+847
+01:18:52,560 --> 01:18:55,400
+ This is pretty much what happens.
+
+848
+01:18:55,400 --> 01:19:02,360
+ And this is the data blocks from the file.
+
+849
+01:19:02,360 --> 01:19:04,720
+ And that's pretty much it.
+
+850
+01:19:04,720 --> 01:19:12,400
+ So let's stop here and we'll continue next time.
+
+851
+01:19:12,400 --> 01:19:26,000
+ Oh, so here the question is that what if there was also a file in /.home called cs162?
+
+852
+01:19:26,000 --> 01:19:28,360
+ I'm going to answer this question.
+
+853
+01:19:28,360 --> 01:19:39,560
+ So basically if it was in home another file, that will be cs162.txt.
+
+854
+01:19:39,560 --> 01:19:44,020
+ Also it will have a different extension.
+
+855
+01:19:44,020 --> 01:19:47,720
+ So the file system will differentiate.
+
+856
+01:19:47,720 --> 01:19:56,860
+ If the file system would have exactly the same name as a directory, that cannot happen.
+
+857
+01:19:56,860 --> 01:20:07,520
+ You cannot have a file name and a directory of the same name in the same directory.
+
+858
+01:20:07,520 --> 01:20:10,360
+ You can try it.
+
+859
+01:20:10,360 --> 01:20:11,360
+ You cannot create it.
+
+860
+01:20:11,360 --> 01:20:13,360
+ You will get an error.
+
+861
+01:20:13,360 --> 01:20:14,360
+ Okay.
+
+862
+01:20:14,360 --> 01:20:18,720
+ With this, thank you and I'll see you next time.
+
+863
+01:20:18,720 --> 01:20:44,720
+ [ Silence ]
+

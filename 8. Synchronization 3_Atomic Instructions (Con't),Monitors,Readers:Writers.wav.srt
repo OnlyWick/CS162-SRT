@@ -1,0 +1,3932 @@
+1
+00:00:00,000 --> 00:00:22,840
+ Hello, everyone.
+
+2
+00:00:22,840 --> 00:00:26,980
+ So welcome to the eighth lecture.
+
+3
+00:00:26,980 --> 00:00:29,480
+ And this is really an important lecture.
+
+4
+00:00:29,480 --> 00:00:36,000
+ We are going to learn a lot and continue to learn about synchronization and how we are
+
+5
+00:00:36,000 --> 00:00:45,560
+ going to solve the problems and ensure critical provides a critical section abstraction and
+
+6
+00:00:45,560 --> 00:00:48,080
+ synchronization primitives.
+
+7
+00:00:48,080 --> 00:00:54,440
+ So let's recall a few things from the last time in particular semaphores.
+
+8
+00:00:54,440 --> 00:01:01,220
+ And if you remember, semaphores are like generalized logs and they are defined many times, many
+
+9
+00:01:01,220 --> 00:01:05,320
+ years ago, like 60 years ago almost.
+
+10
+00:01:05,320 --> 00:01:11,840
+ And it was a main synchronization primitive used in original Unix.
+
+11
+00:01:11,840 --> 00:01:18,120
+ And when we are talking here about synchronization, we are talking about in the context of implementing
+
+12
+00:01:18,120 --> 00:01:19,640
+ a critical section.
+
+13
+00:01:19,640 --> 00:01:28,000
+ If you remember, a critical section, it's a sequence of code in which only one thread
+
+14
+00:01:28,000 --> 00:01:30,360
+ can be active at a given time.
+
+15
+00:01:30,360 --> 00:01:36,280
+ So therefore, if one thread is active in a critical section, the other threads which
+
+16
+00:01:36,280 --> 00:01:40,440
+ want to enter the critical section, basically the code, they need to wait.
+
+17
+00:01:40,440 --> 00:01:46,520
+ So we need a mechanism to synchronize this kind of entrance to the critical section.
+
+18
+00:01:46,520 --> 00:01:51,480
+ And then when a thread exits the critical section, another thread from the waiting ones
+
+19
+00:01:51,480 --> 00:01:55,880
+ is going to enter the critical section.
+
+20
+00:01:55,880 --> 00:02:05,640
+ And there are two primitives, p and v. p, if the semaphore is zero, p is waiting.
+
+21
+00:02:05,640 --> 00:02:11,120
+ If the semaphore is greater than zero, it decrements it.
+
+22
+00:02:11,120 --> 00:02:16,800
+ And the other one, v, it's basically just increment the semaphore by one.
+
+23
+00:02:16,800 --> 00:02:26,800
+ And if the semaphore is zero and if it's incremented to one, then it's going to wake up one of
+
+24
+00:02:26,800 --> 00:02:33,800
+ the threads which was waiting on a semaphore, if any.
+
+25
+00:02:33,800 --> 00:02:38,000
+ And these are two years of the semaphores we went over last time.
+
+26
+00:02:38,000 --> 00:02:39,000
+ One is mutual exclusion.
+
+27
+00:02:39,000 --> 00:02:42,640
+ So it's, again, this is about implementing critical sections.
+
+28
+00:02:42,640 --> 00:02:47,280
+ And here, it's very simple.
+
+29
+00:02:47,280 --> 00:02:52,640
+ You are going to initialize the semaphore to one.
+
+30
+00:02:52,640 --> 00:02:59,720
+ And then you put before and after critical section, a p and a v.
+
+31
+00:02:59,720 --> 00:03:06,160
+ So the first thread, which is going to execute the instruction p, the semaphore, it's one,
+
+32
+00:03:06,160 --> 00:03:09,560
+ it's going to decrement it, it's going to enter the critical section.
+
+33
+00:03:09,560 --> 00:03:14,540
+ If another thread comes and tries to execute the code, the semaphore now is zero.
+
+34
+00:03:14,540 --> 00:03:16,080
+ So it has to wait.
+
+35
+00:03:16,080 --> 00:03:21,280
+ When the first semaphore x is the critical section, it's calling v and v is incrementing
+
+36
+00:03:21,280 --> 00:03:22,840
+ the semaphore.
+
+37
+00:03:22,840 --> 00:03:29,120
+ And therefore, as a result, we signal the thread who is waiting to enter the critical
+
+38
+00:03:29,120 --> 00:03:32,840
+ section.
+
+39
+00:03:32,840 --> 00:03:35,200
+ And it's also the scheduling constraints.
+
+40
+00:03:35,200 --> 00:03:41,960
+ And this is basically, we want to signal, to wait for a thread or signal a thread to
+
+41
+00:03:41,960 --> 00:03:43,680
+ do something.
+
+42
+00:03:43,680 --> 00:03:46,160
+ And here, the initial value is zero.
+
+43
+00:03:46,160 --> 00:03:50,400
+ And the classic example is a join implementation for the thread.
+
+44
+00:03:50,400 --> 00:03:56,680
+ You remember that with a join, the pattern, the thread which executes the join waits for
+
+45
+00:03:56,680 --> 00:04:00,060
+ another thread to finish.
+
+46
+00:04:00,060 --> 00:04:07,820
+ And so basically, the thread which waits to finish, the join, they use to implement this
+
+47
+00:04:07,820 --> 00:04:11,560
+ to use the same semaphore.
+
+48
+00:04:11,560 --> 00:04:16,080
+ So the thread, we initialize the semaphore to zero.
+
+49
+00:04:16,080 --> 00:04:23,440
+ And the thread who waits for another thread to join to finish, then it's just calling
+
+50
+00:04:23,440 --> 00:04:24,440
+ p.
+
+51
+00:04:24,440 --> 00:04:25,440
+ Right?
+
+52
+00:04:25,440 --> 00:04:31,980
+ And if the other thread, when it finishes, is calling v. OK, so if the thread hasn't
+
+53
+00:04:31,980 --> 00:04:34,940
+ finished, the semaphore is zero.
+
+54
+00:04:34,940 --> 00:04:39,160
+ So the join operation will just wait.
+
+55
+00:04:39,160 --> 00:04:41,140
+ And it will wait until when?
+
+56
+00:04:41,140 --> 00:04:48,520
+ Until the thread it's waiting for, it's executing this thread finish, which calls v, it's incrementing
+
+57
+00:04:48,520 --> 00:04:53,700
+ the semaphore to one, which means that and signals the waiting thread.
+
+58
+00:04:53,700 --> 00:05:00,740
+ And the waiting thread now is the semaphore is one and going to start executing and decrementing
+
+59
+00:05:00,740 --> 00:05:07,780
+ it to zero and finish the code, finish the join operation.
+
+60
+00:05:07,780 --> 00:05:10,120
+ OK.
+
+61
+00:05:10,120 --> 00:05:12,120
+ Any questions?
+
+62
+00:05:12,120 --> 00:05:20,560
+ OK, please ask any questions, you know, if you have any.
+
+63
+00:05:20,560 --> 00:05:25,320
+ So and then we want to do this bounded buffer.
+
+64
+00:05:25,320 --> 00:05:29,960
+ So remember the bounded buffer, we have a bunch of producers, a bunch of consumers,
+
+65
+00:05:29,960 --> 00:05:36,400
+ the producer put elements in the buffer, the consumers get elements around the buffer.
+
+66
+00:05:36,400 --> 00:05:42,380
+ And you hear, if you look at the constraints, what we are talking about here is that for
+
+67
+00:05:42,380 --> 00:05:46,100
+ the consumer must wait for the producer to fill the buffer.
+
+68
+00:05:46,100 --> 00:05:49,600
+ If the buffer is empty, then the consumer have to wait.
+
+69
+00:05:49,600 --> 00:05:53,600
+ On the other hand, the producers must wait for the consumer to empty the buffer.
+
+70
+00:05:53,600 --> 00:05:58,720
+ If the buffer is full, then the producer has to wait because there are no place in the
+
+71
+00:05:58,720 --> 00:06:03,560
+ buffer to put new elements.
+
+72
+00:06:03,560 --> 00:06:10,420
+ And there is obviously there is the buffer itself manipulating the buffer or the queue.
+
+73
+00:06:10,420 --> 00:06:16,320
+ It's basically it's a critical section and only one thread is going to manipulate the
+
+74
+00:06:16,320 --> 00:06:17,320
+ queue.
+
+75
+00:06:17,320 --> 00:06:18,320
+ Right.
+
+76
+00:06:18,320 --> 00:06:23,400
+ So it's one consumer or one producer.
+
+77
+00:06:23,400 --> 00:06:24,800
+ Right.
+
+78
+00:06:24,800 --> 00:06:26,360
+ OK.
+
+79
+00:06:26,360 --> 00:06:30,200
+ So, how we are going to implement this?
+
+80
+00:06:30,200 --> 00:06:36,880
+ One implement, we are going for each of these constraints, we are going to use a semaphore.
+
+81
+00:06:36,880 --> 00:06:40,040
+ So we are going to use a semaphore for full buffers.
+
+82
+00:06:40,040 --> 00:06:44,000
+ This is consumer constraint and empty buffers.
+
+83
+00:06:44,000 --> 00:06:45,000
+ OK.
+
+84
+00:06:45,000 --> 00:06:52,760
+ And basically, each of the semaphore at a given time will show how many elements are
+
+85
+00:06:52,760 --> 00:06:58,160
+ in the buffer, full buffers, and how many elements you can still put in the buffer.
+
+86
+00:06:58,160 --> 00:07:02,960
+ So basically, if you add that to these two semaphores, you should get the total number
+
+87
+00:07:02,960 --> 00:07:05,440
+ of elements at buffer size.
+
+88
+00:07:05,440 --> 00:07:10,740
+ And then a mutex, a semaphore mutex for the mutual exclusion to make sure that you have
+
+89
+00:07:10,740 --> 00:07:18,160
+ only one thread manipulating the queue, that is whether inserting a new element or removing
+
+90
+00:07:18,160 --> 00:07:20,180
+ an element from the queue.
+
+91
+00:07:20,180 --> 00:07:21,180
+ OK.
+
+92
+00:07:21,180 --> 00:07:22,200
+ So let's start.
+
+93
+00:07:22,200 --> 00:07:29,940
+ So full slots is basically zero because initially there is nothing in the queue.
+
+94
+00:07:29,940 --> 00:07:31,260
+ Empty slots is a buffer size.
+
+95
+00:07:31,260 --> 00:07:36,840
+ So remember, if you add here full slots with empty slots, you get the size of the buffer.
+
+96
+00:07:36,840 --> 00:07:37,840
+ And mutex is one.
+
+97
+00:07:37,840 --> 00:07:38,840
+ Right.
+
+98
+00:07:38,840 --> 00:07:42,440
+ So no one is using the-- no one is in the critical section.
+
+99
+00:07:42,440 --> 00:07:44,020
+ And the producer then is very simple.
+
+100
+00:07:44,020 --> 00:07:45,020
+ Right.
+
+101
+00:07:45,020 --> 00:07:49,980
+ It's like basically you are waiting for slots to be available.
+
+102
+00:07:49,980 --> 00:07:59,020
+ And then you use a mutex to protect the critical section.
+
+103
+00:07:59,020 --> 00:08:04,740
+ And then once you are done, you are incrementing the number of slots or full slots.
+
+104
+00:08:04,740 --> 00:08:05,740
+ Right.
+
+105
+00:08:05,740 --> 00:08:07,400
+ Because you added one element.
+
+106
+00:08:07,400 --> 00:08:09,960
+ And the consumer is very similar.
+
+107
+00:08:09,960 --> 00:08:15,780
+ You are waiting for two full slots to be greater than zero.
+
+108
+00:08:15,780 --> 00:08:19,040
+ This means that there is at least one element in the buffer.
+
+109
+00:08:19,040 --> 00:08:23,500
+ So if you have more than one element in the buffer, you can dequeue that element.
+
+110
+00:08:23,500 --> 00:08:27,340
+ Again, the dequeue operation is protected by the mutex.
+
+111
+00:08:27,340 --> 00:08:32,880
+ And then once you are done, you are going to increment the empty slots because now it's
+
+112
+00:08:32,880 --> 00:08:35,140
+ one more available slots in the queue.
+
+113
+00:08:35,140 --> 00:08:36,140
+ OK.
+
+114
+00:08:36,140 --> 00:08:38,140
+ So you return the item.
+
+115
+00:08:38,140 --> 00:08:39,140
+ OK.
+
+116
+00:08:39,140 --> 00:08:42,600
+ So that's basically here.
+
+117
+00:08:42,600 --> 00:08:46,520
+ And you use a mutex to protect the critical section.
+
+118
+00:08:46,520 --> 00:08:52,040
+ So therefore, now two threads at the same time operate on the queue to remove, to manipulate
+
+119
+00:08:52,040 --> 00:08:57,800
+ the pointers, to remove the elements or to add the element to the queue.
+
+120
+00:08:57,800 --> 00:09:02,360
+ And then the other one are scheduling constraints of full slots.
+
+121
+00:09:02,360 --> 00:09:07,180
+ It's incremented by the producer and then it's decremented by the consumer.
+
+122
+00:09:07,180 --> 00:09:16,600
+ And similarly, the empty space is incremented by the consumer and decremented by the producer.
+
+123
+00:09:16,600 --> 00:09:21,700
+ OK.
+
+124
+00:09:21,700 --> 00:09:24,280
+ Any questions?
+
+125
+00:09:24,280 --> 00:09:27,840
+ OK.
+
+126
+00:09:27,840 --> 00:09:30,680
+ So a discussion about solution.
+
+127
+00:09:30,680 --> 00:09:34,000
+ So you can see there is asymmetry, right?
+
+128
+00:09:34,000 --> 00:09:42,840
+ The producer is doing-- is calling P and then V on empty buffers and full buffers.
+
+129
+00:09:42,840 --> 00:09:46,560
+ And the consumer does the reserve, reverse.
+
+130
+00:09:46,560 --> 00:09:51,420
+ Is calling P on the full buffers and V on the empty buffers, right?
+
+131
+00:09:51,420 --> 00:09:53,880
+ So there is this asymmetry.
+
+132
+00:09:53,880 --> 00:09:55,120
+ OK.
+
+133
+00:09:55,120 --> 00:09:56,900
+ And it's exactly what we expect, right?
+
+134
+00:09:56,900 --> 00:10:00,120
+ Because the producer has to decrease the number of empty slots and increase the number of
+
+135
+00:10:00,120 --> 00:10:02,600
+ occupy slots.
+
+136
+00:10:02,600 --> 00:10:13,560
+ And the consumer-- sorry, the producer has to wait for-- the producer, yeah, it has to
+
+137
+00:10:13,560 --> 00:10:16,280
+ wait for empty slots to be available.
+
+138
+00:10:16,280 --> 00:10:19,920
+ But then once you put the element, you decrease the number of empty slots and you increase
+
+139
+00:10:19,920 --> 00:10:21,920
+ the numbers of occupy slots.
+
+140
+00:10:21,960 --> 00:10:28,080
+ consumer is the other way around when there is at least one element in the buffer, you
+
+141
+00:10:28,080 --> 00:10:33,780
+ decrease the number of occupied slots because you take one element and then also this increase
+
+142
+00:10:33,780 --> 00:10:37,580
+ the number of empty slots.
+
+143
+00:10:37,580 --> 00:10:40,540
+ So now this is a question for you.
+
+144
+00:10:40,540 --> 00:10:51,700
+ And if there is there, you remember in the original code, let me just move this, we call
+
+145
+00:10:51,700 --> 00:10:57,920
+ first, producer calls first, semaphore p on the empty slots and then the mutex.
+
+146
+00:10:57,920 --> 00:11:01,400
+ Now is that order important?
+
+147
+00:11:01,400 --> 00:11:06,800
+ Okay, that's a question for the class.
+
+148
+00:11:06,800 --> 00:11:19,320
+ So looking forward to your replies, to your answers.
+
+149
+00:11:19,320 --> 00:11:29,500
+ Yes, it is.
+
+150
+00:11:29,500 --> 00:11:34,340
+ If you do this, it can be we can deadlock.
+
+151
+00:11:34,340 --> 00:11:43,000
+ Can someone explain how you can get the deadlock here?
+
+152
+00:11:43,000 --> 00:11:49,640
+ It's very simple.
+
+153
+00:11:49,640 --> 00:11:54,120
+ Yes.
+
+154
+00:11:54,120 --> 00:12:03,240
+ Thank you Aaron and Akshay.
+
+155
+00:12:03,240 --> 00:12:05,780
+ So basically it's very simple, right?
+
+156
+00:12:05,780 --> 00:12:13,120
+ For instance, you imagine that you're the producer and the empty slots, there are no
+
+157
+00:12:13,120 --> 00:12:14,120
+ empty slots.
+
+158
+00:12:14,120 --> 00:12:17,640
+ So empty slots is zero.
+
+159
+00:12:17,640 --> 00:12:18,900
+ So what happens?
+
+160
+00:12:18,900 --> 00:12:26,620
+ You acquire the mutex for the critical section and then you are going to start waiting because
+
+161
+00:12:26,620 --> 00:12:28,440
+ empty slots is zero.
+
+162
+00:12:28,440 --> 00:12:34,920
+ There is no place in the queue to insert a new element, but a new element.
+
+163
+00:12:34,920 --> 00:12:40,940
+ But now you are going to wait in the critical section.
+
+164
+00:12:40,940 --> 00:12:48,580
+ And the only way the empty slots can be incremented is by the consumer.
+
+165
+00:12:48,580 --> 00:13:01,340
+ But in order to do that, the consumer has to dequeue an operation, but for that you
+
+166
+00:13:01,340 --> 00:13:07,540
+ need to acquire mutex, but you own the mutex, the producer owns the mutex, so you cannot
+
+167
+00:13:07,540 --> 00:13:12,320
+ acquire the mutex because you can have only one thread in the critical section.
+
+168
+00:13:12,320 --> 00:13:17,340
+ So therefore consumer cannot dequeue any element and therefore the producer will continue to
+
+169
+00:13:17,340 --> 00:13:26,100
+ wait for the empty slots to be incremented, which will never happen.
+
+170
+00:13:26,100 --> 00:13:29,580
+ Very good.
+
+171
+00:13:29,580 --> 00:13:31,260
+ Is the order of V important?
+
+172
+00:13:31,260 --> 00:13:37,740
+ Well, I have the answer here is that, yeah, now because you just do the increment.
+
+173
+00:13:37,740 --> 00:13:43,100
+ What if you have two producer and two consumers?
+
+174
+00:13:43,100 --> 00:13:48,540
+ Is this, do you need any changes to this code?
+
+175
+00:13:48,540 --> 00:13:51,780
+ I mean to the previous code which is working, not to this one.
+
+176
+00:13:51,780 --> 00:14:07,600
+ So assuming that somehow P and mutex and empty slots are not reordered.
+
+177
+00:14:07,600 --> 00:14:13,500
+ So do you want to, do you need to make any changes to this code?
+
+178
+00:14:13,500 --> 00:14:22,340
+ If we have two producers and two consumers.
+
+179
+00:14:22,340 --> 00:14:34,160
+ Yes, Anali, you are correct.
+
+180
+00:14:34,160 --> 00:14:39,880
+ Now you don't need to do it to make any change.
+
+181
+00:14:39,880 --> 00:14:44,620
+ It's going just to work, when the reason is going to work, it's again because no matter
+
+182
+00:14:44,620 --> 00:14:52,940
+ how many consumer and producers you are going to have, it's only one of those can be in
+
+183
+00:14:52,940 --> 00:14:55,740
+ the critical section.
+
+184
+00:14:55,740 --> 00:15:01,440
+ Yes, exactly.
+
+185
+00:15:01,440 --> 00:15:03,440
+ Thank you.
+
+186
+00:15:03,440 --> 00:15:05,440
+ Good.
+
+187
+00:15:05,440 --> 00:15:17,980
+ So, it's again, so you can see that P and V are synchronization primitives.
+
+188
+00:15:17,980 --> 00:15:22,620
+ Now what we are going to do in the rest of these lectures, we are going to try to figure
+
+189
+00:15:22,620 --> 00:15:25,940
+ out how to implement the synchronization primitives.
+
+190
+00:15:25,940 --> 00:15:35,100
+ Synchronization primitive P and V are at the higher level, but as a low level, you have
+
+191
+00:15:35,100 --> 00:15:41,800
+ what you have when you are talking about the processor.
+
+192
+00:15:41,800 --> 00:15:49,480
+ What you can do, you can execute instructions like load and stores and you can disable interacts.
+
+193
+00:15:49,480 --> 00:15:55,440
+ And then we'll see there are a few other specialized instructions like test and set and compare
+
+194
+00:15:55,440 --> 00:16:03,100
+ and swap, which it make it much easier to implement higher level synchronization primitives.
+
+195
+00:16:03,100 --> 00:16:08,260
+ Because like you'll see using just load and store and disable interrupts, they are not
+
+196
+00:16:08,260 --> 00:16:11,580
+ ideal solutions.
+
+197
+00:16:11,580 --> 00:16:13,460
+ Then as a higher level, we have locks.
+
+198
+00:16:13,460 --> 00:16:18,500
+ We discussed last time, we are going to discuss more this lecture.
+
+199
+00:16:18,500 --> 00:16:23,300
+ Semaphores and then monitors and send receipt operation.
+
+200
+00:16:23,300 --> 00:16:31,140
+ But monitor, we are going to discuss locks, semaphores, their implementation and hopefully
+
+201
+00:16:31,140 --> 00:16:36,380
+ we are going to also get monitors during this lecture.
+
+202
+00:16:36,380 --> 00:16:43,920
+ And then programs, there are higher abstraction at the program level and we are not going
+
+203
+00:16:43,920 --> 00:16:49,500
+ to talk about them at least this week.
+
+204
+00:16:49,500 --> 00:16:52,540
+ And here is a motivating example.
+
+205
+00:16:52,540 --> 00:16:57,420
+ And if you haven't paid too much attention until now, please from now on for this example
+
+206
+00:16:57,420 --> 00:17:01,500
+ pay attention because it will learn you a lot.
+
+207
+00:17:01,500 --> 00:17:07,140
+ And remember that next Wednesday we have the first meter.
+
+208
+00:17:07,140 --> 00:17:15,580
+ And this and the next lecture are going to be part of the topics covered by the meter.
+
+209
+00:17:15,580 --> 00:17:18,100
+ So here is a problem.
+
+210
+00:17:18,100 --> 00:17:26,940
+ And basically the problem is that there are two roommates and both of them like milk.
+
+211
+00:17:26,940 --> 00:17:37,980
+ And the question, the problem is that if there is no milk in the fridge, then whoever discovers
+
+212
+00:17:37,980 --> 00:17:41,740
+ that they are going to go and get milk.
+
+213
+00:17:41,740 --> 00:17:46,940
+ And the goal here is to not get too much milk.
+
+214
+00:17:46,940 --> 00:17:49,100
+ And how can you get too much milk?
+
+215
+00:17:49,100 --> 00:17:54,340
+ Well, think about the same sequence of events.
+
+216
+00:17:54,340 --> 00:18:02,340
+ At three o'clock, first roommate, let's call her person A, look in the fridge, there is
+
+217
+00:18:02,340 --> 00:18:03,560
+ no milk.
+
+218
+00:18:03,560 --> 00:18:12,900
+ So leaves to go to the store and while arriving at the store, it's a closed store, the second
+
+219
+00:18:12,900 --> 00:18:18,180
+ roommate call her person B, look at the fridge and it's out of milk.
+
+220
+00:18:18,180 --> 00:18:25,540
+ So she's going to do the same thing, leave for store and arrive at store.
+
+221
+00:18:25,540 --> 00:18:31,940
+ And during this time, the person A left the store, arrive at her home, put the milk in
+
+222
+00:18:31,940 --> 00:18:36,020
+ the fridge while the person B is at the store buying milk.
+
+223
+00:18:36,020 --> 00:18:40,540
+ And then we are going to get at the end of the day, we are going to have two bottle of
+
+224
+00:18:40,540 --> 00:18:43,540
+ milks in the fridge.
+
+225
+00:18:43,540 --> 00:18:49,780
+ So this solution certainly doesn't do what we wanted and what we wanted to not buy too
+
+226
+00:18:49,780 --> 00:18:53,340
+ much milk.
+
+227
+00:18:53,340 --> 00:18:56,420
+ So how do we do that?
+
+228
+00:18:56,420 --> 00:19:08,080
+ Well, obviously, the problem here is that in some sense, both person A and B execute
+
+229
+00:19:08,080 --> 00:19:15,740
+ the same instructions and so to speak, take the same actions without any coordination.
+
+230
+00:19:15,740 --> 00:19:21,860
+ They execute that kind of code, each of them at the same time.
+
+231
+00:19:21,860 --> 00:19:22,980
+ And so what do you want?
+
+232
+00:19:22,980 --> 00:19:31,800
+ You want only one person of the two to go to the store to buy milk.
+
+233
+00:19:31,800 --> 00:19:34,860
+ So basically, you can see now the concept of critical section.
+
+234
+00:19:34,860 --> 00:19:42,320
+ If you think about the program as going to the fridge, going to the store to buy milk,
+
+235
+00:19:42,320 --> 00:19:45,780
+ we want only one person to do it.
+
+236
+00:19:45,780 --> 00:19:52,700
+ And one way to prevent that, like we learned and we saw last time, is to have locks.
+
+237
+00:19:52,700 --> 00:19:59,480
+ So you lock before entering the critical section and you unlock after leaving the critical
+
+238
+00:19:59,480 --> 00:20:00,480
+ section.
+
+239
+00:20:00,480 --> 00:20:08,560
+ Now, the one important thing which will come over and over again and what makes the implementation
+
+240
+00:20:08,560 --> 00:20:26,860
+ of locks challenging is that any lock implementation or synchronization, primitive implementation,
+
+241
+00:20:26,860 --> 00:20:29,460
+ involve waiting.
+
+242
+00:20:29,460 --> 00:20:30,460
+ And why is that?
+
+243
+00:20:30,460 --> 00:20:32,680
+ It should be obvious, right?
+
+244
+00:20:32,680 --> 00:20:40,660
+ Because if many threads wants to enter the same critical section and only one at a time
+
+245
+00:20:40,660 --> 00:20:43,560
+ can do it, this means that
+
+246
+00:20:43,930 --> 00:20:50,730
+ One will go in a critical section and the other ones, what they can do, they have to
+
+247
+00:20:50,730 --> 00:20:51,730
+ wait.
+
+248
+00:20:51,730 --> 00:20:57,010
+ There is no way around it.
+
+249
+00:20:57,010 --> 00:21:00,490
+ So remember the boat.
+
+250
+00:21:00,490 --> 00:21:06,330
+ So of course, one way to do it is to lock all the way also the fridge.
+
+251
+00:21:06,330 --> 00:21:14,650
+ And basically, before you go to the store, you lock the fridge.
+
+252
+00:21:14,650 --> 00:21:19,450
+ And if the other person sees, comes to the fridge, it's locked.
+
+253
+00:21:19,450 --> 00:21:24,890
+ It's going to wait for you to unlock the fridge.
+
+254
+00:21:24,890 --> 00:21:29,590
+ And then this guarantees that it's only one person, you buying the meal.
+
+255
+00:21:29,590 --> 00:21:36,150
+ But of course, this is not ideal because what if the other person wants something else than
+
+256
+00:21:36,150 --> 00:21:38,330
+ milk from the fridge.
+
+257
+00:21:38,330 --> 00:21:43,850
+ So this is kind of very coarse grain solution.
+
+258
+00:21:43,850 --> 00:21:47,450
+ Okay.
+
+259
+00:21:47,450 --> 00:21:58,130
+ So let's see how we are going to solve this problem.
+
+260
+00:21:58,130 --> 00:22:08,070
+ And before doing that, it's again, it's like this is a tricky problem and these problems
+
+261
+00:22:08,070 --> 00:22:12,250
+ when concurrency problems are tricky.
+
+262
+00:22:12,250 --> 00:22:17,290
+ And they are tricky fundamentally because there are many entities doing the same things
+
+263
+00:22:17,290 --> 00:22:19,330
+ at the same time.
+
+264
+00:22:19,330 --> 00:22:26,650
+ And it just, as a human, we are more used to thinking linearly than thinking about many
+
+265
+00:22:26,650 --> 00:22:28,090
+ things happening at the same time.
+
+266
+00:22:28,090 --> 00:22:30,290
+ We are not very good at that.
+
+267
+00:22:30,290 --> 00:22:32,330
+ So that's one of the reasons.
+
+268
+00:22:32,330 --> 00:22:36,550
+ And you can very well miss different edge cages.
+
+269
+00:22:36,550 --> 00:22:44,210
+ So what you want when you have to deal with this kind of problem, actually, you want to
+
+270
+00:22:44,210 --> 00:22:48,310
+ do that when you deal with any kind of problem, programming problem.
+
+271
+00:22:48,310 --> 00:22:52,250
+ But in particular with this kind of problems, you need to be very careful and think quite
+
+272
+00:22:52,250 --> 00:23:00,210
+ a bit about what you want to achieve and how to develop a solution to meet the requirements
+
+273
+00:23:00,210 --> 00:23:02,290
+ you want to achieve.
+
+274
+00:23:02,290 --> 00:23:05,370
+ So don't start to code first.
+
+275
+00:23:05,370 --> 00:23:09,370
+ Just think first.
+
+276
+00:23:09,370 --> 00:23:14,330
+ And again, the way to think about it is to write down what you want to happen.
+
+277
+00:23:14,330 --> 00:23:21,030
+ So what do you want to happen here or what are the correctness properties?
+
+278
+00:23:21,030 --> 00:23:25,210
+ So you want no more than one person buys some milk at a time.
+
+279
+00:23:25,210 --> 00:23:31,590
+ If two person buys milk at a time, you end up with two bottle of milk.
+
+280
+00:23:31,590 --> 00:23:38,490
+ At the same time, if there is no milk, there must be someone buying the milk.
+
+281
+00:23:38,490 --> 00:23:45,230
+ Otherwise, you don't get the milk.
+
+282
+00:23:45,230 --> 00:23:51,610
+ And let's think about if you restrict yourself to just load and store.
+
+283
+00:23:51,610 --> 00:23:59,730
+ So load and store meaning that you are going to modify some variable in the memory, which
+
+284
+00:23:59,730 --> 00:24:05,330
+ can be read by any program.
+
+285
+00:24:05,330 --> 00:24:07,970
+ So here is one example.
+
+286
+00:24:07,970 --> 00:24:18,070
+ And the way we are going to emulate this load and stores in this problem is through notes.
+
+287
+00:24:18,070 --> 00:24:21,230
+ You put a note on the fridge with a message.
+
+288
+00:24:21,230 --> 00:24:25,310
+ This is basically, it's equivalent to storing.
+
+289
+00:24:25,310 --> 00:24:35,590
+ And you read the note, obviously, and it's equivalent to load.
+
+290
+00:24:35,590 --> 00:24:51,010
+ So let's say what we have here, we have two notes, two kind of notes, one note.
+
+291
+00:24:51,010 --> 00:24:53,550
+ And then what is a code?
+
+292
+00:24:53,550 --> 00:24:57,890
+ One possible code can be one possible solution.
+
+293
+00:24:57,890 --> 00:25:01,490
+ It's like if there is no milk, right?
+
+294
+00:25:01,490 --> 00:25:02,710
+ And there is no note.
+
+295
+00:25:02,710 --> 00:25:10,850
+ We assume here that a note indicates that someone else is going to buy the milk.
+
+296
+00:25:10,850 --> 00:25:15,830
+ Then you leave note and you yourself go to buy the milk.
+
+297
+00:25:15,830 --> 00:25:20,110
+ And when you come back, you remove the note.
+
+298
+00:25:20,110 --> 00:25:22,790
+ Simply enough.
+
+299
+00:25:22,790 --> 00:25:24,910
+ So what can happen here?
+
+300
+00:25:24,910 --> 00:25:26,110
+ Do you think it's a good solution?
+
+301
+00:25:26,110 --> 00:25:38,190
+ Okay, let's see now answer here.
+
+302
+00:25:38,190 --> 00:25:40,190
+ It's not a good solution, right?
+
+303
+00:25:40,190 --> 00:25:41,190
+ Oh, okay.
+
+304
+00:25:41,190 --> 00:25:47,630
+ We have an answer.
+
+305
+00:25:47,630 --> 00:25:49,470
+ Not atomic, that could cause problems.
+
+306
+00:25:49,470 --> 00:25:52,830
+ Yeah, there are problems here.
+
+307
+00:25:52,830 --> 00:25:58,430
+ And the way to look at, again, is people just can work, but if this is done by machines,
+
+308
+00:25:58,430 --> 00:25:59,430
+ the machines are myopic.
+
+309
+00:25:59,430 --> 00:26:03,870
+ They only see these instructions, they only nothing else.
+
+310
+00:26:03,870 --> 00:26:05,310
+ So let's see what can happen.
+
+311
+00:26:05,310 --> 00:26:13,550
+ And always in these concurrency problems, the bad things can happen if somehow the instruction
+
+312
+00:26:13,550 --> 00:26:17,910
+ are interleaved in an unfortunate way.
+
+313
+00:26:17,910 --> 00:26:19,470
+ So let's see here what can happen.
+
+314
+00:26:19,470 --> 00:26:22,510
+ So let's say we have thread A and thread B.
+
+315
+00:26:22,510 --> 00:26:27,310
+ Now thread A is looking and check for the milk.
+
+316
+00:26:27,310 --> 00:26:34,750
+ And then once thread A checks for the milk, it's context switched, it's suspended by the
+
+317
+00:26:34,750 --> 00:26:37,590
+ operating system, by the scheduler.
+
+318
+00:26:37,590 --> 00:26:40,910
+ And thread B starts to execute.
+
+319
+00:26:40,910 --> 00:26:43,870
+ And thread B is again check for no milk.
+
+320
+00:26:43,870 --> 00:26:51,070
+ And in both cases, the answer is A is true, there is no milk.
+
+321
+00:26:51,070 --> 00:26:55,270
+ And then thread B is check for the note.
+
+322
+00:26:55,270 --> 00:26:56,970
+ And there is no note.
+
+323
+00:26:56,970 --> 00:27:04,470
+ But after checks for the note, again, we context switch to thread A. Thread A check again for
+
+324
+00:27:04,470 --> 00:27:09,370
+ the note, since there is no note, and leaves a note.
+
+325
+00:27:09,370 --> 00:27:15,810
+ Buy milk, remove note, and thread B is going to do the same thing.
+
+326
+00:27:15,810 --> 00:27:20,310
+ Because from the point of view, there is thread B, there is no milk, there is no note.
+
+327
+00:27:20,310 --> 00:27:24,490
+ And from the point of view of thread A, the same is true.
+
+328
+00:27:24,490 --> 00:27:32,190
+ When you check, it was no milk, and when it's checked, there was no note.
+
+329
+00:27:32,190 --> 00:27:39,750
+ So you have now both thread A and thread B buying milk.
+
+330
+00:27:39,750 --> 00:27:47,590
+ Any questions here?
+
+331
+00:27:47,590 --> 00:27:50,010
+ So it's too much milk.
+
+332
+00:27:50,010 --> 00:27:53,390
+ This happens occasionally.
+
+333
+00:27:53,390 --> 00:28:00,510
+ If you don't have this unfortunate order of execution, actually this code will work.
+
+334
+00:28:00,510 --> 00:28:08,670
+ And the problem is this will happen occasionally is that, you may say it's good news.
+
+335
+00:28:08,670 --> 00:28:11,610
+ It's like it only happens from time to time.
+
+336
+00:28:11,610 --> 00:28:16,610
+ But the problem that when this happens is very hard to debug because it's not happened
+
+337
+00:28:16,610 --> 00:28:19,550
+ all the time.
+
+338
+00:28:19,550 --> 00:28:25,830
+ And that's what also makes these problems, all these programs frustrating because they
+
+339
+00:28:25,830 --> 00:28:29,050
+ are very hard to debug.
+
+340
+00:28:29,050 --> 00:28:33,030
+ Another reason to think very well before starting to code.
+
+341
+00:28:33,030 --> 00:28:37,970
+ Okay, so how do you solve this problem?
+
+342
+00:28:37,970 --> 00:28:44,050
+ So clearly this note is not exclusive enough.
+
+343
+00:28:44,050 --> 00:28:52,150
+ And one solution you may be saying is because it's not, why don't we place a note first?
+
+344
+00:28:52,150 --> 00:28:56,510
+ What if we do this code?
+
+345
+00:28:56,510 --> 00:29:05,070
+ Instead of checking for the note, leaving the note before buying the milk, let's leave
+
+346
+00:29:05,070 --> 00:29:09,390
+ the note even before we check for the milk.
+
+347
+00:29:09,390 --> 00:29:15,090
+ What about this code?
+
+348
+00:29:15,090 --> 00:29:20,090
+ Any problem with this code?
+
+349
+00:29:20,090 --> 00:29:32,590
+ Yes, this is a very, actually this is a pretty stupid code.
+
+350
+00:29:32,590 --> 00:29:52,310
+ Because if you leave the note here, then if no note will be always true.
+
+351
+00:29:52,310 --> 00:29:56,870
+ If no note will be always false and no one will buy milk.
+
+352
+00:29:56,870 --> 00:30:05,390
+ If you leave the note, if you leave yourself the note, and then you check for the note,
+
+353
+00:30:05,390 --> 00:30:08,390
+ there is a note, so you don't buy milk.
+
+354
+00:30:08,390 --> 00:30:12,910
+ That's why I was saying this is stupid.
+
+355
+00:30:12,910 --> 00:30:21,670
+ So it won't work even for one user.
+
+356
+00:30:21,670 --> 00:30:26,590
+ So let's go to solution two.
+
+357
+00:30:26,590 --> 00:30:28,690
+ So this kind of didn't work.
+
+358
+00:30:28,690 --> 00:30:30,390
+ Maybe we need to be more sophisticated.
+
+359
+00:30:30,390 --> 00:30:38,350
+ Maybe we need to have two kinds, two notes, one for each person.
+
+360
+00:30:38,350 --> 00:30:41,570
+ So let's rewrite the previous code.
+
+361
+00:30:41,570 --> 00:30:50,230
+ So thread A, leave note A. Thread B, leave note B. And thread A checks whether thread
+
+362
+00:30:50,230 --> 00:30:59,750
+ B left the note, and thread B checks whether thread A left the note.
+
+363
+00:30:59,750 --> 00:31:02,730
+ Seems more sophisticated, may work maybe.
+
+364
+00:31:02,730 --> 00:31:03,730
+ What do you think?
+
+365
+00:31:03,730 --> 00:31:03,990
+ Is this going to work?
+
+366
+00:31:03,990 --> 00:31:05,990
+ You
+
+367
+00:31:05,990 --> 00:31:22,720
+ Okay, why don't you guess? Okay, you don't need to tell me whether, you know, why is
+
+368
+00:31:22,720 --> 00:31:40,300
+ going to work or not. Just take a guess. Yes, now, good answer. I hope that this answer
+
+369
+00:31:40,300 --> 00:31:49,900
+ is not given because you'll look to the next slide. But anyway, so now it doesn't work.
+
+370
+00:31:49,900 --> 00:31:57,060
+ And here is the reason, you know, an example. It's again, it's about how these instructions
+
+371
+00:31:57,060 --> 00:32:07,260
+ are interleaved from thread A and thread B. You leave node A, you leave node B, thread
+
+372
+00:32:07,260 --> 00:32:13,140
+ A leaves node A, then we context switch to thread B, thread B leaves node B, it checks
+
+373
+00:32:13,140 --> 00:32:22,580
+ for if there is no node A and basically there is a node A, so this is false and this is
+
+374
+00:32:22,580 --> 00:32:29,380
+ not going to execute it. And at the same time, thread A is looking whether there is a node
+
+375
+00:32:29,380 --> 00:32:37,780
+ B and there is a node B, so this is really false. So it's not going to execute the if,
+
+376
+00:32:37,780 --> 00:32:45,000
+ what is under the if condition. And at the end, both of them remove their own nodes,
+
+377
+00:32:45,000 --> 00:33:06,620
+ but no one bought the milk. Okay. Make sense? Any questions here? Okay. So it's again possible
+
+378
+00:33:06,620 --> 00:33:15,940
+ for neither of the threads to buy milk. And it's again, this is really, really hard to
+
+379
+00:33:15,940 --> 00:33:23,220
+ debug because it happens rarely.
+
+380
+00:33:23,220 --> 00:33:28,300
+ So now let me tell you, you know, I told you something about initially about any synchronization
+
+381
+00:33:28,300 --> 00:33:36,580
+ primitive should involve something. And actually, even without reading the code, you can see
+
+382
+00:33:36,580 --> 00:33:45,360
+ you could have answered the question whether the code is correct or not. Can you tell me
+
+383
+00:33:45,360 --> 00:33:51,700
+ why and how you could have answered this question immediately? Whether the code is correct or
+
+384
+00:33:51,700 --> 00:34:01,660
+ not? Actually, the question is more clearly, you could have immediately see that the code
+
+385
+00:34:01,660 --> 00:34:07,060
+ is not correct.
+
+386
+00:34:07,060 --> 00:34:23,460
+ Yes, Nicholas, that's true. There is no wait. I told you that fundamentally any of the synchronization
+
+387
+00:34:23,460 --> 00:34:30,060
+ primitives has to involve a wait. Because if someone is in the critical section, the
+
+388
+00:34:30,060 --> 00:34:36,540
+ other one thread has to wait. If it wants to go into the critical section, there is
+
+389
+00:34:36,540 --> 00:34:47,160
+ no way around it. It's fundamental. But so far, none of these codes has a wait instruction
+
+390
+00:34:47,160 --> 00:34:54,740
+ or something equivalent. So that's why you can immediately say this code is not going
+
+391
+00:34:54,740 --> 00:34:57,460
+ to work.
+
+392
+00:34:57,460 --> 00:35:12,260
+ So finally, okay, so let's go. If no one gets the milk and this continues, and obviously
+
+393
+00:35:12,260 --> 00:35:18,620
+ this is called starvation, we're going to learn more about starvation in a few lectures.
+
+394
+00:35:18,620 --> 00:35:28,100
+ So now finally, here is solution three. There are two nodes, but not yesterday. It has a
+
+395
+00:35:28,100 --> 00:35:40,600
+ while. A while, this is a waiting instruction basically. Because you wait for the node B.
+
+396
+00:35:40,600 --> 00:35:54,900
+ If there is a node B, then you wait until the node B is removed. Okay. So in other words,
+
+397
+00:35:54,900 --> 00:35:59,380
+ thread A will not execute, will not buy the milk, will not even look at whether there
+
+398
+00:35:59,380 --> 00:36:12,120
+ is a milk in the fridge. If thread B is checked and already went to buy milk.
+
+399
+00:36:12,120 --> 00:36:26,360
+ Yeah, testing set, it's a synchronization. So the question is from Michael, instead of
+
+400
+00:36:26,360 --> 00:36:31,280
+ waiting can we skip the critical section, do we consider test and set as having a critical
+
+401
+00:36:31,280 --> 00:36:38,820
+ section? The test and set, they are going to be used to implement things like locks.
+
+402
+00:36:38,820 --> 00:36:47,280
+ That's it. And you need to have a while in order to wait on a test and set. Okay. So
+
+403
+00:36:47,280 --> 00:36:57,520
+ our answer is correct. Right? So you need test and set alone. You need to also have
+
+404
+00:36:57,520 --> 00:37:05,360
+ a while around it. We'll see that. Is this going to work? Yes. And how are you to convince
+
+405
+00:37:05,360 --> 00:37:12,440
+ yourself? You see these are these two points, X and Y in each of these thread programs.
+
+406
+00:37:12,440 --> 00:37:29,760
+ And what you say here is that at X, if there is no node B, there is say for A to buy. Right?
+
+407
+00:37:29,760 --> 00:37:42,360
+ Okay. Say for A to buy, sorry. Yeah. Right? Because if there is no node B, the thread
+
+408
+00:37:42,360 --> 00:37:51,700
+ B will for sure is outside this section of code. So for sure thread B doesn't buy milk.
+
+409
+00:37:51,700 --> 00:38:02,520
+ So it's safe for A to buy if there is no milk. Now, if I am at Y, if there is no node A,
+
+410
+00:38:02,520 --> 00:38:18,160
+ it's safe for B to buy. Why? Because if there is no node A, this means that thread A is
+
+411
+00:38:18,160 --> 00:38:26,680
+ not in exactly in this code. So it cannot buy milk. Here is another way to look at it.
+
+412
+00:38:26,680 --> 00:38:37,120
+ There are these two actions, leave node A and no node A when it's checked. So if leave
+
+413
+00:38:37,120 --> 00:38:50,680
+ node A happens before no node A is checked by the second thread, right? Then it's obvious
+
+414
+00:38:50,680 --> 00:39:06,320
+ that thread B will not buy milk because there is a node A. And it's also obvious, at least
+
+415
+00:39:06,320 --> 00:39:21,840
+ for now, that thread A will wait because there is a node B. Right? Now at this point, now
+
+416
+00:39:21,840 --> 00:39:29,280
+ the thread B is again, there is a node A, so it keeps buying milk and then go all the
+
+417
+00:39:29,280 --> 00:39:35,060
+ way and buy and remove the node B without doing anything, without buying milk. But notice
+
+418
+00:39:35,060 --> 00:39:45,220
+ now what happens with thread A. Once thread B removes node B, thread A exits the while
+
+419
+00:39:45,220 --> 00:39:52,780
+ loop. It checks whether there is no milk and there is no milk and buys the milks. Okay?
+
+420
+00:39:52,780 --> 00:40:04,780
+ So in this particular case, thread A bought milk. Now let's assume that if node A happens
+
+421
+00:40:04,780 --> 00:40:17,200
+ after thread B checks whether there is no node A. What happens in this case? Right?
+
+422
+00:40:17,200 --> 00:40:29,400
+ So thread B found no node A, there is no milk, so it's going to buy the milk. And then it's
+
+423
+00:40:29,400 --> 00:40:44,740
+ removing the node B. In parallel, node A is going to execute while node B and is going
+
+424
+00:40:44,740 --> 00:40:57,760
+ to wait for A to remove node B. When that happens and thread B removes node B only after
+
+425
+00:40:57,760 --> 00:41:08,480
+ it bought the milk. So now when B removes node B, this means that thread A will exit
+
+426
+00:41:08,480 --> 00:41:16,380
+ the while loop and now check for the milk. But now there is milk in the fridge because
+
+427
+00:41:16,380 --> 00:41:26,620
+ B put the milk in the fridge, it bought the milk. So therefore A will not buy milk. Okay?
+
+428
+00:41:26,620 --> 00:41:27,980
+ So yeah.
+
+429
+00:41:27,980 --> 00:41:39,380
+ done. So you see in this case, in both cases, only one thread and exactly one thread bought milk.
+
+430
+00:41:39,380 --> 00:41:47,460
+ Okay, so the solution it originally protects a single critical section piece of code,
+
+431
+00:41:47,460 --> 00:41:51,140
+ and this is a critical section. If no milk, you buy milk.
+
+432
+00:41:53,620 --> 00:42:01,220
+ So it's just three words, but it's not very satisfactory. It's pretty complex,
+
+433
+00:42:01,220 --> 00:42:09,380
+ right? Even in this simple example. And like you see, we got like what, five, six instructions,
+
+434
+00:42:09,380 --> 00:42:13,540
+ and it still took us like whatever, 10, 15 minutes to convince ourselves that it's working.
+
+435
+00:42:13,540 --> 00:42:19,940
+ And also, eighth code is different from this code. What if you have not two threads, but three threads
+
+436
+00:42:20,580 --> 00:42:30,660
+ or 10 threads? And finally, yes, we have a wait here, but it is busy waiting, right? This thread
+
+437
+00:42:30,660 --> 00:42:38,260
+ A consumes the CPU resources while waiting. We don't want that in general. So let's look for
+
+438
+00:42:38,260 --> 00:42:46,500
+ better ways. So think about lock interface you are considering. You want to acquire the lock,
+
+439
+00:42:47,540 --> 00:42:52,340
+ and release the lock. These are the instructions. If the lock is taken, you are waiting in the acquire
+
+440
+00:42:52,340 --> 00:43:02,660
+ until someone releases the lock. Okay? And then your milk problem is very simple. You acquire the
+
+441
+00:43:02,660 --> 00:43:10,180
+ lock. If there is no milk, you buy the milk, and then you release the lock. This is like our very
+
+442
+00:43:10,180 --> 00:43:15,780
+ first solution with a lock, right? The physical lock to the fridge. But now imagine that you can
+
+443
+00:43:15,780 --> 00:43:27,220
+ put the lock only on something in the fridge where contains only milk, right? On a container in the
+
+444
+00:43:27,220 --> 00:43:37,940
+ fridge or contains milk. That's equivalent, right? So now the question is how to implement lock?
+
+445
+00:43:37,940 --> 00:43:44,100
+ This is what we are going to discuss. Remember, all synchronization primitive involves waiting.
+
+446
+00:43:44,980 --> 00:43:52,020
+ But you don't want to do the waiting, busy waiting. Just, you know, spending the CPU resources
+
+447
+00:43:52,020 --> 00:43:59,620
+ while waiting. Instead, you want to sleep when you wait, and you want to be woken up when
+
+448
+00:43:59,620 --> 00:44:04,340
+ you can acquire the lock and enter the physical section.
+
+449
+00:44:04,340 --> 00:44:14,900
+ Solution three from the milk, our milk-3 solution, was basically equivalent to using atomic load and
+
+450
+00:44:14,900 --> 00:44:23,300
+ stores. Again, pretty complex and a lot of problems. So now the question is about how we do
+
+451
+00:44:23,300 --> 00:44:29,780
+ this, implement the locks, because I saw that if we implement the locks, the solution is much easier.
+
+452
+00:44:29,780 --> 00:44:40,500
+ So one way to think about is to implement it in hardware. However, if you implement it in hardware,
+
+453
+00:44:41,140 --> 00:44:48,100
+ a lock, it turns out that it's pretty complicated. And there are some processors doing it,
+
+454
+00:44:48,100 --> 00:44:58,340
+ but it's again, the complexity is high and it's also slow. And because the chip is more complex,
+
+455
+00:44:58,340 --> 00:45:06,100
+ it's actually slowed down many other instructions. So one simple solution to implement it with what
+
+456
+00:45:06,100 --> 00:45:14,980
+ you've learned so far, it's about using the interrupts. Remember that we have these interrupts,
+
+457
+00:45:14,980 --> 00:45:20,740
+ external interrupts, internal interrupts, but fundamentally the interrupts,
+
+458
+00:45:20,740 --> 00:45:33,460
+ when you execute an interrupt, you are going to run some code. And what we are talking about here
+
+459
+00:45:33,460 --> 00:45:43,780
+ is that think about lock acquire, disable all interrupts. So this means also there is no
+
+460
+00:45:43,780 --> 00:45:50,740
+ context switching because in order to have also the context switching, you're going to have the
+
+461
+00:45:50,740 --> 00:45:54,820
+ timer interrupt, or the interrupt, another interrupt, external interrupts to do it.
+
+462
+00:45:54,820 --> 00:46:00,660
+ And the lock release, you enable interrupts. So this is, so that is a problem with this approach,
+
+463
+00:46:01,460 --> 00:46:11,620
+ it's not going to work. Before we acquire an interrupt, if you do acquire a lock and you
+
+464
+00:46:11,620 --> 00:46:17,140
+ disable all the interrupts, and then you do something like a while through, you hang,
+
+465
+00:46:17,140 --> 00:46:24,580
+ the computer hangs. It's again, it cannot be interrupted. You need to do something like yield
+
+466
+00:46:24,580 --> 00:46:31,540
+ to voluntarily provide, give access to the scheduler in order to the kernel to schedule
+
+467
+00:46:31,540 --> 00:46:37,380
+ another thread. But this code will lock the entire computer. So it's very, very risky.
+
+468
+00:46:37,380 --> 00:46:46,500
+ And you don't want to do that. And there are many other reasons, like for real-time systems,
+
+469
+00:46:46,500 --> 00:46:51,620
+ there is no guarantee of timing because the physical section can be arbitrarily long.
+
+470
+00:46:54,180 --> 00:46:57,700
+ And obviously what happens when there are very important IO events.
+
+471
+00:46:57,700 --> 00:47:11,540
+ So let's think about a better implementation of the locks by disabling interrupts. So here is one.
+
+472
+00:47:11,540 --> 00:47:21,540
+ So basically you maintain, as a way to think about, you use a lock to implement a lock.
+
+473
+00:47:23,140 --> 00:47:30,980
+ And what you want is that when the segment, you want to minimize the code
+
+474
+00:47:30,980 --> 00:47:38,340
+ between disable interrupt and enable interrupts. That's what you want to do.
+
+475
+00:47:38,340 --> 00:47:47,860
+ Okay? Because in the previous case, the problem is that you disable interrupts and you enter the
+
+476
+00:47:47,860 --> 00:47:55,220
+ critical section, then the critical section can be arbitrarily long. Depends on the application.
+
+477
+00:47:55,220 --> 00:48:04,740
+ But in this case, we are going to implement the lock with a disable interrupt and enable
+
+478
+00:48:04,740 --> 00:48:10,820
+ interrupts, and then expose acquire lock and release lock to the application.
+
+479
+00:48:10,820 --> 00:48:16,340
+ Implement it under the hood by the disable interrupts. But notice here,
+
+480
+00:48:17,140 --> 00:48:22,180
+ the disable interrupts and enable interrupts, you have a very small piece of code here.
+
+481
+00:48:22,180 --> 00:48:29,780
+ So it's going to run very, very quickly. Okay? So ideally what you do for the acquire, so say
+
+482
+00:48:29,780 --> 00:48:36,820
+ the value is a lock value and it's either free or busy.
+
+483
+00:48:36,820 --> 00:48:42,660
+ So to acquire it, if you disable the interrupt to manipulate this value,
+
+484
+00:48:43,940 --> 00:48:50,500
+ if the value is busy, what did we say? We want to sleep. So push thread on the wait list and
+
+485
+00:48:50,500 --> 00:48:57,460
+ go to sleep. And somehow you want to enable interrupts. Okay? So other thread can execute.
+
+486
+00:48:57,460 --> 00:49:04,980
+ Right? Else, you acquire the lock value is busy and you enable interrupts. Okay?
+
+487
+00:49:04,980 --> 00:49:13,860
+ And for release, you disable interrupts. You look if there is only anyone on the wait queue,
+
+488
+00:49:14,340 --> 00:49:20,900
+ waiting for the lock. If it is, you give the lock to one of the thread from the wait queue,
+
+489
+00:49:20,900 --> 00:49:27,140
+ and you place that thread on the ready queue. So that thread can execute the critical section.
+
+490
+00:49:27,140 --> 00:49:32,420
+ If there is no one on the wait queue, the value is free and you enable the interrupts.
+
+491
+00:49:32,420 --> 00:49:40,900
+ Okay? So you see here, the wait happens because you put the thread waiting on the waiting queue,
+
+492
+00:49:42,180 --> 00:49:47,220
+ and you take that thread from the waiting queue when
+
+493
+00:49:47,220 --> 00:49:54,980
+ another thread released the lock. Any questions here?
+
+494
+00:49:54,980 --> 00:50:07,380
+ So now it's again, it's what I was saying. You increment the lock by another lock, right?
+
+495
+00:50:08,420 --> 00:50:12,900
+ And the reason for that, because the second lock you are going to use, you can use the disable
+
+496
+00:50:12,900 --> 00:50:19,220
+ and enable interrupts by making sure that the critical section protected by disabling and
+
+497
+00:50:19,220 --> 00:50:24,100
+ enable interrupts is very short. And this can be implemented by the operating system.
+
+498
+00:50:24,100 --> 00:50:29,380
+ So you have control about the length of the critical section protected by the interrupt
+
+499
+00:50:29,380 --> 00:50:38,260
+ disabling and enabling. Okay. So that's the main difference from using disable interrupts
+
+500
+00:50:38,260 --> 00:50:48,740
+ and enable interrupts directly. Okay. With this design, the users can take as long as they want
+
+501
+00:50:48,740 --> 00:50:54,500
+ in their critical section, right? Because their critical section is not protected by
+
+502
+00:50:54,500 --> 00:51:06,180
+ disable interrupt or enable interrupt. Now, what is a big problem? Here is a big problem.
+
+503
+00:51:06,820 --> 00:51:08,420
+ We need to enable interrupts
+
+504
+00:51:08,420 --> 00:51:14,820
+ when we put the thread on the wait queue, because we need to allow
+
+505
+00:51:14,820 --> 00:51:19,060
+ other threads to execute, in particular the thread which is in the critical section.
+
+506
+00:51:19,060 --> 00:51:25,780
+ But the question is where do you need to install to enable the interrupts?
+
+507
+00:51:25,780 --> 00:51:33,460
+ There are three possibilities. One is here before putting the thread on the wait queue.
+
+508
+00:51:34,900 --> 00:51:44,420
+ It is correct.
+
+509
+00:51:49,830 --> 00:51:57,530
+ It's not because the release can check the queue and not
+
+510
+00:51:57,530 --> 00:51:58,530
+ wake up the thread.
+
+511
+00:51:58,530 --> 00:52:05,550
+ So you put the enabling traps here.
+
+512
+00:52:05,550 --> 00:52:07,830
+ Before the thread is put on the wait queue,
+
+513
+00:52:07,830 --> 00:52:09,450
+ you do context switch.
+
+514
+00:52:09,450 --> 00:52:14,070
+ You can do context switch to the thread, another thread, which
+
+515
+00:52:14,070 --> 00:52:15,350
+ is executing the release.
+
+516
+00:52:19,090 --> 00:52:22,110
+ And the release is going to look if there
+
+517
+00:52:22,110 --> 00:52:24,370
+ is any thread on the wait queue.
+
+518
+00:52:24,370 --> 00:52:29,330
+ And there is none because acquire didn't have a chance
+
+519
+00:52:29,330 --> 00:52:31,990
+ to place a thread on the wait queue.
+
+520
+00:52:31,990 --> 00:52:35,270
+ So the thread will not be open.
+
+521
+00:52:35,270 --> 00:52:40,790
+ What if you put the enable interrupts before go to sleep?
+
+522
+00:52:40,790 --> 00:52:46,310
+ Is that correct?
+
+523
+00:52:46,310 --> 00:53:02,950
+ Does if-- so here is a question from Michael.
+
+524
+00:53:02,950 --> 00:53:06,110
+ Does if have to be replaced with while?
+
+525
+00:53:06,110 --> 00:53:09,030
+ No, I'll let you know why because--
+
+526
+00:53:09,030 --> 00:53:09,990
+ OK.
+
+527
+00:53:09,990 --> 00:53:14,750
+ Let me go through this slide, and I'll tell you why after that.
+
+528
+00:53:14,750 --> 00:53:19,150
+ Now, because this is not correct either because the release
+
+529
+00:53:19,150 --> 00:53:23,630
+ puts the thread on the ready queue,
+
+530
+00:53:23,630 --> 00:53:26,470
+ but the thread still thinking it needs to go to sleep.
+
+531
+00:53:26,470 --> 00:53:27,470
+ OK?
+
+532
+00:53:27,470 --> 00:53:30,750
+ So you put the thread on the waiting queue.
+
+533
+00:53:30,750 --> 00:53:33,990
+ You enable interrupts.
+
+534
+00:53:33,990 --> 00:53:36,910
+ Now, assume that the release from the other thread
+
+535
+00:53:36,910 --> 00:53:40,110
+ is executed.
+
+536
+00:53:40,110 --> 00:53:46,230
+ And here, the release is looking on the wait queue,
+
+537
+00:53:46,230 --> 00:53:48,230
+ and you have a thread on the wait queue.
+
+538
+00:53:48,230 --> 00:53:53,110
+ And take that thread to execute it.
+
+539
+00:53:53,110 --> 00:54:01,790
+ But then, when the thread is executed, it goes to sleep.
+
+540
+00:54:01,790 --> 00:54:04,550
+ So it don't execute.
+
+541
+00:54:04,550 --> 00:54:06,190
+ Now, to the question.
+
+542
+00:54:06,190 --> 00:54:10,710
+ I said that it's a busy-- that we need to have some waiting
+
+543
+00:54:10,710 --> 00:54:13,670
+ for any synchronization primitive.
+
+544
+00:54:13,670 --> 00:54:16,070
+ We need to have waitings.
+
+545
+00:54:16,070 --> 00:54:20,630
+ So why we don't have a while here?
+
+546
+00:54:20,630 --> 00:54:25,470
+ The reason we don't have a while here is very simple.
+
+547
+00:54:25,470 --> 00:54:29,350
+ Like I mentioned, but probably I was not very clear.
+
+548
+00:54:29,350 --> 00:54:35,070
+ It's because waiting here happens implicitly
+
+549
+00:54:35,070 --> 00:54:36,670
+ by acquire.
+
+550
+00:54:36,670 --> 00:54:39,750
+ If the value, if the lock is busy,
+
+551
+00:54:39,750 --> 00:54:42,750
+ you put the thread on the waiting queue.
+
+552
+00:54:42,750 --> 00:54:45,630
+ Putting the thread of the waiting queue, that act,
+
+553
+00:54:45,630 --> 00:54:48,230
+ means waiting.
+
+554
+00:54:48,230 --> 00:54:49,430
+ Right?
+
+555
+00:54:49,430 --> 00:54:51,790
+ It doesn't happen in the program.
+
+556
+00:54:51,790 --> 00:54:55,230
+ It happens in the kernel.
+
+557
+00:54:55,230 --> 00:54:57,910
+ Right?
+
+558
+00:54:57,910 --> 00:54:59,510
+ You put the thread on the waiting queue,
+
+559
+00:54:59,510 --> 00:55:02,270
+ and the thread will wait until the release
+
+560
+00:55:02,270 --> 00:55:04,590
+ is going to be executed.
+
+561
+00:55:04,590 --> 00:55:06,990
+ And the lock is released.
+
+562
+00:55:06,990 --> 00:55:09,510
+ OK?
+
+563
+00:55:09,510 --> 00:55:12,990
+ Anyway, so in order to solve the problem,
+
+564
+00:55:12,990 --> 00:55:18,150
+ you need to put to release a lock after going to sleep.
+
+565
+00:55:18,150 --> 00:55:20,630
+ But how you do it?
+
+566
+00:55:20,630 --> 00:55:22,270
+ Because the thread is sleeping, so how
+
+567
+00:55:22,270 --> 00:55:28,550
+ can execute an instruction to enable the interrupts?
+
+568
+00:55:32,550 --> 00:55:34,510
+ Any suggestions?
+
+569
+00:55:34,510 --> 00:55:45,470
+ So the problem is very simple.
+
+570
+00:55:45,470 --> 00:55:46,150
+ OK?
+
+571
+00:55:46,150 --> 00:55:50,470
+ It's like I want, logically, to enable the interrupts
+
+572
+00:55:50,470 --> 00:55:52,590
+ after I go to sleep.
+
+573
+00:55:52,590 --> 00:55:55,270
+ But how can I do that because I am sleeping?
+
+574
+00:55:59,630 --> 00:56:03,750
+ Modify sleep function, Aaron.
+
+575
+00:56:03,750 --> 00:56:06,190
+ That's good.
+
+576
+00:56:06,190 --> 00:56:09,550
+ But I need to--
+
+577
+00:56:09,550 --> 00:56:10,710
+ how you modify that?
+
+578
+00:56:10,710 --> 00:56:12,190
+ That's not easy.
+
+579
+00:56:12,190 --> 00:56:23,790
+ You can try it, but you'll see that it's not easy.
+
+580
+00:56:23,790 --> 00:56:26,110
+ Because you still have a bunch of instructions,
+
+581
+00:56:26,110 --> 00:56:32,510
+ and you'll see the same problem like you have here.
+
+582
+00:56:32,510 --> 00:56:35,230
+ Have the kernel do it for now.
+
+583
+00:56:35,230 --> 00:56:38,190
+ Yes, you can have the kernel do it for now.
+
+584
+00:56:38,190 --> 00:56:40,510
+ But how do you do it?
+
+585
+00:56:40,510 --> 00:56:43,350
+ You do it whenever you do the sleep.
+
+586
+00:56:43,350 --> 00:56:50,470
+ That's not good.
+
+587
+00:56:50,470 --> 00:56:52,070
+ Right?
+
+588
+00:56:52,070 --> 00:56:55,230
+ Because you can call a sleep in different other--
+
+589
+00:56:55,230 --> 00:56:57,710
+ for many other cases.
+
+590
+00:56:57,710 --> 00:57:06,510
+ So actually, the solution is quite brilliant, in my opinion.
+
+591
+00:57:06,510 --> 00:57:21,270
+ If the thread, which go to sleep,
+
+592
+00:57:21,270 --> 00:57:22,870
+ cannot enable the interrupts--
+
+593
+00:57:23,790 --> 00:57:30,910
+ the solution is that another thread, which wakes up,
+
+594
+00:57:30,910 --> 00:57:35,310
+ is going to enable the interrupts.
+
+595
+00:57:35,310 --> 00:57:38,350
+ So you do it on context switching.
+
+596
+00:57:38,350 --> 00:57:41,430
+ And in some sense, you can argue this is done by the kernel.
+
+597
+00:57:41,430 --> 00:57:44,230
+ You can do that in the kernel.
+
+598
+00:57:44,230 --> 00:57:47,830
+ But this is a solution here.
+
+599
+00:57:47,830 --> 00:57:48,910
+ Right?
+
+600
+00:57:48,910 --> 00:57:53,510
+ So and the nice thing about the solution,
+
+601
+00:57:53,510 --> 00:57:57,550
+ it's again, is like if the thread which goes to sleep
+
+602
+00:57:57,550 --> 00:58:00,150
+ cannot enable the interrupt because already you
+
+603
+00:58:00,150 --> 00:58:07,230
+ went to sleep, the solution is for the next thread, which
+
+604
+00:58:07,230 --> 00:58:12,430
+ when you return from the sleep, to enable the interrupts.
+
+605
+00:58:12,430 --> 00:58:13,310
+ Right?
+
+606
+00:58:13,310 --> 00:58:17,190
+ So you have another thread enables the interrupts.
+
+607
+00:58:17,190 --> 00:58:17,670
+ OK?
+
+608
+00:58:18,670 --> 00:58:22,390
+ So this is pretty nice.
+
+609
+00:58:22,390 --> 00:58:28,310
+ So when you wake up, you're enabling interrupts.
+
+610
+00:58:28,310 --> 00:58:34,550
+ OK.
+
+611
+00:58:34,550 --> 00:58:36,150
+ Some announcements.
+
+612
+00:58:36,150 --> 00:58:38,630
+ Design review schedule as soon as possibly
+
+613
+00:58:38,630 --> 00:58:41,190
+ you haven't done already.
+
+614
+00:58:41,190 --> 00:58:43,230
+ The review is your TA.
+
+615
+00:58:43,230 --> 00:58:44,750
+ Needs to be done by the Thursday.
+
+616
+00:58:44,750 --> 00:58:47,590
+ So you have two days.
+
+617
+00:58:47,590 --> 00:58:49,590
+ And show up on time listed.
+
+618
+00:58:49,590 --> 00:58:50,710
+ There is no break-like time.
+
+619
+00:58:50,710 --> 00:58:55,390
+ We have now 10 minutes after.
+
+620
+00:58:55,390 --> 00:59:01,390
+ Meter, it will be between 7 and 9 PM, eight days from now.
+
+621
+00:59:01,390 --> 00:59:05,430
+ We are going-- it's going to cover everything up to
+
+622
+00:59:05,430 --> 00:59:09,550
+ and including the next lecture.
+
+623
+00:59:09,550 --> 00:59:15,030
+ There will be a midterm review on Monday between 7 and 9.
+
+624
+00:59:15,030 --> 00:59:20,390
+ And for logistics on profiting policies and so forth,
+
+625
+00:59:20,390 --> 00:59:23,990
+ cheat sheet, look out for the posts.
+
+626
+00:59:23,990 --> 00:59:42,750
+ Let me see.
+
+627
+00:59:42,750 --> 00:59:47,350
+ Sorry, it's 29 what I'm saying here.
+
+628
+00:59:47,350 --> 00:59:48,910
+ Wednesday, 9, 29.
+
+629
+00:59:48,910 --> 00:59:52,030
+ Thanks for catching.
+
+630
+00:59:52,030 --> 00:59:56,590
+ So question here was, how do you can context switch?
+
+631
+00:59:56,590 --> 01:00:01,870
+ Because here, everything disabled--
+
+632
+01:00:01,870 --> 01:00:03,270
+ the interrupts are disabled.
+
+633
+01:00:03,270 --> 01:00:06,790
+ So here, we are not talking about context switching
+
+634
+01:00:06,790 --> 01:00:08,350
+ based on the time or event.
+
+635
+01:00:08,350 --> 01:00:09,830
+ We are talking about here.
+
+636
+01:00:09,830 --> 01:00:10,710
+ This is here.
+
+637
+01:00:10,710 --> 01:00:12,910
+ Let me just see all the code.
+
+638
+01:00:12,910 --> 01:00:18,630
+ So this is a code.
+
+639
+01:00:18,630 --> 01:00:19,750
+ Right?
+
+640
+01:00:19,750 --> 01:00:24,710
+ You see this part where if anyone on the waiting queue--
+
+641
+01:00:24,710 --> 01:00:28,030
+ so when you do this, you go to sleep.
+
+642
+01:00:28,030 --> 01:00:32,470
+ By the go to sleep means you yield the control
+
+643
+01:00:32,470 --> 01:00:34,870
+ to the kernel.
+
+644
+01:00:34,870 --> 01:00:37,350
+ OK?
+
+645
+01:00:37,350 --> 01:00:42,390
+ And the kernel, the interrupts are--
+
+646
+01:00:42,390 --> 01:00:51,710
+ you are going to execute this instruction
+
+647
+01:00:51,710 --> 01:00:53,910
+ and take the threat of the wait queue.
+
+648
+01:00:53,910 --> 01:00:56,790
+ And when you do this, you enable the interrupts.
+
+649
+01:00:56,790 --> 01:00:58,430
+ OK?
+
+650
+01:00:58,430 --> 01:01:00,310
+ So this enable interrupts from here--
+
+651
+01:01:00,310 --> 01:01:04,750
+ I hope that you are seeing what I'm highlighting--
+
+652
+01:01:04,750 --> 01:01:09,310
+ is going to happen here.
+
+653
+01:01:09,310 --> 01:01:10,950
+ You take the threat of the wait queue,
+
+654
+01:01:10,950 --> 01:01:12,430
+ and you are going to--
+
+655
+01:01:12,430 --> 01:01:15,350
+ you return from the--
+
+656
+01:01:15,350 --> 01:01:18,070
+ this means you return from the sleep,
+
+657
+01:01:18,070 --> 01:01:20,150
+ and you are going to enable the interrupts just
+
+658
+01:01:20,150 --> 01:01:22,950
+ before place on the ready queue.
+
+659
+01:01:22,950 --> 01:01:23,430
+ OK.
+
+660
+01:01:23,430 --> 01:01:33,750
+ Hopefully, it answers the question.
+
+661
+01:01:33,750 --> 01:01:34,230
+ OK.
+
+662
+01:01:34,230 --> 01:01:37,990
+ So let's see how here--
+
+663
+01:01:37,990 --> 01:01:39,950
+ and we have another 20 minutes.
+
+664
+01:01:39,950 --> 01:01:44,070
+ So here, this give you a sense about how this is working,
+
+665
+01:01:44,070 --> 01:01:46,030
+ doing kind of a simulation.
+
+666
+01:01:46,030 --> 01:01:51,150
+ So here is lock acquire.
+
+667
+01:01:51,150 --> 01:01:52,910
+ We have a release.
+
+668
+01:01:52,910 --> 01:01:54,390
+ This is a code.
+
+669
+01:01:54,390 --> 01:01:56,390
+ And we have two threads executing the code,
+
+670
+01:01:56,390 --> 01:01:58,990
+ thread A and thread B. Each of them is doing lock acquire.
+
+671
+01:01:58,990 --> 01:02:01,550
+ Go to the critical section, lock release.
+
+672
+01:02:01,550 --> 01:02:04,190
+ And let's say thread A acquired it.
+
+673
+01:02:04,190 --> 01:02:07,510
+ It is able to the interrupt.
+
+674
+01:02:07,510 --> 01:02:09,070
+ Sorry.
+
+675
+01:02:09,070 --> 01:02:10,910
+ The value--
+
+676
+01:02:11,800 --> 01:02:27,320
+ In this particular case, no one has a critical section.
+
+677
+01:02:27,320 --> 01:02:32,160
+ This is the first thread A, which look, execute, acquire.
+
+678
+01:02:32,160 --> 01:02:36,000
+ There is no one using the critical section, so the value is zero.
+
+679
+01:02:36,000 --> 01:02:42,220
+ Increments the value to one, which means that it acquires a lock and it enables the interrupts.
+
+680
+01:02:42,220 --> 01:02:49,620
+ And now you are in critical section.
+
+681
+01:02:49,620 --> 01:02:52,120
+ This is what happened.
+
+682
+01:02:52,120 --> 01:02:59,840
+ At the same time, let's assume that while you are in a critical section, thread B is
+
+683
+01:02:59,840 --> 01:03:01,320
+ starting to be executed.
+
+684
+01:03:01,320 --> 01:03:11,320
+ Again, while you are in a critical section, the interrupts are enabled.
+
+685
+01:03:11,320 --> 01:03:18,480
+ So thread B is going to start running.
+
+686
+01:03:18,480 --> 01:03:21,200
+ Thread A in the meantime, it's in the ready queue.
+
+687
+01:03:21,200 --> 01:03:25,620
+ This is just context switching, traditional context switching.
+
+688
+01:03:25,620 --> 01:03:30,380
+ You do the lock acquire, execute lock acquire.
+
+689
+01:03:30,380 --> 01:03:34,960
+ But now you look and what you can see is the value is one because the lock is acquired
+
+690
+01:03:34,960 --> 01:03:37,160
+ by thread A. You cannot acquire the lock.
+
+691
+01:03:37,160 --> 01:03:40,700
+ A bead cannot acquire the lock as well.
+
+692
+01:03:40,700 --> 01:03:43,880
+ So you go to sleep.
+
+693
+01:03:43,880 --> 01:03:45,760
+ So you are going straight, it's going to be waiting.
+
+694
+01:03:45,760 --> 01:03:52,800
+ It's going to be on the wait queue.
+
+695
+01:03:52,800 --> 01:04:00,300
+ And now you are going to start executing thread A because it's ready to execute and this thread
+
+696
+01:04:00,300 --> 01:04:15,540
+ B went to sleep and thread B is going to sleep, is going to voluntarily release the CPU.
+
+697
+01:04:15,540 --> 01:04:21,680
+ So the kernel is going to start executing thread A, resuming the execution of thread
+
+698
+01:04:21,680 --> 01:04:24,720
+ A in the critical section.
+
+699
+01:04:24,720 --> 01:04:33,480
+ Critical section ends and then is releasing the lock.
+
+700
+01:04:33,480 --> 01:04:38,580
+ And now if anyone waits on the waiting queue, is anyone waiting on the waiting queue?
+
+701
+01:04:38,580 --> 01:04:46,540
+ Yes, it's thread B. So thread B is placed on the ready queue, from the waiting queue
+
+702
+01:04:46,540 --> 01:04:49,020
+ on the ready queue.
+
+703
+01:04:49,020 --> 01:04:51,520
+ And now you enable the interrupts.
+
+704
+01:04:51,520 --> 01:04:52,520
+ You are done.
+
+705
+01:04:52,520 --> 01:04:56,600
+ So thread B is ready to execute.
+
+706
+01:04:56,600 --> 01:05:08,440
+ And then next time you are going to execute thread B. And thread B executes, acquires
+
+707
+01:05:08,440 --> 01:05:22,060
+ the locks, and continue and enter the critical section.
+
+708
+01:05:22,060 --> 01:05:28,240
+ So please go and try to go carefully through this example.
+
+709
+01:05:28,240 --> 01:05:33,740
+ Any questions?
+
+710
+01:05:33,740 --> 01:05:47,560
+ OK.
+
+711
+01:05:47,560 --> 01:05:48,640
+ So what is the problem?
+
+712
+01:05:48,640 --> 01:05:50,360
+ So is this working?
+
+713
+01:05:50,360 --> 01:05:53,300
+ Yes, it's working.
+
+714
+01:05:53,300 --> 01:05:55,080
+ But there are several issues.
+
+715
+01:05:55,080 --> 01:05:57,240
+ You cannot give lock implementation to users.
+
+716
+01:05:57,240 --> 01:06:00,220
+ They are going to make mistakes.
+
+717
+01:06:00,220 --> 01:06:06,840
+ And now, OK, you can solve that by saying the kernel can do it.
+
+718
+01:06:06,840 --> 01:06:09,540
+ And that's a very valid answer.
+
+719
+01:06:09,540 --> 01:06:15,500
+ But the other problem, especially with the interrupts, is that it doesn't work well on
+
+720
+01:06:15,500 --> 01:06:17,460
+ multiprocessors.
+
+721
+01:06:17,460 --> 01:06:21,040
+ You have multiple cores which execute in parallel.
+
+722
+01:06:21,040 --> 01:06:24,900
+ And all cores can access the memory.
+
+723
+01:06:24,900 --> 01:06:28,360
+ So therefore, the value of the lock.
+
+724
+01:06:28,360 --> 01:06:31,980
+ So what you need when you need to disable the interrupts, you need to disable interrupts
+
+725
+01:06:31,980 --> 01:06:32,980
+ on all the cores.
+
+726
+01:06:32,980 --> 01:06:39,860
+ You need to send messages between cores to disable interrupts or enable interrupts, which
+
+727
+01:06:39,860 --> 01:06:42,980
+ is very expensive.
+
+728
+01:06:42,980 --> 01:06:49,320
+ The alternative to this is to have atomic instructions.
+
+729
+01:06:49,320 --> 01:06:55,140
+ And typically what they do is they read a value and write a value atomically.
+
+730
+01:06:55,140 --> 01:07:01,380
+ So instead, load and stores, only reading a value is atomic and writing a value is atomic.
+
+731
+01:07:01,380 --> 01:07:03,860
+ But this adds another element.
+
+732
+01:07:03,860 --> 01:07:11,180
+ The read, you can have a read and write, which is all atomic, like one operation.
+
+733
+01:07:11,180 --> 01:07:12,180
+ And these are great.
+
+734
+01:07:12,180 --> 01:07:17,780
+ They are working both on a processor and multiprocessors.
+
+735
+01:07:17,780 --> 01:07:24,620
+ And yeah, they are quite simple.
+
+736
+01:07:24,620 --> 01:07:26,640
+ And here are a few of them.
+
+737
+01:07:26,640 --> 01:07:30,500
+ The first one is test and set.
+
+738
+01:07:30,500 --> 01:07:31,500
+ So what is it doing?
+
+739
+01:07:31,500 --> 01:07:41,100
+ Test and set read a value on the particular memory, the value at a particular address,
+
+740
+01:07:41,100 --> 01:07:50,020
+ and returns it, and also at the same time, set it to one.
+
+741
+01:07:50,020 --> 01:07:55,900
+ So reading the value, setting it to one, and returning the previous value, the value before
+
+742
+01:07:55,900 --> 01:08:00,660
+ I set one, original value, is atomic.
+
+743
+01:08:00,660 --> 01:08:02,020
+ That's it.
+
+744
+01:08:02,020 --> 01:08:03,020
+ That's atomic instruction.
+
+745
+01:08:03,020 --> 01:08:10,360
+ So you see there are multiple operation in this which are in this atomic instruction.
+
+746
+01:08:10,360 --> 01:08:13,060
+ And it's a swap.
+
+747
+01:08:13,060 --> 01:08:16,980
+ And a swap is basically what is doing.
+
+748
+01:08:16,980 --> 01:08:18,380
+ Right?
+
+749
+01:08:18,380 --> 01:08:22,420
+ You give, you get a value.
+
+750
+01:08:22,420 --> 01:08:29,700
+ You put a value in a register.
+
+751
+01:08:29,700 --> 01:08:38,660
+ And that value put in the register is going to be swapped with the value at a particular
+
+752
+01:08:38,660 --> 01:08:40,660
+ address.
+
+753
+01:08:40,660 --> 01:08:43,200
+ OK?
+
+754
+01:08:43,200 --> 01:08:44,700
+ This is what it is.
+
+755
+01:08:44,700 --> 01:08:51,400
+ So you give a value in a register which is going to be swapped with a value at a particular
+
+756
+01:08:51,400 --> 01:08:53,240
+ address.
+
+757
+01:08:53,240 --> 01:08:54,920
+ And finally, it's compare and swap.
+
+758
+01:08:54,920 --> 01:08:57,920
+ This is a little bit more complicated.
+
+759
+01:08:57,920 --> 01:09:00,480
+ You give two registers here.
+
+760
+01:09:00,480 --> 01:09:08,640
+ And if the memory address is still equal with register one, you put the memory address in
+
+761
+01:09:08,640 --> 01:09:10,620
+ the memory value in register two.
+
+762
+01:09:10,620 --> 01:09:16,020
+ Otherwise, you don't change the memory.
+
+763
+01:09:16,020 --> 01:09:20,060
+ And these are-- x86, obviously, it's Intel.
+
+764
+01:09:20,060 --> 01:09:28,640
+ 6800 was a very popular chip, Motorola chip, which was the chip used by Apple, early Apple,
+
+765
+01:09:28,640 --> 01:09:31,560
+ and Macintosh computers.
+
+766
+01:09:31,560 --> 01:09:35,220
+ And testing said it's actually in most architectures today.
+
+767
+01:09:35,220 --> 01:09:36,220
+ OK?
+
+768
+01:09:36,220 --> 01:09:43,980
+ So here is an example about how to use compare and swap.
+
+769
+01:09:43,980 --> 01:09:46,360
+ OK?
+
+770
+01:09:46,360 --> 01:09:55,220
+ And this is about how you are going to use to insert atomically a new element as a head
+
+771
+01:09:55,220 --> 01:09:56,220
+ of a cube.
+
+772
+01:09:56,220 --> 01:09:57,220
+ OK?
+
+773
+01:09:57,220 --> 01:09:59,040
+ This is what you want to do.
+
+774
+01:09:59,040 --> 01:10:00,740
+ This is n-cube operation.
+
+775
+01:10:00,740 --> 01:10:04,540
+ So insert a new element as the head of the cube.
+
+776
+01:10:04,540 --> 01:10:09,160
+ So here, what you do it.
+
+777
+01:10:09,160 --> 01:10:11,120
+ First of all, you have a while.
+
+778
+01:10:11,120 --> 01:10:12,120
+ Do you see?
+
+779
+01:10:12,120 --> 01:10:13,120
+ Do until.
+
+780
+01:10:13,120 --> 01:10:14,120
+ Right?
+
+781
+01:10:14,120 --> 01:10:16,120
+ It's a loop.
+
+782
+01:10:16,120 --> 01:10:17,740
+ OK?
+
+783
+01:10:17,740 --> 01:10:26,020
+ And in the condition to exit from this loop, you compare and swap R1 and object.
+
+784
+01:10:26,020 --> 01:10:27,020
+ Right?
+
+785
+01:10:27,020 --> 01:10:30,060
+ Object is the object identifier.
+
+786
+01:10:30,060 --> 01:10:35,460
+ R1, you can see, is a root address.
+
+787
+01:10:35,460 --> 01:10:36,820
+ OK?
+
+788
+01:10:36,820 --> 01:10:38,300
+ OK?
+
+789
+01:10:38,300 --> 01:10:41,780
+ So it's the original root.
+
+790
+01:10:41,780 --> 01:10:42,780
+ Right?
+
+791
+01:10:42,780 --> 01:10:53,120
+ So what happens here is basically you are going to wait until-- so what you do here,
+
+792
+01:10:53,120 --> 01:11:01,680
+ you set the root to the new object.
+
+793
+01:11:01,680 --> 01:11:07,760
+ OK?
+
+794
+01:11:07,760 --> 01:11:15,120
+ And then you are waiting until the root is pointing-- sorry.
+
+795
+01:11:15,120 --> 01:11:17,220
+ What you do is the following thing.
+
+796
+01:11:17,220 --> 01:11:27,140
+ You set the next object to point to the first element in the cube, this one.
+
+797
+01:11:27,140 --> 01:11:28,140
+ OK?
+
+798
+01:11:28,140 --> 01:11:31,140
+ This is what you do.
+
+799
+01:11:31,140 --> 01:11:32,140
+ Right?
+
+800
+01:11:32,140 --> 01:11:37,540
+ So this is you get the pointer from the root, which is a pointer to the first element in
+
+801
+01:11:37,540 --> 01:11:39,340
+ the cube.
+
+802
+01:11:39,340 --> 01:11:49,620
+ Then you set the next-- the object to point to the-- the new object to point to the old
+
+803
+01:11:49,620 --> 01:11:52,060
+ first object in the cube.
+
+804
+01:11:52,060 --> 01:11:58,820
+ And then you are going to use a compare and swap to move the pointer of the root to the
+
+805
+01:11:58,820 --> 01:11:59,820
+ new object.
+
+806
+01:11:59,820 --> 01:12:02,900
+ And you wait until that is done.
+
+807
+01:12:02,900 --> 01:12:05,400
+ OK?
+
+808
+01:12:05,400 --> 01:12:09,960
+ So that's what happens here.
+
+809
+01:12:09,960 --> 01:12:16,400
+ Now how we implement log-switch test and test, test and set, is very easy.
+
+810
+01:12:16,400 --> 01:12:23,020
+ Acquire, you just-- you set up the value to 0 here.
+
+811
+01:12:23,020 --> 01:12:31,400
+ And acquire, it's-- you just wait for test and set to be 1.
+
+812
+01:12:31,400 --> 01:12:32,400
+ Right?
+
+813
+01:12:32,400 --> 01:12:44,300
+ time.
+
+814
+01:12:44,300 --> 01:12:37,800
+ and then release value, release, you just set value to zero.
+
+815
+01:12:37,800 --> 01:12:38,840
+ Okay?
+
+816
+01:12:38,840 --> 01:12:40,320
+ So what happens here?
+
+817
+01:12:40,320 --> 01:12:44,000
+ Remember what does test_nset is doing?
+
+818
+01:12:44,000 --> 01:12:47,280
+ The test_nset is going to read,
+
+819
+01:12:47,280 --> 01:12:52,360
+ to return the value
+
+820
+01:12:52,360 --> 01:12:57,120
+ and set it to one in one instruction.
+
+821
+01:12:57,120 --> 01:13:01,080
+ If the value is zero,
+
+822
+01:13:01,080 --> 01:13:04,040
+ you return the value to while,
+
+823
+01:13:04,040 --> 01:13:05,760
+ so while is going to exit,
+
+824
+01:13:05,760 --> 01:13:08,720
+ and set value to one.
+
+825
+01:13:08,720 --> 01:13:09,560
+ So it's great.
+
+826
+01:13:09,560 --> 01:13:11,520
+ So lock is not busy, you acquire the lock.
+
+827
+01:13:11,520 --> 01:13:15,760
+ If the lock is busy, so value will be one,
+
+828
+01:13:15,760 --> 01:13:19,280
+ you are going to set the value to one,
+
+829
+01:13:19,280 --> 01:13:21,080
+ it's already one, so nothing will happen,
+
+830
+01:13:21,080 --> 01:13:22,720
+ but you return one.
+
+831
+01:13:22,720 --> 01:13:25,880
+ So you are going to be stuck in the while loop
+
+832
+01:13:25,880 --> 01:13:28,480
+ until the release is going to be executed
+
+833
+01:13:28,480 --> 01:13:29,880
+ and the value is set to zero.
+
+834
+01:13:29,880 --> 01:13:32,720
+ Right?
+
+835
+01:13:32,720 --> 01:13:35,080
+ So it's quite elegant, right?
+
+836
+01:13:35,080 --> 01:13:40,000
+ Obviously the problem here,
+
+837
+01:13:40,000 --> 01:13:42,880
+ you have the while, you do the while in the program, right?
+
+838
+01:13:42,880 --> 01:13:44,040
+ So very inefficient.
+
+839
+01:13:44,040 --> 01:13:47,960
+ Right?
+
+840
+01:13:47,960 --> 01:13:51,320
+ So you don't want to do that.
+
+841
+01:13:51,320 --> 01:13:53,240
+ But this is a correct implementation,
+
+842
+01:13:53,240 --> 01:13:54,480
+ very simple implementation.
+
+843
+01:13:54,480 --> 01:13:57,600
+ So you see how test_nset allows us
+
+844
+01:13:57,600 --> 01:14:00,480
+ a very simple implementation of locks.
+
+845
+01:14:00,480 --> 01:14:02,200
+ Right?
+
+846
+01:14:02,200 --> 01:14:05,280
+ And again, the test_nset, very easy to remember.
+
+847
+01:14:05,280 --> 01:14:09,680
+ You do two things, return the value and set is to one.
+
+848
+01:14:09,680 --> 01:14:10,520
+ That's all.
+
+849
+01:14:10,520 --> 01:14:19,640
+ Okay, so the problem is busy waiting.
+
+850
+01:14:19,640 --> 01:14:22,920
+ Of course, busy waiting, again,
+
+851
+01:14:22,920 --> 01:14:24,440
+ it's a correct implementation.
+
+852
+01:14:24,440 --> 01:14:26,720
+ The machine can still receive interrupts,
+
+853
+01:14:27,400 --> 01:14:30,680
+ the user code can still use a lock,
+
+854
+01:14:30,680 --> 01:14:33,640
+ work on multiprocessors, all positives,
+
+855
+01:14:33,640 --> 01:14:37,160
+ but of course you don't want this busy waiting.
+
+856
+01:14:37,160 --> 01:14:40,080
+ It's inefficient,
+
+857
+01:14:40,080 --> 01:14:43,360
+ also can result in what we call priority inversion.
+
+858
+01:14:43,360 --> 01:14:44,200
+ Right?
+
+859
+01:14:44,200 --> 01:14:46,520
+ If the busy waiting thread has a higher priority
+
+860
+01:14:46,520 --> 01:14:48,120
+ than the thread holding the lock.
+
+861
+01:14:48,120 --> 01:14:50,320
+ Right?
+
+862
+01:14:50,320 --> 01:14:53,320
+ So this is another way to think about it.
+
+863
+01:14:53,320 --> 01:14:54,160
+ Okay.
+
+864
+01:14:54,160 --> 01:14:58,480
+ Oops.
+
+865
+01:14:58,480 --> 01:15:02,520
+ Another way to think about it is like,
+
+866
+01:15:02,520 --> 01:15:05,920
+ you have two threads and one has higher priorities
+
+867
+01:15:05,920 --> 01:15:06,760
+ than the other one.
+
+868
+01:15:06,760 --> 01:15:08,600
+ Higher priority is going to be always executed
+
+869
+01:15:08,600 --> 01:15:12,160
+ before the other one, the one with the low priority.
+
+870
+01:15:12,160 --> 01:15:14,560
+ And now the thread with the low priority
+
+871
+01:15:14,560 --> 01:15:19,760
+ is going to have the lock.
+
+872
+01:15:19,760 --> 01:15:22,520
+ If the thread with the lower priority has a lock,
+
+873
+01:15:22,520 --> 01:15:24,440
+ the thread with the higher priority will be stuck
+
+874
+01:15:24,440 --> 01:15:27,960
+ because it's going to be stuck in the while loop.
+
+875
+01:15:27,960 --> 01:15:30,360
+ And the thread with the lower priority cannot execute
+
+876
+01:15:30,360 --> 01:15:32,120
+ because the thread with the higher priority,
+
+877
+01:15:32,120 --> 01:15:34,000
+ but because the thread with the lower priority
+
+878
+01:15:34,000 --> 01:15:37,880
+ cannot execute, it cannot exit the critical section,
+
+879
+01:15:37,880 --> 01:15:39,080
+ it cannot release a lock.
+
+880
+01:15:39,080 --> 01:15:42,680
+ So this is priority inversion.
+
+881
+01:15:42,680 --> 01:15:46,320
+ And this has happened in many cases.
+
+882
+01:15:50,840 --> 01:15:54,560
+ So that's a problem, right?
+
+883
+01:15:54,560 --> 01:15:59,560
+ And so we really want,
+
+884
+01:15:59,560 --> 01:16:03,720
+ because we don't want us to, you know,
+
+885
+01:16:03,720 --> 01:16:10,040
+ this busy waiting, we need to find another solution.
+
+886
+01:16:10,040 --> 01:16:16,000
+ And in general, when you have the homework problem
+
+887
+01:16:16,000 --> 01:16:19,600
+ or exam solution, unless otherwise specified,
+
+888
+01:16:20,600 --> 01:16:22,400
+ you should avoid busy waiting.
+
+889
+01:16:22,400 --> 01:16:25,120
+ Okay?
+
+890
+01:16:25,120 --> 01:16:29,720
+ So now let's see for the next couple of minutes,
+
+891
+01:16:29,720 --> 01:16:33,720
+ think about maybe better locks using test and set.
+
+892
+01:16:33,720 --> 01:16:36,040
+ So the question, can we use test and set
+
+893
+01:16:36,040 --> 01:16:40,800
+ to implement locks without busy waiting?
+
+894
+01:16:40,800 --> 01:16:46,920
+ And this answer here, we cannot,
+
+895
+01:16:46,920 --> 01:16:51,520
+ but we can minimize the busy waiting section.
+
+896
+01:16:51,520 --> 01:16:56,800
+ And again, the solution here is like with,
+
+897
+01:16:56,800 --> 01:17:00,720
+ if you remember with interrupts,
+
+898
+01:17:00,720 --> 01:17:06,600
+ we use a lock to implement a lock in some sense.
+
+899
+01:17:06,600 --> 01:17:09,920
+ So the lock we want to implement is value,
+
+900
+01:17:09,920 --> 01:17:12,800
+ is called value, okay?
+
+901
+01:17:14,120 --> 01:17:19,120
+ And then what we do, we protect the critical section
+
+902
+01:17:19,120 --> 01:17:26,520
+ of the acquire and release,
+
+903
+01:17:26,520 --> 01:17:30,360
+ the critical section being the one which modifies a lock,
+
+904
+01:17:30,360 --> 01:17:33,440
+ which is value, by a test and set.
+
+905
+01:17:33,440 --> 01:17:36,360
+ Okay?
+
+906
+01:17:36,360 --> 01:17:38,920
+ So use a test and set to implement
+
+907
+01:17:38,920 --> 01:17:40,720
+ and protect those critical sections,
+
+908
+01:17:40,720 --> 01:17:42,160
+ you know, acquire and release.
+
+909
+01:17:43,600 --> 01:17:45,120
+ So the solution is very simple.
+
+910
+01:17:45,120 --> 01:17:50,120
+ We have defined another variable, which is called guard.
+
+911
+01:17:50,120 --> 01:17:52,760
+ This ensures a mutual exclusion
+
+912
+01:17:52,760 --> 01:17:57,080
+ for these critical sections,
+
+913
+01:17:57,080 --> 01:18:00,720
+ which are in the acquire and release, okay?
+
+914
+01:18:00,720 --> 01:18:05,320
+ And while we initialize to zero, so while guard,
+
+915
+01:18:05,320 --> 01:18:11,760
+ if guard is zero, then you are going to,
+
+916
+01:18:11,760 --> 01:18:16,760
+ you acquire the lock, so while will exit, right?
+
+917
+01:18:16,760 --> 01:18:23,600
+ Because remember, testing set returns a current value
+
+918
+01:18:23,600 --> 01:18:27,800
+ of guard that is zero and set is one.
+
+919
+01:18:27,800 --> 01:18:33,920
+ So you exit the while loop and then you set up the value.
+
+920
+01:18:33,920 --> 01:18:35,160
+ Right? What do you know?
+
+921
+01:18:35,160 --> 01:18:40,200
+ And the release is the same.
+
+922
+01:18:40,200 --> 01:18:43,400
+ You, again, you protect the critical section
+
+923
+01:18:43,400 --> 01:18:44,400
+ by test and set.
+
+924
+01:18:44,400 --> 01:18:48,000
+ And then here you have the same problem,
+
+925
+01:18:48,000 --> 01:18:51,840
+ like with release interrupts.
+
+926
+01:18:51,840 --> 01:18:54,960
+ When you go to sleep, you also need to set your guard to zero
+
+927
+01:18:54,960 --> 01:18:58,160
+ then when you need to set up it up, right?
+
+928
+01:18:58,160 --> 01:19:00,680
+ But this will be much easier.
+
+929
+01:19:00,680 --> 01:19:03,560
+ Okay?
+
+930
+01:19:03,560 --> 01:19:09,920
+ So, and when sleep has to be set up,
+
+931
+01:19:09,920 --> 01:19:13,320
+ sleep has to be sure to reset the guard variable, right?
+
+932
+01:19:13,320 --> 01:19:20,480
+ So, and we are going to end up here, this lecture.
+
+933
+01:19:20,480 --> 01:19:23,080
+ On this note, we are going to continue next time.
+
+934
+01:19:23,080 --> 01:19:28,000
+ And you should think a little bit about this code.
+
+935
+01:19:28,000 --> 01:19:29,720
+ And there is a question here.
+
+936
+01:19:29,720 --> 01:19:35,440
+ Why, oops, let me see.
+
+937
+01:19:35,440 --> 01:19:37,600
+ (silence)
+
+938
+01:19:37,600 --> 01:19:47,320
+ Okay, I'm going to stop here because for some reason
+
+939
+01:19:47,320 --> 01:19:48,720
+ I lost my pointer.
+
+940
+01:19:48,720 --> 01:19:50,880
+ So I cannot see my pointer on the screen.
+
+941
+01:19:50,880 --> 01:19:55,280
+ So there is a question at the end of the previous slide.
+
+942
+01:19:55,280 --> 01:19:57,520
+ Please think about it until the next time
+
+943
+01:19:57,520 --> 01:20:01,400
+ without looking at the next slides.
+
+944
+01:20:01,400 --> 01:20:06,400
+ And there is, yeah, there is a question here.
+
+945
+01:20:06,400 --> 01:20:19,600
+ If while test and set, so we are, the lecture it's done.
+
+946
+01:20:19,600 --> 01:20:23,360
+ I am going to try to ask the last question,
+
+947
+01:20:23,360 --> 01:20:26,680
+ which was on the chat and we'll meet next time.
+
+948
+01:20:26,680 --> 01:20:30,600
+ So for people who want to hear the answer can stick around.
+
+949
+01:20:31,480 --> 01:20:34,480
+ And the question here is that from Michael
+
+950
+01:20:34,480 --> 01:20:39,480
+ it's while test and set while you yield critical section
+
+951
+01:20:39,480 --> 01:20:46,120
+ and then while is zero, and then you set up all to zero.
+
+952
+01:20:46,120 --> 01:20:48,280
+ (silence)
+
+953
+01:20:48,280 --> 01:21:02,720
+ Yeah.
+
+954
+01:21:02,720 --> 01:21:13,960
+ I think that
+
+955
+01:21:13,960 --> 01:21:18,960
+ that should work.
+
+956
+01:21:18,960 --> 01:21:25,560
+ So, yeah.
+
+957
+01:21:25,560 --> 01:21:29,680
+ If you, that should work.
+
+958
+01:21:29,680 --> 01:21:32,080
+ That should work.
+
+959
+01:21:32,080 --> 01:21:35,200
+ The problem here is all that if you yield
+
+960
+01:21:35,200 --> 01:21:43,760
+ then you are still going, you yield the processor.
+
+961
+01:21:44,360 --> 01:21:47,800
+ You are still going to be woken up
+
+962
+01:21:47,800 --> 01:21:52,440
+ before the lock it's available.
+
+963
+01:21:52,440 --> 01:21:56,040
+ Okay. So for instance, you again, it's like you go,
+
+964
+01:21:56,040 --> 01:22:00,280
+ you yield, you yield the processor for another thread.
+
+965
+01:22:00,280 --> 01:22:01,600
+ That thread can execute.
+
+966
+01:22:01,600 --> 01:22:02,720
+ It may not be necessary.
+
+967
+01:22:02,720 --> 01:22:07,160
+ The thread who has a lock, when that thread finishes
+
+968
+01:22:07,160 --> 01:22:09,320
+ when a time quanta finishes,
+
+969
+01:22:09,320 --> 01:22:12,600
+ you are going to be all kind of game and so forth.
+
+970
+01:22:12,920 --> 01:22:15,960
+ So it's still not as efficient.
+
+971
+01:22:15,960 --> 01:22:19,920
+ It's better than just doing busy wait,
+
+972
+01:22:19,920 --> 01:22:23,920
+ but it's not as good as putting the thread on the wait queue
+
+973
+01:22:23,920 --> 01:22:28,560
+ and being woken up only when the lock was released.
+
+974
+01:22:28,560 --> 01:22:32,480
+ In this case, you are going to be woken up multiple times.
+
+975
+01:22:32,480 --> 01:22:39,080
+ Okay. So with that, I'll see you next time.
+
+976
+01:22:39,080 --> 01:22:41,200
+ Thanks everyone.
+
+977
+01:22:41,200 --> 01:22:43,360
+ (silence)
+
+978
+01:22:43,360 --> 01:22:45,520
+ (silence)
+
+979
+01:22:45,520 --> 01:22:47,680
+ (silence)
+
+980
+01:22:47,680 --> 01:22:49,840
+ (silence)
+
+981
+01:22:49,840 --> 01:22:52,000
+ (silence)
+
+982
+01:22:52,000 --> 01:22:54,000
+ Thank you.
+
+983
+01:22:54,000 --> 01:23:18,660
+ .
+

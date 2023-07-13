@@ -1,0 +1,4248 @@
+1
+00:00:00,000 --> 00:00:17,840
+ Hello everyone. So today we have quite a bit to cover. And in particular, we are going
+
+2
+00:00:17,840 --> 00:00:25,400
+ to finish layering and networking what we started last time. Then we are going to talk
+
+3
+00:00:25,400 --> 00:00:32,520
+ about end-to-end argument and we are going to then start the discussion on flow control.
+
+4
+00:00:32,520 --> 00:00:44,120
+ So layering. So if you remember, just a recap from the last time, there are a few layers
+
+5
+00:00:44,120 --> 00:00:52,600
+ in the network. The networking stack has a few layers and in the internet you have five
+
+6
+00:00:52,600 --> 00:00:59,840
+ layers. The first layer at the bottom is physical layer and the role of the physical layer is
+
+7
+00:00:59,840 --> 00:01:11,640
+ to send the signal between two machines which are connected to the same transmission medium.
+
+8
+00:01:11,640 --> 00:01:22,180
+ And so the service is to move the information from one machine to another and the interface
+
+9
+00:01:22,180 --> 00:01:32,640
+ is about how to send and receive bits. And the protocol is about how these bits are encoded.
+
+10
+00:01:32,640 --> 00:01:39,240
+ It's like based on the voltage, duration of each bit, frequency. It's again, depending
+
+11
+00:01:39,240 --> 00:01:53,960
+ whether we are using the coaxial cable, optical fiber, the Wi-Fi and so forth.
+
+12
+00:01:53,960 --> 00:02:06,440
+ Okay. So the second layer is data link layer. Also, we discussed a little bit about it last
+
+13
+00:02:06,440 --> 00:02:22,040
+ time. And the data link layer enables the hosts which are connected to the same physical
+
+14
+00:02:22,040 --> 00:02:34,440
+ network to exchange messages or atomic messages. So basically the physical layer sends bits,
+
+15
+00:02:34,440 --> 00:02:47,240
+ zero and ones. Here we send packets, we send messages. Also they are called frames. And
+
+16
+00:02:47,240 --> 00:02:54,400
+ so what are the services here? It's one it's about because you can have here multiple machines
+
+17
+00:02:54,400 --> 00:03:03,080
+ which are connected maybe on the same physical line or the same wireless link, there are
+
+18
+00:03:03,080 --> 00:03:10,320
+ multiple machines which can send data at the same time. So somehow you need to arbitrate
+
+19
+00:03:10,320 --> 00:03:19,960
+ to make sure that multiple centers do not call you. This is very much like in a room
+
+20
+00:03:19,960 --> 00:03:27,800
+ in which everyone can talk with everyone. So there has to be some kind of protocol so
+
+21
+00:03:27,800 --> 00:03:35,640
+ that not everyone's talk at the same time so people can understand each other's. The
+
+22
+00:03:35,640 --> 00:03:42,040
+ interface is about how to send the frames to either from one machine to one host or
+
+23
+00:03:42,040 --> 00:03:51,000
+ another host. And they also includes each frame includes an address because this is
+
+24
+00:03:51,000 --> 00:03:57,460
+ how I'm going to indicate that I'm going to send a particular frame to a particular host.
+
+25
+00:03:57,460 --> 00:04:07,660
+ It's by destination address. And these addresses are the MAC addresses, media access or so-called
+
+26
+00:04:07,660 --> 00:04:13,160
+ addresses or data link addresses. And these are the ones if you remember from last time,
+
+27
+00:04:13,160 --> 00:04:29,020
+ there are 48 bits and they are chosen by the network card vendor. So in the network card
+
+28
+00:04:29,020 --> 00:04:40,260
+ you create a network card or you also associate address to it. And the protocol it's about
+
+29
+00:04:40,260 --> 00:04:47,200
+ like we discussed about how you are going to arbitrate the access like this shared communication
+
+30
+00:04:47,200 --> 00:04:57,240
+ media. Okay. So each frame contains a source and a destination address. Each of them again
+
+31
+00:04:57,240 --> 00:05:13,900
+ is 48 bits. And obviously these bits, these addresses are unique. Okay. Every network
+
+32
+00:05:13,900 --> 00:05:22,420
+ card has a unique address. You can also see these addresses like we discussed last time.
+
+33
+00:05:22,420 --> 00:05:29,420
+ If you do ipconfig in Windows or ifconfig in Linux, here you can see these physical
+
+34
+00:05:29,420 --> 00:05:37,380
+ addresses is called and this has 48 bits. You see one, two, three, four, five, six,
+
+35
+00:05:37,380 --> 00:05:44,880
+ and each of these groups has it's in hexa. So you have two digits and you have four bits
+
+36
+00:05:44,880 --> 00:05:55,480
+ for each digit. So you have in total, you have 48 bits. Remember that the machine can
+
+37
+00:05:55,480 --> 00:06:01,520
+ have multiple network cards. So in this case, that's why you are going to see two physical
+
+38
+00:06:01,520 --> 00:06:07,040
+ addresses in this case, one for the ethernet, for the wire network and one for the wireless
+
+39
+00:06:07,040 --> 00:06:28,840
+ network. Any questions? Okay. So when I said that these hosts are connected with the same
+
+40
+00:06:28,840 --> 00:06:34,240
+ communication media, typically as a data link layer, this kind of network, the shared network
+
+41
+00:06:34,240 --> 00:06:40,040
+ with the host are connected and communicate with each other is called LAN, local area
+
+42
+00:06:40,040 --> 00:06:51,080
+ network. And it's again, examples are in a wireless network, it's all laptops in a Starbucks
+
+43
+00:06:51,080 --> 00:07:04,360
+ affair, all for instance, devices in your home or in your office. But this is a key.
+
+44
+00:07:04,360 --> 00:07:10,240
+ On all the devices connected with the same LAN can communicate with each other. So you
+
+45
+00:07:10,240 --> 00:07:17,000
+ can think about this as a broadcast channel, a shared channel. This also means that when
+
+46
+00:07:17,000 --> 00:07:23,000
+ you send a packet or a frame, that frame is going to be delivered to everyone. It's again,
+
+47
+00:07:23,000 --> 00:07:31,240
+ like in a room, when you say something loud enough, everyone can hear. Okay. But now the
+
+48
+00:07:31,240 --> 00:07:39,680
+ obvious question is that if I want to send a frame to one particular host, then how do
+
+49
+00:07:39,680 --> 00:07:46,380
+ I do it? And obviously the answer here is that by indicating the destination address
+
+50
+00:07:46,380 --> 00:07:52,960
+ of the recipient in the frame. So in this example, if I'm going to send, I want to send
+
+51
+00:07:52,960 --> 00:08:02,040
+ to B, A wants to send a frame to B, he's going to put the address or to B in the frame as
+
+52
+00:08:02,040 --> 00:08:09,640
+ a destination address. Now, because this is a broadcast, the LAN is a broadcast channel,
+
+53
+00:08:09,640 --> 00:08:17,540
+ this packet will be delivered to every host in the network. However, each host can check
+
+54
+00:08:17,540 --> 00:08:27,740
+ whether the data frames are intended to itself by checking its own MAC address against the
+
+55
+00:08:27,740 --> 00:08:35,020
+ destination address in the frame. And if they are the same, then it accepts the packet,
+
+56
+00:08:35,020 --> 00:08:43,560
+ otherwise it drops the packet. Any questions? It's like in our examples, if you are going
+
+57
+00:08:43,560 --> 00:08:53,100
+ to speak loudly and everyone can hear, if you want to say address to your friend, John,
+
+58
+00:08:53,100 --> 00:09:00,660
+ you basically say, "Hey, John," and then you are going to say whatever you have to say.
+
+59
+00:09:00,660 --> 00:09:05,060
+ And by that, this means that John will pay attention and maybe the other people will
+
+60
+00:09:05,060 --> 00:09:16,300
+ not pay attention because that message is not in the data. Now, the LAN can be larger,
+
+61
+00:09:16,300 --> 00:09:22,100
+ can include multiple hundreds of machines and when you include hundreds of machines
+
+62
+00:09:22,100 --> 00:09:27,540
+ or a larger number of machines, they typically they also are connected by switches. Switches
+
+63
+00:09:27,540 --> 00:09:34,920
+ are a little more intelligent and so basically switches are doing some pruning of the messages.
+
+64
+00:09:34,920 --> 00:09:47,660
+ So if a switch gets a message and the host is not behind one of its connections, it's
+
+65
+00:09:47,660 --> 00:09:54,620
+ not going to send that frame on that connection. So in this particular case, for instance,
+
+66
+00:09:54,620 --> 00:10:02,500
+ when B arrives at the switch, the switch will directly send to B. It's not going to deliver
+
+67
+00:10:02,500 --> 00:10:07,220
+ to B and C. So it's more efficient.
+
+68
+00:10:07,240 --> 00:10:09,760
+ Right? And that's why the switches are in general
+
+69
+00:10:09,760 --> 00:10:11,600
+ when you have a lot of war machines,
+
+70
+00:10:11,600 --> 00:10:14,880
+ where it is very inefficient for that frame to be sent
+
+71
+00:10:14,880 --> 00:10:16,260
+ to reach everyone.
+
+72
+00:10:16,260 --> 00:10:20,300
+ Okay. Questions.
+
+73
+00:10:20,300 --> 00:10:24,520
+ How can we ensure MAC addresses are unique?
+
+74
+00:10:24,520 --> 00:10:27,080
+ This is excellent question.
+
+75
+00:10:27,080 --> 00:10:32,080
+ So typically every network vendor,
+
+76
+00:10:32,080 --> 00:10:35,680
+ it's assigned a block of MAC addresses.
+
+77
+00:10:36,580 --> 00:10:41,580
+ And that vendor can only associate the MAC addresses
+
+78
+00:10:41,580 --> 00:10:49,680
+ in his block to all the network cards he produces.
+
+79
+00:10:49,680 --> 00:10:52,440
+ That's sense.
+
+80
+00:10:52,440 --> 00:10:57,760
+ Ha, no news.
+
+81
+00:10:57,760 --> 00:11:01,340
+ So another great question.
+
+82
+00:11:01,340 --> 00:11:03,720
+ Is this where security concerns come in?
+
+83
+00:11:03,720 --> 00:11:05,960
+ Can a host who has a packet is not addressed
+
+84
+00:11:05,960 --> 00:11:07,880
+ to still read the message?
+
+85
+00:11:07,880 --> 00:11:09,920
+ Yes, it's no big.
+
+86
+00:11:09,920 --> 00:11:13,960
+ That's why you are told that when you are going to be
+
+87
+00:11:13,960 --> 00:11:18,960
+ in a Starbucks cafe, what you are going to be,
+
+88
+00:11:18,960 --> 00:11:21,600
+ you are told, right?
+
+89
+00:11:21,600 --> 00:11:23,560
+ You need to use encryption.
+
+90
+00:11:23,560 --> 00:11:25,040
+ Why do you want to use encryption?
+
+91
+00:11:25,040 --> 00:11:29,440
+ Because you don't want just someone to snoop on your packets
+
+92
+00:11:29,440 --> 00:11:34,500
+ and read everything what you send or receive.
+
+93
+00:11:34,500 --> 00:11:37,540
+ Great questions.
+
+94
+00:11:37,540 --> 00:11:43,060
+ Ah, Michael here.
+
+95
+00:11:43,060 --> 00:11:44,240
+ It's another great question.
+
+96
+00:11:44,240 --> 00:11:47,300
+ How does a switch know that MAC address of the,
+
+97
+00:11:47,300 --> 00:11:51,220
+ does a device declare its address
+
+98
+00:11:51,220 --> 00:11:53,280
+ upon connecting to a new media?
+
+99
+00:11:53,280 --> 00:11:58,280
+ Yes, there is a special protocol by which the devices,
+
+100
+00:11:58,280 --> 00:12:01,740
+ you know, the devices connect
+
+101
+00:12:01,740 --> 00:12:05,260
+ and then they advertise their address to the switch.
+
+102
+00:12:05,260 --> 00:12:08,380
+ Excellent questions.
+
+103
+00:12:08,380 --> 00:12:11,860
+ Please keep them coming.
+
+104
+00:12:11,860 --> 00:12:18,460
+ So now one of our problem is again,
+
+105
+00:12:18,460 --> 00:12:20,920
+ now let's think about again, this broadcast media,
+
+106
+00:12:20,920 --> 00:12:24,020
+ because even with a switch, with a switch here,
+
+107
+00:12:24,020 --> 00:12:25,660
+ we are simplifying it,
+
+108
+00:12:25,660 --> 00:12:29,700
+ but behind each of this output of the switch,
+
+109
+00:12:29,700 --> 00:12:31,100
+ there are many, many hosts.
+
+110
+00:12:31,100 --> 00:12:33,860
+ It's not only one host sitting there.
+
+111
+00:12:33,860 --> 00:12:38,140
+ So you still have, almost by definition,
+
+112
+00:12:38,140 --> 00:12:43,140
+ in a LAN, you have multiple hosts being able to send
+
+113
+00:12:43,140 --> 00:12:46,740
+ and receive packets at the same time.
+
+114
+00:12:46,740 --> 00:12:50,380
+ And when you have multiple people,
+
+115
+00:12:50,380 --> 00:12:52,320
+ sorry, multiple hosts sending,
+
+116
+00:12:52,320 --> 00:12:54,480
+ being able to send packets at the same time,
+
+117
+00:12:54,480 --> 00:12:59,480
+ you need to somehow make sure they don't collide, right?
+
+118
+00:13:00,480 --> 00:13:04,200
+ And there are three solutions,
+
+119
+00:13:04,200 --> 00:13:08,000
+ a channel partition, taking turns and random access.
+
+120
+00:13:08,000 --> 00:13:10,080
+ So channel partition is basically,
+
+121
+00:13:10,080 --> 00:13:12,320
+ think about you have different frequencies.
+
+122
+00:13:12,320 --> 00:13:16,480
+ This is one, one typical example.
+
+123
+00:13:16,480 --> 00:13:19,640
+ And what you do is frequency division multiplexing.
+
+124
+00:13:19,640 --> 00:13:21,720
+ You have a band of frequency
+
+125
+00:13:21,720 --> 00:13:23,520
+ and you are going to split that band
+
+126
+00:13:23,520 --> 00:13:25,620
+ in different kinds of frequencies.
+
+127
+00:13:25,620 --> 00:13:28,480
+ And then you allocate one of these frequency
+
+128
+00:13:28,480 --> 00:13:31,320
+ to a different host.
+
+129
+00:13:31,320 --> 00:13:35,040
+ And each host can only send on that frequency.
+
+130
+00:13:35,040 --> 00:13:37,200
+ And you can listen for multiple frequencies
+
+131
+00:13:37,200 --> 00:13:38,880
+ so you can get the packets from,
+
+132
+00:13:38,880 --> 00:13:42,200
+ on any frequency, right?
+
+133
+00:13:42,200 --> 00:13:45,660
+ Now, what are the advantage of this?
+
+134
+00:13:45,660 --> 00:13:49,420
+ Is that it's simple and it's pretty clear.
+
+135
+00:13:49,420 --> 00:13:52,060
+ It provides also some isolation
+
+136
+00:13:52,060 --> 00:13:54,000
+ because you have your own frequency,
+
+137
+00:13:54,000 --> 00:13:55,760
+ you don't care about the other people.
+
+138
+00:13:55,760 --> 00:13:57,600
+ You can send on your own frequency.
+
+139
+00:13:58,520 --> 00:14:00,300
+ You don't care about other hosts.
+
+140
+00:14:00,300 --> 00:14:05,120
+ So, and it's a pretty efficient one, it's very high load.
+
+141
+00:14:05,120 --> 00:14:08,400
+ But when the load is small, then it's very inefficient
+
+142
+00:14:08,400 --> 00:14:11,240
+ because from, if for instance,
+
+143
+00:14:11,240 --> 00:14:16,240
+ you have only one host sending to another host, right?
+
+144
+00:14:16,240 --> 00:14:19,720
+ Out of 100 hosts out there,
+
+145
+00:14:19,720 --> 00:14:24,720
+ then you can use only one percent
+
+146
+00:14:24,800 --> 00:14:27,540
+ of the entire frequency range.
+
+147
+00:14:27,540 --> 00:14:31,960
+ The ones that frequency which is allocated
+
+148
+00:14:31,960 --> 00:14:34,200
+ to that particular host is sending.
+
+149
+00:14:34,200 --> 00:14:36,440
+ While the other one are not used.
+
+150
+00:14:36,440 --> 00:14:39,000
+ So ideally, what you would like is that
+
+151
+00:14:39,000 --> 00:14:42,880
+ of only two machine, two hosts communicating with each other,
+
+152
+00:14:42,880 --> 00:14:45,840
+ you should have none of the other send data.
+
+153
+00:14:45,840 --> 00:14:47,600
+ These two hosts should be able to use
+
+154
+00:14:47,600 --> 00:14:50,740
+ the entire frequency range, right?
+
+155
+00:14:50,740 --> 00:14:54,380
+ The other one is pretty similar,
+
+156
+00:14:54,380 --> 00:14:56,920
+ but this is, this source,
+
+157
+00:14:56,920 --> 00:15:01,500
+ but instead of dividing the frequencies, it divides the time.
+
+158
+00:15:01,500 --> 00:15:04,260
+ So basically here, you have,
+
+159
+00:15:04,260 --> 00:15:05,900
+ imagine that you have a token.
+
+160
+00:15:05,900 --> 00:15:08,000
+ A token is a special packet.
+
+161
+00:15:08,000 --> 00:15:13,000
+ And this token is going, and you can think about
+
+162
+00:15:13,000 --> 00:15:17,640
+ that hosts are organized in a logical ring, for instance.
+
+163
+00:15:17,640 --> 00:15:18,480
+ Okay?
+
+164
+00:15:18,480 --> 00:15:23,480
+ So, and then this token goes from host to host.
+
+165
+00:15:23,540 --> 00:15:25,300
+ Host to host around the ring.
+
+166
+00:15:25,300 --> 00:15:31,320
+ And now you can send data only when you have the token.
+
+167
+00:15:31,320 --> 00:15:35,380
+ If you have data to send, but you don't have the token,
+
+168
+00:15:35,380 --> 00:15:37,500
+ you need to wait to receive the token.
+
+169
+00:15:37,500 --> 00:15:40,260
+ So again, because it's only one host has a token
+
+170
+00:15:40,260 --> 00:15:45,200
+ at a given time, you are ensuring that there is no collision
+
+171
+00:15:45,200 --> 00:15:49,200
+ because only one host can send at a given time.
+
+172
+00:15:49,200 --> 00:15:52,480
+ Again, you have the same kind of little bit issues
+
+173
+00:15:52,480 --> 00:15:54,660
+ when everyone has things to send,
+
+174
+00:15:54,660 --> 00:15:57,780
+ is working great because you get a token,
+
+175
+00:15:57,780 --> 00:16:02,780
+ you already have, you send data, you have to send data.
+
+176
+00:16:02,780 --> 00:16:07,820
+ If only two hosts, one host has to send data to another host,
+
+177
+00:16:07,820 --> 00:16:12,820
+ then it's more problematic because you need to wait
+
+178
+00:16:12,820 --> 00:16:16,900
+ for every other host around the ring to get
+
+179
+00:16:16,900 --> 00:16:20,920
+ and send out the token before you can send the next packet.
+
+180
+00:16:20,920 --> 00:16:24,780
+ So it's kind of an overhead just waiting for the token
+
+181
+00:16:24,780 --> 00:16:28,900
+ to go around, just for each host to pass it,
+
+182
+00:16:28,900 --> 00:16:30,620
+ who doesn't have anything to send,
+
+183
+00:16:30,620 --> 00:16:33,200
+ just to pass it to another to the next host.
+
+184
+00:16:33,200 --> 00:16:37,600
+ So just pure overhead, which, you know,
+
+185
+00:16:37,600 --> 00:16:40,980
+ reduces the efficiency of this protocol.
+
+186
+00:16:40,980 --> 00:16:48,140
+ And finally, it's random access.
+
+187
+00:16:50,700 --> 00:16:52,860
+ It's also, it's a carrier sense,
+
+188
+00:16:52,860 --> 00:16:55,280
+ collision detection is called CSMA.
+
+189
+00:16:55,280 --> 00:16:59,560
+ And this is ethernet, if you heard.
+
+190
+00:16:59,560 --> 00:17:02,080
+ This is probably the most popular
+
+191
+00:17:02,080 --> 00:17:06,600
+ data link layer technology, right?
+
+192
+00:17:06,600 --> 00:17:11,600
+ And a form of this is also you have for wireless.
+
+193
+00:17:11,600 --> 00:17:14,400
+ But here it is, this is exactly, you know,
+
+194
+00:17:14,400 --> 00:17:17,720
+ to better understand it, imagine again,
+
+195
+00:17:17,720 --> 00:17:20,320
+ there is a room full of people
+
+196
+00:17:20,320 --> 00:17:24,640
+ and they are talking, right?
+
+197
+00:17:24,640 --> 00:17:30,780
+ And now imagine that again, everyone hears everyone.
+
+198
+00:17:30,780 --> 00:17:32,160
+ So the room is small enough.
+
+199
+00:17:32,160 --> 00:17:35,840
+ So what do you do, right?
+
+200
+00:17:35,840 --> 00:17:38,960
+ So first of all, you know, before you speak,
+
+201
+00:17:38,960 --> 00:17:40,240
+ you listen a little bit, right?
+
+202
+00:17:40,240 --> 00:17:41,320
+ This is carrier sense.
+
+203
+00:17:41,320 --> 00:17:43,280
+ You listen that it's a pause.
+
+204
+00:17:43,280 --> 00:17:46,000
+ No one else is talking, right?
+
+205
+00:17:46,000 --> 00:17:48,960
+ You also don't interrupt, right?
+
+206
+00:17:48,960 --> 00:17:49,800
+ Someone.
+
+207
+00:17:49,800 --> 00:17:53,160
+ Someone else is talking, you wait for that person to finish
+
+208
+00:17:53,160 --> 00:17:55,720
+ before you start, this is polite.
+
+209
+00:17:55,720 --> 00:17:57,840
+ This is carrier sense, right?
+
+210
+00:17:57,840 --> 00:18:00,640
+ Someone, you know, the media it's busy
+
+211
+00:18:00,640 --> 00:18:02,940
+ because there are some packets being sent out.
+
+212
+00:18:02,940 --> 00:18:09,160
+ Then you wait for a pause for the media to be idle
+
+213
+00:18:09,160 --> 00:18:13,100
+ before you send.
+
+214
+00:18:13,100 --> 00:18:15,980
+ Now, this is not enough to avoid the collisions
+
+215
+00:18:15,980 --> 00:18:20,580
+ because many people may have like in our analogy
+
+216
+00:18:20,580 --> 00:18:25,300
+ with the room analogy, multiple people may wait
+
+217
+00:18:25,300 --> 00:18:28,400
+ for the current speaker to finish, to say something.
+
+218
+00:18:28,400 --> 00:18:32,500
+ And as you know, sometimes happens that people can start,
+
+219
+00:18:32,500 --> 00:18:35,440
+ two people can start talking at the same time.
+
+220
+00:18:35,440 --> 00:18:37,700
+ Now that's a collision, the same here.
+
+221
+00:18:37,700 --> 00:18:41,020
+ If one of the media inside or two hosts
+
+222
+00:18:41,020 --> 00:18:43,260
+ are going to send back at the same time,
+
+223
+00:18:43,260 --> 00:18:46,080
+ the second is like, where's the collide?
+
+224
+00:18:46,080 --> 00:18:47,200
+ Why do you do that?
+
+225
+00:18:47,200 --> 00:18:49,480
+ It's again, assuming that you are polite.
+
+226
+00:18:49,480 --> 00:18:52,040
+ Most people who, you know, like start talking
+
+227
+00:18:52,040 --> 00:18:56,080
+ at the same time, when they stop, right?
+
+228
+00:18:56,080 --> 00:19:01,000
+ They stop for a while and then try again, right?
+
+229
+00:19:01,000 --> 00:19:04,940
+ And sometimes it's again, it's like,
+
+230
+00:19:04,940 --> 00:19:07,840
+ as you probably, you know, I'm sure you witness that,
+
+231
+00:19:07,840 --> 00:19:09,780
+ two people start at the same time, stop,
+
+232
+00:19:09,780 --> 00:19:11,560
+ and then again, start at the same time.
+
+233
+00:19:11,560 --> 00:19:13,500
+ So you want to avoid that.
+
+234
+00:19:13,500 --> 00:19:16,340
+ And here is a design of this protocol
+
+235
+00:19:16,340 --> 00:19:17,720
+ and how do you design it?
+
+236
+00:19:17,720 --> 00:19:19,820
+ Each of the parties, each of the hosts,
+
+237
+00:19:19,820 --> 00:19:21,800
+ if there is a collision,
+
+238
+00:19:21,800 --> 00:19:23,700
+ waits for a random amount of time.
+
+239
+00:19:23,700 --> 00:19:25,700
+ And if you waste for a random amount of time,
+
+240
+00:19:25,700 --> 00:19:27,200
+ it's a probability of collision again,
+
+241
+00:19:27,200 --> 00:19:29,760
+ colliding again, is lower.
+
+242
+00:19:29,760 --> 00:19:32,780
+ So this is pretty much it, right?
+
+243
+00:19:32,780 --> 00:19:35,820
+ And it's very simple, it is decentralized
+
+244
+00:19:35,820 --> 00:19:40,820
+ and it works pretty well in practice.
+
+245
+00:19:40,980 --> 00:19:42,260
+ It's beautiful protocol.
+
+246
+00:19:42,260 --> 00:19:47,880
+ Any questions?
+
+247
+00:19:47,880 --> 00:19:54,280
+ So it's again, the token, you can assume this is again,
+
+248
+00:19:54,280 --> 00:19:59,280
+ like this protocol, the CSMA/CD is like,
+
+249
+00:19:59,280 --> 00:20:03,740
+ think about always like the protocol people will use,
+
+250
+00:20:03,740 --> 00:20:05,960
+ polite people will use in a room
+
+251
+00:20:05,960 --> 00:20:07,360
+ or speaking with each other.
+
+252
+00:20:09,620 --> 00:20:14,060
+ This token protocol we discussed in the previous slide,
+
+253
+00:20:14,480 --> 00:20:20,880
+ terms, you can imagine it's like only people who have the mic are going to talk, right? You know,
+
+254
+00:20:20,880 --> 00:20:26,880
+ when you ask questions like a conference and so forth, when you ask questions there is a mic and
+
+255
+00:20:26,880 --> 00:20:31,760
+ if there is only one mic, only the, you know, someone is going to hand the mic to the person who
+
+256
+00:20:31,760 --> 00:20:38,880
+ has who can talk or who wants to ask a question, but only the person who has a mic can ask a
+
+257
+00:20:38,880 --> 00:20:49,920
+ question. So there are no collisions. Okay, so let's see. Why would I want, Allison has this
+
+258
+00:20:49,920 --> 00:20:55,680
+ question, why would I want my computer to play fair? Can I configure my computer to just shoot
+
+259
+00:20:55,680 --> 00:21:03,520
+ over everyone so then it will be faster? I think, you know, that's a good point. The problem though
+
+260
+00:21:03,520 --> 00:21:10,000
+ is that if everyone is doing the same or even other people don't do exactly the same, you are
+
+261
+00:21:10,000 --> 00:21:14,480
+ going to have collisions and if you have collisions you have garbage, you cannot be hurt.
+
+262
+00:21:14,480 --> 00:21:22,160
+ That's a problem, right? You cannot, in some sense, you cannot increase the intensity of your
+
+263
+00:21:22,160 --> 00:21:26,800
+ signal. So probably, you know, in this case you don't have the ability to increase that kind of
+
+264
+00:21:26,800 --> 00:21:35,040
+ intensity. Like in practice, maybe you are going to yell, you know, your voice will be stronger
+
+265
+00:21:35,040 --> 00:21:40,240
+ than anyone else. But here everyone is on the level playing field, the same, you can send only
+
+266
+00:21:40,240 --> 00:21:46,160
+ beats, the same beats as a beat, the same voltage, the same intensity. So if two people, if two hosts
+
+267
+00:21:46,160 --> 00:21:53,200
+ send at the same time, this is going to be interference and your message is not going to be
+
+268
+00:21:53,200 --> 00:22:10,720
+ that it works as a destination. Oh, Simon, how does random access guarantee a node ever get a chance
+
+269
+00:22:10,720 --> 00:22:17,280
+ to speak? What if in the random someone is always speaking when I try to speak? Could that cause a
+
+270
+00:22:17,280 --> 00:22:27,200
+ starvation? That's a great question and it's probabilistic, right? It's like you always,
+
+271
+00:22:27,200 --> 00:22:33,840
+ you know, there is a the probability that you are going to be able to speak is non-zero. Now, it
+
+272
+00:22:33,840 --> 00:22:44,000
+ turns out that these random access protocols, they work very well. You remember this other
+
+273
+00:22:44,000 --> 00:22:55,520
+ token protocol and the one with frequency division multiplexing, they are working very well
+
+274
+00:22:55,520 --> 00:23:00,480
+ when the system is very utilized, it's highly utilized when everyone talks to everyone.
+
+275
+00:23:00,480 --> 00:23:06,400
+ But it doesn't have such a high efficiency when the system is not utilized because
+
+276
+00:23:06,400 --> 00:23:12,640
+ if they, you know, say if you have only two hosts talking with each other, they cannot use the entire
+
+277
+00:23:12,640 --> 00:23:19,040
+ frequency range or they have to wait for the token to get around only for all the other hosts not
+
+278
+00:23:19,040 --> 00:23:24,800
+ doing anything with the token. This is a reverse. It's working extremely well when the network is
+
+279
+00:23:24,800 --> 00:23:31,760
+ lightly utilized because there are no collisions. But when it's heavily utilized, there are many
+
+280
+00:23:31,760 --> 00:23:36,800
+ collisions, then the efficiency is going down. So there is a problem with that.
+
+281
+00:23:41,360 --> 00:23:44,960
+ But again, so this is probably the intuition behind your question,
+
+282
+00:23:44,960 --> 00:23:55,920
+ Simon. But in theory, you are going to get, you know, you are going to get your top. It's like,
+
+283
+00:23:55,920 --> 00:24:03,840
+ think about the one, you know, it's like here is another analogy. You are coming from a secondary
+
+284
+00:24:03,840 --> 00:24:10,880
+ road and you are in the main road and you don't have a priority and you want to take right or left.
+
+285
+00:24:11,360 --> 00:24:20,400
+ Right. Like you go from, you know, Safeway or other where you exit. Right. So you need to wait for a gap
+
+286
+00:24:20,400 --> 00:24:30,160
+ to get to enter the traffic. And in theory, you know, you may never get that bad, that gap.
+
+287
+00:24:30,160 --> 00:24:33,920
+ But in practice, you know, you don't need to wait too much.
+
+288
+00:24:33,920 --> 00:24:38,880
+ So probabilistically, it is not salvation.
+
+289
+00:24:38,880 --> 00:24:47,520
+ OK. The next is a network layer.
+
+290
+00:24:47,520 --> 00:25:01,920
+ So, yeah, I don't know. I need to update this figure on the right hand side. We are talking
+
+291
+00:25:01,920 --> 00:25:06,160
+ about the network layer. The network layer is actually the most important in some sense.
+
+292
+00:25:06,160 --> 00:25:12,800
+ When you talk about Internet, Internet is a main layer in the Internet, is the Internet protocol
+
+293
+00:25:12,800 --> 00:25:18,640
+ or IP. You heard about the IP, right? IP is the Internet protocol, is a network layer.
+
+294
+00:25:18,640 --> 00:25:25,920
+ So the network layer has its own address. They are called IP addresses.
+
+295
+00:25:25,920 --> 00:25:32,160
+ And every host has a unique IP address.
+
+296
+00:25:34,480 --> 00:25:38,640
+ And this is global. It's at the level of the entire planet.
+
+297
+00:25:38,640 --> 00:25:48,000
+ So network layer is basically going to be able, is going to ensure the main service is going to ensure
+
+298
+00:25:48,000 --> 00:25:56,240
+ its connectivity. You can deliver a packet specifying the network address or the IP address
+
+299
+00:25:58,400 --> 00:26:05,600
+ across the globe from New York to Tokyo, from a network in New York, from a host in San Francisco
+
+300
+00:26:05,600 --> 00:26:13,600
+ to a host in Tokyo. And this will be across multiple data link layer networks.
+
+301
+00:26:13,600 --> 00:26:21,360
+ Because you cannot have just a data link layer network over the entire globe.
+
+302
+00:26:23,520 --> 00:26:32,320
+ Okay. There are possible other services like scheduling priorities, so some packets are more
+
+303
+00:26:32,320 --> 00:26:37,600
+ important than the others. You can think about video packets are going to have higher priorities
+
+304
+00:26:37,600 --> 00:26:42,960
+ than data packets, things like that. And you need also to handle the buffer management. The packets
+
+305
+00:26:42,960 --> 00:26:49,360
+ along the way are going to be buffered. The interface is very simple. You send a packet
+
+306
+00:26:49,920 --> 00:26:55,200
+ to a specified network address destination and you receive that packet, which is intended to you.
+
+307
+00:26:55,200 --> 00:27:01,120
+ The protocol includes defining these network addresses, which are globally unique
+
+308
+00:27:01,120 --> 00:27:07,040
+ and also constructed the router, what are called forwarding tables. So a router, which connects
+
+309
+00:27:07,040 --> 00:27:14,160
+ a router, connects different local area networks. It receives a packet. It looks at the destination
+
+310
+00:27:14,160 --> 00:27:27,040
+ address and decides where to send it out. Okay. So this is the network layer and you see the network
+
+311
+00:27:27,040 --> 00:27:35,280
+ layer packet. It has a payload and the header. They are encapsulated in a data frame. So
+
+312
+00:27:35,280 --> 00:27:40,800
+ encapsulation means that you take a packet from the network layer and you add the header
+
+313
+00:27:42,080 --> 00:27:44,720
+ of the frame. This becomes a frame, right?
+
+314
+00:27:44,720 --> 00:27:53,120
+ And the header contains the IP destination address and the IP source address.
+
+315
+00:27:53,120 --> 00:27:59,840
+ And as I mentioned to you, these are routed by routers. The routers
+
+316
+00:28:02,480 --> 00:28:12,400
+ connect different data link, data layer networks. And all this aggregation of
+
+317
+00:28:12,400 --> 00:28:16,960
+ local area network is called the wide area network. Okay.
+
+318
+00:28:16,960 --> 00:28:21,840
+ So now what is the difference between the switch and the router?
+
+319
+00:28:21,840 --> 00:28:30,080
+ So it's simple. The router, it's only, it recognizes and routes based on the IP addresses.
+
+320
+00:28:30,640 --> 00:28:36,240
+ A switch is only in a local area network and only recognize MAC addresses.
+
+321
+00:28:36,240 --> 00:28:47,040
+ Okay. So router function, like I mentioned, is to get the packets, look at their
+
+322
+00:28:47,040 --> 00:28:54,080
+ headers and decide on which output link to send them. Okay. So this is how the router works.
+
+323
+00:28:55,120 --> 00:29:02,560
+ You have a bunch of incoming links, you get packets on and outgoing links. It's like a
+
+324
+00:29:02,560 --> 00:29:13,360
+ huge intersection, right? And basically what router implements a mechanism which is called
+
+325
+00:29:13,360 --> 00:29:18,800
+ store and forward. Store and forward means the packets are received first, are stored.
+
+326
+00:29:20,800 --> 00:29:26,640
+ And after a store, the router inspects the header and based on the destination IP address decides
+
+327
+00:29:26,640 --> 00:29:33,920
+ where the forwards are. Right. And they are stored because you don't want to drop the packets if the
+
+328
+00:29:33,920 --> 00:29:41,600
+ router cannot process them fast enough. That's the reason. And again, the forwarding table is
+
+329
+00:29:41,600 --> 00:29:47,440
+ a mapping between IP addresses and the output link. Right. So here is an example about the
+
+330
+00:29:47,440 --> 00:29:58,080
+ packet going from host A to host B. Each router will decide to watch output to forward the packet
+
+331
+00:29:58,080 --> 00:30:02,400
+ based on this IP address and based on the information in the forwarding table.
+
+332
+00:30:02,400 --> 00:30:09,440
+ So now this slide is very important. Okay. Because obvious question now,
+
+333
+00:30:09,440 --> 00:30:20,080
+ hey, I have MAC addresses and you told me that they are unique. And now you tell me also about
+
+334
+00:30:20,080 --> 00:30:21,680
+ IP addresses, which are also unique.
+
+335
+00:30:21,720 --> 00:30:24,720
+ Why do I need two kinds of addresses?
+
+336
+00:30:24,720 --> 00:30:28,720
+ Why not using a single type of address?
+
+337
+00:30:28,720 --> 00:30:36,720
+ In particular, why shouldn't I use just a MAC address for routing?
+
+338
+00:30:36,720 --> 00:30:39,720
+ I already have those. Why do I need another address?
+
+339
+00:30:39,720 --> 00:30:45,720
+ The answer is that remember how the MAC addresses are allocated.
+
+340
+00:30:45,720 --> 00:30:47,720
+ Okay.
+
+341
+00:30:49,720 --> 00:30:51,720
+ I am a network card vendor.
+
+342
+00:30:51,720 --> 00:30:54,720
+ I get a block of MAC addresses.
+
+343
+00:30:54,720 --> 00:31:02,720
+ And I'm going to use these addresses in the block to assign to my network cards.
+
+344
+00:31:02,720 --> 00:31:09,720
+ And then these network cards are in computers which are all over the globe.
+
+345
+00:31:09,720 --> 00:31:15,720
+ So there is no aggregation. It's very much like social security number.
+
+346
+00:31:17,720 --> 00:31:22,720
+ Now I am asking you, I'm giving you a social security number.
+
+347
+00:31:22,720 --> 00:31:26,720
+ And let's say they are not private.
+
+348
+00:31:26,720 --> 00:31:29,720
+ They are not confidential.
+
+349
+00:31:29,720 --> 00:31:38,720
+ And I'm telling you, hey, deliver this letter, this message to the social security number.
+
+350
+00:31:38,720 --> 00:31:42,720
+ You know, one, two, three, four, five, six, whatever.
+
+351
+00:31:44,720 --> 00:31:47,720
+ You know, how easy is that or how hard is it?
+
+352
+00:31:47,720 --> 00:31:56,720
+ It's pretty hard because there is now the random across the globe.
+
+353
+00:31:56,720 --> 00:32:04,720
+ Now to compare that, if I am going to give you a message or a letter to deliver,
+
+354
+00:32:04,720 --> 00:32:11,720
+ and I'm telling you what is a home address of the recipient.
+
+355
+00:32:12,720 --> 00:32:15,720
+ It's much easier because the address are structured.
+
+356
+00:32:15,720 --> 00:32:24,720
+ And the only thing, for instance, say I'm going to send the address to this, you know,
+
+357
+00:32:24,720 --> 00:32:30,720
+ 10 7th Street, Northwest Washington, D.C. and so forth.
+
+358
+00:32:30,720 --> 00:32:38,720
+ If I'm sending it from California, the only single first thing I need to know is that it's going to Washington, D.C.
+
+359
+00:32:39,720 --> 00:32:42,720
+ So I put it on a plane to go to Washington, D.C.
+
+360
+00:32:42,720 --> 00:32:45,720
+ That's the only thing. It's very easy.
+
+361
+00:32:45,720 --> 00:32:53,720
+ Right. So the amount of state I can use in San Francisco to say what I'm going to send the packet, the letter, is very small.
+
+362
+00:32:53,720 --> 00:33:02,720
+ Only the cities or the states or the country, if I'm sending international letter.
+
+363
+00:33:04,720 --> 00:33:09,720
+ And once the letter is coming, going to Washington, D.C., it remains in the Washington, D.C. area and then it's going to,
+
+364
+00:33:09,720 --> 00:33:14,720
+ I know I'm going to look at the street and I'm looking and then I'm looking at the address of the street.
+
+365
+00:33:14,720 --> 00:33:24,720
+ So you can have this hierarchical structure and routing of the letter from the sender to the recipient.
+
+366
+00:33:24,720 --> 00:33:31,720
+ This is what the IP address gives you. It gives you the structure which will make it much easier.
+
+367
+00:33:31,720 --> 00:33:42,720
+ Right. And then if I'm sending from that one to someone from California, from Berkeley, it's again, just look at the Berkeley,
+
+368
+00:33:42,720 --> 00:33:51,720
+ first look, send to Berkeley to, or someone close to Berkeley, San Francisco, Oakland, on a plane to Oakland,
+
+369
+00:33:51,720 --> 00:33:54,720
+ and from there it's going to be delivered to you.
+
+370
+00:33:54,720 --> 00:34:04,720
+ OK.
+
+371
+00:34:04,720 --> 00:34:06,720
+ OK, any question?
+
+372
+00:34:06,720 --> 00:34:11,720
+ So fundamentally, it's again.
+
+373
+00:34:16,720 --> 00:34:28,720
+ The IP addresses have structure, geographic structure, topological structure, and therefore they can be aggregatable.
+
+374
+00:34:28,720 --> 00:34:34,720
+ Therefore, the forwarding tables in the routers can be much smaller.
+
+375
+00:34:39,720 --> 00:34:49,720
+ While for MAC addresses, there is no aggregation, you need to keep a forwarding table which is equal to the number of MAC addresses, existing MAC addresses, which is huge.
+
+376
+00:34:49,720 --> 00:34:59,720
+ Case in point, assume that you want to send
+
+377
+00:34:59,720 --> 00:35:08,720
+ a packet from New York to a particular IP address, to a particular host in UC Berkeley.
+
+378
+00:35:09,720 --> 00:35:20,720
+ Then the UC Berkeley, actually all IP addresses are starting with this, you know, the first
+
+379
+00:35:20,720 --> 00:35:26,720
+ two bytes are all common, A9, E5.
+
+380
+00:35:26,720 --> 00:35:30,720
+ Right.
+
+381
+00:35:31,720 --> 00:35:42,720
+ So the router in New York, it needs to keep only one entry for all hosts which are associated with UC Berkeley.
+
+382
+00:35:42,720 --> 00:35:52,720
+ If you don't have that and you use MAC addresses, then the new router has to keep an entry for every host,
+
+383
+00:35:52,720 --> 00:35:58,720
+ which is much harder and much harder to update, maintain and things like that.
+
+384
+00:35:58,720 --> 00:36:02,720
+ Does it make sense?
+
+385
+00:36:02,720 --> 00:36:06,720
+ Any questions?
+
+386
+00:36:06,720 --> 00:36:20,720
+ So to summarize here, a MAC address is like SSN and an IP address is like an address, although it's not readable.
+
+387
+00:36:21,720 --> 00:36:35,720
+ Right. And so therefore, it's much easier to build a system like a mail system, in our case, to deliver the letter to a particular address which has structure,
+
+388
+00:36:35,720 --> 00:36:41,720
+ then to some identifier which has no structure.
+
+389
+00:36:41,720 --> 00:36:47,720
+ Any questions?
+
+390
+00:36:47,720 --> 00:36:54,720
+ Okay.
+
+391
+00:36:54,720 --> 00:37:03,720
+ So like I mentioned, this is the Internet Protocol, the Internet's network layer.
+
+392
+00:37:03,720 --> 00:37:08,720
+ And so the Internet Protocol is the Internet's network layer.
+
+393
+00:37:08,720 --> 00:37:15,720
+ The service it provides is connectivity and packet delivery, but it's best effort.
+
+394
+00:37:16,720 --> 00:37:21,720
+ Best effort means that you are not guaranteed that your packet is going to make it to the destination.
+
+395
+00:37:21,720 --> 00:37:25,720
+ It may be dropped, it may be corrupted.
+
+396
+00:37:25,720 --> 00:37:36,720
+ And also, it doesn't guarantee you that the packet, if you send two packets, one after another, they are going to arrive at the same time, in the same order.
+
+397
+00:37:37,720 --> 00:37:53,720
+ Because they may follow different routes. It's like you cannot guarantee that two cars which started San Francisco and arrived to, you know, are driving to LA,
+
+398
+00:37:53,720 --> 00:37:56,720
+ they are going to get at LA at the same order.
+
+399
+00:37:56,720 --> 00:37:59,720
+ So it's very simple.
+
+400
+00:38:01,720 --> 00:38:10,720
+ Now, on top of the network layer, you have transport layer. And the transport layer provides its one level up.
+
+401
+00:38:10,720 --> 00:38:19,720
+ The network layer delivers a packet from one host to another.
+
+402
+00:38:19,720 --> 00:38:25,720
+ But the host does not consume the packet. Application consumes the packets.
+
+403
+00:38:26,720 --> 00:38:32,720
+ And the application is a process. And on a machine, you have multiple processes.
+
+404
+00:38:32,720 --> 00:38:42,720
+ So you need to specify to which packet, to which process on a particular machine, the packet needs to be delivered.
+
+405
+00:38:42,720 --> 00:38:47,720
+ So the IP address of the recipient is not enough.
+
+406
+00:38:47,720 --> 00:38:54,720
+ We need another thing to differentiate between multiple processes running on the same machine, on the same host.
+
+407
+00:38:55,720 --> 00:38:58,720
+ And this is a port number, I could see.
+
+408
+00:38:58,720 --> 00:39:04,720
+ So the transport layer multiplex and multiplex packets, which arrive on the same host.
+
+409
+00:39:04,720 --> 00:39:13,720
+ There are other services can provide, reliability, rate adaptation like we discussed last time, flow control, congestion control.
+
+410
+00:39:14,720 --> 00:39:26,720
+ And timing properties, maybe they are going to, you know, give guarantees that the packet will be delivered within 100 milliseconds.
+
+411
+00:39:26,720 --> 00:39:29,720
+ It's important, say for voice communication.
+
+412
+00:39:29,720 --> 00:39:34,720
+ The interface is the same message to a specific process at a given destination.
+
+413
+00:39:34,720 --> 00:39:36,720
+ OK.
+
+414
+00:39:36,720 --> 00:39:40,720
+ And the local process receives the messages sent to it.
+
+415
+00:39:41,720 --> 00:39:44,720
+ The protocol includes the port numbers.
+
+416
+00:39:44,720 --> 00:39:48,720
+ These are used to differentiate between different processes.
+
+417
+00:39:48,720 --> 00:39:58,720
+ It may implement reliability, flow control and packetization because you may send bigger depending on the interface.
+
+418
+00:39:58,720 --> 00:40:05,720
+ You may send streams. Like if you remember, we have this kind of interface to the network.
+
+419
+00:40:06,720 --> 00:40:13,720
+ We have blocked and streamed interface. For the streaming interface, somehow you need to chop these streams into packets and send these packets.
+
+420
+00:40:13,720 --> 00:40:18,720
+ OK, so this is at the higher level.
+
+421
+00:40:18,720 --> 00:40:26,720
+ You have the transport layer, you have a transport header, the transport header is the protocol number, the port numbers.
+
+422
+00:40:26,720 --> 00:40:28,720
+ And you have also,
+
+423
+00:40:28,960 --> 00:40:36,080
+ Like for instance, 80 identifies for the port is pre-allocated
+
+424
+00:40:36,080 --> 00:40:37,520
+ that port for HTTP server.
+
+425
+00:40:37,520 --> 00:40:45,520
+ There are two important transport protocols
+
+426
+00:40:45,520 --> 00:40:46,920
+ in the internet.
+
+427
+00:40:46,920 --> 00:40:55,240
+ Using UDP, user datagram protocol.
+
+428
+00:40:55,240 --> 00:40:57,480
+ And this provides only multiplexing
+
+429
+00:40:57,480 --> 00:40:59,680
+ and multiplexing among processes.
+
+430
+00:40:59,680 --> 00:41:01,640
+ This is the best effort.
+
+431
+00:41:01,640 --> 00:41:04,280
+ Packets can be lost, can get out of order.
+
+432
+00:41:04,280 --> 00:41:07,880
+ There is no flow control, nothing.
+
+433
+00:41:07,880 --> 00:41:10,520
+ So the application is to take care of.
+
+434
+00:41:10,520 --> 00:41:13,800
+ Then it's TCP, which is a transport control protocol.
+
+435
+00:41:13,800 --> 00:41:16,120
+ And this obviously still provides
+
+436
+00:41:16,120 --> 00:41:19,000
+ multiplexing and multiplexing among processes.
+
+437
+00:41:19,000 --> 00:41:21,960
+ But in addition, has a notion of connection.
+
+438
+00:41:21,960 --> 00:41:26,560
+ You set up the connection, you tear down the connection.
+
+439
+00:41:26,560 --> 00:41:29,160
+ If there are packets which are corrupted or corrupted,
+
+440
+00:41:29,160 --> 00:41:30,080
+ you discard them.
+
+441
+00:41:30,080 --> 00:41:31,800
+ There is a checksum, you check.
+
+442
+00:41:31,800 --> 00:41:35,360
+ And if the checksum is violated, you discard the packet.
+
+443
+00:41:35,360 --> 00:41:39,520
+ It re-transmits the lost packet, so provides reliability
+
+444
+00:41:39,520 --> 00:41:40,880
+ to the application.
+
+445
+00:41:40,880 --> 00:41:44,960
+ And it also provides flow control and congestion control.
+
+446
+00:41:44,960 --> 00:41:50,520
+ Remember, flow control is about not overwhelming the receiver.
+
+447
+00:41:50,520 --> 00:41:59,080
+ The congestion control is not overwhelming the network.
+
+448
+00:41:59,080 --> 00:42:02,800
+ The services which are not typically available,
+
+449
+00:42:02,800 --> 00:42:07,120
+ any bandwidth or delay guarantees in internet,
+
+450
+00:42:07,120 --> 00:42:09,360
+ you cannot specify that.
+
+451
+00:42:09,360 --> 00:42:11,720
+ You cannot say, I want 10 megabits per second.
+
+452
+00:42:11,720 --> 00:42:14,000
+ You cannot say, I want these packets.
+
+453
+00:42:14,000 --> 00:42:18,520
+ Need to be delivered in 100 milliseconds.
+
+454
+00:42:18,520 --> 00:42:21,040
+ What I mentioned to you, I mentioned earlier
+
+455
+00:42:21,040 --> 00:42:25,000
+ that in general, the transport protocol, the transport layer
+
+456
+00:42:25,000 --> 00:42:26,200
+ can provide that.
+
+457
+00:42:26,200 --> 00:42:30,720
+ What I'm telling you now is that the transport
+
+458
+00:42:30,720 --> 00:42:35,640
+ protocols in the internet do not provide this kind of delay
+
+459
+00:42:35,640 --> 00:42:39,640
+ or bandwidth guarantees.
+
+460
+00:42:39,640 --> 00:42:45,640
+ Also, if a session, if you try to migrate an application
+
+461
+00:42:45,640 --> 00:42:48,960
+ from one node to another, they're using VM migration
+
+462
+00:42:48,960 --> 00:42:53,960
+ or something like that, the connection is not preserved.
+
+463
+00:42:53,960 --> 00:42:55,400
+ OK, we have another question.
+
+464
+00:42:55,400 --> 00:43:02,720
+ So the question, so are ports used
+
+465
+00:43:02,720 --> 00:43:06,560
+ to differentiate which packet to send to different processes
+
+466
+00:43:06,560 --> 00:43:07,640
+ on the host?
+
+467
+00:43:07,640 --> 00:43:10,840
+ Yes, exactly for that.
+
+468
+00:43:10,840 --> 00:43:13,280
+ Different processes will have different ports numbers
+
+469
+00:43:13,280 --> 00:43:15,720
+ when they open a connection.
+
+470
+00:43:15,720 --> 00:43:23,120
+ Then is the application layer.
+
+471
+00:43:23,120 --> 00:43:30,280
+ So here, any service provided to the end users,
+
+472
+00:43:30,280 --> 00:43:32,520
+ this application is like--
+
+473
+00:43:32,520 --> 00:43:34,640
+ and the interface depends on the application.
+
+474
+00:43:34,640 --> 00:43:37,200
+ Protocol depends on the application.
+
+475
+00:43:37,200 --> 00:43:40,800
+ In the OSI architecture, there are also
+
+476
+00:43:40,800 --> 00:43:47,880
+ the transport or the session and the presentation layer.
+
+477
+00:43:47,880 --> 00:43:51,680
+ They are not existent in the internet protocol.
+
+478
+00:43:51,680 --> 00:43:53,640
+ So be happy.
+
+479
+00:43:53,640 --> 00:43:58,000
+ We only need to learn about five, really four layers
+
+480
+00:43:58,000 --> 00:44:00,680
+ instead of seven.
+
+481
+00:44:00,680 --> 00:44:04,360
+ And their functionality is absorbed by the application
+
+482
+00:44:04,360 --> 00:44:07,480
+ layer in the internet.
+
+483
+00:44:07,480 --> 00:44:09,680
+ OK?
+
+484
+00:44:09,680 --> 00:44:11,600
+ So this is the entire stack.
+
+485
+00:44:11,600 --> 00:44:15,080
+ So you see kind of the waterfall.
+
+486
+00:44:15,080 --> 00:44:20,000
+ A packet at one level becomes a payload at the next level
+
+487
+00:44:20,000 --> 00:44:22,280
+ as you go down the stack.
+
+488
+00:44:22,280 --> 00:44:24,680
+ And when you are going to go up the stack,
+
+489
+00:44:24,680 --> 00:44:29,040
+ you are going to strip headers after header after header
+
+490
+00:44:29,040 --> 00:44:30,200
+ until you get to the right.
+
+491
+00:44:30,200 --> 00:44:35,760
+ The first layers, physical layer, data link layer,
+
+492
+00:44:35,760 --> 00:44:38,040
+ network layer, are implemented by the host
+
+493
+00:44:38,040 --> 00:44:41,240
+ and by the routers.
+
+494
+00:44:41,240 --> 00:44:43,240
+ The switch is not shown here, but the switch
+
+495
+00:44:43,240 --> 00:44:46,960
+ implements the physical layer and the data link layer.
+
+496
+00:44:46,960 --> 00:44:49,320
+ The host implements transport and application layer,
+
+497
+00:44:49,320 --> 00:44:53,040
+ but the router does not implement that.
+
+498
+00:44:53,040 --> 00:44:54,120
+ Right?
+
+499
+00:44:54,120 --> 00:44:58,720
+ And the protocol is between two peers at the same layer.
+
+500
+00:44:58,720 --> 00:45:03,640
+ OK?
+
+501
+00:45:03,640 --> 00:45:06,680
+ Some announcements.
+
+502
+00:45:06,680 --> 00:45:11,560
+ Discussion will be recorded because of the Thanksgiving.
+
+503
+00:45:11,560 --> 00:45:15,120
+ The office hours for Wednesday, Thursday, Friday
+
+504
+00:45:15,120 --> 00:45:19,360
+ are going to be canceled again because of the Thanksgiving.
+
+505
+00:45:19,360 --> 00:45:23,360
+ The midterm three review session is coming next Monday.
+
+506
+00:45:23,360 --> 00:45:25,840
+ The time is to be determined.
+
+507
+00:45:25,840 --> 00:45:27,000
+ So please stay focused.
+
+508
+00:45:27,000 --> 00:45:30,400
+ We are going to announce it on Piazza.
+
+509
+00:45:30,400 --> 00:45:36,640
+ The midterm three is next Wednesday between 7 and 9 PM.
+
+510
+00:45:36,640 --> 00:45:40,440
+ And homework is released and it has been released
+
+511
+00:45:40,440 --> 00:45:44,120
+ and is due on Friday, December 3.
+
+512
+00:45:44,120 --> 00:45:53,920
+ Are layers five and six used explicitly in other systems
+
+513
+00:45:53,920 --> 00:45:56,920
+ or are they obsolete everywhere?
+
+514
+00:45:56,920 --> 00:46:04,480
+ They were used by other network stacks.
+
+515
+00:46:04,480 --> 00:46:08,960
+ In the past, there are many of them, but all of them
+
+516
+00:46:08,960 --> 00:46:09,800
+ are obsolete.
+
+517
+00:46:09,800 --> 00:46:14,000
+ Eventually, the internet protocol took over
+
+518
+00:46:14,000 --> 00:46:18,320
+ and everyone now provides the internet protocol.
+
+519
+00:46:18,320 --> 00:46:21,680
+ So the answer to your question today are obsolete.
+
+520
+00:46:21,680 --> 00:46:29,560
+ Will previous recording letter be uploaded?
+
+521
+00:46:29,560 --> 00:46:34,080
+ Yeah, it should be.
+
+522
+00:46:34,080 --> 00:46:37,320
+ We'll make sure that it's uploaded.
+
+523
+00:46:37,320 --> 00:46:38,160
+ Sorry about that.
+
+524
+00:46:38,160 --> 00:46:43,880
+ OK, now let's switch gears.
+
+525
+00:46:43,880 --> 00:46:48,040
+ And this is a very interesting aspect of the internet.
+
+526
+00:46:48,040 --> 00:46:50,040
+ It's called end-to-end argument.
+
+527
+00:46:50,040 --> 00:46:55,920
+ So if you look about, this is another way
+
+528
+00:46:55,920 --> 00:46:59,520
+ to look at the internet protocol stack.
+
+529
+00:46:59,520 --> 00:47:03,800
+ Its shape is what is called hourglass.
+
+530
+00:47:03,800 --> 00:47:07,600
+ What this means is that the internet protocol is
+
+531
+00:47:07,600 --> 00:47:09,920
+ a waste of the hourglass.
+
+532
+00:47:09,920 --> 00:47:13,760
+ And that's why internet protocol is so important in the main--
+
+533
+00:47:13,760 --> 00:47:18,320
+ sorry, internet IP layer is so important in the internet
+
+534
+00:47:18,320 --> 00:47:19,160
+ network stack.
+
+535
+00:47:19,160 --> 00:47:24,520
+ Because it's kind of unique.
+
+536
+00:47:24,520 --> 00:47:30,600
+ So everyone has to implement the internet protocol interface.
+
+537
+00:47:30,600 --> 00:47:36,200
+ But under the internet protocol layer and above it,
+
+538
+00:47:36,200 --> 00:47:41,240
+ there is a large variety of different protocols
+
+539
+00:47:41,240 --> 00:47:43,640
+ at different layers.
+
+540
+00:47:43,640 --> 00:47:46,120
+ So you can under the internet protocol,
+
+541
+00:47:46,120 --> 00:47:48,400
+ you can have different data link layers.
+
+542
+00:47:48,400 --> 00:47:51,840
+ You can have different physical layers.
+
+543
+00:47:51,840 --> 00:47:58,240
+ Above, you can have different transport protocols, TCP and DDP.
+
+544
+00:47:58,240 --> 00:48:03,680
+ Above, you have different application protocols.
+
+545
+00:48:03,680 --> 00:48:08,880
+ And this is beautiful.
+
+546
+00:48:08,880 --> 00:48:11,000
+ The reason it's beautiful is because it
+
+547
+00:48:11,000 --> 00:48:18,400
+ decouples the evolution of the layers underneath
+
+548
+00:48:18,400 --> 00:48:20,760
+ and of the layer above.
+
+549
+00:48:20,760 --> 00:48:25,680
+ Remember, we want to discuss the level of indirection last time.
+
+550
+00:48:25,680 --> 00:48:27,000
+ This is it.
+
+551
+00:48:27,000 --> 00:48:30,320
+ Remember, you decouple the evolution above
+
+552
+00:48:30,320 --> 00:48:33,320
+ from the evolution of the layers below.
+
+553
+00:48:33,320 --> 00:48:36,280
+ So therefore, if I'm going to add a new data link layer,
+
+554
+00:48:36,280 --> 00:48:42,480
+ as long as I'm providing on top of it the IP interface,
+
+555
+00:48:42,480 --> 00:48:46,480
+ then all the other application, all of the other layers
+
+556
+00:48:46,480 --> 00:48:50,040
+ above IP should work without any change.
+
+557
+00:48:50,040 --> 00:48:54,280
+ The same, if I'm going to invent a new transport protocol
+
+558
+00:48:54,280 --> 00:48:57,920
+ or a new application protocol, I can do that.
+
+559
+00:48:57,920 --> 00:49:04,240
+ And as long as I'm going to write against the IP interface,
+
+560
+00:49:04,240 --> 00:49:07,080
+ none of the layers below the IP should
+
+561
+00:49:07,080 --> 00:49:09,440
+ care that now there is a new application
+
+562
+00:49:09,440 --> 00:49:13,480
+ protocol or a new transport protocol.
+
+563
+00:49:13,480 --> 00:49:17,760
+ So this is why the IP layer is so fundamental.
+
+564
+00:49:17,760 --> 00:49:23,160
+ OK, so this is what we discussed.
+
+565
+00:49:23,160 --> 00:49:29,120
+ So a single internet layer allows arbitrary networks
+
+566
+00:49:29,120 --> 00:49:32,160
+ to interoperate, allows application
+
+567
+00:49:32,160 --> 00:49:35,800
+ to functions on all networks.
+
+568
+00:49:35,800 --> 00:49:40,440
+ And therefore, because of layers below and the layers above
+
+569
+00:49:40,440 --> 00:49:44,400
+ can evolve separately, this is how we also
+
+570
+00:49:44,400 --> 00:49:48,080
+ evolve the innovation and enable the innovation.
+
+571
+00:49:48,080 --> 00:49:56,000
+ However, changing IP itself is very hard
+
+572
+00:49:56,000 --> 00:49:59,000
+ because it's only one layer.
+
+573
+00:49:59,000 --> 00:50:03,560
+ And at a proof point, the transition from IPv4 to IPv6
+
+574
+00:50:03,560 --> 00:50:06,640
+ was very painful, probably because like 20 years.
+
+575
+00:50:06,640 --> 00:50:17,440
+ Now, the layers, it's a very nice construct, very logical,
+
+576
+00:50:17,440 --> 00:50:19,000
+ very clear.
+
+577
+00:50:19,000 --> 00:50:23,520
+ I provide a lot of isolation because one layer can only
+
+578
+00:50:23,520 --> 00:50:25,240
+ use a service of the layer below it.
+
+579
+00:50:25,240 --> 00:50:31,200
+ At the same time, there are some drawbacks.
+
+580
+00:50:31,200 --> 00:50:34,200
+ Um.
+
+581
+00:50:34,200 --> 00:50:58,640
+ We'll see you again soon.
+
+582
+00:50:58,640 --> 00:50:39,010
+ Because the layer may need some same functionality
+
+583
+00:50:39,010 --> 00:50:41,810
+ like false tolerance or no reliability.
+
+584
+00:50:41,810 --> 00:50:45,610
+ Some layers are going to replicate this functionality.
+
+585
+00:50:45,610 --> 00:50:47,650
+ The layering can also hurt the performance
+
+586
+00:50:47,650 --> 00:50:51,650
+ because one layer can hide information from the above layer.
+
+587
+00:50:51,650 --> 00:50:54,650
+ Like I mentioned to you, it's one classic example
+
+588
+00:50:54,650 --> 00:50:59,350
+ is that the data link layer hides why a packet was lost.
+
+589
+00:50:59,350 --> 00:51:04,210
+ And because the IP layer hides why the packet was lost.
+
+590
+00:51:04,210 --> 00:51:06,710
+ So the transport layer, which provides for instance,
+
+591
+00:51:06,710 --> 00:51:08,890
+ TCP, which is provided reliability
+
+592
+00:51:08,890 --> 00:51:12,530
+ and it needs to do retransmission of the packets.
+
+593
+00:51:12,530 --> 00:51:15,790
+ It cannot make the right, you know, the best decision
+
+594
+00:51:15,790 --> 00:51:19,170
+ because it doesn't know whether the packet for instance,
+
+595
+00:51:19,170 --> 00:51:22,930
+ was lost because it was dropped in the network
+
+596
+00:51:22,930 --> 00:51:25,770
+ because of congestion.
+
+597
+00:51:25,770 --> 00:51:30,770
+ So therefore I need to slow down when I send a new packet
+
+598
+00:51:30,770 --> 00:51:33,510
+ or I retransmit the lost packet.
+
+599
+00:51:33,510 --> 00:51:38,510
+ Or the packet may have been lost because of interference,
+
+600
+00:51:38,510 --> 00:51:42,010
+ case in which I don't need to slow down.
+
+601
+00:51:42,010 --> 00:51:44,130
+ But without having this information,
+
+602
+00:51:44,130 --> 00:51:45,230
+ I need to make a decision,
+
+603
+00:51:45,230 --> 00:51:47,030
+ the decision today to slow down,
+
+604
+00:51:47,030 --> 00:51:49,830
+ which is not optimal for instance, for wireless networks.
+
+605
+00:51:49,830 --> 00:51:58,610
+ Some of the layers are not always cleanly separate.
+
+606
+00:52:00,850 --> 00:52:05,850
+ And the other thing is that you had us, you remember,
+
+607
+00:52:05,850 --> 00:52:09,590
+ like for each layer, I added some header.
+
+608
+00:52:09,590 --> 00:52:14,590
+ So you have a lot of headers and that overhead
+
+609
+00:52:14,590 --> 00:52:17,170
+ because it's not really data you want to send.
+
+610
+00:52:17,170 --> 00:52:19,270
+ So in some cases, the header is much larger
+
+611
+00:52:19,270 --> 00:52:21,270
+ than the actual data you want to send.
+
+612
+00:52:21,270 --> 00:52:28,470
+ So now again, you have all these layers
+
+613
+00:52:28,470 --> 00:52:30,930
+ and you want to implement some functionality.
+
+614
+00:52:30,930 --> 00:52:35,190
+ The one question is at what layer
+
+615
+00:52:35,190 --> 00:52:37,130
+ you are implementing that functionality.
+
+616
+00:52:37,130 --> 00:52:43,190
+ And the end-to-end arguments is a principle
+
+617
+00:52:43,190 --> 00:52:48,130
+ which tries to answer that question.
+
+618
+00:52:48,130 --> 00:52:54,550
+ Some people say it's a sacred text of the internet.
+
+619
+00:52:55,850 --> 00:52:59,650
+ And like any sacred text, there are endless disputes
+
+620
+00:52:59,650 --> 00:53:01,150
+ about what exactly it is.
+
+621
+00:53:01,150 --> 00:53:08,530
+ And everyone cites it as supporting their position.
+
+622
+00:53:08,530 --> 00:53:11,450
+ It's a little bit like a Bible, like the Bible.
+
+623
+00:53:11,450 --> 00:53:15,690
+ But still it's very important.
+
+624
+00:53:15,690 --> 00:53:20,610
+ But let's consider, for instance,
+
+625
+00:53:20,610 --> 00:53:24,070
+ some functionality like reliability or security.
+
+626
+00:53:24,070 --> 00:53:26,350
+ It's obviously, where do you implement it?
+
+627
+00:53:26,350 --> 00:53:29,350
+ Data link layer, IP layer, network layer,
+
+628
+00:53:29,350 --> 00:53:34,310
+ transfer layer, where and why?
+
+629
+00:53:34,310 --> 00:53:46,230
+ So, and our application can implement that.
+
+630
+00:53:52,670 --> 00:53:57,270
+ And the main point here is that,
+
+631
+00:53:57,270 --> 00:53:59,130
+ like we'll see in the next example,
+
+632
+00:53:59,130 --> 00:54:05,330
+ is that because a network, even if they want,
+
+633
+00:54:05,330 --> 00:54:08,610
+ if they want at a lower level of the network,
+
+634
+00:54:08,610 --> 00:54:13,610
+ cannot implement an end-to-end function correctly,
+
+635
+00:54:13,610 --> 00:54:17,410
+ the application may anyway have to implement it.
+
+636
+00:54:17,410 --> 00:54:21,290
+ So let's take a follow-up example.
+
+637
+00:54:21,290 --> 00:54:22,130
+ Right?
+
+638
+00:54:22,130 --> 00:54:27,070
+ So, right?
+
+639
+00:54:27,070 --> 00:54:28,950
+ So here is an example.
+
+640
+00:54:28,950 --> 00:54:33,950
+ So say you want to transfer reliably a file
+
+641
+00:54:33,950 --> 00:54:37,150
+ from one host to another.
+
+642
+00:54:37,150 --> 00:54:43,550
+ So how this will look like,
+
+643
+00:54:43,550 --> 00:54:46,110
+ if you want to build an application.
+
+644
+00:54:46,110 --> 00:54:47,750
+ We read the data from the file,
+
+645
+00:54:49,770 --> 00:54:52,810
+ then you send it over the network from host I to host B.
+
+646
+00:54:52,810 --> 00:54:57,030
+ The host Bs and the application from host B
+
+647
+00:54:57,030 --> 00:55:00,310
+ is going to write it on the disk of host B.
+
+648
+00:55:00,310 --> 00:55:03,030
+ Right?
+
+649
+00:55:03,030 --> 00:55:04,430
+ This is how you copy a file.
+
+650
+00:55:04,430 --> 00:55:09,030
+ Now, if I want to have reliable transfer,
+
+651
+00:55:09,030 --> 00:55:10,270
+ what you are going to do?
+
+652
+00:55:10,270 --> 00:55:14,870
+ There are two solutions.
+
+653
+00:55:15,710 --> 00:55:20,710
+ I make each of these steps reliable.
+
+654
+00:55:20,710 --> 00:55:22,530
+ And now I concatenate them.
+
+655
+00:55:22,530 --> 00:55:26,950
+ I have here five reliable steps,
+
+656
+00:55:26,950 --> 00:55:28,690
+ end-to-end step must be reliable.
+
+657
+00:55:28,690 --> 00:55:31,150
+ The second one,
+
+658
+00:55:31,150 --> 00:55:36,070
+ I don't do any of those things,
+
+659
+00:55:36,070 --> 00:55:41,210
+ but after I get all what I am told is a file,
+
+660
+00:55:41,210 --> 00:55:42,970
+ I'm going to come with a checksum,
+
+661
+00:55:43,850 --> 00:55:46,750
+ and I'm going to send, you know,
+
+662
+00:55:46,750 --> 00:55:51,750
+ to match against the checksum sent by the host,
+
+663
+00:55:51,750 --> 00:55:53,190
+ by the sender.
+
+664
+00:55:53,190 --> 00:55:54,510
+ So basically host A,
+
+665
+00:55:54,510 --> 00:55:58,810
+ when it sends a file, it computes also a checksum.
+
+666
+00:55:58,810 --> 00:56:00,330
+ It sends out the file to host B.
+
+667
+00:56:00,330 --> 00:56:03,750
+ The host B takes the file, saves the file,
+
+668
+00:56:03,750 --> 00:56:06,090
+ and also after it saves the file,
+
+669
+00:56:06,090 --> 00:56:07,710
+ it's the entire file,
+
+670
+00:56:07,710 --> 00:56:09,170
+ it computes a checksum,
+
+671
+00:56:09,170 --> 00:56:11,450
+ and now computes a checksum of the saved file
+
+672
+00:56:11,450 --> 00:56:13,270
+ with the checksum sent by host A.
+
+673
+00:56:13,270 --> 00:56:15,990
+ If they are the same, success.
+
+674
+00:56:15,990 --> 00:56:19,690
+ If they are not the same, send the file again.
+
+675
+00:56:19,690 --> 00:56:26,670
+ Which of the solution you are going to pick?
+
+676
+00:56:26,670 --> 00:56:28,030
+ If it weren't for you.
+
+677
+00:56:28,030 --> 00:56:30,190
+ And why?
+
+678
+00:56:30,190 --> 00:56:31,030
+ Okay.
+
+679
+00:56:31,030 --> 00:56:46,030
+ Okay.
+
+680
+00:56:46,030 --> 00:56:49,870
+ I'll just say solution one,
+
+681
+00:56:49,870 --> 00:56:51,970
+ because solution three is bad for large files.
+
+682
+00:56:51,970 --> 00:56:55,090
+ True, solution three is bad for large files.
+
+683
+00:56:55,090 --> 00:56:57,550
+ Simon, I like solution two.
+
+684
+00:56:57,550 --> 00:57:02,550
+ Anyone else?
+
+685
+00:57:02,550 --> 00:57:05,950
+ Simon, why do you like solution two?
+
+686
+00:57:05,950 --> 00:57:18,990
+ Because I don't know whether between each step
+
+687
+00:57:18,990 --> 00:57:20,070
+ this might break.
+
+688
+00:57:20,070 --> 00:57:21,030
+ That's correct.
+
+689
+00:57:21,030 --> 00:57:22,750
+ Great answer.
+
+690
+00:57:22,750 --> 00:57:25,750
+ So you see the point is that here,
+
+691
+00:57:25,750 --> 00:57:29,310
+ if I concatenate five reliable steps,
+
+692
+00:57:29,310 --> 00:57:32,530
+ it doesn't mean that end-to-end everything is reliable.
+
+693
+00:57:32,530 --> 00:57:36,910
+ Right? This is, the green is the solution two.
+
+694
+00:57:36,910 --> 00:57:37,750
+ Okay?
+
+695
+00:57:37,750 --> 00:57:40,510
+ It's checking the checksum.
+
+696
+00:57:40,510 --> 00:57:44,670
+ So the solution two is incomplete.
+
+697
+00:57:44,670 --> 00:57:47,110
+ Because what happens, for instance,
+
+698
+00:57:47,110 --> 00:57:49,270
+ when I copy the data from the disk
+
+699
+00:57:49,270 --> 00:57:51,110
+ to the application memory,
+
+700
+00:57:51,110 --> 00:57:52,790
+ and the memory is corrupted.
+
+701
+00:57:52,790 --> 00:57:55,310
+ Right?
+
+702
+00:57:55,310 --> 00:58:00,310
+ So, so fundamentally,
+
+703
+00:58:00,310 --> 00:58:05,830
+ because I cannot guarantee that the solution one is,
+
+704
+00:58:05,830 --> 00:58:09,510
+ is correct.
+
+705
+00:58:09,510 --> 00:58:15,790
+ I need anyway to do a checksum and verify it.
+
+706
+00:58:15,790 --> 00:58:20,390
+ So the main point here is the application anyway
+
+707
+00:58:20,390 --> 00:58:24,850
+ has to implement the functionality to verify the checksum.
+
+708
+00:58:24,850 --> 00:58:29,850
+ Even if you solution one.
+
+709
+00:58:29,850 --> 00:58:37,190
+ So therefore the full functionality of reliability
+
+710
+00:58:37,190 --> 00:58:39,610
+ can be implemented as the application level.
+
+711
+00:58:39,610 --> 00:58:43,630
+ The network doesn't need to do anything.
+
+712
+00:58:43,630 --> 00:58:52,570
+ Now, for correctness reasons,
+
+713
+00:58:52,570 --> 00:58:55,250
+ for correctness reasons, right?
+
+714
+00:58:55,250 --> 00:58:56,070
+ It's a game.
+
+715
+00:58:56,070 --> 00:59:00,030
+ It's enough to implement the application.
+
+716
+00:59:00,030 --> 00:59:01,610
+ The network doesn't do anything.
+
+717
+00:59:01,610 --> 00:59:06,850
+ Still, we are just talking that the network
+
+718
+00:59:06,850 --> 00:59:09,170
+ also implement reliability, not the network.
+
+719
+00:59:09,170 --> 00:59:11,730
+ The transfer may come into reliability.
+
+720
+00:59:11,730 --> 00:59:19,250
+ So why would still the network implement reliability,
+
+721
+00:59:20,650 --> 00:59:22,650
+ a reliable protocol?
+
+722
+00:59:22,650 --> 00:59:27,290
+ It's not necessary for correctness.
+
+723
+00:59:27,290 --> 00:59:28,490
+ We just compute that.
+
+724
+00:59:28,490 --> 00:59:34,530
+ But still, you may want the network to implement reliability.
+
+725
+00:59:34,530 --> 00:59:35,890
+ Why is that?
+
+726
+00:59:35,890 --> 00:59:44,150
+ Yes, to avoid very expensive correction.
+
+727
+00:59:44,150 --> 00:59:47,150
+ Yes, Arisam.
+
+728
+00:59:47,150 --> 00:59:51,690
+ See, if you think about, right?
+
+729
+00:59:51,690 --> 00:59:54,410
+ It's in the second solution,
+
+730
+00:59:54,410 --> 00:59:58,290
+ if you have 10 gigabytes size file,
+
+731
+00:59:58,290 --> 01:00:04,290
+ if one byte, one bit, not one byte, one bit is corrupted,
+
+732
+01:00:04,290 --> 01:00:10,170
+ you need to resend the entire 10 gigabytes part.
+
+733
+01:00:10,170 --> 01:00:16,530
+ However, if you have, the network is reliable.
+
+734
+01:00:16,530 --> 01:00:18,810
+ So ends up.
+
+735
+01:00:18,810 --> 01:00:40,210
+ That's perfect.
+
+736
+01:00:43,450 --> 01:00:45,610
+ (silence)
+
+737
+01:00:45,610 --> 01:00:51,150
+ Okay.
+
+738
+01:00:51,150 --> 01:00:53,590
+ So the question is that,
+
+739
+01:00:53,590 --> 01:00:57,550
+ should I implement this function in the lower layers or not?
+
+740
+01:00:57,550 --> 01:01:00,890
+ Okay.
+
+741
+01:01:00,890 --> 01:01:06,110
+ And the question, the answer here,
+
+742
+01:01:06,110 --> 01:01:08,130
+ it depends.
+
+743
+01:01:08,130 --> 01:01:11,510
+ Right?
+
+744
+01:01:11,510 --> 01:01:16,510
+ Because in, and the answer, you know,
+
+745
+01:01:16,510 --> 01:01:20,870
+ and the reason this is a question is that
+
+746
+01:01:20,870 --> 01:01:23,830
+ if you implement the function, it does a lower layer,
+
+747
+01:01:23,830 --> 01:01:26,470
+ this functionality, this,
+
+748
+01:01:26,470 --> 01:01:30,550
+ it doesn't reduce the application complexity
+
+749
+01:01:30,550 --> 01:01:34,590
+ because you anyway, implement there
+
+750
+01:01:34,590 --> 01:01:37,270
+ and increase another complexity.
+
+751
+01:01:38,150 --> 01:01:38,990
+ But,
+
+752
+01:01:38,990 --> 01:01:44,710
+ worse yet, it can increase,
+
+753
+01:01:44,710 --> 01:01:48,830
+ it can add overhead to application
+
+754
+01:01:48,830 --> 01:01:50,830
+ which do not read that functionality.
+
+755
+01:01:50,830 --> 01:01:57,770
+ Like for instance, if you have voice over IP,
+
+756
+01:01:57,770 --> 01:01:59,750
+ telephony over the internet.
+
+757
+01:01:59,750 --> 01:02:05,470
+ In that particular case, reliability is not helpful
+
+758
+01:02:05,470 --> 01:02:07,470
+ because you need to satisfy, you know,
+
+759
+01:02:07,470 --> 01:02:10,310
+ you need to, the latency is more important
+
+760
+01:02:10,310 --> 01:02:15,190
+ than getting every packet correct.
+
+761
+01:02:15,190 --> 01:02:18,570
+ Right?
+
+762
+01:02:18,570 --> 01:02:21,590
+ If the sound is a little bit distorted,
+
+763
+01:02:21,590 --> 01:02:23,910
+ it's probably it's okay.
+
+764
+01:02:23,910 --> 01:02:27,030
+ But if we need to wait for a second
+
+765
+01:02:27,030 --> 01:02:29,430
+ to return the packet, that's probably not okay.
+
+766
+01:02:29,430 --> 01:02:34,930
+ Yeah. Okay.
+
+767
+01:02:34,930 --> 01:02:37,010
+ (laughs)
+
+768
+01:02:37,010 --> 01:02:40,050
+ Yeah, it was glitchy.
+
+769
+01:02:40,050 --> 01:02:42,250
+ So I don't know what will happen also with recording
+
+770
+01:02:42,250 --> 01:02:43,790
+ because on my side,
+
+771
+01:02:43,790 --> 01:02:46,090
+ it said a little bit recording is in progress.
+
+772
+01:02:46,090 --> 01:02:48,350
+ So I hope that it's just a glitch.
+
+773
+01:02:48,350 --> 01:02:52,690
+ So it didn't, that didn't mean anything for the recording.
+
+774
+01:02:52,690 --> 01:02:55,390
+ Yeah, that was a great timing
+
+775
+01:02:55,390 --> 01:02:58,730
+ while we are discussing about end-to-end reliability.
+
+776
+01:03:02,410 --> 01:03:04,830
+ So, so anyway.
+
+777
+01:03:04,830 --> 01:03:14,050
+ So basically you implement,
+
+778
+01:03:14,050 --> 01:03:17,850
+ you can implement a net, a functionality
+
+779
+01:03:17,850 --> 01:03:19,410
+ at the lower layer of stack,
+
+780
+01:03:19,410 --> 01:03:23,610
+ if we can improve performance.
+
+781
+01:03:23,610 --> 01:03:26,430
+ Okay?
+
+782
+01:03:26,430 --> 01:03:30,090
+ Now there are different interpretation
+
+783
+01:03:30,090 --> 01:03:31,390
+ of the end-to-end argument.
+
+784
+01:03:31,390 --> 01:03:35,770
+ And one extreme implementation, it says,
+
+785
+01:03:35,770 --> 01:03:41,310
+ even if you can improve efficiency, don't bother.
+
+786
+01:03:41,310 --> 01:03:47,270
+ If you cannot simplify the application or the host software,
+
+787
+01:03:47,270 --> 01:03:52,910
+ don't bother to implement at the network level.
+
+788
+01:03:52,910 --> 01:03:57,490
+ This is very conservative.
+
+789
+01:03:57,490 --> 01:04:00,330
+ And you have the moderate interpretation.
+
+790
+01:04:01,210 --> 01:04:03,690
+ So the moderate interpretation, it's kind of,
+
+791
+01:04:03,690 --> 01:04:08,350
+ it's basically says,
+
+792
+01:04:08,350 --> 01:04:11,210
+ well, you can implement the functionality as a network,
+
+793
+01:04:11,210 --> 01:04:12,830
+ but be careful about that.
+
+794
+01:04:12,830 --> 01:04:14,650
+ Think twice.
+
+795
+01:04:14,650 --> 01:04:18,830
+ So in particular,
+
+796
+01:04:18,830 --> 01:04:26,850
+ you can implement the functionality at a lower layer
+
+797
+01:04:30,590 --> 01:04:35,590
+ if and only if doesn't impose a burden on applications
+
+798
+01:04:35,590 --> 01:04:40,010
+ that do not require that functionality,
+
+799
+01:04:40,010 --> 01:04:46,530
+ and it provides a significant improving performance.
+
+800
+01:04:46,530 --> 01:04:53,770
+ So the benefits are out-weighting
+
+801
+01:04:53,770 --> 01:04:57,050
+ the complexity of the implementation.
+
+802
+01:04:57,050 --> 01:05:00,410
+ And by the way, you shouldn't be a burden
+
+803
+01:05:00,410 --> 01:05:04,390
+ for the applications who do not need that functionality.
+
+804
+01:05:04,390 --> 01:05:08,490
+ So if the application doesn't need fault reliability,
+
+805
+01:05:08,490 --> 01:05:10,190
+ it shouldn't suffer.
+
+806
+01:05:10,190 --> 01:05:11,470
+ For instance, it shouldn't experience
+
+807
+01:05:11,470 --> 01:05:13,950
+ heavy latency and latency.
+
+808
+01:05:13,950 --> 01:05:17,330
+ And this is the interpretation we are using.
+
+809
+01:05:17,330 --> 01:05:22,150
+ Any questions?
+
+810
+01:05:22,150 --> 01:05:24,310
+ (silence)
+
+811
+01:05:24,310 --> 01:05:36,050
+ So again, you have a functionality like reliability,
+
+812
+01:05:36,050 --> 01:05:40,570
+ which you must, to be absolute, to be correct,
+
+813
+01:05:40,570 --> 01:05:42,270
+ to ensure correctness,
+
+814
+01:05:42,270 --> 01:05:44,190
+ you have to implement at the application level
+
+815
+01:05:44,190 --> 01:05:45,290
+ at the end hosts.
+
+816
+01:05:45,290 --> 01:05:50,630
+ The question, should you also implement reliability
+
+817
+01:05:50,630 --> 01:05:51,810
+ at the lower layers?
+
+818
+01:05:52,810 --> 01:05:55,770
+ Is it at the lower layers?
+
+819
+01:05:55,770 --> 01:05:58,490
+ The answer here, according to the moderate interpretation
+
+820
+01:05:58,490 --> 01:06:02,850
+ of the end-to-end argument, yes.
+
+821
+01:06:02,850 --> 01:06:06,310
+ But the bar for that is pretty high.
+
+822
+01:06:06,310 --> 01:06:09,610
+ You can implement the reliability in networking
+
+823
+01:06:09,610 --> 01:06:14,610
+ only if you get significant improvement in the performance,
+
+824
+01:06:14,610 --> 01:06:17,590
+ and you are not going to hurt the application
+
+825
+01:06:17,590 --> 01:06:19,490
+ which will not need that functionality.
+
+826
+01:06:19,490 --> 01:06:21,650
+ (silence)
+
+827
+01:06:21,650 --> 01:06:25,370
+ Okay.
+
+828
+01:06:25,370 --> 01:06:26,210
+ Any questions?
+
+829
+01:06:26,210 --> 01:06:33,870
+ Okay, so now we are going to start the last,
+
+830
+01:06:33,870 --> 01:06:36,970
+ one of the last topics of the course.
+
+831
+01:06:36,970 --> 01:06:38,230
+ This is flow control.
+
+832
+01:06:38,230 --> 01:06:45,810
+ So the flow control, remember,
+
+833
+01:06:45,810 --> 01:06:47,850
+ ensures that the fast sender
+
+834
+01:06:47,850 --> 01:06:49,870
+ does not overwhelm a slow receiver.
+
+835
+01:06:49,870 --> 01:06:54,370
+ And we already seen some mechanism,
+
+836
+01:06:54,370 --> 01:06:57,330
+ like producer consumers with bounded buffers.
+
+837
+01:06:57,330 --> 01:07:01,590
+ So you remember in this case,
+
+838
+01:07:01,590 --> 01:07:06,510
+ you cannot overpower the consumer, overwhelm the consumer,
+
+839
+01:07:06,510 --> 01:07:09,130
+ because if the buffer is full,
+
+840
+01:07:09,130 --> 01:07:14,130
+ the producer can no longer put packets in the buffer.
+
+841
+01:07:17,550 --> 01:07:18,390
+ Right?
+
+842
+01:07:18,390 --> 01:07:25,470
+ So the buffer is naturally pushing back on the producer.
+
+843
+01:07:25,470 --> 01:07:29,490
+ When it's full, accepts no new items.
+
+844
+01:07:29,490 --> 01:07:33,790
+ So therefore, if the consumer is slower,
+
+845
+01:07:33,790 --> 01:07:37,850
+ the producer is going to adapt to the consumer speed
+
+846
+01:07:37,850 --> 01:07:40,210
+ because of the bounded buffer.
+
+847
+01:07:40,210 --> 01:07:45,730
+ So that's the idea.
+
+848
+01:07:45,730 --> 01:07:47,890
+ (silence)
+
+849
+01:07:47,890 --> 01:07:52,610
+ Of course, in the case of the TCP,
+
+850
+01:07:52,610 --> 01:07:55,350
+ and this is a talk about TCP flow control,
+
+851
+01:07:55,350 --> 01:07:56,650
+ things are more complicated
+
+852
+01:07:56,650 --> 01:07:58,850
+ because we are not on the same machine.
+
+853
+01:07:58,850 --> 01:08:00,510
+ We are on different machines
+
+854
+01:08:00,510 --> 01:08:02,750
+ and with an unreliable network in between.
+
+855
+01:08:02,750 --> 01:08:11,030
+ TCP is using what is called a sliding window protocol
+
+856
+01:08:11,030 --> 01:08:12,870
+ as a byte and not packet level.
+
+857
+01:08:14,930 --> 01:08:17,170
+ And there are two types,
+
+858
+01:08:17,170 --> 01:08:22,810
+ go back end is TCP Tahoe, Reno, New Reno
+
+859
+01:08:22,810 --> 01:08:24,650
+ and selective repeat TCP SAC.
+
+860
+01:08:24,650 --> 01:08:31,650
+ This Tahoe, Reno, New Reno and SAC
+
+861
+01:08:31,650 --> 01:08:36,390
+ are different types of PCPs.
+
+862
+01:08:36,390 --> 01:08:38,570
+ We are going to talk about more about them
+
+863
+01:08:38,570 --> 01:08:40,990
+ a little next lecture.
+
+864
+01:08:43,310 --> 01:08:46,030
+ Go back end meaning here is the difference.
+
+865
+01:08:46,030 --> 01:08:50,730
+ And let me explain you the packet level
+
+866
+01:08:50,730 --> 01:08:51,730
+ because it's easier.
+
+867
+01:08:51,730 --> 01:08:55,730
+ I sent 10 packets
+
+868
+01:08:55,730 --> 01:09:00,030
+ and the fifth packet was lost.
+
+869
+01:09:00,030 --> 01:09:03,550
+ So the receiver gets the first four packets
+
+870
+01:09:03,550 --> 01:09:05,310
+ and then the last five packets.
+
+871
+01:09:05,310 --> 01:09:08,110
+ So one, two, three, four and six, seven, eight, nine, ten.
+
+872
+01:09:08,110 --> 01:09:11,450
+ With go back end,
+
+873
+01:09:11,450 --> 01:09:16,110
+ you are going to go back and send from packet five.
+
+874
+01:09:16,110 --> 01:09:20,010
+ So I'm going to send five and six, seven, eight, nine, ten.
+
+875
+01:09:20,010 --> 01:09:23,230
+ Despite the fact that six, seven, nine, eight, ten
+
+876
+01:09:23,230 --> 01:09:27,290
+ were already received by the receiver.
+
+877
+01:09:27,290 --> 01:09:31,530
+ So you miss something,
+
+878
+01:09:31,530 --> 01:09:35,850
+ you restart from that missing packet all the way.
+
+879
+01:09:35,850 --> 01:09:39,310
+ Selective repeat like the name implies,
+
+880
+01:09:39,310 --> 01:09:41,430
+ if you lose a packet in our previous example,
+
+881
+01:09:41,430 --> 01:09:44,550
+ you lose a packet five, you send only packet five.
+
+882
+01:09:44,550 --> 01:09:45,830
+ We send only packet five.
+
+883
+01:09:45,830 --> 01:09:51,670
+ Why doesn't everyone implement selective repeat
+
+884
+01:09:51,670 --> 01:09:55,990
+ which seems much easier, much more efficient
+
+885
+01:09:55,990 --> 01:09:57,610
+ is because it's more complex.
+
+886
+01:09:57,610 --> 01:10:01,870
+ Go back end is much simpler to implement,
+
+887
+01:10:01,870 --> 01:10:03,070
+ although less efficient.
+
+888
+01:10:03,070 --> 01:10:07,230
+ Now with the DCP flow control,
+
+889
+01:10:07,230 --> 01:10:09,790
+ the receiver tells the sender how many more bytes
+
+890
+01:10:09,790 --> 01:10:12,150
+ it can receive without overflowing this buffer.
+
+891
+01:10:12,150 --> 01:10:17,590
+ So I'm going to tell you, I can receive one kilobyte.
+
+892
+01:10:17,590 --> 01:10:22,390
+ And in some way, this tells you
+
+893
+01:10:22,390 --> 01:10:26,190
+ that you can send me one kilobyte of data
+
+894
+01:10:26,190 --> 01:10:30,470
+ before you hear from me whether I receive anything.
+
+895
+01:10:30,470 --> 01:10:35,590
+ Because you know, based on what I told you
+
+896
+01:10:35,590 --> 01:10:37,070
+ that I can get one kilobyte,
+
+897
+01:10:37,070 --> 01:10:38,630
+ but you cannot send me more.
+
+898
+01:10:39,630 --> 01:10:42,830
+ Before you hear from me that I can send more.
+
+899
+01:10:42,830 --> 01:10:45,230
+ This is advertising.
+
+900
+01:10:45,230 --> 01:10:50,710
+ Now, like I mentioned, for the DCP,
+
+901
+01:10:50,710 --> 01:10:54,650
+ The protocol is not at the packet level, it's at byte level.
+
+902
+01:10:54,650 --> 01:10:59,050
+ The acknowledgement as a recipient, I'm telling you,
+
+903
+01:10:59,050 --> 01:11:03,930
+ an acknowledgement contain the sequence number of a byte
+
+904
+01:11:03,930 --> 01:11:07,010
+ of the next byte the receiver expects.
+
+905
+01:11:07,010 --> 01:11:09,810
+ Okay.
+
+906
+01:11:09,810 --> 01:11:11,350
+ So this means that I'm telling you
+
+907
+01:11:11,350 --> 01:11:13,610
+ the acknowledgement contains the number,
+
+908
+01:11:13,610 --> 01:11:16,050
+ the signal number 100.
+
+909
+01:11:16,050 --> 01:11:17,250
+ This means that I received,
+
+910
+01:11:17,250 --> 01:11:18,770
+ I'm telling you implicitly
+
+911
+01:11:18,770 --> 01:11:23,410
+ that I received all the bytes up to 99.
+
+912
+01:11:23,410 --> 01:11:28,170
+ There is no gap, all of them up to 99.
+
+913
+01:11:28,170 --> 01:11:35,910
+ And the sequence number is start to count,
+
+914
+01:11:35,910 --> 01:11:39,890
+ you know, it's like, it's from the first byte,
+
+915
+01:11:39,890 --> 01:11:41,450
+ or the first byte which was sent up
+
+916
+01:11:41,450 --> 01:11:42,970
+ as the connection of the byte.
+
+917
+01:11:42,970 --> 01:11:45,490
+ Right?
+
+918
+01:11:45,490 --> 01:11:46,330
+ Okay.
+
+919
+01:11:46,330 --> 01:11:52,690
+ So this is a very simple diagram
+
+920
+01:11:52,690 --> 01:11:55,530
+ showing the sending process, the receiving process,
+
+921
+01:11:55,530 --> 01:11:57,350
+ and the buffer of the receiver.
+
+922
+01:11:57,350 --> 01:12:03,890
+ The TCP/IP is implemented in the kernel.
+
+923
+01:12:03,890 --> 01:12:07,290
+ Remember, where you discussed is about BSD,
+
+924
+01:12:07,290 --> 01:12:11,170
+ Unix BSD.
+
+925
+01:12:11,170 --> 01:12:14,250
+ We said that the TCP/IP
+
+926
+01:12:15,250 --> 01:12:20,250
+ is part of the first implementing in the BSD,
+
+927
+01:12:20,250 --> 01:12:26,270
+ I think 4.3 version, and is part of your legacy.
+
+928
+01:12:26,270 --> 01:12:30,250
+ It's one of the biggest achievements
+
+929
+01:12:30,250 --> 01:12:31,670
+ in the open source software,
+
+930
+01:12:31,670 --> 01:12:35,010
+ because that's internet.
+
+931
+01:12:35,010 --> 01:12:42,850
+ Why do you do that also?
+
+932
+01:12:42,850 --> 01:12:45,890
+ Is that, is because you cannot do context switching.
+
+933
+01:12:45,890 --> 01:12:49,290
+ You cannot do it application level, again, performance.
+
+934
+01:12:49,290 --> 01:12:51,710
+ Yeah, at one garbage per second,
+
+935
+01:12:51,710 --> 01:12:56,710
+ typically the packets have the 1500 bytes, the IP packets.
+
+936
+01:12:56,710 --> 01:12:59,090
+ This takes the same, like one garbage per second
+
+937
+01:12:59,090 --> 01:13:01,810
+ is 12 microseconds.
+
+938
+01:13:01,810 --> 01:13:04,050
+ And if it's 100 byte packets,
+
+939
+01:13:04,050 --> 01:13:06,490
+ it's less than one microsecond.
+
+940
+01:13:06,490 --> 01:13:09,250
+ And by the way, one garbage per second is slow.
+
+941
+01:13:09,250 --> 01:13:11,290
+ Today we are talking about 10 garbage per second,
+
+942
+01:13:11,290 --> 01:13:15,970
+ 40 garbage per second, and 100 garbage per second connections.
+
+943
+01:13:15,970 --> 01:13:17,490
+ There is no way you can do context switching,
+
+944
+01:13:17,490 --> 01:13:20,110
+ since that's fast to send every packet.
+
+945
+01:13:20,110 --> 01:13:22,010
+ The application will send every packet.
+
+946
+01:13:22,010 --> 01:13:29,650
+ And actually there is not only one buffer,
+
+947
+01:13:29,650 --> 01:13:31,170
+ there are multiple buffers.
+
+948
+01:13:31,170 --> 01:13:33,890
+ There is a buffer which is between the process,
+
+949
+01:13:33,890 --> 01:13:36,590
+ sending process, and the kernel.
+
+950
+01:13:36,590 --> 01:13:40,290
+ Again, you cannot have context switching on every packet.
+
+951
+01:13:41,290 --> 01:13:46,130
+ Then it's between the receiving operating system,
+
+952
+01:13:46,130 --> 01:13:48,450
+ the operating system on the receiving host,
+
+953
+01:13:48,450 --> 01:13:50,250
+ and the receiving process.
+
+954
+01:13:50,250 --> 01:13:53,730
+ And then you have a buffer actually between,
+
+955
+01:13:53,730 --> 01:14:00,610
+ between the two hosts as a TCP/IP level,
+
+956
+01:14:00,610 --> 01:14:01,610
+ the transport level.
+
+957
+01:14:01,610 --> 01:14:07,370
+ So there is a buffer,
+
+958
+01:14:07,370 --> 01:14:10,090
+ that operating system on the recipient host
+
+959
+01:14:10,090 --> 01:14:14,890
+ is maintaining to get the packets from the sending host.
+
+960
+01:14:14,890 --> 01:14:18,250
+ Okay?
+
+961
+01:14:18,250 --> 01:14:21,650
+ So here it's in more details how things are happening.
+
+962
+01:14:21,650 --> 01:14:25,210
+ So you have this buffer here, and you have this buffer here.
+
+963
+01:14:25,210 --> 01:14:29,050
+ The receiving and the end host, and receiving host.
+
+964
+01:14:29,050 --> 01:14:33,850
+ And, right?
+
+965
+01:14:33,850 --> 01:14:36,810
+ So you have these three pairs, the producer, the consumers,
+
+966
+01:14:36,810 --> 01:14:41,810
+ sending process, sending TCP, sending TCP, receiving TCP,
+
+967
+01:14:41,810 --> 01:14:43,810
+ receiving TCP, receiving process.
+
+968
+01:14:43,810 --> 01:14:51,550
+ And let's take up these examples.
+
+969
+01:14:51,550 --> 01:14:57,050
+ So they say the maximum IP packet size is 100 bytes.
+
+970
+01:14:57,050 --> 01:15:00,250
+ And the size of the receiving buffer,
+
+971
+01:15:00,250 --> 01:15:03,790
+ it's a receiving buffer, is 300 bytes.
+
+972
+01:15:05,210 --> 01:15:07,330
+ Recall the acknowledgement indicates
+
+973
+01:15:07,330 --> 01:15:10,090
+ the next expected byte in sequence,
+
+974
+01:15:10,090 --> 01:15:12,330
+ not the last received byte.
+
+975
+01:15:12,330 --> 01:15:16,650
+ And we assume that these are circular buffers.
+
+976
+01:15:16,650 --> 01:15:19,430
+ What is a circular buffer?
+
+977
+01:15:19,430 --> 01:15:22,410
+ Well, a buffer has a size of N,
+
+978
+01:15:22,410 --> 01:15:28,290
+ and you may have an infinite sequence of bytes,
+
+979
+01:15:28,290 --> 01:15:34,490
+ and a byte with sequence number K,
+
+980
+01:15:35,290 --> 01:15:39,810
+ is stored in a location
+
+981
+01:15:39,810 --> 01:15:42,970
+ with the index K mod N plus one in the buffer.
+
+982
+01:15:42,970 --> 01:15:46,530
+ This is a, for a simple example,
+
+983
+01:15:46,530 --> 01:15:50,170
+ this is sequence numbers of hello world.
+
+984
+01:15:50,170 --> 01:15:54,850
+ So say H is a sequence number 27,
+
+985
+01:15:54,850 --> 01:16:00,810
+ and L, the last L is sequence number 36.
+
+986
+01:16:02,030 --> 01:16:06,470
+ And the buffer has only 10 entries, right?
+
+987
+01:16:06,470 --> 01:16:10,250
+ So then this is how you map it.
+
+988
+01:16:10,250 --> 01:16:16,750
+ 27 is 27 mod N, it's seven,
+
+989
+01:16:16,750 --> 01:16:22,010
+ because N is 10, and plus one is eight.
+
+990
+01:16:22,010 --> 01:16:26,870
+ It's N plus, oh, sorry, yes.
+
+991
+01:16:26,870 --> 01:16:29,710
+ This was H, we are looking at E,
+
+992
+01:16:29,710 --> 01:16:33,210
+ which is sequence number 28, sequence number 28,
+
+993
+01:16:33,210 --> 01:16:37,210
+ 28 mod 10 plus one is nine, right?
+
+994
+01:16:37,210 --> 01:16:44,390
+ So this is how this data, the buffer data,
+
+995
+01:16:44,390 --> 01:16:50,810
+ from E to R, the blue, which is in blue, shown in blue,
+
+996
+01:16:50,810 --> 01:16:54,770
+ is a buffer in the simpler buffer, okay?
+
+997
+01:16:54,770 --> 01:16:59,770
+ So initially, you know, you are going to have,
+
+998
+01:16:59,770 --> 01:17:09,570
+ we are going to have a bunch of variables,
+
+999
+01:17:09,570 --> 01:17:12,490
+ which point to different things in the buffer.
+
+1000
+01:17:12,490 --> 01:17:16,930
+ Three on the sending part, three on the receiving part.
+
+1001
+01:17:16,930 --> 01:17:20,770
+ You have last byte written,
+
+1002
+01:17:20,770 --> 01:17:24,090
+ which is a last byte written by sending process.
+
+1003
+01:17:24,090 --> 01:17:28,330
+ Last byte sent is a last byte sent by sender,
+
+1004
+01:17:28,330 --> 01:17:29,850
+ it is a receiver.
+
+1005
+01:17:29,850 --> 01:17:32,850
+ Last byte act is a last act byte
+
+1006
+01:17:32,850 --> 01:17:35,910
+ by the receiver, it is a sender.
+
+1007
+01:17:35,910 --> 01:17:40,990
+ Last byte received now is on the receiving side,
+
+1008
+01:17:40,990 --> 01:17:44,270
+ is a last byte received by the receiver from sender.
+
+1009
+01:17:44,270 --> 01:17:47,930
+ Next byte expected is a last in sequence byte
+
+1010
+01:17:47,930 --> 01:17:49,310
+ expected by receiver.
+
+1011
+01:17:49,310 --> 01:17:51,970
+ Sorry.
+
+1012
+01:17:51,970 --> 01:17:54,130
+ (silence)
+
+1013
+01:17:54,130 --> 01:18:01,610
+ And the last byte read is the last byte read
+
+1014
+01:18:01,610 --> 01:18:03,110
+ by the receiving process.
+
+1015
+01:18:03,110 --> 01:18:07,170
+ Actually for next byte expected,
+
+1016
+01:18:07,170 --> 01:18:09,110
+ this should be the next in sequence byte
+
+1017
+01:18:09,110 --> 01:18:11,430
+ expected by receiver, not last.
+
+1018
+01:18:11,430 --> 01:18:18,290
+ Okay?
+
+1019
+01:18:18,290 --> 01:18:21,090
+ And now the advertise window is a number of bytes
+
+1020
+01:18:21,090 --> 01:18:23,670
+ that we decide that this receiver can receive.
+
+1021
+01:18:23,670 --> 01:18:25,810
+ So what is this one?
+
+1022
+01:18:25,810 --> 01:18:30,250
+ So with blue, let's say with blue here is a byte
+
+1023
+01:18:30,250 --> 01:18:34,710
+ which are already in the receiving receiver buffer.
+
+1024
+01:18:34,710 --> 01:18:39,250
+ So the advertise window is a maximum receive buffer,
+
+1025
+01:18:39,250 --> 01:18:41,130
+ it's a maximum buffer size,
+
+1026
+01:18:41,130 --> 01:18:47,110
+ minus the last byte received.
+
+1027
+01:18:50,850 --> 01:18:52,290
+ This one.
+
+1028
+01:18:52,290 --> 01:18:57,010
+ And the difference between the last byte received
+
+1029
+01:18:57,010 --> 01:18:59,490
+ and last byte read, right?
+
+1030
+01:18:59,490 --> 01:19:04,490
+ So basically this is, you need to subtract
+
+1031
+01:19:04,490 --> 01:19:06,290
+ from the maximum receive buffer,
+
+1032
+01:19:06,290 --> 01:19:09,010
+ so from the buffer size of the receiver,
+
+1033
+01:19:09,010 --> 01:19:13,450
+ how many bytes are still in the buffer,
+
+1034
+01:19:13,450 --> 01:19:17,050
+ which are not yet read by the receiving process.
+
+1035
+01:19:20,510 --> 01:19:22,710
+ And on the sending process side,
+
+1036
+01:19:22,710 --> 01:19:26,850
+ it's similar to this, you have a sender window,
+
+1037
+01:19:26,850 --> 01:19:30,010
+ which is a number of bytes that TCP sender can send.
+
+1038
+01:19:30,010 --> 01:19:34,310
+ And the sender window is advertise window.
+
+1039
+01:19:34,310 --> 01:19:37,170
+ Okay?
+
+1040
+01:19:37,170 --> 01:19:42,170
+ So minus last byte send minus last byte act.
+
+1041
+01:19:42,170 --> 01:19:48,390
+ So intuitively this means that I can send as a sender,
+
+1042
+01:19:48,710 --> 01:19:53,010
+ I can send a number of bytes,
+
+1043
+01:19:53,010 --> 01:19:57,010
+ which is by subtracting what you told me
+
+1044
+01:19:57,010 --> 01:20:00,050
+ that you can receive and what I already sent,
+
+1045
+01:20:00,050 --> 01:20:01,370
+ I haven't heard from you.
+
+1046
+01:20:01,370 --> 01:20:05,810
+ So I'm finishing with this example.
+
+1047
+01:20:05,810 --> 01:20:09,250
+ Say you told me the advertising window is one kilobyte.
+
+1048
+01:20:09,250 --> 01:20:12,670
+ And since you told me that the advertising window
+
+1049
+01:20:12,670 --> 01:20:16,930
+ is one kilobyte, I send you 100 bytes.
+
+1050
+01:20:18,690 --> 01:20:21,550
+ How many more bytes I can send you without hearing from?
+
+1051
+01:20:21,550 --> 01:20:24,790
+ The answer is 900.
+
+1052
+01:20:24,790 --> 01:20:27,910
+ Right?
+
+1053
+01:20:27,910 --> 01:20:32,590
+ So that's basically why the sender window tries to capture.
+
+1054
+01:20:32,590 --> 01:20:38,930
+ So with this, and I'm going to stop here.
+
+1055
+01:20:38,930 --> 01:20:42,390
+ And this materials we've done in this lecture,
+
+1056
+01:20:42,390 --> 01:20:44,870
+ you'll be part of the midterm.
+
+1057
+01:20:44,870 --> 01:20:47,910
+ And again, best of luck with everything.
+
+1058
+01:20:47,910 --> 01:20:50,490
+ And happy sending it to everyone.
+
+1059
+01:20:50,490 --> 01:20:52,650
+ (silence)
+
+1060
+01:20:52,650 --> 01:20:54,810
+ (silence)
+
+1061
+01:20:54,810 --> 01:20:56,810
+ Thank you.
+
+1062
+01:20:56,810 --> 01:20:58,810
+ you
+

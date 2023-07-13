@@ -1,0 +1,4600 @@
+1
+00:00:00,000 --> 00:00:07,460
+ Okay. Cool. So we're recording and I can do stuff.
+
+2
+00:00:07,460 --> 00:00:12,080
+ Okay, great. So I'm going to try and keep my eye on the chat.
+
+3
+00:00:12,080 --> 00:00:15,000
+ But I'm not very good at this yet,
+
+4
+00:00:15,000 --> 00:00:16,620
+ so this is all new to me.
+
+5
+00:00:16,620 --> 00:00:18,860
+ So I'm going to do my best.
+
+6
+00:00:18,860 --> 00:00:20,660
+ Okay. So I'm Nathan.
+
+7
+00:00:20,660 --> 00:00:21,900
+ I'm filling in for you on today.
+
+8
+00:00:21,900 --> 00:00:23,280
+ I'm a grad student.
+
+9
+00:00:23,280 --> 00:00:25,360
+ I work with you on sometimes.
+
+10
+00:00:25,360 --> 00:00:27,280
+ I study a lot of stuff.
+
+11
+00:00:27,280 --> 00:00:29,100
+ I do like kind of cloud stuff.
+
+12
+00:00:29,100 --> 00:00:31,200
+ Serverless computing, if ever heard of that.
+
+13
+00:00:31,200 --> 00:00:33,000
+ I goof around with some hardware,
+
+14
+00:00:33,000 --> 00:00:34,440
+ lots of stuff like that.
+
+15
+00:00:34,440 --> 00:00:36,940
+ But today we're going to be talking about
+
+16
+00:00:36,940 --> 00:00:41,060
+ more stuff to do with paging and virtual memory.
+
+17
+00:00:41,060 --> 00:00:43,440
+ And particularly today, there's a big focus
+
+18
+00:00:43,440 --> 00:00:48,440
+ on how paging actually works kind of in practice.
+
+19
+00:00:48,440 --> 00:00:49,980
+ So a lot of the tips and tricks,
+
+20
+00:00:49,980 --> 00:00:51,560
+ how the hardware deals with it,
+
+21
+00:00:51,560 --> 00:00:53,000
+ and some of the more kind of
+
+22
+00:00:53,000 --> 00:00:55,700
+ advanced detailed concepts around that.
+
+23
+00:00:55,700 --> 00:00:59,080
+ So starting from what you guys saw last week,
+
+24
+00:00:59,080 --> 00:01:01,360
+ and you guys can interrupt me in the chat
+
+25
+00:01:01,360 --> 00:01:04,440
+ if I'm sort of off in sync.
+
+26
+00:01:04,440 --> 00:01:07,280
+ I think Jan told me where he left off last time.
+
+27
+00:01:07,280 --> 00:01:09,400
+ We talked about flat page tables.
+
+28
+00:01:09,400 --> 00:01:12,940
+ We talked about first level, single level page tables.
+
+29
+00:01:12,940 --> 00:01:16,160
+ And so a single level page table is going to have
+
+30
+00:01:16,160 --> 00:01:18,900
+ one entry for every virtual page
+
+31
+00:01:18,900 --> 00:01:20,460
+ that you could possibly have.
+
+32
+00:01:20,460 --> 00:01:22,080
+ So if you have a 32 bit system,
+
+33
+00:01:22,080 --> 00:01:24,280
+ that's going to be two to the 32 entries,
+
+34
+00:01:24,280 --> 00:01:28,580
+ about 4 billion, well, 4 billion divided by the page size,
+
+35
+00:01:28,580 --> 00:01:30,300
+ which is 4K.
+
+36
+00:01:30,300 --> 00:01:31,680
+ If you're on a 64 bit machine,
+
+37
+00:01:31,680 --> 00:01:34,540
+ which is obviously the most popular today,
+
+38
+00:01:34,540 --> 00:01:37,080
+ at least for high end sort of systems,
+
+39
+00:01:37,080 --> 00:01:38,520
+ that's going to be two to the 64,
+
+40
+00:01:38,520 --> 00:01:40,680
+ which is a completely outrageous number.
+
+41
+00:01:40,680 --> 00:01:44,280
+ So single level page tables are just not practical.
+
+42
+00:01:44,280 --> 00:01:47,100
+ You'd have to have an entry for every virtual address.
+
+43
+00:01:47,100 --> 00:01:51,360
+ And the reality is that no program uses anywhere near
+
+44
+00:01:51,360 --> 00:01:53,040
+ all available virtual addresses.
+
+45
+00:01:53,040 --> 00:01:55,880
+ The vast majority of programs use a tiny, tiny fraction
+
+46
+00:01:55,880 --> 00:01:57,240
+ of virtual memory.
+
+47
+00:01:57,240 --> 00:01:58,220
+ So what do we do?
+
+48
+00:01:58,220 --> 00:02:00,920
+ Well, we go back to our data structures class
+
+49
+00:02:00,920 --> 00:02:02,120
+ that we learned,
+
+50
+00:02:02,120 --> 00:02:04,480
+ and we learned about all these neat data structures.
+
+51
+00:02:04,480 --> 00:02:06,840
+ And we remember that there's a thing called a tree.
+
+52
+00:02:06,840 --> 00:02:09,840
+ So what we do is instead of having that first level
+
+53
+00:02:09,840 --> 00:02:11,860
+ page table address everything,
+
+54
+00:02:11,860 --> 00:02:16,160
+ what it instead does is it points to child nodes in a tree.
+
+55
+00:02:16,160 --> 00:02:17,400
+ So this isn't a binary tree.
+
+56
+00:02:17,400 --> 00:02:21,180
+ It's a tree with as many leaves as you need
+
+57
+00:02:21,180 --> 00:02:23,660
+ in order to cover the virtual address space.
+
+58
+00:02:23,660 --> 00:02:26,360
+ But it's the same idea, just like a tree.
+
+59
+00:02:26,360 --> 00:02:30,200
+ And instead of treating your virtual address bits
+
+60
+00:02:30,200 --> 00:02:33,540
+ as an index into a single table, we split it up.
+
+61
+00:02:33,540 --> 00:02:35,600
+ So now there's two parts here.
+
+62
+00:02:35,600 --> 00:02:37,640
+ So you can see there's one part that indexes
+
+63
+00:02:37,640 --> 00:02:39,800
+ into the first level page table.
+
+64
+00:02:39,800 --> 00:02:41,360
+ And then the second half of it,
+
+65
+00:02:41,360 --> 00:02:44,040
+ we're going to use here to index
+
+66
+00:02:44,040 --> 00:02:46,280
+ into the second level page table.
+
+67
+00:02:46,280 --> 00:02:48,160
+ So it's just an index scheme, right?
+
+68
+00:02:48,160 --> 00:02:50,480
+ It's just a scheme in order to structure a page table
+
+69
+00:02:50,480 --> 00:02:53,840
+ more like a tree than a single table.
+
+70
+00:02:53,840 --> 00:02:57,120
+ And then this one here is actually like what you learned
+
+71
+00:02:57,120 --> 00:03:00,120
+ about before, this is your standard page table entry.
+
+72
+00:03:00,120 --> 00:03:01,760
+ We call that a PTE for short.
+
+73
+00:03:01,760 --> 00:03:04,180
+ I'm going to use that word a lot today.
+
+74
+00:03:04,180 --> 00:03:06,740
+ So page table entry is a PTE.
+
+75
+00:03:06,740 --> 00:03:10,200
+ And this is the normal one we saw just like when it was
+
+76
+00:03:10,200 --> 00:03:11,860
+ in a first level page table.
+
+77
+00:03:11,860 --> 00:03:14,760
+ So you've got the physical page number here.
+
+78
+00:03:14,760 --> 00:03:16,860
+ So in Linux, I think they call this a frame.
+
+79
+00:03:16,860 --> 00:03:19,800
+ So they call this the physical frame number or PFN.
+
+80
+00:03:19,800 --> 00:03:21,560
+ So you might hear me say page number.
+
+81
+00:03:21,560 --> 00:03:23,360
+ You might hear me say frame number.
+
+82
+00:03:23,360 --> 00:03:26,960
+ Often frame tends to get used for the physical
+
+83
+00:03:26,960 --> 00:03:28,280
+ just to make it a little more clear
+
+84
+00:03:28,280 --> 00:03:30,420
+ that whether we're talking about virtual pages
+
+85
+00:03:30,420 --> 00:03:31,780
+ or physical pages.
+
+86
+00:03:31,780 --> 00:03:33,500
+ Also, when you say frame, you tend to refer
+
+87
+00:03:33,500 --> 00:03:37,760
+ to an actual literal like particular address in memory.
+
+88
+00:03:37,760 --> 00:03:40,380
+ So either way, we have a physical page number in the table.
+
+89
+00:03:40,380 --> 00:03:42,200
+ So we use the virtual page number.
+
+90
+00:03:42,200 --> 00:03:43,820
+ So that was this part.
+
+91
+00:03:43,820 --> 00:03:46,140
+ This was what you thought the address was.
+
+92
+00:03:46,140 --> 00:03:50,160
+ We use that in order to find the physical page number.
+
+93
+00:03:50,160 --> 00:03:52,700
+ And then because pages have multiple bytes in them
+
+94
+00:03:52,700 --> 00:03:54,960
+ and you're trying to address a particular byte,
+
+95
+00:03:54,960 --> 00:03:56,780
+ there's this offset part you provided.
+
+96
+00:03:56,780 --> 00:03:58,500
+ And that offset is gonna be the same
+
+97
+00:03:58,500 --> 00:04:00,420
+ whether it's physical or virtual.
+
+98
+00:04:00,420 --> 00:04:02,460
+ It's just the offset in here,
+
+99
+00:04:02,460 --> 00:04:04,300
+ whether it's here, here, here, here.
+
+100
+00:04:04,300 --> 00:04:07,460
+ Okay, so multi-level page tables,
+
+101
+00:04:07,460 --> 00:04:08,620
+ pretty sure we talked about this
+
+102
+00:04:08,620 --> 00:04:10,320
+ or you talked about this last week.
+
+103
+00:04:10,320 --> 00:04:13,020
+ But they're pretty cool.
+
+104
+00:04:13,020 --> 00:04:15,060
+ And one of the nice things here is that
+
+105
+00:04:15,060 --> 00:04:17,360
+ I don't actually have to have every one of these.
+
+106
+00:04:17,360 --> 00:04:21,100
+ So I could have, maybe this doesn't even have to exist.
+
+107
+00:04:21,100 --> 00:04:22,780
+ If I haven't allocated any pages,
+
+108
+00:04:22,780 --> 00:04:25,500
+ why should I even bother creating the leaf node yet?
+
+109
+00:04:25,500 --> 00:04:28,180
+ And so what you might do is you might just sort of
+
+110
+00:04:28,180 --> 00:04:30,620
+ mark this as empty, right?
+
+111
+00:04:30,620 --> 00:04:32,360
+ In this entry, you might have some sort of bit
+
+112
+00:04:32,360 --> 00:04:33,200
+ that you set that said,
+
+113
+00:04:33,200 --> 00:04:35,780
+ "Ah, this doesn't actually exist, ignore it."
+
+114
+00:04:35,780 --> 00:04:38,220
+ In which case we didn't have to allocate this other one
+
+115
+00:04:38,220 --> 00:04:39,520
+ and we saved ourselves some memory.
+
+116
+00:04:39,520 --> 00:04:41,460
+ So with multi-level page tables,
+
+117
+00:04:41,460 --> 00:04:42,980
+ we no longer have to store,
+
+118
+00:04:42,980 --> 00:04:44,780
+ we don't have to allocate memory
+
+119
+00:04:44,780 --> 00:04:47,300
+ for all the empty spots in the table anymore.
+
+120
+00:04:47,300 --> 00:04:49,140
+ We just have to allocate memory
+
+121
+00:04:49,140 --> 00:04:52,780
+ for the ones that actually have been assigned.
+
+122
+00:04:52,780 --> 00:04:55,380
+ Or at least, you know, one page's worth
+
+123
+00:04:55,380 --> 00:04:56,320
+ of ones that have been assigned.
+
+124
+00:04:56,320 --> 00:04:58,640
+ We still are gonna have empty slots
+
+125
+00:04:58,640 --> 00:05:00,420
+ in this second level page table,
+
+126
+00:05:00,420 --> 00:05:01,640
+ but there's a lot fewer of them.
+
+127
+00:05:01,640 --> 00:05:02,840
+ So it kind of works out.
+
+128
+00:05:02,840 --> 00:05:08,220
+ Okay, so what are the pros and cons here?
+
+129
+00:05:08,220 --> 00:05:11,420
+ So the pros of the multi-level page table is that,
+
+130
+00:05:11,420 --> 00:05:13,780
+ like I said, sparse address spaces,
+
+131
+00:05:13,780 --> 00:05:17,140
+ address spaces that are mostly empty, mostly unassigned.
+
+132
+00:05:17,140 --> 00:05:18,420
+ This is reasonably good at,
+
+133
+00:05:18,420 --> 00:05:21,700
+ because you don't have to store all the empty ones.
+
+134
+00:05:21,700 --> 00:05:23,100
+ Because we're using paging rather
+
+135
+00:05:23,100 --> 00:05:25,660
+ than something more complicated like segmentation,
+
+136
+00:05:25,660 --> 00:05:27,780
+ then it makes memory allocation a lot easier,
+
+137
+00:05:27,780 --> 00:05:29,980
+ because you have fixed size pages.
+
+138
+00:05:29,980 --> 00:05:32,340
+ You have these fixed size allocation units,
+
+139
+00:05:32,340 --> 00:05:34,540
+ and that makes life a lot easier
+
+140
+00:05:34,540 --> 00:05:36,060
+ when you're writing memory allocators.
+
+141
+00:05:36,060 --> 00:05:38,540
+ Now, I don't know if you guys have a memory allocator project
+
+142
+00:05:38,540 --> 00:05:41,420
+ in this class or if you've done one yet,
+
+143
+00:05:41,420 --> 00:05:43,100
+ but when you do, you're gonna start to realize
+
+144
+00:05:43,100 --> 00:05:44,980
+ how incredibly annoying it would be
+
+145
+00:05:44,980 --> 00:05:47,060
+ to try and allocate variable size things.
+
+146
+00:05:47,060 --> 00:05:50,020
+ It's much easier if they're fixed size and aligned.
+
+147
+00:05:50,020 --> 00:05:52,780
+ The other nice thing is that every process
+
+148
+00:05:52,780 --> 00:05:54,300
+ has its own page table.
+
+149
+00:05:54,300 --> 00:05:55,940
+ And so it makes it really easy to share.
+
+150
+00:05:55,940 --> 00:05:57,500
+ So even though two people
+
+151
+00:05:57,500 --> 00:06:00,340
+ might have different virtual addresses, it's pretty neat.
+
+152
+00:06:00,340 --> 00:06:03,220
+ We can actually just have those virtual addresses map
+
+153
+00:06:03,220 --> 00:06:05,060
+ to the same physical address,
+
+154
+00:06:05,060 --> 00:06:07,460
+ and then people can share physical memory
+
+155
+00:06:07,460 --> 00:06:08,620
+ without even realizing it.
+
+156
+00:06:08,620 --> 00:06:09,460
+ And that's pretty neat.
+
+157
+00:06:09,460 --> 00:06:10,380
+ So we'll talk a little bit more
+
+158
+00:06:10,380 --> 00:06:11,980
+ about that later in the lecture.
+
+159
+00:06:11,980 --> 00:06:13,980
+ It's not perfect though.
+
+160
+00:06:13,980 --> 00:06:15,700
+ I mean, there's downsides, right?
+
+161
+00:06:15,700 --> 00:06:18,900
+ One of them is that because they're not variable size,
+
+162
+00:06:18,900 --> 00:06:20,100
+ because they're fixed size,
+
+163
+00:06:20,100 --> 00:06:22,540
+ we actually have to have an entry per page.
+
+164
+00:06:22,540 --> 00:06:25,020
+ So even though I might allocate you like a gigabyte
+
+165
+00:06:25,020 --> 00:06:28,100
+ in one shot, I actually am gonna have to have one entry
+
+166
+00:06:28,100 --> 00:06:31,940
+ for every 4K in that big four gigabyte section.
+
+167
+00:06:31,940 --> 00:06:34,100
+ So I can give you these big allocations,
+
+168
+00:06:34,100 --> 00:06:37,540
+ but I'm allocating a lot of kind of redundant information.
+
+169
+00:06:37,540 --> 00:06:39,140
+ With segments, you wouldn't have that problem, right?
+
+170
+00:06:39,140 --> 00:06:41,620
+ With segmentation, I could give you a base register
+
+171
+00:06:41,620 --> 00:06:43,060
+ and just a four gigabyte bound
+
+172
+00:06:43,060 --> 00:06:44,700
+ and then everything would work out.
+
+173
+00:06:44,700 --> 00:06:47,500
+ So it's kind of a drawback of this paging approach.
+
+174
+00:06:47,500 --> 00:06:49,780
+ The way people deal with that is they tend to allow
+
+175
+00:06:49,780 --> 00:06:51,500
+ for different sized pages.
+
+176
+00:06:51,500 --> 00:06:52,340
+ They're still aligned,
+
+177
+00:06:52,340 --> 00:06:55,020
+ but today you can do things called huge pages.
+
+178
+00:06:55,020 --> 00:06:57,500
+ So maybe you could allocate a one megabyte
+
+179
+00:06:57,500 --> 00:07:00,660
+ or even bigger page size.
+
+180
+00:07:00,660 --> 00:07:03,780
+ And so that is a trick that modern systems use,
+
+181
+00:07:03,780 --> 00:07:05,620
+ but we won't really go into too much more detail
+
+182
+00:07:05,620 --> 00:07:07,100
+ beyond that for huge pages.
+
+183
+00:07:07,100 --> 00:07:10,460
+ You know, they have to be contiguous.
+
+184
+00:07:10,460 --> 00:07:13,340
+ It's not such a problem
+
+185
+00:07:13,340 --> 00:07:15,420
+ when you have multi-level page tables.
+
+186
+00:07:15,420 --> 00:07:17,860
+ All we do is we make each one of those levels.
+
+187
+00:07:17,860 --> 00:07:20,540
+ So each one of those, you know, let's see.
+
+188
+00:07:20,540 --> 00:07:25,540
+ So each one of these, where are we going?
+
+189
+00:07:25,540 --> 00:07:27,060
+ What happened here?
+
+190
+00:07:27,060 --> 00:07:36,140
+ Sorry guys, still getting used to this.
+
+191
+00:07:36,140 --> 00:07:36,980
+ Okay.
+
+192
+00:07:39,500 --> 00:07:43,500
+ So, you know, we make each one of these happen to fit
+
+193
+00:07:43,500 --> 00:07:44,620
+ precisely in one page
+
+194
+00:07:44,620 --> 00:07:47,900
+ and that makes life an awful lot easier for everybody.
+
+195
+00:07:47,900 --> 00:07:49,700
+ So it's not really that big a deal,
+
+196
+00:07:49,700 --> 00:07:53,220
+ but it does add us another little constraint
+
+197
+00:07:53,220 --> 00:07:55,820
+ that we have to have a very particular organization
+
+198
+00:07:55,820 --> 00:07:57,100
+ of our page table,
+
+199
+00:07:57,100 --> 00:07:58,420
+ because as we're gonna talk about later,
+
+200
+00:07:58,420 --> 00:08:00,300
+ the hardware has to be able to interact with it.
+
+201
+00:08:00,300 --> 00:08:02,620
+ So it's a little bit of a constraint,
+
+202
+00:08:02,620 --> 00:08:05,260
+ but the big one, the one that really screws us up here
+
+203
+00:08:05,260 --> 00:08:06,700
+ is this last point.
+
+204
+00:08:06,700 --> 00:08:09,660
+ So the problem we have is that when you have
+
+205
+00:08:09,660 --> 00:08:11,420
+ multi-level page tables,
+
+206
+00:08:11,420 --> 00:08:14,220
+ then you have to kind of hunt around it.
+
+207
+00:08:14,220 --> 00:08:16,780
+ So you gotta read that first level page table first,
+
+208
+00:08:16,780 --> 00:08:18,740
+ figure out where the second level one is,
+
+209
+00:08:18,740 --> 00:08:21,820
+ and then go read the second level one to find your answer.
+
+210
+00:08:21,820 --> 00:08:23,060
+ And if you have more, right,
+
+211
+00:08:23,060 --> 00:08:24,780
+ like some things have more than two levels,
+
+212
+00:08:24,780 --> 00:08:27,040
+ there's four level page tables or more,
+
+213
+00:08:27,040 --> 00:08:28,900
+ then it's like four hops.
+
+214
+00:08:28,900 --> 00:08:31,420
+ And every time you have to follow a pointer, that's time.
+
+215
+00:08:31,420 --> 00:08:32,700
+ That takes time, right?
+
+216
+00:08:32,700 --> 00:08:35,340
+ Jumping around memory, chasing pointers.
+
+217
+00:08:35,340 --> 00:08:38,300
+ And we have to do address translation
+
+218
+00:08:38,300 --> 00:08:40,340
+ on every single load and store.
+
+219
+00:08:40,340 --> 00:08:42,740
+ So every time you load, every time you store,
+
+220
+00:08:42,740 --> 00:08:43,820
+ including instruction,
+
+221
+00:08:43,820 --> 00:08:45,820
+ so every time you fetch the next instruction,
+
+222
+00:08:45,820 --> 00:08:47,520
+ that's kind of like a load,
+
+223
+00:08:47,520 --> 00:08:49,460
+ you have to do address translation.
+
+224
+00:08:49,460 --> 00:08:51,660
+ So it's important that it be super, super fast
+
+225
+00:08:51,660 --> 00:08:53,760
+ and hopping around is kind of slow.
+
+226
+00:08:53,760 --> 00:08:55,020
+ So this is a big issue
+
+227
+00:08:55,020 --> 00:08:57,300
+ that we're gonna have to figure out how to solve.
+
+228
+00:08:57,300 --> 00:09:01,220
+ Okay, so the next question is,
+
+229
+00:09:01,220 --> 00:09:02,620
+ we talked about how they're organized,
+
+230
+00:09:02,620 --> 00:09:04,500
+ what they're kind of doing at a high level.
+
+231
+00:09:04,500 --> 00:09:07,560
+ The next question is who's managing these, right?
+
+232
+00:09:07,560 --> 00:09:11,220
+ How are you actually filling in these translations?
+
+233
+00:09:11,220 --> 00:09:14,500
+ And so we got to remember that this is an operating system.
+
+234
+00:09:14,500 --> 00:09:17,620
+ The operating system's job, one of its big jobs,
+
+235
+00:09:17,620 --> 00:09:19,900
+ is allowing multiple applications,
+
+236
+00:09:19,900 --> 00:09:22,740
+ like multiple processes to safely share a machine
+
+237
+00:09:22,740 --> 00:09:24,840
+ so they can't screw with each other, right?
+
+238
+00:09:24,840 --> 00:09:26,920
+ So like, even if you have a process
+
+239
+00:09:26,920 --> 00:09:29,300
+ running some sensitive information,
+
+240
+00:09:29,300 --> 00:09:31,600
+ other processes that you're running at the same time
+
+241
+00:09:31,600 --> 00:09:32,640
+ aren't allowed to read that.
+
+242
+00:09:32,640 --> 00:09:34,000
+ So it's security.
+
+243
+00:09:34,000 --> 00:09:35,620
+ And also if one of them screws up, right?
+
+244
+00:09:35,620 --> 00:09:37,920
+ You have a mistake, you start writing to some random address,
+
+245
+00:09:37,920 --> 00:09:39,620
+ you get a segfault, whatever,
+
+246
+00:09:39,620 --> 00:09:41,760
+ we don't wanna be able to screw everybody else up.
+
+247
+00:09:41,760 --> 00:09:43,420
+ So if one badly written program
+
+248
+00:09:43,420 --> 00:09:44,780
+ can take your whole system down,
+
+249
+00:09:44,780 --> 00:09:46,360
+ you kind of have a problem.
+
+250
+00:09:46,360 --> 00:09:49,220
+ So the trick we do with most, you know,
+
+251
+00:09:49,220 --> 00:09:52,000
+ any sort of CPU that really supports
+
+252
+00:09:52,000 --> 00:09:55,000
+ or any ISA that really supports an operating system
+
+253
+00:09:55,000 --> 00:09:57,500
+ is gonna have this dual mode operation.
+
+254
+00:09:57,500 --> 00:10:01,180
+ So instead of letting processes set up their own page tables,
+
+255
+00:10:01,180 --> 00:10:04,960
+ we have kernel mode.
+
+256
+00:10:04,960 --> 00:10:07,560
+ So in kernel mode, you can do anything you want, right?
+
+257
+00:10:07,560 --> 00:10:10,740
+ You have super high privilege to do anything you want.
+
+258
+00:10:10,740 --> 00:10:11,780
+ And then in user mode,
+
+259
+00:10:11,780 --> 00:10:13,860
+ there's a bunch of stuff you're not allowed to do.
+
+260
+00:10:13,860 --> 00:10:15,460
+ And a lot of the stuff you're not allowed to do
+
+261
+00:10:15,460 --> 00:10:18,800
+ boils down to like what memory regions you can write
+
+262
+00:10:18,800 --> 00:10:21,400
+ and which like control registers you can set
+
+263
+00:10:21,400 --> 00:10:22,820
+ and things like that.
+
+264
+00:10:22,820 --> 00:10:24,920
+ So when the system first boots up, it's in kernel mode,
+
+265
+00:10:24,920 --> 00:10:27,020
+ when you first press that power button,
+
+266
+00:10:27,020 --> 00:10:28,580
+ then your operating system loads
+
+267
+00:10:28,580 --> 00:10:30,780
+ and it sets up anything it wants to set up,
+
+268
+00:10:30,780 --> 00:10:34,100
+ page tables, control bits, all this kind of junk.
+
+269
+00:10:34,100 --> 00:10:36,820
+ And then it decides to run a program.
+
+270
+00:10:36,820 --> 00:10:38,460
+ So it's gonna jump into that program.
+
+271
+00:10:38,460 --> 00:10:42,600
+ It's gonna say, okay, let's go and execute some PC
+
+272
+00:10:42,600 --> 00:10:44,540
+ that represents some process.
+
+273
+00:10:44,540 --> 00:10:45,640
+ And when it does that,
+
+274
+00:10:45,640 --> 00:10:47,880
+ it's gonna deselect the privilege bit.
+
+275
+00:10:47,880 --> 00:10:50,020
+ So it's gonna turn off that privilege bit.
+
+276
+00:10:50,020 --> 00:10:51,580
+ And now we're in user mode
+
+277
+00:10:51,580 --> 00:10:53,520
+ and the user's not allowed to do anything.
+
+278
+00:10:53,520 --> 00:10:55,360
+ And the only way you get back to kernel mode
+
+279
+00:10:55,360 --> 00:10:56,600
+ is through a trap.
+
+280
+00:10:56,600 --> 00:10:58,380
+ So there might be some hardware event
+
+281
+00:10:58,380 --> 00:11:00,080
+ or there might be some software event that says,
+
+282
+00:11:00,080 --> 00:11:02,680
+ hey, it's time for the kernel to do something.
+
+283
+00:11:02,680 --> 00:11:05,540
+ And the kernel has registered very specific things
+
+284
+00:11:05,540 --> 00:11:06,520
+ that it's allowed to do.
+
+285
+00:11:06,520 --> 00:11:09,360
+ So it says, if I get trap five,
+
+286
+00:11:09,360 --> 00:11:11,780
+ then you should run this code in my kernel.
+
+287
+00:11:11,780 --> 00:11:14,380
+ If I get trapped six, you should run that code.
+
+288
+00:11:14,380 --> 00:11:16,120
+ So the user can't touch anything,
+
+289
+00:11:16,120 --> 00:11:18,180
+ but they can hand control back to the kernel
+
+290
+00:11:18,180 --> 00:11:19,500
+ in a very controlled way.
+
+291
+00:11:19,500 --> 00:11:24,560
+ It's obviously more complicated than that.
+
+292
+00:11:24,560 --> 00:11:26,020
+ And there's gonna be this caveat
+
+293
+00:11:26,020 --> 00:11:27,500
+ through this entire lecture.
+
+294
+00:11:27,500 --> 00:11:30,300
+ In this class, we're mostly focused on x86
+
+295
+00:11:30,300 --> 00:11:33,820
+ because that's the one you're using in your projects.
+
+296
+00:11:33,820 --> 00:11:38,120
+ And basically x86 is like thousands and thousands of pages
+
+297
+00:11:38,120 --> 00:11:40,080
+ for its instruction manual.
+
+298
+00:11:40,080 --> 00:11:42,840
+ It's old, it's grown very organically.
+
+299
+00:11:42,840 --> 00:11:45,860
+ And so things tend to get a little complicated.
+
+300
+00:11:45,860 --> 00:11:46,940
+ Not too important to know,
+
+301
+00:11:46,940 --> 00:11:50,180
+ but what you can realize is that
+
+302
+00:11:50,180 --> 00:11:51,680
+ we have a lot of flexibility here.
+
+303
+00:11:51,680 --> 00:11:54,060
+ So traditionally ring zero would be kernel mode,
+
+304
+00:11:54,060 --> 00:11:55,780
+ ring three is user mode.
+
+305
+00:11:55,780 --> 00:11:58,660
+ There's a ring one and two that nobody really uses.
+
+306
+00:11:58,660 --> 00:12:02,580
+ And then when they wanted to add hypervisors, yeah, right.
+
+307
+00:12:02,580 --> 00:12:05,120
+ And then there's minus one and there's more, right?
+
+308
+00:12:05,120 --> 00:12:08,160
+ Yeah, like there's minus three that Michael's mentioning.
+
+309
+00:12:08,160 --> 00:12:11,260
+ In RISC-V, what you have are also different modes.
+
+310
+00:12:11,260 --> 00:12:13,500
+ I don't think they call them rings in RISC-V,
+
+311
+00:12:13,500 --> 00:12:14,780
+ but you have machine mode,
+
+312
+00:12:14,780 --> 00:12:17,420
+ which is kind of like this Intel management engine
+
+313
+00:12:17,420 --> 00:12:20,420
+ style thing where you're setting up
+
+314
+00:12:20,420 --> 00:12:22,260
+ very, very, very low level stuff.
+
+315
+00:12:22,260 --> 00:12:24,420
+ It's where you might like emulate instructions
+
+316
+00:12:24,420 --> 00:12:27,280
+ that you haven't implemented or other stuff like that.
+
+317
+00:12:27,280 --> 00:12:29,580
+ And then there's supervisor mode where the kernel runs
+
+318
+00:12:29,580 --> 00:12:31,300
+ and then there's user mode.
+
+319
+00:12:31,300 --> 00:12:33,020
+ And I actually don't know a lot about
+
+320
+00:12:33,020 --> 00:12:34,960
+ how RISC-V handles hypervisors.
+
+321
+00:12:34,960 --> 00:12:37,020
+ So I can't talk too much about that.
+
+322
+00:12:37,020 --> 00:12:39,680
+ But the point is that the CPU has control modes.
+
+323
+00:12:39,680 --> 00:12:40,620
+ They have protection modes
+
+324
+00:12:40,620 --> 00:12:42,880
+ and that's how operating systems work in practice.
+
+325
+00:12:42,880 --> 00:12:44,080
+ That's how they're safe.
+
+326
+00:12:44,080 --> 00:12:49,460
+ Okay, we're gonna just take a quick detour
+
+327
+00:12:49,460 --> 00:12:50,300
+ into segmentation.
+
+328
+00:12:50,300 --> 00:12:52,460
+ I just talked about how Intel's got all sorts
+
+329
+00:12:52,460 --> 00:12:54,900
+ of old stuff floating around in it.
+
+330
+00:12:54,900 --> 00:12:59,340
+ And one of those old, moldy old things is segmentation.
+
+331
+00:12:59,340 --> 00:13:02,020
+ It's not really used a lot these days,
+
+332
+00:13:02,020 --> 00:13:03,920
+ but it does still exist.
+
+333
+00:13:03,920 --> 00:13:06,180
+ So just real quickly, I think this slide will be
+
+334
+00:13:06,180 --> 00:13:08,740
+ mostly good for your reference after.
+
+335
+00:13:08,740 --> 00:13:10,500
+ So I'm gonna go through it real quick.
+
+336
+00:13:10,500 --> 00:13:14,140
+ But x86 supports a bunch of different segments.
+
+337
+00:13:14,140 --> 00:13:16,180
+ You have these registers.
+
+338
+00:13:16,180 --> 00:13:18,020
+ So registers are right in your pipeline.
+
+339
+00:13:18,020 --> 00:13:19,600
+ They're right next to your CPU.
+
+340
+00:13:19,600 --> 00:13:20,980
+ So you can't have very many of them
+
+341
+00:13:20,980 --> 00:13:22,420
+ and they can't be too complicated
+
+342
+00:13:22,420 --> 00:13:24,980
+ 'cause you have like limited number of bits,
+
+343
+00:13:24,980 --> 00:13:26,900
+ limited number of wires and flip-flops
+
+344
+00:13:26,900 --> 00:13:29,580
+ and whatever right next to your CPU.
+
+345
+00:13:29,580 --> 00:13:31,540
+ So you can't have too many.
+
+346
+00:13:31,540 --> 00:13:33,380
+ So what they do is they have a register
+
+347
+00:13:33,380 --> 00:13:35,580
+ to represent segments.
+
+348
+00:13:35,580 --> 00:13:38,420
+ And then that register is actually a pointer
+
+349
+00:13:38,420 --> 00:13:43,280
+ to a more rich description of the segment that you want.
+
+350
+00:13:43,280 --> 00:13:46,680
+ And then that segment has a whole bunch of details in it
+
+351
+00:13:46,680 --> 00:13:47,620
+ about the segment.
+
+352
+00:13:47,620 --> 00:13:48,980
+ So it's got permission bits.
+
+353
+00:13:48,980 --> 00:13:51,860
+ It's got a base and a limit,
+
+354
+00:13:51,860 --> 00:13:54,880
+ which is the bottom line for segments.
+
+355
+00:13:54,880 --> 00:13:57,000
+ You notice that the address bits
+
+356
+00:13:57,000 --> 00:13:59,200
+ are spread around in funny places.
+
+357
+00:13:59,200 --> 00:14:00,980
+ You might remember from 61C,
+
+358
+00:14:00,980 --> 00:14:03,900
+ how RISC-V does the same thing for, I think loads,
+
+359
+00:14:03,900 --> 00:14:05,420
+ like certain loads or certain jumps
+
+360
+00:14:05,420 --> 00:14:07,140
+ have kind of a funny layout.
+
+361
+00:14:07,140 --> 00:14:10,060
+ And these are all just micro architectural details.
+
+362
+00:14:10,060 --> 00:14:11,700
+ At the time when they wrote this,
+
+363
+00:14:11,700 --> 00:14:15,260
+ it was easier to put this wire here or that wire there.
+
+364
+00:14:15,260 --> 00:14:18,220
+ It tends to be sort of boring reasons that it's shaped funny.
+
+365
+00:14:18,220 --> 00:14:22,660
+ And you can come back to this slide
+
+366
+00:14:22,660 --> 00:14:24,760
+ to understand what all these bits do.
+
+367
+00:14:24,760 --> 00:14:26,640
+ But let's just quickly talk about
+
+368
+00:14:26,640 --> 00:14:28,660
+ what they're actually used for.
+
+369
+00:14:28,660 --> 00:14:33,060
+ So there's different ways that you can use the segments.
+
+370
+00:14:33,060 --> 00:14:36,220
+ The most common use originally was in
+
+371
+00:14:36,220 --> 00:14:39,340
+ the old, old, old 16 bit version of x86.
+
+372
+00:14:39,340 --> 00:14:43,320
+ The very first time people were writing 16 bit processors,
+
+373
+00:14:43,320 --> 00:14:45,100
+ having more than a few kilobytes of memory
+
+374
+00:14:45,100 --> 00:14:46,680
+ was a ridiculous concept, right?
+
+375
+00:14:46,680 --> 00:14:49,280
+ Nobody, having a megabyte of memory was insane.
+
+376
+00:14:49,280 --> 00:14:51,480
+ Nobody ever thought that could happen, right?
+
+377
+00:14:51,480 --> 00:14:54,880
+ And so they had this 16 bit addressing mode
+
+378
+00:14:54,880 --> 00:14:57,000
+ and they had a lot of segments.
+
+379
+00:14:57,000 --> 00:14:58,820
+ Again, you can't have page tables
+
+380
+00:14:58,820 --> 00:15:01,420
+ if you only have like less than a kilobyte of memory.
+
+381
+00:15:01,420 --> 00:15:04,880
+ So they would use segments originally.
+
+382
+00:15:04,880 --> 00:15:09,760
+ Then, okay, we use the word modern here loosely.
+
+383
+00:15:09,760 --> 00:15:13,120
+ Most application level sorts of processors
+
+384
+00:15:13,120 --> 00:15:14,960
+ are 64 bit these days,
+
+385
+00:15:14,960 --> 00:15:16,560
+ but some embedded low power,
+
+386
+00:15:16,560 --> 00:15:18,680
+ that kind of stuff would be 32 bit.
+
+387
+00:15:18,680 --> 00:15:22,040
+ I don't think there's a lot of 32 bit x86 processors
+
+388
+00:15:22,040 --> 00:15:23,660
+ out there, but in RISC-V,
+
+389
+00:15:23,660 --> 00:15:26,800
+ there's lots of 32 bit RISC-V processors floating around.
+
+390
+00:15:26,800 --> 00:15:28,720
+ So in this case,
+
+391
+00:15:28,720 --> 00:15:30,820
+ they kind of weakened the segmentation support.
+
+392
+00:15:30,820 --> 00:15:32,640
+ It's still there, but not great.
+
+393
+00:15:32,640 --> 00:15:35,000
+ The one exception is thread local storage.
+
+394
+00:15:35,000 --> 00:15:40,000
+ So a process is not like a super precise concept.
+
+395
+00:15:40,000 --> 00:15:41,240
+ I mean, it is in the spec,
+
+396
+00:15:41,240 --> 00:15:45,200
+ but a process is just some sort of logically connected set
+
+397
+00:15:45,200 --> 00:15:47,760
+ of things that all share most of their resources.
+
+398
+00:15:47,760 --> 00:15:49,840
+ So they have one process ID.
+
+399
+00:15:49,840 --> 00:15:51,180
+ They most, for the most part,
+
+400
+00:15:51,180 --> 00:15:53,840
+ they have one set of like virtual addresses,
+
+401
+00:15:53,840 --> 00:15:55,040
+ things like that.
+
+402
+00:15:55,040 --> 00:15:56,840
+ But sometimes it's handy to have a little bit
+
+403
+00:15:56,840 --> 00:15:59,360
+ of private memory space per thread.
+
+404
+00:15:59,360 --> 00:16:02,420
+ The threads in this case are like different PCs
+
+405
+00:16:02,420 --> 00:16:05,220
+ that you could potentially be jumping between, right?
+
+406
+00:16:05,220 --> 00:16:10,220
+ So different program counters into the same basic program.
+
+407
+00:16:10,800 --> 00:16:15,660
+ So on x86, they use segments in order to implement that.
+
+408
+00:16:15,660 --> 00:16:17,400
+ On RISC-V, they do something different.
+
+409
+00:16:17,400 --> 00:16:18,980
+ I actually was looking for that earlier.
+
+410
+00:16:18,980 --> 00:16:19,820
+ I couldn't find it.
+
+411
+00:16:19,820 --> 00:16:22,120
+ So I'm not sure how RISC-V implements thread local storage,
+
+412
+00:16:22,120 --> 00:16:24,760
+ but I'm sure it's not with segments.
+
+413
+00:16:24,760 --> 00:16:26,720
+ And then on 64 bit mode,
+
+414
+00:16:26,720 --> 00:16:30,480
+ which is the most common x86 mode today,
+
+415
+00:16:30,480 --> 00:16:32,200
+ they have been basically nerfed.
+
+416
+00:16:32,200 --> 00:16:36,620
+ So like they work in like the most limited possible way,
+
+417
+00:16:36,620 --> 00:16:38,600
+ except again for thread local storage,
+
+418
+00:16:38,600 --> 00:16:40,640
+ which still gets used.
+
+419
+00:16:40,640 --> 00:16:43,560
+ But otherwise, just keep in mind segments kind of made sense
+
+420
+00:16:43,560 --> 00:16:45,820
+ when you had very, very little memory.
+
+421
+00:16:45,820 --> 00:16:47,480
+ And they make a lot less sense
+
+422
+00:16:47,480 --> 00:16:49,760
+ as your virtual address space starts to get bigger
+
+423
+00:16:49,760 --> 00:16:52,740
+ and you need like more and more flexible management
+
+424
+00:16:52,740 --> 00:16:55,080
+ and you have enough memory where the memory overhead
+
+425
+00:16:55,080 --> 00:16:56,880
+ of keeping a bunch of page tables around
+
+426
+00:16:56,880 --> 00:16:57,940
+ isn't gonna kill you.
+
+427
+00:16:57,940 --> 00:17:02,140
+ Okay, so enough about segmentation.
+
+428
+00:17:02,140 --> 00:17:03,440
+ Coming back to paging,
+
+429
+00:17:03,440 --> 00:17:06,760
+ I mentioned that you could have more than two levels, right?
+
+430
+00:17:06,760 --> 00:17:10,080
+ So if two levels is good, then four levels is gooder.
+
+431
+00:17:10,080 --> 00:17:11,760
+ And there's really nothing different here.
+
+432
+00:17:11,760 --> 00:17:13,700
+ So there's nothing special.
+
+433
+00:17:13,700 --> 00:17:16,400
+ You know, whatever you learned about two level page tables,
+
+434
+00:17:16,400 --> 00:17:18,660
+ just like recurse on that a couple more times
+
+435
+00:17:18,660 --> 00:17:21,240
+ and you've got multi-level page tables.
+
+436
+00:17:21,240 --> 00:17:23,040
+ So you still have your base here,
+
+437
+00:17:23,040 --> 00:17:25,420
+ you have your top level page table,
+
+438
+00:17:25,420 --> 00:17:28,520
+ that is gonna point into some lower level page table,
+
+439
+00:17:28,520 --> 00:17:30,800
+ which is sort of like this one.
+
+440
+00:17:30,800 --> 00:17:32,880
+ And now it points here and then it points here.
+
+441
+00:17:32,880 --> 00:17:35,200
+ And then finally you get your PTE here.
+
+442
+00:17:35,200 --> 00:17:37,240
+ So it's not fundamentally different in any way
+
+443
+00:17:37,240 --> 00:17:38,500
+ than a two level page table.
+
+444
+00:17:38,500 --> 00:17:40,040
+ You just have more hops.
+
+445
+00:17:40,040 --> 00:17:41,200
+ And that's gonna keep shrinking
+
+446
+00:17:41,200 --> 00:17:43,240
+ this top level page table, right?
+
+447
+00:17:43,240 --> 00:17:44,600
+ Every time you add a hop,
+
+448
+00:17:44,600 --> 00:17:47,400
+ that's gonna exponentially drop the number of entries
+
+449
+00:17:47,400 --> 00:17:49,560
+ you have to have here, which can be handy.
+
+450
+00:17:49,560 --> 00:17:53,720
+ But again, otherwise nothing special,
+
+451
+00:17:53,720 --> 00:17:55,000
+ just like you saw before.
+
+452
+00:17:55,000 --> 00:17:58,080
+ You keep going, right?
+
+453
+00:17:58,080 --> 00:18:00,780
+ So, all right, well, we had four, why don't we do six?
+
+454
+00:18:00,780 --> 00:18:04,080
+ It starts to get ridiculous, basically.
+
+455
+00:18:04,080 --> 00:18:06,120
+ I mean, there are drawbacks, right?
+
+456
+00:18:06,120 --> 00:18:08,880
+ We talked about having to do all this pointer hopping, right?
+
+457
+00:18:08,880 --> 00:18:10,760
+ You have to keep following through each level
+
+458
+00:18:10,760 --> 00:18:12,120
+ and that takes time.
+
+459
+00:18:12,120 --> 00:18:14,000
+ There's a point where you're just not saving anything.
+
+460
+00:18:14,000 --> 00:18:15,240
+ It just starts to get out of hand.
+
+461
+00:18:15,240 --> 00:18:18,640
+ So six level page tables aren't really common.
+
+462
+00:18:18,640 --> 00:18:19,880
+ I think Itanium might have.
+
+463
+00:18:19,880 --> 00:18:23,900
+ Itanium was an attempt by Intel to create a new ISA.
+
+464
+00:18:23,900 --> 00:18:25,400
+ It went horrifically wrong.
+
+465
+00:18:25,400 --> 00:18:29,280
+ It's a long and tragic story and somewhat funny
+
+466
+00:18:29,280 --> 00:18:32,720
+ involving lawsuits between Hewlett-Packard and Intel.
+
+467
+00:18:32,720 --> 00:18:35,880
+ And it's a great story that I won't tell you now.
+
+468
+00:18:35,880 --> 00:18:39,000
+ But basically, they did a lot of crazy things
+
+469
+00:18:39,000 --> 00:18:40,320
+ and some of them didn't work out,
+
+470
+00:18:40,320 --> 00:18:42,320
+ including six level page tables.
+
+471
+00:18:42,320 --> 00:18:44,960
+ Okay, so what else can we do?
+
+472
+00:18:44,960 --> 00:18:47,520
+ And then this is, I'm gonna ask for a little bit
+
+473
+00:18:47,520 --> 00:18:50,760
+ of audience thought here, if not participation.
+
+474
+00:18:50,760 --> 00:18:54,160
+ So the problem we're facing here is that
+
+475
+00:18:54,160 --> 00:18:59,520
+ these page tables have drawbacks.
+
+476
+00:18:59,520 --> 00:19:02,760
+ You have to have an entry for every virtual memory address.
+
+477
+00:19:02,760 --> 00:19:04,400
+ So there's still a lot of space.
+
+478
+00:19:04,400 --> 00:19:07,480
+ Every process gets their own page table.
+
+479
+00:19:07,480 --> 00:19:09,640
+ And even with multi-level page tables,
+
+480
+00:19:09,640 --> 00:19:11,640
+ you still have a lot of empty spots.
+
+481
+00:19:11,640 --> 00:19:15,520
+ And typically your address space is way, way bigger
+
+482
+00:19:15,520 --> 00:19:17,360
+ than your physical memory, right?
+
+483
+00:19:17,360 --> 00:19:21,440
+ You might have two for 32 gigs of RAM,
+
+484
+00:19:21,440 --> 00:19:24,240
+ but you've got two to the 64 virtual addresses.
+
+485
+00:19:24,240 --> 00:19:26,080
+ So it's not even a competition.
+
+486
+00:19:26,080 --> 00:19:27,860
+ So the question for you guys is,
+
+487
+00:19:27,860 --> 00:19:31,440
+ let's look at what is the problem we're trying to solve?
+
+488
+00:19:31,440 --> 00:19:33,600
+ The problem is given a virtual address,
+
+489
+00:19:33,600 --> 00:19:37,560
+ I want to be able to map that to a physical address.
+
+490
+00:19:37,560 --> 00:19:40,020
+ So one of the data structures we thought about
+
+491
+00:19:40,020 --> 00:19:41,520
+ for doing that was a tree.
+
+492
+00:19:41,520 --> 00:19:45,600
+ Trees have this login sort of traversal pattern,
+
+493
+00:19:45,600 --> 00:19:48,320
+ and they have these properties,
+
+494
+00:19:48,320 --> 00:19:50,600
+ but we wanna have better than login, right?
+
+495
+00:19:50,600 --> 00:19:52,920
+ We'd like to have fewer pointer chases.
+
+496
+00:19:52,920 --> 00:19:59,360
+ we want a faster look at. So what data structure might we consider that isn't a table? We have a
+
+497
+00:19:59,360 --> 00:20:04,400
+ lot of data structures. Y'all took, I guess it's 61b that teaches you these. So I'm going to give
+
+498
+00:20:04,400 --> 00:20:19,680
+ you 10 seconds to think up what data structure you would use other than a tree. And we got it.
+
+499
+00:20:19,680 --> 00:20:26,720
+ Hash tables are super cool. So hash tables are great. They've got constant access time,
+
+500
+00:20:26,720 --> 00:20:32,800
+ at least, you know, big O constant access time. And we can do some cool tricks with these. So
+
+501
+00:20:32,800 --> 00:20:38,400
+ one of the things we do here is we can have a hash table where it has an entry for every
+
+502
+00:20:38,400 --> 00:20:44,080
+ physical page. Like we don't need more virtual addresses mapped than we have physical memory
+
+503
+00:20:44,080 --> 00:20:49,360
+ because like it doesn't make sense. You can't map, you know, more than physical memory anyways,
+
+504
+00:20:49,360 --> 00:20:54,800
+ because you only have that much memory. So you can have one hash table for the entire system.
+
+505
+00:20:54,800 --> 00:20:59,520
+ And you can use that to look up your virtual page. So you can index into this hash table using
+
+506
+00:20:59,520 --> 00:21:04,240
+ virtual page number and get this physical page number back. And this has been used before,
+
+507
+00:21:04,240 --> 00:21:09,120
+ right? This is nice when you have these big address spaces, these big virtual address spaces.
+
+508
+00:21:09,120 --> 00:21:15,200
+ And so it has been used in a couple of places and it has some nice properties, but it's not perfect
+
+509
+00:21:15,200 --> 00:21:21,600
+ either. So the big problem here, there's two big problems here. Actually probably three big
+
+510
+00:21:21,600 --> 00:21:26,880
+ problems here, but we're going to list two of them here. One is that keep in mind from your
+
+511
+00:21:26,880 --> 00:21:33,040
+ algorithms classes and stuff, the limitations of big O notation, right? We say, oh, constants don't
+
+512
+00:21:33,040 --> 00:21:39,920
+ matter in terms of asymptotic complexity, but like insertion sort is way faster than quick sort
+
+513
+00:21:39,920 --> 00:21:44,000
+ for a small enough list, right? When you were doing merge sort, there was a point where you
+
+514
+00:21:44,000 --> 00:21:49,360
+ bottomed out on merge sort and just switched to like selection sort or insertion sort. And the
+
+515
+00:21:49,360 --> 00:21:53,360
+ same thing applies here. There's a point where the complexity of looking at the hash table,
+
+516
+00:21:53,360 --> 00:21:57,920
+ the constants involved algorithmically and looking at the hash table are actually going to outweigh
+
+517
+00:21:57,920 --> 00:22:03,600
+ the benefits. So that can happen. This is particularly true in hardware.
+
+518
+00:22:03,600 --> 00:22:09,360
+ So because these lookups are happening on every access, we need to do that in hardware. So we're
+
+519
+00:22:09,360 --> 00:22:15,680
+ actually designing a circuit, a digital logic to access this hash table. And so, you know,
+
+520
+00:22:15,680 --> 00:22:20,800
+ it has to be sufficiently simple that you can implement that in hardware. So that's a problem.
+
+521
+00:22:20,800 --> 00:22:25,680
+ The other problem is locality. So hash tables kind of by their very nature, right? That's what
+
+522
+00:22:25,680 --> 00:22:31,360
+ a hash function does is it's pretty random. It's pretty evenly distributed. There's no locality. So
+
+523
+00:22:31,360 --> 00:22:37,040
+ I can't like effectively cache this hash table. Every lookup is going to be in a pretty random
+
+524
+00:22:37,040 --> 00:22:41,360
+ spot in this hash table. So it's not very cache friendly. And that's pretty annoying.
+
+525
+00:22:41,360 --> 00:22:48,960
+ The third problem here actually is that it makes things like sharing really difficult. So this
+
+526
+00:22:48,960 --> 00:22:53,760
+ assumes there's only ever one virtual page, virtual address mapped to a physical page.
+
+527
+00:22:53,760 --> 00:22:58,880
+ But for sharing, we might want to have multiple virtual addresses point to the same physical
+
+528
+00:22:58,880 --> 00:23:02,640
+ address. And so that makes this a lot more complicated if you want to do that.
+
+529
+00:23:03,280 --> 00:23:07,600
+ Nonetheless, it's still pretty handy and people have used them in the past, but they're not
+
+530
+00:23:07,600 --> 00:23:13,760
+ especially popular in processors today. I'm not aware of any, you know, mega really popular
+
+531
+00:23:13,760 --> 00:23:20,960
+ processor. I guess PowerPC might still be around. Okay. So we've got options here. We've got a whole
+
+532
+00:23:20,960 --> 00:23:25,120
+ bunch of options and how we can do paging. At the end of the day, we're all trying to solve the same
+
+533
+00:23:25,120 --> 00:23:29,840
+ problem. You have some address, some virtual address, and you want to map it to some physical
+
+534
+00:23:29,840 --> 00:23:34,480
+ address. That's it. That's all we're trying to do. Right. And these are a bunch of different
+
+535
+00:23:34,480 --> 00:23:38,080
+ algorithms and data structures that we could consider using in order to do that.
+
+536
+00:23:38,080 --> 00:23:44,320
+ So we've got segmentation. Segmentation's great for simplicity in terms of implementing a CPU,
+
+537
+00:23:44,320 --> 00:23:49,760
+ doesn't use too much memory for the metadata, but it's very hard to allocate all these arbitrary
+
+538
+00:23:49,760 --> 00:23:54,640
+ size things. And it really screws with your ability to share memory and allocate memory.
+
+539
+00:23:56,240 --> 00:23:59,920
+ Paging works a lot better. It's a lot more flexible. It's a lot easier to allocate.
+
+540
+00:23:59,920 --> 00:24:04,720
+ But if you have single level page tables, you can really fill up your memory for a lot of empty
+
+541
+00:24:04,720 --> 00:24:10,960
+ space. So we use multi-level paging to get around that. Or you could avoid all of this sort of tree
+
+542
+00:24:10,960 --> 00:24:15,760
+ walking and use an inverted page table, which works pretty great, but has limitations of its own.
+
+543
+00:24:15,760 --> 00:24:23,200
+ Okay. So enough about the high level strategies and the problem we're trying to solve.
+
+544
+00:24:23,200 --> 00:24:28,000
+ Let's get into the nitty gritty. Let's start talking about how you might actually physically
+
+545
+00:24:28,000 --> 00:24:34,320
+ implement this. How does this work in practice? So the thing that is in charge of this is called
+
+546
+00:24:34,320 --> 00:24:42,000
+ the MMU. So this is the part of your architecture, the part of your CPU or your chip that is
+
+547
+00:24:42,000 --> 00:24:47,120
+ responsible for handling this virtual address to physical address translation. So we call that the
+
+548
+00:24:47,120 --> 00:24:53,680
+ memory management unit. Everyone just says MMU. And it's the one that's in charge of all of this.
+
+549
+00:24:53,680 --> 00:24:59,920
+ So it needs to do different things. We're going to focus on paging. So we're going to focus on
+
+550
+00:24:59,920 --> 00:25:05,760
+ page tables probably from now on because it's by far the most common approach, at least in
+
+551
+00:25:05,760 --> 00:25:11,440
+ the sort of high end or medium end application processors that you're likely to see.
+
+552
+00:25:12,400 --> 00:25:17,200
+ So if you have page tables, the MMU is going to have to do the walk. So it's going to walk
+
+553
+00:25:17,200 --> 00:25:22,800
+ that tree in hardware. So it reads the page table entry, the PTE from the first level page table,
+
+554
+00:25:22,800 --> 00:25:28,320
+ checks all the metadata that it needs. And then it goes and finds the address in the second level
+
+555
+00:25:28,320 --> 00:25:34,400
+ page table, looks that up, iterates as many times as it needs, gets the final PTE, and then it can
+
+556
+00:25:34,400 --> 00:25:38,960
+ form the actual physical address and send that request out to the rest of the memory system.
+
+557
+00:25:39,520 --> 00:25:44,000
+ So the MMU is just translating. Logically, the CPU doesn't know about physical addresses.
+
+558
+00:25:44,000 --> 00:25:51,200
+ So the CPU is just issuing virtual addresses and automagically, the MMU is making them
+
+559
+00:25:51,200 --> 00:25:58,000
+ behave like physical addresses. Okay. So it's doing this at every, at least conceptually,
+
+560
+00:25:58,000 --> 00:26:02,800
+ it's got to do this all the time. Every single time you do a read or write, and that includes
+
+561
+00:26:02,800 --> 00:26:07,600
+ fetching the next instruction, that MMU has to do that translation in order to get to memory.
+
+562
+00:26:08,560 --> 00:26:16,720
+ So this is a bit more of a physical representation of it. You can see you've got all these buses
+
+563
+00:26:16,720 --> 00:26:22,400
+ floating around. So you've got your core, your core CPU pipeline, you've got a bunch of buses,
+
+564
+00:26:22,400 --> 00:26:27,520
+ and they're going through these hardware blocks. And if you take 152, you're going to see a lot
+
+565
+00:26:27,520 --> 00:26:36,960
+ more of this, or maybe some of your digital logic classes. A lot of this can take time. So loads and
+
+566
+00:26:36,960 --> 00:26:41,840
+ stores, if they hit in the cache, can be really fast. Maybe they don't stall the pipeline too bad.
+
+567
+00:26:41,840 --> 00:26:46,080
+ But if you miss or you have to go out to physical memory, then your pipeline has to stall and you
+
+568
+00:26:46,080 --> 00:26:52,000
+ get those bubbles. If you remember seeing bubbles, I think in 61c, you hit a little bit of that,
+
+569
+00:26:52,000 --> 00:26:59,040
+ and that can cause problems. So we have to make sure that this translation is really fast. And in
+
+570
+00:26:59,040 --> 00:27:06,000
+ a really naive sense, if we didn't do any fancy optimizations, a single load or store could turn
+
+571
+00:27:06,000 --> 00:27:11,760
+ into like three or four reads and then the loader store, right? So it's multiplying every memory
+
+572
+00:27:11,760 --> 00:27:16,880
+ access by like four if you have a four level page table. So this is a problem and we're going to have
+
+573
+00:27:16,880 --> 00:27:25,520
+ to solve this problem. Okay, so this is really, really slow. I mean, unreasonably slow for any
+
+574
+00:27:25,520 --> 00:27:32,960
+ high performance CPU. So what do we do if we have some sort of data access? We do that data access
+
+575
+00:27:32,960 --> 00:27:38,800
+ multiple times and we want to make it faster. So I already kind of spoiled the answer here by
+
+576
+00:27:38,800 --> 00:27:45,840
+ switching slides. This is caching. Caching is one of those like fundamental core computer science
+
+577
+00:27:45,840 --> 00:27:51,520
+ concepts that just comes up again and again and again. You're going to see caching everywhere.
+
+578
+00:27:51,520 --> 00:27:58,320
+ It's just everywhere. So that's what we're going to have to deal with is caching. That's the trick.
+
+579
+00:27:58,320 --> 00:28:01,840
+ That's the trick we're going to use to solve this. So I'm going to spend a little bit of time now
+
+580
+00:28:01,840 --> 00:28:08,640
+ reviewing caching. I know you learned a little bit about this in 61c. If you've taken like 152 or
+
+581
+00:28:08,640 --> 00:28:13,040
+ something, you're going to see caching in a lot more detail. But I'm going to take some time now
+
+582
+00:28:13,040 --> 00:28:18,960
+ to refresh your memory because caching is super important. And you're going to see just in this
+
+583
+00:28:18,960 --> 00:28:24,800
+ lecture alone, we're going to see two examples of caching, three examples of caching just in this
+
+584
+00:28:24,800 --> 00:28:31,280
+ lecture alone. And then every class you take, you're going to see it. So a cache is a smaller,
+
+585
+00:28:31,280 --> 00:28:39,680
+ faster memory in which we store copies of some original data. It's everywhere, like I just said,
+
+586
+00:28:39,680 --> 00:28:45,680
+ and it really only works if you have some sort of locality. So basically you have to be able to
+
+587
+00:28:45,680 --> 00:28:52,160
+ predict whether you're going to reuse some memory. If you can predict it, then caches are going to
+
+588
+00:28:52,160 --> 00:28:56,480
+ work well. If you have completely unpredictable accesses, then the cache isn't going to work
+
+589
+00:28:56,480 --> 00:29:00,480
+ because what do you store in the cache? Every single one is like totally random.
+
+590
+00:29:00,480 --> 00:29:04,320
+ So they won't work in that case, but as long as you have some locality, caches are great.
+
+591
+00:29:04,320 --> 00:29:10,560
+ Here's a metric. There's a metric that's really important to keep in mind.
+
+592
+00:29:10,560 --> 00:29:14,880
+ This is another one. It's sort of like the iron law. There's a bunch of these equations that seem
+
+593
+00:29:14,880 --> 00:29:20,800
+ really dumb or like Amdahl's law, right? They seem really, they're almost dumb, right? They're just
+
+594
+00:29:20,800 --> 00:29:26,160
+ obvious like, oh yeah, well, of course this is the time. But they're easy to forget and they're
+
+595
+00:29:26,160 --> 00:29:31,520
+ really helpful for thinking and like understanding how systems work. So in this case, we're talking
+
+596
+00:29:31,520 --> 00:29:39,280
+ about average access time. So that is the hit rate times the hit time plus the miss rate times the
+
+597
+00:29:39,280 --> 00:29:44,880
+ miss time is going to be your average access time. So on average, a memory access is going to take
+
+598
+00:29:44,880 --> 00:29:52,400
+ that much time. So keep that in mind. You may be asked to do that on homeworks or tests or things.
+
+599
+00:29:52,400 --> 00:29:55,920
+ It's important. And we're going to, I think we're going to walk through an example here in a second.
+
+600
+00:29:55,920 --> 00:30:04,240
+ Okay. We need to put into context a little bit why we're talking about caching and just how
+
+601
+00:30:04,240 --> 00:30:11,600
+ effective it can be, right? I think humans brains are really bad at reasoning about scale. We just
+
+602
+00:30:11,600 --> 00:30:15,840
+ can't handle things that are like orders of magnitude apart. Our brains just aren't wired
+
+603
+00:30:15,840 --> 00:30:21,280
+ for it. So here's an attempt to put it into perspective, an attempt that will probably fail,
+
+604
+00:30:21,280 --> 00:30:25,120
+ but you should keep these numbers in mind. It's really important to always have this in your head.
+
+605
+00:30:25,680 --> 00:30:32,320
+ So we have multiple ways of storing data in digital logic or in a computer. The fastest
+
+606
+00:30:32,320 --> 00:30:38,640
+ one here is registers and also kind of the L1 cache. The L1 cache might be a little slower
+
+607
+00:30:38,640 --> 00:30:49,920
+ than registers, but it's close. Both of these are about the cycle time. So these are running
+
+608
+00:30:49,920 --> 00:30:56,560
+ about the same speed as like your computer processor cycles. So that means that we want
+
+609
+00:30:56,560 --> 00:31:03,120
+ to interact with these in hardware. These happen at sort of hardware time scales, right? Then we've
+
+610
+00:31:03,120 --> 00:31:07,040
+ got all this stuff in the middle. So we've got all these and they're just getting slower and slower
+
+611
+00:31:07,040 --> 00:31:12,800
+ and slower. And at some point we're going to get all the way to your hard disk. And when you get to
+
+612
+00:31:12,800 --> 00:31:19,360
+ your hard disk to a first order approximation, the amount of time it takes to read from a hard disk is
+
+613
+00:31:20,080 --> 00:31:27,520
+ forever. Like from a hardware perspective, it's not even worth thinking about. I mean, it's an
+
+614
+00:31:27,520 --> 00:31:34,080
+ absolutely absurd amount of time. I was going to need bread, but then I cut my finger, so I
+
+615
+00:31:34,080 --> 00:31:43,120
+ haven't done that recently. Okay, so basically think about hard disks as taking infinite time
+
+616
+00:31:43,120 --> 00:31:49,120
+ from a hardware perspective. If I'm cycling at 4 gigahertz, 10 milliseconds is just a ridiculous
+
+617
+00:31:49,120 --> 00:31:54,160
+ amount of time. And so when we're going to go to these time scales, we're just going to deal with
+
+618
+00:31:54,160 --> 00:31:58,240
+ it in software, right? Because it doesn't make sense for the hardware to even deal with it. It's
+
+619
+00:31:58,240 --> 00:32:02,400
+ so slow. And then there's this stuff in the middle and all this stuff in the middle are going to be
+
+620
+00:32:02,400 --> 00:32:07,840
+ shades of gray, right? And depending on how you want to deal with this, you might have hardware
+
+621
+00:32:07,840 --> 00:32:12,160
+ deal with it. You might have software deal with it. You might have some more complicated mix of
+
+622
+00:32:12,160 --> 00:32:17,760
+ things, right? A lot of my research has focused sort of in this space and understanding where
+
+623
+00:32:17,760 --> 00:32:23,440
+ exactly that barrier between hardware and software can be. And it's a pretty interesting question.
+
+624
+00:32:23,440 --> 00:32:28,240
+ But way over here, definitely want to deal with that completely in software. Way over here,
+
+625
+00:32:28,240 --> 00:32:33,840
+ you definitely want to deal with that completely in hardware. And there's like millions and millions
+
+626
+00:32:33,840 --> 00:32:39,840
+ and millions times difference in the performance here. So that's why caches are important. An L1
+
+627
+00:32:39,840 --> 00:32:44,720
+ cache miss is not a big deal. It's going to happen. You're only going to lose a cycle or something.
+
+628
+00:32:44,720 --> 00:32:50,240
+ If you try and read something from disk, just give up, right? Like go put your laptop away,
+
+629
+00:32:50,240 --> 00:32:54,480
+ go home, come back, right? At least the hardware thinks it's like that.
+
+630
+00:32:54,480 --> 00:33:02,880
+ And then address translation. Because this is so fast, address translation has to happen
+
+631
+00:33:02,880 --> 00:33:07,680
+ right here. It has to happen by the time you get into the core. So it's got to be fast.
+
+632
+00:33:07,680 --> 00:33:13,520
+ Worst case scenario, page tables live here or maybe even here in extreme cases. But for the
+
+633
+00:33:13,520 --> 00:33:19,200
+ most part, your page tables are here. So we need this caching in order to be able to access them
+
+634
+00:33:19,200 --> 00:33:27,040
+ effectively. Okay, so just real quick, because I think it's really important to understand this
+
+635
+00:33:27,040 --> 00:33:32,480
+ equation, we're going to go through an example. So let's take a real example or a made up example
+
+636
+00:33:32,480 --> 00:33:38,240
+ that's real enough. And say that it takes about 100 nanoseconds to get to DRAM. This is about
+
+637
+00:33:38,240 --> 00:33:44,320
+ right. And then say it takes one nanosecond to get to your cache, like your L1. Again, it's about
+
+638
+00:33:44,320 --> 00:33:51,920
+ right. So what's the average memory access time here? I'm going to go through it now just in the
+
+639
+00:33:51,920 --> 00:33:56,320
+ interest of time. But this is something that you guys are going to have to get a little bit
+
+640
+00:33:56,320 --> 00:34:03,040
+ comfortable running. Okay, so actually, I'll let people sort of think about this for a second. And
+
+641
+00:34:03,040 --> 00:34:08,320
+ I'm going to answer this question. Yeah, so what do I mean by letting software deal with it? We're
+
+642
+00:34:08,320 --> 00:34:13,760
+ going to talk about that in a little more detail later in the lecture. But basically, what I mean
+
+643
+00:34:13,760 --> 00:34:19,680
+ is that the hardware might notice that it needs to go to disk, like it might notice that the data
+
+644
+00:34:19,680 --> 00:34:25,440
+ it needs is not available. And rather than some circuit, figuring out how to read from the disk,
+
+645
+00:34:25,440 --> 00:34:30,160
+ so some digital logic issuing requests to the disk, what it's going to do is it's going to
+
+646
+00:34:30,160 --> 00:34:36,080
+ throw what's called a trap. Just like how the user process is able to switch back into kernel mode,
+
+647
+00:34:36,080 --> 00:34:40,800
+ the hardware can decide, you know what, I can't deal with this right now. I'm going to run some
+
+648
+00:34:40,800 --> 00:34:47,920
+ code that the operating system provided. And I'll let that code deal with this. So when we let
+
+649
+00:34:47,920 --> 00:34:52,080
+ software deal with it, that means we hand control to the operating system to make some more
+
+650
+00:34:52,080 --> 00:34:58,720
+ complicated decisions than you could in a dedicated like digital logic circuit. And we'll go into more
+
+651
+00:34:58,720 --> 00:35:06,480
+ details of this later on, assuming we get there. Okay, so we're looking at the average memory
+
+652
+00:35:06,480 --> 00:35:13,200
+ access time. So this is hit rate times hit time plus miss rate times miss time. So the hit rate
+
+653
+00:35:13,200 --> 00:35:18,560
+ plus the miss rate, obviously they've got a match, right? If I didn't hit, then I missed. If I didn't
+
+654
+00:35:18,560 --> 00:35:25,920
+ miss, then I hit. So these are just ratios. So let's assume that our hit rate in this cache is 90%.
+
+655
+00:35:26,880 --> 00:35:34,000
+ That means that our miss rate is going to be 10%. If we hit, then that means it took us a nanosecond
+
+656
+00:35:34,000 --> 00:35:40,880
+ to read. So that'll be 90% times one. And then if we missed, it's going to take us 100 seconds to
+
+657
+00:35:40,880 --> 00:35:49,280
+ read. But I just wrote 101 here. So why did I write 101 and not 100 for the miss time?
+
+658
+00:35:54,000 --> 00:35:57,840
+ I'll give you guys a few seconds to think about that.
+
+659
+00:35:57,840 --> 00:36:07,440
+ So the reason I did that was that in order to notice that I missed, I had to try and hit.
+
+660
+00:36:07,440 --> 00:36:18,000
+ So not quite. So the, yeah, exactly. So I think Brian's got it here. So the trick is that I had
+
+661
+00:36:18,000 --> 00:36:23,280
+ to notice that I missed and that took a nanosecond all by itself. Then I noticed that I missed
+
+662
+00:36:23,840 --> 00:36:28,960
+ and then I could start trying to read from the next level, right? Or actually that might be what
+
+663
+00:36:28,960 --> 00:36:33,920
+ they were just trying to get at too. So that's why. So you have to account for the fact that
+
+664
+00:36:33,920 --> 00:36:37,440
+ missing takes extra time because you have to notice that you missed.
+
+665
+00:36:37,440 --> 00:36:46,560
+ And so we can look at what happens as you change hit rates and miss rates. Notice that a relatively
+
+666
+00:36:46,560 --> 00:36:52,480
+ small increase in the hit rate can have a very large impact on the overall performance. So hit
+
+667
+00:36:52,480 --> 00:37:02,080
+ rates become very, very important. Okay. Again, I talked about why caching works. I'm going to move
+
+668
+00:37:02,080 --> 00:37:08,160
+ a little bit fast here. Well, that's kind of an important concept. We talked about locality. So
+
+669
+00:37:08,160 --> 00:37:14,640
+ caching works because we have predictability. We can guess what memories are likely to be accessed
+
+670
+00:37:14,640 --> 00:37:22,160
+ next. So there's different types of patterns that we might detect. And the most common ones
+
+671
+00:37:22,160 --> 00:37:28,640
+ are temporal locality. So if I read or wrote some address, I'm probably going to read or write it
+
+672
+00:37:28,640 --> 00:37:34,640
+ again. Most likely. Imagine if I have a loop, right? So instructions are memory. If you remember
+
+673
+00:37:34,640 --> 00:37:41,280
+ your whole von Neumann thing, so the program itself is memory. And if I have a loop in my memory,
+
+674
+00:37:41,280 --> 00:37:45,920
+ then I'm going to be reusing those instructions over and over and over because I got this loop,
+
+675
+00:37:45,920 --> 00:37:51,040
+ right? So that's temporal locality. So that's a pretty good guess. That tends to work pretty
+
+676
+00:37:51,040 --> 00:37:56,960
+ well. If I access something recently, I'll probably access it again. The other one is spatial locality.
+
+677
+00:37:56,960 --> 00:38:01,840
+ So this is like, imagine scanning an array, right? If I'm reading an array from start to finish.
+
+678
+00:38:01,840 --> 00:38:06,720
+ So if I read an array from start to finish, if I access one piece of information, it's pretty
+
+679
+00:38:06,720 --> 00:38:13,600
+ likely that I'm going to read addresses that are nearby, right? So that is spatial locality. Stuff
+
+680
+00:38:13,600 --> 00:38:19,360
+ tends to cluster together physically, like in the address space. That's not always true. I talked
+
+681
+00:38:19,360 --> 00:38:24,960
+ earlier about how hash tables aren't very cache friendly. This is why. Because hash tables don't
+
+682
+00:38:24,960 --> 00:38:31,600
+ have a lot of spatial locality. You jump around them a lot. And so things that are physically
+
+683
+00:38:31,600 --> 00:38:38,320
+ near each other aren't necessarily accessed together. But then having an array or a table
+
+684
+00:38:38,320 --> 00:38:42,560
+ lookup or something like that, you have more spatial locality. So they tend to behave a little
+
+685
+00:38:42,560 --> 00:38:52,240
+ nicer. Right. And then the final thing here is that we have multiple levels. And so we can stack
+
+686
+00:38:52,240 --> 00:39:01,520
+ these together in order to keep track of things. Okay. So what is the trick here? Why was I just
+
+687
+00:39:01,520 --> 00:39:07,120
+ talking about caching? Well, translations are slow, really painful. And the trick we're going
+
+688
+00:39:07,120 --> 00:39:13,520
+ to do, the trick we always do, is we're just going to slap a cache on it. Right? Caches are everywhere
+
+689
+00:39:13,520 --> 00:39:19,280
+ and this is no exception. So we're going to stick a cache on the MMU. And now every time we do a
+
+690
+00:39:19,280 --> 00:39:24,720
+ translation, we're going to save that translation in this cache. Now the cache is smaller and it's
+
+691
+00:39:24,720 --> 00:39:29,840
+ faster to access. So we don't have to do all this table locking. We can just look it up in the cache.
+
+692
+00:39:29,840 --> 00:39:34,640
+ And the cache is relatively simple. It's just going to have the virtual page, right? That's what
+
+693
+00:39:34,640 --> 00:39:39,840
+ you're using to look up. Then it's going to have the physical frame number. That's the answer you
+
+694
+00:39:39,840 --> 00:39:45,200
+ want. And then it's also going to cache a bunch of other metadata. So PTEs have a bunch of extreme
+
+695
+00:39:45,440 --> 00:39:50,840
+ in them, like whether this mapping is currently valid or whether you're allowed to read or write
+
+696
+00:39:50,840 --> 00:39:56,380
+ to it. Has it been accessed recently? There's a bunch of little metadata. We'll show you a picture
+
+697
+00:39:56,380 --> 00:40:00,560
+ at the end of the slides, but a lot of little data that you want to keep around to keep track
+
+698
+00:40:00,560 --> 00:40:05,480
+ of extra information. And that's, so that's what you're caching. So keep in mind here, this is not
+
+699
+00:40:05,480 --> 00:40:12,160
+ caching data. So this has nothing to do with what's actually in the page, right? We're not caching the
+
+700
+00:40:12,160 --> 00:40:18,560
+ information contained in the page. All we're caching is metadata. We're caching information about the
+
+701
+00:40:18,560 --> 00:40:23,000
+ page. So that's what we're trying to cache here. And it's going to save us every time we hit in
+
+702
+00:40:23,000 --> 00:40:32,280
+ this cache, we get to avoid walking the table. And that's pretty nice. Okay. So this cache, for
+
+703
+00:40:32,280 --> 00:40:38,360
+ largely historical reasons, is referred to as a translation lookaside buffer. It's just a fancy
+
+704
+00:40:38,360 --> 00:40:45,200
+ word for a cache. Turns out, it's a very old idea. It was, they came up with it quite a long time
+
+705
+00:40:45,200 --> 00:40:52,560
+ ago, before the word cache was really coined. And so it has kind of a funny name. But either way,
+
+706
+00:40:52,560 --> 00:40:59,000
+ it's storing these translations. You know, if we hit in that cache, we get to avoid all these slow
+
+707
+00:40:59,000 --> 00:41:04,720
+ lookups. So that's really nice. Like I said, it was invented actually quite a long time ago,
+
+708
+00:41:05,200 --> 00:41:12,080
+ before the word cache was even being commonly used, hence the funny name. And we call it the
+
+709
+00:41:12,080 --> 00:41:16,320
+ TLB. So you're gonna, I don't think anybody ever says translation lookaside buffer out loud, they
+
+710
+00:41:16,320 --> 00:41:22,160
+ only ever say TLB. So you'll have to get used to hearing that word. But keep in mind, TLB is just a
+
+711
+00:41:22,160 --> 00:41:28,200
+ funny word for cache. It's a cache for your page table lookups, a cache for virtual to physical
+
+712
+00:41:28,200 --> 00:41:34,720
+ translations. So how does this work? Let's go through just sort of a flow diagram, a workflow of
+
+713
+00:41:34,720 --> 00:41:41,200
+ how this actually goes. So CPU is going to ask for a virtual address, it's going to try and find it
+
+714
+00:41:41,200 --> 00:41:47,120
+ in the TLB, or the MMU is going to try and find it in the TLB. If it does, great, immediately,
+
+715
+00:41:47,120 --> 00:41:50,880
+ it's just going to push that request all the way through to physical memory, and everything's on
+
+716
+00:41:50,880 --> 00:41:56,480
+ theory. If it's not, so there's nothing cached, then you're going to have to go to the MMU. And
+
+717
+00:41:56,480 --> 00:42:02,320
+ the MMU is going to have to go back and forth to memory a couple times to walk that table. But once
+
+718
+00:42:02,320 --> 00:42:06,640
+ it's walked the table, and it's looked up the translation, it can save that translation in the
+
+719
+00:42:06,640 --> 00:42:12,000
+ TLB, and then go and do the translation for the CPU, and everything starts back up.
+
+720
+00:42:12,000 --> 00:42:21,360
+ So why does this work? And does it work? It's a question of page locality, right? So is there
+
+721
+00:42:21,360 --> 00:42:26,400
+ locality, or is the caching going to work? Is there spatial locality? Is there temporal locality?
+
+722
+00:42:27,040 --> 00:42:33,200
+ It turns out there is. So it turns out that physical memory, the pages in physical memory,
+
+723
+00:42:33,200 --> 00:42:38,160
+ tend to have quite a lot of locality, actually. The biggest, a really, really big source of this
+
+724
+00:42:38,160 --> 00:42:43,600
+ is your code, right? Code is data. I talked about this before. So when you're reading a program,
+
+725
+00:42:43,600 --> 00:42:47,440
+ like when you're running a program, the instructions that make up that program are
+
+726
+00:42:47,440 --> 00:42:53,280
+ all close together. So that's spatial locality. And they tend to get reused a lot. So you have a
+
+727
+00:42:53,280 --> 00:42:58,320
+ loop, you're reusing the instructions. If you call into functions, one of the whole points of having
+
+728
+00:42:58,320 --> 00:43:04,080
+ subroutines or functions is that you only have one copy of that code, and you call into it lots
+
+729
+00:43:04,080 --> 00:43:09,920
+ of times. So tons and tons of temporal locality in code. You also have other spatial and temporal
+
+730
+00:43:09,920 --> 00:43:16,240
+ locality. Your stack gets reused again and again and again. A lot of the sort of hard data stuff.
+
+731
+00:43:16,240 --> 00:43:21,920
+ The heap is, you know, more variable. Whether or not your heap has locality, it's the same reasons
+
+732
+00:43:21,920 --> 00:43:27,520
+ it has cache locality in your data caches. It's up to you to write a program that has good cache
+
+733
+00:43:27,520 --> 00:43:35,840
+ locality, but it tends to. And of course, all the tricks that we play for caches apply to TLBs as
+
+734
+00:43:35,840 --> 00:43:41,120
+ well. They're just a cache. So maybe they got a few different decisions you might make, but
+
+735
+00:43:41,120 --> 00:43:46,480
+ ultimately they're caches and all the same tricks work. So we can have a multi-level TLB if we want.
+
+736
+00:43:48,640 --> 00:43:53,280
+ Okay, we've been talking for a while. I'm going to take a break. I'm going to get some water and
+
+737
+00:43:53,280 --> 00:44:01,360
+ do a stretch, and I will allow others to do the same. So we're going to take a two-minute break.
+
+738
+00:44:01,360 --> 00:44:08,080
+ So I'll be back at 1.28. Here's a bunch of announcements. I'm just sort of stepping in
+
+739
+00:44:08,080 --> 00:44:13,360
+ for today, so I have no idea what any of these announcements mean, and it's just what Jan gave
+
+740
+00:44:13,360 --> 00:44:19,360
+ me. So talk to your TAs or whatever. Okay, 1.28, we'll be back.
+
+741
+00:44:40,080 --> 00:44:46,880
+ Oh, and while we're waiting, you guys can ask questions and stuff if you want.
+
+742
+00:44:46,880 --> 00:44:48,880
+ Okay. Thank you.
+
+743
+00:44:48,880 --> 00:44:50,880
+ Thank you.
+
+744
+00:44:50,880 --> 00:44:52,880
+ Thank you.
+
+745
+00:44:52,880 --> 00:44:54,880
+ Thank you.
+
+746
+00:44:54,880 --> 00:44:56,880
+ Thank you.
+
+747
+00:44:56,880 --> 00:44:58,880
+ Thank you.
+
+748
+00:44:58,880 --> 00:45:00,880
+ Thank you.
+
+749
+00:45:00,880 --> 00:45:02,880
+ Thank you.
+
+750
+00:45:02,880 --> 00:45:04,880
+ Thank you.
+
+751
+00:45:04,880 --> 00:45:06,880
+ Thank you.
+
+752
+00:45:06,880 --> 00:45:08,880
+ Thank you.
+
+753
+00:45:08,880 --> 00:45:10,880
+ Thank you.
+
+754
+00:45:10,880 --> 00:45:12,880
+ Thank you.
+
+755
+00:45:12,880 --> 00:45:14,880
+ Thank you.
+
+756
+00:45:14,880 --> 00:45:16,880
+ Thank you.
+
+757
+00:45:16,880 --> 00:45:18,880
+ Thank you.
+
+758
+00:45:18,880 --> 00:45:20,880
+ Thank you.
+
+759
+00:45:20,880 --> 00:45:22,880
+ Thank you.
+
+760
+00:45:22,880 --> 00:45:24,880
+ Thank you.
+
+761
+00:45:24,880 --> 00:45:26,880
+ Thank you.
+
+762
+00:45:26,880 --> 00:45:28,880
+ Thank you.
+
+763
+00:45:28,880 --> 00:45:30,880
+ Thank you.
+
+764
+00:45:30,880 --> 00:45:32,880
+ Thank you.
+
+765
+00:45:32,880 --> 00:45:34,880
+ Thank you.
+
+766
+00:45:34,880 --> 00:45:36,880
+ Thank you.
+
+767
+00:45:36,880 --> 00:45:38,880
+ Thank you.
+
+768
+00:45:38,880 --> 00:45:40,880
+ Thank you.
+
+769
+00:45:40,880 --> 00:45:42,880
+ Thank you.
+
+770
+00:45:42,880 --> 00:45:44,880
+ Thank you.
+
+771
+00:45:44,880 --> 00:45:46,880
+ Thank you.
+
+772
+00:45:46,880 --> 00:45:48,880
+ Thank you.
+
+773
+00:45:48,880 --> 00:45:50,880
+ Okay.
+
+774
+00:45:50,880 --> 00:46:06,880
+ Okay, and we're back.
+
+775
+00:46:06,880 --> 00:46:08,880
+ Quick break.
+
+776
+00:46:08,880 --> 00:46:12,880
+ A lot of content to cover.
+
+777
+00:46:12,880 --> 00:46:16,880
+ Okay, so, starting again.
+
+778
+00:46:16,880 --> 00:46:18,880
+ Okay.
+
+779
+00:46:18,880 --> 00:46:20,880
+ Okay. So, we talked about caching a lot.
+
+780
+00:46:20,880 --> 00:46:22,880
+ Real handy to keep this in mind.
+
+781
+00:46:22,880 --> 00:46:24,880
+ This is a concept that comes up again and again.
+
+782
+00:46:24,880 --> 00:46:28,880
+ So, let's talk about, you know, we talked about why caches work.
+
+783
+00:46:28,880 --> 00:46:32,880
+ You know, you talked about temporal locality and spatial locality.
+
+784
+00:46:32,880 --> 00:46:36,880
+ So, let's talk about what makes caches not work.
+
+785
+00:46:36,880 --> 00:46:38,880
+ What makes us miss in the cache.
+
+786
+00:46:38,880 --> 00:46:40,880
+ So, let's categorize them.
+
+787
+00:46:40,880 --> 00:46:46,880
+ So, recall the one of the types of cache miss that you can get is called compulsory.
+
+788
+00:46:46,880 --> 00:46:50,880
+ This means it's a miss that you really just can't do anything about.
+
+789
+00:46:50,880 --> 00:46:54,880
+ Right? Like, I've never seen this data before, therefore I don't have it cached.
+
+790
+00:46:54,880 --> 00:46:59,880
+ So, called, you know, compulsory misses are mostly unavoidable.
+
+791
+00:46:59,880 --> 00:47:02,880
+ There's some tricks you can do with what's called prefetching.
+
+792
+00:47:02,880 --> 00:47:05,880
+ Where you try and guess what you might need in the future.
+
+793
+00:47:05,880 --> 00:47:10,880
+ And that's really the only way that you can avoid compulsory misses.
+
+794
+00:47:10,880 --> 00:47:13,880
+ Another one is called capacity misses.
+
+795
+00:47:13,880 --> 00:47:17,880
+ So, in this case, I basically just ran out of space.
+
+796
+00:47:17,880 --> 00:47:19,880
+ I have cached everything I can cache.
+
+797
+00:47:19,880 --> 00:47:21,880
+ I have no more room.
+
+798
+00:47:21,880 --> 00:47:24,880
+ I had to kick something out of my cache because I ran out of room.
+
+799
+00:47:24,880 --> 00:47:27,880
+ And therefore, I missed the next time you tried to read it.
+
+800
+00:47:27,880 --> 00:47:32,880
+ So, I saw this data, I cached it, and then I ran out of room and I had to kick it out again.
+
+801
+00:47:32,880 --> 00:47:36,880
+ So, the way you deal with capacity misses is you make your cache bigger.
+
+802
+00:47:36,880 --> 00:47:39,880
+ And you make it bigger and bigger and everything's great.
+
+803
+00:47:39,880 --> 00:47:43,880
+ But keep in mind, as you make your cache bigger, it gets slower.
+
+804
+00:47:43,880 --> 00:47:46,880
+ So, there's a point where you don't want to make the cache any bigger.
+
+805
+00:47:46,880 --> 00:47:50,880
+ Another one, conflict.
+
+806
+00:47:50,880 --> 00:47:56,880
+ So, in this case, with a conflict miss, I've seen the data before, so it's not compulsory.
+
+807
+00:47:56,880 --> 00:48:01,880
+ I have enough capacity for it so that I have empty space in my cache.
+
+808
+00:48:01,880 --> 00:48:02,880
+ I could store it.
+
+809
+00:48:02,880 --> 00:48:11,880
+ But because of the algorithm and the data structures I chose, so because of the way I chose to design my cache, I had to kick something out.
+
+810
+00:48:11,880 --> 00:48:20,880
+ So, we're going to go into those details again here in a minute about what sort of algorithms you might choose and why those might have conflict misses, even if there was enough room.
+
+811
+00:48:20,880 --> 00:48:26,880
+ But the bottom line here is that I couldn't store it because of the algorithms I chose.
+
+812
+00:48:26,880 --> 00:48:28,880
+ And there's different ways of dealing with conflict misses.
+
+813
+00:48:28,880 --> 00:48:34,880
+ You can make the cache bigger so that you're less likely to have one of these conflicts, or you can change your algorithm.
+
+814
+00:48:34,880 --> 00:48:40,880
+ You can make your algorithm a little more sophisticated, and then you're less likely to have conflicts.
+
+815
+00:48:40,880 --> 00:48:45,880
+ There's one more, and I don't think this was talked about very much in 61c, if at all.
+
+816
+00:48:45,880 --> 00:48:49,880
+ It's been a few years since I taught that class.
+
+817
+00:48:49,880 --> 00:48:53,880
+ But the last one here is called coherence.
+
+818
+00:48:53,880 --> 00:48:56,880
+ And this is one that's going to come up a lot in TLBs.
+
+819
+00:48:56,880 --> 00:49:00,880
+ So this is kind of a big one for TLBs.
+
+820
+00:49:00,880 --> 00:49:06,880
+ And a coherence one is basically that a cache is a copy.
+
+821
+00:49:06,880 --> 00:49:12,880
+ So I have a copy of data, but the data that's up in, say, main memory, that's the real data.
+
+822
+00:49:12,880 --> 00:49:19,880
+ That's the official, real ground truth of what that data is.
+
+823
+00:49:19,880 --> 00:49:22,880
+ And my cache is just a copy of that.
+
+824
+00:49:22,880 --> 00:49:32,880
+ And so if somebody changes that data in main memory for whatever reason, some other CPU does it, or some other process or circuit or trigger or whatever did it,
+
+825
+00:49:32,880 --> 00:49:38,880
+ if it changes for some reason, then I have to invalidate my cache.
+
+826
+00:49:38,880 --> 00:49:44,880
+ I have to tell the cache, "Hey, you have a copy of this data, but it's not true anymore. You need to throw it out and read the new data."
+
+827
+00:49:44,880 --> 00:49:46,880
+ So that's called a coherence miss.
+
+828
+00:49:46,880 --> 00:49:53,880
+ And this is one that doesn't show up much in data caches for single CPU systems.
+
+829
+00:49:53,880 --> 00:49:57,880
+ But if you have multiple CPUs, it happens a lot.
+
+830
+00:49:57,880 --> 00:50:08,880
+ And if you have things like TLBs have it more often because there's more things that change page table entries.
+
+831
+00:50:08,880 --> 00:50:10,880
+ And TLBs are kind of separate from the data cache.
+
+832
+00:50:10,880 --> 00:50:13,880
+ But we'll go into that in more detail.
+
+833
+00:50:13,880 --> 00:50:21,880
+ So false sharing is a particularly degenerate cause of coherence misses.
+
+834
+00:50:21,880 --> 00:50:25,880
+ So this is a question in the chat.
+
+835
+00:50:25,880 --> 00:50:30,880
+ So basically, false sharing causes unnecessary coherence misses.
+
+836
+00:50:30,880 --> 00:50:34,880
+ But you can have coherence misses that don't involve false sharing.
+
+837
+00:50:34,880 --> 00:50:37,880
+ So if you have true sharing, right?
+
+838
+00:50:37,880 --> 00:50:43,880
+ So let's say I'm sharing -- you see this a lot in locks, when you're implementing locks.
+
+839
+00:50:43,880 --> 00:50:45,880
+ This is really common.
+
+840
+00:50:45,880 --> 00:50:48,880
+ You have lots and lots of entities, lots and lots of different cores.
+
+841
+00:50:48,880 --> 00:50:51,880
+ And they're all trying to read and write the same piece of memory.
+
+842
+00:50:51,880 --> 00:50:54,880
+ Maybe it's to set a lock, maybe it's just to communicate.
+
+843
+00:50:54,880 --> 00:50:56,880
+ That's real sharing.
+
+844
+00:50:56,880 --> 00:50:59,880
+ And that would cause lots and lots of coherence misses.
+
+845
+00:50:59,880 --> 00:51:03,880
+ What happens with false sharing is that caches store an entire line at a time.
+
+846
+00:51:03,880 --> 00:51:05,880
+ So you store blocks.
+
+847
+00:51:05,880 --> 00:51:06,880
+ You store a cache line.
+
+848
+00:51:06,880 --> 00:51:10,880
+ And so let's say that you're not actually sharing data.
+
+849
+00:51:10,880 --> 00:51:13,880
+ Like core zero is writing the first byte.
+
+850
+00:51:13,880 --> 00:51:14,880
+ Core one is writing the next byte.
+
+851
+00:51:14,880 --> 00:51:17,880
+ Core two is writing the next byte.
+
+852
+00:51:17,880 --> 00:51:19,880
+ So they're not sharing data.
+
+853
+00:51:19,880 --> 00:51:21,880
+ But they are sharing the same cache line.
+
+854
+00:51:21,880 --> 00:51:23,880
+ So they're sharing the same block.
+
+855
+00:51:23,880 --> 00:51:25,880
+ So that's why it's called false sharing.
+
+856
+00:51:25,880 --> 00:51:33,880
+ The caches can only detect conflicts or coherence issues on a cache line granularity.
+
+857
+00:51:33,880 --> 00:51:37,880
+ So you're not actually sharing data, but you are sharing the same cache line.
+
+858
+00:51:37,880 --> 00:51:41,880
+ And that's causing a bunch of coherence misses.
+
+859
+00:51:41,880 --> 00:51:47,880
+ So Albert asks, how do we know if there's been a coherence miss?
+
+860
+00:51:47,880 --> 00:51:50,880
+ That is an excellent question.
+
+861
+00:51:50,880 --> 00:51:54,880
+ That is -- so there's a famous quote that I love.
+
+862
+00:51:54,880 --> 00:51:58,880
+ And I'm sorry, I can't think of the originator of the quote off the top of my head.
+
+863
+00:51:58,880 --> 00:52:02,880
+ But he says, there's only two hard problems in computer science.
+
+864
+00:52:02,880 --> 00:52:05,880
+ Naming things and cache invalidation.
+
+865
+00:52:05,880 --> 00:52:11,880
+ So the answer to your question, Albert, is that it is an extremely difficult and complicated problem.
+
+866
+00:52:11,880 --> 00:52:14,880
+ One that makes my head spin when I try and understand it.
+
+867
+00:52:14,880 --> 00:52:18,880
+ And one over which many PhDs have been written.
+
+868
+00:52:18,880 --> 00:52:22,880
+ So cache coherence is hard.
+
+869
+00:52:22,880 --> 00:52:24,880
+ It's very tricky to do.
+
+870
+00:52:24,880 --> 00:52:28,880
+ And if you take 152, they'll go into it in quite a lot of detail.
+
+871
+00:52:28,880 --> 00:52:33,880
+ The different algorithms they use to detect coherence misses.
+
+872
+00:52:33,880 --> 00:52:35,880
+ That's for data caches.
+
+873
+00:52:35,880 --> 00:52:40,880
+ And I particularly think 152 is a great class and you'll learn a ton if you take it.
+
+874
+00:52:40,880 --> 00:52:45,880
+ TLBs are interesting because they tend not to participate in all those schemes.
+
+875
+00:52:45,880 --> 00:52:52,880
+ Because the only time the data changes is when the operating system chose to change the page tables.
+
+876
+00:52:52,880 --> 00:52:57,880
+ And so TLBs tend to rely on manual cache invalidation.
+
+877
+00:52:57,880 --> 00:53:03,880
+ I know RISC-V does, or at least all the RISC-V implementations I'm familiar with do.
+
+878
+00:53:03,880 --> 00:53:06,880
+ And I'm pretty sure x86 does as well.
+
+879
+00:53:06,880 --> 00:53:11,880
+ So in this case, the OS has to tell the CPU, hey, I invalidated this line, go and throw it out.
+
+880
+00:53:11,880 --> 00:53:16,880
+ So in that case, there's like the operating system is manually detecting it.
+
+881
+00:53:16,880 --> 00:53:19,880
+ But for data caches, it gets very complicated.
+
+882
+00:53:19,880 --> 00:53:21,880
+ And for distributed systems, too.
+
+883
+00:53:21,880 --> 00:53:29,880
+ So if you take a database class, you'll learn about dealing with cache coherence in like a distributed systems networked cluster kind of perspective.
+
+884
+00:53:29,880 --> 00:53:32,880
+ It's the same problem, slightly different constants.
+
+885
+00:53:32,880 --> 00:53:34,880
+ So the solutions are a little different.
+
+886
+00:53:34,880 --> 00:53:36,880
+ OK.
+
+887
+00:53:36,880 --> 00:53:43,880
+ So we're going to go through a quick here overview of caching again.
+
+888
+00:53:43,880 --> 00:53:47,880
+ This is, I think, largely a duplicate of what you learned in 61c.
+
+889
+00:53:47,880 --> 00:53:54,880
+ But obviously, that was quite a long time ago and 61c is a ridiculous class where you learn way too many things in one shot.
+
+890
+00:53:54,880 --> 00:53:56,880
+ So it's worth revisiting.
+
+891
+00:53:56,880 --> 00:54:02,880
+ So how do we find blocks? So we're using blocks. Sometimes we use the word cache line.
+
+892
+00:54:02,880 --> 00:54:06,880
+ So how do we actually find them in cache? Most caches are organized this way.
+
+893
+00:54:06,880 --> 00:54:10,880
+ This is definitely by far the most typical way to organize a cache.
+
+894
+00:54:10,880 --> 00:54:18,880
+ I guess in theory, there's other options, but I'm not really aware of anybody that does them in hardware in a way that's different than this.
+
+895
+00:54:18,880 --> 00:54:26,880
+ So what you do is it's very similar to what we've been seeing for virtual to physical translations.
+
+896
+00:54:26,880 --> 00:54:32,880
+ So I've got my address here. So this is the top part of the address.
+
+897
+00:54:32,880 --> 00:54:35,880
+ And this is whatever I'm asking for.
+
+898
+00:54:35,880 --> 00:54:39,880
+ There's also a part and this is the offset within the line.
+
+899
+00:54:39,880 --> 00:54:45,880
+ So I'm storing a block or a cache line. It's some fixed size. It's bigger than a byte.
+
+900
+00:54:45,880 --> 00:54:50,880
+ Right. So maybe it's 64 bytes, whatever it is. So I've got a 64 byte cache line.
+
+901
+00:54:50,880 --> 00:54:57,880
+ So I'm going to need some offset to figure out which byte that is.
+
+902
+00:54:57,880 --> 00:55:03,880
+ And then you've got the block address and the block address is going to help you figure out which cache line it is you're looking at.
+
+903
+00:55:03,880 --> 00:55:09,880
+ And typically we break this block address into two parts. We'll call one the index and we'll call one the tag.
+
+904
+00:55:09,880 --> 00:55:14,880
+ The index is the one we're actually going to use to find the block in our cache.
+
+905
+00:55:14,880 --> 00:55:18,880
+ And the tag is the one we're going to use to make sure it's the block we think it is.
+
+906
+00:55:18,880 --> 00:55:21,880
+ So caches are very, very similar to hash tables.
+
+907
+00:55:21,880 --> 00:55:28,880
+ And a lot of what you can learn learned about hash tables also will help you understand caches.
+
+908
+00:55:28,880 --> 00:55:35,880
+ So this tag is like, you know, in a hash table, you hash the value and you use that to find it.
+
+909
+00:55:35,880 --> 00:55:42,880
+ And then you compare the actual value against what you found to make sure it's the one you wanted and not just like a conflict.
+
+910
+00:55:42,880 --> 00:55:47,880
+ Same thing here. OK.
+
+911
+00:55:47,880 --> 00:55:50,880
+ So one of the options we could do is called direct mapped.
+
+912
+00:55:50,880 --> 00:55:59,880
+ So in a direct map cache, we are going to have exactly one place that we could put any particular address.
+
+913
+00:55:59,880 --> 00:56:08,880
+ So in a way, you're going to use the index to choose exactly one slot.
+
+914
+00:56:08,880 --> 00:56:11,880
+ So let's see.
+
+915
+00:56:11,880 --> 00:56:15,880
+ So if I've got a one kilobyte direct map cache, I got 32 byte blocks.
+
+916
+00:56:15,880 --> 00:56:25,880
+ There's an index and I'm going to use that index to pick a particular line, a particular place in this cache that I want.
+
+917
+00:56:25,880 --> 00:56:29,880
+ So let's say that the index here is one.
+
+918
+00:56:29,880 --> 00:56:36,880
+ We're going to use that to select one of these entries and then we're going to compare the tags.
+
+919
+00:56:36,880 --> 00:56:42,880
+ So I'm going to make sure that the tag I have in my cache is, in fact, same one as the address I'm looking for.
+
+920
+00:56:42,880 --> 00:56:49,880
+ And then if so, I'm going to use the byte select to pick a particular byte out of that cache line to return.
+
+921
+00:56:49,880 --> 00:56:55,880
+ So this is direct map. The important thing here about direct map is that you have exactly one option.
+
+922
+00:56:55,880 --> 00:57:01,880
+ This index has exactly as many bits as you have entries in the cache.
+
+923
+00:57:01,880 --> 00:57:05,880
+ And it's just a direct index. If it's one, we go to the index number one.
+
+924
+00:57:05,880 --> 00:57:10,880
+ If it was two, we'd go to index number two. That's direct map.
+
+925
+00:57:10,880 --> 00:57:15,880
+ Direct map has an issue. The issue with direct map is that it's got lots and lots of conflict misses.
+
+926
+00:57:15,880 --> 00:57:19,880
+ Since I only have one option about where I'm going to put a piece of data,
+
+927
+00:57:19,880 --> 00:57:26,880
+ it's pretty likely that somebody is already there and I'm going to have to kick them out in order to fit the new thing.
+
+928
+00:57:26,880 --> 00:57:31,880
+ So they have lots and lots of conflict misses because you only have one choice about where you're going to put anything.
+
+929
+00:57:31,880 --> 00:57:38,880
+ So what we do instead is we come up with set associative. So in a set associative cache, we give ourselves more options.
+
+930
+00:57:38,880 --> 00:57:46,880
+ So instead of having exactly one place that we could put a particular piece of data, we have in places that we could put it.
+
+931
+00:57:46,880 --> 00:57:53,880
+ So you can think of this as having two direct map caches side by side, sort of conceptually.
+
+932
+00:57:53,880 --> 00:57:57,880
+ So you can think I have two direct map caches, but I've set them next to each other.
+
+933
+00:57:57,880 --> 00:58:03,880
+ So each is half the size of my total cache. But I now have more options.
+
+934
+00:58:03,880 --> 00:58:11,880
+ So we do the same thing. I'm going to use that cache index to pick which line in one of these caches it is.
+
+935
+00:58:11,880 --> 00:58:17,880
+ But I'm going to have to check two tags. So if I'm a two way set associative cache,
+
+936
+00:58:17,880 --> 00:58:24,880
+ then I have to check two tags at the same time. And then I get to pick whichever one matches, if any.
+
+937
+00:58:24,880 --> 00:58:30,880
+ So the set associative caches are giving us more options. We're less likely to have a cache miss.
+
+938
+00:58:30,880 --> 00:58:37,880
+ Right. Because the data could go here, but this is full. So, OK, I guess we'll just put it here since this one's not full.
+
+939
+00:58:37,880 --> 00:58:43,880
+ So we have options and that's going to reduce conflict misses. But there's a there's a cost.
+
+940
+00:58:43,880 --> 00:58:55,880
+ The cost is complexity. So if you remember your Logisim project from 61C, like imagine writing a mux that could handle like a thousand inputs.
+
+941
+00:58:55,880 --> 00:59:01,880
+ Think about how narrowly that mux would look. Right. It would have just bajillions of wires.
+
+942
+00:59:01,880 --> 00:59:06,880
+ It would be huge. It would be like completely impractical to implement on like a physical chip.
+
+943
+00:59:06,880 --> 00:59:14,880
+ So there are a limit to how many ways you can have before this stuff starts getting so complicated that your cycle time goes out the window.
+
+944
+00:59:14,880 --> 00:59:19,880
+ But you can do it. So in the extreme, we could say, all right, well, you know what, I don't care.
+
+945
+00:59:19,880 --> 00:59:28,880
+ My cache is small enough that that multiplexer isn't going to be too unreasonable. So why not have as many ways as I have lines?
+
+946
+00:59:28,880 --> 00:59:37,880
+ In this case, the whole thing is that the the entire the entire address part of your address, the entire selector part of your address.
+
+947
+00:59:38,160 --> 00:59:42,800
+ here is your tag. You just don't even have an index, right? You just search the entire
+
+948
+00:59:42,800 --> 00:59:48,880
+ cache simultaneously to find your tag. And these work if the cache is small enough, you
+
+949
+00:59:48,880 --> 00:59:54,520
+ can get away with a fully associative cache, but it starts to wear out pretty fast, right?
+
+950
+00:59:54,520 --> 00:59:59,520
+ You're not going to have like even a multiple kilobyte cache. You couldn't have direct or
+
+951
+00:59:59,520 --> 01:00:04,920
+ fully associative. It just wouldn't be possible to implement hardware.
+
+952
+01:00:04,920 --> 01:00:12,160
+ Okay, so let's see. So let's put them all together and kind of compare and contrast what would
+
+953
+01:00:12,160 --> 01:00:20,360
+ happen here. So let's say I'm trying to put block number one, I guess, or two, whatever.
+
+954
+01:00:20,360 --> 01:00:26,640
+ I'm trying to put this block here into a cache. So if it's direct mapped, I'm putting block
+
+955
+01:00:26,640 --> 01:00:33,480
+ number 12. So I'm going to look at what the index here is 12. I've got eight blocks in
+
+956
+01:00:33,480 --> 01:00:42,120
+ my cache. So I need to split 12 up into eight potential places. So I do 12 mod 8. That's,
+
+957
+01:00:42,120 --> 01:00:48,000
+ you know, mod in binary is the same as just like picking some bits. Turns out 12 mod 8,
+
+958
+01:00:48,000 --> 01:00:54,980
+ that's I think three or four, that's four. So we're going to find it here, direct mapped.
+
+959
+01:00:54,980 --> 01:01:01,760
+ Set associative. I have fewer slots now. So I have four sets, right? Because I'm two-way
+
+960
+01:01:01,760 --> 01:01:10,040
+ set associative. So I have four sets, each set has four entries, four times four, or
+
+961
+01:01:10,040 --> 01:01:14,040
+ they have two entries. So each set has two entries. I have four sets, you have eight
+
+962
+01:01:14,040 --> 01:01:20,440
+ lines total. So in this case, I'm going to do 12 mod 4 and pick which set it is in. So
+
+963
+01:01:20,440 --> 01:01:26,240
+ in this case, turns out it's in set zero. And then I'm going to compare both tags simultaneously
+
+964
+01:01:26,240 --> 01:01:30,600
+ and pick whichever one it is. And then of course, for fully associative, I'm not even
+
+965
+01:01:30,600 --> 01:01:34,120
+ going to bother looking at the address. I'm just going to compare that address against
+
+966
+01:01:34,120 --> 01:01:43,020
+ every single line until I find it. Okay, so that was a quick kind of whirlwind review
+
+967
+01:01:43,020 --> 01:01:48,480
+ of cache organization. You can go back and kind of follow that along a little slower.
+
+968
+01:01:48,480 --> 01:01:54,520
+ It's worth keeping in mind, it's worth remembering caches are really important. The next question
+
+969
+01:01:54,520 --> 01:02:01,680
+ you have with a cache is about what happens to it when you miss. So for direct map cache,
+
+970
+01:02:01,680 --> 01:02:07,980
+ there's really no choice, right? Like if I have to replace a block, I only had one option.
+
+971
+01:02:07,980 --> 01:02:13,360
+ So that's the one I'm going to kick out. Whoever was in my slot gets kicked out and I go there,
+
+972
+01:02:13,360 --> 01:02:19,640
+ your only option. For set associative, we have a choice. You know, I have multiple ways.
+
+973
+01:02:19,640 --> 01:02:26,320
+ I have multiple sets in my cache, which if every entry in that set is full, who do I
+
+974
+01:02:26,320 --> 01:02:32,820
+ kick out? I can cook out any of them and still be correct. So which one do I choose? Two
+
+975
+01:02:32,820 --> 01:02:39,000
+ big strategies here could do it totally randomly, not the worst idea. Or I could do it using
+
+976
+01:02:39,000 --> 01:02:44,680
+ the least recently used algorithm. This ends up being pretty true in practice. Like the
+
+977
+01:02:44,680 --> 01:02:50,840
+ thing I use the longest ago in the past is the one I'm least likely to use in the future.
+
+978
+01:02:50,840 --> 01:02:58,920
+ So whichever one hasn't been used recently, that's probably a good choice to kick out.
+
+979
+01:02:58,920 --> 01:03:05,880
+ So we can go through some examples here. We don't need to look at these numbers too detailed.
+
+980
+01:03:05,880 --> 01:03:11,240
+ You can come back and stare at these if you'd like, but the trend here is multiple things.
+
+981
+01:03:11,240 --> 01:03:17,920
+ So you can see that as you increase the associativity, so when we go this way, miss rates go down
+
+982
+01:03:17,920 --> 01:03:22,340
+ as you go this way. And as you go this way, as the cache gets bigger, miss rates also
+
+983
+01:03:22,340 --> 01:03:31,560
+ go down. So this is removing conflict misses. This is removing capacity misses. So there's
+
+984
+01:03:31,560 --> 01:03:36,720
+ a question here about how we keep track of LRU. The way you keep track of LRU is you
+
+985
+01:03:36,720 --> 01:03:42,640
+ assign kind of like a shift register. You basically have a few bits. So if I have a
+
+986
+01:03:42,640 --> 01:03:47,980
+ two-way set associative cache, I can have one bit in there. And every time I read from
+
+987
+01:03:47,980 --> 01:03:54,540
+ that line, I set the bit. And I set the bit and I clear the other bit. So if I read from
+
+988
+01:03:54,540 --> 01:04:04,480
+ set zero, then I set its recently used bit to one, and I set way one's bit to false.
+
+989
+01:04:04,480 --> 01:04:09,120
+ So I can just alternate. If you have four, you can do it that way. But you basically
+
+990
+01:04:09,120 --> 01:04:13,880
+ have a counter next to every line and you update the counter on every access. And that
+
+991
+01:04:13,880 --> 01:04:17,760
+ helps you keep track of LRU. There's other tricks too. You can do things with shift registers
+
+992
+01:04:17,760 --> 01:04:23,920
+ and whatever. You can do approximate LRU if it's cheaper. But when you don't have too
+
+993
+01:04:23,920 --> 01:04:28,260
+ many sets, it's pretty easy just to have a couple of counters that you update on every
+
+994
+01:04:28,260 --> 01:04:30,400
+ access.
+
+995
+01:04:30,400 --> 01:04:37,000
+ Okay. So what happens on a write? So this is another aspect of cache design, another
+
+996
+01:04:37,000 --> 01:04:44,120
+ design choice we have. We have what happens when I need to write data to cache. So reading
+
+997
+01:04:44,120 --> 01:04:48,140
+ data from the cache is no big deal. That's what we've been talking about pretty much
+
+998
+01:04:48,140 --> 01:04:53,080
+ this whole time. But what happens when we want to modify that data? So one strategy
+
+999
+01:04:53,080 --> 01:05:00,320
+ is called write through. So in a write through cache, every time I write to my cache, I also
+
+1000
+01:05:00,320 --> 01:05:04,240
+ write to the higher levels too. So I write to the next tier of the cache at the same
+
+1001
+01:05:04,240 --> 01:05:12,160
+ time. The reason this works is that I can return as soon as the data is sort of being
+
+1002
+01:05:12,160 --> 01:05:19,320
+ written. I can stick it in a queue and just have faith that it will get written eventually.
+
+1003
+01:05:19,320 --> 01:05:23,200
+ So when we're doing write through, we're not limited by the latency of the cache. We're
+
+1004
+01:05:23,200 --> 01:05:27,900
+ only limited by the bandwidth of the cache. And it turns out bandwidth is a lot easier
+
+1005
+01:05:27,900 --> 01:05:34,200
+ to achieve than latency. But it still has a problem. It's still using a ton of bandwidth
+
+1006
+01:05:34,200 --> 01:05:40,720
+ to do that. We're writing a ton of data. And keep in mind, locality is a thing. That's
+
+1007
+01:05:40,720 --> 01:05:46,000
+ the whole reason caches work. So if we wrote to an address once, we're probably going to
+
+1008
+01:05:46,000 --> 01:05:51,900
+ write to it again soon. And so why should we be wasting all of this bandwidth writing
+
+1009
+01:05:51,900 --> 01:05:56,860
+ over and over and over if we're just like iterating on a line? So the way to avoid that
+
+1010
+01:05:56,860 --> 01:06:02,720
+ is called write back. In a write back cache, what we do is we only bother storing the cache
+
+1011
+01:06:02,720 --> 01:06:08,300
+ line that we've written to. We only bother writing it back to the higher level layers
+
+1012
+01:06:08,300 --> 01:06:14,800
+ in our hierarchy if it gets evicted. So when we come in with a new line and we say, "Okay,
+
+1013
+01:06:14,800 --> 01:06:21,080
+ we have to kick this block out, this cache line out, but we've modified it. Oh, great.
+
+1014
+01:06:21,080 --> 01:06:26,800
+ Well, now we have to write it back as we evicted." So that's called write back. And the way you
+
+1015
+01:06:26,800 --> 01:06:33,240
+ do that is the same trick as I was just explaining for LRU. You just keep an extra bit around.
+
+1016
+01:06:33,240 --> 01:06:38,360
+ You set a bit if you've written to it. So if that bit is set, then, "Okay, well, I've
+
+1017
+01:06:38,360 --> 01:06:46,020
+ written to it. I need to write it back." Okay, so this is what I just said. But the bottom
+
+1018
+01:06:46,020 --> 01:06:56,760
+ line here is that there's issues with write amplification. With a write through cache,
+
+1019
+01:06:56,760 --> 01:07:05,000
+ when I evict a line, it doesn't cost me anything. So there's no additional work that's required
+
+1020
+01:07:05,000 --> 01:07:10,040
+ in order to evict a line. You get to just delete it right away. No thought. Just, "Nah,
+
+1021
+01:07:10,040 --> 01:07:14,200
+ it's gone." Because I already wrote it higher up. So I can just delete it whenever I want
+
+1022
+01:07:14,200 --> 01:07:19,220
+ and it won't break anything. But with a write back cache, it's more complicated. If I need
+
+1023
+01:07:19,220 --> 01:07:23,600
+ to evict a line, now I've got to figure out, "Oh, was it dirty? Oh, it was dirty. Let's
+
+1024
+01:07:23,600 --> 01:07:29,200
+ figure out where to store it now." And it messes things up a little bit. But the real
+
+1025
+01:07:29,200 --> 01:07:35,400
+ problem though is that with a write through cache, you could get hung up on bandwidth.
+
+1026
+01:07:35,400 --> 01:07:41,200
+ So I could spend way too much time doing writes that didn't even have to happen. And maybe
+
+1027
+01:07:41,200 --> 01:07:47,000
+ that interferes with my ability to read or write data that actually needed to be written.
+
+1028
+01:07:47,000 --> 01:07:51,200
+ So pros and cons, I think write backs are more common, but depending on the organization
+
+1029
+01:07:51,200 --> 01:07:57,280
+ of your cache and the relative speeds of things, write through might be a reasonable choice.
+
+1030
+01:07:57,280 --> 01:08:07,120
+ Okay. A lot of stuff here, man. A lot of stuff. Caches are a really rich thing. There's a
+
+1031
+01:08:07,120 --> 01:08:13,440
+ lot of different strategies around caches. So coming back to the theme of this whole
+
+1032
+01:08:13,440 --> 01:08:20,720
+ lecture, which is virtual memory, we have to ask the question, "What are the addresses
+
+1033
+01:08:20,720 --> 01:08:25,680
+ that we're using to look stuff up in the cache? Are we looking things up with physical addresses
+
+1034
+01:08:25,680 --> 01:08:32,560
+ or are we looking things up with virtual addresses?" So with a physical cache, the way you would
+
+1035
+01:08:32,560 --> 01:08:37,880
+ have to implement that is you'd have to figure out what the physical address is first. And
+
+1036
+01:08:37,880 --> 01:08:41,880
+ once you figured out the physical address, then you can ask the cache to go ahead and
+
+1037
+01:08:41,880 --> 01:08:48,160
+ look it up. So that would be a physically indexed cache. With a virtually indexed cache,
+
+1038
+01:08:48,160 --> 01:08:53,520
+ I could access the cache directly and I would only need to access the TLB if I'm going higher
+
+1039
+01:08:53,520 --> 01:09:00,280
+ up in the memory. Right? So I could have a cache that only keeps track of virtual addresses.
+
+1040
+01:09:00,280 --> 01:09:03,760
+ And that saves me having to go through the NMU every time. I'd be able to just read and
+
+1041
+01:09:03,760 --> 01:09:09,560
+ write from it directly. So that's pretty slick. That seems really nice, but it has problems.
+
+1042
+01:09:09,560 --> 01:09:14,720
+ Right? It adds a lot of challenges. One is, remember this whole write through, write back
+
+1043
+01:09:14,720 --> 01:09:20,740
+ thing. If I want to write to this, so if this cache needs to write to memory, it then has
+
+1044
+01:09:20,740 --> 01:09:26,920
+ to go through this NMU, through this TLB. And that can be kind of messy. The bigger
+
+1045
+01:09:26,920 --> 01:09:32,780
+ problem here though, a much, much bigger issue is that this cache, because it's storing virtual
+
+1046
+01:09:32,780 --> 01:09:38,500
+ addresses, the cache is only valid for one process. If I switch processes, the cache
+
+1047
+01:09:38,500 --> 01:09:43,320
+ is like totally wrong now. Right? Because it was keeping track of virtual addresses.
+
+1048
+01:09:43,320 --> 01:09:47,080
+ So that's a real problem with virtually address caches. There's, you know, tricks you can
+
+1049
+01:09:47,080 --> 01:09:52,860
+ do. You can store which process that particular cache line corresponded to. There's a lot
+
+1050
+01:09:52,860 --> 01:09:56,900
+ of different things you can do, but none of them are pretty, right? They're all kind of
+
+1051
+01:09:56,900 --> 01:10:02,840
+ messy and they all have their own caveats and problems. So it's very tricky to pull
+
+1052
+01:10:02,840 --> 01:10:06,800
+ this off, but it does make sense if you're willing to write all the complex circuitry,
+
+1053
+01:10:06,800 --> 01:10:11,440
+ if you're willing to make those trade-offs and if your workload supports it, maybe a
+
+1054
+01:10:11,440 --> 01:10:17,140
+ virtually indexed cache makes sense. I think physically indexed is more common. I wish
+
+1055
+01:10:17,140 --> 01:10:22,360
+ I could tell you off the top of my head what RISC-V does, what, not RISC-V, what the Rocket
+
+1056
+01:10:22,360 --> 01:10:29,000
+ Core implementation of RISC-V does. I believe that their L1 is some sort of goofy hybrid
+
+1057
+01:10:29,000 --> 01:10:33,920
+ where the the MMU and TLB are super tightly integrated into the cache. So it's somewhat
+
+1058
+01:10:33,920 --> 01:10:38,840
+ virtually indexed. But I'm not 100% sure how that works.
+
+1059
+01:10:38,840 --> 01:10:44,000
+ Okay, but for the most part, we're going to talk about physically indexed because that's
+
+1060
+01:10:44,000 --> 01:10:46,880
+ definitely the most common design.
+
+1061
+01:10:46,880 --> 01:10:54,640
+ Okay, so all of this talk about caches, all of this that we just spent a bunch of time
+
+1062
+01:10:54,640 --> 01:11:01,760
+ talking about was in service of TLBs, right? This lecture still in theory is about virtual
+
+1063
+01:11:01,760 --> 01:11:08,600
+ addresses. So let's get back to why we brought this up in the first place. And that is TLBs.
+
+1064
+01:11:08,600 --> 01:11:14,260
+ So, again, remember TLB is a cache. It's just a cache of translations. That's it. It's just
+
+1065
+01:11:14,260 --> 01:11:20,520
+ a cache that keeps track of those virtual to physical mappings.
+
+1066
+01:11:20,520 --> 01:11:26,360
+ What are the properties we want out of a TLB? Well, the first one and, you know, really,
+
+1067
+01:11:26,360 --> 01:11:32,080
+ really important one here is speed. TLB needs to be accessed on every single instruction
+
+1068
+01:11:32,080 --> 01:11:37,960
+ and sometimes multiple times per instruction. So it's very, very important that the TLB
+
+1069
+01:11:37,960 --> 01:11:40,800
+ be fast.
+
+1070
+01:11:40,800 --> 01:11:44,980
+ So that means you maybe we want to keep it direct mapped or low associativity or something
+
+1071
+01:11:44,980 --> 01:11:50,420
+ like that. But we'll see why that maybe isn't the greatest idea.
+
+1072
+01:11:50,420 --> 01:11:55,240
+ The other issue is that we want to keep conflicts down. I mean, we always do. But the problem
+
+1073
+01:11:55,240 --> 01:12:01,320
+ is that like, missing in a TLB is pretty painful, right? Walking those page tables is really
+
+1074
+01:12:01,320 --> 01:12:07,000
+ slow. So the miss time here is not pretty. And the hit time is dictated by the clock
+
+1075
+01:12:07,000 --> 01:12:12,240
+ cycle. So, again, we need it to be really fast in the common case, but we want it to
+
+1076
+01:12:12,240 --> 01:12:17,920
+ not miss very often. And, you know, the trade off between those two properties is what hardware
+
+1077
+01:12:17,920 --> 01:12:22,620
+ designers and architects spend a lot of their time doing is deciding how to trade off these
+
+1078
+01:12:22,620 --> 01:12:23,620
+ goals.
+
+1079
+01:12:23,620 --> 01:12:24,620
+ Oops, sorry.
+
+1080
+01:12:24,620 --> 01:12:39,660
+ I don't know what I'm doing here. Okay, whatever. Moving on. So the question is, how big do
+
+1081
+01:12:39,660 --> 01:12:45,740
+ we make it? And what organization do we use? In practice, people usually make TLBs fast
+
+1082
+01:12:45,740 --> 01:12:50,800
+ by keeping them small. So that's the trick that hardware designers tend to use when they
+
+1083
+01:12:50,800 --> 01:12:58,400
+ try and make a TLB fast. Because it's small, they get to be highly associative. And because
+
+1084
+01:12:58,400 --> 01:13:03,200
+ they're highly associative, their miss rate is pretty low. And this is just a trade off,
+
+1085
+01:13:03,200 --> 01:13:06,880
+ right? You can make a lot of different decisions. But the hardware designers who've done all
+
+1086
+01:13:06,880 --> 01:13:11,480
+ the math, they've done all the profiling, all the experiments, they decided that, you
+
+1087
+01:13:11,480 --> 01:13:18,560
+ know what, this is probably the best way to make the TLB work the way we want it to. Right,
+
+1088
+01:13:18,560 --> 01:13:23,720
+ again, because it's a cache, we can do all the same tricks with caches, right, we can
+
+1089
+01:13:23,720 --> 01:13:28,880
+ have a multi level TLB. Why not? Right, we have multi level caches, why not have multi
+
+1090
+01:13:28,880 --> 01:13:34,400
+ level TLBs? It'll still work. Right. So you know, we can look at this example, I think
+
+1091
+01:13:34,400 --> 01:13:40,880
+ I want to just get through more content. But ultimately, a TLB is going to store a virtual
+
+1092
+01:13:40,880 --> 01:13:47,240
+ address, a physical address and metadata. Right. And I guess one piece of metadata worth
+
+1093
+01:13:47,240 --> 01:13:51,400
+ mentioning here, there's there's two particularly important ones here that we'll talk about
+
+1094
+01:13:51,400 --> 01:13:58,520
+ later. One is ASID, that is the address space identifier. So we want to be able to support
+
+1095
+01:13:58,520 --> 01:14:04,200
+ multiple processes. And this ASID is what we use to keep track of that. So you can think
+
+1096
+01:14:04,200 --> 01:14:10,200
+ of this kind of like the kind of like a pointer or the index of the of the page table. So
+
+1097
+01:14:10,200 --> 01:14:15,080
+ it's like a process ID, who's who does this virtual address belong to? And then the other
+
+1098
+01:14:15,080 --> 01:14:20,100
+ one that's important here is the valid bit. So the valid bit tells us whether or not this
+
+1099
+01:14:20,100 --> 01:14:25,260
+ mapping actually exists. So we might have a page table entry, but that page table entry
+
+1100
+01:14:25,260 --> 01:14:29,120
+ might not point anywhere real, or maybe it's been revoked, or maybe it's been changed,
+
+1101
+01:14:29,120 --> 01:14:33,680
+ a lot of different reasons why it might not be valid, but we have to know. And that's
+
+1102
+01:14:33,680 --> 01:14:42,700
+ going to prevent us from doing the translation if it's not valid. Okay, and just, you know,
+
+1103
+01:14:42,700 --> 01:14:48,660
+ so you understand the TLBs are tightly integrated into the core, they have to be really fast,
+
+1104
+01:14:48,660 --> 01:14:54,040
+ they have to be very close to the core. And so we have actual different stages, different
+
+1105
+01:14:54,040 --> 01:14:59,360
+ designs of the TLB. And there's parts of it that are spread around different parts of
+
+1106
+01:14:59,360 --> 01:15:04,240
+ your of your core. So actually implementing TLBs is quite a very interesting digital logic
+
+1107
+01:15:04,240 --> 01:15:13,680
+ and computer architecture question. Okay, there's all sorts of tricks you can do. Again,
+
+1108
+01:15:13,680 --> 01:15:17,300
+ just just your computer architects are full of this kind of thing where they have all
+
+1109
+01:15:17,300 --> 01:15:23,820
+ these little tricks that make things faster. So for example, you know, you can imagine
+
+1110
+01:15:23,820 --> 01:15:31,880
+ that you have a physically addressed hash and a TLB. And maybe we can play a trick and
+
+1111
+01:15:31,880 --> 01:15:38,980
+ do something in parallel. So we can maybe overlap. So I'm going to, I'm going to show
+
+1112
+01:15:38,980 --> 01:15:43,960
+ an example here of how that might work. So you might imagine that I've got this address
+
+1113
+01:15:43,960 --> 01:15:49,120
+ here that I'm trying to translate. And it turns out that the say there's these top bits
+
+1114
+01:15:49,120 --> 01:15:53,120
+ here, these top 20 bits, that's the virtual page number. And that's the only thing that
+
+1115
+01:15:53,120 --> 01:15:57,600
+ TLB needs to look up, right, the TLB doesn't care about this chunk, it only cares about
+
+1116
+01:15:57,600 --> 01:16:02,480
+ the virtual page number. So we'll send that to the TLB, it'll start translating. And if
+
+1117
+01:16:02,480 --> 01:16:07,980
+ we have the right size of caches, if everything lines up, we might be able to have the index
+
+1118
+01:16:07,980 --> 01:16:13,980
+ here be these lower bits, and we can send that to the physical cache. And then so now
+
+1119
+01:16:13,980 --> 01:16:18,860
+ the physical cache tries to find the line, the TLB tries to find the translation. And
+
+1120
+01:16:18,860 --> 01:16:24,080
+ then once they've actually done it, we can, we can look at the tag and the physical page
+
+1121
+01:16:24,080 --> 01:16:29,480
+ number. And if they match, we have a hit. So it's a dirty little trick. And it works
+
+1122
+01:16:29,480 --> 01:16:34,300
+ if all the numbers line up. But as soon as the caches don't line up, it stops working.
+
+1123
+01:16:34,300 --> 01:16:40,480
+ So that's a little tricks. Highly recommend taking 152 if you're interested in all of
+
+1124
+01:16:40,480 --> 01:16:51,520
+ these tricks, because there's a ton of them. Okay, um, so we only have a minute left. So
+
+1125
+01:16:51,520 --> 01:16:56,860
+ let's see. Let's talk about context switches, and then we'll finish. So what happens when
+
+1126
+01:16:56,860 --> 01:17:03,720
+ I change the process? If I switch processes, I have to be careful to keep track of which
+
+1127
+01:17:03,720 --> 01:17:10,680
+ process this TLB entry goes to. So maybe I flush the entire entire TLB. If I didn't keep
+
+1128
+01:17:10,680 --> 01:17:15,660
+ track of address spaces, we saw in the RS 3000, which is just an older processor, that
+
+1129
+01:17:15,660 --> 01:17:19,340
+ they do keep track of addresses, a lot of tricks, a lot of different ways you could
+
+1130
+01:17:19,340 --> 01:17:25,520
+ do it. But you have to you have to pick one, right, either you invalidate the whole TLB
+
+1131
+01:17:25,520 --> 01:17:31,040
+ on each context switch, which is slow, but simple. Or you create you keep a process ID
+
+1132
+01:17:31,040 --> 01:17:36,760
+ in the TLB, that might slow down the hit time of the TLB. But you know, won't have all these
+
+1133
+01:17:36,760 --> 01:17:42,440
+ misses when you contact switch. And then there's this is the last one, this is what I was talking
+
+1134
+01:17:42,440 --> 01:17:47,540
+ about, it's possible for the OS to change the page tables on you, right, it does it
+
+1135
+01:17:47,540 --> 01:17:52,120
+ all the time. And if you do, then you have to go and invalidate the TLB. So those are
+
+1136
+01:17:52,120 --> 01:17:57,620
+ those coherence misses that the TLB is really have to deal with. And this is a really big
+
+1137
+01:17:57,620 --> 01:18:03,560
+ design decision in operating systems, operating systems spend a lot of mental energy, trying
+
+1138
+01:18:03,560 --> 01:18:11,400
+ to understand this and make this not happen too often. Okay, so um, yeah, so I'm going
+
+1139
+01:18:11,400 --> 01:18:18,020
+ to end it there. Because we're out of time. And I'll let the next lecture kind of do this,
+
+1140
+01:18:18,020 --> 01:18:23,260
+ this is a great slide to start the next lecture on anyways. So you guys will start with this
+
+1141
+01:18:23,260 --> 01:18:29,000
+ overview. And then you can get into more interesting stuff around paging. And you know, people
+
+1142
+01:18:29,000 --> 01:18:33,220
+ asked about what happens when software has to deal with the disk, all that stuff, you
+
+1143
+01:18:33,220 --> 01:18:39,240
+ can look forward to that in the next lecture. So I'll end it there. I think we're out of
+
+1144
+01:18:39,240 --> 01:18:44,500
+ time. And I'll stick around for a few minutes if anybody wants to ask questions, and then
+
+1145
+01:18:44,500 --> 01:19:14,440
+ I'll end off the recording. So thanks for listening.
+
+1146
+01:19:14,440 --> 01:19:24,400
+ Bye bye.
+
+1147
+01:19:24,400 --> 01:19:24,680
+ Transcribed by https://otter.ai
+
+1148
+01:19:24,680 --> 01:19:25,680
+ Transcribed by https://otter.ai
+
+1149
+01:19:25,680 --> 01:19:26,680
+ Transcribed by https://otter.ai
+
+1150
+01:19:26,680 --> 01:19:52,680
+ [ Silence ]
+

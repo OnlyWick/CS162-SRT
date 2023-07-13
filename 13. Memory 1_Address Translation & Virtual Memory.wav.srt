@@ -1,0 +1,3708 @@
+1
+00:00:00,000 --> 00:00:15,000
+ Hello, everyone.
+
+2
+00:00:15,000 --> 00:00:23,040
+ So today, during today's lecture, we are going to finish the discussion on the deadlocks
+
+3
+00:00:23,040 --> 00:00:32,700
+ and then continue to learn about virtual memory and address translation.
+
+4
+00:00:32,700 --> 00:00:37,880
+ So last time, we spent quite a bit on deadlocks.
+
+5
+00:00:37,880 --> 00:00:40,400
+ Deadlocks is a very important concept.
+
+6
+00:00:40,400 --> 00:00:48,360
+ And if you remember, there are four requirements which needs to happen to have a deadlock.
+
+7
+00:00:48,360 --> 00:00:51,040
+ The first is mutual exclusion.
+
+8
+00:00:51,040 --> 00:00:55,660
+ That means that only one thread at a time can use a particular resource.
+
+9
+00:00:55,660 --> 00:00:58,240
+ The second is hold and wait.
+
+10
+00:00:58,240 --> 00:01:05,480
+ That is a thread holding holds at least one resource and is waiting to acquire additional
+
+11
+00:01:05,480 --> 00:01:09,060
+ resources which are held by other threads.
+
+12
+00:01:09,060 --> 00:01:13,280
+ So this means that the thread cannot make progress because it needs the other resources
+
+13
+00:01:13,280 --> 00:01:21,080
+ in order to make to finish the computation, which again are owned by other threads.
+
+14
+00:01:21,080 --> 00:01:23,040
+ No preemptions.
+
+15
+00:01:23,040 --> 00:01:29,160
+ Resources are released only voluntarily by a thread holding the resource.
+
+16
+00:01:29,160 --> 00:01:35,120
+ So a thread cannot preempt another thread to get the resource to finish the computation.
+
+17
+00:01:35,120 --> 00:01:41,760
+ And then in circular wait, so you have a cycle, which is a cycle which is defined by the pattern
+
+18
+00:01:41,760 --> 00:01:48,640
+ that a thread is waiting for a resource that is held by another thread.
+
+19
+00:01:48,640 --> 00:01:54,000
+ And that thread is waiting for a resource that is held by another thread and so on until
+
+20
+00:01:54,000 --> 00:01:58,720
+ you get a cycle.
+
+21
+00:01:58,720 --> 00:02:10,760
+ Also last, there are several techniques we listed last time to resolve a deadlock.
+
+22
+00:02:10,760 --> 00:02:16,760
+ And one of them is to recover from the deadlock.
+
+23
+00:02:16,760 --> 00:02:23,120
+ And some of the things we mentioned last time was to terminate the thread.
+
+24
+00:02:23,120 --> 00:02:29,680
+ So therefore, you can terminate a thread which owns the resource so other threads can acquire
+
+25
+00:02:29,680 --> 00:02:35,420
+ the resource and can finish their computation.
+
+26
+00:02:35,420 --> 00:02:39,200
+ Of course, you don't always want to do that.
+
+27
+00:02:39,200 --> 00:02:41,820
+ In some cases, it's pretty hard.
+
+28
+00:02:41,820 --> 00:02:48,560
+ Like for instance, you can kill a thread which is modifying some sensitive data or important
+
+29
+00:02:48,560 --> 00:02:49,560
+ data.
+
+30
+00:02:49,560 --> 00:02:57,080
+ Then you can, like for instance, updating your bank balance.
+
+31
+00:02:57,080 --> 00:03:05,720
+ You don't want to do that because you may end up with garbage.
+
+32
+00:03:05,720 --> 00:03:10,720
+ Preempt resources without killing of a thread.
+
+33
+00:03:10,720 --> 00:03:16,880
+ This means that the system has the ability to suspend a thread.
+
+34
+00:03:16,880 --> 00:03:25,840
+ And then you can preempt that resource while that thread is suspended or is sleeping.
+
+35
+00:03:25,840 --> 00:03:30,920
+ And another thread can get that resource and again, complete the computation.
+
+36
+00:03:30,920 --> 00:03:35,300
+ And when the thread which are suspended comes back, hopefully there are enough resources
+
+37
+00:03:35,300 --> 00:03:38,880
+ for that type of computation.
+
+38
+00:03:38,880 --> 00:03:40,540
+ Rollback the actions.
+
+39
+00:03:40,540 --> 00:03:44,680
+ If you remember in our example, it's a bridge and you have two cars on a one line bridge
+
+40
+00:03:44,680 --> 00:03:49,020
+ coming head to head in the middle of the bridge.
+
+41
+00:03:49,020 --> 00:03:57,720
+ One way to resolve the problem is a deadlock is for one car to back up.
+
+42
+00:03:57,720 --> 00:04:04,160
+ And when you look at the operating system, some of them use some of these options.
+
+43
+00:04:04,160 --> 00:04:07,760
+ Like for instance, when system hangs, right?
+
+44
+00:04:07,760 --> 00:04:13,300
+ Typically when system hangs and you can't do anything about it, in some cases it's a
+
+45
+00:04:13,300 --> 00:04:14,300
+ deadlock.
+
+46
+00:04:14,300 --> 00:04:15,300
+ In many cases.
+
+47
+00:04:15,300 --> 00:04:16,300
+ So how do you do it?
+
+48
+00:04:16,300 --> 00:04:18,360
+ You reboot it, right?
+
+49
+00:04:18,360 --> 00:04:21,520
+ So you kill everything.
+
+50
+00:04:21,520 --> 00:04:24,780
+ And preempting resources, this operating system is doing that.
+
+51
+00:04:24,780 --> 00:04:34,900
+ You know threads are preempted, are put on the waiting queue.
+
+52
+00:04:34,900 --> 00:04:41,660
+ And yeah, these are a few examples.
+
+53
+00:04:41,660 --> 00:04:49,460
+ So also we talk about another example last time.
+
+54
+00:04:49,460 --> 00:04:54,420
+ Another way, obviously you can solve the deadlock problem if you have infinite resources, right?
+
+55
+00:04:54,420 --> 00:04:58,820
+ If you have infinite resources means that every thread at any given time has all the
+
+56
+00:04:58,820 --> 00:05:05,620
+ resources it needs to continue to progress and to finish its computation.
+
+57
+00:05:05,620 --> 00:05:11,460
+ And this is relevant here as an example about the second part of the lecture when we are
+
+58
+00:05:11,460 --> 00:05:15,460
+ going to talk about virtual memory.
+
+59
+00:05:15,460 --> 00:05:26,500
+ And because virtual memory, it provides you a memory which is much larger than the physical
+
+60
+00:05:26,500 --> 00:05:30,860
+ memory.
+
+61
+00:05:30,860 --> 00:05:39,100
+ You can think about for most applications, the same infinite space, infinite memory.
+
+62
+00:05:39,100 --> 00:05:45,580
+ The one thing though is that as we will see under the hood of the virtual memory, the
+
+63
+00:05:45,580 --> 00:05:47,920
+ virtual memory is implemented.
+
+64
+00:05:47,920 --> 00:05:54,260
+ You are going to load different parts of the virtual memory in the physical memory.
+
+65
+00:05:54,260 --> 00:06:01,460
+ And then you are going to offload to move some of the parts of the virtual memory of
+
+66
+00:06:01,460 --> 00:06:07,720
+ the threads which are not running off the physical memory.
+
+67
+00:06:07,720 --> 00:06:10,180
+ You put them on the disk.
+
+68
+00:06:10,180 --> 00:06:15,760
+ And in doing so, you basically the solution under the hood is to preempt, right?
+
+69
+00:06:15,760 --> 00:06:24,200
+ You preempt the physical memory storage which contains a virtual memory data from one thread
+
+70
+00:06:24,200 --> 00:06:30,340
+ with another, with a virtual memory content of another thread.
+
+71
+00:06:30,340 --> 00:06:36,260
+ We'll talk more about that.
+
+72
+00:06:36,260 --> 00:06:46,420
+ That is something, it's a nice relation between the deadlock solutions and virtual memory.
+
+73
+00:06:46,420 --> 00:07:01,800
+ So the next mechanism of resolving the deadlock problem, it's deadlock avoidance, right?
+
+74
+00:07:01,800 --> 00:07:08,820
+ And this is different from deadlock prevention, which we talked last time quite a bit.
+
+75
+00:07:08,820 --> 00:07:16,360
+ So deadlock prevention, if you remember, it design your program so that you never run
+
+76
+00:07:16,360 --> 00:07:19,980
+ into deadlock, right?
+
+77
+00:07:19,980 --> 00:07:27,140
+ Like all the resources are going to be acquired in the same order by everyone, right?
+
+78
+00:07:27,140 --> 00:07:29,140
+ Things like that.
+
+79
+00:07:29,140 --> 00:07:36,580
+ Now deadlock avoidance is basically is that it's more dynamic.
+
+80
+00:07:36,580 --> 00:07:45,720
+ It's a more dynamic way to avoid, sorry, deadlock avoidance is a more dynamic way to avoid deadlocks.
+
+81
+00:07:45,720 --> 00:07:51,400
+ And this is basically the operating system in this case.
+
+82
+00:07:51,400 --> 00:08:00,040
+ It checks at everyone, you make every resource request, whether it can result in a deadlock.
+
+83
+00:08:00,040 --> 00:08:10,680
+ And if the operating system convince itself that if it grants this request, there is a
+
+84
+00:08:10,680 --> 00:08:19,960
+ way in which you don't get into a deadlock state, then it's granting the resource to
+
+85
+00:08:19,960 --> 00:08:22,160
+ the state which asks for it.
+
+86
+00:08:22,160 --> 00:08:24,760
+ Otherwise, it does not.
+
+87
+00:08:24,760 --> 00:08:25,760
+ Okay.
+
+88
+00:08:25,760 --> 00:08:29,800
+ Let me see the question here.
+
+89
+00:08:29,800 --> 00:08:32,600
+ Oh, sorry.
+
+90
+00:08:32,600 --> 00:08:36,120
+ That's a great question.
+
+91
+00:08:36,120 --> 00:08:39,440
+ The slides is my mistake.
+
+92
+00:08:39,440 --> 00:08:48,520
+ Let me, okay, let me give me 30 seconds to upload them and they're going to be available
+
+93
+00:08:48,520 --> 00:08:52,520
+ in a few moments.
+
+94
+00:08:52,520 --> 00:08:59,240
+ Yeah, I apologize for that.
+
+95
+00:08:59,240 --> 00:09:06,260
+ Silence.
+
+96
+00:09:06,260 --> 00:09:20,360
+ Silence.
+
+97
+00:09:20,360 --> 00:09:43,340
+ Okay, so I pushed them so, you know, after a bit of time, they are going to be available.
+
+98
+00:09:43,340 --> 00:09:44,340
+ Okay.
+
+99
+00:09:44,340 --> 00:09:45,340
+ Sorry.
+
+100
+00:09:45,340 --> 00:09:48,340
+ And thanks for flagging it up.
+
+101
+00:09:48,340 --> 00:09:49,340
+ Okay.
+
+102
+00:09:49,340 --> 00:09:50,340
+ Okay.
+
+103
+00:09:50,340 --> 00:09:51,340
+ Okay.
+
+104
+00:09:51,340 --> 00:09:52,340
+ Okay.
+
+105
+00:09:52,340 --> 00:09:53,340
+ Okay.
+
+106
+00:09:53,340 --> 00:10:00,300
+ So let's see how this, you know, in this example, it's like we gave this as a canonical example
+
+107
+00:10:00,300 --> 00:10:03,920
+ we used last time to illustrate the deadlock.
+
+108
+00:10:03,920 --> 00:10:10,620
+ And here, if you remember, you have two threads and both threads A and B acquire resources
+
+109
+00:10:10,620 --> 00:10:16,560
+ or the lock Y, X, and Y, but they acquire them in a different order.
+
+110
+00:10:16,560 --> 00:10:25,380
+ So let's say thread A acquire X and let B acquire B. So thread B acquire Y.
+
+111
+00:10:25,380 --> 00:10:27,660
+ So in this case, it's not working.
+
+112
+00:10:27,660 --> 00:10:31,740
+ You have deadlock, right?
+
+113
+00:10:31,740 --> 00:10:38,360
+ Because if Y tries to acquire, because if A tries to acquire Y, it can no longer do
+
+114
+00:10:38,360 --> 00:10:44,060
+ that because B already holds Y.
+
+115
+00:10:44,060 --> 00:10:45,060
+ Okay.
+
+116
+00:10:45,060 --> 00:10:50,120
+ Okay.
+
+117
+00:10:50,120 --> 00:10:52,800
+ So this will, this doesn't work, right?
+
+118
+00:10:52,800 --> 00:10:54,260
+ So this is what we want to avoid.
+
+119
+00:10:54,260 --> 00:11:05,780
+ So in this particular case, the point here is that, you know, if you go back, once the
+
+120
+00:11:05,780 --> 00:11:20,300
+ system allocated X to A, then it shouldn't, when B asks for Y, it should not grant access
+
+121
+00:11:20,300 --> 00:11:21,300
+ to that resource.
+
+122
+00:11:21,300 --> 00:11:26,140
+ It shouldn't grant that the resource Y or the lock, right?
+
+123
+00:11:26,140 --> 00:11:33,620
+ Because if you grant it, now there is a potential for deadlock.
+
+124
+00:11:33,620 --> 00:11:35,740
+ Okay.
+
+125
+00:11:35,740 --> 00:11:47,020
+ And now, intuitively, you see, if the operating system doesn't grant Y to B, then A has the
+
+126
+00:11:47,020 --> 00:11:55,780
+ opportunity to request Y, and now the operating system can grant Y to A. So A now has both
+
+127
+00:11:55,780 --> 00:12:04,600
+ X and Y, so can complete this computation and then release both X and Y, right?
+
+128
+00:12:04,600 --> 00:12:07,420
+ So that's kind of what you want to happen.
+
+129
+00:12:07,420 --> 00:12:12,260
+ And this is exactly what the deadlock avoidance is trying to do.
+
+130
+00:12:12,260 --> 00:12:13,260
+ Okay.
+
+131
+00:12:13,260 --> 00:12:14,260
+ Intuitively.
+
+132
+00:12:14,260 --> 00:12:23,020
+ So with the deadlock avoidance, you have two states, a safe state and a deadlock state.
+
+133
+00:12:23,020 --> 00:12:24,580
+ Okay.
+
+134
+00:12:24,580 --> 00:12:34,300
+ And in the safe state, means that there is a way to allocate the resources to the existing
+
+135
+00:12:34,300 --> 00:12:41,220
+ threads such that every thread is going to complete.
+
+136
+00:12:41,220 --> 00:12:44,860
+ So there is no deadlock.
+
+137
+00:12:44,860 --> 00:12:47,800
+ Deadlock means there is a deadlock in the system.
+
+138
+00:12:47,800 --> 00:12:52,520
+ So the four requirements we talk about are all hold.
+
+139
+00:12:52,520 --> 00:13:01,040
+ These are the two main states, and then there is another unsafe state.
+
+140
+00:13:01,040 --> 00:13:08,340
+ There is no deadlock yet, but threads can require resources in a pattern that unavoidable
+
+141
+00:13:08,340 --> 00:13:10,640
+ leads to deadlock.
+
+142
+00:13:10,640 --> 00:13:14,660
+ So basically right now, there is no deadlock.
+
+143
+00:13:14,660 --> 00:13:16,100
+ But the deadlock is imminent.
+
+144
+00:13:16,100 --> 00:13:17,960
+ You cannot do anything about it.
+
+145
+00:13:17,960 --> 00:13:18,960
+ Okay.
+
+146
+00:13:18,960 --> 00:13:21,640
+ You are on the way for the deadlock to happen.
+
+147
+00:13:21,640 --> 00:13:22,640
+ Okay.
+
+148
+00:13:22,640 --> 00:13:24,760
+ So this is what unsafe state.
+
+149
+00:13:24,760 --> 00:13:25,840
+ Okay.
+
+150
+00:13:25,840 --> 00:13:34,920
+ So with a deadlock avoidance, you just try to prevent the system from reaching an unsafe
+
+151
+00:13:34,920 --> 00:13:36,400
+ state.
+
+152
+00:13:36,400 --> 00:13:42,880
+ Because if you reach an unsafe state, eventually you are going to reach a deadlock state.
+
+153
+00:13:42,880 --> 00:13:44,520
+ Okay.
+
+154
+00:13:44,520 --> 00:13:51,200
+ And the main idea here is when a thread requests a resource, the operating system checks if
+
+155
+00:13:51,200 --> 00:14:00,920
+ it will result, if granting that resource would lead to an unsafe state.
+
+156
+00:14:00,920 --> 00:14:04,560
+ Okay.
+
+157
+00:14:04,560 --> 00:14:11,480
+ If it will not lead to an unsafe state, it's going to grant the resource.
+
+158
+00:14:11,480 --> 00:14:21,680
+ If not, it's not going to grant and is going to wait for the existing threads to finish
+
+159
+00:14:21,680 --> 00:14:25,780
+ and release some resource.
+
+160
+00:14:25,780 --> 00:14:30,520
+ So let again look at the previous example.
+
+161
+00:14:30,520 --> 00:14:35,360
+ And I already mentioned to you the solution, but let's do it again.
+
+162
+00:14:35,360 --> 00:14:39,360
+ So thread A acquires X.
+
+163
+00:14:39,360 --> 00:14:51,720
+ Now thread B ask for Y, but we do not give Y to B until A finishes.
+
+164
+00:14:51,720 --> 00:14:52,880
+ Okay.
+
+165
+00:14:52,880 --> 00:15:01,440
+ Because if we give grant Y to B, as you know, it can, it results in deadlock.
+
+166
+00:15:01,440 --> 00:15:08,880
+ And the classic algorithm for avoiding deadlock, it's a banker algorithms.
+
+167
+00:15:08,880 --> 00:15:19,480
+ And basically what you, you know, the idea here is that each thread is states the maximum
+
+168
+00:15:19,480 --> 00:15:24,800
+ number of resources in its inner bass, right?
+
+169
+00:15:24,800 --> 00:15:36,140
+ And allow a thread to proceed only if available resources in the system minus requested resources
+
+170
+00:15:36,140 --> 00:15:43,200
+ in the system is greater than the maximum number of resources required by a thread.
+
+171
+00:15:43,200 --> 00:15:44,880
+ Right.
+
+172
+00:15:44,880 --> 00:15:45,880
+ And this is important.
+
+173
+00:15:45,880 --> 00:15:53,440
+ You need to stay upfront how many resources you have, because if you don't, the system
+
+174
+00:15:53,440 --> 00:15:55,160
+ doesn't have the information.
+
+175
+00:15:55,160 --> 00:16:02,160
+ And at any given time in the future, you can, you being a thread, ask for more resources.
+
+176
+00:16:02,160 --> 00:16:03,160
+ Right.
+
+177
+00:16:03,160 --> 00:16:09,440
+ So there is no way actually to protect the deadlock in this situation.
+
+178
+00:16:09,440 --> 00:16:13,560
+ So banker algorithms allocate the resource dynamically.
+
+179
+00:16:13,560 --> 00:16:22,140
+ So he's looking at each request, resource request, and then it decide whether to grant
+
+180
+00:16:22,140 --> 00:16:36,700
+ a request, a resource or not, if the resulting state remains a safe state.
+
+181
+00:16:36,700 --> 00:16:38,920
+ And the techniques is very simple.
+
+182
+00:16:38,920 --> 00:16:41,700
+ You pretend that each request is granted.
+
+183
+00:16:41,700 --> 00:16:43,660
+ Then you run the deadlock detection algorithm.
+
+184
+00:16:43,660 --> 00:16:49,700
+ So you remember the last time we are looking, we are, we learn about deadlock detection
+
+185
+00:16:49,700 --> 00:16:50,700
+ algorithm.
+
+186
+00:16:50,700 --> 00:16:51,700
+ Okay.
+
+187
+00:16:51,700 --> 00:16:52,700
+ So it's very simple.
+
+188
+00:16:52,700 --> 00:17:01,040
+ In the deadlock detection algorithms, you are looking whether the requested resources
+
+189
+00:17:01,040 --> 00:17:07,380
+ by a particular thread are, it can be satisfied.
+
+190
+00:17:07,380 --> 00:17:10,760
+ So it's less than the resource availability.
+
+191
+00:17:10,760 --> 00:17:11,760
+ Right.
+
+192
+00:17:11,760 --> 00:17:21,680
+ In this case, we are looking at how many more resources a thread needs in the worst case.
+
+193
+00:17:21,680 --> 00:17:28,900
+ Which is a max node, is a node in the graph.
+
+194
+00:17:28,900 --> 00:17:32,740
+ And you know, that's why it's called node here.
+
+195
+00:17:32,740 --> 00:17:40,620
+ But you can replace node with a thread, but the maximum number of resources that the thread
+
+196
+00:17:40,620 --> 00:17:47,900
+ still needs is a maximum number of resources overall that thread needs minus the number
+
+197
+00:17:47,900 --> 00:17:52,620
+ of resources the thread already owns.
+
+198
+00:17:52,620 --> 00:17:55,380
+ Okay.
+
+199
+00:17:55,380 --> 00:18:02,340
+ So this is again, if you remember, this is the algorithms to detect the deadlock.
+
+200
+00:18:02,340 --> 00:18:08,460
+ So the only change you need to make here is that we need to, we are going to replace request,
+
+201
+00:18:08,460 --> 00:18:18,540
+ number of request resources with the maximum number of resources that node or thread can
+
+202
+00:18:18,540 --> 00:18:25,740
+ still need, will still need in the worst case.
+
+203
+00:18:25,740 --> 00:18:28,820
+ So that's what it is.
+
+204
+00:18:28,820 --> 00:18:30,960
+ Right.
+
+205
+00:18:30,960 --> 00:18:37,740
+ So just to look a little bit more at the code, you put all nodes, again, all threads in unfinished
+
+206
+00:18:37,740 --> 00:18:45,340
+ you have available resources, which is amount of the number of resources which are free
+
+207
+00:18:45,340 --> 00:18:47,780
+ in the system.
+
+208
+00:18:47,780 --> 00:18:54,940
+ And then you are going to look at all nodes in unfinished, which are still computing.
+
+209
+00:18:54,940 --> 00:19:07,380
+ And for each of them, you are looking at that, you know, can if the amount of resources that
+
+210
+00:19:07,380 --> 00:19:13,260
+ thread is going to require in, to ask for in the worst case is less than the available
+
+211
+00:19:13,260 --> 00:19:15,480
+ resources.
+
+212
+00:19:15,480 --> 00:19:17,500
+ And if yes, is fine.
+
+213
+00:19:17,500 --> 00:19:21,260
+ You remove from unfinished because we know that we are looking at those resources with
+
+214
+00:19:21,260 --> 00:19:24,060
+ the thread will finish for sure.
+
+215
+00:19:24,060 --> 00:19:25,420
+ Right.
+
+216
+00:19:25,420 --> 00:19:29,220
+ And we'll never ask for more resources than that.
+
+217
+00:19:29,220 --> 00:19:38,740
+ And then you iterate and it's until you are done.
+
+218
+00:19:38,740 --> 00:19:39,740
+ Okay.
+
+219
+00:19:39,740 --> 00:19:39,740
+ Thank you.
+
+220
+00:19:39,740 --> 00:19:40,740
+ Thank you.
+
+221
+00:19:40,740 --> 00:19:40,740
+ Bye.
+
+222
+00:19:40,740 --> 00:19:45,740
+ Bye.
+
+223
+00:19:45,770 --> 00:19:52,610
+ Can you explain what a lock means?
+
+224
+00:19:52,610 --> 00:19:54,770
+ A lock means allocate--
+
+225
+00:19:54,770 --> 00:19:57,890
+ a lock is the resources which are already
+
+226
+00:19:57,890 --> 00:19:59,050
+ allocated to a thread.
+
+227
+00:19:59,050 --> 00:20:04,850
+ So say I have a thread--
+
+228
+00:20:04,850 --> 00:20:06,850
+ so let me just go--
+
+229
+00:20:06,850 --> 00:20:07,730
+ let me just--
+
+230
+00:20:07,730 --> 00:20:13,690
+ nothing better than an example.
+
+231
+00:20:13,690 --> 00:20:27,450
+ OK, so in this example, both threads, the max will be 2,
+
+232
+00:20:27,450 --> 00:20:31,850
+ because they require x and y, right?
+
+233
+00:20:31,850 --> 00:20:32,730
+ Or it's a vector.
+
+234
+00:20:32,730 --> 00:20:34,330
+ Depends how you want to look at it.
+
+235
+00:20:34,330 --> 00:20:38,810
+ But in this case, we understand both threads requires x and y.
+
+236
+00:20:38,810 --> 00:20:42,490
+ This is the max, initially.
+
+237
+00:20:42,490 --> 00:20:49,930
+ Now, when the thread A gets x, in this case, x is alloc
+
+238
+00:20:49,930 --> 00:20:53,130
+ in the alloc--
+
+239
+00:20:53,130 --> 00:20:55,290
+ allocated vector.
+
+240
+00:20:55,290 --> 00:20:57,730
+ So the amount is the number of resources
+
+241
+00:20:57,730 --> 00:21:01,530
+ which are already allocated to the thread.
+
+242
+00:21:01,530 --> 00:21:04,130
+ Max is still x and y.
+
+243
+00:21:04,130 --> 00:21:09,010
+ So when you do max, max, x and y, max minus alloc,
+
+244
+00:21:09,010 --> 00:21:12,530
+ in this case, you get what?
+
+245
+00:21:12,530 --> 00:21:15,930
+ You get y, because max is x and y.
+
+246
+00:21:15,930 --> 00:21:17,850
+ Alloc is x.
+
+247
+00:21:17,850 --> 00:21:20,850
+ So you get y.
+
+248
+00:21:20,850 --> 00:21:23,490
+ So in this case, in the worst case,
+
+249
+00:21:23,490 --> 00:21:27,690
+ that thread A still is going to ask for y.
+
+250
+00:21:27,690 --> 00:21:32,170
+ OK?
+
+251
+00:21:32,170 --> 00:21:54,850
+ the system in a safe state means
+
+252
+00:21:54,850 --> 00:22:01,810
+ that there exists a sequence in which your grand request
+
+253
+00:22:01,810 --> 00:22:07,490
+ to the threads which are unfinished so that all threads
+
+254
+00:22:07,490 --> 00:22:10,330
+ are going to finish.
+
+255
+00:22:10,330 --> 00:22:17,890
+ So let's apply this algorithms to the dining
+
+256
+00:22:17,890 --> 00:22:19,970
+ philosopher problem or lawyer's problem.
+
+257
+00:22:19,970 --> 00:22:26,050
+ So what is a deadlock here?
+
+258
+00:22:26,050 --> 00:22:30,530
+ The deadlock here is that when each person picks a job stick
+
+259
+00:22:30,530 --> 00:22:32,650
+ and they have only one job stick,
+
+260
+00:22:32,650 --> 00:22:36,970
+ there is no other job stick available, so no one can eat.
+
+261
+00:22:36,970 --> 00:22:38,370
+ OK?
+
+262
+00:22:38,370 --> 00:22:40,090
+ So what is a safe state here?
+
+263
+00:22:40,090 --> 00:22:46,450
+ Is that when you can grant a request to a job stick?
+
+264
+00:22:46,450 --> 00:22:50,330
+ You can grant one is that there is not the last job stick.
+
+265
+00:22:50,330 --> 00:22:54,570
+ Because if we have still one job stick,
+
+266
+00:22:54,570 --> 00:22:56,490
+ we can give that job stick to someone
+
+267
+00:22:56,490 --> 00:22:58,290
+ who has already one job stick.
+
+268
+00:22:58,290 --> 00:23:01,730
+ And that person is going to finish eating.
+
+269
+00:23:01,730 --> 00:23:03,690
+ And now you get two chopsticks.
+
+270
+00:23:03,690 --> 00:23:08,050
+ So you can give these chopsticks to other people to eat.
+
+271
+00:23:08,050 --> 00:23:12,050
+ OK?
+
+272
+00:23:12,050 --> 00:23:16,690
+ Or this is the last job stick, but you give to someone
+
+273
+00:23:16,690 --> 00:23:19,570
+ who already has a job stick.
+
+274
+00:23:19,570 --> 00:23:23,170
+ Because if you do so, then that person,
+
+275
+00:23:23,170 --> 00:23:26,450
+ you gave the second job stick, can finish eating.
+
+276
+00:23:26,450 --> 00:23:28,370
+ OK?
+
+277
+00:23:28,370 --> 00:23:30,850
+ OK?
+
+278
+00:23:30,850 --> 00:23:33,930
+ What happens if you have--
+
+279
+00:23:33,930 --> 00:23:39,610
+ you generalize the problem with K-handed people,
+
+280
+00:23:39,610 --> 00:23:40,490
+ like octopus?
+
+281
+00:23:40,490 --> 00:23:43,330
+ Think about like you have octopuses which are dying.
+
+282
+00:23:43,330 --> 00:23:48,570
+ You can generalize that.
+
+283
+00:23:48,570 --> 00:23:53,330
+ So basically, the last one and no one could have K.
+
+284
+00:23:53,330 --> 00:23:57,170
+ It's the second to last one, and no one have K minus 1,
+
+285
+00:23:57,170 --> 00:23:58,530
+ and so forth.
+
+286
+00:23:58,530 --> 00:24:00,650
+ Right?
+
+287
+00:24:00,650 --> 00:24:05,090
+ Because otherwise, if you allocate--
+
+288
+00:24:05,090 --> 00:24:10,650
+ if you grant the chopstick by violating
+
+289
+00:24:10,650 --> 00:24:16,810
+ any of these conditions, then you can end up in that lock.
+
+290
+00:24:21,330 --> 00:24:24,650
+ So in summary, there are four conditions.
+
+291
+00:24:24,650 --> 00:24:27,930
+ By the way, any questions about Banker's algorithm?
+
+292
+00:24:27,930 --> 00:24:42,330
+ So again, at the high level, the idea is very simple.
+
+293
+00:24:42,330 --> 00:24:46,890
+ Each thread is going to tell you in advance,
+
+294
+00:24:46,890 --> 00:24:52,930
+ to say in advance, how many resources it needs.
+
+295
+00:24:52,930 --> 00:24:56,570
+ And then what you do, the operating system
+
+296
+00:24:56,570 --> 00:25:01,810
+ is going to grant a request to a resource.
+
+297
+00:25:01,810 --> 00:25:06,730
+ If by granting that request, you remain in safe state.
+
+298
+00:25:06,730 --> 00:25:11,650
+ And in safe state means that there
+
+299
+00:25:11,650 --> 00:25:16,570
+ is a way to grant the request to the existing threads,
+
+300
+00:25:16,570 --> 00:25:20,530
+ such that every thread is going to finish.
+
+301
+00:25:20,530 --> 00:25:28,890
+ What is K minus 2?
+
+302
+00:25:28,890 --> 00:25:35,970
+ So here, K minus 2, here you assume
+
+303
+00:25:35,970 --> 00:25:40,930
+ that instead of having two hands, that person or entity
+
+304
+00:25:40,930 --> 00:25:44,290
+ will have K hands.
+
+305
+00:25:44,290 --> 00:25:55,770
+ And in order to eat that octopus, it needs OK chopsticks.
+
+306
+00:25:55,770 --> 00:26:06,610
+ So if you have one chopstick left,
+
+307
+00:26:06,610 --> 00:26:09,690
+ and someone else asks for the chopstick,
+
+308
+00:26:09,690 --> 00:26:13,970
+ you do not give that chopstick to that person.
+
+309
+00:26:13,970 --> 00:26:22,610
+ Unless that person has K chopsticks.
+
+310
+00:26:22,610 --> 00:26:28,410
+ And the same next, if you have two chopsticks, which
+
+311
+00:26:28,410 --> 00:26:34,210
+ are not allocated, you would not give that chopstick
+
+312
+00:26:34,210 --> 00:26:37,650
+ to a person unless at least one other person
+
+313
+00:26:37,650 --> 00:26:41,530
+ has K minus 1 chopsticks.
+
+314
+00:26:41,530 --> 00:26:45,650
+ Because otherwise, if you give the chopstick
+
+315
+00:26:45,650 --> 00:26:48,530
+ to another person, and none of the person
+
+316
+00:26:48,530 --> 00:26:52,970
+ has K minus 1 chopsticks, they have K minus 2 or less,
+
+317
+00:26:52,970 --> 00:26:56,970
+ now you are in unsafe state.
+
+318
+00:26:56,970 --> 00:27:00,090
+ Because you have only one chopstick left,
+
+319
+00:27:00,090 --> 00:27:04,490
+ and no one else has more than K minus 2 chopsticks.
+
+320
+00:27:04,490 --> 00:27:08,050
+ So no matter to whom I am going to give the last chopstick,
+
+321
+00:27:08,050 --> 00:27:10,250
+ no one else can eat.
+
+322
+00:27:10,250 --> 00:27:12,530
+ No one can eat.
+
+323
+00:27:12,530 --> 00:27:13,030
+ OK?
+
+324
+00:27:13,030 --> 00:27:19,250
+ So there are four conditions for deadlock to happen.
+
+325
+00:27:19,250 --> 00:27:22,650
+ Mutual exclusion, hold on weight, no preemption,
+
+326
+00:27:22,650 --> 00:27:24,730
+ and circular weight.
+
+327
+00:27:24,730 --> 00:27:28,330
+ And there are several techniques to addressing the deadlock
+
+328
+00:27:28,330 --> 00:27:29,650
+ problem.
+
+329
+00:27:29,650 --> 00:27:33,610
+ Deadlock prevention, you write your code in a way
+
+330
+00:27:33,610 --> 00:27:36,010
+ that it's not prone to the deadlock.
+
+331
+00:27:36,010 --> 00:27:43,050
+ You set up some rules so that if everyone respects these rules,
+
+332
+00:27:43,050 --> 00:27:44,970
+ you cannot have deadlock, for instance.
+
+333
+00:27:44,970 --> 00:27:52,410
+ Deadlock recovery, you let the deadlock happen and then
+
+334
+00:27:52,410 --> 00:27:54,810
+ figure out how to recover.
+
+335
+00:27:54,810 --> 00:28:01,050
+ You can preempt a thread, you can suspend a thread,
+
+336
+00:28:01,050 --> 00:28:02,050
+ you can roll back.
+
+337
+00:28:04,610 --> 00:28:08,050
+ Deadlock avoidance, this is what we just learned,
+
+338
+00:28:08,050 --> 00:28:13,370
+ the banker algorithms, which then you basically
+
+339
+00:28:13,370 --> 00:28:16,050
+ delay resource requests.
+
+340
+00:28:16,050 --> 00:28:19,290
+ So deadlock doesn't happen.
+
+341
+00:28:19,290 --> 00:28:23,570
+ And finally, of course, deadlock denial,
+
+342
+00:28:23,570 --> 00:28:26,930
+ you just ignore this deadlock because it may never happen.
+
+343
+00:28:26,930 --> 00:28:30,290
+ Or this happens so infrequently, and when it happens,
+
+344
+00:28:30,290 --> 00:28:33,930
+ there is not a big issue.
+
+345
+00:28:33,930 --> 00:28:37,610
+ So announcements.
+
+346
+00:28:37,610 --> 00:28:40,410
+ Project one, congrats for completing your first project.
+
+347
+00:28:40,410 --> 00:28:48,330
+ So we are planning to release the grades for your midterm
+
+348
+00:28:48,330 --> 00:28:51,410
+ by Monday, like I mentioned last time.
+
+349
+00:28:51,410 --> 00:28:54,090
+ And project two will be released today.
+
+350
+00:28:54,090 --> 00:28:56,170
+ So good luck for project two.
+
+351
+00:28:56,170 --> 00:29:02,730
+ So now I am going to switch gears,
+
+352
+00:29:02,730 --> 00:29:09,490
+ and I am going to talk about virtual memory.
+
+353
+00:29:09,490 --> 00:29:14,850
+ And we'll start to remind everyone
+
+354
+00:29:14,850 --> 00:29:17,890
+ to recall about virtualizing resources.
+
+355
+00:29:17,890 --> 00:29:21,330
+ Memory is just another resource which you visualize.
+
+356
+00:29:21,330 --> 00:29:24,970
+ But before then, let me stop and ask you
+
+357
+00:29:24,970 --> 00:29:29,770
+ whether you have any questions about what
+
+358
+00:29:29,770 --> 00:29:33,330
+ we've learned so far or any other question.
+
+359
+00:29:33,330 --> 00:29:45,650
+ OK, so it seems there are no questions.
+
+360
+00:29:45,650 --> 00:29:49,210
+ So let's go ahead.
+
+361
+00:29:49,210 --> 00:29:58,010
+ So remember that what we want in the operating system
+
+362
+00:29:58,010 --> 00:30:00,890
+ was to provide to the application
+
+363
+00:30:00,890 --> 00:30:03,730
+ is the illusion that each application has
+
+364
+00:30:03,730 --> 00:30:06,210
+ its own machine on which it runs.
+
+365
+00:30:06,210 --> 00:30:08,770
+ It has its own resources.
+
+366
+00:30:08,770 --> 00:30:12,810
+ But of course, the physical machines
+
+367
+00:30:12,810 --> 00:30:15,890
+ have limited resources.
+
+368
+00:30:15,890 --> 00:30:20,490
+ So therefore, you need to kind of virtualize
+
+369
+00:30:20,490 --> 00:30:23,930
+ this virtual machine, this physical machine,
+
+370
+00:30:23,930 --> 00:30:28,210
+ to different applications, different processes, which
+
+371
+00:30:28,210 --> 00:30:32,770
+ means that virtualization means that you need--
+
+372
+00:30:32,770 --> 00:30:36,850
+ if you have more application or more processes, which
+
+373
+00:30:36,850 --> 00:30:41,290
+ is a common case, then the physical resources,
+
+374
+00:30:41,290 --> 00:30:46,330
+ the only way you can visualize resources is to multiplex them.
+
+375
+00:30:46,330 --> 00:30:49,290
+ And you can multiplex them in space or in time.
+
+376
+00:30:53,290 --> 00:31:00,450
+ So one classic example about virtualizing in time is CPU.
+
+377
+00:31:00,450 --> 00:31:03,730
+ You multiplex the CPU so that in time quanta,
+
+378
+00:31:03,730 --> 00:31:08,290
+ so for each time quanta, you let another process run.
+
+379
+00:31:08,290 --> 00:31:11,290
+ And therefore, each process has the illusion
+
+380
+00:31:11,290 --> 00:31:18,130
+ that it owns a CPU, a slower CPU than the physical CPU.
+
+381
+00:31:21,890 --> 00:31:27,690
+ The second one is another important resource is memory.
+
+382
+00:31:27,690 --> 00:31:30,890
+ And this is what we are going to start learning about today,
+
+383
+00:31:30,890 --> 00:31:33,890
+ how to virtualize the memory.
+
+384
+00:31:33,890 --> 00:31:36,930
+ And the other important one is a disk or storage.
+
+385
+00:31:36,930 --> 00:31:45,570
+ Now, why memory is important?
+
+386
+00:31:45,570 --> 00:31:47,170
+ Why do you want to virtualize memory?
+
+387
+00:31:47,170 --> 00:31:49,050
+ Of course.
+
+388
+00:31:49,050 --> 00:31:53,450
+ It's very important because the entire state of a process
+
+389
+00:31:53,450 --> 00:31:57,170
+ or application is stored--
+
+390
+00:31:57,170 --> 00:32:00,810
+ or not entire state, but most of the state or the active state,
+
+391
+00:32:00,810 --> 00:32:04,650
+ the state which is used by the process when it runs,
+
+392
+00:32:04,650 --> 00:32:08,210
+ is stored in memory and registers.
+
+393
+00:32:08,210 --> 00:32:17,330
+ And therefore, as you know, you cannot have two threads use
+
+394
+00:32:17,330 --> 00:32:19,170
+ the same memory.
+
+395
+00:32:19,170 --> 00:32:32,170
+ Always use the same memory because it's, again,
+
+396
+00:32:32,170 --> 00:32:34,570
+ like two different pieces of data cannot
+
+397
+00:32:34,570 --> 00:32:37,410
+ occupy the same location.
+
+398
+00:32:37,410 --> 00:32:41,930
+ And you don't want--
+
+399
+00:32:41,930 --> 00:32:43,890
+ sometimes, you don't want threads
+
+400
+00:32:43,890 --> 00:32:47,810
+ to have access to each other memory.
+
+401
+00:32:47,810 --> 00:32:50,410
+ And here, you have memory protection.
+
+402
+00:32:50,410 --> 00:32:53,970
+ And remember, how do you provide memory protection?
+
+403
+00:32:53,970 --> 00:32:56,930
+ You provide them-- we are going to see the mechanics here.
+
+404
+00:32:56,930 --> 00:33:00,250
+ But the abstraction is a process.
+
+405
+00:33:00,250 --> 00:33:02,530
+ Each process is its own memory.
+
+406
+00:33:02,530 --> 00:33:07,050
+ All the threads in the same process share that memory.
+
+407
+00:33:07,050 --> 00:33:09,010
+ Threads in the different processes
+
+408
+00:33:09,010 --> 00:33:13,730
+ cannot share the memory, cannot see each other memory, cannot
+
+409
+00:33:13,730 --> 00:33:16,850
+ access each other memory.
+
+410
+00:33:16,850 --> 00:33:21,810
+ So OK.
+
+411
+00:33:21,810 --> 00:33:24,650
+ Now, going back and recalling the four fundamental OS
+
+412
+00:33:24,650 --> 00:33:27,210
+ concepts, we have thread, which is execution context.
+
+413
+00:33:27,210 --> 00:33:38,370
+ It represents the control state, which
+
+414
+00:33:38,370 --> 00:33:41,930
+ is program counter, registers, everything
+
+415
+00:33:41,930 --> 00:33:45,850
+ which is needed to execute that thread.
+
+416
+00:33:45,850 --> 00:33:52,650
+ Then is the address space, which owns the entire memory,
+
+417
+00:33:52,650 --> 00:33:57,290
+ accessible by the program for accessing means read and write.
+
+418
+00:33:57,290 --> 00:34:06,010
+ Then is a process, which is an instance of a running program.
+
+419
+00:34:06,010 --> 00:34:12,650
+ And the process, it's address space plus one more thread.
+
+420
+00:34:12,650 --> 00:34:15,410
+ And then we have this dual operation,
+
+421
+00:34:15,410 --> 00:34:20,330
+ dual mode operation between the system and user.
+
+422
+00:34:20,330 --> 00:34:24,930
+ And the system has the ability to access
+
+423
+00:34:24,930 --> 00:34:31,650
+ more resources than the user, user programs.
+
+424
+00:34:31,650 --> 00:34:44,970
+ So let's talk then about virtualized memory.
+
+425
+00:34:44,970 --> 00:34:53,210
+ First, let's start with the concept of address space
+
+426
+00:34:53,210 --> 00:34:56,450
+ and address translation.
+
+427
+00:34:56,450 --> 00:35:06,170
+ An address space is a set of a contiguous set
+
+428
+00:35:06,170 --> 00:35:10,610
+ of memory addresses, which are seen
+
+429
+00:35:10,610 --> 00:35:14,090
+ by the process or the application.
+
+430
+00:35:14,090 --> 00:35:23,850
+ Typically, the unit for memory is byte,
+
+431
+00:35:23,850 --> 00:35:29,410
+ and the size is expressed in power of two.
+
+432
+00:35:29,410 --> 00:35:33,970
+ So for instance, if you have 2 power 10 bytes,
+
+433
+00:35:33,970 --> 00:35:39,610
+ this means you have 1,024 bytes, which
+
+434
+00:35:39,610 --> 00:35:46,530
+ is one kilobyte, with capital B. Capital B stands for byte.
+
+435
+00:35:46,530 --> 00:35:48,530
+ A byte has eight bits.
+
+436
+00:35:52,610 --> 00:35:56,610
+ And then you have an address.
+
+437
+00:35:56,610 --> 00:36:01,130
+ And the address is used to access individual bytes
+
+438
+00:36:01,130 --> 00:36:04,530
+ in this address space.
+
+439
+00:36:04,530 --> 00:36:09,010
+ Again, the number of bits in the address
+
+440
+00:36:09,010 --> 00:36:14,530
+ is basically in this case is k or 10 in this example.
+
+441
+00:36:14,530 --> 00:36:21,130
+ It's the exponent of two when you define compute the memory
+
+442
+00:36:21,130 --> 00:36:24,210
+ size.
+
+443
+00:36:24,210 --> 00:36:26,970
+ And this should be very easy to remember.
+
+444
+00:36:26,970 --> 00:36:33,490
+ If you have n addresses, how many bits you need
+
+445
+00:36:33,490 --> 00:36:36,610
+ to encode these n addresses?
+
+446
+00:36:36,610 --> 00:36:39,130
+ A bit has two values, 0 and 1.
+
+447
+00:36:39,130 --> 00:36:42,330
+ So you need log of n.
+
+448
+00:36:42,330 --> 00:36:45,010
+ In this case, n is 2k.
+
+449
+00:36:45,010 --> 00:36:50,050
+ Log base 2 of 2k is k.
+
+450
+00:36:50,050 --> 00:36:53,770
+ How many bits of address each byte--
+
+451
+00:36:53,770 --> 00:36:58,330
+ bits of address-- how many bits you
+
+452
+00:36:58,330 --> 00:37:01,690
+ need to address each byte in a four kilobyte page?
+
+453
+00:37:01,690 --> 00:37:06,610
+ Is 12, right?
+
+454
+00:37:06,610 --> 00:37:11,650
+ Because 2 power 12 is four kilobytes.
+
+455
+00:37:11,650 --> 00:37:17,530
+ And obviously, if you have 20 bits to address,
+
+456
+00:37:17,530 --> 00:37:25,810
+ you can address 2 power 20 bytes.
+
+457
+00:37:25,810 --> 00:37:29,410
+ If you have 32 bits, you can address 2 power 32 bytes
+
+458
+00:37:29,410 --> 00:37:30,210
+ and so forth.
+
+459
+00:37:30,210 --> 00:37:42,730
+ But this is what a process see, a contiguous set of addresses.
+
+460
+00:37:42,730 --> 00:37:45,570
+ And typically, at each address, you have one byte.
+
+461
+00:37:45,570 --> 00:37:47,170
+ You can store one byte.
+
+462
+00:37:47,170 --> 00:37:48,530
+ One byte is eight bits.
+
+463
+00:37:48,530 --> 00:38:00,290
+ And then the process uses this address space
+
+464
+00:38:00,290 --> 00:38:04,130
+ to store various information, code and data.
+
+465
+00:38:04,130 --> 00:38:13,570
+ An accessible address-- accessible addresses
+
+466
+00:38:13,570 --> 00:38:20,090
+ are all the addresses a process can read and write or write,
+
+467
+00:38:20,090 --> 00:38:22,650
+ and the state associated with them.
+
+468
+00:38:22,650 --> 00:38:24,770
+ So what is stored at that particular address?
+
+469
+00:38:24,770 --> 00:38:33,330
+ In some cases, we are also measuring or give
+
+470
+00:38:33,330 --> 00:38:39,290
+ the size of a memory in words.
+
+471
+00:38:39,290 --> 00:38:46,810
+ And a word typically has more than one byte.
+
+472
+00:38:46,810 --> 00:38:53,130
+ So for instance, a four word is 32 bits.
+
+473
+00:38:53,130 --> 00:39:01,370
+ So one question here is, how many 32-bit numbers or four-byte
+
+474
+00:39:01,370 --> 00:39:07,770
+ words you can fit in an address space of--
+
+475
+00:39:07,770 --> 00:39:11,690
+ with 32 bits, right?
+
+476
+00:39:11,690 --> 00:39:18,210
+ Well, you have 32 bits, so you have 2 power 32 bytes.
+
+477
+00:39:18,210 --> 00:39:20,970
+ You need to divide by 4, because a word is 4 bytes,
+
+478
+00:39:20,970 --> 00:39:23,130
+ so you get 2 power 30, which is 1 billion.
+
+479
+00:39:23,130 --> 00:39:32,450
+ Now, we are going to--
+
+480
+00:39:32,450 --> 00:39:38,740
+ more about that, but just for you to know that when you read and write to an address,
+
+481
+00:39:38,740 --> 00:39:46,420
+ there are many things can happen. The most natural thing is that you read and write
+
+482
+00:39:46,420 --> 00:39:54,100
+ that particular piece of data, which is associated with the address that you read and write.
+
+483
+00:39:56,740 --> 00:40:05,140
+ But other things could happen. You can actually, when you write to special designated addresses,
+
+484
+00:40:05,140 --> 00:40:14,500
+ or you read from special designated addresses, you can read and write to some device like display.
+
+485
+00:40:14,500 --> 00:40:25,220
+ And these are memory mapped IO operations, they are called. It can cause a program to abort.
+
+486
+00:40:26,260 --> 00:40:33,460
+ When is a program or do segfault? When this can happen, when does program segfault?
+
+487
+00:40:33,460 --> 00:40:39,620
+ You should know by now. You've done
+
+488
+00:40:39,620 --> 00:40:47,780
+ homeworks, projects, I'm sure that many of you had this unfortunate experience.
+
+489
+00:40:49,620 --> 00:41:08,580
+ And map memory. Yeah, so basically, if I'm trying to access an address, which is not accessible to me.
+
+490
+00:41:08,580 --> 00:41:13,460
+ I'm going to read from and write from an address which is not accessible to me.
+
+491
+00:41:17,780 --> 00:41:25,620
+ So that's one. So some addresses owned by other processes.
+
+492
+00:41:25,620 --> 00:41:42,660
+ OK, so as you know, in the address space, there are four important segments for each process.
+
+493
+00:41:43,460 --> 00:41:48,340
+ You have the code segment, which contains a code you are going to execute.
+
+494
+00:41:48,340 --> 00:41:59,940
+ The stack segment, which you know it's used to push the return addresses when you call a function
+
+495
+00:41:59,940 --> 00:42:10,980
+ and also pass the arguments to that function, is a heap for dynamically allocating memory.
+
+496
+00:42:12,740 --> 00:42:23,460
+ And it's static data, which is for what? For static data, as it implies, like global variables.
+
+497
+00:42:23,460 --> 00:42:37,620
+ You've seen this picture many, many times. I apologize for showing you again.
+
+498
+00:42:39,140 --> 00:42:46,660
+ But if you remember the relation, this shows you again the relation between a process and a thread.
+
+499
+00:42:46,660 --> 00:42:52,820
+ A process can have multiple threads.
+
+500
+00:42:52,820 --> 00:43:05,460
+ All threads in the same process share resources, including most of the memory resources,
+
+501
+00:43:06,980 --> 00:43:19,220
+ including heap, static, and code segments. The only one segment they don't share is the stack
+
+502
+00:43:19,220 --> 00:43:25,940
+ and the registers, obviously. And the reason you don't share the stack, because again, the stack
+
+503
+00:43:25,940 --> 00:43:32,420
+ contains the state of the execution. If you call a function in the thread,
+
+504
+00:43:33,780 --> 00:43:43,540
+ then you have to push the return on the stack. So now that represents the execution state of that
+
+505
+00:43:43,540 --> 00:43:50,260
+ thread. And you can also have a single-threaded process, which has a single thread.
+
+506
+00:43:50,260 --> 00:44:02,020
+ There are three important aspects of memory multiplexing. One is protection. You prevent a
+
+507
+00:44:02,020 --> 00:44:14,660
+ process from accessing the data of another process. The second one is translation.
+
+508
+00:44:14,660 --> 00:44:24,420
+ It's the ability to translate from a virtual address space to a physical address space.
+
+509
+00:44:24,420 --> 00:44:32,420
+ We'll learn about it. Okay. And when this translation occurs, you are going to have
+
+510
+00:44:32,420 --> 00:44:40,740
+ these virtual addresses. And this can be used to avoid overlap or talk next,
+
+511
+00:44:40,740 --> 00:44:46,900
+ provide a uniform view to the program, to the process.
+
+512
+00:44:49,780 --> 00:44:59,940
+ And also can be used to provide protection. And the control overlap is
+
+513
+00:44:59,940 --> 00:45:09,780
+ it's separate state of the thread should not collide in physical memory.
+
+514
+00:45:09,780 --> 00:45:15,540
+ So this means that again, we have only one physical memory in the same
+
+515
+00:45:19,700 --> 00:45:26,900
+ on a single machine. So you have different processes, different threads. They shouldn't
+
+516
+00:45:26,900 --> 00:45:38,100
+ collide. They shouldn't, for instance, share the same data segments.
+
+517
+00:45:44,660 --> 00:45:53,220
+ So an alternative view is to have to look at what is the allowable process behavior,
+
+518
+00:45:53,220 --> 00:46:00,260
+ what you allow process to do. And
+
+519
+00:46:04,260 --> 00:46:14,740
+ this, what is allowed to do, it's regulated by the operating system, as you know.
+
+520
+00:46:14,740 --> 00:46:22,660
+ So the operating system in one way, it's interposing itself. So to make sure that the
+
+521
+00:46:22,660 --> 00:46:30,100
+ processes are well behaved. That's why the processes do not do anything bad.
+
+522
+00:46:30,820 --> 00:46:38,260
+ So the operating system is handling the I/O operations on the behalf of the processes.
+
+523
+00:46:38,260 --> 00:46:44,500
+ It makes sure that every process gets access to the CPU.
+
+524
+00:46:44,500 --> 00:46:54,260
+ And like we'll see, it's going to make sure that each process, it gets its own
+
+525
+00:46:54,260 --> 00:46:59,140
+ physical memory under the hood. Okay.
+
+526
+00:46:59,140 --> 00:47:04,180
+ So the question is, how do you enforce that?
+
+527
+00:47:04,180 --> 00:47:14,820
+ In the previous two cases, the operating system, as you know, is like this requires a context
+
+528
+00:47:14,820 --> 00:47:24,900
+ switch, right? I/O operation, it's a Cisco, it's a context switch. For the CPU, to share them,
+
+529
+00:47:24,900 --> 00:47:30,980
+ to multiplex the CPU between different processes or threads, we need to do context switch, right?
+
+530
+00:47:30,980 --> 00:47:37,300
+ And context switch, remember, it's very, it's expensive. It can be tens of thousands,
+
+531
+00:47:37,300 --> 00:47:43,540
+ hundreds of thousands of instructions. So now the question here is what about the memory?
+
+532
+00:47:43,540 --> 00:47:49,060
+ It doesn't seem that the memory, you can do that on every access to the memory.
+
+533
+00:47:50,660 --> 00:47:59,620
+ It's too expensive. So you need to have another way to make this kind of translation to interpose,
+
+534
+00:47:59,620 --> 00:48:04,900
+ to have this interposition layer between the virtual memory and the physical memory.
+
+535
+00:48:04,900 --> 00:48:13,860
+ And if there are exception cases, like you'll see, like page fault, we'll see that, then you can give
+
+536
+00:48:13,860 --> 00:48:19,860
+ the control to the operating system. You can have the operating system interposing itself.
+
+537
+00:48:19,860 --> 00:48:24,100
+ We'll learn about that, OK?
+
+538
+00:48:24,100 --> 00:48:31,380
+ Please again, this is a previous picture you're seeing in one of the first lectures.
+
+539
+00:48:31,380 --> 00:48:41,540
+ Everything here in this big box, it's hardware in the operating system, and it with this big box
+
+540
+00:48:41,540 --> 00:48:50,340
+ provides a virtualization of the OS and of the machine to the application. That's all
+
+541
+00:48:50,340 --> 00:49:03,780
+ of the operating system. So, and just for big picture, what happens under the hood when you
+
+542
+00:49:03,780 --> 00:49:12,740
+ execute a program, if you remember, you copy the program, it's on the disk, right? You copy the code
+
+543
+00:49:12,740 --> 00:49:22,420
+ in the memory and then you start executing. So let's see what happens when you execute. And here
+
+544
+00:49:22,420 --> 00:49:38,420
+ it's a very snippet of assembly language. And basically what happens here, you load
+
+545
+00:49:38,420 --> 00:49:47,940
+ some from this address data one, you load the data which is there in register R1,
+
+546
+00:49:48,980 --> 00:49:58,340
+ and depending on the value, you are going to jump to this address. Otherwise, you are going to
+
+547
+00:49:58,340 --> 00:50:07,300
+ decrement the value and then you are going to look, you go to until it's not zero, B and Z means
+
+548
+00:50:07,300 --> 00:50:17,620
+ R1 is not zero, you go back, right? So basically, as long as it's not, and when it's zero, you jump
+
+549
+00:50:17,620 --> 00:50:30,180
+ out of, you terminate, right? So basically again, this code, take a piece of data, checks it,
+
+550
+00:50:30,180 --> 00:50:41,780
+ and then you decrement it and then you look, you go back.
+
+551
+00:50:45,540 --> 00:50:52,500
+ So what is in memory for this program or do you store? So in memory, you have only bits, right?
+
+552
+00:50:52,500 --> 00:50:57,220
+ And this is an example here.
+
+553
+00:50:57,220 --> 00:51:06,260
+ And you have two columns for the physical address. The column on the left are the addresses
+
+554
+00:51:06,260 --> 00:51:13,540
+ and the column on the right are the content, is the content of the node.
+
+555
+00:51:14,260 --> 00:51:22,100
+ In this memory layout, we are using four byte words. How do you see that?
+
+556
+00:51:22,100 --> 00:51:29,220
+ You see this number here on the right, 0000, you know, you have one, two, three, four, five, six,
+
+557
+00:51:29,220 --> 00:51:35,780
+ zero, seven, and twenty. So you have eight characters. Each of these characters
+
+558
+00:51:37,860 --> 00:51:49,220
+ represent eight bits, sorry, represent four bits, right? So it's a hexadecimal format.
+
+559
+00:51:49,220 --> 00:51:57,700
+ So it's from zero to F, each of these is from zero to F. So you have eight of them,
+
+560
+00:51:57,700 --> 00:52:06,020
+ eight times four, it's 32 bits. So you have 32 bits word or four byte word.
+
+561
+00:52:06,980 --> 00:52:19,460
+ The things with the red are the addresses which also appear in the program. You have three
+
+562
+00:52:19,460 --> 00:52:30,340
+ addresses, four addresses. One is the address for this data one. This is red. The blue one is
+
+563
+00:52:31,140 --> 00:52:37,460
+ the check it address. And the green one, it's a loop address.
+
+564
+00:52:37,460 --> 00:52:57,540
+ OK. So now, tell me now, I said that, say take with the red, I said that this 00C0,
+
+565
+00:52:57,540 --> 00:53:07,620
+ which is a program refers to this 0300. Can you figure out how these are connected
+
+566
+00:53:07,620 --> 00:53:17,940
+ and why they are connected? Why basically the same thing?
+
+567
+00:53:17,940 --> 00:53:38,660
+ OK, so here it is.
+
+568
+00:53:44,020 --> 00:53:55,140
+ If you address the memory at 32 bits boundaries, so an address as the word granularity,
+
+569
+00:53:55,140 --> 00:54:06,980
+ each of these four bytes. OK, you need four times fewer addresses. OK, that's what it is.
+
+570
+00:54:08,740 --> 00:54:14,100
+ So that's basically what happens here. When the program is going to
+
+571
+00:54:14,100 --> 00:54:25,300
+ do your compiles the program and when you allocate the memory, everything happens at four word,
+
+572
+00:54:25,300 --> 00:54:34,980
+ four byte granularity or 32 bits granularity. So therefore, at this granularity, you need
+
+573
+00:54:36,100 --> 00:54:49,540
+ four times fewer, so to speak, addresses or bits. So this is what happens here. So 00C0 is 0300,
+
+574
+00:54:49,540 --> 00:54:56,420
+ but is at 32 bits granularity instead of at the 8 bit or byte granularity.
+
+575
+00:54:58,820 --> 00:55:06,180
+ Indeed, if you multiply C0 by four, you get 300.
+
+576
+00:55:06,180 --> 00:55:17,140
+ Any questions here?
+
+577
+00:55:26,100 --> 00:55:32,500
+ OK, so the same for the other one. If you multiply 280, you are going to get
+
+578
+00:55:32,500 --> 00:55:37,940
+ 800. If you multiply 0242 by four, you get 0908.
+
+579
+00:55:37,940 --> 00:55:48,340
+ And now this is how these values are stored in the physical memory. It's another way,
+
+580
+00:55:48,340 --> 00:55:57,620
+ another representation. Right, so you have the values in these boxes and the addresses on the
+
+581
+00:55:57,620 --> 00:56:10,340
+ side. So now here is a question. Say I am running this program and this program loads into physical
+
+582
+00:56:10,340 --> 00:56:18,020
+ memory. And this addresses, right, because these are the addresses maybe in the program.
+
+583
+00:56:18,020 --> 00:56:25,060
+ On the disk. If I run again this program.
+
+584
+00:56:25,060 --> 00:56:30,500
+ What will happen? Right.
+
+585
+00:56:30,500 --> 00:56:40,580
+ If I run again this program, I don't want to load to be loaded exactly in the same place.
+
+586
+00:56:40,580 --> 00:56:46,820
+ Right, because a different instance of the program.
+
+587
+00:56:46,820 --> 00:56:49,940
+ Like different data.
+
+588
+00:56:49,940 --> 00:57:00,980
+ So that's one of the problems we need to solve. We need this translation. Right.
+
+589
+00:57:00,980 --> 00:57:07,780
+ So one way to do the translation. So instead of I modify these addresses with this nuance,
+
+590
+00:57:07,780 --> 00:57:16,580
+ and now all these other addresses will not overlap with the previous instance. They are going to not
+
+591
+00:57:16,580 --> 00:57:23,700
+ overlap, to be non-overlapping. And you are going to be able to load the second time you run the
+
+592
+00:57:23,700 --> 00:57:32,260
+ same program at a different address space. So the two programs now, they don't step on each other.
+
+593
+00:57:36,180 --> 00:57:47,620
+ OK. So, you know, there are many way to, you know, the possible way to translate. This is
+
+594
+00:57:47,620 --> 00:57:58,100
+ only one possibility, of course. So translation can happen at two times. The link time.
+
+595
+00:58:01,220 --> 00:58:08,500
+ When or before, you know, or execution time. Right. And
+
+596
+00:58:08,500 --> 00:58:18,980
+ well, it's compile time, link time and execution time. But link or load time. So compile time,
+
+597
+00:58:18,980 --> 00:58:27,060
+ you know, it's very hard. We are not going to talk much about it. The link and load time,
+
+598
+00:58:28,660 --> 00:58:32,740
+ we are going to talk briefly and then we are going to focus mostly on the translation
+
+599
+00:58:32,740 --> 00:58:44,980
+ happen and execution time. So before talking about link load time translation, let's remind
+
+600
+00:58:44,980 --> 00:58:56,420
+ ourselves what is the lifetime of a program. You start with a source. You compile, you get the
+
+601
+00:58:56,420 --> 00:59:06,420
+ object modules and then you link with possible other modules and libraries and then you load it
+
+602
+00:59:06,420 --> 00:59:14,420
+ in the memory. And in the process, you are going also to link with some system libraries
+
+603
+00:59:14,420 --> 00:59:17,140
+ and some libraries you can actually link them.
+
+604
+00:59:17,320 --> 00:59:20,160
+ at the runtime after you started executing.
+
+605
+00:59:20,160 --> 00:59:22,360
+ Okay.
+
+606
+00:59:22,360 --> 00:59:25,780
+ But here is our previous example.
+
+607
+00:59:25,780 --> 00:59:27,840
+ Actually what implicitly we've done,
+
+608
+00:59:27,840 --> 00:59:34,600
+ you modify the addresses before loading to memory.
+
+609
+00:59:34,600 --> 00:59:38,680
+ So this is linked load time when you modify the others.
+
+610
+00:59:38,680 --> 00:59:43,280
+ Right? Remember here, we said this is our program, right?
+
+611
+00:59:45,760 --> 00:59:47,360
+ And maybe this is on the disk,
+
+612
+00:59:47,360 --> 00:59:52,320
+ but when I am cooperating system is going to load
+
+613
+00:59:52,320 --> 00:59:55,140
+ this program in memory,
+
+614
+00:59:55,140 --> 00:59:57,400
+ is going to override these addresses
+
+615
+00:59:57,400 --> 01:00:03,520
+ so that it's not going to overlap with other programs
+
+616
+01:00:03,520 --> 01:00:05,560
+ which are already in the physical memory.
+
+617
+01:00:05,560 --> 01:00:13,680
+ So this is what happens. Okay.
+
+618
+01:00:13,680 --> 01:00:14,520
+ Okay.
+
+619
+01:00:14,520 --> 01:00:16,880
+ So,
+
+620
+01:00:16,880 --> 01:00:23,540
+ make sense? It's any questions?
+
+621
+01:00:23,540 --> 01:00:33,320
+ Now, a little bit of history.
+
+622
+01:00:33,320 --> 01:00:40,220
+ Again, the earliest operating systems
+
+623
+01:00:40,640 --> 01:00:44,100
+ for personal computers were very simple.
+
+624
+01:00:44,100 --> 01:00:47,880
+ You have only one address space
+
+625
+01:00:47,880 --> 01:00:53,980
+ and you have only one application running at a given time.
+
+626
+01:00:53,980 --> 01:00:57,720
+ So the application was owning
+
+627
+01:00:57,720 --> 01:01:00,480
+ the entire physical address space.
+
+628
+01:01:00,480 --> 01:01:06,000
+ You have the illusion of a dedicated machine
+
+629
+01:01:06,000 --> 01:01:08,400
+ because you have a dedicated machine.
+
+630
+01:01:08,400 --> 01:01:09,240
+ Okay.
+
+631
+01:01:09,240 --> 01:01:14,840
+ Okay.
+
+632
+01:01:14,840 --> 01:01:18,520
+ So how do you do this?
+
+633
+01:01:18,520 --> 01:01:19,720
+ Now is the next step.
+
+634
+01:01:19,720 --> 01:01:24,920
+ If you start to work to run multiple programs,
+
+635
+01:01:24,920 --> 01:01:28,200
+ you want to run in the same computer.
+
+636
+01:01:28,200 --> 01:01:30,000
+ It's again, if the operating system
+
+637
+01:01:30,000 --> 01:01:31,920
+ doesn't provide you support,
+
+638
+01:01:31,920 --> 01:01:36,240
+ like we'll see for translation,
+
+639
+01:01:37,160 --> 01:01:40,940
+ the one way you can do it, like we've just seen,
+
+640
+01:01:40,940 --> 01:01:44,600
+ is basically translation.
+
+641
+01:01:44,600 --> 01:01:47,660
+ You translate the addresses of the program
+
+642
+01:01:47,660 --> 01:01:52,520
+ before you load it to avoid overlapping,
+
+643
+01:01:52,520 --> 01:01:54,780
+ conflicting with another program.
+
+644
+01:01:54,780 --> 01:01:58,880
+ And this was the case for early version
+
+645
+01:01:58,880 --> 01:02:01,480
+ of the Microsoft Windows 3.
+
+646
+01:02:01,480 --> 01:02:06,140
+ I mean, the early version of the Windows.
+
+647
+01:02:06,140 --> 01:02:10,900
+ With these things, it's risky.
+
+648
+01:02:10,900 --> 01:02:14,400
+ There is no protection to the buggy code.
+
+649
+01:02:14,400 --> 01:02:18,720
+ And all applications here have access to the entire memory.
+
+650
+01:02:18,720 --> 01:02:23,420
+ So one application can read and write
+
+651
+01:02:23,420 --> 01:02:25,300
+ the data from another application.
+
+652
+01:02:25,300 --> 01:02:28,840
+ So it can also crash another application.
+
+653
+01:02:28,840 --> 01:02:35,520
+ The next level is to provide protection.
+
+654
+01:02:36,200 --> 01:02:38,320
+ You steal one address space,
+
+655
+01:02:38,320 --> 01:02:42,560
+ steal the applications are going to be,
+
+656
+01:02:42,560 --> 01:02:44,240
+ the addresses will be overwritten
+
+657
+01:02:44,240 --> 01:02:47,400
+ when by the loader,
+
+658
+01:02:47,400 --> 01:02:53,600
+ before loading the application, the program to the memory.
+
+659
+01:02:53,600 --> 01:02:57,920
+ But now you do have protection.
+
+660
+01:02:57,920 --> 01:02:59,640
+ How do you have protections?
+
+661
+01:02:59,640 --> 01:03:01,980
+ Base and bound.
+
+662
+01:03:03,280 --> 01:03:06,060
+ You remember about this, we talked about that.
+
+663
+01:03:06,060 --> 01:03:07,400
+ You have a base and the bound
+
+664
+01:03:07,400 --> 01:03:09,120
+ and associated with each application.
+
+665
+01:03:09,120 --> 01:03:12,520
+ And you make sure that when the application
+
+666
+01:03:12,520 --> 01:03:17,080
+ is going to address the memory,
+
+667
+01:03:17,080 --> 01:03:18,860
+ that address, access the memory,
+
+668
+01:03:18,860 --> 01:03:22,100
+ that address is going to be between base and bound.
+
+669
+01:03:22,100 --> 01:03:26,460
+ Yeah, so this was in tray one supercomputer,
+
+670
+01:03:26,460 --> 01:03:28,040
+ one of the first supercomputer.
+
+671
+01:03:28,040 --> 01:03:32,560
+ Okay, this is what we do if you know, right?
+
+672
+01:03:32,560 --> 01:03:37,560
+ We have the address of the program here, 101.
+
+673
+01:03:37,560 --> 01:03:42,920
+ The base you have, base is 100, bound 1100.
+
+674
+01:03:42,920 --> 01:03:46,040
+ So when you use address, you are going to check,
+
+675
+01:03:46,040 --> 01:03:49,760
+ sorry, you are going to check
+
+676
+01:03:49,760 --> 01:03:53,760
+ whether it's between 100 and 110.
+
+677
+01:03:53,760 --> 01:03:56,800
+ If it is, you can access the memory,
+
+678
+01:03:56,800 --> 01:04:00,120
+ otherwise you are going to segfault.
+
+679
+01:04:00,120 --> 01:04:05,120
+ Okay, so you protect and isolate programs,
+
+680
+01:04:05,120 --> 01:04:11,040
+ but it requires you to again override the addresses
+
+681
+01:04:11,040 --> 01:04:17,020
+ of the application before the program, before you load it.
+
+682
+01:04:17,020 --> 01:04:19,800
+ This is also called relocating loader.
+
+683
+01:04:19,800 --> 01:04:22,820
+ A loader like that is doing that rewriting
+
+684
+01:04:22,820 --> 01:04:24,620
+ is called relocating loader.
+
+685
+01:04:27,520 --> 01:04:30,240
+ Okay, can be very fast.
+
+686
+01:04:30,240 --> 01:04:31,560
+ Of course, the base and bounds
+
+687
+01:04:31,560 --> 01:04:35,360
+ are going to be implemented in hardware.
+
+688
+01:04:35,360 --> 01:04:40,600
+ And it's only comparison, no addition or nothing.
+
+689
+01:04:40,600 --> 01:04:42,180
+ Can be done extremely fast.
+
+690
+01:04:42,180 --> 01:04:50,760
+ Okay, so to summarize, we saw uniprogramming, no protection,
+
+691
+01:04:50,760 --> 01:04:52,720
+ one program at a given time,
+
+692
+01:04:52,720 --> 01:04:54,880
+ multiprogramming, no protection,
+
+693
+01:04:54,880 --> 01:04:58,040
+ but you have multiple programs at a given time
+
+694
+01:04:58,040 --> 01:04:59,980
+ in the same physical memory.
+
+695
+01:04:59,980 --> 01:05:03,520
+ And you need a relocating loader
+
+696
+01:05:03,520 --> 01:05:06,280
+ to make sure that the programs, when you load them,
+
+697
+01:05:06,280 --> 01:05:09,120
+ you override their addresses
+
+698
+01:05:09,120 --> 01:05:11,360
+ so that they don't step on each other.
+
+699
+01:05:11,360 --> 01:05:16,000
+ And finally here, we have again, no protection,
+
+700
+01:05:16,000 --> 01:05:18,720
+ one physical memory, no virtualization,
+
+701
+01:05:18,720 --> 01:05:22,500
+ but you have also base and bounds to, sorry.
+
+702
+01:05:23,720 --> 01:05:25,920
+ So in this case, again, you have only one,
+
+703
+01:05:25,920 --> 01:05:30,920
+ again, you have only one address, physical memory,
+
+704
+01:05:30,920 --> 01:05:36,360
+ only one other space, which is shared by the applications.
+
+705
+01:05:36,360 --> 01:05:38,480
+ But in this case, you provide protection
+
+706
+01:05:38,480 --> 01:05:40,020
+ by using base and bounds.
+
+707
+01:05:40,020 --> 01:05:41,560
+ This is provided in hardware.
+
+708
+01:05:41,560 --> 01:05:49,160
+ So now, it's a time, this is a pretty complicated,
+
+709
+01:05:49,160 --> 01:05:51,000
+ like relocating loader and so forth.
+
+710
+01:05:51,000 --> 01:05:53,440
+ It's pretty complicated and it's pretty limited.
+
+711
+01:05:54,200 --> 01:05:57,880
+ So next, we are going to start discussing
+
+712
+01:05:57,880 --> 01:06:02,300
+ about the general address translation, okay?
+
+713
+01:06:02,300 --> 01:06:08,760
+ And the general address translation is happening this way.
+
+714
+01:06:08,760 --> 01:06:11,400
+ You have the CPU, remember this,
+
+715
+01:06:11,400 --> 01:06:14,080
+ because sometimes it's least to confusion.
+
+716
+01:06:14,080 --> 01:06:20,480
+ When the CPU issues an instruction, in general,
+
+717
+01:06:20,480 --> 01:06:24,460
+ the instructions contain virtual addresses.
+
+718
+01:06:24,460 --> 01:06:27,880
+ So these virtual addresses are then mapped
+
+719
+01:06:27,880 --> 01:06:30,100
+ to the physical address.
+
+720
+01:06:30,100 --> 01:06:32,420
+ And they are done typically by chip
+
+721
+01:06:32,420 --> 01:06:35,880
+ or a part of the processor,
+
+722
+01:06:35,880 --> 01:06:40,280
+ which is called MMU, memory management unit.
+
+723
+01:06:40,280 --> 01:06:46,560
+ So the programs, because they are running on the CPU,
+
+724
+01:06:46,560 --> 01:06:48,740
+ they see virtual address spaces.
+
+725
+01:06:48,740 --> 01:06:52,580
+ Okay?
+
+726
+01:06:52,580 --> 01:06:55,420
+ From the memory side, you have only physical addresses.
+
+727
+01:06:55,420 --> 01:07:03,120
+ So,
+
+728
+01:07:03,120 --> 01:07:11,780
+ you know, in translation, it's a generalized technique,
+
+729
+01:07:11,780 --> 01:07:13,760
+ which helps you with many things.
+
+730
+01:07:13,760 --> 01:07:16,740
+ But if you really want,
+
+731
+01:07:16,740 --> 01:07:21,680
+ but if you only want, like I mentioned, protections,
+
+732
+01:07:21,680 --> 01:07:25,800
+ control overlap and things like that.
+
+733
+01:07:25,800 --> 01:07:29,160
+ But if you really want to implement only one of these things
+
+734
+01:07:29,160 --> 01:07:31,460
+ like protection, like we've seen in the past,
+
+735
+01:07:31,460 --> 01:07:34,100
+ things are easier.
+
+736
+01:07:34,100 --> 01:07:39,460
+ And why you want protection?
+
+737
+01:07:39,460 --> 01:07:43,220
+ Because if task A cannot gain access to task B data,
+
+738
+01:07:43,220 --> 01:07:46,380
+ no way for A to adversely affect you.
+
+739
+01:07:46,380 --> 01:07:51,380
+ Now, if you have the translation,
+
+740
+01:07:51,380 --> 01:07:58,660
+ then every program can be linked or loaded
+
+741
+01:07:58,660 --> 01:08:01,140
+ into the same region of the user space.
+
+742
+01:08:01,140 --> 01:08:02,140
+ Right?
+
+743
+01:08:02,140 --> 01:08:05,400
+ So you have, again, you have two application in this case.
+
+744
+01:08:05,400 --> 01:08:10,880
+ Both applications have different virtual addresses,
+
+745
+01:08:10,880 --> 01:08:13,700
+ virtual address space,
+
+746
+01:08:14,560 --> 01:08:17,260
+ because they have their own process.
+
+747
+01:08:17,260 --> 01:08:21,040
+ And each process has its own address space,
+
+748
+01:08:21,040 --> 01:08:22,240
+ virtual address space.
+
+749
+01:08:22,240 --> 01:08:26,860
+ These both applications,
+
+750
+01:08:26,860 --> 01:08:31,660
+ they can see the same virtual memory.
+
+751
+01:08:31,660 --> 01:08:33,260
+ Both of them, they see virtual memory,
+
+752
+01:08:33,260 --> 01:08:35,320
+ say from zero, zero, zero to FFF.
+
+753
+01:08:35,320 --> 01:08:41,700
+ The trick here is that these two address spaces
+
+754
+01:08:41,700 --> 01:08:46,300
+ are going to be mapped to different location
+
+755
+01:08:46,300 --> 01:08:49,660
+ in the physical memory by using translation.
+
+756
+01:08:49,660 --> 01:08:52,900
+ That's what the translation gives you.
+
+757
+01:08:52,900 --> 01:08:56,760
+ Let's consider examples.
+
+758
+01:08:56,760 --> 01:08:58,500
+ Okay?
+
+759
+01:08:58,500 --> 01:09:02,340
+ So it's one way to do it.
+
+760
+01:09:02,340 --> 01:09:06,340
+ It's a very simple change of the previous
+
+761
+01:09:06,340 --> 01:09:11,340
+ Bayesian bound technique.
+
+762
+01:09:11,340 --> 01:09:21,240
+ And here is a difference.
+
+763
+01:09:21,240 --> 01:09:24,260
+ Let me just go back to make sure that it's different, right?
+
+764
+01:09:24,260 --> 01:09:25,220
+ This is a difference.
+
+765
+01:09:25,220 --> 01:09:30,220
+ In this case, the Bayesian bound, right?
+
+766
+01:09:30,220 --> 01:09:32,500
+ Are absolute addresses.
+
+767
+01:09:32,500 --> 01:09:35,380
+ And the program address is also absolute address.
+
+768
+01:09:35,380 --> 01:09:37,320
+ You have one, zero, one, zero.
+
+769
+01:09:37,320 --> 01:09:41,960
+ And absolute meaning I am referring to physical addresses.
+
+770
+01:09:41,960 --> 01:09:44,500
+ So you need to compare one, zero, one, zero
+
+771
+01:09:44,500 --> 01:09:46,300
+ with the base and with the bound.
+
+772
+01:09:46,300 --> 01:09:55,740
+ With translation, the program address is not absolute.
+
+773
+01:09:55,740 --> 01:09:59,580
+ It's relative to the bound, to the base address.
+
+774
+01:09:59,580 --> 01:10:03,180
+ So actually the real address, physical address,
+
+775
+01:10:03,180 --> 01:10:07,240
+ is a program address plus the base.
+
+776
+01:10:07,240 --> 01:10:10,380
+ Okay?
+
+777
+01:10:10,380 --> 01:10:13,820
+ So in this case, the program address is zero, zero, one, zero
+
+778
+01:10:13,820 --> 01:10:17,980
+ and base address is one, zero, zero, zero.
+
+779
+01:10:17,980 --> 01:10:20,580
+ So if you add them up, it's one, zero, one, zero.
+
+780
+01:10:20,580 --> 01:10:26,260
+ And these addresses are translated on the fly.
+
+781
+01:10:26,260 --> 01:10:27,480
+ Right? Very convenient.
+
+782
+01:10:29,940 --> 01:10:34,460
+ So you see now, these program addresses,
+
+783
+01:10:34,460 --> 01:10:36,100
+ they don't need to be changed.
+
+784
+01:10:36,100 --> 01:10:38,740
+ The only thing I need to change in order to make sure
+
+785
+01:10:38,740 --> 01:10:42,360
+ that programs are mapped into different address spaces,
+
+786
+01:10:42,360 --> 01:10:45,660
+ physical address spaces,
+
+787
+01:10:45,660 --> 01:10:47,500
+ is to just change the base address.
+
+788
+01:10:47,500 --> 01:10:49,720
+ Right?
+
+789
+01:10:49,720 --> 01:10:50,560
+ Indeed.
+
+790
+01:10:50,560 --> 01:10:55,280
+ This is, it's harder for location.
+
+791
+01:10:55,280 --> 01:10:59,700
+ It's also called then basically, you know,
+
+792
+01:10:59,700 --> 01:11:00,540
+ a question here.
+
+793
+01:11:00,540 --> 01:11:01,940
+ Can you touch the program?
+
+794
+01:11:01,940 --> 01:11:03,300
+ Can you touch the OS?
+
+795
+01:11:03,300 --> 01:11:14,540
+ But if you are careful, we are not going,
+
+796
+01:11:14,540 --> 01:11:18,660
+ you cannot touch the OS because the OS will be outside
+
+797
+01:11:18,660 --> 01:11:23,660
+ the base address and the bound address of any user process.
+
+798
+01:11:23,660 --> 01:11:28,080
+ Can you touch other programs?
+
+799
+01:11:28,080 --> 01:11:29,220
+ No, if you are careful.
+
+800
+01:11:29,220 --> 01:11:30,940
+ That's how you provide protection.
+
+801
+01:11:30,940 --> 01:11:34,620
+ But it's, again, it's a very simple idea.
+
+802
+01:11:34,620 --> 01:11:37,240
+ Okay. Any questions about that?
+
+803
+01:11:37,240 --> 01:11:41,180
+ Do you see how now I no longer need to override
+
+804
+01:11:41,180 --> 01:11:44,420
+ the program addresses when I load the program in memory?
+
+805
+01:11:44,420 --> 01:11:48,620
+ I just do that as a runtime when the program executes.
+
+806
+01:11:48,620 --> 01:11:52,820
+ Any questions?
+
+807
+01:11:52,820 --> 01:11:57,500
+ Okay.
+
+808
+01:11:59,020 --> 01:12:03,960
+ So what are the issues with this Bayesian bound method?
+
+809
+01:12:03,960 --> 01:12:08,380
+ The issue here is about what is called,
+
+810
+01:12:08,380 --> 01:12:10,460
+ it's about fragmentation.
+
+811
+01:12:10,460 --> 01:12:13,940
+ And this is a very simple example
+
+812
+01:12:13,940 --> 01:12:19,860
+ because each process requires different amount of data,
+
+813
+01:12:19,860 --> 01:12:23,700
+ the different amount of space, memory space.
+
+814
+01:12:23,700 --> 01:12:26,180
+ So they are not uniform.
+
+815
+01:12:27,960 --> 01:12:30,460
+ Okay. And because they are not uniform,
+
+816
+01:12:30,460 --> 01:12:32,740
+ like in this case, process two requires a lot
+
+817
+01:12:32,740 --> 01:12:38,160
+ and you process two goes away.
+
+818
+01:12:38,160 --> 01:12:41,220
+ And as the process nine comes,
+
+819
+01:12:41,220 --> 01:12:44,020
+ you allocate memory space of process nine,
+
+820
+01:12:44,020 --> 01:12:46,580
+ process five goes away.
+
+821
+01:12:46,580 --> 01:12:49,400
+ And now look at this situation.
+
+822
+01:12:49,400 --> 01:12:52,780
+ You have process 11 and you have enough physical memory
+
+823
+01:12:52,780 --> 01:12:53,620
+ for process 11.
+
+824
+01:12:54,760 --> 01:12:58,660
+ But the point that this physical memory is scattered
+
+825
+01:12:58,660 --> 01:13:03,460
+ and process 11 needs a contiguous region of memory.
+
+826
+01:13:03,460 --> 01:13:06,740
+ Okay. So that's a problem.
+
+827
+01:13:06,740 --> 01:13:09,020
+ Okay.
+
+828
+01:13:09,020 --> 01:13:13,340
+ So how do you do it?
+
+829
+01:13:13,340 --> 01:13:15,560
+ What is your solution here?
+
+830
+01:13:15,560 --> 01:13:18,580
+ And there are many solutions,
+
+831
+01:13:18,580 --> 01:13:21,700
+ but one simple solution is to have,
+
+832
+01:13:21,700 --> 01:13:26,700
+ instead of only one segment for each program,
+
+833
+01:13:26,700 --> 01:13:30,200
+ you can have different segments.
+
+834
+01:13:30,200 --> 01:13:34,420
+ And typically you can have code segment, data segment,
+
+835
+01:13:34,420 --> 01:13:37,120
+ stack segment, heap segment, right?
+
+836
+01:13:37,120 --> 01:13:40,060
+ And you do this independently
+
+837
+01:13:40,060 --> 01:13:43,100
+ and this gives you a little bit more flexibility.
+
+838
+01:13:43,100 --> 01:13:43,940
+ Okay.
+
+839
+01:13:43,940 --> 01:13:46,280
+ Okay.
+
+840
+01:13:47,140 --> 01:13:52,140
+ So also another problem is a solution I showed you here.
+
+841
+01:13:52,140 --> 01:14:00,060
+ The original solution, the Bayesian bound,
+
+842
+01:14:00,060 --> 01:14:05,060
+ is that remember about threads and processes.
+
+843
+01:14:05,060 --> 01:14:09,300
+ You can have multiple threads in the same process
+
+844
+01:14:09,300 --> 01:14:13,160
+ and the thread in the same process shares a code.
+
+845
+01:14:13,160 --> 01:14:16,540
+ But how you are going to do it here?
+
+846
+01:14:16,540 --> 01:14:17,380
+ Okay.
+
+847
+01:14:17,380 --> 01:14:23,660
+ Because, right?
+
+848
+01:14:23,660 --> 01:14:30,460
+ And even like think about actually,
+
+849
+01:14:30,460 --> 01:14:33,300
+ you can think about maybe a better example
+
+850
+01:14:33,300 --> 01:14:35,020
+ than what I said is libraries.
+
+851
+01:14:35,020 --> 01:14:39,520
+ If you have common libraries, system libraries,
+
+852
+01:14:39,520 --> 01:14:42,480
+ and with these libraries,
+
+853
+01:14:42,480 --> 01:14:44,820
+ they are used by multiple applications.
+
+854
+01:14:44,820 --> 01:14:49,780
+ So it makes no sense to load a copy of the library
+
+855
+01:14:49,780 --> 01:14:51,780
+ for each application.
+
+856
+01:14:51,780 --> 01:14:53,940
+ These are, again, shared system libraries.
+
+857
+01:14:53,940 --> 01:14:55,820
+ Right?
+
+858
+01:14:55,820 --> 01:14:57,860
+ How you do that?
+
+859
+01:14:57,860 --> 01:14:59,900
+ Okay.
+
+860
+01:14:59,900 --> 01:15:06,500
+ So again, now we can alleviate this problem.
+
+861
+01:15:06,500 --> 01:15:09,260
+ Like I mentioned that instead of having
+
+862
+01:15:09,260 --> 01:15:13,420
+ one segment per process, you have multiple segments.
+
+863
+01:15:13,420 --> 01:15:14,260
+ Right?
+
+864
+01:15:14,980 --> 01:15:16,820
+ Per process.
+
+865
+01:15:16,820 --> 01:15:18,340
+ A typical one, like I mentioned,
+
+866
+01:15:18,340 --> 01:15:21,660
+ you have code, data, stack, heap segment,
+
+867
+01:15:21,660 --> 01:15:24,340
+ but in general, you can have a segment at one extreme,
+
+868
+01:15:24,340 --> 01:15:26,340
+ you can have a segment for each function.
+
+869
+01:15:26,340 --> 01:15:29,020
+ Right?
+
+870
+01:15:29,020 --> 01:15:33,920
+ And for each segment, you have a base and a bound or a limit.
+
+871
+01:15:33,920 --> 01:15:37,180
+ And now, because the segments are smaller,
+
+872
+01:15:37,180 --> 01:15:39,540
+ you have more flexibility how to place them
+
+873
+01:15:39,540 --> 01:15:43,060
+ in the physical memory.
+
+874
+01:15:43,980 --> 01:15:45,160
+ Let me go back here.
+
+875
+01:15:45,160 --> 01:15:47,540
+ Is this process 11?
+
+876
+01:15:47,540 --> 01:15:52,540
+ If this process 11, maybe it had been consistent
+
+877
+01:15:52,540 --> 01:15:58,420
+ from two segments, then you could have fit
+
+878
+01:15:58,420 --> 01:16:00,340
+ process one in physical memory,
+
+879
+01:16:00,340 --> 01:16:03,500
+ because maybe one segment of process one
+
+880
+01:16:03,500 --> 01:16:06,220
+ would have fit in one of these gaps
+
+881
+01:16:06,220 --> 01:16:08,080
+ and the other one is the other gap.
+
+882
+01:16:08,080 --> 01:16:10,460
+ Okay?
+
+883
+01:16:10,460 --> 01:16:12,900
+ So that's why how multiple segments can help.
+
+884
+01:16:12,900 --> 01:16:13,740
+ Okay?
+
+885
+01:16:13,740 --> 01:16:22,540
+ And this is one version.
+
+886
+01:16:22,540 --> 01:16:24,060
+ You have then a map.
+
+887
+01:16:24,060 --> 01:16:27,100
+ How would you implement it?
+
+888
+01:16:27,100 --> 01:16:30,940
+ Now you need a map, a segment map,
+
+889
+01:16:30,940 --> 01:16:34,620
+ which needs to reside in the processor.
+
+890
+01:16:34,620 --> 01:16:37,340
+ And then how do you address it?
+
+891
+01:16:37,340 --> 01:16:41,260
+ How do we know which segment we are in?
+
+892
+01:16:42,140 --> 01:16:46,740
+ So one way to do it is to divide the address space,
+
+893
+01:16:46,740 --> 01:16:49,620
+ the virtual address, into two.
+
+894
+01:16:49,620 --> 01:16:54,620
+ The first bits of the address,
+
+895
+01:16:54,620 --> 01:16:59,180
+ or the most significant ones, represent the segment.
+
+896
+01:16:59,180 --> 01:17:02,900
+ Going to the segment map.
+
+897
+01:17:02,900 --> 01:17:08,660
+ And the second, and the other part of the address
+
+898
+01:17:08,660 --> 01:17:09,860
+ is called the offset.
+
+899
+01:17:09,860 --> 01:17:14,860
+ So when the processor issues such virtual address,
+
+900
+01:17:14,860 --> 01:17:23,340
+ the processor takes the first, the segment bits,
+
+901
+01:17:23,340 --> 01:17:27,040
+ its indexes in the segment map,
+
+902
+01:17:27,040 --> 01:17:29,060
+ then it gets the base and the limit.
+
+903
+01:17:29,060 --> 01:17:31,340
+ Okay?
+
+904
+01:17:31,340 --> 01:17:36,160
+ The offset is added to the base.
+
+905
+01:17:38,700 --> 01:17:40,780
+ And now this, you have the physical address,
+
+906
+01:17:40,780 --> 01:17:45,460
+ and then you need also to compare the offset to the limit.
+
+907
+01:17:45,460 --> 01:17:50,780
+ Right? To see that you are within the segment.
+
+908
+01:17:50,780 --> 01:17:53,500
+ If not, it's an error.
+
+909
+01:17:53,500 --> 01:17:56,520
+ And you are done.
+
+910
+01:17:56,520 --> 01:18:00,380
+ Okay?
+
+911
+01:18:00,380 --> 01:18:05,440
+ So now you can chunk the memory in as many chunks
+
+912
+01:18:05,440 --> 01:18:09,500
+ as you have in this map table.
+
+913
+01:18:09,500 --> 01:18:17,800
+ And this is what very early versions
+
+914
+01:18:17,800 --> 01:18:21,800
+ of Intel 86 implemented.
+
+915
+01:18:21,800 --> 01:18:29,600
+ 80, you know, 86.
+
+916
+01:18:29,600 --> 01:18:30,800
+ Okay?
+
+917
+01:18:30,800 --> 01:18:32,560
+ So we are going to stop here.
+
+918
+01:18:32,560 --> 01:18:33,640
+ We are at time.
+
+919
+01:18:34,640 --> 01:18:37,860
+ And we are going to continue our discussion
+
+920
+01:18:37,860 --> 01:18:40,360
+ on virtual memory next Monday.
+
+921
+01:18:40,360 --> 01:18:46,100
+ Until then, good luck with project two.
+
+922
+01:18:46,100 --> 01:18:48,460
+ As you know, it's good to start early.
+
+923
+01:18:48,460 --> 01:18:53,200
+ So I'll see you then on virtual, I'll see you on Monday.
+
+924
+01:18:53,200 --> 01:18:56,740
+ If you have any other questions, please let me know.
+
+925
+01:18:56,740 --> 01:18:58,900
+ (silence)
+
+926
+01:18:58,900 --> 01:19:00,900
+ Thank you.
+
+927
+01:19:00,900 --> 01:19:02,840
+ So I'm happy to have you here.
+

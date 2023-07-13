@@ -1,0 +1,3420 @@
+1
+00:00:00,000 --> 00:00:15,900
+ Hello, everyone. Welcome to today's lecture. Today we are going to wrap up the discussion
+
+2
+00:00:15,900 --> 00:00:20,580
+ about the performance and then we are going to spend the main bulk of the lecture on file
+
+3
+00:00:20,580 --> 00:00:35,860
+ systems. So let me start. So just to recap from last week, last week we talked a little
+
+4
+00:00:35,860 --> 00:00:43,440
+ bit about performance and this is one way to model the performance in particular for
+
+5
+00:00:43,440 --> 00:00:51,980
+ something like a network. And we are talking then that, for instance, if you send a packet
+
+6
+00:00:51,980 --> 00:01:01,960
+ with a certain number of bits, say small b, and the network capacity is capital B bits
+
+7
+00:01:01,960 --> 00:01:11,480
+ per second, then this is a formula for latency. You have a factor S, which is overhead to
+
+8
+00:01:11,480 --> 00:01:21,640
+ send that packet, for instance, of the system call, and then plus a variable part, which
+
+9
+00:01:21,640 --> 00:01:30,480
+ is b is the number of bits in the packet over the capacity of the link, capital B. This
+
+10
+00:01:30,480 --> 00:01:40,480
+ formula also works reasonably well for transferring data from the disk. In this case, the S, it
+
+11
+00:01:40,480 --> 00:01:49,640
+ represents the rotation latency plus seek time. So this is one and this is a formula
+
+12
+00:01:49,640 --> 00:01:56,500
+ for the latency and you see here is shown on this plot with a blue line. So the intercept
+
+13
+00:01:56,500 --> 00:02:02,240
+ of the blue line with the y-axis represents the S, so in this case it's 1000 microseconds
+
+14
+00:02:02,240 --> 00:02:10,680
+ and then here the slope represents the bandwidth of the particular link. So in this particular
+
+15
+00:02:10,680 --> 00:02:21,060
+ case, we are going to have a link of 100 Gbps, S was 1000 microseconds or one milliseconds,
+
+16
+00:02:21,060 --> 00:02:36,900
+ and then b is here on the y-axis. So on b it's 5000 bits, then you are going to get
+
+17
+00:02:36,900 --> 00:02:48,320
+ the corresponding 5000 over, I think that should be bytes, it's 500,000 divided by
+
+18
+00:02:48,320 --> 00:02:58,380
+ 125 megabytes per second, that will give you 4000 microseconds or four milliseconds. And
+
+19
+00:02:58,380 --> 00:03:02,260
+ if you add to S, which is one millisecond, you are going to get five milliseconds or
+
+20
+00:03:02,260 --> 00:03:12,340
+ 5000 microseconds. Okay, and then the other important metrics here is the effective bandwidth,
+
+21
+00:03:12,340 --> 00:03:17,280
+ which is basically, okay, if I'm sending a packet of this length, what is the effective
+
+22
+00:03:17,280 --> 00:03:22,940
+ bandwidth for sending that packet? And that obviously is a packet size, in this case b,
+
+23
+00:03:22,940 --> 00:03:29,140
+ over the time it takes to send the packet, which it does include S, the fixed overhead,
+
+24
+00:03:29,140 --> 00:03:40,860
+ and this is a formula B capital B times S over b small b plus one. Okay. You notice
+
+25
+00:03:40,860 --> 00:03:48,960
+ that if S is zero, then the effective bandwidth is equal with capital B, which is expected,
+
+26
+00:03:48,960 --> 00:03:54,100
+ right? Because there is no fixed overhead, then the effective bandwidth, you can send
+
+27
+00:03:54,100 --> 00:04:02,180
+ data as fast as the capacity of the link. And one important metric here is about, it's
+
+28
+00:04:02,180 --> 00:04:09,240
+ a half power bandwidth, and half power bandwidth is a way to think about it, is basically what
+
+29
+00:04:09,240 --> 00:04:18,520
+ is the size of the packet in this case I need to send such that the effective bandwidth
+
+30
+00:04:18,520 --> 00:04:25,720
+ to be half of the capacity of the link, right? So the overhead is not that very high. Overhead
+
+31
+00:04:25,720 --> 00:04:36,280
+ just cuts my capacity to half, right? And here is red, you can see the curve, this curve
+
+32
+00:04:36,280 --> 00:04:44,500
+ is red, is the effective bandwidth, again versus the capacity of the link. And when
+
+33
+00:04:44,500 --> 00:04:57,980
+ the number of bits is zero, obviously here you have effective bandwidth, it's zero. Okay.
+
+34
+00:04:57,980 --> 00:05:03,040
+ And on this plot here on the right, this is a plot which has two y-axis on the left hand
+
+35
+00:05:03,040 --> 00:05:08,020
+ side is the latency, the blue one, the blue curve, the blue line, and on the right hand
+
+36
+00:05:08,020 --> 00:05:14,420
+ side you are going to have the bandwidth, effective bandwidth, which is a red line.
+
+37
+00:05:14,420 --> 00:05:28,220
+ Any questions? So next, remember that we also did a little bit of queuing theory, mostly
+
+38
+00:05:28,220 --> 00:05:35,780
+ providing you some formulas, so just summarize them here. And as you know, this topic is
+
+39
+00:05:35,780 --> 00:05:55,980
+ covered. This is part of the exam, the midterm topics. And so you may get the problem, which
+
+40
+00:05:55,980 --> 00:06:07,580
+ is about queuing theory or about performance, cyber performance. So anyway, so here you
+
+41
+00:06:07,580 --> 00:06:16,460
+ remember that this is a queuing model, obviously it's called a queuing model, so for a reason,
+
+42
+00:06:16,460 --> 00:06:23,060
+ it has a queue. So you have a bunch of requests here with the arrival rate lambda, lambda
+
+43
+00:06:23,060 --> 00:06:29,220
+ is the number of requests, average number of requests per second arriving to the queue,
+
+44
+00:06:29,220 --> 00:06:35,020
+ and the requests are removed from the queue as fast as they can be processed by a server.
+
+45
+00:06:35,020 --> 00:06:42,420
+ And the server processes each request at the service rate mu, and mu is one over the service
+
+46
+00:06:42,420 --> 00:06:50,180
+ time, how long it takes to service a particular request. So the way to think about if the
+
+47
+00:06:50,180 --> 00:06:57,660
+ server takes 100 milliseconds to serve a request, then obviously mu is one second over 100 milliseconds
+
+48
+00:06:57,660 --> 00:07:09,740
+ is 10 because you can serve 10 requests per second. So then another important parameter
+
+49
+00:07:09,740 --> 00:07:19,340
+ is square coefficient of variance to characterize the systems and the server utilization. The
+
+50
+00:07:19,340 --> 00:07:31,020
+ server utilization is basically the average arrival rate over the average service rate.
+
+51
+00:07:31,020 --> 00:07:39,620
+ And fundamentally you do want these parameters to be less than one because this would mean
+
+52
+00:07:39,620 --> 00:07:48,100
+ that the system is in the stable regime, that any stable regime, if the arrival rate is
+
+53
+00:07:48,100 --> 00:07:55,740
+ lower than the service capacity about how fast the request can be served. If you send
+
+54
+00:07:55,740 --> 00:08:03,820
+ more, obviously the system will not be in a stable regime, which means that the queries,
+
+55
+00:08:03,820 --> 00:08:11,960
+ the queue will grow indefinitely, right? As more requests come in and the system cannot
+
+56
+00:08:11,960 --> 00:08:18,520
+ keep up with serving these requests. And all the results typically in the queuing theory
+
+57
+00:08:18,520 --> 00:08:25,760
+ assumes that rho is less than one. And then the parameters you want to compute is the
+
+58
+00:08:25,760 --> 00:08:31,240
+ time you spend in the queue, right? We know how long it takes a request to be served.
+
+59
+00:08:31,240 --> 00:08:40,040
+ So it's t serve. So now we need to understand how long it takes a request to spend in the
+
+60
+00:08:40,040 --> 00:08:45,940
+ queue. So then by adding the do, we know the service time for the queuing time, we know
+
+61
+00:08:45,940 --> 00:08:53,940
+ how much a request spend in the entire system, which is what matters from the user perspective.
+
+62
+00:08:53,940 --> 00:09:00,660
+ And then we also want to learn about the little law and the little law allows you to compute
+
+63
+00:09:00,660 --> 00:09:14,140
+ the queue length by just multiplying the mean arrival rate plus the time average time spent
+
+64
+00:09:14,140 --> 00:09:21,240
+ in the queue. And this is some of the results we went over last time. So it's again, this
+
+65
+00:09:21,240 --> 00:09:29,300
+ is a recap, which may help you for the tomorrow's midterm. And t queue is for MM1 queue, which
+
+66
+00:09:29,300 --> 00:09:36,680
+ is remember an MM1 queue is one of the simplest queues out there. It has one is for means
+
+67
+00:09:36,680 --> 00:09:42,240
+ that it has one server, m, the first time refers to the distribution of the arrival
+
+68
+00:09:42,240 --> 00:09:51,560
+ rate. So this means that the intervals between two consecutive requests arriving is exponentially
+
+69
+00:09:51,560 --> 00:09:58,160
+ distributed or it's also called Poisson distribution of the arrival rate. And also the service
+
+70
+00:09:58,160 --> 00:10:03,880
+ time is exponentially distributed. It's again the time it takes to serve it's exponentially
+
+71
+00:10:03,880 --> 00:10:11,480
+ distributed. And the formula here is this serve times row over one minus row. And for
+
+72
+00:10:11,480 --> 00:10:18,880
+ a more general queue where the serving time, it's general, it's just characterized by the
+
+73
+00:10:18,880 --> 00:10:26,080
+ C, we know only about the square coefficient of variance. You have a very similar formula,
+
+74
+00:10:26,080 --> 00:10:31,880
+ only the second parameters is a formula it's different. But the real main point to notice
+
+75
+00:10:31,880 --> 00:10:39,200
+ about this formula are this last term, which is row over one minus row. And this capture
+
+76
+00:10:39,200 --> 00:10:47,040
+ what I said earlier, that if row is should be less than one, that if it's equal or greater
+
+77
+00:10:47,040 --> 00:10:54,000
+ than one, then the system will not be in a stable region. Right? And this is a plot showing
+
+78
+00:10:54,000 --> 00:11:02,400
+ you roughly how the response time and the service time is looking versus throughput
+
+79
+00:11:02,400 --> 00:11:08,680
+ or utilization versus row. So on the x-axis is basically row is from zero, say to one,
+
+80
+00:11:08,680 --> 00:11:13,840
+ and this is a response time. The response time is a queuing time plus the service time.
+
+81
+00:11:13,840 --> 00:11:19,280
+ And as a time, as a row goes to one, this is going to be dominated by the queuing time
+
+82
+00:11:19,280 --> 00:11:27,400
+ because the queuing time is going to grow one row. It's close to one, then this goes
+
+83
+00:11:27,400 --> 00:11:50,480
+ to infinity. Okay. So any questions? Okay. So now let's talk about how we are going to
+
+84
+00:11:50,480 --> 00:11:58,120
+ optimize the performance and what are the ways to optimize it. And this is what we are
+
+85
+00:11:58,120 --> 00:12:06,020
+ going to discuss over the next several slides. And again, if you look about for an IO device,
+
+86
+00:12:06,020 --> 00:12:10,720
+ you are going to have the user stress. This is where the program is running. Then you
+
+87
+00:12:10,720 --> 00:12:16,040
+ are going to send requests, say read or write from this particular file, which is from that
+
+88
+00:12:16,040 --> 00:12:21,720
+ particular one particular device. And these requests are queued and then are submitted
+
+89
+00:12:21,720 --> 00:12:27,040
+ to a controller and the controller is going to program the IO device to read and write
+
+90
+00:12:27,040 --> 00:12:34,480
+ the particular data. Okay. And so how you are going to improve this system? Well, there
+
+91
+00:12:34,480 --> 00:12:39,520
+ are a few ways. One speed, right? You can make everything faster. Each of these components,
+
+92
+00:12:39,520 --> 00:12:43,560
+ you can make it faster. You reduce the overhead of the context switching. You have also some
+
+93
+00:12:43,560 --> 00:12:50,540
+ context switching here of the controller and of the device. You buy a disk which rotates
+
+94
+00:12:50,540 --> 00:12:57,440
+ faster with a lower seek time. Another way is parallelism. It's basically, you know,
+
+95
+00:12:57,440 --> 00:13:04,040
+ you can parallelize. You can have, you know, inside, you can have multiple queues if the
+
+96
+00:13:04,040 --> 00:13:09,200
+ queue observations are expensive. Or instead of an IO device, you may have multiple IO
+
+97
+00:13:09,200 --> 00:13:14,880
+ requests. You can, for instance, as you know, probably you can have two disks and then you
+
+98
+00:13:14,880 --> 00:13:21,520
+ are going to strive the data across disks. So therefore, or you just partition the data
+
+99
+00:13:21,520 --> 00:13:26,760
+ between disks. So when different requests can run at the same time on if they are going
+
+100
+00:13:26,760 --> 00:13:36,240
+ to request data on different disks. Then is overlap, right? So this applies to different
+
+101
+00:13:36,240 --> 00:13:41,120
+ parts of this kind of pipeline. So for instance, for the thread, you send a request, you are
+
+102
+00:13:41,120 --> 00:13:47,020
+ waiting for the request, you can do some useful work instead of just waiting. The same thing
+
+103
+00:13:47,020 --> 00:13:53,160
+ here is like for the controller, as you program the current request and you program the IO
+
+104
+00:13:53,160 --> 00:13:59,280
+ device to ask to satisfy the current request. Once you do that and you send the request
+
+105
+00:13:59,280 --> 00:14:05,840
+ to IO device, then you can process the next request. The one important aspect here is
+
+106
+00:14:05,840 --> 00:14:10,760
+ that one way to look at this pipeline, say you want to improve the performance here,
+
+107
+00:14:10,760 --> 00:14:15,400
+ what you are going to do is the engineering way to look about and or software engineering
+
+108
+00:14:15,400 --> 00:14:20,920
+ way, the sound way to do it is to look what is the bottlenecks are, which is a bottleneck,
+
+109
+00:14:20,920 --> 00:14:25,560
+ which is a slowest part in this chain. And then you are going to focus on that bottleneck
+
+110
+00:14:25,560 --> 00:14:29,980
+ part to improve the performance, because if you improve the performance of something which
+
+111
+00:14:29,980 --> 00:14:38,380
+ is already fast, not the slowest link in the chain, then the end-to-end performance will
+
+112
+00:14:38,380 --> 00:14:46,800
+ not improve much. And remember, the queues are here to absorb the burst. The queue sees
+
+113
+00:14:46,800 --> 00:14:53,200
+ that because the requests are not going where, you know, are equally distanced in time, they
+
+114
+00:14:53,200 --> 00:14:59,940
+ can arrive in a bunch of requests at the same time. So the controller cannot serve on this
+
+115
+00:14:59,940 --> 00:15:04,020
+ bunch of requests at the same time. So you need to then queue them because if they don't
+
+116
+00:15:04,020 --> 00:15:11,080
+ have a queue, you need to drop on the floor of the request, you are going to fail satisfying
+
+117
+00:15:11,080 --> 00:15:17,280
+ the request. And finally, another thing we didn't discuss last time, it is one other
+
+118
+00:15:17,280 --> 00:15:22,680
+ techniques in this kind of systems, it's admission control. The admission control basically says,
+
+119
+00:15:22,680 --> 00:15:29,720
+ look, and in admission control, why you have admission control in general, is that you
+
+120
+00:15:29,720 --> 00:15:34,500
+ basically admission control says that I refuse to, I'm telling you this request I cannot
+
+121
+00:15:34,500 --> 00:15:42,360
+ handle. Okay? So the thread wants to submit a request and I'm saying, you know, the controller
+
+122
+00:15:42,360 --> 00:15:50,520
+ or the queue itself saying I can no longer enqueue this request, come later. And this
+
+123
+00:15:50,520 --> 00:15:58,360
+ also typically happens if we want to ensure to limit, to provide guarantees in terms of
+
+124
+00:15:58,360 --> 00:16:05,260
+ the end-to-end latency of end-to-end response time. Okay? In order to provide, so basically
+
+125
+00:16:05,260 --> 00:16:10,560
+ saying if I'm going to accept the request, I'm going to guarantee that I'm going to serve
+
+126
+00:16:10,560 --> 00:16:19,320
+ this request in say 100 milliseconds. Right? If I cannot, if there is no admission control,
+
+127
+00:16:19,320 --> 00:16:24,520
+ then I cannot make that guarantee because if there are a lot of requests coming, which
+
+128
+00:16:24,520 --> 00:16:29,360
+ exceeds the capacity of my system, I cannot guarantee that each request is going to be
+
+129
+00:16:29,360 --> 00:16:39,240
+ processed within 100 milliseconds. Okay? So admission control place is hand in hand with
+
+130
+00:16:39,240 --> 00:17:07,760
+ limiting the delay if you want to have guarantees on the end-to-end delay. Any questions? Can
+
+131
+00:17:07,760 --> 00:17:26,120
+ you give an example from real life where the admission control is employed?
+
+132
+00:17:26,120 --> 00:17:53,680
+ Any? Example? Any? Example? Any? Example? Any? Example? Any? Example? Any? Example?
+
+133
+00:17:53,680 --> 00:18:18,920
+ Okay. Yes. Red lights on the entrance of the highway. That's exactly, that's a great example.
+
+134
+00:18:18,920 --> 00:18:23,160
+ And real time systems, yes. Although I was, that's, I wouldn't call it real time life.
+
+135
+00:18:23,160 --> 00:18:27,380
+ Red lights on the entrance of the highway. That's a great example. And there are many
+
+136
+00:18:27,380 --> 00:18:33,960
+ other examples. Like for instance, in during when there are more restriction on during
+
+137
+00:18:33,960 --> 00:18:40,200
+ COVID during the pandemics, you know, some shops, you limit the number of customers who
+
+138
+00:18:40,200 --> 00:18:45,640
+ are inside. So in order to make sure that they can keep distance among themselves, there
+
+139
+00:18:45,640 --> 00:18:50,840
+ are even more obvious examples. Like when you fly on a plane, here is admission control.
+
+140
+00:18:50,840 --> 00:18:54,920
+ It's your seat, right? You cannot, it's not like in a bus in which you, you know, there
+
+141
+00:18:54,920 --> 00:19:00,800
+ is no admission control anyone can get in. Well, I guess it's a natural one. No longer
+
+142
+00:19:00,800 --> 00:19:05,640
+ people who are no longer fit in a bus and you know, it's, that's a natural pushback
+
+143
+00:19:05,640 --> 00:19:14,040
+ mechanism. But yeah, there are many examples in real life where you are having this so
+
+144
+00:19:14,040 --> 00:19:24,720
+ to speak admission control. Ha ha, Berkeley course waitlist. That's a great one. Yes,
+
+145
+00:19:24,720 --> 00:19:33,560
+ Richard, that's great. Okay. Thank you. So any of these performance highest, remember,
+
+146
+00:19:33,560 --> 00:19:38,960
+ obviously, when there are sequential reads where, and this is subtle and we are going
+
+147
+00:19:38,960 --> 00:19:44,200
+ to see this is a, for, you know, the next, for the next few slides, there is another one.
+
+148
+00:19:44,200 --> 00:19:50,360
+ There is so much work. You get so many requests. You can piggyback, you basically, you can
+
+149
+00:19:50,360 --> 00:19:58,080
+ have so many requests, but can reorder the request says that you can serve this request
+
+150
+00:19:58,080 --> 00:20:06,080
+ much more effectively. We'll, we'll, we'll see that in a, in a bit. Now, if the system
+
+151
+00:20:06,080 --> 00:20:14,360
+ is mostly idle, it's perfectly fine to be inefficient. No one cares. Right. And, but
+
+152
+00:20:14,400 --> 00:20:16,880
+ First, this is an important point, right?
+
+153
+00:20:16,880 --> 00:20:17,800
+ When you have a burst,
+
+154
+00:20:17,800 --> 00:20:19,520
+ meaning that you get more requests
+
+155
+00:20:19,520 --> 00:20:21,080
+ than the system can handle.
+
+156
+00:20:21,080 --> 00:20:22,800
+ So you need to queue those.
+
+157
+00:20:22,800 --> 00:20:27,720
+ It's both as threat, or it should be threat there,
+
+158
+00:20:27,720 --> 00:20:29,880
+ because they can increase the latency, right?
+
+159
+00:20:29,880 --> 00:20:31,880
+ Because you can queue these requests.
+
+160
+00:20:31,880 --> 00:20:33,380
+ But it's also an opportunity
+
+161
+00:20:33,380 --> 00:20:35,760
+ because you can do this piggybacking.
+
+162
+00:20:35,760 --> 00:20:37,920
+ You can, again, reorder the request,
+
+163
+00:20:37,920 --> 00:20:39,400
+ as you'll see in a few slides,
+
+164
+00:20:39,400 --> 00:20:40,840
+ or you can do batching.
+
+165
+00:20:41,720 --> 00:20:45,520
+ Batching meanings, you can, for instance,
+
+166
+00:20:45,520 --> 00:20:46,520
+ you have many requests,
+
+167
+00:20:46,520 --> 00:20:50,080
+ you can do one context switching or function calls.
+
+168
+00:20:50,080 --> 00:20:52,960
+ You can think about, you can do one context switching
+
+169
+00:20:52,960 --> 00:20:56,120
+ to handle multiple of these requests at the same time.
+
+170
+00:20:56,120 --> 00:20:57,760
+ So you amortize the context switching
+
+171
+00:20:57,760 --> 00:20:59,320
+ across multiple requests.
+
+172
+00:20:59,320 --> 00:21:03,260
+ You can also waste the space for speed.
+
+173
+00:21:03,260 --> 00:21:06,520
+ Like for instance, you can,
+
+174
+00:21:08,540 --> 00:21:13,540
+ you know, when you write on the disk,
+
+175
+00:21:13,540 --> 00:21:17,460
+ like, let's see, what will be a good examples?
+
+176
+00:21:17,460 --> 00:21:25,140
+ Yeah, you can have, for instance,
+
+177
+00:21:25,140 --> 00:21:27,700
+ like for instance, for page tables.
+
+178
+00:21:27,700 --> 00:21:31,500
+ For page tables, you can have additional hash maps,
+
+179
+00:21:31,500 --> 00:21:35,860
+ which you are going to keep in order to locate,
+
+180
+00:21:37,640 --> 00:21:42,640
+ to map the pages, the virtual pages,
+
+181
+00:21:42,640 --> 00:21:46,980
+ to the page numbers, to the physical page numbers.
+
+182
+00:21:46,980 --> 00:21:50,640
+ Another way to do it is to increase the size of the TLB.
+
+183
+00:21:50,640 --> 00:21:52,880
+ Another way to increase the performance
+
+184
+00:21:52,880 --> 00:21:55,120
+ in what you learn, we learned in the past,
+
+185
+00:21:55,120 --> 00:21:56,560
+ is to increase the cache size.
+
+186
+00:21:56,560 --> 00:22:01,880
+ In order to reduce, to also improve the performance,
+
+187
+00:22:01,880 --> 00:22:06,240
+ system performance, program performance,
+
+188
+00:22:06,240 --> 00:22:09,240
+ you can also increase the memory size.
+
+189
+00:22:09,240 --> 00:22:12,400
+ Of course, there is a Belladia anomaly,
+
+190
+00:22:12,400 --> 00:22:17,400
+ which as you know, for certain page replacement policies,
+
+191
+00:22:17,400 --> 00:22:21,840
+ increasing the size of the memory,
+
+192
+00:22:21,840 --> 00:22:23,720
+ or the size of the cache,
+
+193
+00:22:23,720 --> 00:22:28,720
+ doesn't necessarily reduce the number of false, page faults.
+
+194
+00:22:28,720 --> 00:22:34,160
+ But in general, for many of those page replacement policy,
+
+195
+00:22:34,280 --> 00:22:39,280
+ like ALERU, that's increasing the memory size,
+
+196
+00:22:39,280 --> 00:22:45,680
+ always will likely decrease,
+
+197
+00:22:45,680 --> 00:22:49,160
+ most likely will decrease the number of page faults.
+
+198
+00:22:49,160 --> 00:22:51,280
+ These are a few examples where you can have
+
+199
+00:22:51,280 --> 00:22:53,480
+ increase the number of the space,
+
+200
+00:22:53,480 --> 00:22:58,180
+ to increase the space and to improve the speed.
+
+201
+00:22:58,180 --> 00:23:02,160
+ And other techniques are reduce the overheads
+
+202
+00:23:02,160 --> 00:23:03,720
+ through user level drivers.
+
+203
+00:23:03,720 --> 00:23:07,080
+ So basically, if you can implement the functionality
+
+204
+00:23:07,080 --> 00:23:10,880
+ as a user level, you may avoid the context switching,
+
+205
+00:23:10,880 --> 00:23:13,440
+ because you don't need the operating system
+
+206
+00:23:13,440 --> 00:23:15,680
+ in order to handle these requests.
+
+207
+00:23:15,680 --> 00:23:22,160
+ And the other one is like I mentioned earlier, the overlap.
+
+208
+00:23:22,160 --> 00:23:26,840
+ So while you are waiting for an I/O to complete,
+
+209
+00:23:26,840 --> 00:23:29,000
+ you are doing the useful, more useful work.
+
+210
+00:23:29,000 --> 00:23:32,040
+ And this can happen at multiple, in multiple levels.
+
+211
+00:23:32,040 --> 00:23:36,720
+ It can happen in your, the operating system,
+
+212
+00:23:36,720 --> 00:23:39,920
+ as you now, when operating system on a thread
+
+213
+00:23:39,920 --> 00:23:43,280
+ is blocked on an I/O device, on an I/O request,
+
+214
+00:23:43,280 --> 00:23:45,160
+ is going to switch it out,
+
+215
+00:23:45,160 --> 00:23:48,440
+ it putting the thread on the waiting queue,
+
+216
+00:23:48,440 --> 00:23:51,280
+ and is going to schedule, the operating system
+
+217
+00:23:51,280 --> 00:23:53,520
+ is going to schedule a new thread,
+
+218
+00:23:53,520 --> 00:23:55,140
+ which is on the ready queue.
+
+219
+00:23:58,520 --> 00:24:03,520
+ Okay, so now we're going to look into a bit
+
+220
+00:24:03,520 --> 00:24:06,720
+ into the disk scheduling, right?
+
+221
+00:24:06,720 --> 00:24:09,840
+ The disk remember is quite complicated, right?
+
+222
+00:24:09,840 --> 00:24:11,640
+ You has multiple plates,
+
+223
+00:24:11,640 --> 00:24:17,200
+ and each plate has two surfaces, up, down,
+
+224
+00:24:17,200 --> 00:24:21,560
+ and then you have cylinders and sectors, right?
+
+225
+00:24:21,560 --> 00:24:25,720
+ So when a request comes in from the operating system
+
+226
+00:24:25,720 --> 00:24:28,840
+ to read or write on the disk,
+
+227
+00:24:28,840 --> 00:24:31,600
+ is going to tell you, typically is telling you
+
+228
+00:24:31,600 --> 00:24:36,600
+ what is a cylinder, the face, the surface,
+
+229
+00:24:36,600 --> 00:24:41,680
+ and what is the sector, right?
+
+230
+00:24:41,680 --> 00:24:45,000
+ Here we are talking, we are considering a simpler example
+
+231
+00:24:45,000 --> 00:24:48,400
+ where you have the, just the cylinder and the sector.
+
+232
+00:24:48,400 --> 00:24:52,020
+ And this is, this is how the request look like.
+
+233
+00:24:52,020 --> 00:24:53,760
+ So in this case, you have two numbers,
+
+234
+00:24:53,760 --> 00:24:56,760
+ for each request, a cylinder and the sector.
+
+235
+00:24:56,760 --> 00:24:58,560
+ The request also is going to specify
+
+236
+00:24:58,560 --> 00:25:00,360
+ what is the read and write.
+
+237
+00:25:00,360 --> 00:25:05,260
+ And because this disk is slow,
+
+238
+00:25:05,260 --> 00:25:09,440
+ more likely you are going to have some requests
+
+239
+00:25:09,440 --> 00:25:11,640
+ which are queued, okay?
+
+240
+00:25:11,640 --> 00:25:15,200
+ So now the interesting aspect here,
+
+241
+00:25:15,200 --> 00:25:17,560
+ the requests are in general are independent,
+
+242
+00:25:17,560 --> 00:25:19,480
+ are in general independent.
+
+243
+00:25:19,480 --> 00:25:22,740
+ So now the question is how you are going
+
+244
+00:25:22,740 --> 00:25:24,320
+ to serve these requests.
+
+245
+00:25:24,320 --> 00:25:29,440
+ A simplest way is five, right?
+
+246
+00:25:29,440 --> 00:25:35,120
+ You serve the request in the order in which they arrived.
+
+247
+00:25:35,120 --> 00:25:38,240
+ This is fair among the requester,
+
+248
+00:25:38,240 --> 00:25:41,220
+ that is fair with respect to the order
+
+249
+00:25:41,220 --> 00:25:42,920
+ in which they submit the request.
+
+250
+00:25:42,920 --> 00:25:46,420
+ But it can be very long six.
+
+251
+00:25:46,420 --> 00:25:47,260
+ Why?
+
+252
+00:25:47,260 --> 00:25:52,260
+ Because the head can go, you know, randomly from, you know,
+
+253
+00:25:52,740 --> 00:25:57,740
+ from one cylinder or one track to another, right?
+
+254
+00:25:57,740 --> 00:26:03,020
+ You don't run that because you remember
+
+255
+00:26:03,020 --> 00:26:08,020
+ the seek time is very expensive, right?
+
+256
+00:26:08,020 --> 00:26:12,260
+ As well as, you know, rotation latency.
+
+257
+00:26:12,260 --> 00:26:15,780
+ So you don't want to go, you know,
+
+258
+00:26:15,780 --> 00:26:17,780
+ you want to be smarter than that.
+
+259
+00:26:17,780 --> 00:26:20,180
+ So that'll be a smart way to do it, right?
+
+260
+00:26:20,180 --> 00:26:22,500
+ If you want to minimize the seek time,
+
+261
+00:26:22,500 --> 00:26:26,120
+ once you serve a request and you are in a certain position
+
+262
+00:26:26,120 --> 00:26:30,180
+ on the disk, you look, you want to look in the queue
+
+263
+00:26:30,180 --> 00:26:32,820
+ and take the request which is closest to you,
+
+264
+00:26:32,820 --> 00:26:34,420
+ because if the request is closest to you,
+
+265
+00:26:34,420 --> 00:26:37,220
+ you are going to minimize the seek time.
+
+266
+00:26:37,220 --> 00:26:42,020
+ And this is shorter seek time first, right?
+
+267
+00:26:42,020 --> 00:26:47,020
+ You pick the request that it closes to the head on the disk.
+
+268
+00:26:47,020 --> 00:26:49,700
+ Okay?
+
+269
+00:26:49,700 --> 00:26:53,460
+ Of course, in general,
+
+270
+00:26:53,460 --> 00:26:56,500
+ you also need to include the rotation delay,
+
+271
+00:26:56,500 --> 00:26:59,120
+ not only the seek time,
+
+272
+00:26:59,120 --> 00:27:01,900
+ but for now let's simplify it only to seek time.
+
+273
+00:27:01,900 --> 00:27:04,400
+ Okay?
+
+274
+00:27:04,400 --> 00:27:08,780
+ So now the seek will reduce the time if you look,
+
+275
+00:27:08,780 --> 00:27:09,900
+ but it's not good.
+
+276
+00:27:09,900 --> 00:27:12,860
+ What is not good is that may lead to starvation.
+
+277
+00:27:12,860 --> 00:27:13,700
+ Like for instance,
+
+278
+00:27:13,700 --> 00:27:18,700
+ if a lot of requests come and they are clustered close by,
+
+279
+00:27:19,700 --> 00:27:23,460
+ then according to these disciplines,
+
+280
+00:27:23,460 --> 00:27:26,100
+ you are shorter seek time first,
+
+281
+00:27:26,100 --> 00:27:28,380
+ you are going to serve this request.
+
+282
+00:27:28,380 --> 00:27:30,380
+ And the request which is farther,
+
+283
+00:27:30,380 --> 00:27:33,260
+ a lot, you know, which is farther,
+
+284
+00:27:33,260 --> 00:27:37,140
+ like for instance, at the edge on the disk,
+
+285
+00:27:37,140 --> 00:27:41,620
+ may wait for a long time to be serviced.
+
+286
+00:27:41,620 --> 00:27:45,740
+ Make sense?
+
+287
+00:27:45,740 --> 00:27:47,620
+ So you don't want that.
+
+288
+00:27:47,620 --> 00:27:51,500
+ Again, the rate of a seek time, but it's unfair.
+
+289
+00:27:51,500 --> 00:27:52,660
+ Can cause starvation.
+
+290
+00:27:52,660 --> 00:27:56,620
+ So one solution to that is scan.
+
+291
+00:27:56,620 --> 00:27:59,620
+ It's a pretty nice solution.
+
+292
+00:27:59,620 --> 00:28:02,360
+ These are what you see here, these numbers.
+
+293
+00:28:02,360 --> 00:28:07,060
+ Think about these are tracks or cylinders, right?
+
+294
+00:28:07,060 --> 00:28:09,860
+ A cylinder, it's all the tracks
+
+295
+00:28:09,860 --> 00:28:13,300
+ which are under the heads on different platters.
+
+296
+00:28:14,980 --> 00:28:18,740
+ So scan is basically you start going into one direction,
+
+297
+00:28:18,740 --> 00:28:23,740
+ either to the edge of the disk or to the inside of the disk.
+
+298
+00:28:23,740 --> 00:28:28,740
+ And you are only going to serve the request
+
+299
+00:28:28,740 --> 00:28:32,180
+ in the direction you are going, right?
+
+300
+00:28:32,180 --> 00:28:37,020
+ So you serve the request on say track 53,
+
+301
+00:28:37,020 --> 00:28:40,140
+ then you look in the queue and you have multiple requests.
+
+302
+00:28:40,140 --> 00:28:43,660
+ Say you pick the one which is closest to you
+
+303
+00:28:43,660 --> 00:28:47,380
+ in the direction you are going, it's 37.
+
+304
+00:28:47,380 --> 00:28:52,020
+ Then the next one is 14 and so forth.
+
+305
+00:28:52,020 --> 00:28:54,500
+ And in this time, so for instance,
+
+306
+00:28:54,500 --> 00:28:59,500
+ if when you serve the request 53, you get the request 65,
+
+307
+00:28:59,500 --> 00:29:02,340
+ this is closest to you.
+
+308
+00:29:02,340 --> 00:29:04,580
+ So according to the shorter six time first,
+
+309
+00:29:04,580 --> 00:29:06,020
+ you'll serve this request.
+
+310
+00:29:06,020 --> 00:29:11,980
+ Because it's not in the request on track 65,
+
+311
+00:29:11,980 --> 00:29:14,260
+ it's not in the direction of your movement,
+
+312
+00:29:14,260 --> 00:29:17,340
+ you are going to ignore it, right?
+
+313
+00:29:17,340 --> 00:29:21,700
+ So you go until the last request in your direction
+
+314
+00:29:21,700 --> 00:29:23,340
+ and then after you reverse.
+
+315
+00:29:23,340 --> 00:29:28,860
+ So here I say no starvation,
+
+316
+00:29:28,860 --> 00:29:32,500
+ but still retain a flavor of shortest six time first.
+
+317
+00:29:32,500 --> 00:29:33,340
+ Why is that?
+
+318
+00:29:33,340 --> 00:29:35,580
+ Tell me, why is that?
+
+319
+00:29:35,580 --> 00:29:40,340
+ Why do we still have a problem with this one, with scan?
+
+320
+00:29:40,340 --> 00:29:45,340
+ By the way, it's also, it's called elevator algorithm.
+
+321
+00:29:45,340 --> 00:29:58,380
+ Can you think about, does scan exhibit any unfairness?
+
+322
+00:29:58,380 --> 00:30:05,900
+ And why, if yes.
+
+323
+00:30:05,900 --> 00:30:08,060
+ (silence)
+
+324
+00:30:08,060 --> 00:30:28,300
+ Yes, I just want to say you may never reverse
+
+325
+00:30:28,300 --> 00:30:31,100
+ if tasks keep arriving at the same spot.
+
+326
+00:30:31,100 --> 00:30:33,620
+ So basically on the same track, that's true.
+
+327
+00:30:33,620 --> 00:30:36,580
+ That's a pretty edge case.
+
+328
+00:30:36,580 --> 00:30:41,380
+ It's a good answer, but it's a little bit edge.
+
+329
+00:30:41,380 --> 00:30:43,020
+ What else?
+
+330
+00:30:43,020 --> 00:30:47,580
+ Can you think about some other requests
+
+331
+00:30:47,580 --> 00:30:49,860
+ which will get preferential treatment
+
+332
+00:30:49,860 --> 00:30:56,180
+ if they are in some region of the disk versus others?
+
+333
+00:30:56,180 --> 00:30:58,340
+ (silence)
+
+334
+00:30:58,340 --> 00:31:13,620
+ Oh, Karl asked a question.
+
+335
+00:31:13,620 --> 00:31:16,420
+ How do we define the initial direction for scan?
+
+336
+00:31:16,420 --> 00:31:21,620
+ I guess, I mean, it's a good question.
+
+337
+00:31:21,620 --> 00:31:25,860
+ I don't know, but I don't think it matters.
+
+338
+00:31:25,860 --> 00:31:30,860
+ You can choose anyone initially.
+
+339
+00:31:30,860 --> 00:31:38,540
+ Yeah.
+
+340
+00:31:38,540 --> 00:31:42,500
+ There is more data on the outer rings.
+
+341
+00:31:42,500 --> 00:31:47,540
+ So traveling is disfavored.
+
+342
+00:31:47,540 --> 00:31:49,580
+ Yeah, you are right.
+
+343
+00:31:49,580 --> 00:31:52,780
+ It's like, let me see, it's also a question here.
+
+344
+00:31:55,500 --> 00:31:57,060
+ Okay, it's the same question.
+
+345
+00:31:57,060 --> 00:31:58,940
+ So Karl, it's again, the answer to your question,
+
+346
+00:31:58,940 --> 00:32:01,740
+ how do you define the initial directions?
+
+347
+00:32:01,740 --> 00:32:03,380
+ I think it doesn't matter.
+
+348
+00:32:03,380 --> 00:32:07,580
+ You can, but I do not know,
+
+349
+00:32:07,580 --> 00:32:11,020
+ and I don't see a reason that's very important.
+
+350
+00:32:11,020 --> 00:32:15,900
+ And going back now,
+
+351
+00:32:15,900 --> 00:32:20,900
+ it is going back about when this scan is not fair.
+
+352
+00:32:20,900 --> 00:32:23,900
+ So here, when it's not fair,
+
+353
+00:32:23,900 --> 00:32:25,580
+ which requests are fair,
+
+354
+00:32:25,580 --> 00:32:33,460
+ for which requests does scan provide advantage, favor them?
+
+355
+00:32:33,460 --> 00:32:47,740
+ So here, the request in the middle,
+
+356
+00:32:47,740 --> 00:32:52,140
+ you get quicker to the request in the middle,
+
+357
+00:32:53,700 --> 00:32:55,340
+ right?
+
+358
+00:32:55,340 --> 00:32:57,500
+ Like for instance, I can go to a request,
+
+359
+00:32:57,500 --> 00:33:02,500
+ say it takes one millisecond to go from one end to another.
+
+360
+00:33:02,500 --> 00:33:07,860
+ If I missed a request arrives here,
+
+361
+00:33:07,860 --> 00:33:12,860
+ just after the scan has passed in that direction,
+
+362
+00:33:12,860 --> 00:33:14,740
+ just I missed it.
+
+363
+00:33:14,740 --> 00:33:18,940
+ So I say, okay, it goes 0.5 milliseconds to one end,
+
+364
+00:33:18,940 --> 00:33:21,460
+ and I wait for another 0.5 milliseconds
+
+365
+00:33:21,460 --> 00:33:23,140
+ to come to me back.
+
+366
+00:33:23,140 --> 00:33:25,420
+ So I wait for one millisecond.
+
+367
+00:33:25,420 --> 00:33:27,820
+ But if this happens when I'm at the edge,
+
+368
+00:33:27,820 --> 00:33:32,260
+ so I just missed the head,
+
+369
+00:33:32,260 --> 00:33:37,260
+ which now goes towards the inside of the disk.
+
+370
+00:33:37,260 --> 00:33:40,980
+ Then you have to wait for two milliseconds.
+
+371
+00:33:40,980 --> 00:33:42,220
+ You need to wait one millisecond
+
+372
+00:33:42,220 --> 00:33:43,660
+ to go all the way to the inside,
+
+373
+00:33:43,660 --> 00:33:45,220
+ and one millisecond to go back.
+
+374
+00:33:45,220 --> 00:33:48,380
+ Okay, now I'm oversimplifying things here,
+
+375
+00:33:48,380 --> 00:33:50,060
+ but just to give you a sense.
+
+376
+00:33:50,060 --> 00:33:54,780
+ So scan favors the requests which are in the middle,
+
+377
+00:33:54,780 --> 00:33:59,180
+ right?
+
+378
+00:33:59,180 --> 00:34:02,100
+ And not the request which are at the edges.
+
+379
+00:34:02,100 --> 00:34:04,700
+ What is the solution here?
+
+380
+00:34:04,700 --> 00:34:08,180
+ Well, the solution is circular scan or C-scan.
+
+381
+00:34:08,180 --> 00:34:11,180
+ And this basically just go one direction.
+
+382
+00:34:11,180 --> 00:34:15,340
+ So say you go all the way to the,
+
+383
+00:34:15,340 --> 00:34:18,060
+ you send the request only in one direction.
+
+384
+00:34:18,060 --> 00:34:20,740
+ And when you are done with those,
+
+385
+00:34:20,740 --> 00:34:24,500
+ you immediately go to all the other edge
+
+386
+00:34:24,500 --> 00:34:26,020
+ and start serving them again.
+
+387
+00:34:26,020 --> 00:34:30,820
+ Okay?
+
+388
+00:34:30,820 --> 00:34:32,940
+ So that's kind of what it is.
+
+389
+00:34:32,940 --> 00:34:36,820
+ But I'll say if I missed, if I request,
+
+390
+00:34:36,820 --> 00:34:40,340
+ I just misses the head,
+
+391
+00:34:40,340 --> 00:34:43,140
+ no matter what the request is,
+
+392
+00:34:43,140 --> 00:34:45,620
+ on the average is going to wait for the same time
+
+393
+00:34:46,580 --> 00:34:49,620
+ for the head to come to be back to be served.
+
+394
+00:34:49,620 --> 00:34:54,820
+ Okay?
+
+395
+00:34:54,820 --> 00:34:57,420
+ This is not biased towards the pages in the middle.
+
+396
+00:34:57,420 --> 00:35:07,660
+ Finally, I mentioned that you can hide the latency.
+
+397
+00:35:07,660 --> 00:35:14,620
+ How do you hide the IO latency?
+
+398
+00:35:14,620 --> 00:35:17,500
+ If the blocking interface is a wait, we already discussed,
+
+399
+00:35:17,500 --> 00:35:21,300
+ you have a block read and write system call,
+
+400
+00:35:21,300 --> 00:35:22,940
+ you put process operating system,
+
+401
+00:35:22,940 --> 00:35:27,580
+ put processes to sleep until the data is ready,
+
+402
+00:35:27,580 --> 00:35:30,940
+ the request is served.
+
+403
+00:35:30,940 --> 00:35:35,540
+ And during this time, the operating system schedules tasks,
+
+404
+00:35:35,540 --> 00:35:40,540
+ ready tasks, which can use a CPU.
+
+405
+00:35:42,380 --> 00:35:44,660
+ Non-blocking interfaces don't wait.
+
+406
+00:35:44,660 --> 00:35:46,380
+ So basically this, you remember,
+
+407
+00:35:46,380 --> 00:35:49,980
+ this is the interface in which you are just going
+
+408
+00:35:49,980 --> 00:35:54,980
+ to issue the request, but then returns immediately.
+
+409
+00:35:54,980 --> 00:36:01,700
+ You just, after you return, you do something else.
+
+410
+00:36:01,700 --> 00:36:04,580
+ Right?
+
+411
+00:36:04,580 --> 00:36:06,460
+ And then later you need to go
+
+412
+00:36:06,460 --> 00:36:09,340
+ and see whether you got the data.
+
+413
+00:36:11,980 --> 00:36:13,340
+ Okay.
+
+414
+00:36:13,340 --> 00:36:15,220
+ Or you wrote the data to the kernel.
+
+415
+00:36:15,220 --> 00:36:19,140
+ And asynchronous interface is then later,
+
+416
+00:36:19,140 --> 00:36:23,060
+ again, it's like in the non-blocking interface,
+
+417
+00:36:23,060 --> 00:36:26,780
+ it returns immediately the request,
+
+418
+00:36:26,780 --> 00:36:28,420
+ because in this case, for instance,
+
+419
+00:36:28,420 --> 00:36:31,220
+ when you get the data, you allocate the buffer,
+
+420
+00:36:31,220 --> 00:36:33,220
+ you give the pointer as a buffer,
+
+421
+00:36:33,220 --> 00:36:35,980
+ and tells the operating system basically,
+
+422
+00:36:35,980 --> 00:36:38,020
+ put the data when available,
+
+423
+00:36:38,020 --> 00:36:41,740
+ starting from this pointer, right in the buffer.
+
+424
+00:36:42,740 --> 00:36:43,580
+ Okay.
+
+425
+00:36:43,580 --> 00:36:44,580
+ And then let me know.
+
+426
+00:36:44,580 --> 00:36:48,300
+ And when you send the data, it's the same, right?
+
+427
+00:36:48,300 --> 00:36:51,100
+ You are going to create a buffer,
+
+428
+00:36:51,100 --> 00:36:53,100
+ you are going there, you are going to,
+
+429
+00:36:53,100 --> 00:36:55,900
+ you know, where you put the data,
+
+430
+00:36:55,900 --> 00:36:57,220
+ where you want to send,
+
+431
+00:36:57,220 --> 00:37:01,220
+ and then you give to the kernel, to the OS,
+
+432
+00:37:01,220 --> 00:37:04,580
+ in the right operation, in the right system call,
+
+433
+00:37:04,580 --> 00:37:07,620
+ you give the pointer of the buffer
+
+434
+00:37:07,620 --> 00:37:09,980
+ you want to be transferred.
+
+435
+00:37:10,700 --> 00:37:11,540
+ Okay.
+
+436
+00:37:11,540 --> 00:37:26,380
+ So now recall the entire error here for the IO.
+
+437
+00:37:26,380 --> 00:37:33,180
+ This is a top part, which provides the API
+
+438
+00:37:33,180 --> 00:37:38,980
+ and the abstraction to the applications,
+
+439
+00:37:38,980 --> 00:37:43,620
+ whether it's streams or it's a block API,
+
+440
+00:37:43,620 --> 00:37:48,100
+ plus the system calls open, read, write, and close.
+
+441
+00:37:48,100 --> 00:37:52,820
+ Then at the bottom, we also covered last time,
+
+442
+00:37:52,820 --> 00:37:55,940
+ this is about IO drivers, controllers, right?
+
+443
+00:37:55,940 --> 00:37:58,020
+ These are the drivers which are interacting
+
+444
+00:37:58,020 --> 00:37:59,660
+ with the physical device,
+
+445
+00:37:59,660 --> 00:38:02,580
+ read and write the data to the physical device.
+
+446
+00:38:02,580 --> 00:38:06,580
+ And the middle is a system which kind of
+
+447
+00:38:06,580 --> 00:38:08,540
+ makes a conversion in some sense
+
+448
+00:38:08,540 --> 00:38:12,900
+ from the API, which is provided to the application
+
+449
+00:38:12,900 --> 00:38:17,900
+ by the operating system and the API of the IO driver,
+
+450
+00:38:17,900 --> 00:38:20,260
+ which is a block interface in general.
+
+451
+00:38:20,260 --> 00:38:22,980
+ Right?
+
+452
+00:38:22,980 --> 00:38:25,340
+ So more precisely for the API,
+
+453
+00:38:25,340 --> 00:38:28,220
+ for the higher level for the application,
+
+454
+00:38:28,220 --> 00:38:30,900
+ you typically have a variable size buffer.
+
+455
+00:38:30,900 --> 00:38:35,500
+ And for the file system,
+
+456
+00:38:35,500 --> 00:38:37,220
+ which you are going to talk more about this,
+
+457
+00:38:37,220 --> 00:38:39,540
+ you are going to have blocks,
+
+458
+00:38:39,540 --> 00:38:41,580
+ but the blocks are logically indexed.
+
+459
+00:38:41,580 --> 00:38:44,860
+ These are where the data is stored, right?
+
+460
+00:38:44,860 --> 00:38:48,260
+ Logically indexed means that the index
+
+461
+00:38:48,260 --> 00:38:52,100
+ in the operating system is not the same index,
+
+462
+00:38:52,100 --> 00:38:56,780
+ which of that block on the physical device.
+
+463
+00:38:56,780 --> 00:39:00,780
+ This is done by the hardware device
+
+464
+00:39:00,780 --> 00:39:04,980
+ and by their controllers mapping from this block device,
+
+465
+00:39:04,980 --> 00:39:07,740
+ from the operating system to the blocks
+
+466
+00:39:07,740 --> 00:39:11,340
+ or the sectors on the hard disk drives.
+
+467
+00:39:11,340 --> 00:39:14,260
+ Remember that the blocks in the operating system
+
+468
+00:39:14,260 --> 00:39:18,780
+ are typically have like 24 kilobytes
+
+469
+00:39:18,780 --> 00:39:23,860
+ and sectors on the hard disk drives are smaller.
+
+470
+00:39:23,860 --> 00:39:26,540
+ They are 512 bytes.
+
+471
+00:39:26,540 --> 00:39:31,540
+ So you have typically, you can have eight sectors for each
+
+472
+00:39:31,540 --> 00:39:33,860
+ or a block requires eight sectors.
+
+473
+00:39:34,860 --> 00:39:36,660
+ And you have an SSD,
+
+474
+00:39:36,660 --> 00:39:39,540
+ you remember you have these flash translation layers,
+
+475
+00:39:39,540 --> 00:39:43,220
+ which again maps the logical index of the blocks
+
+476
+00:39:43,220 --> 00:39:44,580
+ to the physical blocks.
+
+477
+00:39:44,580 --> 00:39:47,860
+ That's pretty much what you have.
+
+478
+00:39:47,860 --> 00:39:49,780
+ And also you have your agent pages.
+
+479
+00:39:49,780 --> 00:39:55,980
+ So let's look now,
+
+480
+00:39:55,980 --> 00:39:57,820
+ we are going to start looking more,
+
+481
+00:39:57,820 --> 00:40:00,300
+ a little bit more depths to the file system.
+
+482
+00:40:01,980 --> 00:40:04,380
+ And one way to define it, like I mentioned,
+
+483
+00:40:04,380 --> 00:40:07,980
+ it's a layer of the operating system
+
+484
+00:40:07,980 --> 00:40:12,980
+ that maps the API provided to the application,
+
+485
+00:40:12,980 --> 00:40:20,140
+ which is files, directories, stream of bytes
+
+486
+00:40:20,140 --> 00:40:24,140
+ into lower level API of the IO devices,
+
+487
+00:40:24,140 --> 00:40:26,140
+ which is a block interface.
+
+488
+00:40:27,000 --> 00:40:27,280
+ Right.
+
+489
+00:40:27,280 --> 00:40:44,760
+ [Silence]
+
+490
+00:40:44,760 --> 00:40:35,480
+ And there are a few things, you know, this needs to be done, the operating system.
+
+491
+00:40:35,480 --> 00:40:38,360
+ And that's naming.
+
+492
+00:40:38,360 --> 00:40:47,520
+ You need to find file by name, you don't give to the OS a block where the data is.
+
+493
+00:40:47,520 --> 00:40:57,080
+ You let operating system worry about mapping between the file name and the block.
+
+494
+00:40:57,080 --> 00:40:59,200
+ And this is part of the organization.
+
+495
+00:40:59,200 --> 00:41:06,080
+ Also part of the organization is about the file names are typically within directories.
+
+496
+00:41:06,080 --> 00:41:12,360
+ So you need also to locate the file name within a particular directory.
+
+497
+00:41:12,360 --> 00:41:14,720
+ Also need to provide protection.
+
+498
+00:41:14,720 --> 00:41:16,480
+ We enforce access restriction.
+
+499
+00:41:16,480 --> 00:41:17,480
+ When do you do that?
+
+500
+00:41:17,480 --> 00:41:20,000
+ When you open the file typically.
+
+501
+00:41:20,000 --> 00:41:21,720
+ And those finally reliability.
+
+502
+00:41:21,720 --> 00:41:26,440
+ Why do you store the data on the disk?
+
+503
+00:41:26,440 --> 00:41:29,080
+ Because it's durable.
+
+504
+00:41:29,080 --> 00:41:37,440
+ You want to survive data to survive when there are crashes or when your laptop is powered
+
+505
+00:41:37,440 --> 00:41:42,320
+ out.
+
+506
+00:41:42,320 --> 00:41:51,040
+ So from the user perspective, then I have some data structures which I want to store
+
+507
+00:41:51,040 --> 00:41:54,840
+ those data structure view.
+
+508
+00:41:54,840 --> 00:41:58,160
+ That's what I want as a user.
+
+509
+00:41:58,160 --> 00:42:03,880
+ And that was a file system should offer me.
+
+510
+00:42:03,880 --> 00:42:12,000
+ Now from the system view, and I'm talking here about the call interface, the API as
+
+511
+00:42:12,000 --> 00:42:27,160
+ a boundary between the operating system and the user space.
+
+512
+00:42:27,160 --> 00:42:31,920
+ It doesn't have any idea about what data structure the application has.
+
+513
+00:42:31,920 --> 00:42:39,240
+ It just see a bunch of bytes, a collection of bytes.
+
+514
+00:42:39,240 --> 00:42:46,240
+ So the system needs to take this collection of bytes, this bunch of bytes, and write them
+
+515
+00:42:46,240 --> 00:42:55,000
+ on the device hard disk drive.
+
+516
+00:42:55,000 --> 00:42:58,000
+ Then the system view that it's inside the kernel.
+
+517
+00:42:58,000 --> 00:43:02,920
+ This is the one which interfaces to the devices.
+
+518
+00:43:02,920 --> 00:43:11,920
+ It takes a collection of block and it sees a collection of bytes and maps them to a collection
+
+519
+00:43:11,920 --> 00:43:12,920
+ of blocks.
+
+520
+00:43:12,920 --> 00:43:18,520
+ The collection of blocks are still logically identified.
+
+521
+00:43:18,520 --> 00:43:21,720
+ Logically again means that these are their identification.
+
+522
+00:43:21,720 --> 00:43:30,920
+ It's not the physical identification or these blocks are on the disk.
+
+523
+00:43:30,920 --> 00:43:36,600
+ OK.
+
+524
+00:43:36,600 --> 00:43:42,840
+ And like I mentioned, the block size is typically greater than sector size.
+
+525
+00:43:42,840 --> 00:43:52,480
+ So let's see what happens when, for instance, the user says to the operating system, I want
+
+526
+00:43:52,480 --> 00:44:00,720
+ bytes between two and twelve from this file.
+
+527
+00:44:00,720 --> 00:44:08,480
+ Well, the operating system has to face a block corresponding to those bytes and just return
+
+528
+00:44:08,480 --> 00:44:14,360
+ the correct portion to the operating system, to the application.
+
+529
+00:44:14,360 --> 00:44:19,040
+ What about when you write bytes between two and twelve?
+
+530
+00:44:19,040 --> 00:44:23,960
+ You fetch the block from the disk, you modify the relevant portion and you write down the
+
+531
+00:44:23,960 --> 00:44:25,560
+ block, back the block.
+
+532
+00:44:25,560 --> 00:44:32,040
+ So for writing these 10 bytes, you get the block.
+
+533
+00:44:32,040 --> 00:44:33,440
+ Which is four kilobytes.
+
+534
+00:44:33,440 --> 00:44:41,480
+ Update these 10 bytes and then write back the four kilobytes.
+
+535
+00:44:41,480 --> 00:44:50,200
+ So everything between the operating system and the devices is a block ground-large.
+
+536
+00:44:50,200 --> 00:45:01,000
+ So therefore, you always are going to pay the overhead of reading and writing blocks
+
+537
+00:45:01,000 --> 00:45:02,000
+ as a block ground-large.
+
+538
+00:45:02,000 --> 00:45:15,040
+ OK, so it's again a file system.
+
+539
+00:45:15,040 --> 00:45:17,800
+ You have directories and files.
+
+540
+00:45:17,800 --> 00:45:28,920
+ Directory, you can think about that user visible index mapping names to files.
+
+541
+00:45:28,920 --> 00:45:34,560
+ And the disk is just a linear array of sectors.
+
+542
+00:45:34,560 --> 00:45:35,560
+ You can look at it.
+
+543
+00:45:35,560 --> 00:45:42,240
+ It's a sector on you have a bunch of sectors on a track and you have a bunch of tracks
+
+544
+00:45:42,240 --> 00:45:44,940
+ on a face of a platter.
+
+545
+00:45:44,940 --> 00:45:51,380
+ And then for each platter, you have two faces and then for a hard disk drive, you have multiple
+
+546
+00:45:51,380 --> 00:45:56,080
+ multiple platters.
+
+547
+00:45:56,080 --> 00:46:02,920
+ So therefore, a sector is defined by, like I mentioned earlier on, by the cylinder, the
+
+548
+00:46:02,920 --> 00:46:07,280
+ surface and the sector.
+
+549
+00:46:07,280 --> 00:46:14,940
+ Now the main point to take from this slide and it's reemphasizing what I said earlier
+
+550
+00:46:14,940 --> 00:46:23,260
+ on, is that the operating system doesn't track at the level the sector using their physical
+
+551
+00:46:23,260 --> 00:46:24,260
+ identifier.
+
+552
+00:46:24,260 --> 00:46:30,460
+ The physical identifier again here is a cylinder, surface and sector on the disk.
+
+553
+00:46:30,460 --> 00:46:36,660
+ Instead you have a logical block addressing and typically now the controller translates
+
+554
+00:46:36,660 --> 00:46:41,580
+ this logical block addressing to the physical block address.
+
+555
+00:46:41,580 --> 00:46:49,620
+ It's something similar with virtual addresses.
+
+556
+00:46:49,620 --> 00:46:58,700
+ The way that the operating system is responsible for translating the virtual addresses to the
+
+557
+00:46:58,700 --> 00:47:10,140
+ physical addresses.
+
+558
+00:47:10,140 --> 00:47:13,780
+ Let me answer this question from Alison.
+
+559
+00:47:13,780 --> 00:47:21,100
+ Why don't we build devices that let us do lower, basically, I guess lower granularity
+
+560
+00:47:21,100 --> 00:47:27,700
+ of reads and writes?
+
+561
+00:47:27,700 --> 00:47:30,380
+ I guess, you know, this is a very good question.
+
+562
+00:47:30,380 --> 00:47:34,400
+ And the answer is the overhead.
+
+563
+00:47:34,400 --> 00:47:36,540
+ So you are correct.
+
+564
+00:47:36,540 --> 00:47:42,380
+ Alison, this is because efficiency.
+
+565
+00:47:42,380 --> 00:47:46,460
+ Remember again, just think about the hard disk drives.
+
+566
+00:47:46,460 --> 00:47:54,500
+ If you remember the hard disk drives in the last lecture, there is some example.
+
+567
+00:47:54,500 --> 00:47:59,260
+ The seek and rotation latency were like eight, nine milliseconds.
+
+568
+00:47:59,260 --> 00:48:04,020
+ And the time to transfer a block, even if the block as a sector, even if the sector
+
+569
+00:48:04,020 --> 00:48:11,080
+ is 500 terabytes, it's not only one byte, was much less than one millisecond.
+
+570
+00:48:11,080 --> 00:48:19,220
+ So the time to transfer to random the access and transfer a sector is dwarfed by the rotation
+
+571
+00:48:19,220 --> 00:48:27,180
+ latency, by the fixed overhead, rotation latency and seek back.
+
+572
+00:48:27,180 --> 00:48:30,580
+ So is that because there is always an overhead?
+
+573
+00:48:30,580 --> 00:48:37,980
+ Another way to think about is here it is another way to think about and maybe let me just connect
+
+574
+00:48:37,980 --> 00:48:42,900
+ the dots here.
+
+575
+00:48:42,900 --> 00:48:46,020
+ Remember this slide?
+
+576
+00:48:46,020 --> 00:48:50,100
+ Look here at this formula.
+
+577
+00:48:50,100 --> 00:48:53,980
+ OK.
+
+578
+00:48:53,980 --> 00:49:05,660
+ The smaller the B is, the less the effective bandwidth is.
+
+579
+00:49:05,660 --> 00:49:10,140
+ If B is very small, S will dominate the fixed overhead.
+
+580
+00:49:10,140 --> 00:49:12,400
+ This is just overhead.
+
+581
+00:49:12,400 --> 00:49:16,180
+ It's useless work.
+
+582
+00:49:16,180 --> 00:49:21,040
+ And the smaller the B is, the lower the effective bandwidth is.
+
+583
+00:49:21,040 --> 00:49:25,760
+ Look at the red curve here.
+
+584
+00:49:25,760 --> 00:49:32,260
+ So that's what you have.
+
+585
+00:49:32,260 --> 00:49:34,980
+ Each request, processing each request has a fixed overhead.
+
+586
+00:49:34,980 --> 00:49:46,380
+ Even if this is on, let me go here, even if this device is solid, it's SSD, not disk drive.
+
+587
+00:49:46,380 --> 00:49:47,640
+ There is an overhead for controller.
+
+588
+00:49:47,640 --> 00:49:51,500
+ Is there an overhead for context switching and things like that?
+
+589
+00:49:51,500 --> 00:49:58,400
+ OK, hopefully I answered your question.
+
+590
+00:49:58,400 --> 00:50:04,820
+ OK, let's go back.
+
+591
+00:50:04,820 --> 00:50:07,380
+ So what do you need for file system needs?
+
+592
+00:50:07,380 --> 00:50:09,380
+ What do you know if you design a file system?
+
+593
+00:50:09,380 --> 00:50:15,380
+ What do you need to be careful about?
+
+594
+00:50:15,380 --> 00:50:22,140
+ You need basically to track which for a file, which are the blocks containing the data from
+
+595
+00:50:22,140 --> 00:50:23,140
+ that file.
+
+596
+00:50:23,140 --> 00:50:25,580
+ You need to track it.
+
+597
+00:50:25,580 --> 00:50:37,580
+ You need to for a particular file, you need to know which directory contains it.
+
+598
+00:50:37,580 --> 00:50:42,500
+ And then you need to track the free disk blocks, because if you write something new in a file,
+
+599
+00:50:42,500 --> 00:50:49,140
+ you need to know which blocks are free, are empty.
+
+600
+00:50:49,140 --> 00:50:52,140
+ And then you also need to decide how to maintain this information.
+
+601
+00:50:52,140 --> 00:50:56,340
+ The answer is the information has to be persistent.
+
+602
+00:50:56,340 --> 00:51:04,220
+ So because it's persistent, you have to maintain it on the disk.
+
+603
+00:51:04,220 --> 00:51:12,020
+ So it's again, data structures on the disk is different from the data structure in memory.
+
+604
+00:51:12,020 --> 00:51:15,420
+ The application, you have a data structure.
+
+605
+00:51:15,420 --> 00:51:21,460
+ The disk or even the operating system is unaware, completely oblivious about the data structure
+
+606
+00:51:21,460 --> 00:51:26,180
+ you have in your program.
+
+607
+00:51:26,180 --> 00:51:32,660
+ It just sees a bunch of bytes and later a bunch of blocks.
+
+608
+00:51:32,660 --> 00:51:36,100
+ That's what it is.
+
+609
+00:51:36,100 --> 00:51:42,260
+ Again, because you access a block at a time, it's not very, these things, accesses are
+
+610
+00:51:42,260 --> 00:51:47,780
+ not very efficient for when you access just a byte.
+
+611
+00:51:47,780 --> 00:51:53,920
+ And obviously, like I mentioned, when you write to a disk, you expect to be durable.
+
+612
+00:51:53,920 --> 00:51:58,220
+ That's why you write to a disk, otherwise you keep the things in memory.
+
+613
+00:51:58,220 --> 00:51:59,220
+ But here you need to be careful.
+
+614
+00:51:59,220 --> 00:52:06,320
+ You cannot assume that if you write to a disk, if you say, I call the write operation, everything
+
+615
+00:52:06,320 --> 00:52:07,940
+ is fine.
+
+616
+00:52:07,940 --> 00:52:11,180
+ Why is that?
+
+617
+00:52:11,180 --> 00:52:22,580
+ Tell me why if I just call the write operation to a file, I cannot be completely sure that
+
+618
+00:52:22,580 --> 00:52:32,740
+ this, the data I wrote has been stored durably on the disk.
+
+619
+00:52:32,740 --> 00:52:38,700
+ Yes.
+
+620
+00:52:38,700 --> 00:52:43,220
+ If you remember, we discussed early on about buffer cache.
+
+621
+00:52:43,220 --> 00:52:50,100
+ So the data is not stored directly on the disk, it's stored in a buffer.
+
+622
+00:52:50,100 --> 00:53:00,260
+ So if after you submit the request, the application fails, the operating system fails, the data
+
+623
+00:53:00,260 --> 00:53:03,580
+ may be lost.
+
+624
+00:53:03,580 --> 00:53:04,580
+ You need to call.
+
+625
+00:53:04,580 --> 00:53:09,860
+ You need to call in order to make sure the data goes to the disk.
+
+626
+00:53:09,860 --> 00:53:14,100
+ What system call you are going to invoke?
+
+627
+00:53:14,100 --> 00:53:15,100
+ Flash.
+
+628
+00:53:15,100 --> 00:53:16,100
+ Very good.
+
+629
+00:53:16,100 --> 00:53:25,500
+ Although I would wish also to have more people answering these questions.
+
+630
+00:53:25,500 --> 00:53:30,220
+ So it's again, it's not a wrong answer.
+
+631
+00:53:30,220 --> 00:53:38,180
+ It's about discussing it and you'll remember much easier if we have this kind of discussions
+
+632
+00:53:38,180 --> 00:53:46,940
+ rather than me just talking and talking and talking and being boring.
+
+633
+00:53:46,940 --> 00:53:50,220
+ So OK.
+
+634
+00:53:50,220 --> 00:53:55,780
+ A few announcements, you know very well tomorrow, this is 11.3.
+
+635
+00:53:55,780 --> 00:53:57,780
+ Let me just find.
+
+636
+00:53:57,780 --> 00:54:03,020
+ Tomorrow we have the exam.
+
+637
+00:54:03,020 --> 00:54:05,060
+ I wish you the best of luck.
+
+638
+00:54:05,060 --> 00:54:14,220
+ All the materials is up to and included the last lecture, not this lecture.
+
+639
+00:54:14,220 --> 00:54:17,500
+ And the project deadline, it was pushed.
+
+640
+00:54:17,500 --> 00:54:25,260
+ So now you have a little bit more time.
+
+641
+00:54:25,260 --> 00:54:29,580
+ So hopefully this really helps you.
+
+642
+00:54:29,580 --> 00:54:32,580
+ OK.
+
+643
+00:54:32,580 --> 00:54:44,600
+ Again, let's go even deeper talking about the file system.
+
+644
+00:54:44,600 --> 00:54:48,100
+ So again, a few core elements.
+
+645
+00:54:48,100 --> 00:54:53,900
+ The file system design, if you are talking about the performance, the dominant factor,
+
+646
+00:54:53,900 --> 00:55:01,500
+ you are talking about this bottleneck, the bottleneck is a disk performance.
+
+647
+00:55:01,500 --> 00:55:07,620
+ The disk works better, provides the best performance when we sequentially read and write data because
+
+648
+00:55:07,620 --> 00:55:13,520
+ we avoid seek times and rotation latencies.
+
+649
+00:55:13,520 --> 00:55:18,620
+ So you want to maximize these operations.
+
+650
+00:55:18,620 --> 00:55:26,100
+ Remember we can, it's a file system abstraction provided in Unix.
+
+651
+00:55:26,100 --> 00:55:29,700
+ You need to, it's open, close and in between you read write.
+
+652
+00:55:29,700 --> 00:55:37,100
+ You cannot read and write to a disk without the file system, without the file, without
+
+653
+00:55:37,100 --> 00:55:40,620
+ opening and closing that file.
+
+654
+00:55:40,620 --> 00:55:48,580
+ The cool thing about this is that you can perform the protection checks, admission control.
+
+655
+00:55:48,580 --> 00:55:58,020
+ And all at the open, when you open the file, otherwise you would have to check for protection
+
+656
+00:55:58,020 --> 00:56:04,420
+ every time you access that file.
+
+657
+00:56:04,420 --> 00:56:08,740
+ The size of the file is variable.
+
+658
+00:56:08,740 --> 00:56:13,620
+ When you start writing, you start with one block.
+
+659
+00:56:13,620 --> 00:56:16,420
+ We need more than one sector.
+
+660
+00:56:16,420 --> 00:56:17,940
+ We need more.
+
+661
+00:56:17,940 --> 00:56:21,420
+ You are going, the file system is going to allocate more.
+
+662
+00:56:21,420 --> 00:56:22,860
+ So you don't need to predefine.
+
+663
+00:56:22,860 --> 00:56:23,860
+ This is very important.
+
+664
+00:56:23,860 --> 00:56:28,300
+ You take it as a giver.
+
+665
+00:56:28,300 --> 00:56:29,300
+ But it's not.
+
+666
+00:56:29,300 --> 00:56:38,740
+ Another design is like you would just allocate space on the disk and before you start writing.
+
+667
+00:56:38,740 --> 00:56:41,100
+ And why is that natural?
+
+668
+00:56:41,100 --> 00:56:48,740
+ It can be natural because how do you do it in your favorite programming language like
+
+669
+00:56:48,740 --> 00:56:50,380
+ C, right?
+
+670
+00:56:50,380 --> 00:56:52,540
+ How do you manipulate the memory?
+
+671
+00:56:52,540 --> 00:56:56,540
+ How do you manipulate the storage of memory?
+
+672
+00:56:56,540 --> 00:57:03,300
+ Before you read or before you write some data, what do you need to do?
+
+673
+00:57:03,300 --> 00:57:05,100
+ You need to allocate memory.
+
+674
+00:57:05,100 --> 00:57:08,700
+ Malloc or Calloc.
+
+675
+00:57:08,700 --> 00:57:12,540
+ So you allocate first and then write.
+
+676
+00:57:12,540 --> 00:57:14,180
+ Here is not needed.
+
+677
+00:57:14,180 --> 00:57:21,380
+ You just write and the operating system and the file system in particular will take care
+
+678
+00:57:21,380 --> 00:57:29,320
+ of growing the size of the file as needed.
+
+679
+00:57:29,320 --> 00:57:31,060
+ The files are organized in directory.
+
+680
+00:57:31,060 --> 00:57:38,580
+ You have a directory structure and this directory structure, the directory is a file.
+
+681
+00:57:38,580 --> 00:57:42,020
+ It's also stored on the disk.
+
+682
+00:57:42,020 --> 00:57:46,780
+ And then you need to allocate.
+
+683
+00:57:46,780 --> 00:57:55,140
+ When you allocate, I think we are going to see that in the next lecture.
+
+684
+00:57:55,140 --> 00:58:03,220
+ When we allocate more sectors on the disk, you want to allocate them contiguously.
+
+685
+00:58:03,220 --> 00:58:04,460
+ Why is that?
+
+686
+00:58:04,460 --> 00:58:10,620
+ Because when you read the data, if the data was written on a bunch of sectors, which is
+
+687
+00:58:10,620 --> 00:58:19,380
+ contiguous, you maximize the sequential accesses, right?
+
+688
+00:58:19,380 --> 00:58:26,460
+ Sequential reads in this case, which improves the performance.
+
+689
+00:58:26,460 --> 00:58:31,580
+ So here how things look like under the hood a little bit.
+
+690
+00:58:31,580 --> 00:58:39,940
+ On one end, I have the file path, which is the file path is a name of the file prefixed
+
+691
+00:58:39,940 --> 00:58:52,900
+ by the directory path name where the file is residing in each directory path.
+
+692
+00:58:52,900 --> 00:58:58,360
+ At the other end, you have data blocks which are stored on the disk in sectors.
+
+693
+00:58:58,360 --> 00:59:03,180
+ So you need somehow to map from the file path to the data blocks.
+
+694
+00:59:03,180 --> 00:59:07,260
+ And this is what the operating system file system is wrong.
+
+695
+00:59:07,260 --> 00:59:08,260
+ Right?
+
+696
+00:59:08,260 --> 00:59:14,300
+ You take the file path, which is going to point some in some directory structure.
+
+697
+00:59:14,300 --> 00:59:19,280
+ You are going to find the file and the file is going to be as you are going to identify
+
+698
+00:59:19,280 --> 00:59:20,280
+ by a number.
+
+699
+00:59:20,280 --> 00:59:23,120
+ It's called I number.
+
+700
+00:59:23,120 --> 00:59:31,620
+ And this I number is going to point to a data structure, which is called I node, which contains
+
+701
+00:59:31,620 --> 00:59:41,980
+ all the information about that file, like for permissions, protection permissions.
+
+702
+00:59:41,980 --> 00:59:47,440
+ And also information about the blocks or the data in the file is stored.
+
+703
+00:59:47,440 --> 00:59:48,660
+ This is the I node.
+
+704
+00:59:48,660 --> 00:59:52,420
+ OK, here is another view.
+
+705
+00:59:52,420 --> 00:59:53,420
+ You remember about this.
+
+706
+00:59:53,420 --> 00:59:56,320
+ We had many lectures ago.
+
+707
+00:59:56,320 --> 01:00:01,220
+ This is a view from the process perspective.
+
+708
+01:00:01,220 --> 01:00:09,300
+ So here you have a process, you have threads, registers, and you have the address space.
+
+709
+01:00:09,300 --> 01:00:14,460
+ And then when you open a file, you get a file descriptors.
+
+710
+01:00:14,460 --> 01:00:21,100
+ The file descriptors points to a data structure here, which is in the operating system.
+
+711
+01:00:21,100 --> 01:00:27,160
+ It's really at the end of the day, you are going to have the I node.
+
+712
+01:00:27,160 --> 01:00:35,180
+ But anyway, the file description here, you know, in this case, you have a file name.
+
+713
+01:00:35,180 --> 01:00:40,700
+ And you have position, what's the position in the file?
+
+714
+01:00:40,700 --> 01:00:42,900
+ What is the position you are going to read and write?
+
+715
+01:00:43,210 --> 01:00:55,450
+ from. Right? And then you are going, this is going to read from file descriptor 3 and
+
+716
+01:00:55,450 --> 01:01:10,210
+ into this buffer and you are going to copy the data from position 100 in the file. So
+
+717
+01:01:10,210 --> 01:01:20,810
+ from position 100 of file identified by descriptor 3 read data into this buffer. But really the
+
+718
+01:01:20,810 --> 01:01:25,470
+ way you need to think about this, that instead of this file, you are going to have inumber.
+
+719
+01:01:25,470 --> 01:01:30,690
+ Like I mentioned from here, you just need to point directly to this and inumber points
+
+720
+01:01:30,690 --> 01:01:39,450
+ to an inode. But let me tell you, let me ask you this question. Why do you think instead
+
+721
+01:01:39,450 --> 01:01:50,250
+ of food or text here, I should just keep the inumber. Right? Which is how an identifier
+
+722
+01:01:50,250 --> 01:02:08,850
+ by the operating system of that particular file. Why inumber and not food text? Let me
+
+723
+01:02:08,850 --> 01:02:30,730
+ help you a little bit. Look at this picture. While I number and not file or text. I don't
+
+724
+01:02:30,730 --> 01:02:35,290
+ want to name my files with random numbers. It's again, yeah, it's again, you don't name,
+
+725
+01:02:35,290 --> 01:02:43,530
+ you know, it's let me let me very, very clear here. So from the operating system, from your
+
+726
+01:02:43,530 --> 01:02:50,890
+ application perspective, you open a file and when you open a file, you open food or text
+
+727
+01:02:50,890 --> 01:03:00,170
+ and back, you don't get a file descriptor. So the file descriptors points to a data structure,
+
+728
+01:03:00,170 --> 01:03:04,730
+ which is open file description. This is in the kernel. You see everything which is below
+
+729
+01:03:04,730 --> 01:03:12,570
+ this dotted line, it's in the kernel. So and here on I shown you this example, I will show
+
+730
+01:03:12,570 --> 01:03:18,010
+ you that this file is a food or text, right? Because this is what you open. But what you
+
+731
+01:03:18,010 --> 01:03:24,250
+ are saying here is that we really don't want to keep in the open file descriptor food or
+
+732
+01:03:24,250 --> 01:03:29,950
+ text. Instead, I want to keep the I number of the food or text. And the question, why
+
+733
+01:03:29,950 --> 01:03:42,490
+ do I want to keep I number here in this data structure instead of food or text?
+
+734
+01:03:42,490 --> 01:03:47,330
+ File dot text is directory directory independent. OK, that's a very good point. Let's say it's
+
+735
+01:03:47,330 --> 01:03:59,330
+ not food or text is entire past name. Yes, Jasper. Jasper, it's correct. Save the first
+
+736
+01:03:59,330 --> 01:04:11,350
+ translation step. It's exact. You see. I opened the file. And I get the file descriptor, so
+
+737
+01:04:11,350 --> 01:04:22,190
+ then. I want if I keep the I number instead of file pass, then I'd save this translation
+
+738
+01:04:22,190 --> 01:04:28,950
+ step. Otherwise, whenever I'm going to access a file. I need to do this translation because
+
+739
+01:04:28,950 --> 01:04:34,510
+ I have filed a text, I need to do the translation because the I number. So I save this on this
+
+740
+01:04:34,510 --> 01:04:46,490
+ step. Very good. OK, let me just go a little bit quicker. So, yes, you have a file name
+
+741
+01:04:46,490 --> 01:04:52,150
+ and in a particular directory, so in a particular directory, you are going the file name is
+
+742
+01:04:52,150 --> 01:04:57,850
+ going. You can think about it's a it's a bunch of entries in these directories of the file
+
+743
+01:04:57,850 --> 01:05:02,230
+ name offset is by going, going to tell you the offset is going to tell you all the particular
+
+744
+01:05:02,230 --> 01:05:07,630
+ what is the entry for my particular file. And then for file number, you are going to
+
+745
+01:05:07,630 --> 01:05:14,590
+ have file number offset. Basically, this is what it's I number. The I number is you have
+
+746
+01:05:14,590 --> 01:05:21,110
+ an index structure which is indexed by its of I note each entry in this index structure.
+
+747
+01:05:21,110 --> 01:05:26,670
+ It's an I note which represents all the information associated with that file and the index in
+
+748
+01:05:26,670 --> 01:05:37,850
+ that index structure is the I number. Right, so you have and the open. Operation performed
+
+749
+01:05:37,850 --> 01:05:44,250
+ this name resolution, basically translating the file name into the file number and the
+
+750
+01:05:44,250 --> 01:05:48,570
+ read and write operation are all referring to the file number. So you avoid the first
+
+751
+01:05:48,570 --> 01:05:56,790
+ translation step and use a file number as an index to locate the I node and the I node
+
+752
+01:05:56,790 --> 01:06:01,010
+ is going to lead you to the blocks. We'll see a few examples. So you have three comp
+
+753
+01:06:01,010 --> 01:06:08,270
+ for components is a directory, the index structure, the storage blocks and free space map. Remember
+
+754
+01:06:08,270 --> 01:06:16,750
+ about that. How do you get the file number? You have to look in the directory structure
+
+755
+01:06:16,750 --> 01:06:22,850
+ in the directory structure. I told you that in directory structure you have entries associated
+
+756
+01:06:22,850 --> 01:06:27,170
+ with each file. Each entry I didn't tell you what each entry contains, but each entry I'm
+
+757
+01:06:27,170 --> 01:06:36,130
+ telling you now each entry it's a it's a tuple. And which contain its maps the file name to
+
+758
+01:06:36,130 --> 01:06:44,510
+ the file number. Again, when I'm talking about file number, I am also file number is the
+
+759
+01:06:44,510 --> 01:06:59,810
+ same like I number. Okay. This file number can be a file or another directory. Okay.
+
+760
+01:06:59,810 --> 01:07:08,330
+ So the operation system stores the mapping in the directory and interprets this format.
+
+761
+01:07:08,330 --> 01:07:16,690
+ This tuple or the mapping between file name and file number is called directory entry.
+
+762
+01:07:16,690 --> 01:07:23,250
+ It's very important to understand like again that the way we manipulate the directory,
+
+763
+01:07:23,250 --> 01:07:32,410
+ although in Unix a directory just another file is different despite the fact that at
+
+764
+01:07:32,410 --> 01:07:36,270
+ the lower level it's, you know, directory just another file. The way you manipulate
+
+765
+01:07:36,270 --> 01:07:44,610
+ the directory is different than the way you manipulate a file. Right. You cannot just
+
+766
+01:07:44,610 --> 01:07:50,370
+ use the read operation on the file. You can you need to have special operation, redirectory,
+
+767
+01:07:50,370 --> 01:07:57,690
+ create directory or make directory and so forth. But let me ask you this question. Why
+
+768
+01:07:57,690 --> 01:08:06,010
+ don't I want why don't I, you know, again, since as a low level, the directory is just
+
+769
+01:08:06,010 --> 01:08:29,650
+ another file. Why don't I allow the application to do read and write some directories? It's
+
+770
+01:08:29,650 --> 01:08:38,650
+ dangerous. Right. You can override if you override these mappings. You're messing up
+
+771
+01:08:38,650 --> 01:08:46,450
+ because these mappings are maintained by the operating system. Right. It's for the same
+
+772
+01:08:46,450 --> 01:08:56,290
+ reason you don't allow the process to arbitrarily modify kernel data structures. That's the
+
+773
+01:08:56,290 --> 01:09:05,810
+ reason. This is how the directory looks like. Everyone knows that. So directories are typically
+
+774
+01:09:05,810 --> 01:09:17,810
+ organized as trees. Directory trees. The leaves in the trees are files. The interior nodes
+
+775
+01:09:17,810 --> 01:09:32,250
+ in the trees, including the root are directories. OK. And like I said. You do not allow the
+
+776
+01:09:32,250 --> 01:09:38,410
+ application to manipulate, read and write directly on the directories instead to manipulate
+
+777
+01:09:38,410 --> 01:09:47,730
+ directories, you have special function called system calls. Right. Make dear or remove dear.
+
+778
+01:09:47,730 --> 01:09:58,490
+ Create a directory or read dear to traverse the directory structures. This is from the
+
+779
+01:09:58,490 --> 01:10:03,530
+ command line you can use from the command line, but you also can use them. You have
+
+780
+01:10:03,530 --> 01:10:10,530
+ libc support. You can have also use a library so you can use this programmatically. From
+
+781
+01:10:10,530 --> 01:10:20,770
+ your application link and unlink. This allows you to actually break actually this hierarchy.
+
+782
+01:10:20,770 --> 01:10:28,490
+ And actually you can have a name of a file. You can have a file, a name pointing to an
+
+783
+01:10:28,490 --> 01:10:37,130
+ existing file. Right. So you have a file with a name say foo.txt. Now I can have another
+
+784
+01:10:37,130 --> 01:10:46,690
+ name called foo1.txt pointing to the same file. We'll learn more about that. So just
+
+785
+01:10:46,690 --> 01:10:52,970
+ to give you a sense now, let's assume that about the overhead which are involved, let's
+
+786
+01:10:52,970 --> 01:11:06,610
+ assume that we want to access to resolve this. To get the I number of the file count. Right.
+
+787
+01:11:06,610 --> 01:11:14,330
+ And then to access the file count. So what do we need to do here? First of all, we need
+
+788
+01:11:14,330 --> 01:11:20,650
+ to locate the root of the directory. We need to start searching from somewhere from the
+
+789
+01:11:20,650 --> 01:11:28,890
+ root of the directory. And the root, how do we do that? Well, fortunately, by convention,
+
+790
+01:11:28,890 --> 01:11:37,530
+ the operating system puts the file system, puts the root directory, the root in a fixed
+
+791
+01:11:37,530 --> 01:11:46,690
+ position on the disk. So you access this block, data block for root. In the data blocks, the
+
+792
+01:11:46,690 --> 01:11:52,810
+ root you have, you have this kind of directory entries, file entries in the directory, in
+
+793
+01:11:52,810 --> 01:12:02,250
+ the root directory. So you are going to have to locate my. Right. How you do that? You
+
+794
+01:12:02,250 --> 01:12:09,890
+ can linear research. Typically, the number of entries in the directory is small. Now,
+
+795
+01:12:09,890 --> 01:12:16,810
+ once you locate my, you read the file header for my, because how do you know that? Because
+
+796
+01:12:16,810 --> 01:12:28,010
+ the entry for my tells you what is the file number for directory my. So from that, you
+
+797
+01:12:28,010 --> 01:12:37,530
+ go and read it. Read again the first data block in my. And you search for the book.
+
+798
+01:12:37,530 --> 01:12:46,490
+ The third my is going to gain, it's a directory, it's going to keep a bunch of directory
+
+799
+01:12:46,490 --> 01:12:57,330
+ file entries. You read the header for the book again, you find book. The book entry,
+
+800
+01:12:57,330 --> 01:13:04,890
+ the book entry is going to have the file number associated with the book directory. You use
+
+801
+01:13:04,890 --> 01:13:12,370
+ that in order to read the header for book. And then you read the first data block for
+
+802
+01:13:12,370 --> 01:13:22,490
+ book. You search for count. You find count and the count is you get the file number for
+
+803
+01:13:22,490 --> 01:13:31,930
+ count. There is a file header for count and now you are done. So how many accesses? One,
+
+804
+01:13:31,930 --> 01:13:41,130
+ two, three, four, five, six, seven. Just to do this resolution. So now you see how important
+
+805
+01:13:41,130 --> 01:13:49,130
+ is to keep in the description of the file to keep the number, the number or the file
+
+806
+01:13:49,130 --> 01:14:01,130
+ number instead of just the file name. Because I save the next time after I open it, the
+
+807
+01:14:01,130 --> 01:14:13,010
+ next time when I do a read and write, I save seven accesses. And that is that expensive.
+
+808
+01:14:13,010 --> 01:14:25,990
+ So as you know, you also have the notion of current directories and the current directories,
+
+809
+01:14:25,990 --> 01:14:31,810
+ if you just refer to the file name without ignoring the past name, you are referring
+
+810
+01:14:31,810 --> 01:14:37,730
+ that you assume that in the current directory. The current directory, it's already cached.
+
+811
+01:14:37,730 --> 01:14:46,970
+ So it's one way to reduce this number of counts. So this is how happened, you know, the file
+
+812
+01:14:46,970 --> 01:14:54,130
+ structure in the memory. And this is a user space, a kernel memory, and it's a secondary
+
+813
+01:14:54,130 --> 01:15:03,190
+ story. This is what happened on the disk. So you have read, when you read a file descriptor,
+
+814
+01:15:03,190 --> 01:15:10,090
+ this file descriptor paying points into this per process open file table. Each of these
+
+815
+01:15:10,090 --> 01:15:18,270
+ entries, it's information associated with that file. And what you are going to get here
+
+816
+01:15:18,270 --> 01:15:29,850
+ is a file number and the position, the seek position of the current position in the file.
+
+817
+01:15:29,850 --> 01:15:37,010
+ You see this gray thing here, it's again this entry. Let me show you just to connect the
+
+818
+01:15:37,010 --> 01:15:52,950
+ dots. Oops. Is this one? The information in that gray area is this open file description.
+
+819
+01:15:52,950 --> 01:16:05,790
+ Right, the I number and the position in the file. Okay, so this is what is here. So the
+
+820
+01:16:05,790 --> 01:16:15,830
+ I number points you to the I node. This is the open file tables and the I node has protection
+
+821
+01:16:15,830 --> 01:16:25,710
+ bits and then also has all this, maintains all these data blocks. And all this is maintained,
+
+822
+01:16:25,710 --> 01:16:29,990
+ is maintained also on the disk. The I node information is maintained on the disk because
+
+823
+01:16:29,990 --> 01:16:40,670
+ it maintains the association between that file number and the blocks, data blocks, where
+
+824
+01:16:40,670 --> 01:16:46,190
+ the data of the file is located. So it must be on the disk, it must be durable because
+
+825
+01:16:46,190 --> 01:16:59,230
+ it must persist after you finish your program, after the program ends. Okay. We talk about
+
+826
+01:16:59,230 --> 01:17:06,990
+ all of these things. I'm going to end up with this, a few interesting data and then we are
+
+827
+01:17:06,990 --> 01:17:13,870
+ going to continue next time with the file system. So this is a study which was 13, 14
+
+828
+01:17:13,870 --> 01:17:24,650
+ years ago, but it still is very relevant. And this is the point here is the following.
+
+829
+01:17:24,650 --> 01:17:29,490
+ So what this study is looking, it's looking over five years and it's looking about how
+
+830
+01:17:29,490 --> 01:17:37,590
+ the distribution of the file lengths and other information about statistics about the files
+
+831
+01:17:37,590 --> 01:17:46,390
+ in a file system. The first important one is basically show you what is the size of
+
+832
+01:17:46,390 --> 01:17:54,110
+ the file, the distribution of the file sizes for a file system. And basically what this
+
+833
+01:17:54,110 --> 01:18:02,010
+ tells you, this is on the X axis, the file size and the number of files on the Y axis.
+
+834
+01:18:02,010 --> 01:18:07,330
+ So this is for different currencies for different years. So you have something similar, although
+
+835
+01:18:07,330 --> 01:18:15,170
+ as years pass, you have more and more files. And the main point here is this is showing
+
+836
+01:18:15,170 --> 01:18:21,730
+ that most of the files are small, not that the X axis is log scale. So these are very
+
+837
+01:18:21,730 --> 01:18:29,510
+ small, right? For instance, most of the files are 512 kilobytes or less. There are very
+
+838
+01:18:29,510 --> 01:18:39,010
+ few large files. So most of the files are small files. However, if you look at, if I'm
+
+839
+01:18:39,010 --> 01:18:45,170
+ taking some piece of data and I'm asking the question from the files, from all the file
+
+840
+01:18:45,170 --> 01:18:52,090
+ system, I'm taking a piece of data and I'm asking the question, what is the size of the
+
+841
+01:18:52,090 --> 01:18:59,930
+ file? Which contains this piece of data? Then this is the answer I'm going to get. I'm going
+
+842
+01:18:59,930 --> 01:19:06,490
+ to get, and basically you see now that most of the data is contained in big files. So
+
+843
+01:19:06,490 --> 01:19:16,730
+ yes, the majority of files is small. But the big files are responsible for most of the
+
+844
+01:19:16,730 --> 01:19:24,850
+ data. Okay. And I am going to end up with a question to you. It's a fun question. You
+
+845
+01:19:24,850 --> 01:19:32,090
+ see, you see here that on this kind of distribution, you have two peaks. You have a peak around
+
+846
+01:19:32,090 --> 01:19:39,930
+ two megabytes and another peak around one gigabyte. Right? So you have, why do you think
+
+847
+01:19:39,930 --> 01:19:48,970
+ you have these two peaks? Why do you think this one gigabyte? What do you think causes
+
+848
+01:19:48,970 --> 01:20:01,730
+ it? And by the way, in 2000, it wasn't such a peak, but as the time goes on, passed, you
+
+849
+01:20:01,730 --> 01:20:15,650
+ have this peak. Yes. Let's see. Yes. That sounds very good answers here, right? Yes.
+
+850
+01:20:15,650 --> 01:20:23,010
+ Video, right? It's like, especially that was peer to peer system and you read about it.
+
+851
+01:20:23,010 --> 01:20:29,970
+ Yes. This is one reason it's media. The other reason this is a lot bigger and bigger files.
+
+852
+01:20:29,970 --> 01:20:37,570
+ These are also binary files. So the executive become bigger over time. That's excellent
+
+853
+01:20:37,570 --> 01:20:45,130
+ answers. Okay. So with this, we are going to stop here. Again, good luck to the midterm
+
+854
+01:20:45,130 --> 01:20:51,010
+ tomorrow and I'll see you again on a Saturday. Thank you.
+
+855
+01:20:51,010 --> 01:21:01,010
+ [BLANK_AUDIO]
+

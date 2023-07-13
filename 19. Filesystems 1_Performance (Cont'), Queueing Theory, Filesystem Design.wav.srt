@@ -1,0 +1,2456 @@
+1
+00:00:00,000 --> 00:00:20,280
+ Hello everyone. So today we are going to continue the discussion about the storage devices.
+
+2
+00:00:20,280 --> 00:00:25,680
+ In particular, we are going to talk about SSDs or solid state devices, and we are going
+
+3
+00:00:25,680 --> 00:00:37,400
+ to start the discussion on queuing theory. So last time we talked about disk drives or
+
+4
+00:00:37,400 --> 00:00:46,000
+ the spinning disks, and these are the main technologies used to store data for the first
+
+5
+00:00:46,000 --> 00:00:55,040
+ few decades of personal computers and computers in general. And we are starting with kind
+
+6
+00:00:55,040 --> 00:01:06,560
+ of two decades ago, a little bit more than that. We started to see the emergence of another
+
+7
+00:01:06,560 --> 00:01:17,320
+ technology to store data persistently, and that was memory-based. And the first efforts
+
+8
+00:01:17,320 --> 00:01:26,360
+ was in 1995, the emergencies of you have DRAM, but how you make it persistent? Well, you
+
+9
+00:01:26,360 --> 00:01:33,260
+ have a battery, you have DRAM powered by a battery. And then as long as the battery lasts,
+
+10
+00:01:33,260 --> 00:01:40,560
+ you are going to store the data persistently in that memory, even when the computer is
+
+11
+00:01:40,560 --> 00:01:57,520
+ unplugged. But after that, things change with this new technology, NAND, multi-level cell.
+
+12
+00:01:57,520 --> 00:02:08,160
+ So basically this allows you to store, it's like a memory, but it allows you to store
+
+13
+00:02:08,160 --> 00:02:19,840
+ data, to store information, even when it's not powered. So that was kind of the key technology
+
+14
+00:02:19,840 --> 00:02:24,800
+ innovation at a high level. Of course, there are many details, we don't have a lot of time
+
+15
+00:02:24,800 --> 00:02:37,760
+ to go into details, but the big thing was about having this commercially available technology
+
+16
+00:02:37,760 --> 00:02:50,040
+ to store data in this new kind of memories without needing to power them on.
+
+17
+00:02:50,040 --> 00:03:05,360
+ And these SSDs, they store information, granularity of a memory block, and the memory block consists
+
+18
+00:03:05,360 --> 00:03:14,860
+ of four kilobytes, between four and 64 kilobytes pages. And remember that 40 kilobytes pages
+
+19
+00:03:14,860 --> 00:03:21,720
+ is basically more or less like a sector on a disk, disk drive. And it's also making the
+
+20
+00:03:21,720 --> 00:03:34,400
+ size of the page for a virtual memory implementation. So you have virtual memory, the pages in the
+
+21
+00:03:34,400 --> 00:03:40,960
+ virtual memory are typically four kilobytes, the same, the size is a sector size. And then
+
+22
+00:03:40,960 --> 00:03:46,040
+ when you translate those to the SSDs, you are going for this four kilobytes page are
+
+23
+00:03:46,040 --> 00:03:52,080
+ part of a memory block and the memory block consists of four between four and 64 pages.
+
+24
+00:03:52,080 --> 00:03:59,320
+ This is an important detail. There are no moving parts, just like memory. So this has
+
+25
+00:03:59,320 --> 00:04:06,120
+ a certain advantages, big advantages. First of all, eliminate the seek and the rotation
+
+26
+00:04:06,120 --> 00:04:10,760
+ latency. Remember from last time, there's a seek and rotation latency, where is the
+
+27
+00:04:10,760 --> 00:04:19,280
+ biggest culprits of a long latency to access data on the disk, at least randomly. That's
+
+28
+00:04:19,280 --> 00:04:24,240
+ why we have a huge difference between the throughput of a disk when you access the data
+
+29
+00:04:24,240 --> 00:04:30,360
+ sequentially, because in that particular case, you do not need to pay for the seek and rotation
+
+30
+00:04:30,360 --> 00:04:39,440
+ delays, versus when you access the data randomly, when you need to pay for both of these delays,
+
+31
+00:04:39,440 --> 00:04:47,280
+ seeks and rotation. They also have requires even very low power and anything, and they
+
+32
+00:04:47,280 --> 00:04:59,080
+ are lightweight. It's not just memory. It's not like a disk metal with platters spinning
+
+33
+00:04:59,080 --> 00:05:06,520
+ and heads and things like that. On the downside, it does have limited write cycles. So this
+
+34
+00:05:06,520 --> 00:05:17,200
+ means that limited write cycle, it's when you modify a cell, when you modify a bit,
+
+35
+00:05:17,200 --> 00:05:23,120
+ if you modify it too many times, if you write the same bit too many times, then it works
+
+36
+00:05:23,120 --> 00:05:31,400
+ out. You can no longer write that bit reliably. So that's one of the challenges you need to
+
+37
+00:05:31,400 --> 00:05:36,960
+ deal with. And obviously, since you already introduced, there are rapid advantage and
+
+38
+00:05:36,960 --> 00:05:44,360
+ the capacity have increased. And today, to give you a sense, obviously today is that
+
+39
+00:05:44,360 --> 00:05:52,440
+ I'm not sure any of your devices you are working with still has a disk, unless you are working,
+
+40
+00:05:52,440 --> 00:05:59,680
+ you have a big workstation home or you are using. But certainly your laptops, obviously
+
+41
+00:05:59,680 --> 00:06:12,840
+ the phones, the IP or iPad, they no longer have disk drives to store data persistently.
+
+42
+00:06:12,840 --> 00:06:25,400
+ They only have SSDs. So here it's again how SSD architecture look like. This NAND is where
+
+43
+00:06:25,400 --> 00:06:31,160
+ on the right hand side is the memory, the banks of memory, and each of these could present
+
+44
+00:06:31,160 --> 00:06:38,880
+ a block. And then you have a flash memory controller, which basically decides where
+
+45
+00:06:38,880 --> 00:06:45,080
+ to write and what to read the data from. And you have a buffer manager and the software
+
+46
+00:06:45,080 --> 00:06:51,160
+ queue. And this is about when this is where you buffer the reads and writes requests.
+
+47
+00:06:51,160 --> 00:06:55,480
+ So if you have many reads or writes requests at the same time, and you cannot serve at
+
+48
+00:06:55,480 --> 00:07:02,800
+ the same time, you have to buffer them and serve them one by one. It's also a DRAM here.
+
+49
+00:07:02,800 --> 00:07:09,280
+ So when you cache some of the information, right, when you read, if I read only a few
+
+50
+00:07:09,280 --> 00:07:15,840
+ bytes, the granularity, if you remember to read and write from this SSD, it's one of
+
+51
+00:07:15,840 --> 00:07:22,480
+ these memory blocks, which can be between 16 and 256 kilobytes. So you have to read
+
+52
+00:07:22,480 --> 00:07:26,920
+ that granularity. And once you are reading it, you are going to cache it, because if
+
+53
+00:07:26,920 --> 00:07:37,860
+ you are going to read again the next few bytes, then it's already in DRAM. You don't need
+
+54
+00:07:37,860 --> 00:07:46,920
+ to go and fetch it again. And now, this is the SATA, it's bus technology,
+
+55
+00:07:46,920 --> 00:07:55,600
+ and or can be PS, which is connected through a bridge to the PCI bus, like we discussed
+
+56
+00:07:55,600 --> 00:08:06,800
+ last time, and then it's connected to the processor and to the memory.
+
+57
+00:08:06,800 --> 00:08:18,000
+ So here are some numbers for you. To read a 4 kilobyte page, it takes around, say, between
+
+58
+00:08:18,000 --> 00:08:26,280
+ 10 and 25 microseconds. Again, there is no SQL rotation latency. So now the transfer
+
+59
+00:08:26,280 --> 00:08:35,580
+ time for a 4 kilobyte page for the SATA interface, you have between 300 and 600 megabytes per
+
+60
+00:08:35,580 --> 00:08:44,160
+ second. Actually, the best interface is today you have 2 gigabytes per second, so a few
+
+61
+00:08:44,160 --> 00:08:53,600
+ times larger than this. But even for, say, 400 megabytes per second to take a number,
+
+62
+00:08:53,600 --> 00:09:01,400
+ then the transfer time, so the time to read 4 kilobyte pages is 10 microseconds. And the
+
+63
+00:09:01,400 --> 00:09:08,840
+ latency, if you remember, what is the latency? The queuing time, so the time the request
+
+64
+00:09:08,840 --> 00:09:14,240
+ has to wait in the queue for the request to be satisfied, and plus the controller time,
+
+65
+00:09:14,240 --> 00:09:17,560
+ whatever the controller needs to do and to make the decision, it's a fixed time, and
+
+66
+00:09:17,560 --> 00:09:25,120
+ the transfer time. And because this is a memory, basically you can randomly address, there
+
+67
+00:09:25,120 --> 00:09:32,320
+ is not such a big difference between sequential and random reads.
+
+68
+00:09:32,320 --> 00:09:42,800
+ Now this was about the read. Now the writing is much more complex. And you can only write
+
+69
+00:09:42,800 --> 00:09:54,960
+ empty pages in a block. So there are three states of these pages. It's written, no, two
+
+70
+00:09:54,960 --> 00:10:05,480
+ stages, whether it's written or whether it's erased or empty. And you can only write empty
+
+71
+00:10:05,480 --> 00:10:16,720
+ pages. So if you want to overwrite a page, then before doing that, you need to erase
+
+72
+00:10:16,720 --> 00:10:26,600
+ a page. And now the page becomes empty and then you overwrite it. Now, the problem with
+
+73
+00:10:26,600 --> 00:10:34,520
+ that is that this operation is far more expensive. Remember, it's like the read was say 25 microseconds.
+
+74
+00:10:34,520 --> 00:10:45,680
+ The writing data on an empty page is 200 microseconds. And now if you want to erase a page, if you
+
+75
+00:10:45,680 --> 00:10:55,460
+ need to erase a page, if you don't have an empty page, erasing the page takes 1.5 milliseconds.
+
+76
+00:10:55,460 --> 00:11:00,480
+ So the rule of thumb you can think about, the write is 10 times more expensive than
+
+77
+00:11:00,480 --> 00:11:09,400
+ the reads and the erasers are 10 times more expensive than the writes. So 200 microseconds,
+
+78
+00:11:09,400 --> 00:11:17,840
+ it's around eight times larger than 25 microseconds, which is a time to read a page. And then 1.5
+
+79
+00:11:17,840 --> 00:11:26,000
+ milliseconds is what? 7.5 times larger than 200 microseconds is the time to write an empty
+
+80
+00:11:26,000 --> 00:11:32,720
+ page. So therefore you need to be very careful about that. So this is the thing, the two
+
+81
+00:11:32,720 --> 00:11:36,640
+ constraints you have to operate with. And the two constraints which are different make
+
+82
+00:11:36,640 --> 00:11:47,520
+ this SSD different than the DRAMs, the traditional memory. It's one, it's about you can only
+
+83
+00:11:47,520 --> 00:11:53,780
+ write empty pages and read and writes are asymmetric, are not taking the same amount
+
+84
+00:11:53,780 --> 00:12:01,080
+ of time, eraser take even longer. So this is one. And the other one is that you can
+
+85
+00:12:01,080 --> 00:12:07,520
+ only do a limited amount, a number of writes. Typically it's like 10,000 writes or something
+
+86
+00:12:07,520 --> 00:12:16,920
+ like that. Okay. So you need to be careful. So now in order to avoid the cost of erasure,
+
+87
+00:12:16,920 --> 00:12:23,000
+ when you need to write, so to erase first before writing, what the controller is doing,
+
+88
+00:12:23,000 --> 00:12:31,280
+ it maintains a pool of empty blocks. So you bring the use pages, put them in a, you know,
+
+89
+00:12:31,280 --> 00:12:38,560
+ put together in a block and then it pulls, you have these pools of empty blocks and then
+
+90
+00:12:38,560 --> 00:12:44,960
+ you can write them and then you can pay only 200 microseconds per page instead of 1.7 milliseconds.
+
+91
+00:12:44,960 --> 00:12:56,800
+ SSDs provide the same interface as hard disk drives to the OS, the same API, which is great
+
+92
+00:12:56,800 --> 00:13:02,200
+ because you can just swap a disk drive with an SSD and the computer will work, but it
+
+93
+00:13:02,200 --> 00:13:08,280
+ will be much faster. Right? Like I said, when you override the data, when you, the chronology
+
+94
+00:13:08,280 --> 00:13:16,760
+ of writing, it's a, it's a block and the block can be 16 times larger than a page, sorry,
+
+95
+00:13:16,760 --> 00:13:22,400
+ 64 times larger than a page. So you have a page is four kilobytes and you have 64 pages
+
+96
+00:13:22,400 --> 00:13:32,040
+ in a block. Then 64 by time of times four is 256 kilobytes. So this is what the 256
+
+97
+00:13:32,040 --> 00:13:41,960
+ kilobytes is coming from. Okay. So I, we already discussed about it. Why not erase and rewrite
+
+98
+00:13:41,960 --> 00:13:49,340
+ new version of the entire 256 blocks? Because erasure is extremely slow. And then each block
+
+99
+00:13:49,340 --> 00:13:56,520
+ has a finite lifetime. Like I mentioned to you, you cannot erase and rewrite all the
+
+100
+00:13:56,520 --> 00:14:05,120
+ time. You can only do that for say 10, a few tens of that 10 thousands of times. Okay.
+
+101
+00:14:05,120 --> 00:14:09,960
+ So therefore if you have heavily used blocks, you do a lot of writes, they are going to
+
+102
+00:14:09,960 --> 00:14:16,040
+ wear out quickly. Okay. So now you have this problem, right? It's like, you know, you,
+
+103
+00:14:16,040 --> 00:14:21,920
+ you have if you have, how, how do you are going to solve it? Right. And again, the problem
+
+104
+00:14:21,920 --> 00:14:30,000
+ is that, you know, I cannot, I can do, I am allowed to do only a limited number of writes
+
+105
+00:14:30,000 --> 00:14:34,360
+ and now I have some heavy blocks. So what I'm going to do about it, do you have any
+
+106
+00:14:34,360 --> 00:14:38,240
+ suggestions here?
+
+107
+00:14:38,240 --> 00:14:53,920
+ Remap. That's exactly, that's very good. So basically when you are going to rewrite, you
+
+108
+00:14:53,920 --> 00:14:58,280
+ are not going to rewrite in the same place. You are going to write to another page, which
+
+109
+00:14:58,280 --> 00:15:07,360
+ is not, was not so used in the past. And then you are going to remap the, the page to the
+
+110
+00:15:07,360 --> 00:15:15,240
+ new block. You're you're you're used to write the new information. And this is a layer of
+
+111
+00:15:15,240 --> 00:15:22,680
+ indirection. It is called flash translation layer or FTL in SSD. I assume maps, the virtual
+
+112
+00:15:22,680 --> 00:15:28,440
+ block numbers, which is uses these are the blocks actually says a page numbers, the physical
+
+113
+00:15:28,440 --> 00:15:37,280
+ page numbers, which flash memory control uses. Okay. So that's the way it's it's working.
+
+114
+00:15:37,280 --> 00:15:44,960
+ Right. So from the OS perspective, you still have the same page as the same page numbers
+
+115
+00:15:44,960 --> 00:15:52,400
+ and everything, but now on the physical pages, you have a map and the page number as seen
+
+116
+00:15:52,400 --> 00:16:01,760
+ by the CPU is going to map to a physical page number. And the mapping is, it's, it's, it's,
+
+117
+00:16:01,760 --> 00:16:08,880
+ it's managed by the controller. So the controller can remap and basically say page number one
+
+118
+00:16:08,880 --> 00:16:16,080
+ is go to physical page number 10 and next is going to go to physical page number 15.
+
+119
+00:16:16,080 --> 00:16:24,200
+ Right. So that's why, how I'm going to load balance the writes for the same page as seen
+
+120
+00:16:24,200 --> 00:16:37,720
+ by the CPU. Okay. So this is pretty much it. It's again, copy on write. This is, or should
+
+121
+00:16:37,720 --> 00:16:46,040
+ be obvious, right? Again, I do not want to copy to rewrite the same page. You know, even
+
+122
+00:16:46,040 --> 00:16:51,000
+ if I want to modify a page, I don't rewrite it because I need to erase it first. And if
+
+123
+00:16:51,000 --> 00:16:55,160
+ I need to erase it first is expensive. So what I'm doing, I'm going to just create a
+
+124
+00:16:55,160 --> 00:17:09,280
+ new version of the page and I'm, then I'm going to remap it. Isn't the lifetime of 10k
+
+125
+00:17:09,280 --> 00:17:17,040
+ eraser writes quite small, consider that we can use a laptop for multiple years. It's
+
+126
+00:17:17,040 --> 00:17:22,480
+ not really, I mean, because if you really do load balancing, really load balancing,
+
+127
+00:17:22,480 --> 00:17:27,360
+ this means that you need to write or update, you can read and draft and update. Like say
+
+128
+00:17:27,360 --> 00:17:38,040
+ you have one terabyte of disk, right? So one terabyte of disk, then you can write the equivalent
+
+129
+00:17:38,040 --> 00:17:47,640
+ of 10,000 multiply with one terabyte. So 10 petabytes, right? I think this is right. You
+
+130
+00:17:47,640 --> 00:17:53,920
+ can write 10 petabytes and you don't, you know, it's hard to write 10 petabytes. Yeah.
+
+131
+00:17:53,920 --> 00:18:03,360
+ So yeah. But it's again, this works if you are going to be able to load balance, right?
+
+132
+00:18:03,360 --> 00:18:14,560
+ And this writes, right? And this is what the controller is doing.
+
+133
+00:18:14,560 --> 00:18:26,760
+ Okay. The flash translation layer also ensures that there is no need to erase and rewrite
+
+134
+00:18:26,760 --> 00:18:34,220
+ the entire 256 blocks when making small modification or changes. SSD controller can assign mapping
+
+135
+00:18:34,220 --> 00:18:39,720
+ to spread or load, it's what we talk about. So you want basically to load balance the
+
+136
+00:18:39,720 --> 00:18:44,600
+ writes. This is called where labeling, and you are doing that by remapping and doing
+
+137
+00:18:44,600 --> 00:18:50,440
+ copy on write, creating new versions of the page or hopefully using a page, a physical
+
+138
+00:18:50,440 --> 00:18:57,320
+ page which was not written many times. If you old version of the pages, which are, you
+
+139
+00:18:57,320 --> 00:19:02,140
+ know, you delete a file, what happened? Then they are very garbage collected in the background
+
+140
+00:19:02,140 --> 00:19:06,800
+ and in the background you are going to erase them. So to maybe to prepare them to be written
+
+141
+00:19:06,800 --> 00:19:18,400
+ again. So you, they are ready to be written again. Any questions?
+
+142
+00:19:18,400 --> 00:19:23,800
+ This again was something, some of the most, you know, now how they compare like hard disk
+
+143
+00:19:23,800 --> 00:19:33,500
+ drives with SSDs. We'll have that in the next slide. But about SSDs themselves, you know,
+
+144
+00:19:33,500 --> 00:19:40,560
+ you can buy, and these are two years old, some of the data, but you can buy 16 terabytes.
+
+145
+00:19:40,560 --> 00:19:46,400
+ You remember that we have 16 terabytes, the disk we considered last time, was this kind
+
+146
+00:19:46,400 --> 00:19:53,600
+ of the hard disk drive was having the same size, 16 terabytes, the same capacity. But
+
+147
+00:19:53,600 --> 00:20:01,080
+ that was, if I remember correctly, and you can check, that was around $500, $550 or something
+
+148
+00:20:01,080 --> 00:20:09,680
+ like that. This is $5,000. Okay. So it's 10 times more expensive. Okay. For the same capacity.
+
+149
+00:20:09,680 --> 00:20:18,280
+ However, if you look at reads and writes, the number of sequential reads and writes,
+
+150
+00:20:18,280 --> 00:20:23,440
+ it's 800 or 900. In that case was, if I remember correctly, it's 800 or 900.
+
+151
+00:20:23,440 --> 00:20:31,990
+ sequential writes it was 260 megabytes per second. So this is up to four, almost four times faster.
+
+152
+00:20:31,990 --> 00:20:39,590
+ And random reads and writes, there is no comparison. Okay. You can have 100,000
+
+153
+00:20:39,590 --> 00:20:44,950
+ reads per second. While a read in the case of a disk, if you remember, can take a few milliseconds.
+
+154
+00:20:44,950 --> 00:20:53,110
+ So if you if you take even a few milliseconds and in a second, you can read a few hundreds
+
+155
+00:20:53,110 --> 00:20:59,990
+ or a few hundreds reads and writes. So in order to write it better. Okay. And if you go and if
+
+156
+00:20:59,990 --> 00:21:07,990
+ you really want to go to the top ones, you have 100 terabytes. So SSD 100 terabytes, and you have
+
+157
+00:21:07,990 --> 00:21:14,710
+ 500 megabytes sequential read and writes, the same kind of IOPS 100 kilobytes. IOPS means
+
+158
+00:21:18,470 --> 00:21:26,310
+ or input operation per second. Unlimited writes for five years, so you get these guarantees.
+
+159
+00:21:26,310 --> 00:21:34,630
+ But it costs 4000, $40,000. But more, far more expensive, right? It's like a quarter of dollar
+
+160
+00:21:34,630 --> 00:21:43,590
+ per gigabyte. Why would random versus sequential have different performance? This is this.
+
+161
+00:21:44,470 --> 00:21:51,110
+ If you read at the level of pages, there is no difference. And you can do probably you can do
+
+162
+00:21:51,110 --> 00:21:58,310
+ the math here. Or it's very little difference. But still, if you read at the level of page,
+
+163
+00:21:58,310 --> 00:22:03,510
+ you know, because you transfer from the SSDs as a level of page or block, right,
+
+164
+00:22:03,510 --> 00:22:11,190
+ block granularity, if you read only one byte, or from that page, you are still going to lose
+
+165
+00:22:11,190 --> 00:22:17,510
+ in terms of performance or throughput. And the difference between random, the different reads
+
+166
+00:22:17,510 --> 00:22:25,030
+ and writes, the reason is different here is because remember that the writes are slower,
+
+167
+00:22:25,030 --> 00:22:28,070
+ 10 times slower almost.
+
+168
+00:22:28,070 --> 00:22:38,150
+ Okay, so here is a comparison between hard disk drives and SSDs. And this is a nice,
+
+169
+00:22:38,150 --> 00:22:44,790
+ interesting plot. Because, you know, why wouldn't use SSDs? They have all they are faster,
+
+170
+00:22:44,790 --> 00:22:50,150
+ they can have bigger capacity, they consume less power. So they are probably, you know,
+
+171
+00:22:50,150 --> 00:22:56,150
+ they are more reliable. So why in the world you wouldn't use them? Well, the answer is simply
+
+172
+00:22:56,150 --> 00:23:07,270
+ it's cost, right? And however, and here what you see is a blue line is a flash cost. It is for
+
+173
+00:23:07,270 --> 00:23:15,350
+ and for the same capacity for the terabyte is a flash cost or a terabyte. And here is
+
+174
+00:23:15,350 --> 00:23:25,830
+ orange is hard disk drive cost. So the hard disk drives cost much cheaper than SSDs. And with green,
+
+175
+00:23:25,830 --> 00:23:32,550
+ and the green is the most important curve, is basically what is the ratio between the cost to
+
+176
+00:23:32,550 --> 00:23:40,470
+ store one terabyte on an SSD versus the cost to store a terabyte on a hard disk drive.
+
+177
+00:23:40,470 --> 00:23:51,430
+ So it was 37 times in 2013. Today it's around five, six times. So it's much smaller. And many
+
+178
+00:23:51,430 --> 00:23:58,550
+ people predict that sometime in the future, these predictions are almost always wrong. But some in
+
+179
+00:23:58,550 --> 00:24:05,590
+ the near future, the SSD will match the cost of hard disk drives. And at that point, there is very
+
+180
+00:24:05,590 --> 00:24:21,190
+ little reasons to use hard disk drives at all. Okay. So in summary, SSDs, they have low latency,
+
+181
+00:24:21,190 --> 00:24:29,670
+ high throughput, no moving parts, more reliables, lower power consumptions, and read much faster,
+
+182
+00:24:29,670 --> 00:24:38,150
+ read, you know, read at memory speeds. You can read even faster if you have a wider
+
+183
+00:24:38,150 --> 00:24:43,670
+ bus by the way. That was one of the main limitations of how fast you can read and write.
+
+184
+00:24:46,550 --> 00:24:55,030
+ The cons before the R2 is expensive, between 3 and 20x more expensive, but in a few years back,
+
+185
+00:24:55,030 --> 00:25:02,710
+ like certainly 10 years back, the SSDs are much smaller than hard disk drives. So that's why
+
+186
+00:25:02,710 --> 00:25:09,110
+ here it's smaller storage. And the people back then, they are combining the hard disk drive
+
+187
+00:25:09,110 --> 00:25:14,230
+ with SSDs, using SSDs as a cache to get the performance of SSDs and to get the capacity
+
+188
+00:25:14,230 --> 00:25:20,710
+ of hard disk drives. But now it's no longer needed. Because as you've seen from the data,
+
+189
+00:25:20,710 --> 00:25:28,550
+ now the SSDs can have higher capacities than hard disk drives. Quite amazing.
+
+190
+00:25:28,550 --> 00:25:36,070
+ So this says, tells you, this technology, if you are to build a company based on that,
+
+191
+00:25:36,070 --> 00:25:40,870
+ it wouldn't have been a great idea because the trends are not in your favor.
+
+192
+00:25:43,910 --> 00:25:52,230
+ Because your product to use SSDs to speed up the hard disk drives would have become obsolete.
+
+193
+00:25:52,230 --> 00:25:58,870
+ There's still a reason to do that, because if you want to get the cost of the hard disk drives
+
+194
+00:25:58,870 --> 00:26:05,350
+ to do cheaper, right, to be cheaper and still have almost performance comparable to SSDs.
+
+195
+00:26:05,350 --> 00:26:10,870
+ But that's probably true today. But in a few years, again, if SSDs are going to drop at the
+
+196
+00:26:10,870 --> 00:26:14,790
+ cost of hard disk drives, this is really there is no reason for these optimizations.
+
+197
+00:26:14,790 --> 00:26:24,790
+ You have asymmetric block rights performance. We know that. And we learn about that. And you have
+
+198
+00:26:24,790 --> 00:26:32,870
+ the where, the limited lifetime in terms of writing rights. So you need to be careful.
+
+199
+00:26:32,870 --> 00:26:39,030
+ And average failure rate is six years. Life expenditures between nine and 10,
+
+200
+00:26:39,030 --> 00:26:44,390
+ 11 years, are actually better than hard disk drives. So it's again, the TLDR here,
+
+201
+00:26:44,390 --> 00:26:50,390
+ SSDs are better in almost every respect. You need to be more careful. It's more complex.
+
+202
+00:26:50,390 --> 00:26:55,910
+ The algorithms are more complex to go around these limitations. The erasures are very expensive and
+
+203
+00:26:55,910 --> 00:27:00,950
+ you need to erase a page before writing it. And the where, you need to take into account the
+
+204
+00:27:00,950 --> 00:27:09,910
+ wearing of pages. And it's more expensive, but the costs are dropping. So the prices are dropping.
+
+205
+00:27:09,910 --> 00:27:15,510
+ Okay. So there's a question here. Just wondering how much overhead generally is there for the
+
+206
+00:27:15,510 --> 00:27:21,430
+ hybrid alternative system involving both SSD and hard disk drives? It seems like it would be a lot
+
+207
+00:27:21,430 --> 00:27:29,990
+ more complex keeping track going between both in the same computer. It's more complex, but the way
+
+208
+00:27:29,990 --> 00:27:37,030
+ you buy that, you buy this like, you buy that like, it's like, it's the same enclosure. The
+
+209
+00:27:37,030 --> 00:27:43,670
+ hard disk drive, they are not two different devices. You buy like, it's like a device which
+
+210
+00:27:43,670 --> 00:27:54,390
+ you plug into your SATA bus. Right. And like, you'll buy a hard disk drive or SSD and you buy
+
+211
+00:27:54,390 --> 00:28:00,150
+ this kind of hybrid device. And inside the device, you have the, you hide all the complexity. You
+
+212
+00:28:00,150 --> 00:28:09,430
+ have a SSD, you have the hard disk drive and you have complex logic to deal and to use SSD,
+
+213
+00:28:09,430 --> 00:28:14,630
+ basically like a cache for the hard disk drives. Did I answer your question Gilbert?
+
+214
+00:28:22,470 --> 00:28:33,030
+ Okay. So yeah, it's complex, but it's hidden. The complexity is hidden. Okay. So announcements.
+
+215
+00:28:33,030 --> 00:28:42,230
+ Homework 4 is due on Mondays. You're now, midterm to review. Now we have a time between 5 and 6,
+
+216
+00:28:42,230 --> 00:28:50,550
+ 7 PM on Monday. Admitter 2 is Wednesday between 7 and 9 PM. And please read the updated proctoring
+
+217
+00:28:50,550 --> 00:28:59,590
+ guide. You can have an additional cheat sheet for this exam. Remember that this exam will cover
+
+218
+00:28:59,590 --> 00:29:05,510
+ everything from the beginning of the semester, but we have more emphasize on the materials in the
+
+219
+00:29:05,510 --> 00:29:12,710
+ first midterm. And the project is due next Friday. So next week it's a hard week,
+
+220
+00:29:12,710 --> 00:29:15,030
+ but it's again, after that, it will be easier.
+
+221
+00:29:18,070 --> 00:29:25,510
+ So now let's switch gears. Any question now about storage devices, what we learned over the last
+
+222
+00:29:25,510 --> 00:29:35,110
+ and this lecture, hard disk drive and solid state drives?
+
+223
+00:29:35,110 --> 00:29:45,830
+ Okay. So right now, let's, we are going to switch the gears and we are going to talk about
+
+224
+00:29:45,830 --> 00:29:52,710
+ performance and how to model performance. If you saw this kind of, even like device drivers are
+
+225
+00:29:52,710 --> 00:29:57,910
+ pretty complex. You get a request, you enqueue the request because you may have multiple requests
+
+226
+00:29:57,910 --> 00:30:04,070
+ arriving at the same time, you serve the request. And by, from the point of view of the program who
+
+227
+00:30:04,070 --> 00:30:08,630
+ made the request, it cares only about the end-to-end latency, but it's end-to-end latency
+
+228
+00:30:08,630 --> 00:30:14,550
+ is divided or support is divided between multiple components. So we are going to learn a little bit
+
+229
+00:30:14,550 --> 00:30:20,470
+ about how to model those and let's try first to define what are the metrics we care about.
+
+230
+00:30:20,470 --> 00:30:27,510
+ So the response time or latency is time to perform on operation is end-to-end time. And you have the
+
+231
+00:30:27,510 --> 00:30:33,270
+ bandwidth or throughput is a rate to which you can perform operations, operation per second. And for
+
+232
+00:30:33,270 --> 00:30:39,590
+ different devices, the operation can be different. Like for instance, it's a different metric here,
+
+233
+00:30:39,590 --> 00:30:44,550
+ but all the metrics are over second, it's some quantity over second. Like files,
+
+234
+00:30:44,550 --> 00:30:52,550
+ for files when you read and write is megabytes per second. For network is megabits per second.
+
+235
+00:30:52,550 --> 00:30:58,950
+ When you say megabytes, it's power of two if you remember. Megabits for the network is power of 10.
+
+236
+00:30:59,590 --> 00:31:12,390
+ This is how you, for instance, one megabyte for files is 1024 kilobytes. One megabit
+
+237
+00:31:12,390 --> 00:31:22,870
+ for network is 1000. Sorry, one megabit for network. What I'm saying? One megabyte for files,
+
+238
+00:31:22,870 --> 00:31:32,710
+ yeah, it's 1024 kilobytes I said correctly. One megabyte per second for network is 1000
+
+239
+00:31:32,710 --> 00:31:38,710
+ kilobytes per second. And then you have gigaflops operation per second, floating point operation
+
+240
+00:31:38,710 --> 00:31:47,510
+ per second for automatic computation and things like that. Then you have a startup or overhead.
+
+241
+00:31:47,510 --> 00:31:54,150
+ It's a time to initiate an operation. This can be think about something like context switching.
+
+242
+00:31:54,150 --> 00:32:02,310
+ And most of your operation are roughly linear in the number of bytes. So basically what happens
+
+243
+00:32:02,310 --> 00:32:08,230
+ in bytes. So basically, for instance, if you are going to,
+
+244
+00:32:08,230 --> 00:32:16,550
+ the way you can model this operation, there is an overhead or a fixed cost to initiate the
+
+245
+00:32:16,550 --> 00:32:23,110
+ operation. You pay on that operation no matter how much you transfer. And then it's a variable cost.
+
+246
+00:32:23,110 --> 00:32:27,510
+ And the variable cost is n, how many bytes in this case you transfer over the bandwidth.
+
+247
+00:32:27,510 --> 00:32:36,310
+ So if you remember, we've seen this pretty much in the last lecture for hard disk drives. You
+
+248
+00:32:36,310 --> 00:32:41,830
+ remember you have the overhead, which was the seek time and rotation latency. No matter how much you
+
+249
+00:32:41,830 --> 00:32:49,030
+ read or write on a disk, you need to pay for that cost when you do that read and write.
+
+250
+00:32:49,030 --> 00:32:57,830
+ And then once you locate and you do the rest is sequential write, read and write,
+
+251
+00:32:57,830 --> 00:33:05,270
+ then it's about how fast you are going to be able to read bits from the disk. And that is given by
+
+252
+00:33:05,270 --> 00:33:15,670
+ how fast is the disk rotating and the rotation of the disk. And that is a variable part. You
+
+253
+00:33:15,670 --> 00:33:22,070
+ read more, it's going to take more time. So this is a way to look at it again.
+
+254
+00:33:22,070 --> 00:33:30,230
+ Basically, you have the user thread, which is going to initiate an input operation.
+
+255
+00:33:30,230 --> 00:33:37,270
+ Then you have a queue and you can have queue, this can be in controller or it can be in the
+
+256
+00:33:37,270 --> 00:33:41,110
+ operating system. It depends on the implementation, it depends on the device,
+
+257
+00:33:41,110 --> 00:33:48,310
+ but there is a queue along the way where the requests are queued, if there are multiple
+
+258
+00:33:48,310 --> 00:33:53,670
+ requests at the same time, then it's a controller and then it's finally the I/O device. So I/O
+
+259
+00:33:53,670 --> 00:33:59,750
+ device service time. And this is how long I got the request, how long it takes to satisfy that
+
+260
+00:33:59,750 --> 00:34:11,110
+ request. So the metrics here are response times and throughput. Response time we saw in the previous
+
+261
+00:34:11,110 --> 00:34:20,070
+ slide is S plus N over B. And what is the bandwidth? Now, the bandwidth is that one of
+
+262
+00:34:20,070 --> 00:34:26,950
+ the bandwidths we really care and it's from the user thread perspective, it is, we call the
+
+263
+00:34:26,950 --> 00:34:33,590
+ effective bandwidth. And the effective bandwidth is what we, when we are saying like, for instance,
+
+264
+00:34:33,590 --> 00:34:39,590
+ if you remember, like how this drives, the throughput is very different when we are reading
+
+265
+00:34:39,590 --> 00:34:47,590
+ randomly, random reads or sequential reads, right? It's very different if you remember.
+
+266
+00:34:47,590 --> 00:34:56,070
+ And that's effective bandwidth. So effective bandwidth for random reads is much lower than
+
+267
+00:34:56,070 --> 00:35:01,110
+ effective bandwidth for sequential reads. And the reason is, and effective bandwidth basically is,
+
+268
+00:35:01,110 --> 00:35:08,630
+ it is how many bytes I'm sending, I read or operation I performed over how long it took me
+
+269
+00:35:08,630 --> 00:35:15,830
+ to read this and bytes, right? Or perform an operations. And the time it took to perform
+
+270
+00:35:15,830 --> 00:35:20,950
+ this operation, you know, this latency, you know, from the previous slide, it says plus N over B.
+
+271
+00:35:21,830 --> 00:35:27,430
+ Or you can also, you know, a little bit of refactoring is B over one plus S B over N,
+
+272
+00:35:27,430 --> 00:35:35,350
+ right? So now you can see exactly, right? It's like, if you read only one byte, this is,
+
+273
+00:35:35,350 --> 00:35:42,550
+ you know, the denominator will be dominated, this will be dominated by S by the overhead, right?
+
+274
+00:35:42,550 --> 00:35:51,350
+ And which is include controller time, queue delay, and things like that. And if you are going to have
+
+275
+00:35:51,350 --> 00:35:59,430
+ read a lot of bytes, this will be dominated by N. And actually the effective bandwidth
+
+276
+00:35:59,430 --> 00:36:08,230
+ becomes similar with the bandwidth of the I/O device, like what in the case of a hard disk drive
+
+277
+00:36:08,230 --> 00:36:17,270
+ with a bandwidth of sequential access. Any questions?
+
+278
+00:36:20,790 --> 00:36:27,030
+ Okay. So this is, we'll talk more about that plot you see on the right hand side.
+
+279
+00:36:27,030 --> 00:36:33,030
+ The only thing, and I'm going to repeat that a few times. The only thing to keep in mind is that
+
+280
+00:36:33,030 --> 00:36:40,230
+ this is the kind of curve you are going to see. And this is on the X, Y axis, you have the
+
+281
+00:36:40,230 --> 00:36:47,670
+ utilization, right? How much utilization is about the load, which is offered to the device, the
+
+282
+00:36:47,670 --> 00:36:56,310
+ system over the capacity of the system, right? How much I can handle. And if you on X axis, you see
+
+283
+00:36:56,310 --> 00:37:01,430
+ the response, the Y axis, you see the response time. And this is how it looks like. Initially
+
+284
+00:37:01,430 --> 00:37:05,350
+ it's going, you know, when the system is not very loaded, you have very little load,
+
+285
+00:37:05,350 --> 00:37:11,910
+ you get very good performance. The response time is very good, but you try to growth. And after
+
+286
+00:37:11,910 --> 00:37:17,030
+ some point it's going to shut up. And if the load is equal to the capacity of the system, actually
+
+287
+00:37:17,590 --> 00:37:26,070
+ the response time can go to infinity, right? Can grow extremely fast, right? This is the same,
+
+288
+00:37:26,070 --> 00:37:31,030
+ like, remember, it's like highway. When the highway is free very late in the night or very
+
+289
+00:37:31,030 --> 00:37:37,270
+ early in the morning, if you know, you'll go very fast, right? As a speed, like legal speed,
+
+290
+00:37:37,270 --> 00:37:45,270
+ hopefully, right? And if, on the other hand, if you start like rush hour, right?
+
+291
+00:37:47,030 --> 00:37:54,470
+ The delays can be shut up, right? And that's a big, obviously is a big problem. And then you
+
+292
+00:37:54,470 --> 00:37:58,630
+ are stealing now is the capacity of the system, right? Because you've still added the capacity
+
+293
+00:37:58,630 --> 00:38:03,510
+ of the system because eventually all the cars still get home, right? So, none of them is
+
+294
+00:38:03,510 --> 00:38:13,590
+ stuck indefinitely. So, yes, let me give me one second. I think it's the sensor light.
+
+295
+00:38:13,590 --> 00:38:18,790
+ Let me just start the light again.
+
+296
+00:38:18,790 --> 00:38:22,330
+ Okay.
+
+297
+00:38:22,330 --> 00:38:27,670
+ Sounds good. I need to move more.
+
+298
+00:38:27,670 --> 00:38:34,310
+ Contribute, so the factor to latency, you know, I can mention this kind of S,
+
+299
+00:38:35,670 --> 00:38:45,350
+ it's about hardware control, the IO service time, device service time, and so forth.
+
+300
+00:38:45,350 --> 00:38:52,870
+ And, but the most interesting part, one of the most important things here is a queue, right?
+
+301
+00:38:52,870 --> 00:38:58,630
+ Because queue here, you have a lot of requests coming in, you queue them. So, you can spend a
+
+302
+00:38:58,630 --> 00:39:05,590
+ lot of time in the queue. Actually, the reason response time shuts up is not because the device
+
+303
+00:39:06,550 --> 00:39:13,750
+ the IO device time, service time, serving a request still takes the same amount of time.
+
+304
+00:39:13,750 --> 00:39:19,750
+ Okay. So, this is very important to remember. The reasons is response time shuts up is because
+
+305
+00:39:19,750 --> 00:39:25,190
+ a queue, because you have more and more requests as they have to wait for the previous request
+
+306
+00:39:25,190 --> 00:39:36,550
+ to be served. It's like you go into a grocery store. So, the time it takes a clerk
+
+307
+00:39:36,550 --> 00:39:43,910
+ to serve a customer doesn't depend on the queue size, right? It still takes the same time.
+
+308
+00:39:43,910 --> 00:39:48,310
+ Maybe, you know, if the queue is long, maybe it's going even takes less because it's going to be
+
+309
+00:39:48,310 --> 00:39:56,070
+ hurry. But it's, you know, ideally it doesn't depend on the queue size. However, if there are
+
+310
+00:39:56,070 --> 00:40:01,750
+ many people in the store, you are going to wait more. Why? Because the queue is longer. Okay. So,
+
+311
+00:40:01,750 --> 00:40:08,790
+ one of the most interesting and relevant aspects is a queue, of a system is a queue. And this is
+
+312
+00:40:08,790 --> 00:40:17,830
+ what you are going to analyze a little bit. Okay. So, this is a way you typically present, you know,
+
+313
+00:40:17,830 --> 00:40:22,390
+ you can model the system. You have arrivals and the arrival is a request which arrives,
+
+314
+00:40:22,390 --> 00:40:27,910
+ like read request, write request, packets. These can be packets which arrive at the router and
+
+315
+00:40:27,910 --> 00:40:33,270
+ things like that. And then you serve, you serve this request, like the server, right? You send
+
+316
+00:40:33,270 --> 00:40:39,590
+ the data out, you serve the reads and writes and things like that. And then you have two times,
+
+317
+00:40:39,590 --> 00:40:48,550
+ DQ, which is a queuing time and TS is a serving time. And the response time is very, very,
+
+318
+00:40:48,550 --> 00:40:52,140
+ basically TQ plus TS, the queuing time plus the service time.
+
+319
+00:40:52,140 --> 00:41:01,380
+ And now you have another one, it's TA, which is, this is obviously you have here in this
+
+320
+00:41:01,380 --> 00:41:09,060
+ figure, it's on the x-axis, you have the time, and the TA is interarrival time. So basically
+
+321
+00:41:09,060 --> 00:41:21,580
+ the difference between two consecutive, between the arrival of two consecutive requests. Okay.
+
+322
+00:41:21,580 --> 00:41:29,980
+ And this is the arrival. And now on the y-axis, which is not shown, I should show here, if
+
+323
+00:41:29,980 --> 00:41:41,100
+ you go down, you move from down, is the time it takes, it's basically it's a response time.
+
+324
+00:41:41,100 --> 00:41:58,620
+ Right. So what this shows here is that, sorry, it's yeah, what it shows here is basically
+
+325
+00:41:58,620 --> 00:42:07,300
+ you have TQ is like, it's a time you spend in the queue. And then TS is a time you spend
+
+326
+00:42:07,300 --> 00:42:15,820
+ to service TS, to service that request. And after a while you have another request, which
+
+327
+00:42:15,820 --> 00:42:21,660
+ is queue is very little. Here the queue is empty, but it's still probably a time because
+
+328
+00:42:21,660 --> 00:42:25,620
+ you still need probably maybe to, even if it's one element in the queue, you need to
+
+329
+00:42:25,620 --> 00:42:31,660
+ enqueue it and then get it out of the queue or just checking whether the queue is empty.
+
+330
+00:42:31,660 --> 00:42:36,180
+ So there is still a little bit of time you are going to spend. Right. But here you are
+
+331
+00:42:36,180 --> 00:42:42,820
+ dominated by the service time. Right. And you see, whenever you have a new request,
+
+332
+00:42:42,820 --> 00:42:50,900
+ at least in this example, you are going to the queue is empty. Right. So every response
+
+333
+00:42:50,900 --> 00:42:58,980
+ time, the response time on February request is going to take the same time. Okay. But
+
+334
+00:42:58,980 --> 00:43:09,500
+ now let's do, okay. So let's introduce a few more metrics. So a few more metrics here are
+
+335
+00:43:09,500 --> 00:43:16,980
+ basically the service rate. The service rate is basically is like how many operation you
+
+336
+00:43:16,980 --> 00:43:23,340
+ can perform per second. Right. And basically this is one over TS. Right. It's like if,
+
+337
+00:43:23,340 --> 00:43:29,420
+ for instance, if it takes me to serve a request, it takes 10 milliseconds to serve a request.
+
+338
+00:43:29,420 --> 00:43:36,980
+ How many I can do per second? One seconds over 10 milliseconds is 100. Then it's arrival
+
+339
+00:43:36,980 --> 00:43:43,340
+ rate. And this is one over TA. Right. This has a request per second. The request per
+
+340
+00:43:43,340 --> 00:43:53,100
+ second it's the same. Right. It's like if I am getting every one request every 20 milliseconds,
+
+341
+00:43:53,100 --> 00:43:59,460
+ then the Lambda, which is request per second, it's one over 20 milliseconds. One second
+
+342
+00:43:59,460 --> 00:44:06,060
+ over 20 milliseconds is 50. Right. And then it's utilization. Utilization is your arrival
+
+343
+00:44:06,060 --> 00:44:14,580
+ rate over the service rate. Or if you plug in in this equation, the formula for the service
+
+344
+00:44:14,580 --> 00:44:20,300
+ rate and the arrival rate, you are going to get the service time over the arrival time.
+
+345
+00:44:20,300 --> 00:44:25,580
+ Right. So basically what is this saying is that for instance, if you have the arrival
+
+346
+00:44:25,580 --> 00:44:31,860
+ time, it's 20 milliseconds and the service time is 10 milliseconds, then you are going
+
+347
+00:44:31,860 --> 00:44:41,540
+ to have 10 milliseconds over 20 milliseconds. It's 0.5. So utilization will be 50%, which
+
+348
+00:44:41,540 --> 00:44:48,100
+ kind of makes sense. Right. If I have one new request arriving every 20 milliseconds
+
+349
+00:44:48,100 --> 00:44:55,740
+ and one request, it takes me to process one request 10 milliseconds. This means that for
+
+350
+00:44:55,740 --> 00:44:59,860
+ each request, I'm going to spend 10 milliseconds and I'm going to wait another 10 milliseconds
+
+351
+00:44:59,860 --> 00:45:18,740
+ to get the new request. And I'm going to be free half of my time. Right. Make sense? So
+
+352
+00:45:18,740 --> 00:45:23,520
+ what happens when Lambda is greater than the Mu and the arrival rate is greater than the
+
+353
+00:45:23,520 --> 00:45:33,960
+ service rate? What do you think it happens? It's a good question. If it's a for short
+
+354
+00:45:33,960 --> 00:45:37,860
+ interval of time, what is the burst? Then you are going to have the queue to absorb
+
+355
+00:45:37,860 --> 00:45:43,340
+ that burst. So the queue delay will going to increase. If it's long, it's for a long
+
+356
+00:45:43,340 --> 00:45:51,580
+ time, and it's just average arrival rate is greater than the average service rate, then
+
+357
+00:45:51,580 --> 00:46:00,920
+ the queue will grow indefinitely. The system is called to be in an unstable state. In general,
+
+358
+00:46:00,920 --> 00:46:10,380
+ what we are going to analyze now in this lecture are systems which are stable. Means that the
+
+359
+00:46:10,380 --> 00:46:19,360
+ arrival rate is not greater than the service rate. Okay. Good. So this is basically tells
+
+360
+00:46:19,360 --> 00:46:36,060
+ you is about if TS over TA is small, then we are fine. And the queue time, the queuing
+
+361
+00:46:36,060 --> 00:46:42,420
+ delay is slow. But after some point, if you are going to get one, this is load, you see,
+
+362
+00:46:42,420 --> 00:46:49,540
+ the load is for this plot from zero to one. This is TSA over TA, right? So before one
+
+363
+00:46:49,540 --> 00:46:56,360
+ is fine. It grows, but it grows a little bit. But if you are going to go over one, then
+
+364
+00:46:56,360 --> 00:47:10,040
+ it's going to shut up, right? This is a queue delay. So it can be unbounded. So this is
+
+365
+00:47:10,040 --> 00:47:25,040
+ the answer to your question. Gilbert, if the arrival rate is greater than the service rate,
+
+366
+00:47:25,040 --> 00:47:33,120
+ then the queue will grow unbounded. So now let's see how the requests arrive in a burst
+
+367
+00:47:33,120 --> 00:47:37,580
+ and let's see what happens. And here on the vertical axis, I have queue depths. On the
+
+368
+00:47:37,580 --> 00:47:46,400
+ horizontal axis is again the time. And here basically, I see here the queue depths. I'm
+
+369
+00:47:46,400 --> 00:47:53,080
+ going to have the first request in the queue. It's empty. It's going to be serviced immediately.
+
+370
+00:47:53,080 --> 00:47:57,760
+ So this is where it's going to be the server. This is the server, the timeline for the server.
+
+371
+00:47:57,760 --> 00:48:03,720
+ So I get the request. I'm going to serve it here. But now I get the second request. So
+
+372
+00:48:03,720 --> 00:48:13,940
+ if I'm getting the second request, I am going to have to queue it because the server is
+
+373
+00:48:13,940 --> 00:48:19,340
+ satisfying the previous request. And now I get a new request. So new request again, I
+
+374
+00:48:19,340 --> 00:48:25,220
+ need to queue it. Now I have two requests in the queue. Again, on the vertical axis
+
+375
+00:48:25,220 --> 00:48:32,500
+ down, you have the size of the queue. So I have two in the queue right now. And now I
+
+376
+00:48:32,500 --> 00:48:38,740
+ get another one. So it's again, the first request has unfinished being serviced. So
+
+377
+00:48:38,740 --> 00:48:45,180
+ the queue is increasing by another one request. So I have three requests in the queue. Now
+
+378
+00:48:45,180 --> 00:48:52,940
+ I don't get anything more. So if I don't get anything more, I'm going to start serving,
+
+379
+00:48:52,940 --> 00:48:57,940
+ say it's a five order. So I'm going to serve the first request in the queue, the wide request.
+
+380
+00:48:57,940 --> 00:49:06,020
+ Now while I serve the wide request, I still have two requests in the queue, the light
+
+381
+00:49:06,020 --> 00:49:12,900
+ blue one and the orange one. And then when I finish serving this request, I'm going to
+
+382
+00:49:12,900 --> 00:49:20,860
+ serve the orange request and finally the light blue request. Okay. So this is what happens.
+
+383
+00:49:20,860 --> 00:49:26,960
+ And now I have a new request and things like that. Any questions? So the point here is
+
+384
+00:49:26,960 --> 00:49:34,680
+ that even the utilization is low, even if the average arrival rate is lower than the
+
+385
+00:49:34,680 --> 00:49:41,720
+ service rate, much lower even, you can still have occasional burst. So a lot of events
+
+386
+00:49:41,720 --> 00:49:47,780
+ or a lot of operation arrive at the same time. It's like rush hour, right? Over the entire
+
+387
+00:49:47,780 --> 00:49:54,500
+ duration of a day, the arrival or the number of cars on the highway is significantly lower
+
+388
+00:49:54,500 --> 00:50:00,880
+ than the capacity of the highway. But there are some bursts in rush hours, when the number
+
+389
+00:50:00,880 --> 00:50:09,440
+ of cars, it's almost at capacity and then you experience large events. So how do you
+
+390
+00:50:09,440 --> 00:50:15,020
+ model the burst arrival? Now there is a lot of mathematical models, but one of the most
+
+391
+00:50:15,020 --> 00:50:23,540
+ elegant one is Poisson distribution or exponential distribution. Exponential distribution, and
+
+392
+00:50:23,540 --> 00:50:31,900
+ this is f of x is lambda, where lambda is the average arrival rate in this case, or
+
+393
+00:50:31,900 --> 00:50:45,540
+ average mean for that distribution times e power minus Lx. And this is how it looks like,
+
+394
+00:50:45,540 --> 00:51:02,980
+ this f of x. And this is a lambda, it's actually the mean arrival rate for this distribution,
+
+395
+00:51:02,980 --> 00:51:14,300
+ it's one over lambda. So actually lambda, I'm taking back, so lambda represent the interarrival
+
+396
+00:51:14,300 --> 00:51:22,460
+ time between the events, so mean arrival time is one over lambda. And the nice thing about
+
+397
+00:51:22,460 --> 00:51:33,660
+ this exponential distribution is it is what is called memoryless. Memoryless means that
+
+398
+00:51:33,660 --> 00:51:40,960
+ the future doesn't depend on the past, right? And it's counterintuitive because you are
+
+399
+00:51:40,960 --> 00:51:49,640
+ not used to that. This will say, and maybe sometimes this happens, if you arrive at the
+
+400
+00:51:49,640 --> 00:51:58,080
+ station, right, Bath station, how long it takes for the next train to arrive doesn't
+
+401
+00:51:58,080 --> 00:52:04,980
+ depend of when the previous train arrived, whether it arrived the last minute or whether
+
+402
+00:52:04,980 --> 00:52:13,480
+ it just leaves the station where it was 15 minutes ago. Okay. So this is what, but because
+
+403
+00:52:13,480 --> 00:52:19,440
+ it's memoryless, it's much easier to model, right? It also says, if you look at this plot,
+
+404
+00:52:19,440 --> 00:52:26,800
+ that this means that the lot of events which are arriving in bursts, the interval between
+
+405
+00:52:26,800 --> 00:52:32,100
+ them is short, and there are some also very long intervals between events. So if you look
+
+406
+00:52:32,100 --> 00:52:37,660
+ at the events on the timeline, there are bursts of events arriving together, so interarrival
+
+407
+00:52:37,660 --> 00:52:48,840
+ between these events is small, and then you have long pauses, right? Long gaps. Any questions?
+
+408
+00:52:48,840 --> 00:52:55,440
+ You did learn exponential distribution, I hope in some of your math classes, right,
+
+409
+00:52:55,440 --> 00:53:05,320
+ your statistics classes. Okay. And now with this distribution, what are the main metrics?
+
+410
+00:53:05,320 --> 00:53:10,100
+ One of the most important metrics is the mean, obviously the mean of the distribution. And
+
+411
+00:53:10,100 --> 00:53:14,380
+ you know how to compute the mean. It's like it's an integral or the sum, depending on
+
+412
+00:53:14,380 --> 00:53:21,500
+ the discrete distribution of the P of t. So what is the probability that that event happens
+
+413
+00:53:21,500 --> 00:53:29,820
+ at time, you know, at t? What is the probability that you are going to have in this case, for
+
+414
+00:53:29,820 --> 00:53:38,260
+ instance, an arrival after exactly t time units, and then you are going to multiply
+
+415
+00:53:38,260 --> 00:53:49,040
+ with the t because the interarrival time, right? So, and this is the mean, right? If
+
+416
+00:53:49,040 --> 00:53:54,980
+ you have this variance of the square of the standard deviation, which is you multiply
+
+417
+00:53:54,980 --> 00:54:03,740
+ its sum of P of t multiplied by t square minus m square, and m is again the mean, and t is
+
+418
+00:54:03,740 --> 00:54:13,580
+ about, you know, how long, you know, the interarrival t, which happened is probability P of t. And
+
+419
+00:54:13,580 --> 00:54:20,560
+ then you square coefficient of variance, which is sigma square by the mean square. Okay.
+
+420
+00:54:20,560 --> 00:54:25,560
+ So I'm not going to derive this to you. I'm going to derive something more interesting
+
+421
+00:54:25,560 --> 00:54:31,160
+ to you. This you are supposed to know from some of your previous classes, you know, if
+
+422
+00:54:31,160 --> 00:54:36,360
+ not, this is just the formula you can write on your cheat sheet. But typically we are going
+
+423
+00:54:36,360 --> 00:54:42,440
+ to give you, if I am going to, we are going to ask you in a problem. But the most important
+
+424
+00:54:42,440 --> 00:54:49,520
+ things here is to look at the value of C. The C captures the burstiness, it turns out.
+
+425
+00:54:49,520 --> 00:54:59,280
+ So if C is zero, there is no variance. This also means the variance is zero square, square
+
+426
+00:54:59,280 --> 00:55:08,580
+ of standard deviation, which means that you have the interarrival between two events,
+
+427
+00:55:08,580 --> 00:55:18,400
+ between two requests is the same. Then if C is one, this means that you have exponential
+
+428
+00:55:18,400 --> 00:55:26,860
+ distribution. It's a memoryless distribution, completely random, doesn't depend on the past.
+
+429
+00:55:26,860 --> 00:55:35,560
+ If C is 1.5, you have even a burstier distributions, the majority of C, say, for instance, or the
+
+430
+00:55:35,560 --> 00:55:43,040
+ majority of the interarrival times are much smaller than the average. So the more C increases,
+
+431
+00:55:43,040 --> 00:55:51,040
+ the more bursty you have the distribution, meaning a lot of events coming, a lot of requests
+
+432
+00:55:51,040 --> 00:56:00,880
+ coming together and then long gaps. And obviously the more burstiness you have, the larger the
+
+433
+00:56:00,880 --> 00:56:08,840
+ queue will be, at least during these events. If there is no variance and if your furlough
+
+434
+00:56:08,840 --> 00:56:23,200
+ is lower than the service capacity, then you have no queues.
+
+435
+00:56:23,200 --> 00:56:30,440
+ So let's talk more about queuing theory. And the queuing theory is very simple. You have
+
+436
+00:56:30,440 --> 00:56:37,480
+ to make some assumption about the distributions. You have to make some assumptions about how
+
+437
+00:56:37,480 --> 00:56:42,120
+ long it takes to serve the request. What is the distribution to serve a request? What
+
+438
+00:56:42,120 --> 00:56:53,200
+ is the distribution of arrivals? And based on this, then you are going to get some formula
+
+439
+00:56:53,200 --> 00:57:04,240
+ which will give you the service response time and the queuing delay. That's what it is.
+
+440
+00:57:04,240 --> 00:57:10,520
+ So before talking more about this queuing and giving you those formulas about response
+
+441
+00:57:10,520 --> 00:57:21,440
+ time and everything, let's go through this little law. And it's a very powerful law.
+
+442
+00:57:21,440 --> 00:57:27,880
+ It's very simple, deceptive simple and very general. And this is what it says. It says
+
+443
+00:57:27,880 --> 00:57:35,400
+ you have a bunch of arrivals and which are served by a system, a bunch of requests coming
+
+444
+00:57:35,400 --> 00:57:42,960
+ to a system, they are serving the system. And you know what is the average mean of,
+
+445
+00:57:42,960 --> 00:57:51,400
+ what is the average arrivals for the request and what is the average service for the request.
+
+446
+00:57:51,400 --> 00:57:57,840
+ And what little law is giving you is how many on the average, how many requests are waiting
+
+447
+00:57:57,840 --> 00:58:04,480
+ in the queue to be served. That's all. And the formula is a number of requests. Here
+
+448
+00:58:04,480 --> 00:58:12,960
+ I pick jobs. It's equal to the mean arrival time, lambdas, time, the response time, mean
+
+449
+00:58:12,960 --> 00:58:23,680
+ response time. Okay. So this is what it is. That's it. And the beauty of it is that this
+
+450
+00:58:23,680 --> 00:58:31,760
+ is true regardless of the structure of the arrivals. How what is a burst doesn't depend
+
+451
+00:58:31,760 --> 00:58:37,440
+ on the distribution. Doesn't depend on the distribution of the arrival, doesn't depend
+
+452
+00:58:37,440 --> 00:58:47,600
+ on the distribution of the service time because the results holds for the means. Right. It
+
+453
+00:58:47,600 --> 00:58:53,320
+ does assume though that the arrivals are not larger. The arrival rate is not larger than
+
+454
+00:58:53,320 --> 00:58:59,640
+ mean arrival rate is not larger than the mean service rate. And here is an example just
+
+455
+00:58:59,640 --> 00:59:07,760
+ to give you the, to capture that intuition. On X you have times, and let's say you have
+
+456
+00:59:07,760 --> 00:59:13,960
+ a new job or request for some reason here, you know, I put jobs coming to the system
+
+457
+00:59:13,960 --> 00:59:22,960
+ and being serviced. And you have one job every second. So this is deterministic arrival.
+
+458
+00:59:22,960 --> 00:59:30,560
+ Every second you have a new job, exactly every second. Any job takes to serve five seconds.
+
+459
+00:59:30,560 --> 00:59:35,260
+ Right. This is what you have, right? You have the first job starts here, you serve five
+
+460
+00:59:35,260 --> 00:59:42,320
+ seconds. The second job starts, serve five seconds and so forth. So now how many of the
+
+461
+00:59:42,320 --> 00:59:51,280
+ jobs you have in the system? At any given time, you can draw a line and the number of
+
+462
+00:59:51,280 --> 00:59:57,760
+ jobs you have in the system, it's the number of jobs this line is going to intersect. And
+
+463
+00:59:57,760 --> 01:00:06,840
+ how many have? Five. Right. And what is the formula saying? Number of jobs, average number
+
+464
+01:00:06,840 --> 01:00:12,520
+ of jobs in the system is equal with average or the mean arrival rate, which was one times
+
+465
+01:00:12,520 --> 01:00:22,240
+ the mean service response time, which is five. So it's five. Okay. So let's, let me try to
+
+466
+01:00:22,240 --> 01:00:30,120
+ derive this formula for you. Okay. So let's talk, let's say now we are going to be general,
+
+467
+01:00:30,120 --> 01:00:38,640
+ right? The jobs can arrive at any time. They can take any amount of time to be, to be,
+
+468
+01:00:38,640 --> 01:00:46,620
+ they are going to be in the system and yeah. So let's talk L of I is the response time
+
+469
+01:00:46,620 --> 01:00:56,800
+ of job I and N of T is a number of jobs in the system at time T. Right? So this is N
+
+470
+01:00:56,800 --> 01:01:04,240
+ of T at this particular time. So you want to see what is the system occupancy? How many
+
+471
+01:01:04,240 --> 01:01:10,120
+ on the average? What is the number of jobs in the system? This N, the average of N of
+
+472
+01:01:10,290 --> 01:01:15,810
+ This is what you want to compute. The average of N of T. OK.
+
+473
+01:01:15,810 --> 01:01:21,410
+ So before, so this is the remember is what I want to get.
+
+474
+01:01:21,410 --> 01:01:29,810
+ Now, let's do some a little bit of math. Let's assume for simplicity that the height
+
+475
+01:01:29,810 --> 01:01:34,130
+ of one of these things, jobs, which I represent here, it's one.
+
+476
+01:01:35,330 --> 01:01:44,930
+ OK, so really the N of T represents the height of this shape, right, the blue shape.
+
+477
+01:01:44,930 --> 01:01:52,370
+ So in this case, the height is four, so you have four jobs in the system. Right.
+
+478
+01:01:52,370 --> 01:02:02,610
+ Now, the area of each of these boxes is what? It's I of I, it's I of I, the length,
+
+479
+01:02:03,170 --> 01:02:11,250
+ it's how long it takes the job response time for that particular job I times one,
+
+480
+01:02:11,250 --> 01:02:18,770
+ because we said that by convention, we say that the height is one. So the area S is S1,
+
+481
+01:02:18,770 --> 01:02:27,170
+ the total area here for this all the jobs within the time capital T is S1 plus S2 plus say SK.
+
+482
+01:02:27,970 --> 01:02:38,050
+ It's and it's equal to is L1 plus L2 plus LK because SI is equal to is LI times one,
+
+483
+01:02:38,050 --> 01:02:48,930
+ which is equal to is LI. And why do I do this? Right. Now, what I want to compute is to remember
+
+484
+01:02:48,930 --> 01:02:56,130
+ that average fuel occupancy is what it is. It's this area over T. Right. This is what I'm doing.
+
+485
+01:02:56,130 --> 01:03:01,330
+ I have this shape, which I have this area, and I need to divide on the length of the area,
+
+486
+01:03:01,330 --> 01:03:10,930
+ which is T in this case, to get to the average height of the area. Right. The N average,
+
+487
+01:03:10,930 --> 01:03:18,210
+ the average number of jobs in the system is the average height of the shape, which is S over T.
+
+488
+01:03:19,650 --> 01:03:26,850
+ Right. But now we know that S is L of one plus L of two plus L of K over D now. And now the
+
+489
+01:03:26,850 --> 01:03:33,570
+ beauty of it, I need to do only the one thing. I need to divide by N total and multiply with N
+
+490
+01:03:33,570 --> 01:03:43,010
+ total. Right. And N total is a total number of jobs which arrived during this time T
+
+491
+01:03:45,570 --> 01:03:51,810
+ and are serviced during this time T. Right. So it's the same equation, the equation from the
+
+492
+01:03:51,810 --> 01:03:58,050
+ previous one, but I'm going to divide by N total and I'm now going to multiply by N total. N total
+
+493
+01:03:58,050 --> 01:04:05,010
+ in this example, it will be K. Right. Because it's what I showed here, like K. Right. But now
+
+494
+01:04:05,010 --> 01:04:13,330
+ I just reverted one, but it's the same thing. It's N total over T plus L1 plus LK over N total.
+
+495
+01:04:14,770 --> 01:04:18,210
+ But here is a thing right now. What is N total over T?
+
+496
+01:04:18,210 --> 01:04:32,850
+ So I have N total jobs arriving during time T. So N total over T, it's an average,
+
+497
+01:04:32,850 --> 01:04:43,010
+ it's how many, it's N total over T, it's arrival rate.
+
+498
+01:04:43,810 --> 01:04:54,210
+ I mean arrival rate. If I tell you, I have 100 jobs and they arrived in 10 seconds. Right. And
+
+499
+01:04:54,210 --> 01:05:03,890
+ I ask you, what is the arrival rate? What do you do? You say 100 over 10 seconds. Oh, it's 10 jobs
+
+500
+01:05:03,890 --> 01:05:13,490
+ per second. This is Lambda. And what is L1 plus LK over N total?
+
+501
+01:05:13,490 --> 01:05:19,650
+ L1 is the average response time for first job.
+
+502
+01:05:19,650 --> 01:05:27,810
+ L2 is the average response time of the second job. If I add all these jobs up, the response
+
+503
+01:05:27,810 --> 01:05:32,290
+ time of all the jobs, if I sum up the average response time of all jobs and I divide by the
+
+504
+01:05:32,290 --> 01:05:40,690
+ number of jobs, what do I get? The average response time. So here you are. The average
+
+505
+01:05:40,690 --> 01:05:47,570
+ occupancy or the average number of jobs in the system is equal with the average arrival rate
+
+506
+01:05:47,570 --> 01:05:57,890
+ of these jobs plus times, sorry, the average response time of a job. Make sense? Any questions?
+
+507
+01:05:57,890 --> 01:06:19,010
+ Okay. So again, I want to emphasize like this is a great,
+
+508
+01:06:19,890 --> 01:06:29,170
+ very elegant law and because it's so simple and yet is so general. It doesn't make any
+
+509
+01:06:29,170 --> 01:06:37,250
+ assumption of distributions. You need only to know the average arrival rate and average response time.
+
+510
+01:06:37,250 --> 01:06:39,110
+ Okay.
+
+511
+01:06:39,110 --> 01:06:45,650
+ Any questions?
+
+512
+01:06:45,650 --> 01:06:58,050
+ Okay. So now let's do a little bit of queuing theory and unfortunately, and I apologize here,
+
+513
+01:06:58,050 --> 01:07:03,330
+ I am going to give you some results. I'm not going to derive anymore. So hopefully you enjoyed
+
+514
+01:07:03,330 --> 01:07:12,530
+ the previous derivation. But let's talk a little bit about that, about this to give you some,
+
+515
+01:07:12,530 --> 01:07:17,490
+ you know, queuing results, queuing theory results. First of all, like I mentioned,
+
+516
+01:07:17,490 --> 01:07:24,210
+ here we only assume that the system is what you call in a queue level, which is
+
+517
+01:07:24,210 --> 01:07:32,610
+ basically the number, the arrival rate is not larger, is no larger than the service side.
+
+518
+01:07:32,610 --> 01:07:39,730
+ We also assume that the queue has no limits. So therefore we don't drop requests.
+
+519
+01:07:41,490 --> 01:07:49,170
+ Okay. Let's assume that the time between two arrivals is random and is memoryless,
+
+520
+01:07:49,170 --> 01:07:56,210
+ it's exponentially distributed. When the time, inter-arrival time between
+
+521
+01:07:56,210 --> 01:08:05,570
+ successive requests, it's exponentially distributed. We are saying that that arrival
+
+522
+01:08:05,570 --> 01:08:14,450
+ is for us all, by the way, if you hear that. So arrival rate, Lambda, service rate is Mu,
+
+523
+01:08:14,450 --> 01:08:22,050
+ one over the T service. This is a TS. Previously, it was denoted by TS, it's a time to serve
+
+524
+01:08:22,050 --> 01:08:34,130
+ the request. Okay. So you have Lambda, mean number of arriving, request, customer, jobs per second,
+
+525
+01:08:34,130 --> 01:08:42,930
+ mean time to serve the customer, it's say M, square coefficient of variance, this is one,
+
+526
+01:08:42,930 --> 01:08:50,210
+ in the case, remember, in the case of exponential distribution, Mu is a service rate, you know that,
+
+527
+01:08:50,210 --> 01:08:57,810
+ one of the TS, time to service that request. Utilization, again, you know that,
+
+528
+01:08:57,810 --> 01:09:03,490
+ your SOSA formula is a number, is arrival rate over the mean arrival rate over mean service rate.
+
+529
+01:09:04,290 --> 01:09:10,850
+ Which is Lambda over Mu or Lambda time deserve, right? Here, I just
+
+530
+01:09:10,850 --> 01:09:20,450
+ replace the Mu definition, which is one of the service time. Now, and if you do that,
+
+531
+01:09:20,450 --> 01:09:27,890
+ you get the utilization, it's arrival rate times the service time, I mean service time.
+
+532
+01:09:30,050 --> 01:09:35,570
+ What do you want to compute? Time spent in the queue, that's what I want to compute.
+
+533
+01:09:35,570 --> 01:09:44,290
+ We also want to compute the length of the queue, which is, what is the length of the queue?
+
+534
+01:09:44,290 --> 01:09:51,730
+ The length of the queue is Lambda of TQ, right? Because the system here is a queue,
+
+535
+01:09:51,730 --> 01:09:57,890
+ this is what I'm saying, the system here is a queue, right? So you can apply little,
+
+536
+01:09:59,890 --> 01:10:07,890
+ low to the queue itself, or you can apply to the entire system. Here is for the queue itself.
+
+537
+01:10:07,890 --> 01:10:18,690
+ Okay, so let's see. Like I said, when you have exponential distribution for the arrival rate,
+
+538
+01:10:18,690 --> 01:10:24,690
+ inter-arrival rates for the requests, this is also called Poisson arrival process.
+
+539
+01:10:25,570 --> 01:10:31,570
+ We assume here that we have one server, right? We can have a, there are scenarios in which you have
+
+540
+01:10:31,570 --> 01:10:37,570
+ multiple servers and you send the request to, if one server accepts a request, you can send
+
+541
+01:10:37,570 --> 01:10:47,810
+ the request to another server. And it's memoryless service, so again, let's assume that the service
+
+542
+01:10:47,810 --> 01:10:52,530
+ distribution is also exponential, so it's memoryless.
+
+543
+01:10:55,250 --> 01:11:01,330
+ So this system, which Poisson arrival process, memoryless service time,
+
+544
+01:11:01,330 --> 01:11:05,730
+ and one server is called MM1Q.
+
+545
+01:11:05,730 --> 01:11:16,610
+ It's again, one server, inter-arrival times are exponentially distributed, service time
+
+546
+01:11:16,610 --> 01:11:33,490
+ are exponentially distributed. And in this case, the queuing time, it's equal with the service time
+
+547
+01:11:33,490 --> 01:11:38,850
+ times U over one minus U, where U is the utilization.
+
+548
+01:11:38,850 --> 01:11:46,450
+ Now for general distribution, if you have the service distribution, so if the service time is
+
+549
+01:11:47,170 --> 01:11:54,130
+ a general distribution and you know for that one only the variance, the square root of variance,
+
+550
+01:11:54,130 --> 01:12:02,050
+ the C, then this is a formula. It's very similar formula. It's
+
+551
+01:12:06,530 --> 01:12:19,730
+ one over, let me just move the, it's service time times one over two plus one plus C,
+
+552
+01:12:19,730 --> 01:12:29,090
+ this is again square root of, square of variance, times one over one minus U.
+
+553
+01:12:33,330 --> 01:12:46,210
+ Okay, so the important takeaway from this equation, it's a very important aspect here,
+
+554
+01:12:46,210 --> 01:12:55,730
+ is this fact, this is one over one minus U. Why is this important? Because this tells you
+
+555
+01:12:55,730 --> 01:13:01,330
+ when the utilization is small, this factor is small, right? It's
+
+556
+01:13:01,570 --> 01:13:12,610
+ basically U over one if U is very small. But what happens when the utilization approaches one,
+
+557
+01:13:12,610 --> 01:13:24,610
+ which is equivalent with a service rate, arrival rate approaching the service rate, what happens?
+
+558
+01:13:24,610 --> 01:13:41,090
+ It gets very large, the Q becomes very large. So another important aspect here is,
+
+559
+01:13:41,090 --> 01:13:45,410
+ and this is food for thought, is something which is not intuitive either.
+
+560
+01:13:48,050 --> 01:13:55,410
+ If U goes close to one, although it's not yet one, the queuing time grows to infinity.
+
+561
+01:13:55,410 --> 01:14:06,450
+ And then we ask, well, but hey, wait a minute. If U is one, we should be fine,
+
+562
+01:14:06,450 --> 01:14:13,010
+ because the arrival rate is not greater than the service rate. But if U is one,
+
+563
+01:14:13,010 --> 01:14:18,530
+ the queuing is infinity. Why is that?
+
+564
+01:14:18,530 --> 01:14:33,730
+ We'll talk more next lecture and you are not going to be asked this during the exam.
+
+565
+01:14:36,690 --> 01:14:43,170
+ But if the system is very bursty, there can be gaps.
+
+566
+01:14:43,170 --> 01:14:48,450
+ And during these gaps, there is nothing in system.
+
+567
+01:14:48,450 --> 01:14:58,530
+ And you lose that time, you lost, you never comes back. Because the bursts you are going to get in
+
+568
+01:14:58,530 --> 01:15:06,210
+ the future are going to, then if you eliminate that gap, the number of arrival you are going
+
+569
+01:15:06,210 --> 01:15:12,130
+ to get in the future is going to be greater than the server capacity. Right?
+
+570
+01:15:12,130 --> 01:15:17,170
+ So because this kind of this gaps where the system doesn't get,
+
+571
+01:15:17,170 --> 01:15:22,690
+ doesn't do anything, when you have a very bursty arrival,
+
+572
+01:15:22,690 --> 01:15:28,690
+ this is a wasted time, it's a wasted capacity. So that capacity you cannot get back.
+
+573
+01:15:29,970 --> 01:15:36,290
+ So that's why you can... you fall behind in terms of capacity and you remain always behind.
+
+574
+01:15:36,290 --> 01:15:55,490
+ Okay, so it's... I'm trying to give you an intuition, so it's like...
+
+575
+01:15:56,290 --> 01:16:03,250
+ it's not easy to get the intuition and... but this is good.
+
+576
+01:16:03,250 --> 01:16:19,410
+ Okay. What else I wanted to say here? Oh, by the way, you notice that for the general service time
+
+577
+01:16:19,410 --> 01:16:27,810
+ distribution, the formula for the queuing delay, if exponential... you remember for exponential
+
+578
+01:16:27,810 --> 01:16:38,930
+ distribution, what was C? One. So if C is one, the equation, the queuing time for the general service
+
+579
+01:16:38,930 --> 01:16:47,730
+ distribution is going to reduce to the formula which you should expect for the exponential
+
+580
+01:16:47,730 --> 01:16:55,010
+ distribution. Let's take now simple examples and then we are going to conclude the lectures.
+
+581
+01:16:55,010 --> 01:17:04,130
+ Let's say the user request, you have 10 requests of... you want 8 kilobytes disk,
+
+582
+01:17:04,130 --> 01:17:13,890
+ write 10 requests of each for 8 kilobytes data, and the request and the service are exponentially
+
+583
+01:17:13,890 --> 01:17:22,370
+ distributed. Average service is 20 milliseconds and this is controller six times, rotation, latency,
+
+584
+01:17:22,370 --> 01:17:32,690
+ and transfer time. And how you utilize this is a disk, right? So utilization, this is a formula,
+
+585
+01:17:32,690 --> 01:17:38,130
+ remember, it's lambda times the service time, these are the formula. Average time to spend in
+
+586
+01:17:38,130 --> 01:17:45,890
+ the queue to queue, average number of requests in the queue. Now this is LQ denoted here. What is
+
+587
+01:17:45,890 --> 01:17:53,090
+ the average response time for disk request? So this is the average response time. It's very simple
+
+588
+01:17:53,090 --> 01:17:57,650
+ that the sum between the time you spend in the queue and time to serve is a request.
+
+589
+01:17:58,930 --> 01:18:10,290
+ Okay, so let's do the computation. Lambda, you have 10 requests of 8 kilobytes disk per second.
+
+590
+01:18:10,290 --> 01:18:20,930
+ So lambda, you have average arriving number of customers or request is 10 per second. Average
+
+591
+01:18:20,930 --> 01:18:27,650
+ time to service a customer or request 10 milliseconds. It was given here, if you remember,
+
+592
+01:18:28,290 --> 01:18:34,930
+ this is one average service time. Server utilization is lambda times the service time
+
+593
+01:18:34,930 --> 01:18:40,690
+ is 0.2. Queuing time, now you are going to apply because everything gets exponentially distributed.
+
+594
+01:18:40,690 --> 01:18:49,490
+ Then you use a formula, which is a TS, service time times utilization over one minus utilization,
+
+595
+01:18:49,490 --> 01:18:56,930
+ and you get five milliseconds. Average length of the queue is lambda times TQ is 0.05.
+
+596
+01:18:56,930 --> 01:19:07,730
+ And average time the customer spend in the system is a queuing time plus the service time
+
+597
+01:19:07,730 --> 01:19:14,850
+ service to 20 milliseconds plus 5 milliseconds. Here is 25 milliseconds.
+
+598
+01:19:14,850 --> 01:19:21,810
+ There are a lot of materials here. You have some pointers if you are interested more in the
+
+599
+01:19:21,810 --> 01:19:31,650
+ queuing theory. It's great. This is a fair game. This is a mistake. You are going to get this in
+
+600
+01:19:31,650 --> 01:19:41,010
+ midterm 2, not 3. Sorry for the typo. So this lecture is included for midterm 2. And with that,
+
+601
+01:19:41,010 --> 01:19:51,090
+ I am done. So in summary, and remember about, we look at this, how we are going to model the
+
+602
+01:19:51,090 --> 01:19:59,170
+ systems. And these systems are modeled, they have a queue. And you spend some time in the queue,
+
+603
+01:19:59,170 --> 01:20:05,890
+ plus have a fixed overhead, like rotation latency and so forth, and you have a transfer.
+
+604
+01:20:05,890 --> 01:20:11,090
+ Then this will impact the effective bandwidth. Effective bandwidth is not like the device
+
+605
+01:20:11,090 --> 01:20:22,290
+ bandwidth because of this fixed overhead. Then we learn a little bit about this queuing theory.
+
+606
+01:20:22,290 --> 01:20:31,570
+ And in particular, I gave you the formulas for the queuing delay for MM1 queues, everything is
+
+607
+01:20:31,570 --> 01:20:37,970
+ exponentially distributed, interarrival time and the service time. And MG1 queue arrival times are
+
+608
+01:20:37,970 --> 01:20:45,810
+ still interarrival time, are still exponentially distributed, but the service time has a general
+
+609
+01:20:45,810 --> 01:20:53,090
+ distribution. And remember, this is a formula for the queuing time for the general distribution of
+
+610
+01:20:53,090 --> 01:21:01,970
+ the service time. And remember that in both cases, both MM1 and MG1 queues, when the utilization
+
+611
+01:21:01,970 --> 01:21:08,130
+ approaches one, then the latency goes to infinity, the queuing delay and therefore the response time
+
+612
+01:21:08,130 --> 01:21:16,850
+ goes to infinity. So I'm stopping here. Good luck to at the midterm and really good luck for the
+
+613
+01:21:16,850 --> 01:21:23,810
+ next week. If you have any questions, please don't hesitate to ask on Piazza. And yeah, I'll see you
+
+614
+01:21:23,810 --> 01:21:33,090
+ next week.
+

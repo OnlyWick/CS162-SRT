@@ -1,0 +1,2232 @@
+1
+00:00:00,000 --> 00:00:17,920
+ Hello everyone. So today we are going to continue our discussion on file system reliability
+
+2
+00:00:17,920 --> 00:00:28,180
+ and we are going to talk a little bit about transactions and start talking about networking.
+
+3
+00:00:28,180 --> 00:00:37,600
+ So if you remember from last time, these are the three notions which are characterizing
+
+4
+00:00:37,600 --> 00:00:48,160
+ a system's ability to function. One is availability and refers to the system's ability to respond
+
+5
+00:00:48,160 --> 00:00:55,080
+ to the requests, to process and respond to the requests. Durability refers to the fact
+
+6
+00:00:55,080 --> 00:01:06,440
+ that it's reflected as storage. It means that if you successfully store a piece of data,
+
+7
+00:01:06,440 --> 00:01:15,240
+ you are going to be able to later retrieve that piece of data. So it's not going to disappear
+
+8
+00:01:15,240 --> 00:01:25,280
+ or it's going to be lost despite maybe some storage device failures.
+
+9
+00:01:25,280 --> 00:01:34,280
+ And then reliability puts the two together, both availability and durability, and basically
+
+10
+00:01:34,280 --> 00:01:49,400
+ the ability of the system to perform the required function according to some specification.
+
+11
+00:01:49,400 --> 00:01:55,160
+ For instance, if you are going to send a request, you are going to get a response within a specified
+
+12
+00:01:55,160 --> 00:02:04,840
+ time period. And obviously that should be correct. And last time we discussed a little
+
+13
+00:02:04,840 --> 00:02:12,800
+ about durability. And let's go again back and we discuss about this is basically a summary
+
+14
+00:02:12,800 --> 00:02:20,000
+ of the last few slides from the last lecture. So one way to provide your ability, so it's
+
+15
+00:02:20,000 --> 00:02:25,120
+ again the ability that once you store a piece of data, you can later retrieve that piece
+
+16
+00:02:25,120 --> 00:02:34,240
+ of data. It's basically replicating the data. And if you replicate the data, then it provides
+
+17
+00:02:34,240 --> 00:02:42,720
+ you the ability to survive to one failure because if one fail, you still have the other
+
+18
+00:02:42,720 --> 00:02:50,600
+ disk storing the replica of the data. So the data is not lost. And we also discuss what
+
+19
+00:02:50,600 --> 00:02:56,360
+ are the characteristics of this system, of this RAID 1, where you replicate any piece
+
+20
+00:02:56,360 --> 00:03:02,680
+ of data on two different disks. One is that when you write a piece of data, you need to
+
+21
+00:03:02,680 --> 00:03:09,720
+ write on both disks. So therefore you sacrifice the bandwidth of the write because each write
+
+22
+00:03:09,720 --> 00:03:17,160
+ now becomes two writes, two different disks. It's also you need to wait for the slower,
+
+23
+00:03:17,160 --> 00:03:24,000
+ slowest disk to do the write. And if you want to really optimize of how long this write
+
+24
+00:03:24,000 --> 00:03:30,160
+ latency, you probably want to synchronize the disks. So therefore both writes take the
+
+25
+00:03:30,160 --> 00:03:36,240
+ same amount of time, more or less. On the other hand, for reads, things are a little
+
+26
+00:03:36,240 --> 00:03:41,680
+ bit different and are better because now you have two replicas and when you read, you need
+
+27
+00:03:41,680 --> 00:03:49,920
+ just to get a piece of data. So you can get from either disk. So actually you can improve
+
+28
+00:03:49,920 --> 00:03:57,640
+ or can even double the throughput in this case. And finally, if you remember, when a
+
+29
+00:03:57,640 --> 00:04:03,640
+ disk fails, what you are going to do, you are going to buy another one and then you
+
+30
+00:04:03,640 --> 00:04:10,880
+ are going to copy all the data from the primary disk to the secondary to the new disk. And
+
+31
+00:04:10,880 --> 00:04:17,520
+ now you have again two replicas. Now this assumes that while you're doing these recoveries,
+
+32
+00:04:17,520 --> 00:04:26,240
+ the primary disk doesn't fail. And that's something to keep in mind. And actually this
+
+33
+00:04:26,240 --> 00:04:37,920
+ is a problem in general because if you do this write one and you build a write one and
+
+34
+00:04:37,920 --> 00:04:43,680
+ your application, presumably what you want, you want this disk to be from different batches
+
+35
+00:04:43,680 --> 00:04:51,640
+ of production. And this you need to be careful, right? Because when you buy this, you buy
+
+36
+00:04:51,640 --> 00:04:57,480
+ all the disks at the same time to build the system. But then if these are from the same
+
+37
+00:04:57,480 --> 00:05:04,160
+ batches, batch of production, they tend to have the same failures and the same kind of
+
+38
+00:05:04,160 --> 00:05:09,320
+ failure pattern. And then when one disk fails, it's pretty likely that other disks also from
+
+39
+00:05:09,320 --> 00:05:16,160
+ the same batch will fail. So you don't want to do that because you want to reduce the
+
+40
+00:05:16,160 --> 00:05:20,880
+ minimum of the disk that during the recovery and other disks will fail. So that's why you
+
+41
+00:05:20,880 --> 00:05:30,400
+ use different product batches or use even maybe different disk manufacturers.
+
+42
+00:05:30,400 --> 00:05:35,560
+ Of course, the problem with write one is very expensive and so forth. So high overhead and
+
+43
+00:05:35,560 --> 00:05:41,720
+ we discuss about this write five and more, you stripe the data. So you have a parity
+
+44
+00:05:41,720 --> 00:05:57,240
+ block. So in this case, you have, you know, you take blocks, you store successively in
+
+45
+00:05:57,240 --> 00:06:03,920
+ this case, four blocks on four disks and then on the five disks here, you are going to have
+
+46
+00:06:03,920 --> 00:06:15,560
+ a computer parity block. And the parity block, one way to compute it is XOR like we discussed
+
+47
+00:06:15,560 --> 00:06:27,320
+ last time. So D0 here is D0, XOR D1, XOR D2, XOR D3. Here is an example. If one disk is
+
+48
+00:06:27,320 --> 00:06:35,960
+ destroyed, you can still recover. This is an example. So here is an example. Here, each
+
+49
+00:06:35,960 --> 00:06:44,040
+ block is one bit. So let's say D0 is 0, then D1 1, D2 0, D3 1. So if you do the XOR here,
+
+50
+00:06:44,040 --> 00:06:52,080
+ you are going to get 0. This is the content of the parity block. And now suppose this
+
+51
+00:06:52,080 --> 00:07:00,720
+ to fail, if you do this to fail, then what you do, you are going to do the XOR or everything
+
+52
+00:07:00,720 --> 00:07:07,300
+ which remains, which is including the parity block. And then you are going to get the content
+
+53
+00:07:07,300 --> 00:07:17,800
+ of the last block. So in this case, D2 was 0. So you get D0, XOR D1, XOR D3, XOR P0,
+
+54
+00:07:17,800 --> 00:07:32,200
+ the parity block, and you get 0. So you recover. It's a great question. Why do we store parity
+
+55
+00:07:32,200 --> 00:07:43,280
+ staggered? Yeah, Gilbert answers that if they are in the same row columns, then we might
+
+56
+00:07:43,280 --> 00:07:52,400
+ have trouble recovering if that specific row column got lost.
+
+57
+00:07:52,400 --> 00:08:00,400
+ So basically, it's about load balancing the load when you have failures. For instance,
+
+58
+00:08:00,400 --> 00:08:07,740
+ if the parity block fails, then both the disk or the parity block fails, at least the reads
+
+59
+00:08:07,740 --> 00:08:15,780
+ will not be affected because all the blocks are there, the data blocks. And in the background,
+
+60
+00:08:15,780 --> 00:08:23,940
+ you are going to reconstruct the parity blocks. So that's one reason. So it's again, it's
+
+61
+00:08:23,940 --> 00:08:34,040
+ like if you put all the parity blocks on a disk, then if any other disk goes away, then
+
+62
+00:08:34,040 --> 00:08:42,300
+ all the reads have to reconstruct using the parity block. So it's expensive. All the reads
+
+63
+00:08:42,300 --> 00:08:49,560
+ are for the data from the failed disk. If the parity blocks are staggered, then again,
+
+64
+00:08:49,560 --> 00:08:58,540
+ when the disk is a parity, when you access the data whose parity block was on a failed
+
+65
+00:08:58,540 --> 00:09:10,480
+ disk, you don't need to do anything because the data is available.
+
+66
+00:09:10,480 --> 00:09:21,620
+ Of course, this is the same solution in principle is going to work over also over the internet.
+
+67
+00:09:21,620 --> 00:09:32,180
+ It doesn't need to be in the same data center or in the same rack. And then it's again,
+
+68
+00:09:32,180 --> 00:09:40,940
+ this RAID 5, it provides durability in the presence of a one disk failure. What would
+
+69
+00:09:40,940 --> 00:09:46,620
+ you have? What if you want to have more disk failures? There are other versions of RAID
+
+70
+00:09:46,620 --> 00:09:52,980
+ 5X and instead of parity blocks, they use erasure codes. So for instance, RAID 6 allow
+
+71
+00:09:52,980 --> 00:09:59,780
+ two disks in replication to fail. In the replication, it strives to fail. And many of these use read
+
+72
+00:09:59,780 --> 00:10:05,540
+ Solomon codes or erasure codes. So in this case, you have M data fragments. So you can
+
+73
+00:10:05,540 --> 00:10:12,760
+ think about blocks and you generate N minus M extra fragments. So now to store M blocks
+
+74
+00:10:12,760 --> 00:10:18,540
+ of M fragments of data or blocks of data, you are going to need N blocks out of which
+
+75
+00:10:18,540 --> 00:10:24,760
+ N minus M are newly generated blocks. And this can generate N minus M failures. So basically,
+
+76
+00:10:24,760 --> 00:10:35,600
+ you can, if as long as you have M disks are still up, then you can reconstruct any M disk
+
+77
+00:10:35,600 --> 00:10:46,140
+ out of N are up, you can reconstruct all the pieces of it. It's again, so like for instance,
+
+78
+00:10:46,140 --> 00:10:54,940
+ if you want really to have extremely something extremely resilient, extremely durable, you
+
+79
+00:10:54,940 --> 00:11:02,420
+ can have like this example, you can have M is four fragments or blocks and N is 16. So
+
+80
+00:11:02,420 --> 00:11:09,720
+ then you are going, the overhead is quite high. And by this system will be extremely
+
+81
+00:11:09,720 --> 00:11:18,860
+ durable. And like mentioning, you can have the device, all the disk drives in the same
+
+82
+00:11:18,860 --> 00:11:24,060
+ room or you can have them across the internet. And obviously when they are across the internet,
+
+83
+00:11:24,060 --> 00:11:32,960
+ you are going to have a much more durable system. Because the correlation of failure
+
+84
+00:11:32,960 --> 00:11:38,900
+ is lower. If all the disk are in the same room, if you have a earthquake or you have
+
+85
+00:11:38,900 --> 00:11:52,900
+ a fire, all the disk may be destroyed. And here it's a very interesting aspect. And at
+
+86
+00:11:52,900 --> 00:12:04,180
+ a high level, so say you are prepared to pay an overhead here in this example, you say
+
+87
+00:12:04,180 --> 00:12:16,080
+ an overhead of 4x. So for each piece of data, I am going to require four times storage.
+
+88
+00:12:16,080 --> 00:12:23,140
+ So if I store one gigabyte of data, I am going to use four gigabytes of storage. And one
+
+89
+00:12:23,140 --> 00:12:29,160
+ thing is to have four ways of replication. So each piece of data, I am going to replicate
+
+90
+00:12:29,160 --> 00:12:37,380
+ on four different disks. And then you compute here, this is fraction block loss per year.
+
+91
+00:12:37,380 --> 00:12:45,340
+ And this is on the y-axis, x-axis is the repair time, I'll tell you more. But then you compute
+
+92
+00:12:45,340 --> 00:12:54,240
+ the probability that you lose all the data, right? This means all four disks are going
+
+93
+00:12:54,240 --> 00:13:03,400
+ to fail before you have a chance to repair them. Now, the other way you can do it is
+
+94
+00:13:03,400 --> 00:13:08,480
+ the following thing. And that's why it's called fragments, I'm saying. I'm taking a block
+
+95
+00:13:08,480 --> 00:13:19,800
+ and instead of replicating on four disks, I am going to take, assume that I have say
+
+96
+00:13:19,800 --> 00:13:29,720
+ 64 disks, smaller disks, the total storage is the same. But then I'm taking a block and
+
+97
+00:13:29,720 --> 00:13:36,980
+ I'm going to divide it into 16 fragments. And for each fragment, I am going, you know,
+
+98
+00:13:36,980 --> 00:13:45,740
+ and then for the 16 fragments, then I'm going to compute using greater codes, another 64
+
+99
+00:13:45,740 --> 00:13:52,260
+ minus 16, 48 fragments, right? So the overhead is the same, but now I have a lot of more
+
+100
+00:13:52,260 --> 00:13:59,300
+ fewer, a lot of more fragments. And in this particular case, this will be a much more
+
+101
+00:13:59,300 --> 00:14:06,800
+ durable system. Let me say a little bit about this plot now. On the x-axis, you have repair
+
+102
+00:14:06,800 --> 00:14:17,620
+ time and on the y-axis here, you are going to have probability of block failure per year.
+
+103
+00:14:17,620 --> 00:14:24,180
+ So this basically says that as you expect, and different lines are for the number of
+
+104
+00:14:24,180 --> 00:14:34,520
+ fragments, 48, 16, 32, 64. For four fragments is basically you have a replication on, you
+
+105
+00:14:34,520 --> 00:14:42,180
+ know, basically on four, you can see this way, on four of the boxes. And obviously you
+
+106
+00:14:42,180 --> 00:14:54,700
+ can expect that the repair time increases, then the probability of failure will increase,
+
+107
+00:14:54,700 --> 00:15:01,100
+ right? Right? Because if it takes one day to repair, there is a chance that other disks
+
+108
+00:15:01,100 --> 00:15:08,120
+ will fail within one day is much smaller than if the repair takes six months. And then now
+
+109
+00:15:08,120 --> 00:15:17,520
+ you have in six months, the probability obviously for the other disk to fail is much higher.
+
+110
+00:15:17,520 --> 00:15:27,160
+ But this basically, you know, and this again, this is simple probability. And this basically
+
+111
+00:15:27,160 --> 00:15:40,520
+ tells you that the probability to have, say in this case, to have four disks to fail,
+
+112
+00:15:40,520 --> 00:15:47,520
+ so you lose all the copies, is much higher than the probability to have all four disks
+
+113
+00:15:47,520 --> 00:16:00,520
+ to fail, to have, you know, in this case, 49 of disk of 64 disks to fail.
+
+114
+00:16:00,520 --> 00:16:09,320
+ Okay, so Michael asked this question, in practice, are error codes, I mean, you know, all the
+
+115
+00:16:09,320 --> 00:16:17,480
+ parity codes ever used instead of your regular codes? If you have only to tolerate a failure,
+
+116
+00:16:17,480 --> 00:16:24,640
+ I think you are still going to use the parity codes. It's just easier, or you are going
+
+117
+00:16:24,640 --> 00:16:34,640
+ to use replication. The other one, but in general, you do use eraser codes. And eraser
+
+118
+00:16:34,640 --> 00:16:40,080
+ codes actually they are using all these distributed file systems, also like Hadoop distributed
+
+119
+00:16:40,080 --> 00:16:45,640
+ file systems, there are versions which are using eraser codes, and eraser exactly to
+
+120
+00:16:45,640 --> 00:16:47,640
+ improve reliability.
+
+121
+00:16:47,640 --> 00:16:55,660
+ Tayo asked the question, what does it mean to repair for six months? Oh, so, so think
+
+122
+00:16:55,660 --> 00:17:04,060
+ about this is, yeah, depends on how difficult it is to repair, but in the past, you know,
+
+123
+00:17:04,060 --> 00:17:11,680
+ you have the disk homes, and you lost some disks, so now you need to order those disks.
+
+124
+00:17:11,680 --> 00:17:15,440
+ And you know, the delivery, you know, it may take three months, right? Because you need
+
+125
+00:17:15,440 --> 00:17:20,920
+ to order, you need to order your order to be approved, if you are a company, and all
+
+126
+00:17:20,920 --> 00:17:29,520
+ of these things, right? And then your disk have to be shipped. And maybe you have older
+
+127
+00:17:29,520 --> 00:17:35,880
+ disk and your similar disk, so it just takes time. So the time, the mean repair time is
+
+128
+00:17:35,880 --> 00:17:44,200
+ the time it takes, if you lost some copies, you lost some copies to recover these copies,
+
+129
+00:17:44,200 --> 00:17:49,000
+ and because and for that you may need to buy additional hardware to replace the one which
+
+130
+00:17:49,000 --> 00:17:52,000
+ has failed.
+
+131
+00:17:52,000 --> 00:17:55,480
+ Okay.
+
+132
+00:17:55,480 --> 00:17:57,480
+ Make sense?
+
+133
+00:17:57,480 --> 00:18:10,080
+ Okay, and here is an example about using and storing the fragments over the internet.
+
+134
+00:18:10,080 --> 00:18:11,520
+ Right.
+
+135
+00:18:11,520 --> 00:18:17,680
+ Okay. So again, just wanted to make sure here to go back that what we are saying here, when
+
+136
+00:18:17,680 --> 00:18:22,640
+ you do the replication, again, you have one block, so say one block is one kilobyte, so
+
+137
+00:18:22,640 --> 00:18:30,840
+ you replicate, you have four copies, one kilobyte on different nodes. When you do the fragmentation
+
+138
+00:18:30,840 --> 00:18:37,680
+ here, you take one kilobyte and the divide is out block, you divide in 16 fragments.
+
+139
+00:18:37,680 --> 00:18:46,800
+ So for 16 fragments, you are going to have what? It's two power. Yeah, it's one kilobyte
+
+140
+00:18:46,800 --> 00:18:55,360
+ divided by 16. And this is, I believe it's what, 128, something like that bytes. So now
+
+141
+00:18:55,360 --> 00:19:11,840
+ you have this kind of, it's not, you have, sorry, you have 64, right? 16 times 64.
+
+142
+00:19:11,840 --> 00:19:13,840
+ Yep.
+
+143
+00:19:13,840 --> 00:19:26,000
+ So divided one kilobyte in 16 fragments, and then you are going to, each fragment now is
+
+144
+00:19:26,000 --> 00:19:32,640
+ going to have 64 bytes. And now you are going to generate another 48 fragments, each of
+
+145
+00:19:32,640 --> 00:19:38,200
+ them of 64 bytes using great approach.
+
+146
+00:19:38,200 --> 00:19:46,240
+ And now in order to read the data, you need to read 16 fragments. Any of these 64, any
+
+147
+00:19:46,240 --> 00:19:52,640
+ 16 fragments out of 64 fragments will do it. And you can construct and construct the original
+
+148
+00:19:52,640 --> 00:20:00,360
+ block. Make sense? Just, I need to make sure. We are on the same page.
+
+149
+00:20:00,360 --> 00:20:08,200
+ Okay. So this is about your ability, but this is not enough. The fact that the disk, the
+
+150
+00:20:08,200 --> 00:20:16,360
+ data is still on the disk. It doesn't mean that you can access it. Also, it doesn't mean
+
+151
+00:20:16,360 --> 00:20:28,300
+ that, you know, you are also able to write the data on the disk in the first place. Right?
+
+152
+00:20:28,300 --> 00:20:33,600
+ So that's why we care about reliability. Reliability is looking at the end to end. It is not, doesn't
+
+153
+00:20:33,600 --> 00:20:39,040
+ care only whether data is on the disk, but whether you can put the data on the disk and
+
+154
+00:20:39,040 --> 00:20:43,120
+ you can retrieve the data from the disk.
+
+155
+00:20:43,120 --> 00:20:49,240
+ So next we are going to talk about reliability, but let's see, let's, let's talk about what,
+
+156
+00:20:49,240 --> 00:20:56,560
+ what can go wrong, right? And which is orthogonal to durability, right? So say a disk loses
+
+157
+00:20:56,560 --> 00:21:03,120
+ power, or you have a software crash. Now you have a read operation or write operation.
+
+158
+00:21:03,120 --> 00:21:15,160
+ What happens with that write operation, which is in progress? Maybe can be lost, right?
+
+159
+00:21:15,160 --> 00:21:24,580
+ Or maybe it's interrupted in the middle. You just wrote half a block, not the entire block.
+
+160
+00:21:24,580 --> 00:21:32,240
+ Okay. So RAID doesn't do, doesn't protect any of, against any of such failures, right?
+
+161
+00:21:32,240 --> 00:21:39,400
+ RAID basically says, well, if you are successful to write data and you have so many replicas,
+
+162
+00:21:39,400 --> 00:21:44,680
+ if you're, once you've done that, I guarantee that you find the data when you come next
+
+163
+00:21:44,680 --> 00:21:53,800
+ time, it still be stored. Right? Right. So yes, you need your ability, but this is not
+
+164
+00:21:53,800 --> 00:22:04,940
+ the entire story. So this is what we are going to talk next. Right? So and why is this, this
+
+165
+00:22:04,940 --> 00:22:11,420
+ a bigger problem? This is a bigger problem because when you write data on a disk, when
+
+166
+00:22:11,420 --> 00:22:18,800
+ you write a block of data in a disk, it's not only that piece of data. You need maybe
+
+167
+00:22:18,800 --> 00:22:27,320
+ to update, you need to update the inode data, right? Because you have a new block now. Maybe
+
+168
+00:22:27,320 --> 00:22:32,000
+ it's an indirect block, the pointer to the indirect block, you know, the indirect, interaction
+
+169
+00:22:32,000 --> 00:22:42,000
+ pointer. You need to update the bitmap of the, which files are now available, oh, sorry,
+
+170
+00:22:42,000 --> 00:22:48,260
+ which blocks are available, availability bitmap, right? If you're writing a block on a block,
+
+171
+00:22:48,260 --> 00:22:55,160
+ that block is no longer available. So I need to update the bitmap. Right? So for each of
+
+172
+00:22:55,160 --> 00:23:03,000
+ these writes, you need actually to touch and multiple, you need to touch multiple pieces
+
+173
+00:23:03,000 --> 00:23:11,440
+ of information from the disk. And if some of them make to the disk, but some of them
+
+174
+00:23:11,440 --> 00:23:19,540
+ do not make the disk, you are going to leave the disk in an inconsistent state. Right?
+
+175
+00:23:19,540 --> 00:23:23,700
+ So that's a problem, right? How do you do that? Not only when you have this kind of
+
+176
+00:23:23,700 --> 00:23:35,980
+ multiple operations, which means all to succeed in order for the write to succeed. And, and
+
+177
+00:23:35,980 --> 00:23:42,300
+ by the, you know, so, so that's kind of the problem, right? And of course you also, there
+
+178
+00:23:42,300 --> 00:23:48,660
+ are other complication because if you aren't concurrency for improving throughput, so you
+
+179
+00:23:48,660 --> 00:23:58,540
+ want to, to perform this operation in parallel and think in sensing like that. Make sure
+
+180
+00:23:58,540 --> 00:24:10,860
+ it makes sense. Any questions? So what are the stress to threats to reliability? Like
+
+181
+00:24:10,860 --> 00:24:21,420
+ we discussed is interrupted operation, crash of software crashes, power failures. And when
+
+182
+00:24:21,420 --> 00:24:27,580
+ this happens, then you can get into trouble. This is a classical canonical example about
+
+183
+00:24:27,580 --> 00:24:33,300
+ the bank transfer. You know, you transfer from one bank to another, from one account
+
+184
+00:24:33,300 --> 00:24:42,900
+ to another. What happens if you have a failures after you withdraw some of money, but before
+
+185
+00:24:42,900 --> 00:24:51,860
+ you have a chance to deposit the sum of money in a different account, then you lost that
+
+186
+00:24:51,860 --> 00:25:04,300
+ money if you are not careful. So it's also this one, the failure of non-volatile storage,
+
+187
+00:25:04,300 --> 00:25:13,620
+ right? Storage media may cause previous store data to disappear or be corrupted. Like we
+
+188
+00:25:13,620 --> 00:25:25,260
+ are going to see. So any questions about what problems you are trying to solve here? So
+
+189
+00:25:25,260 --> 00:25:33,780
+ you are trying to solve here, the biggest problem is that when you are going to write
+
+190
+00:25:33,780 --> 00:25:42,380
+ the data on the disk, the biggest problem you do not want in the presence of failures
+
+191
+00:25:42,380 --> 00:25:55,020
+ to leave the data on the disk in an inconsistent state. That's what, that's a problem. There
+
+192
+00:25:55,020 --> 00:26:05,100
+ are two ways to do it, two general ways. One, you are just careful, you carefully order
+
+193
+00:26:05,100 --> 00:26:17,260
+ the operations such that if you have failures, when you restart, you can clean up the mess
+
+194
+00:26:17,260 --> 00:26:29,820
+ and leave the disk in a consistent state. That's one. The other one is copy on write.
+
+195
+00:26:29,820 --> 00:26:35,260
+ The copy on write, you can think about the data you wrote is immutable. And when you
+
+196
+00:26:35,260 --> 00:26:46,540
+ write, when you try to modify some piece of data, you basically create another copy and
+
+197
+00:26:46,540 --> 00:26:52,620
+ you modify the copies. You don't modify the original. So original is always there. And
+
+198
+00:26:52,620 --> 00:26:56,660
+ when you are done, you are pointing to the modified copy and maybe you can garbage collect
+
+199
+00:26:56,660 --> 00:27:07,380
+ the original. Okay. So this is what it is. So the left hand side, the careful ordering
+
+200
+00:27:07,380 --> 00:27:17,180
+ of recovery choose by fact and fast file system, the Unix. This is a file check, file system
+
+201
+00:27:17,180 --> 00:27:24,100
+ check. It's a command you run when you reboot the system. This command runs to clean up
+
+202
+00:27:24,100 --> 00:27:31,220
+ the disk if there are problems in consistent data. And really you are carefully about the
+
+203
+00:27:31,220 --> 00:27:36,060
+ order in which you are doing these operations. Like for instance, you create a new file,
+
+204
+00:27:36,060 --> 00:27:42,940
+ you need to update the directory, you need to update the free bitmap, to update the inode
+
+205
+00:27:42,940 --> 00:27:53,960
+ to update the data book. Okay. So this is a careful ordering approach. So as a high
+
+206
+00:27:53,960 --> 00:28:02,640
+ level is again, problem I want to solve, a failure shouldn't result in the data of the
+
+207
+00:28:02,640 --> 00:28:14,540
+ disk being inconsistent. The solution you need to order carefully all the writes to
+
+208
+00:28:14,540 --> 00:28:25,780
+ the disk, which are needed to store that the piece of data, such that when you are going
+
+209
+00:28:25,780 --> 00:28:33,920
+ to restart, you have enough information so you can clean up the disk from any partial
+
+210
+00:28:33,920 --> 00:28:44,560
+ and wrong information. This is also used at the application level by say editors like
+
+211
+00:28:44,560 --> 00:28:53,840
+ ORB or Emacs. So let me ask you this question, because this is the core to understand this
+
+212
+00:28:53,840 --> 00:29:03,400
+ technique. Assume you need to store a piece of data and the directory entry to point to
+
+213
+00:29:03,400 --> 00:29:13,920
+ that data or a point of the data. And assume that each of these operations is atomic, but
+
+214
+00:29:13,920 --> 00:29:18,800
+ there are two different writes, one to update, to put the data on the disk and the other
+
+215
+00:29:18,800 --> 00:29:34,400
+ one is to update the directory. And tell me now, this question is the following. Which
+
+216
+00:29:34,400 --> 00:29:51,720
+ one you should write first, the data or the pointer? Data. Why? That's very good. Why
+
+217
+00:29:51,720 --> 00:30:06,600
+ is the data? It's exact. You don't want the pointer to point to the bogus data. You don't
+
+218
+00:30:06,600 --> 00:30:21,160
+ want dangling pointers. Excellent. Right. And then say, so this is correct. First you
+
+219
+00:30:21,160 --> 00:30:27,880
+ write the data and then you write the pointer. Now say you have a failure. You're successful
+
+220
+00:30:27,880 --> 00:30:39,520
+ to write the data, but not the pointer. What do you do when you restart the system? Because
+
+221
+00:30:39,520 --> 00:30:51,520
+ now you have inconsistent state. Yes, you need to garbage collection. Yeah. Collect
+
+222
+00:30:51,520 --> 00:30:58,280
+ somehow. So basically you look at all the data on the disk, all the blocks, and you
+
+223
+00:30:58,280 --> 00:31:04,920
+ see whether there is a pointer, there is a directory entry in this case for that. If
+
+224
+00:31:04,920 --> 00:31:14,800
+ it's not, you are garbage collecting it. So this will appear like the write has failed
+
+225
+00:31:14,800 --> 00:31:33,120
+ in the first place. Didn't happen. Which is okay. Yes. If we write data, but no pointer.
+
+226
+00:31:33,120 --> 00:31:37,960
+ So Michael is asking if we write data, but no pointer, is that the same as writing nasty
+
+227
+00:31:37,960 --> 00:31:50,680
+ at all? Yes, it is. But now that space may be used. So you need to garbage collect. Yeah.
+
+228
+00:31:50,680 --> 00:31:55,920
+ This assumes that is very good point. It's assumed that you also update the free map.
+
+229
+00:31:55,920 --> 00:32:01,640
+ That's why I make, I simplify the example. In general, you need to update the free map.
+
+230
+00:32:01,640 --> 00:32:08,000
+ You need to update the inode like we'll see next. But in this case, I assume that when
+
+231
+00:32:08,000 --> 00:32:13,120
+ you write a piece of data, that block is already allocated. So therefore you need to garbage
+
+232
+00:32:13,120 --> 00:32:21,960
+ for it. Okay. So now it's very easy for you to understand. So here are the normal operations
+
+233
+00:32:21,960 --> 00:32:29,240
+ for Berkeley FAST file system. You allocate a data block, you write a data block, you
+
+234
+00:32:29,240 --> 00:32:34,920
+ allocate an inode, your IZINode, which is pointing to the data block, you update the
+
+235
+00:32:34,920 --> 00:32:41,760
+ bitmap of free blocks and inodes and update the directory with a file name pointing to
+
+236
+00:32:41,760 --> 00:32:49,120
+ the inode number. And then you update modified time for directory and you update the modified
+
+237
+00:32:49,120 --> 00:32:56,840
+ time for the directory. Right? So you start from the data and you go backwards all the
+
+238
+00:32:56,840 --> 00:33:02,320
+ way to the directory. And what do we do on recovery? Like we discussed, you scan the
+
+239
+00:33:02,320 --> 00:33:13,280
+ inode table and there is any unlinked files, not in any directory, you delete it. Right?
+
+240
+00:33:13,280 --> 00:33:18,760
+ Or maybe you put in lost and found directory if you have one. And then you compare the
+
+241
+00:33:18,760 --> 00:33:29,160
+ free block bitmap against the inode tree and to see whether they are consistent. Right?
+
+242
+00:33:29,160 --> 00:33:35,120
+ It's again, we just scan directory are missing from the bitmap. They are not reflected in
+
+243
+00:33:35,120 --> 00:33:43,520
+ the free map. You garbage collect. Right? And then you scan directory for missing update
+
+244
+00:33:43,520 --> 00:33:49,600
+ and access times. So now you do all of these things. It's again, it's a more involving
+
+245
+00:33:49,600 --> 00:33:55,880
+ procedure because you are here, you have to write more pieces of data and which are associated
+
+246
+00:33:55,880 --> 00:34:01,520
+ or linked with a data block when you write a data block. But fundamentally the same idea
+
+247
+00:34:01,520 --> 00:34:07,240
+ like we discussed earlier on. When you have only data block and a pointer to the data
+
+248
+00:34:07,240 --> 00:34:12,880
+ block. Obviously the problem with this one, if you want to do it is the time is proportional
+
+249
+00:34:12,880 --> 00:34:21,200
+ to the disk size because they need to look at all blocks. Any questions? So this was
+
+250
+00:34:21,200 --> 00:34:38,880
+ the first solution. How do you recover a failed recovery? Well, for the fail, that's a great
+
+251
+00:34:38,880 --> 00:34:44,440
+ question. For a fail recovery, you make sure that when you are going to take the actions,
+
+252
+00:34:44,440 --> 00:34:51,400
+ you are taking the same actions that when you recover next, you can still clear clean
+
+253
+00:34:51,400 --> 00:35:08,160
+ up everything. Okay. So that's what it is. You apply recursively the same idea. The second
+
+254
+00:35:08,160 --> 00:35:22,880
+ one is copy on write. So this is also called cow. And you fundamentally create a new version
+
+255
+00:35:22,880 --> 00:35:31,520
+ of the file. This is a simple implementation of this is that if I'm going to update a piece
+
+256
+00:35:31,520 --> 00:35:36,720
+ of data, if I want to update a piece of data, I don't update in place. I create a copy and
+
+257
+00:35:36,720 --> 00:35:48,160
+ I update the copy and later I can delete the original. And it seems expensive, but the
+
+258
+00:35:48,160 --> 00:35:56,120
+ updates can be bad. If you have multiple updates, you can do it at the same time. And if you
+
+259
+00:35:56,120 --> 00:36:04,080
+ remember, if you send a batch of writes to the disk, the disk can be smart. This controller
+
+260
+00:36:04,080 --> 00:36:12,600
+ can be smart to reorder them. So to minimize the seek latency and even the rotation latency.
+
+261
+00:36:12,600 --> 00:36:21,360
+ This is a network. This approach, copy on write, is taken by a few other systems. ZFS
+
+262
+00:36:21,360 --> 00:36:30,160
+ is Oracle now, and there is also an open ZFS and NetAppliance. It has this write anywhere
+
+263
+00:36:30,160 --> 00:36:45,960
+ file layout or waffle. They use the same technique. And here how it is. Assume that you have the
+
+264
+00:36:45,960 --> 00:36:56,080
+ file is represented as a tree of blocks. And you are just updating what is called here
+
+265
+00:36:56,080 --> 00:37:03,520
+ as a fringe block, as a block at the end. You start with all and you are adding more
+
+266
+00:37:03,520 --> 00:37:13,560
+ blocks to this file structure. So now assume that you update these blocks on the right
+
+267
+00:37:13,560 --> 00:37:25,840
+ hand side, the one which is half blue. So what you do actually in this particular
+
+268
+00:37:25,840 --> 00:37:41,120
+ case, you write in a new block, a copy. That's all you write. You took this block, you replicate
+
+269
+00:37:41,120 --> 00:37:55,160
+ it, and you update the replica. The original block remains untouched. So now what you do,
+
+270
+00:37:55,160 --> 00:38:05,920
+ you just basically generate a new bunch of pointers, a sub-tree, and then you are going
+
+271
+00:38:05,920 --> 00:38:18,040
+ to connect these new nodes in the new version of the tree to the corresponding existing
+
+272
+00:38:18,040 --> 00:38:25,240
+ tree nodes.
+
+273
+00:38:25,240 --> 00:38:36,920
+ So now if you are successful in updating all these pointers after you updated the data,
+
+274
+00:38:36,920 --> 00:38:42,080
+ then the old version, the version of the tree and of the file move from the old version
+
+275
+00:38:42,080 --> 00:38:51,520
+ to the new version. And once you do that, you can do garbage collect the rest. You see
+
+276
+00:38:51,520 --> 00:39:03,280
+ all the blocks, data blocks from the old version of the file, as well as interior nodes in
+
+277
+00:39:03,280 --> 00:39:14,440
+ the tree, again, which are not pointed by the new version, they've been garbage collected.
+
+278
+00:39:14,440 --> 00:39:23,040
+ So any block, any interior node to which there is no black arrow pointing, this can be garbage
+
+279
+00:39:23,040 --> 00:39:34,400
+ collected. And now you have a new version. So this again, it's like you are going to
+
+280
+00:39:34,400 --> 00:39:39,480
+ move from old version to the new version only in the last moment, once you update all the
+
+281
+00:39:39,480 --> 00:39:52,040
+ interior nodes of the tree and obviously the data. You updated the block after you copied.
+
+282
+00:39:52,040 --> 00:39:55,840
+ If you are not successful, if you fail during this process, it's okay. You have the old
+
+283
+00:39:55,840 --> 00:40:02,480
+ version, the old version is still consistent. It don't reflect the new update, but again,
+
+284
+00:40:02,480 --> 00:40:07,080
+ that's okay. The main problem when you try to solve here is to not leave the old story
+
+285
+00:40:07,080 --> 00:40:30,160
+ system in an inconsistent state. Any questions? Oh, is this better or worse on SSD? It seems
+
+286
+00:40:30,160 --> 00:40:40,320
+ like we are writing a lot more, but don't have to erase as often. Well, yeah, it's worse
+
+287
+00:40:40,320 --> 00:40:50,600
+ for SSDs because you are going to wear the SSDs more. But again, we have other solutions
+
+288
+00:40:50,600 --> 00:41:02,160
+ like you'll see. But in general, this is worse. You still need to erase because you need to
+
+289
+00:41:02,160 --> 00:41:09,940
+ garbage collect. Garbage collection means you're a rater. But a great question. Okay.
+
+290
+00:41:09,940 --> 00:41:19,320
+ So this is, like I mentioned to you, ZFS, ZFS has variable size blocks, is a symmetric
+
+291
+00:41:19,320 --> 00:41:25,420
+ tree. So basically the tree you are building is symmetric of a certain depth. So basically
+
+292
+00:41:25,420 --> 00:41:34,040
+ you know because symmetric is like how large or small is. If you know the depths of the
+
+293
+00:41:34,040 --> 00:41:38,760
+ tree and you know what leaf, the leaf where you are at, you can estimate the size of the
+
+294
+00:41:38,760 --> 00:41:44,720
+ tree pretty accurately. If it's balanced, right? If it's symmetric. If it's not symmetric,
+
+295
+00:41:44,720 --> 00:41:52,600
+ then you cannot do that. You store the version number in the pointers. So you know the pointer
+
+296
+00:41:52,600 --> 00:41:59,520
+ to which the version number belongs to. And like we saw before, you can create a new version
+
+297
+00:41:59,520 --> 00:42:08,420
+ by adding new blocks and new pointers. And as the tree expands, you are going to garbage
+
+298
+00:42:08,420 --> 00:42:20,380
+ collect the old data, the old pointers to make room for the new data.
+
+299
+00:42:20,380 --> 00:42:30,740
+ So and in this case, you try to batch everything. You try to batch the writes. You try to batch
+
+300
+00:42:30,740 --> 00:42:50,560
+ the updates to the free space and so forth. OK, so now let's talk about more general solutions.
+
+301
+00:42:50,560 --> 00:42:56,120
+ So one solution which you are going to talk about also next time, now it's just briefly,
+
+302
+00:42:56,120 --> 00:43:05,500
+ this transaction. So fundamentally, what we want here is remember, we want to avoid to
+
+303
+00:43:05,500 --> 00:43:12,180
+ have to remain in an inconsistent state. And we remain in an inconsistent state because
+
+304
+00:43:12,180 --> 00:43:18,640
+ we have multiple related updates. So if only part of the updates happen, then you have
+
+305
+00:43:18,640 --> 00:43:27,080
+ an inconsistent state. So we had this problem before. And if you remember, and we talk about
+
+306
+00:43:27,080 --> 00:43:32,480
+ critical section, we talk about that when I talk about atomicity. Right? With atomic
+
+307
+00:43:32,480 --> 00:43:38,600
+ operation, we want all of the operation to happen or none or so. The same idea is this
+
+308
+00:43:38,600 --> 00:43:44,860
+ transaction for the story system. This is called some transactions. They are more than
+
+309
+00:43:44,860 --> 00:43:51,340
+ atomic operation because they also require durability and other properties. But the idea
+
+310
+00:43:51,340 --> 00:44:00,900
+ is the same. A transaction contain multiple operations. And the semantics should be either
+
+311
+00:44:00,900 --> 00:44:08,100
+ all the operation in a transaction are going to happen to be successful or none of them
+
+312
+00:44:08,100 --> 00:44:21,740
+ will happen. So if you are failure in the middle of the transaction, then it looks like
+
+313
+00:44:21,740 --> 00:44:30,640
+ none of the updates in the transaction ever happen. The entire transaction fail. So we
+
+314
+00:44:30,640 --> 00:44:37,880
+ discuss about this and it's again closely related to this critical section and with
+
+315
+00:44:37,880 --> 00:44:56,840
+ the concept of atomic update for memory. So in some sense, the first file system, which
+
+316
+00:44:56,840 --> 00:45:07,160
+ approach to carefully ordering the sequence of updates and then recover from inconsistent
+
+317
+00:45:07,160 --> 00:45:22,680
+ state when you restart, it's a primitive form of implementing this idea.
+
+318
+00:45:22,680 --> 00:45:36,420
+ So again, we discussed that just to draw home the point, a transaction is a bunch of operations
+
+319
+00:45:36,420 --> 00:45:45,920
+ which take a system from a consistent state to another consistent state. And therefore
+
+320
+00:45:45,920 --> 00:45:51,000
+ we want all the operation in the transaction to happen or none of them to happen. If none
+
+321
+00:45:51,000 --> 00:45:54,780
+ of them will happen, you remain in the previous state, which is consistent by definition.
+
+322
+00:45:54,780 --> 00:46:06,480
+ If all will happen, you are going to move to a new state, which is again will be consistent.
+
+323
+00:46:06,480 --> 00:46:14,380
+ So in one way, transaction extends the concept of atomic updates to multiple data structures
+
+324
+00:46:14,380 --> 00:46:24,360
+ from memory to persistent storage. So what is the typical structure of the transaction?
+
+325
+00:46:24,360 --> 00:46:30,000
+ You have a begin transaction, you have a commit transaction or end of the transaction, and
+
+326
+00:46:30,000 --> 00:46:36,200
+ then you do a bunch of operations. If you fail during these operations, you are going
+
+327
+00:46:36,200 --> 00:46:45,580
+ to roll back to undo the effect of the operation who have succeeded. So this way you are guaranteed
+
+328
+00:46:45,580 --> 00:46:50,820
+ that if you fail during the transaction, then all the operation will be undoed. And from
+
+329
+00:46:50,820 --> 00:46:55,480
+ an external observer, it appears that the transaction, nothing from the transaction
+
+330
+00:46:55,480 --> 00:47:01,820
+ happened.
+
+331
+00:47:01,820 --> 00:47:10,940
+ So these are examples in which you are going to transfer $100 from Alice account to Bob
+
+332
+00:47:10,940 --> 00:47:17,980
+ account. There are a bunch of operations here to update the account of Alice and Bob and
+
+333
+00:47:17,980 --> 00:47:24,980
+ to account the branch, how much money is in the branch, assuming that Alice and Bob are
+
+334
+00:47:24,980 --> 00:47:32,620
+ in different, their accounts are in different branches of the same bank. For operations,
+
+335
+00:47:32,620 --> 00:47:41,740
+ all of them should happen in a transaction.
+
+336
+00:47:41,740 --> 00:47:46,980
+ So this is what you do. You have these operations, you know, here is on the exercise, it is a
+
+337
+00:47:46,980 --> 00:47:53,700
+ time. This is how it appears. And then there are these operations that can be interleaved
+
+338
+00:47:53,700 --> 00:47:57,540
+ these operations from other transactions. So they are transaction actually, like we
+
+339
+00:47:57,540 --> 00:48:11,100
+ are going to see next time can overlap. And then you have start transaction and end commit
+
+340
+00:48:11,100 --> 00:48:23,840
+ transaction. So any questions?
+
+341
+00:48:23,840 --> 00:48:30,260
+ So let's see how transactions are used for file systems. You can see a little bit about
+
+342
+00:48:30,260 --> 00:48:39,860
+ how they could be used. And basically the changes are treated as transactions. And there
+
+343
+00:48:39,860 --> 00:48:47,940
+ are two kinds of file systems here, two types of file systems, log structure and journal.
+
+344
+00:48:47,940 --> 00:48:57,380
+ In a log structure, the data stays in the log and logs are updated using transactions.
+
+345
+00:48:57,380 --> 00:49:06,500
+ In a journal file system, log is used only for recovery. The data is still on, you know,
+
+346
+00:49:06,500 --> 00:49:15,500
+ in the traditional data format on the disk. We are going to look to journal file system
+
+347
+00:49:15,500 --> 00:49:21,220
+ in the next couple of slides.
+
+348
+00:49:21,220 --> 00:49:26,380
+ So it's the same idea a little bit, always, like is that you don't modify data structure
+
+349
+00:49:26,380 --> 00:49:35,900
+ on the disk directly, this idea. You put some of the changes on the log. And only after
+
+350
+00:49:35,900 --> 00:49:42,140
+ you are done, we so to speak, the transaction with all the changes, you push the changes
+
+351
+00:49:42,140 --> 00:49:49,300
+ to the disk. And it turns out that as long as the log is persistent, even if you have
+
+352
+00:49:49,300 --> 00:49:57,820
+ failures, you can always recover. We'll see, we'll show some examples.
+
+353
+00:49:57,820 --> 00:50:07,580
+ So this is exactly what I said. You write the updates of the transactions, the related
+
+354
+00:50:07,580 --> 00:50:14,180
+ updates as a transaction in the log. Once the transaction is committed in the log, you
+
+355
+00:50:14,180 --> 00:50:23,620
+ can now start applying those operations in the transaction on the storage. If you fail
+
+356
+00:50:23,620 --> 00:50:30,380
+ in between, it's OK, because when you come back, you have enough information to continue
+
+357
+00:50:30,380 --> 00:50:38,060
+ to update the disk, the data on the disk.
+
+358
+00:50:38,060 --> 00:50:47,020
+ Once the log, all the updates in a transaction are successfully applied to the disk, you
+
+359
+00:50:47,020 --> 00:50:58,420
+ are going to remove the log. So this is Linux, use Jarnold file system and basically took
+
+360
+00:50:58,420 --> 00:51:07,260
+ of FFS like file system and applied Jarnold's. OK, and there are many, many systems using
+
+361
+00:51:07,260 --> 00:51:16,860
+ journaling file systems. OK, so let's before to see, you know, to get a sense about how
+
+362
+00:51:16,860 --> 00:51:24,780
+ journaling is working, let's look again, what are the typical updates you need to do when
+
+363
+00:51:24,780 --> 00:51:27,640
+ you are going to.
+
+364
+00:51:27,640 --> 00:51:36,220
+ Write data on the disk. For now, there is no journaling. So you need to do what you
+
+365
+00:51:36,220 --> 00:51:41,920
+ need to find a free block, the yellow block, there is a free block. Good. You need to find
+
+366
+00:51:41,920 --> 00:51:53,500
+ a free entry, in the inode entry. You need to find where you are going to insert and
+
+367
+00:51:53,500 --> 00:51:59,860
+ in the file directory where you are going to insert the entry which associates the file
+
+368
+00:51:59,860 --> 00:52:07,700
+ with the inode, the file name with the inode. And then once you update, you find all these
+
+369
+00:52:07,700 --> 00:52:20,420
+ free available spaces, you start to write. You write in the free map space, you say,
+
+370
+00:52:20,420 --> 00:52:28,900
+ you know, you mark that you allocate the data. You write an inode entry to point to the block,
+
+371
+00:52:28,900 --> 00:52:36,500
+ you route and you write the directory entry to point to the inode. This is what you do.
+
+372
+00:52:36,500 --> 00:52:42,580
+ Right? And remember, if something happens, wrong happens, it can leave the disk in the
+
+373
+00:52:42,580 --> 00:52:51,220
+ inconsistent state. So now let's see how we address this problem in journaling. Journaling
+
+374
+00:52:51,220 --> 00:53:00,860
+ is locked. So instead of writing journaling to the disk, you write to the lock. It's non-volatile,
+
+375
+00:53:00,860 --> 00:53:15,340
+ it's on flash or on the disk. So what do you do? You find the free data block. Again, like
+
+376
+00:53:15,340 --> 00:53:21,140
+ these are the operations, right? Find free data block, find free inode entry, find a
+
+377
+00:53:21,140 --> 00:53:29,860
+ directory and insertion point in directory for adding the directory entry to map the
+
+378
+00:53:29,860 --> 00:53:39,020
+ file name to the inode. This is what you do. You start the transaction and you write this
+
+379
+00:53:39,020 --> 00:53:48,140
+ operation. Okay, so now you don't write directly and to update the free space map. You put
+
+380
+00:53:48,140 --> 00:53:58,740
+ the operation to the updates, that free space map in the lock. You don't update the inode
+
+381
+00:53:58,740 --> 00:54:10,460
+ table to point to the new block. You write that operation in the lock and the same, the
+
+382
+00:54:10,460 --> 00:54:16,580
+ operation to update the directory entry, you are going to write in the lock. And now you
+
+383
+00:54:16,580 --> 00:54:28,980
+ commit it. So all updates, all operation to update information on the disks are in the
+
+384
+00:54:28,980 --> 00:54:43,140
+ lock. Nothing happened so far on the disk. And then once you are done, you are going
+
+385
+00:54:43,140 --> 00:54:49,900
+ to go through all the operations in the locks and you are going to update now the data or
+
+386
+00:54:49,900 --> 00:54:59,620
+ the information on the disk. So you copy all the changes and you advance the tail of the
+
+387
+00:54:59,620 --> 00:55:11,460
+ lock. And now when the tail goes over the commit, after you execute all the operations,
+
+388
+00:55:11,460 --> 00:55:20,220
+ modify all the operation from the lock on the file system, you can discard that lock,
+
+389
+00:55:20,220 --> 00:55:43,460
+ that transaction in the lock. Okay. So let's say that I was only successful to write to
+
+390
+00:55:43,460 --> 00:56:04,820
+ the locks only the operation to get to the free space to modify the bitmap, free space
+
+391
+00:56:04,820 --> 00:56:18,580
+ bitmap and the pointer to the inode. In this case, if I am coming back and assume that
+
+392
+00:56:18,580 --> 00:56:24,900
+ after these two operations are returning the lock, but before the transaction ended, I
+
+393
+00:56:24,900 --> 00:56:38,540
+ have a failure. So at the second in this case, if I come back, right? The only thing I need
+
+394
+00:56:38,540 --> 00:56:44,540
+ to do is to remove this operation to remove from the lock because it is fine. It's fine.
+
+395
+00:56:44,540 --> 00:56:53,820
+ Still nothing has been applied on the disk. You apply the changes on the disk only after
+
+396
+00:56:53,820 --> 00:57:01,580
+ the transaction is succeeded on the lock. So after you, after the commit. Okay. There
+
+397
+00:57:01,580 --> 00:57:11,940
+ are two questions here. Can you have a fail when while writing the lock? Absolutely. But
+
+398
+00:57:11,940 --> 00:57:17,580
+ then everything will be cleaned up. Like in this case, you can fail while you're writing
+
+399
+00:57:17,580 --> 00:57:23,300
+ on the lock. And then when you come back, you look at the incomplete transaction, you
+
+400
+00:57:23,300 --> 00:57:28,860
+ clean them up because you know that nothing from the transaction, which was not finished
+
+401
+00:57:28,860 --> 00:57:39,260
+ for me, it has been all applied to the disk. What is the big difference between writing
+
+402
+00:57:39,260 --> 00:57:43,420
+ directly? The big difference from writing between writing directly and writing in the
+
+403
+00:57:43,420 --> 00:57:53,420
+ lock is very simple, right? It's basically because I have a lock and I have, you know,
+
+404
+00:57:53,420 --> 00:58:02,140
+ then I can easy reconstruct the state to make it consistent on the file system. Otherwise
+
+405
+00:58:02,140 --> 00:58:10,620
+ it's more difficult. Remember like with a files check for the fast file system in order
+
+406
+00:58:10,620 --> 00:58:17,100
+ to make the state consistent, you need to go and to sequential look over the entire
+
+407
+00:58:17,100 --> 00:58:35,580
+ disk. This is extremely slow. It's again, here in the log, we assume that we know that
+
+408
+00:58:35,580 --> 00:58:45,980
+ a write has been completed. Assume that we know that. The disk eventually will tell you.
+
+409
+00:58:45,980 --> 00:59:02,060
+ If the disk doesn't tell you, then we assume that it doesn't. Yeah. So the question here
+
+410
+00:59:02,060 --> 00:59:07,940
+ is that basically see how do you ensure the sequentiality? Well, you make sure that the
+
+411
+00:59:07,940 --> 00:59:14,860
+ controller for the log is not going to reorder the writes. This is an excellent question.
+
+412
+00:59:14,860 --> 00:59:24,640
+ Very good question. Okay. So you saw how this happened. If you, and now we saw that what
+
+413
+00:59:24,640 --> 00:59:33,180
+ happened if you just a log was partially written. When you come back, you just remove the entries
+
+414
+00:59:33,180 --> 00:59:46,540
+ from the partial logs and you are done. But now let's assume that, let's see what happens.
+
+415
+00:59:46,540 --> 00:59:55,280
+ But now we committed the log, the transaction. So now we need to apply all the operation
+
+416
+00:59:55,280 --> 01:00:07,360
+ in the log. We need to apply them to the disk. So what do you do? You start from the matching
+
+417
+01:00:07,360 --> 01:00:22,840
+ commit and then you are going to, what you are going to do here is basically is again,
+
+418
+01:00:22,840 --> 01:00:29,840
+ every of this operation is idempotent. Meaning that if you apply it multiple times, you are
+
+419
+01:00:29,840 --> 01:00:33,960
+ going to get the same result because it just writes. The writes one write is particularly
+
+420
+01:00:33,960 --> 01:00:39,160
+ idempotent. If you write the same value at the same location over and over again, you
+
+421
+01:00:39,160 --> 01:00:46,640
+ are still going to get the same value no matter how many times you wrote. And here is what
+
+422
+01:00:46,640 --> 01:00:53,560
+ happens here. It's about, again, if you are going to successfully apply all the operations
+
+423
+01:00:53,560 --> 01:00:59,960
+ to the disk, you are done. You can garbage collect like you've seen. But now assume that
+
+424
+01:00:59,960 --> 01:01:04,400
+ you have a failure in the middle or you're applying the operation from the log to the
+
+425
+01:01:04,400 --> 01:01:13,160
+ disk. So what do you do? Simple. When you come back again, you'll go from the beginning
+
+426
+01:01:13,160 --> 01:01:17,140
+ and you apply all the operations. And because the operation are idempotent, it doesn't matter
+
+427
+01:01:17,140 --> 01:01:23,480
+ how many times you apply them. Eventually you are going to finish. Right? And then you
+
+428
+01:01:23,480 --> 01:01:39,800
+ are going to garbage collect the transaction. So the question, how does discard the log
+
+429
+01:01:39,800 --> 01:01:44,720
+ work again? When the machine started writing the logs, the disk, that it's already updated
+
+430
+01:01:44,720 --> 01:01:51,680
+ partially. How do we undo the only part that is not permitted? So maybe I was not, it's
+
+431
+01:01:51,680 --> 01:01:57,080
+ a great question. Maybe I was not clear. There is nothing you are going to update on the
+
+432
+01:01:57,080 --> 01:02:11,080
+ disk unless the transaction is being committed. Nothing. You see this operation, let me just
+
+433
+01:02:11,080 --> 01:02:26,160
+ make that very clear. These green things, they are not modified. I just found these
+
+434
+01:02:26,160 --> 01:02:35,680
+ entries. Right? Nothing has been modified on the disk. You start only modifying once
+
+435
+01:02:35,680 --> 01:02:41,880
+ you route the transaction has committed. Now you can start to go back and you apply all
+
+436
+01:02:41,880 --> 01:02:50,240
+ the changes in the transaction on the disk. Only now you update the data on the disk.
+
+437
+01:02:50,240 --> 01:03:13,200
+ Not before. Did I answer your question? Another question, can we even tell which portion of
+
+438
+01:03:13,200 --> 01:03:21,720
+ a committed log is finished? It's again, you don't need to know, right? You don't know
+
+439
+01:03:21,720 --> 01:03:28,240
+ which is finished because you are going to repeat from the beginning. Every time, if
+
+440
+01:03:28,240 --> 01:03:35,000
+ you didn't, you know, when you go back, when you restart, you are going to redo all the
+
+441
+01:03:35,000 --> 01:03:43,240
+ operation from the log. It doesn't matter whether I already done previously, I've done
+
+442
+01:03:43,240 --> 01:03:51,440
+ a few. See, I have three operation in the log to apply one to three. I applied this
+
+443
+01:03:51,440 --> 01:03:58,480
+ operation one and two, then I failed. When I come back, I'm starting again with one,
+
+444
+01:03:58,480 --> 01:04:05,440
+ two and three. And then hopefully I'm successful to apply three and then I'm done. And I can
+
+445
+01:04:05,440 --> 01:04:11,160
+ apply one and two again because one and two are writes and they are immutable. They are
+
+446
+01:04:11,160 --> 01:04:35,920
+ going to write the same value. So it's okay. Okay. So, you know, why goes through all this
+
+447
+01:04:35,920 --> 01:04:45,400
+ because it makes it easy to reason and be quite efficient to make sure that the state
+
+448
+01:04:45,400 --> 01:04:53,360
+ on the disk is persistent, it's consistent in the presence of failure. Isn't this expensive?
+
+449
+01:04:53,360 --> 01:05:02,320
+ Yes, from one perspective it's expensive because you are going to write twice. You may write
+
+450
+01:05:02,320 --> 01:05:09,120
+ the data, you know, you are going to write on the log and then you are going to write
+
+451
+01:05:09,120 --> 01:05:21,400
+ data on the disk. However, you know, the modern file system is, I forgot to mention, they
+
+452
+01:05:21,400 --> 01:05:32,480
+ have different optimizations. So to do it, you can have different optimization. Like
+
+453
+01:05:32,480 --> 01:05:37,780
+ for instance, eventually the data, you can write it directly and if you fail, then you
+
+454
+01:05:37,780 --> 01:05:44,720
+ eventually recover at a later time. But there is one actually I want to ask you, can you
+
+455
+01:05:44,720 --> 01:05:51,780
+ see one reason actually journaling file systems can be also, can journaling can be good for
+
+456
+01:05:51,780 --> 01:06:09,040
+ performance? If I tell you that journaling can also help with the performance, why do
+
+457
+01:06:09,040 --> 01:06:28,520
+ you think that will be the case? How is the log organized?
+
+458
+01:06:28,520 --> 01:06:53,240
+ the sequential rise are fast. So all the rise in the log are sequential, so they are
+
+459
+01:06:53,240 --> 01:07:04,360
+ very fast. And then later you can actually batch the updates from the logs to the disk.
+
+460
+01:07:04,360 --> 01:07:16,200
+ So you can do them as efficiently as you can. That's the reason. So it's not all bad when
+
+461
+01:07:16,200 --> 01:07:24,040
+ it comes to performance. Okay. Announcements, projects three, design review this week. This
+
+462
+01:07:24,040 --> 01:07:30,280
+ is the last round of design reviews. We are close to the end of the class. Homework five
+
+463
+01:07:30,280 --> 01:07:47,820
+ is due Monday, next Monday. And as you know, we have the midterm grades were released.
+
+464
+01:07:47,820 --> 01:07:54,760
+ I think you did congratulations. You did very well. The first exams, I mean, was around
+
+465
+01:07:54,760 --> 01:08:07,560
+ 50 percentile, 50 percent. Now it's almost 60 percent. So great job. Okay. Now we have
+
+466
+01:08:07,560 --> 01:08:17,360
+ another a little bit more than 12 minutes and we are going to switch the gears. So we
+
+467
+01:08:17,360 --> 01:08:22,960
+ are done with file system reliability and with file system in general. And we are going
+
+468
+01:08:22,960 --> 01:08:31,920
+ to start talking about distributed systems. So why are talking about distributed systems?
+
+469
+01:08:31,920 --> 01:08:43,040
+ Because they are everywhere. Because we need to scale all these workloads. And they require
+
+470
+01:08:43,040 --> 01:08:50,800
+ a lot of machines, a lot of resources. Which means distributed systems. Because any application
+
+471
+01:08:50,800 --> 01:09:01,040
+ today you are using almost, it has a backend, which is somewhere in the cloud. Connecting
+
+472
+01:09:01,040 --> 01:09:06,160
+ your app, the front end of your application, which runs on your device with a backend,
+
+473
+01:09:06,160 --> 01:09:15,320
+ is another distributed system. Okay. So you have everywhere in your car, there are 50,
+
+474
+01:09:15,320 --> 01:09:24,000
+ 100 microprocessors. They are connected by a bus. That's also a distributed system. There
+
+475
+01:09:24,000 --> 01:09:34,560
+ are two kinds of distributed systems. One is centralized and in which you have a coordinator,
+
+476
+01:09:34,560 --> 01:09:42,360
+ a server, for instance, all the machines are connected to one particular server. It's called
+
+477
+01:09:42,360 --> 01:09:46,760
+ also client server model, this one is on the left hand side. The right hand side is peer
+
+478
+01:09:46,760 --> 01:09:53,240
+ to peer model. The peer to peer model, it's more, every other node can communicate with
+
+479
+01:09:53,240 --> 01:10:01,520
+ every other node. The communication is less structured, it's more general. The kind of
+
+480
+01:10:01,520 --> 01:10:07,820
+ client server, it's also implemented by some of the distributed systems like frameworks,
+
+481
+01:10:07,820 --> 01:10:24,480
+ like Hadoop, Spark. Okay. And this is, yeah. Okay. So, and like I mentioned, distributed
+
+482
+01:10:24,480 --> 01:10:37,640
+ systems can be on the same car in the same, you can have, the context can be widely different.
+
+483
+01:10:37,640 --> 01:10:46,620
+ You can have a distributed system in your car, in a room, in your home, in your building,
+
+484
+01:10:46,620 --> 01:10:58,320
+ data center, or across the globe. So there are many reasons again for being distributed
+
+485
+01:10:58,320 --> 01:11:04,820
+ systems. Some of them, because the applications, the users, you want to connect the users and
+
+486
+01:11:04,820 --> 01:11:12,460
+ the users at different locations. Some of them, because like I mentioned, one server
+
+487
+01:11:12,460 --> 01:11:22,140
+ cannot do, is not powerful enough to support all the workload, to perform all the workload.
+
+488
+01:11:22,140 --> 01:11:32,540
+ Okay. But there are also other reasons. Sometimes it's cheaper and this was the truth, like
+
+489
+01:11:32,540 --> 01:11:38,100
+ it used to be that if you want very powerful computers, you build supercomputers, you can
+
+490
+01:11:38,100 --> 01:11:44,140
+ still build two great supercomputers. These are very expensive, takes a year to build,
+
+491
+01:11:44,140 --> 01:11:52,820
+ to deliver. And then with the rise of the internet, and in particular, Google drove
+
+492
+01:11:52,820 --> 01:11:58,340
+ the charge and that was based on some research which was done at Periclei, network of work
+
+493
+01:11:58,340 --> 01:12:08,100
+ people started to replace supercomputers with a bunch of servers, commodity servers, servers
+
+494
+01:12:08,100 --> 01:12:16,740
+ you can buy online or whatever. And then you connect the servers and now you have a much
+
+495
+01:12:16,740 --> 01:12:22,540
+ more powerful intelligent software on top that on the aggregate, they can provide you
+
+496
+01:12:22,540 --> 01:12:32,780
+ a lot of power, computation power and storage space. Okay. So what is the promise of these
+
+497
+01:12:32,780 --> 01:12:41,620
+ security systems? One promise is higher availability. If one machine goes down, use another one.
+
+498
+01:12:41,620 --> 01:12:47,940
+ Right? Despite some failures, actually all the services in the cloud are pretty reliable.
+
+499
+01:12:47,940 --> 01:12:54,380
+ Your Facebook, Google and so forth, they are pretty reliable, more reliable than your laptop.
+
+500
+01:12:54,380 --> 01:12:59,380
+ Better durability. You can store like we saw the data in multiple locations across the
+
+501
+01:12:59,380 --> 01:13:09,380
+ globe. And also in principle, more security because you have multiple pieces, you split
+
+502
+01:13:09,380 --> 01:13:19,660
+ your application in multiple pieces and now you need to protect only one piece at a time
+
+503
+01:13:19,660 --> 01:13:30,500
+ and securing one piece presumably it's easier than securing the entire system. However,
+
+504
+01:13:30,500 --> 01:13:38,500
+ you need to be very careful and it's not easy to deliver on that promise. And in general,
+
+505
+01:13:38,500 --> 01:13:44,260
+ there have been many systems, real distributed systems, which provides worth of everything.
+
+506
+01:13:44,260 --> 01:13:49,660
+ Worth availability, worth reliability, worth security, worth availability. This is Leslie
+
+507
+01:13:49,660 --> 01:13:57,420
+ Lamport during our winner. You'll hear more about him before the class ends. But he was
+
+508
+01:13:57,420 --> 01:14:05,020
+ having this quote. It's like a funny quote. "A distributed system is one in which the
+
+509
+01:14:05,020 --> 01:14:13,580
+ failure of a computer you didn't even know existed can render your own computer unusable."
+
+510
+01:14:13,580 --> 01:14:23,900
+ Okay. You know, you can think about, you know, if you have your email and email server, right?
+
+511
+01:14:23,900 --> 01:14:29,740
+ If your email client works on your computer, but the email server is down, you know, your
+
+512
+01:14:29,740 --> 01:14:38,940
+ computer is pretty useless for email. Worth reliability. If the data, you are not careful
+
+513
+01:14:38,940 --> 01:14:45,820
+ of the data and you don't know where the data is. If the computer crashes or storing the
+
+514
+01:14:45,820 --> 01:14:52,380
+ data crashes, then you lose the data. And worth security because, you know, if you compromise
+
+515
+01:14:52,380 --> 01:15:00,700
+ a component, maybe you can compromise the entire system. Also, coordination is more difficult.
+
+516
+01:15:00,700 --> 01:15:04,380
+ Remember, we have all these challenges to coordinate on the same machine between
+
+517
+01:15:04,380 --> 01:15:10,700
+ different threads, critical section, deadlocks. Remember that? Now, this is much more complicated
+
+518
+01:15:10,700 --> 01:15:18,460
+ because not even on a single machine. It's across the network. And you remember to address
+
+519
+01:15:18,460 --> 01:15:27,500
+ these challenges, we have this kind of very convenient primitives like test and set or PNB.
+
+520
+01:15:27,500 --> 01:15:35,500
+ Well, these are atomic operations, you know, based on atomic operations implemented in hardware.
+
+521
+01:15:35,500 --> 01:15:41,580
+ Well, how you are going to implement this in a distributed system? When machines can be
+
+522
+01:15:41,580 --> 01:15:51,900
+ thousands of miles away. And fundamentally, the security, the trust, it's more difficult
+
+523
+01:15:51,900 --> 01:15:56,060
+ because you need to be careful that even if a component of the system is compromised,
+
+524
+01:15:56,060 --> 01:16:04,780
+ then other parts of the system are not compromised. And this is corollary to Lamport quote.
+
+525
+01:16:04,780 --> 01:16:09,500
+ A distributed system is one where you can't do work because some computer you didn't even
+
+526
+01:16:09,500 --> 01:16:16,140
+ know existed is successfully coordinating an attack on my system. So it's again,
+
+527
+01:16:16,140 --> 01:16:20,140
+ a compromised part of the system. You can bring that down the entire system if you are not
+
+528
+01:16:20,140 --> 01:16:29,100
+ careful in designing these systems. So now when you design a distributed system,
+
+529
+01:16:29,100 --> 01:16:37,500
+ what are your goals? What are the requirements? And simply the requirements you want to have
+
+530
+01:16:37,500 --> 01:16:45,180
+ is to be as transparent as possible. It's to be almost maybe like your laptop, more or less.
+
+531
+01:16:45,180 --> 01:16:50,300
+ Right? You don't want to be aware about there are so many machines. When you get this transparency,
+
+532
+01:16:50,300 --> 01:16:55,740
+ like for instance, when you use your Facebook application, do you know how many machines are
+
+533
+01:16:55,740 --> 01:17:04,780
+ involved in answering some of your requests, in sending the news feed or, you know,
+
+534
+01:17:04,780 --> 01:17:11,740
+ messages, chat, videos, you know? No, you don't. That's transparency, good transparency.
+
+535
+01:17:11,740 --> 01:17:16,620
+ And the transparency as you can imagine has multiple dimensions, location.
+
+536
+01:17:16,620 --> 01:17:25,500
+ You don't know where your servers, the servers handling your Facebook account are located.
+
+537
+01:17:25,500 --> 01:17:31,500
+ Migration. Sometimes you need to move the data from one place to another to scale up the system.
+
+538
+01:17:31,500 --> 01:17:36,220
+ That should be also transparent. You are not aware about replication. You don't know in how
+
+539
+01:17:36,220 --> 01:17:45,180
+ many places your data is replicated. Concurrency. You yourself, you cannot say, cannot tell how many
+
+540
+01:17:45,180 --> 01:17:50,860
+ other Facebook users are at the same time on the system. Still your experience is the same,
+
+541
+01:17:50,860 --> 01:18:05,180
+ whether there are 1000 or 5000 or 5,000, right? That means transparency. And you also want to be
+
+542
+01:18:05,180 --> 01:18:12,300
+ parallelized. I mean, if you want to have a big job, you want the system to somehow transparently
+
+543
+01:18:12,300 --> 01:18:19,100
+ split it ideally, and then execute multiple pieces as possible in parallel on different machines,
+
+544
+01:18:19,100 --> 01:18:26,540
+ so it is running fast. And fault tolerance for sure, like we discussed. If there are failures,
+
+545
+01:18:26,540 --> 01:18:31,260
+ you absolutely do not want those to see these failures.
+
+546
+01:18:31,260 --> 01:18:45,020
+ So any of these things requires the nodes to some computers to communicate between themselves.
+
+547
+01:18:46,700 --> 01:18:56,860
+ And this is what protocol exchanges. Okay? So the protocol, it's an agreement about how to
+
+548
+01:18:56,860 --> 01:19:05,180
+ communicate. It has a syntax which describes the commands, the syntax of the send message,
+
+549
+01:19:05,180 --> 01:19:09,500
+ for instance, receive message. What are the fields? What are the type of fields?
+
+550
+01:19:10,620 --> 01:19:19,100
+ Name of the commands. And then in semantics, when you send some packets, what really happens?
+
+551
+01:19:19,100 --> 01:19:27,100
+ What actions are taken? In general, this is a description of a state machine,
+
+552
+01:19:27,100 --> 01:19:34,220
+ a protocol. You receive a message. You are in a wait state to wait for a message. You receive
+
+553
+01:19:34,220 --> 01:19:45,180
+ a message. You go into a state to process a message and things like that. So,
+
+554
+01:19:45,180 --> 01:19:54,780
+ okay, we are on the top of the hour, so we'll stop here, and we are going to continue next time.
+
+555
+01:19:54,780 --> 01:20:01,180
+ Next time, it's going to be an exciting lecture. We are going to talk about protocols. We are going
+
+556
+01:20:01,180 --> 01:20:06,540
+ to talk about the Byzantine general problem, consensus problem, and we're also going to talk
+
+557
+01:20:06,540 --> 01:20:13,660
+ now about real transactions and to see how they are implemented under the hood.
+
+558
+01:20:13,660 --> 01:20:24,780
+ Thank you and see you on Monday. Good luck with everything else. Bye.
+

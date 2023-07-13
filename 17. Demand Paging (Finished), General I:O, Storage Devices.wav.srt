@@ -1,0 +1,2696 @@
+1
+00:00:00,000 --> 00:00:28,320
+ Okay. Hello everyone. Welcome to today's lecture. So today we are going to finish our discussion
+
+2
+00:00:28,320 --> 00:00:38,000
+ on demand paging and on memory in general. And we are going to start the discussion on IO
+
+3
+00:00:38,000 --> 00:00:46,160
+ if time permitted. As always, please ask your questions, any questions, anytime.
+
+4
+00:00:46,160 --> 00:00:50,800
+ I will try to answer them as quickly as possible.
+
+5
+00:00:53,840 --> 00:01:03,360
+ So if you remember the last time, we ended with showing this FIFO example policy
+
+6
+00:01:03,360 --> 00:01:11,760
+ for page replacement. Why do you need page replacement? Why do you need to evict
+
+7
+00:01:11,760 --> 00:01:18,560
+ pages out of memory on the disk or SSD? This is a question for you.
+
+8
+00:01:18,560 --> 00:01:48,480
+ Okay. It's exactly. So the main reason you need to evict pages from memory
+
+9
+00:01:49,200 --> 00:02:00,560
+ on the disk is because you are going, the memory allocated by processes is going to exceed
+
+10
+00:02:00,560 --> 00:02:09,440
+ the physical memory. And the memory allocated by processes is there via virtual memory.
+
+11
+00:02:09,440 --> 00:02:15,920
+ So each process has its own virtual memory. It allocates part of that virtual memory for its code,
+
+12
+00:02:17,120 --> 00:02:27,120
+ for its stack and for its heap and data. And then all of these have to be stored in the physical
+
+13
+00:02:27,120 --> 00:02:34,160
+ memory once they are accessed. And because the sum of all this allocation for overall processes
+
+14
+00:02:34,160 --> 00:02:44,080
+ on a machine is going to in general be higher than the physical memory, then sometimes you need
+
+15
+00:02:44,080 --> 00:02:51,600
+ to move the pages from the physical memory to the disk. And because you want to do that, then
+
+16
+00:02:51,600 --> 00:03:00,640
+ the question about which page you are going to decide to evict, it's an important one
+
+17
+00:03:00,640 --> 00:03:10,320
+ because evicting different pages will have a significant impact on performance. So which page
+
+18
+00:03:10,320 --> 00:03:15,760
+ of you are going to choose to evict is going to have an impact on performance. So for instance,
+
+19
+00:03:15,760 --> 00:03:20,800
+ if you evict the page which you are going to access next, then it's not going to be a good
+
+20
+00:03:20,800 --> 00:03:28,160
+ idea because remember then there is a pretty high overhead in bringing the page back from the disk to
+
+21
+00:03:28,160 --> 00:03:39,840
+ memory. And on the other hand, if you remember the optimal replacement policy
+
+22
+00:03:40,400 --> 00:03:50,320
+ eviction policy is basically evicting the page which will be accessed the farthest in the future.
+
+23
+00:03:50,320 --> 00:03:59,840
+ Okay. So, but of course, that's hard to implement. And we discussed, as we discussed,
+
+24
+00:03:59,840 --> 00:04:08,560
+ so we are now going through a few simple cache page replacement policies. And we started last
+
+25
+00:04:08,560 --> 00:04:18,240
+ time with a FIFO one. So the FIFO replacement policy is very simple. You always evict the page,
+
+26
+00:04:18,240 --> 00:04:27,120
+ which was the first one which was brought to memory, right, to brought in memory.
+
+27
+00:04:27,120 --> 00:04:33,120
+ And we went through these simple examples. This is just to refresh your memory. Here we have
+
+28
+00:04:35,360 --> 00:04:42,000
+ the memory. The physical memory has three pages, three page frames. And
+
+29
+00:04:42,000 --> 00:04:49,920
+ we are accessing four pages, so not all of them, A, B, C, D, not all of them are going to fit in
+
+30
+00:04:49,920 --> 00:04:55,680
+ memory at a given time because they are four and the memory has only three pages. And this is a
+
+31
+00:04:55,680 --> 00:05:02,560
+ sequence in which you are accessing these pages. So you remember it's A, B, C. These are all
+
+32
+00:05:02,560 --> 00:05:08,400
+ compulsory misses. The page is not in the memory, so you need to bring the page from the disk to
+
+33
+00:05:08,400 --> 00:05:16,480
+ memory. That's a miss. And now after you access the first three, now the memory is full. Now you
+
+34
+00:05:16,480 --> 00:05:22,480
+ access A is great. It's already in the memory. You don't need to do anything. Then you access B,
+
+35
+00:05:22,480 --> 00:05:28,640
+ the same thing. It's in memory. Don't need to do anything. And now you are accessing D. D is not in
+
+36
+00:05:28,640 --> 00:05:34,000
+ memory. So what you are going to do, you are going to have to choose to evict one of the existing
+
+37
+00:05:34,000 --> 00:05:40,560
+ pages to bring B into memory. And A was the one in this case, because it's five for you are going to
+
+38
+00:05:40,560 --> 00:05:48,240
+ evict A because A, as you can see in this figure, was the first one which was brought in memory.
+
+39
+00:05:48,240 --> 00:05:58,160
+ So you have A, so now you have D, B, C in memory. A comes, so A is accessed again. So
+
+40
+00:05:58,160 --> 00:06:03,920
+ unfortunately, as you can see here, was not a great idea in hindsight to evict A because now
+
+41
+00:06:03,920 --> 00:06:09,200
+ you will need to bring it back. But again, according to the five for policy now,
+
+42
+00:06:09,200 --> 00:06:16,320
+ you are going to evict B, right? Because from the existing pages in the memory, B was the one which
+
+43
+00:06:16,320 --> 00:06:25,120
+ was the oldest. It's the oldest one. Then D again, you don't do anything because D is already in
+
+44
+00:06:25,120 --> 00:06:34,080
+ memory. Now B comes, you access B. B is no longer in memory, so you need to replace the oldest page,
+
+45
+00:06:34,080 --> 00:06:44,800
+ which is C, and so forth. Okay? So as we looked at that, and if you remember again from the last time,
+
+46
+00:06:44,800 --> 00:06:56,640
+ we have seven misses or seven page faults. Three are compulsory misses, A, B, C, and the D, A,
+
+47
+00:06:56,640 --> 00:07:02,240
+ and B, C are capacity misses. We had the miss because the memory was not large enough.
+
+48
+00:07:02,240 --> 00:07:14,080
+ Okay? So now let's look about how this optimal policy mean, or at least recently,
+
+49
+00:07:14,080 --> 00:07:20,560
+ you know, mean will work. Okay? So suppose we have the same reference stream,
+
+50
+00:07:20,560 --> 00:07:31,040
+ and again, the same memory, three, with three pages. A, B, C, the same thing happens. Nothing
+
+51
+00:07:31,040 --> 00:07:35,840
+ changes, right? Until you fill in the memory, because obviously before you fill in the memory,
+
+52
+00:07:35,840 --> 00:07:46,960
+ there is no eviction. A again, nothing happened. B, nothing happened. So now,
+
+53
+00:07:46,960 --> 00:07:58,560
+ tell me without looking to the slides, please tell me now I have B, and now I am going to access
+
+54
+00:07:58,560 --> 00:08:06,320
+ after B, I am going to access D. Which page I am going to replace and why?
+
+55
+00:08:06,320 --> 00:08:26,320
+ So I want to access, to replace a page which will be accessed farthest in the future.
+
+56
+00:08:26,320 --> 00:08:36,800
+ And I'm here, I'm D. So after that, I'm going to access A, B, C, B.
+
+57
+00:08:48,320 --> 00:08:56,800
+ Okay, so the answer C, because A, D, B, C. Yeah, yeah.
+
+58
+00:08:56,800 --> 00:09:08,080
+ Okay? That's correct. So after I am going to access D, you know, I am going,
+
+59
+00:09:08,080 --> 00:09:15,600
+ after that, I'm going to access A, then B, and B, and C. So C is the one which is farthest in
+
+60
+00:09:15,600 --> 00:09:27,360
+ the future. So I'm going to replace D. Now, next, I'm going to access A, nothing happens.
+
+61
+00:09:27,360 --> 00:09:38,000
+ Now I'm going to access D again, and now I'm going to access B, nothing happens. And now I am going
+
+62
+00:09:38,000 --> 00:09:46,560
+ to access C. C is no longer in memory. In memory, I have only A, B, and D, which I'm going to replace.
+
+63
+00:09:46,560 --> 00:09:58,720
+ Which page I'm going to replace now? I'm here, B, then following one are C and B. A. Okay?
+
+64
+00:09:58,720 --> 00:10:03,920
+ Do you see another page I could replace?
+
+65
+00:10:03,920 --> 00:10:19,040
+ Yeah, you can replace A, it's fine. What if I were, if I would have replaced D?
+
+66
+00:10:19,040 --> 00:10:30,240
+ Yes, D is also an option. Okay? Because if I replace D, the following two access are C and B,
+
+67
+00:10:30,240 --> 00:10:37,440
+ so again, I have no miss. No page fault. So now you can see that instead of seven,
+
+68
+00:10:37,440 --> 00:10:46,080
+ now you have only five page faults. Right? And remember, A, B, C were compulsory. You are going
+
+69
+00:10:46,080 --> 00:10:52,160
+ to have them anyway. So from capacity misses, before we had four, now we have two.
+
+70
+00:10:54,240 --> 00:11:02,960
+ Okay? So it's quite an improvement. Now we said that with mean, while it's optimal,
+
+71
+00:11:02,960 --> 00:11:07,440
+ it's very hard to implement, right? Because it's assumed that you know the future,
+
+72
+00:11:07,440 --> 00:11:14,800
+ but you don't know the future. And what people do, it's approximated. And the one way to
+
+73
+00:11:14,800 --> 00:11:23,760
+ approximate it is using list recently used. So they assume basically that the accesses are
+
+74
+00:11:23,760 --> 00:11:31,520
+ local also in time or in any space. And basically they say, well, the assumption is that if I
+
+75
+00:11:31,520 --> 00:11:43,360
+ accessed a page recently, I am also going to access it soon. And if I haven't accessed the
+
+76
+00:11:43,360 --> 00:11:51,680
+ page for a long time, I am no longer to access that page for a long time in the future. Okay?
+
+77
+00:11:51,680 --> 00:11:58,400
+ So by this one, this means that I am going to a big pages, which I haven't
+
+78
+00:11:58,400 --> 00:12:03,920
+ accessed for a long time. Okay. That's what it is. So let's see what happens here.
+
+79
+00:12:03,920 --> 00:12:19,760
+ Again, let's now see this. This is a stream. And let's see, A, B, C, the same, D. Now D,
+
+80
+00:12:20,480 --> 00:12:28,480
+ which one I'm going to replace? I have to replace, remember, the page which has not been accessed
+
+81
+00:12:28,480 --> 00:12:37,520
+ in the past for a long time, for the longest time. So which one I'm going to replace here?
+
+82
+00:12:48,160 --> 00:12:56,800
+ A, correct. Right? Because A has been not accessed for whatever, two time units or three
+
+83
+00:12:56,800 --> 00:13:05,360
+ time units, depends how you count. Okay. So I replaced A, so now I have D, B, C. Now A comes.
+
+84
+00:13:05,360 --> 00:13:08,160
+ Which one I'm going to replace?
+
+85
+00:13:13,760 --> 00:13:28,400
+ B, right? Very good. So now B. A, right? And now comes C. No, sorry, it's come B. B is again.
+
+86
+00:13:28,400 --> 00:13:37,280
+ I need to replace, I'm going to replace C, because he was not accessed for a long time,
+
+87
+00:13:37,280 --> 00:13:44,000
+ for the longest time. Now I have C. I'm going to replace D, and so forth.
+
+88
+00:13:44,000 --> 00:14:00,480
+ Okay. So now, the things about this scenario, it is that LRU for this particular input
+
+89
+00:14:01,280 --> 00:14:08,880
+ doesn't behave very well. Right? And it's again, the reason it doesn't behave very well,
+
+90
+00:14:08,880 --> 00:14:17,440
+ it is because you don't know the future. And this means that the assumption behind
+
+91
+00:14:17,440 --> 00:14:24,560
+ LRU is broken. Right? Again, remember that the assumption is that the pages which haven't been
+
+92
+00:14:24,560 --> 00:14:29,200
+ accessed for a long time, they are not going to be accessed in the future. But this is exactly
+
+93
+00:14:29,200 --> 00:14:35,360
+ wrong. Right? Because after D here, I am accessing A, which hasn't been accessed for a long time in
+
+94
+00:14:35,360 --> 00:14:42,080
+ the future, the longest time in the past, and so forth. Okay? Now, the one thing I should have
+
+95
+00:14:42,080 --> 00:14:48,960
+ said in the previous slide, if you look in the previous slide, let's look in the previous slide
+
+96
+00:14:48,960 --> 00:15:00,240
+ and do the same thing. First, we tried min. Now let's try to think about how will LRU work. Okay?
+
+97
+00:15:00,240 --> 00:15:10,000
+ So let's see how LRU will work for the same string. So now think it's LRU. So this is recently
+
+98
+00:15:10,000 --> 00:15:20,480
+ used. So now I have A, I am accessing A. Right? And now I have B, I am accessing B. And now I am
+
+99
+00:15:20,480 --> 00:15:31,040
+ having D. So according to LRU policy, when I get D, which page I am going to replace?
+
+100
+00:15:31,040 --> 00:15:41,520
+ [silence]
+
+101
+00:15:41,520 --> 00:15:56,000
+ Correct. I am going to replace actually, Allison is correct. I'm going to replace C.
+
+102
+00:15:56,800 --> 00:16:01,680
+ And Brian and Eric, you know, and others. The reason I'm not going to replace
+
+103
+00:16:01,680 --> 00:16:10,320
+ A is A was accessed right here. Do you see my cursor? Do you see my pointer?
+
+104
+00:16:10,320 --> 00:16:19,280
+ Okay. Great. Yes. So you see, A was accessed here.
+
+105
+00:16:21,680 --> 00:16:31,600
+ And B was accessed here, which means that when D comes, C is a page which was not accessed for the
+
+106
+00:16:31,600 --> 00:16:39,600
+ longest time. So the difference is that with FIFO, the time which matters is when the page was
+
+107
+00:16:39,600 --> 00:16:47,840
+ brought into memory. With LRU, the time which matters is when the page was accessed. That's
+
+108
+00:16:47,840 --> 00:16:54,960
+ the difference. Okay? So I have to replace D here. And now I'm going to do A, I'm going to access A,
+
+109
+00:16:54,960 --> 00:17:04,640
+ I am B, and now D, I'm going to access D. Now I'm going to B, right? I'm going to bring B. B is
+
+110
+00:17:04,640 --> 00:17:10,240
+ already in memory. And now I'm going to get C. C is no longer in memory, right? But let's say when
+
+111
+00:17:10,240 --> 00:17:16,640
+ I get C, which page I'm going to replace? So again, it has to be the page which has not been
+
+112
+00:17:16,640 --> 00:17:26,480
+ accessed for the longest time in the past. Right? So B was accessed here. D was accessed here. A was
+
+113
+00:17:26,480 --> 00:17:41,120
+ accessed here. So which one I'm going to replace? A. Okay. And now B, it's already in memory.
+
+114
+00:17:41,120 --> 00:17:47,360
+ So in this particular case, the point here is that mean and LRU behave the same.
+
+115
+00:17:47,360 --> 00:17:54,560
+ But this is not necessary. Okay? Like we've seen in the preview in the next example,
+
+116
+00:17:54,560 --> 00:18:03,600
+ actually LRU can perform quite badly, right? If the assumption is violated. Okay?
+
+117
+00:18:06,080 --> 00:18:12,720
+ So and obviously mean in this case, that's much better. When I'm going to access D,
+
+118
+00:18:12,720 --> 00:18:19,840
+ I am here, I am accessing D, which is along as a page which is not accessed for the longest time in
+
+119
+00:18:19,840 --> 00:18:28,800
+ the future is C, right? So I am going to replace C. Now I'm going to get A and B. I'm going to
+
+120
+00:18:28,800 --> 00:18:34,720
+ A, B are already in memory. Now C. C is no longer in memory. C, but I am looking at C
+
+121
+00:18:34,720 --> 00:18:40,080
+ when it's accessed. If I look in the future, I can look in the future. Then I access D, A, B,
+
+122
+00:18:40,080 --> 00:18:46,800
+ and C again. So the longest, the one which will not be accessed for the longest time in the future
+
+123
+00:18:46,800 --> 00:18:54,800
+ is B. So I'm going to replace B. Okay? And then so forth. So in this particular case, the mean
+
+124
+00:18:54,800 --> 00:19:09,760
+ is going to have, you know, six faults or misses while LRU is going to have 12, double. Okay?
+
+125
+00:19:09,760 --> 00:19:20,480
+ Good. But still, no matter, like you'll see in the rest of this lecture,
+
+126
+00:19:21,040 --> 00:19:27,920
+ still, LRU is considered a very good heuristics because many programs
+
+127
+00:19:27,920 --> 00:19:36,800
+ are exhibit locality in their memory access. Okay? And as you'll see, the problem, it will be then to
+
+128
+00:19:36,800 --> 00:19:46,640
+ approximate LRU because LRU itself is expensive to implement. But before going that, let's look
+
+129
+00:19:46,640 --> 00:19:56,720
+ about a little bit more, take a step back and look about what is, you know, the number of page faults
+
+130
+00:19:56,720 --> 00:20:02,800
+ versus the number of frames. So this is our memory size. So on the X axis, we have the memory size in
+
+131
+00:20:02,800 --> 00:20:10,160
+ terms of the number of frames. And on the Y axis, you have the number of page faults. Okay? And as
+
+132
+00:20:10,160 --> 00:20:16,960
+ you'd expect, as the number of frames increases, so you'd expect the number of page faults to decrease.
+
+133
+00:20:16,960 --> 00:20:21,280
+ Okay? Does it make sense?
+
+134
+00:20:21,510 --> 00:20:29,750
+ More memory, fewer page faults.
+
+135
+00:20:29,750 --> 00:20:37,270
+ However, it turns out there are anomalies to this.
+
+136
+00:20:37,270 --> 00:20:43,270
+ There are certain page replacement algorithms
+
+137
+00:20:43,270 --> 00:20:46,550
+ which do not have these properties,
+
+138
+00:20:46,550 --> 00:20:50,070
+ which means that I increase the memory
+
+139
+00:20:50,070 --> 00:20:57,830
+ and for the same workload, the number of page faults increases.
+
+140
+00:20:57,830 --> 00:21:00,230
+ Very counterintuitive.
+
+141
+00:21:00,230 --> 00:21:05,030
+ You have more resources, you perform worse.
+
+142
+00:21:05,030 --> 00:21:10,070
+ And here is an example.
+
+143
+00:21:10,070 --> 00:21:14,790
+ By the way, this is not for all page replacement policies,
+
+144
+00:21:14,790 --> 00:21:20,470
+ it's only for specific ones, like FIFO.
+
+145
+00:21:20,470 --> 00:21:25,110
+ Like for instance, it turns out that for LRU and MIN,
+
+146
+00:21:25,110 --> 00:21:26,870
+ this is not the case.
+
+147
+00:21:26,870 --> 00:21:33,910
+ For LRU and MIN, whenever I increase the memory size,
+
+148
+00:21:33,910 --> 00:21:38,950
+ the number of page faults is not going to increase.
+
+149
+00:21:38,950 --> 00:21:42,070
+ Either stays the same or is going to decrease.
+
+150
+00:21:42,070 --> 00:21:48,070
+ But now, this is an example in which using FIFO
+
+151
+00:21:48,070 --> 00:21:57,030
+ will result in more page faults when I increase the page size.
+
+152
+00:21:57,030 --> 00:22:03,030
+ So here you have A, B, C, D. I have now five pages.
+
+153
+00:22:03,030 --> 00:22:05,030
+ I am accessing five pages.
+
+154
+00:22:05,030 --> 00:22:10,150
+ The memory has still three frames, one, two, three.
+
+155
+00:22:10,150 --> 00:22:14,390
+ And this is for this particular access patterns,
+
+156
+00:22:14,390 --> 00:22:18,550
+ this is what the page faults are.
+
+157
+00:22:18,550 --> 00:22:21,590
+ And now, there are nine page faults.
+
+158
+00:22:21,590 --> 00:22:27,350
+ But now, assume that I'm going to increase the number of pages
+
+159
+00:22:27,350 --> 00:22:32,710
+ or the number of frames in the memory from three to four.
+
+160
+00:22:32,710 --> 00:22:37,030
+ And as it turns out, again, with FIFO, it's very simple.
+
+161
+00:22:37,030 --> 00:22:39,030
+ FIFO is very simple to look, right?
+
+162
+00:22:39,030 --> 00:22:41,670
+ Because you always, when you have a page fault,
+
+163
+00:22:41,670 --> 00:22:45,190
+ you replace the one which was brought first.
+
+164
+00:22:45,190 --> 00:22:48,390
+ And on this graphic, it's very simple to see the one which
+
+165
+00:22:48,390 --> 00:22:51,110
+ was brought first, right?
+
+166
+00:22:51,110 --> 00:22:55,670
+ You just look on each line, which is a first in memory,
+
+167
+00:22:55,670 --> 00:22:57,830
+ right?
+
+168
+00:22:57,830 --> 00:22:58,550
+ OK.
+
+169
+00:22:58,550 --> 00:23:02,630
+ So you can convince yourself when you get E here,
+
+170
+00:23:02,630 --> 00:23:06,070
+ you are going to replace A. A, you are going to replace B,
+
+171
+00:23:06,070 --> 00:23:07,110
+ and so forth.
+
+172
+00:23:07,110 --> 00:23:12,150
+ And by doing so, if I have now instead of three, four frames,
+
+173
+00:23:12,150 --> 00:23:13,750
+ then I get 10 page faults.
+
+174
+00:23:13,750 --> 00:23:20,470
+ So the memory size increases from three frames to four frames.
+
+175
+00:23:20,470 --> 00:23:23,510
+ And the number of page faults increases from nine to 10.
+
+176
+00:23:23,510 --> 00:23:26,090
+ OK.
+
+177
+00:23:26,090 --> 00:23:32,150
+ Any questions?
+
+178
+00:23:35,830 --> 00:23:37,190
+ It's a cool example, right?
+
+179
+00:23:37,190 --> 00:23:38,630
+ It's like you wouldn't expect that.
+
+180
+00:23:38,630 --> 00:23:51,670
+ Now, the reason for ALERU or MIN, the reason this doesn't
+
+181
+00:23:51,670 --> 00:23:53,510
+ happen for ALERU or MIN is because they
+
+182
+00:23:53,510 --> 00:23:54,710
+ have these properties.
+
+183
+00:23:55,750 --> 00:24:06,230
+ That if, say, I have a memory, the memory size, it's x frames.
+
+184
+00:24:06,230 --> 00:24:11,990
+ If I increase the number of frames by, say, one,
+
+185
+00:24:11,990 --> 00:24:19,430
+ then I'm guaranteed that the pages I have in memory,
+
+186
+00:24:19,430 --> 00:24:23,510
+ when the memory size was x, it's a subset of the pages
+
+187
+00:24:23,510 --> 00:24:26,710
+ I'm going to have in memory when the memory is x plus 1.
+
+188
+00:24:26,710 --> 00:24:29,750
+ And because you have this subset property,
+
+189
+00:24:29,750 --> 00:24:31,910
+ then the number of page faults cannot increase.
+
+190
+00:24:31,910 --> 00:24:34,650
+ OK.
+
+191
+00:24:34,650 --> 00:24:36,550
+ So that's the reason.
+
+192
+00:24:36,550 --> 00:24:47,350
+ So now, as I mentioned, if you remember,
+
+193
+00:24:47,350 --> 00:24:49,030
+ we mentioned that in the last lecture,
+
+194
+00:24:50,150 --> 00:24:53,670
+ that ALERU is not easy to implement.
+
+195
+00:24:53,670 --> 00:24:57,830
+ Because ALERU requires that one way to implement,
+
+196
+00:24:57,830 --> 00:24:59,990
+ at least recently, you used to have a list.
+
+197
+00:24:59,990 --> 00:25:03,430
+ And whenever you access a page in this list,
+
+198
+00:25:03,430 --> 00:25:07,750
+ you take that page and you bring it at the head of the list.
+
+199
+00:25:07,750 --> 00:25:09,990
+ And then when you have to replace a page,
+
+200
+00:25:09,990 --> 00:25:13,350
+ you take the page from the end of the list,
+
+201
+00:25:13,350 --> 00:25:15,510
+ and that's the one you replace.
+
+202
+00:25:15,510 --> 00:25:16,010
+ OK.
+
+203
+00:25:17,270 --> 00:25:22,150
+ But just on every axis, manipulating the list
+
+204
+00:25:22,150 --> 00:25:25,350
+ and taking the page you accessed to bring it
+
+205
+00:25:25,350 --> 00:25:27,670
+ at the head of the list is very expensive.
+
+206
+00:25:27,670 --> 00:25:29,430
+ Multiple memory accesses.
+
+207
+00:25:29,430 --> 00:25:31,110
+ So you do not want to do that.
+
+208
+00:25:31,110 --> 00:25:34,630
+ So next, we are going to talk about some approximations
+
+209
+00:25:34,630 --> 00:25:37,190
+ of list recently used.
+
+210
+00:25:37,190 --> 00:25:39,350
+ And one of such approximations,
+
+211
+00:25:39,350 --> 00:25:41,430
+ the first one we are going to start with,
+
+212
+00:25:41,430 --> 00:25:42,470
+ is a clock algorithm.
+
+213
+00:25:42,470 --> 00:25:43,930
+ OK.
+
+214
+00:25:46,070 --> 00:25:47,910
+ So and we'll have some examples.
+
+215
+00:25:47,910 --> 00:25:54,470
+ So this is imagine that all pages are arranged in a ring.
+
+216
+00:25:54,470 --> 00:25:57,830
+ And you have a clock, right?
+
+217
+00:25:57,830 --> 00:26:01,990
+ A clock hand, which advanced one by one.
+
+218
+00:26:01,990 --> 00:26:04,150
+ And you look at every page.
+
+219
+00:26:04,150 --> 00:26:13,270
+ And when you need to evict a page,
+
+220
+00:26:13,910 --> 00:26:17,430
+ this clock hand will move to the next page.
+
+221
+00:26:17,430 --> 00:26:20,550
+ And you check for pages which are not used recently.
+
+222
+00:26:20,550 --> 00:26:26,310
+ And then you also mark the pages which are used recently.
+
+223
+00:26:26,310 --> 00:26:27,690
+ Right?
+
+224
+00:26:27,690 --> 00:26:34,950
+ And with all this approximation, the way you approximate,
+
+225
+00:26:34,950 --> 00:26:38,230
+ you still replace an old page, but not the oldest page.
+
+226
+00:26:38,230 --> 00:26:39,290
+ OK.
+
+227
+00:26:39,290 --> 00:26:41,510
+ And here how things are working.
+
+228
+00:26:41,510 --> 00:26:43,450
+ OK.
+
+229
+00:26:43,850 --> 00:26:47,610
+ So remember that you have a use bit, right?
+
+230
+00:26:47,610 --> 00:26:49,050
+ Or access bit.
+
+231
+00:26:49,050 --> 00:26:51,370
+ So the use bit in the PTE.
+
+232
+00:26:51,370 --> 00:26:56,490
+ PTE is a page table entry for each page, right?
+
+233
+00:26:56,490 --> 00:26:57,130
+ If you remember.
+
+234
+00:26:57,130 --> 00:27:03,690
+ And that bit, whenever you access a page, is set to zero.
+
+235
+00:27:03,690 --> 00:27:05,230
+ Right?
+
+236
+00:27:05,230 --> 00:27:12,810
+ So sorry, whenever you access a page,
+
+237
+00:27:12,810 --> 00:27:14,410
+ you set it to one.
+
+238
+00:27:14,410 --> 00:27:14,910
+ OK?
+
+239
+00:27:14,910 --> 00:27:18,730
+ So if I see a one, this means that the page was used.
+
+240
+00:27:18,730 --> 00:27:19,950
+ OK?
+
+241
+00:27:19,950 --> 00:27:22,570
+ Now, this clock is looking at the page.
+
+242
+00:27:22,570 --> 00:27:28,730
+ And if you see it's on one, it's resetting it to zero.
+
+243
+00:27:28,730 --> 00:27:29,870
+ OK?
+
+244
+00:27:29,870 --> 00:27:33,130
+ If it sees a zero, then it's replacing that page.
+
+245
+00:27:33,130 --> 00:27:38,010
+ Because this means that the page hasn't been accessed in a while.
+
+246
+00:27:38,010 --> 00:27:39,710
+ Right?
+
+247
+00:27:39,850 --> 00:27:43,930
+ If it's a one, this means that it was accessed recently.
+
+248
+00:27:43,930 --> 00:27:47,610
+ So you give a chance, second chance, to that page.
+
+249
+00:27:47,610 --> 00:27:48,110
+ OK?
+
+250
+00:27:48,110 --> 00:27:50,890
+ And let's see how it works.
+
+251
+00:27:50,890 --> 00:27:51,390
+ OK?
+
+252
+00:27:51,390 --> 00:27:54,810
+ So here I am showing an example.
+
+253
+00:27:54,810 --> 00:28:08,010
+ And I have with all these rectangles, obviously, there are pages.
+
+254
+00:28:09,450 --> 00:28:11,210
+ Or sorry, or frames.
+
+255
+00:28:11,210 --> 00:28:17,770
+ The one with the dashed rectangles represent three frames.
+
+256
+00:28:17,770 --> 00:28:18,810
+ There is nothing there.
+
+257
+00:28:18,810 --> 00:28:26,570
+ And then for these pages, for a few pages, I also put the value of the use bit.
+
+258
+00:28:26,570 --> 00:28:29,530
+ So you have 1, 1, 0, 1.
+
+259
+00:28:29,530 --> 00:28:34,730
+ And this is now, I want to bring a page from the disk.
+
+260
+00:28:34,730 --> 00:28:39,210
+ So I want to find the page I'm going to replace.
+
+261
+00:28:40,010 --> 00:28:40,510
+ OK?
+
+262
+00:28:40,510 --> 00:28:47,850
+ So when I'm going to go through this, you know, the hand is going to move.
+
+263
+00:28:47,850 --> 00:28:52,490
+ Now, remember this first page, the use bit was 1.
+
+264
+00:28:52,490 --> 00:28:54,910
+ OK?
+
+265
+00:28:54,910 --> 00:29:02,170
+ So I'm going to reset it to zero because use one meant that it was accessed recently.
+
+266
+00:29:02,170 --> 00:29:08,410
+ Then I'm going to the next page.
+
+267
+00:29:08,410 --> 00:29:13,290
+ And it's again, the use bit was 1.
+
+268
+00:29:13,290 --> 00:29:14,250
+ I'm resetting it.
+
+269
+00:29:14,250 --> 00:29:16,650
+ I'm setting it to zero.
+
+270
+00:29:16,650 --> 00:29:24,250
+ And finally, now this next page, the use bit was zero.
+
+271
+00:29:24,250 --> 00:29:25,470
+ OK?
+
+272
+00:29:25,470 --> 00:29:32,730
+ And because the use bit is zero, this means that the page hasn't been accessed in a while.
+
+273
+00:29:32,730 --> 00:29:42,010
+ At least it wasn't accessed since the last time the hand visited that page.
+
+274
+00:29:42,010 --> 00:29:45,850
+ So we are going to replace this page.
+
+275
+00:29:45,850 --> 00:29:56,250
+ If the page was written, since it was modified, you save it on the disk first.
+
+276
+00:29:56,250 --> 00:29:59,610
+ And then you load the page and update the PT.
+
+277
+00:30:00,650 --> 00:30:07,130
+ By the way, when you evict the page, you also invalidate the PT of that page and invalidate
+
+278
+00:30:07,130 --> 00:30:09,210
+ the TLB entry of that page.
+
+279
+00:30:09,210 --> 00:30:10,830
+ OK?
+
+280
+00:30:10,830 --> 00:30:13,770
+ And now I just load it.
+
+281
+00:30:13,770 --> 00:30:15,130
+ I'm going to access it.
+
+282
+00:30:15,130 --> 00:30:16,730
+ So the use bit is 1.
+
+283
+00:30:16,730 --> 00:30:27,130
+ And now assume that in the meantime, for instance, when I access this page here, which has a bit
+
+284
+00:30:27,930 --> 00:30:38,730
+ set, which had the use bit set to zero, when the hand visited the last time, I am going
+
+285
+00:30:38,730 --> 00:30:42,650
+ to set up the use bit to 1 again because it was accessed.
+
+286
+00:30:42,650 --> 00:30:46,810
+ And now finally, say that we have another page fault.
+
+287
+00:30:46,810 --> 00:30:55,290
+ And I am going to go to the next page.
+
+288
+00:30:56,490 --> 00:30:59,290
+ It has use bit was 1.
+
+289
+00:30:59,290 --> 00:31:04,010
+ Now I'm going to set up to zero and then I'm going to go to the next page.
+
+290
+00:31:04,010 --> 00:31:06,170
+ And that frame, it's actually a frame.
+
+291
+00:31:06,170 --> 00:31:06,970
+ It's an empty frame.
+
+292
+00:31:06,970 --> 00:31:08,170
+ OK?
+
+293
+00:31:08,170 --> 00:31:11,530
+ And I'm just going to load the page and I'm going to set up to one.
+
+294
+00:31:11,530 --> 00:31:14,010
+ I'm going to initialize it PT and so forth.
+
+295
+00:31:14,010 --> 00:31:15,070
+ OK?
+
+296
+00:31:15,070 --> 00:31:22,730
+ Typically, and this is a little generalized here a little bit, you only the free frames
+
+297
+00:31:22,730 --> 00:31:25,610
+ are in a different list.
+
+298
+00:31:25,610 --> 00:31:26,110
+ OK?
+
+299
+00:31:26,110 --> 00:31:34,330
+ I put it here to have a global example, but typically frames are in different lists just
+
+300
+00:31:34,330 --> 00:31:36,810
+ for you to, you know, to keep in mind.
+
+301
+00:31:36,810 --> 00:31:39,450
+ So I'm stopping here.
+
+302
+00:31:39,450 --> 00:31:40,650
+ And any questions?
+
+303
+00:31:40,650 --> 00:31:54,410
+ So whenever a page is accessed, the use bit is set to 1.
+
+304
+00:31:54,410 --> 00:32:06,330
+ Whenever a hand visit the page, because there was a page fault, if the use bit was 1, you
+
+305
+00:32:06,330 --> 00:32:07,130
+ set it to zero.
+
+306
+00:32:07,130 --> 00:32:14,570
+ If the use bit is zero, you have the page and bring the new page in.
+
+307
+00:32:14,570 --> 00:32:23,530
+ Let me ask you this question.
+
+308
+00:32:23,530 --> 00:32:28,970
+ Say the hand is moving very fast.
+
+309
+00:32:28,970 --> 00:32:32,570
+ What does it mean?
+
+310
+00:32:32,570 --> 00:32:34,330
+ Is that good?
+
+311
+00:32:34,330 --> 00:32:35,370
+ Is it bad?
+
+312
+00:32:51,530 --> 00:32:54,010
+ Yes, Gilbert and Allison.
+
+313
+00:32:54,010 --> 00:32:57,930
+ Yes, it's bad because this means that a lot of page faults.
+
+314
+00:32:57,930 --> 00:32:59,470
+ Right.
+
+315
+00:32:59,470 --> 00:33:03,290
+ And if it's moving slowly, there are very few page faults.
+
+316
+00:33:03,290 --> 00:33:05,950
+ OK?
+
+317
+00:33:05,950 --> 00:33:09,630
+ Good.
+
+318
+00:33:09,630 --> 00:33:19,210
+ The other thing is not is that if all the bits are set to 1,
+
+319
+00:33:19,210 --> 00:33:32,970
+ they're still OK because the handle move and while moving is going to set up each bit of
+
+320
+00:33:32,970 --> 00:33:34,090
+ each page to zero.
+
+321
+00:33:34,090 --> 00:33:44,410
+ So when you come back, when it comes back after one rotation, it's going to find a page
+
+322
+00:33:44,410 --> 00:33:53,450
+ with a use bit of zero that was a page whose hand set the bit to zero first time.
+
+323
+00:34:10,010 --> 00:34:17,210
+ So Allison, it's a question here actually about the hand, whether it's moving fast, it's bad.
+
+324
+00:34:17,210 --> 00:34:27,370
+ If you say that might just mean that we have all our pages being used and so that hand has
+
+325
+00:34:27,370 --> 00:34:31,290
+ to step over a lot of in use pages.
+
+326
+00:34:34,890 --> 00:34:52,010
+ So this can happen, but then it will still be, you know, it's again, there are two reasons
+
+327
+00:34:52,010 --> 00:34:54,970
+ the hand is going to move fast.
+
+328
+00:34:54,970 --> 00:34:59,050
+ One absolutely is because of page faults.
+
+329
+00:34:59,050 --> 00:35:06,250
+ If there are no page faults, the hand will not move.
+
+330
+00:35:06,250 --> 00:35:14,890
+ The other reason it's obviously because you need to step over a lot of pages which are
+
+331
+00:35:14,890 --> 00:35:16,170
+ used, right?
+
+332
+00:35:16,170 --> 00:35:17,370
+ And there used to be the set.
+
+333
+00:35:17,370 --> 00:35:26,410
+ OK, and that can be the case, but it's also unlikely because if you assume
+
+334
+00:35:28,250 --> 00:35:34,650
+ that will happen only if all the pages are very uniformly accessed, which is not the
+
+335
+00:35:34,650 --> 00:35:35,850
+ case, right?
+
+336
+00:35:35,850 --> 00:35:40,730
+ Because you have to have all the pages being uniform accessed, right?
+
+337
+00:35:40,730 --> 00:35:46,650
+ Since the last time the hand visited them in order to be a one.
+
+338
+00:35:46,650 --> 00:35:51,130
+ And if you have locality that it's unlikely to happen.
+
+339
+00:35:51,130 --> 00:35:54,570
+ But it's a good question.
+
+340
+00:35:54,570 --> 00:35:55,210
+ A good point.
+
+341
+00:35:55,210 --> 00:36:04,490
+ Yeah, so this I discussed what if hand was moving slowly, good sign or bad sign.
+
+342
+00:36:04,490 --> 00:36:08,170
+ This is not many pages, false or fine page quickly.
+
+343
+00:36:08,170 --> 00:36:12,170
+ What if hand is moving quickly, lots of page faults or lots of reference bit set, right?
+
+344
+00:36:12,170 --> 00:36:16,650
+ We discussed both of them, but this is what it is, right?
+
+345
+00:36:16,650 --> 00:36:23,370
+ It's like you have a lot of reference bit sets only if you have, you know, it's pretty
+
+346
+00:36:23,370 --> 00:36:25,610
+ uniform memory access.
+
+347
+00:36:25,610 --> 00:36:37,690
+ So one way to view the clock algorithms is that you group the pages into two groups,
+
+348
+00:36:37,690 --> 00:36:44,730
+ one which you're accessed recently or one or accessed longer, you know, longer time
+
+349
+00:36:44,730 --> 00:36:45,450
+ in the past.
+
+350
+00:36:46,490 --> 00:36:53,930
+ And then obviously you are going to pick one from the ones which you accessed longer in
+
+351
+00:36:53,930 --> 00:36:54,430
+ the past.
+
+352
+00:36:54,430 --> 00:36:55,710
+ Right.
+
+353
+00:36:55,710 --> 00:37:05,130
+ So an obvious question, because you think about these two groups, you have these two
+
+354
+00:37:05,130 --> 00:37:10,570
+ groups is why not actually partition it and instead of having this kind of clock algorithm,
+
+355
+00:37:10,570 --> 00:37:12,410
+ just have two groups.
+
+356
+00:37:14,170 --> 00:37:17,050
+ OK, and we are going to talk about that.
+
+357
+00:37:17,050 --> 00:37:27,690
+ But before that, let's look a lot about a version of the clock algorithm.
+
+358
+00:37:27,690 --> 00:37:32,570
+ We generalize it clock algorithms and it's n chance version, right?
+
+359
+00:37:32,570 --> 00:37:41,290
+ And with n chance, think about right now you are going to evict a page, right?
+
+360
+00:37:42,330 --> 00:37:55,370
+ You give only, so to speak, one chance because you set the bit once the hand sets a use bit
+
+361
+00:37:55,370 --> 00:38:00,410
+ of a page to zero is going to evict it the next time.
+
+362
+00:38:00,410 --> 00:38:03,610
+ Unless the page wasn't accessed in the meantime.
+
+363
+00:38:06,410 --> 00:38:14,250
+ So another way is to have more than one bit, and this is about n chance algorithms.
+
+364
+00:38:14,250 --> 00:38:25,370
+ So now the OS keeps a counter per page, which is a number of sweeps, a number of times it
+
+365
+00:38:25,370 --> 00:38:29,530
+ was visited while the page was not accessed.
+
+366
+00:38:31,210 --> 00:38:39,610
+ On page fault, the OS checks the use bit and if it's one, you clear it.
+
+367
+00:38:39,610 --> 00:38:42,890
+ Right, like before, is zero.
+
+368
+00:38:42,890 --> 00:38:49,130
+ And you also initialize, you clear what is this sweep counter.
+
+369
+00:38:49,130 --> 00:38:57,450
+ And if it's zero, you just increment the counter and only if the counter is equal to n, you
+
+370
+00:38:57,450 --> 00:38:58,330
+ replace the page.
+
+371
+00:38:58,330 --> 00:39:00,170
+ Right.
+
+372
+00:39:00,170 --> 00:39:04,890
+ So this means that the page has n chances.
+
+373
+00:39:04,890 --> 00:39:10,650
+ So it can be visited by the hand n times.
+
+374
+00:39:10,650 --> 00:39:14,250
+ Before being evicted.
+
+375
+00:39:14,250 --> 00:39:18,650
+ Of course, here I am talking about the page which is not accessed.
+
+376
+00:39:18,650 --> 00:39:21,690
+ While this n sweeps happen.
+
+377
+00:39:21,690 --> 00:39:23,150
+ Okay.
+
+378
+00:39:23,150 --> 00:39:29,130
+ So obviously one question is how do you pick n?
+
+379
+00:39:29,770 --> 00:39:31,290
+ What happens if n is very large?
+
+380
+00:39:31,290 --> 00:39:38,490
+ If n is very large, you can actually better approximate ALERU.
+
+381
+00:39:38,490 --> 00:39:45,450
+ Say n is 1000, that is really good approximation.
+
+382
+00:39:45,450 --> 00:39:49,770
+ What is the problem with picking a large n zone?
+
+383
+00:39:49,770 --> 00:39:52,890
+ Why wouldn't you pick a larger?
+
+384
+00:39:53,850 --> 00:39:55,050
+ Is less efficient?
+
+385
+00:39:55,050 --> 00:39:56,250
+ Yes, Danny.
+
+386
+00:39:56,250 --> 00:39:57,370
+ Why is less efficient?
+
+387
+00:39:57,370 --> 00:40:04,170
+ Yes.
+
+388
+00:40:04,170 --> 00:40:19,130
+ Sweeping will take a lot of rotation, right?
+
+389
+00:40:19,130 --> 00:40:23,930
+ Because think about, you know.
+
+390
+00:40:23,930 --> 00:40:33,210
+ You need to go, you need to visit a page n times, so n sweeps before you can evict it.
+
+391
+00:40:33,210 --> 00:40:39,850
+ Okay, so if there are a lot of pages, then this will take a long time.
+
+392
+00:40:39,850 --> 00:40:42,810
+ It's exactly so it's not.
+
+393
+00:40:43,020 --> 00:40:53,020
+ efficient. Takes a long time to find free pages. What about modified or dirty pages?
+
+394
+00:40:53,020 --> 00:41:01,820
+ Obviously, it takes extra overhead like we saw in the previous example to replace a dirty page,
+
+395
+00:41:01,820 --> 00:41:10,620
+ right? Dirty page meaning that was modified since when it was brought in memory, right?
+
+396
+00:41:10,620 --> 00:41:22,300
+ Because you need to write it to the disk. So these algorithms had something, some improvement here.
+
+397
+00:41:22,300 --> 00:41:34,940
+ And basically, before a page counter gets to the end, you write it back to the disk. So if
+
+398
+00:41:35,980 --> 00:41:42,060
+ you are going next time to decide to replace that page, it was already written to the disk.
+
+399
+00:41:42,060 --> 00:41:54,220
+ So for instance, one approach is for the clean pages to use n is equal to 1, which is basically
+
+400
+00:41:54,220 --> 00:42:03,500
+ the original clock algorithm. But for the dirty pages, use n equal to 2. And for n equal to 1,
+
+401
+00:42:03,500 --> 00:42:09,340
+ you write it back. So if you look at these algorithms now, right, if it's a page, it's clean,
+
+402
+00:42:09,340 --> 00:42:14,780
+ right? It has not modified. If the counter is 1, you replace it.
+
+403
+00:42:14,780 --> 00:42:22,780
+ If it's a dirty page, then when the counter reaches 1, you don't replace it.
+
+404
+00:42:22,780 --> 00:42:28,220
+ You just write it back to the disk. And when the counter is 2, you replace it.
+
+405
+00:42:29,420 --> 00:42:34,620
+ OK? So this means that hopefully the next time when you come, by the time you decide
+
+406
+00:42:34,620 --> 00:42:44,220
+ for this, you either are going to find a page which is clean. So you don't need to write to
+
+407
+00:42:44,220 --> 00:42:48,540
+ the disk. So you pick that to replace it. Or in the worst case, you come back to the page,
+
+408
+00:42:48,540 --> 00:42:54,700
+ you decided to write back. But by that time, hopefully it's clean. So then the overhead
+
+409
+00:42:54,700 --> 00:43:12,860
+ is always going to be low. Any questions? OK. So this again is a PTE. And this is
+
+410
+00:43:15,740 --> 00:43:29,180
+ the page table entry. And again, these are the bits which are in the PTE. So we have a bit which
+
+411
+00:43:29,180 --> 00:43:36,940
+ is present or valid. This means, if you remember, whether specify whether the page is in the memory
+
+412
+00:43:36,940 --> 00:43:42,620
+ or not. If p is 0, then it's invalid. So it's a page fault. The page should be on the disk.
+
+413
+00:43:43,500 --> 00:43:51,100
+ It's a writable. This is about its access control. This is about whether the page,
+
+414
+00:43:51,100 --> 00:44:00,060
+ you can write to the page or not. Like for instance, if the pages which contains the code,
+
+415
+00:44:00,060 --> 00:44:05,580
+ they are not writable. Right? Because the code is immutable, or it should be immutable.
+
+416
+00:44:05,580 --> 00:44:12,140
+ Then it's access bit or use bit. We talk quite a bit about it. This was what is used in the
+
+417
+00:44:12,140 --> 00:44:17,820
+ clock algorithm. And it's a dirty bit, right? Modified, which is used by any cache replacement,
+
+418
+00:44:17,820 --> 00:44:28,300
+ sorry, by any page replacement algorithms. Because if the page is dirty or is modified,
+
+419
+00:44:28,300 --> 00:44:37,020
+ you need to write it back to the disk. OK? So this is what kind of you have. And here,
+
+420
+00:44:40,860 --> 00:44:45,740
+ OK. So again, just to summarize for the clock algorithms, like the way,
+
+421
+00:44:45,740 --> 00:44:52,620
+ you know, as we discuss so far, we use the use bit and the dirty bit.
+
+422
+00:44:52,620 --> 00:45:03,100
+ But this being said, the p and w are almost always used. They are going to be used by the
+
+423
+00:45:03,100 --> 00:45:15,820
+ operating system, obviously. So now, so here is some interesting questions. So
+
+424
+00:45:15,820 --> 00:45:27,900
+ again, p and w, they are a must in general, right? Because it's protection, w is protection, and p,
+
+425
+00:45:27,900 --> 00:45:32,700
+ you need to know whether the page is in memory or not. You cannot go around those.
+
+426
+00:45:33,340 --> 00:45:40,540
+ So now the question is about these other bits, right? And the question is that, are they
+
+427
+00:45:40,540 --> 00:45:44,700
+ really necessary to implement, for instance, the clock algorithm?
+
+428
+00:45:44,700 --> 00:46:01,980
+ And. Yes, that's great, Harrison. You can use a valid bit and always
+
+429
+00:46:01,980 --> 00:46:08,380
+ set it to invalid to force a fault on each axis. It's super slow, though. Yes, that's correct.
+
+430
+00:46:08,380 --> 00:46:14,300
+ So the trick here is that if you do not have these bits in the hardware, in these registers,
+
+431
+00:46:14,300 --> 00:46:19,340
+ what you can do, you can maintain this bit in software.
+
+432
+00:46:19,340 --> 00:46:25,420
+ And now you need to find a way to modify, to look at these bits and modify them.
+
+433
+00:46:27,500 --> 00:46:34,060
+ And Allison is correct about how you can do it and hear how you can do it in more details.
+
+434
+00:46:34,060 --> 00:46:41,740
+ You can do it also for for now, let's assume we can do it using the read only bit.
+
+435
+00:46:41,740 --> 00:46:50,860
+ OK, so basically when you. We are talking about modify bit, so basically what you have here
+
+436
+00:46:51,580 --> 00:46:58,940
+ is that when you read a page, you mark it read only. No matter whether it's a day,
+
+437
+00:46:58,940 --> 00:47:15,980
+ contain data or code. OK. So and then when. OK, so all of them are read only and then when.
+
+438
+00:47:20,700 --> 00:47:32,460
+ You are going to access it and you want to write it. Then you are going to have an exception.
+
+439
+00:47:32,460 --> 00:47:38,780
+ Right, because you want to write a page which is read only. So it's a trap in the operating system.
+
+440
+00:47:38,780 --> 00:47:45,340
+ OK. And in the operating system, in the software, you maintain this modify bit.
+
+441
+00:47:46,460 --> 00:47:51,580
+ Of course, first time when you bring the page in, you make and you make it read only,
+
+442
+00:47:51,580 --> 00:48:00,220
+ you set this modify bit to zero. When you write it, you get an exception like we discussed.
+
+443
+00:48:00,220 --> 00:48:07,420
+ Trap the operating system. The operating system is going to make the page read right and set the
+
+444
+00:48:07,420 --> 00:48:14,700
+ modified bit one. Right again, modified bit is in software. Whenever the page is written back to the
+
+445
+00:48:14,700 --> 00:48:24,940
+ disk. Right, you reset the modified bit to zero because now it's not is what you have in memory
+
+446
+00:48:24,940 --> 00:48:33,100
+ is exactly what you have on the disk and you mark again read only. OK. So that's pretty cool.
+
+447
+00:48:33,100 --> 00:48:43,180
+ Now, it turns out that actually you don't even need the use bit. Right. And
+
+448
+00:48:43,180 --> 00:48:49,420
+ like again, in this case, if you don't use you have the use bit in the PTE,
+
+449
+00:48:49,420 --> 00:48:56,540
+ you have to keep it in software. So the kernel is to keep it. Right.
+
+450
+00:48:56,540 --> 00:49:05,580
+ And the way you do it now, you can mark all pages as invalid, even if they are in memory. OK.
+
+451
+00:49:07,260 --> 00:49:15,420
+ And then you set the use bit and modify bits, which are again in software, you set up to zero.
+
+452
+00:49:15,420 --> 00:49:27,180
+ You bring a page in. And even if again, now the page is memory, you still do not you still
+
+453
+00:49:27,180 --> 00:49:37,180
+ keep the invalid bit being set for that page. However, in the software, you keep in mind
+
+454
+00:49:37,340 --> 00:49:43,100
+ that you brought in the page and you set up the base for use and modified to zero for that page.
+
+455
+00:49:43,100 --> 00:49:54,060
+ So now any read or write to this invalid page will trap to operating system. OK,
+
+456
+00:49:54,060 --> 00:50:01,740
+ now the operating system then is going to set the use bit to one because you access it.
+
+457
+00:50:02,540 --> 00:50:09,580
+ Right. And if it's a read, you are going to only if it's a read, you are going to set the page
+
+458
+00:50:09,580 --> 00:50:16,780
+ to read only like before to catch the future writes. If write, you also set the modified
+
+459
+00:50:16,780 --> 00:50:24,220
+ bit to one and you mark the page are writable. OK. And when the clock passes and the use bit is zero,
+
+460
+00:50:25,740 --> 00:50:33,100
+ you can again mark the page when the clock can passes, you reset the bit to zero,
+
+461
+00:50:33,100 --> 00:50:40,460
+ use bit to zero and mark the page again as being invalid. OK. Sorry.
+
+462
+00:50:40,460 --> 00:50:52,940
+ So. The modified bit is not obviously you are not going to. You are not going to
+
+463
+00:50:52,940 --> 00:51:02,620
+ write that bit, you are not going to modify the bit, the modified bit,
+
+464
+00:51:02,620 --> 00:51:07,500
+ unless the page is written back on the disk. OK.
+
+465
+00:51:07,500 --> 00:51:11,180
+ Any questions?
+
+466
+00:51:11,180 --> 00:51:22,300
+ So it's very cool. So basically, the TLDR here is that you can get away
+
+467
+00:51:23,100 --> 00:51:32,380
+ by not storing the modified and used by not having the modified and use bits in the
+
+468
+00:51:32,380 --> 00:51:40,060
+ page table entry. And because you don't have that, you need to have them somewhere.
+
+469
+00:51:40,060 --> 00:51:46,860
+ So you are going to keep them in kernel. But now you need to modify and need to look at those bits.
+
+470
+00:51:47,740 --> 00:51:53,980
+ So you need to go to the kernel to do that. In order to go to the kernel, you need to force
+
+471
+00:51:53,980 --> 00:52:00,300
+ that trap to the kernel and the way you do, you force that trap using the other bits like
+
+472
+00:52:00,300 --> 00:52:13,740
+ invalid bits or write only bit or read write bits or writable bit in order to force that trap.
+
+473
+00:52:13,740 --> 00:52:19,580
+ So you force, you are going to give the control to the operating system to handle
+
+474
+00:52:19,580 --> 00:52:23,100
+ the modified and used bits.
+
+475
+00:52:23,100 --> 00:52:27,420
+ Make sense?
+
+476
+00:52:27,420 --> 00:52:42,220
+ OK. So now let's talk about the second chance list algorithm. So it's a variation.
+
+477
+00:52:42,220 --> 00:52:51,340
+ Let's put it as another approximation of all area. And it was implemented in BACs,
+
+478
+00:52:51,340 --> 00:52:58,940
+ VMS. You do not know about that. You haven't seen it probably. Maybe you're only in the museum.
+
+479
+00:52:58,940 --> 00:53:05,740
+ But this is a very popular computer. It was called mini computer. And before the personal computers.
+
+480
+00:53:06,380 --> 00:53:16,940
+ Right. So it was in 70s, 80s. Right. But it was VACs was a very, very influential computer.
+
+481
+00:53:16,940 --> 00:53:23,500
+ And in this case, you have two lists. You divide it into lists.
+
+482
+00:53:25,740 --> 00:53:38,460
+ And the first list is direct mapped pages and they are all marked read write. And
+
+483
+00:53:38,460 --> 00:53:48,060
+ you keep FIFO. Why FIFO? FIFO is very fast. Right. With FIFO is very simple. Right. You
+
+484
+00:53:48,060 --> 00:53:58,060
+ when you bring a page in memory, you put it at the end of the list when you. Well, you
+
+485
+00:53:58,060 --> 00:54:03,500
+ sorry, you can put it you put it ahead of the list when you remove a page, you remove from
+
+486
+00:54:03,500 --> 00:54:11,740
+ the end of the list. Right. Very simple. And while things while things in this list are
+
+487
+00:54:11,740 --> 00:54:18,860
+ accessed, you don't do anything. Right. But then you have a second chance list and they
+
+488
+00:54:18,860 --> 00:54:25,180
+ are marked invalid. And this is Alerio implements Alerio. OK, so this is how you split the memory.
+
+489
+00:54:25,180 --> 00:54:30,860
+ Directly mapped page and the second chance list pages. OK, so let's see how it works.
+
+490
+00:54:30,860 --> 00:54:40,220
+ So if you access a page in this. You know, one of these green pages, they are also called
+
+491
+00:54:40,220 --> 00:54:49,340
+ active list, right? Then you access it. No problem. If you don't access a page which
+
+492
+00:54:49,340 --> 00:54:57,660
+ is an active list, you are going to have a page fault. And on the page fault, always
+
+493
+00:54:57,660 --> 00:55:02,780
+ you are moving the page from the end of the active list to front of the second chance
+
+494
+00:55:02,780 --> 00:55:15,580
+ list and mark it is invalid. Right. This is five. OK. And then. If the pages is a second
+
+495
+00:55:15,580 --> 00:55:24,380
+ chance list. You move that page to the front of the active list and you mark it read right,
+
+496
+00:55:24,380 --> 00:55:33,660
+ because all the pages in the activist are read right. Now, if the page you are looking for
+
+497
+00:55:33,660 --> 00:55:45,500
+ is not in the second chance list. OK. You page it directly in the active list,
+
+498
+00:55:45,500 --> 00:55:53,020
+ as a front of the activist, you mark it as a read right and you page out a victim from
+
+499
+00:55:53,740 --> 00:56:02,060
+ second chance list. I'll let you using gallery. OK, so let's take a step back and see what
+
+500
+00:56:02,060 --> 00:56:12,700
+ happens here. So what happens here and why we do this, it's because we, you know, I'll
+
+501
+00:56:12,700 --> 00:56:21,100
+ let you it's expensive to implement and obviously. Writing back to the disk and, you know, reading
+
+502
+00:56:21,100 --> 00:56:30,140
+ from the disk a page is also expensive. OK, so therefore, what we say, well, let's take
+
+503
+00:56:30,140 --> 00:56:37,500
+ a bunch of pages from memory and organize them in a five. Five is super efficient, very
+
+504
+00:56:37,500 --> 00:56:42,860
+ simple to implement. But the problem is five, obviously, is that they do see and it's not
+
+505
+00:56:42,860 --> 00:56:50,860
+ pretty good in limiting the number of page faults. And now the second thing comes, I say,
+
+506
+00:56:50,860 --> 00:56:56,140
+ OK, I have page faults with FIFO, I know that I'm going to have a lot of page faults, but
+
+507
+00:56:56,140 --> 00:57:05,100
+ let's make them cheap. So the way you make them cheap is that with the second chance
+
+508
+00:57:05,100 --> 00:57:14,140
+ list and because you hope that a lot of times the page you are looking at is still in memory,
+
+509
+00:57:14,140 --> 00:57:22,380
+ is this in the second chance list. OK, so that's the key. And for the second chance
+
+510
+00:57:22,380 --> 00:57:32,300
+ list, you do LRU. You can afford to do LRU because anyway, in order to, you experience
+
+511
+00:57:32,300 --> 00:57:45,100
+ a page fault to get the page from the second chance list.
+
+512
+00:57:45,100 --> 00:57:51,260
+ So increase the number of page faults because you have FIFO and you are using only a subset
+
+513
+00:57:51,260 --> 00:58:02,860
+ of frames in this active list. But you reduce the overhead of the page faults because many
+
+514
+00:58:02,860 --> 00:58:19,100
+ times a page fault will page in a list of a page which is already in memory. Make sense?
+
+515
+00:58:19,100 --> 00:58:33,740
+ OK. Now, the interesting thing to notice here and like, for instance, what happens if the
+
+516
+00:58:33,740 --> 00:58:44,220
+ second chance list is zero and all the memory frames are allocated to the active page, active
+
+517
+00:58:44,220 --> 00:58:55,340
+ list, then you have FIFO. That's the regulation policy. What if active list is zero, right?
+
+518
+00:58:55,340 --> 00:59:02,860
+ And you allocate everything to the second chance list. Then you have LRU, but it's very
+
+519
+00:59:02,860 --> 00:59:09,100
+ expensive. This is what it says. But because you are going to page fault on every page
+
+520
+00:59:09,100 --> 00:59:16,460
+ reference. So you pick an intermediate value, obviously, in terms of how many frames you
+
+521
+00:59:16,460 --> 00:59:32,300
+ are going to have in the active list. And again, this will reduce the number of disk
+
+522
+00:59:32,300 --> 00:59:36,220
+ accesses because fundamentally, if you look from the point of view of the entire memory
+
+523
+00:59:36,220 --> 00:59:43,580
+ now, you use LRU, not an approximation of the real approximation of LRU. So you are
+
+524
+00:59:43,580 --> 00:59:49,260
+ very efficient in terms of the number of disk accesses. But you are going to increase the
+
+525
+00:59:49,260 --> 00:59:55,020
+ number of context switching. You are increasing the number of page faults.
+
+526
+01:00:01,740 --> 01:00:06,540
+ So any question?
+
+527
+01:00:24,220 --> 01:00:32,220
+ And again, a base translation will see that you can adapt to any kind of access to program,
+
+528
+01:00:32,220 --> 01:00:42,460
+ access or any access patterns of the programs. So one interesting tidbit here was that when
+
+529
+01:00:43,020 --> 01:00:58,060
+ VAX was originally designed, the use bit was not part of the PTE. And the story is that Stryker,
+
+530
+01:00:58,060 --> 01:01:02,700
+ the architect, actually went to the software people and asked them.
+
+531
+01:01:02,700 --> 01:01:04,500
+ them.
+
+532
+01:01:04,540 --> 01:01:12,220
+ people say, oh, no, we don't need it. So they didn't implement it. Of course. Eventually,
+
+533
+01:01:12,220 --> 01:01:19,900
+ when they implemented the cash replacement policy, they needed it. And they always use it,
+
+534
+01:01:19,900 --> 01:01:24,860
+ what they did about it, of course, because it doesn't in the PDE, they have to keep it in
+
+535
+01:01:24,860 --> 01:01:32,780
+ software. So they need to make sure that we get a trap to the operating system, to the kernel in
+
+536
+01:01:32,780 --> 01:01:39,740
+ order to modify the bit, like we've seen in the previous few slides. And obviously, he was also,
+
+537
+01:01:39,740 --> 01:01:49,420
+ not obviously, but he was also blamed for this omission. So don't trust the operating OS people.
+
+538
+01:01:49,420 --> 01:02:02,220
+ That's kind of the moral of the story here. The other things which we didn't, we alluded,
+
+539
+01:02:02,220 --> 01:02:12,460
+ but we haven't discussed so far. It's in general, even with the algorithm, with all these algorithms,
+
+540
+01:02:12,460 --> 01:02:18,860
+ even with the clock algorithms, in practice, you do have, you maintain also a free list.
+
+541
+01:02:18,860 --> 01:02:24,700
+ And the free list, it's a list of frames which are available, you can allocate,
+
+542
+01:02:24,700 --> 01:02:36,780
+ they are not allocated yet. And so therefore, if you initially, and the way you do that,
+
+543
+01:02:36,780 --> 01:02:44,860
+ you use it again as a sort of cache. For instance, with the clock algorithm, when you are going to
+
+544
+01:02:44,860 --> 01:02:53,100
+ evict the page, you are going to write this page to the free list instead of writing it directly
+
+545
+01:02:53,100 --> 01:03:03,980
+ to the disk. And then in the background, there is a daemon, which is going to look at the free list
+
+546
+01:03:03,980 --> 01:03:11,820
+ and to look at the pages, which are dirty in the free list, and then write these pages to the disk.
+
+547
+01:03:11,820 --> 01:03:19,500
+ So the advantage of this is that it's again, it's like when I need to replace a page,
+
+548
+01:03:19,500 --> 01:03:26,780
+ even if the page was modified, I don't need to wait for it to be written to the disk,
+
+549
+01:03:26,780 --> 01:03:33,020
+ because it's going to be written quickly, just move in another list in memory.
+
+550
+01:03:33,020 --> 01:03:43,100
+ Okay. So this is very similar with the VAX, the second chance list to just learn about.
+
+551
+01:03:43,100 --> 01:03:45,180
+ Any questions?
+
+552
+01:03:45,180 --> 01:04:02,220
+ Obviously, this is this high level, right? It's the high level pictures.
+
+553
+01:04:02,220 --> 01:04:05,580
+ There are many details we haven't discussed. So let's discuss a few of them.
+
+554
+01:04:05,580 --> 01:04:10,780
+ Remember that when you are going to evict the page, you need to invalidate these PDEs,
+
+555
+01:04:12,860 --> 01:04:19,020
+ because the next time when you are going to access that page, you need to bring this page
+
+556
+01:04:19,020 --> 01:04:25,980
+ in memory. So you need to get the kernel, do that for you. So it has to be a trap.
+
+557
+01:04:25,980 --> 01:04:37,820
+ And you need, so then, therefore, you need to keep the reverse mapping, so that when I am going
+
+558
+01:04:37,820 --> 01:04:48,460
+ to evict the page, I need to know which is its PDE to invalidate. And the same is true also for the
+
+559
+01:04:48,460 --> 01:05:02,140
+ TLB. Okay. So how do you do that? And there are many ways to do it. You can keep a link list of
+
+560
+01:05:02,140 --> 01:05:19,980
+ page entries. And actually, in some sense, again, there are many software solutions here. But in
+
+561
+01:05:19,980 --> 01:05:30,780
+ some sense, the thing when it gets complicated, it's when you have shared pages across multiple
+
+562
+01:05:30,780 --> 01:05:41,100
+ processes, right? Because then remember, each process has its own virtual address space.
+
+563
+01:05:41,100 --> 01:05:51,900
+ And each process has its own page table. So therefore, if a page is shared by two processes,
+
+564
+01:05:53,100 --> 01:06:01,420
+ then like we've seen in the last lecture, you are going to have two entries, two PDE,
+
+565
+01:06:01,420 --> 01:06:08,060
+ two page tables entries, right, in the page table of the two processes pointing to the same page.
+
+566
+01:06:08,060 --> 01:06:15,340
+ So you need to invalidate the two PDEs when you evict that page. Okay. So you need to find both
+
+567
+01:06:15,340 --> 01:06:24,940
+ of those, right? So just keeping the simple reverse mapping is not enough. And one way to
+
+568
+01:06:24,940 --> 01:06:31,980
+ address this problem is like, you can see on this slide, is basically you can have a list,
+
+569
+01:06:31,980 --> 01:06:44,060
+ right, of page table entries for each page. So if there are two or four, say four processes,
+
+570
+01:06:44,060 --> 01:06:54,300
+ we share the same page. For that, then for that, associated with that page, you have a linked list
+
+571
+01:06:54,300 --> 01:07:06,140
+ of the four PDEs of these processes who access that page. Okay. So now you go back to this list
+
+572
+01:07:06,140 --> 01:07:13,820
+ and you validate everything which is in the list. And there are other solutions here. Okay.
+
+573
+01:07:13,820 --> 01:07:30,060
+ Any questions? Okay. Now let's switch gears. And now we are done with, in some sense, with this
+
+574
+01:07:30,060 --> 01:07:38,300
+ kind of low level page replacement policies. And now we are talking about how the memory will be
+
+575
+01:07:38,300 --> 01:07:54,780
+ allocated across processes. But before then, any questions? So memory is a resource. It's very much
+
+576
+01:07:54,780 --> 01:08:04,780
+ like the CPU, right? And we are talking about all these policies or scheduling policies, page
+
+577
+01:08:04,780 --> 01:08:12,620
+ replacement policies, because the resources are oversubscribed. If the resource is not over
+
+578
+01:08:12,620 --> 01:08:20,540
+ subscribed, we don't need to do anything. We have enough for everyone. Right? And we've seen all
+
+579
+01:08:20,540 --> 01:08:28,380
+ these scheduling algorithms about how to allocate the CPU to across multiple processes, threads,
+
+580
+01:08:28,380 --> 01:08:37,500
+ in a fair manner, whatever. And you can imagine we have the same problems to solve. We have the
+
+581
+01:08:37,500 --> 01:08:45,260
+ same problems to solve in the case of the memory as well. Right? And the same questions, right?
+
+582
+01:08:45,260 --> 01:08:51,500
+ If you have multiple processes competing for the physical memory, how you are going to allocate
+
+583
+01:08:51,500 --> 01:08:59,580
+ the memory across processes? You are going to allocate fairly, right? The same number of pages.
+
+584
+01:08:59,580 --> 01:09:04,780
+ Also, we need to keep in mind that each process needs a minimum number of pages to work.
+
+585
+01:09:04,780 --> 01:09:11,660
+ It cannot work without having a certain number of pages in memory. Okay.
+
+586
+01:09:14,220 --> 01:09:22,940
+ So like for instance, this is one case, this is IBM 370, which for one instruction,
+
+587
+01:09:22,940 --> 01:09:34,940
+ you can need up to six pages to be in memory. And this was an instruction to move a bunch of bytes
+
+588
+01:09:34,940 --> 01:09:42,460
+ from one location to another. First instruction is six bytes. So my span two pages.
+
+589
+01:09:42,460 --> 01:10:02,860
+ Okay. And then you can have the region spanning the source region from where you want to copy
+
+590
+01:10:02,860 --> 01:10:11,100
+ can span two pages. And the destination where you want to copy that data also can span two pages.
+
+591
+01:10:11,100 --> 01:10:22,060
+ So six pages in total. Right? And the other thing is again, but here is the only the difference,
+
+592
+01:10:22,060 --> 01:10:32,460
+ and you have to appreciate that the difference between the CPU and memory is that with CPU
+
+593
+01:10:34,620 --> 01:10:44,220
+ actually it's more fungible. The CPU is more fungible. It's memoryless in some sense. It's
+
+594
+01:10:44,220 --> 01:10:52,620
+ like, I am going to decide when to process, to schedule. I'm going to schedule it. And every
+
+595
+01:10:52,620 --> 01:10:59,500
+ time slot, I'm going to pick another process. Right? So every time slot, when I say it's
+
+596
+01:10:59,500 --> 01:11:07,260
+ stateless is that because every time quanta, I can pick another process to schedule. But here,
+
+597
+01:11:07,260 --> 01:11:20,460
+ I am going to start the decision is not for which process to bring a page in. It's already the
+
+598
+01:11:20,460 --> 01:11:25,740
+ memory is full with pages from all the processes. I have to decide which page to evict. Right?
+
+599
+01:11:26,380 --> 01:11:35,020
+ Which is more difficult. And of course, eviction policy can be global, meaning that when I'm going
+
+600
+01:11:35,020 --> 01:11:41,820
+ to pick a page to evict, I'm going to look at all across all the processes, all the pages in memory.
+
+601
+01:11:41,820 --> 01:11:47,340
+ Or another way to think about it can be local. When I'm going to decide which page to evict,
+
+602
+01:11:47,340 --> 01:11:55,100
+ I'm going to look only across the pages of the process, which cause a page fault. Right?
+
+603
+01:11:55,100 --> 01:12:00,460
+ So I'm going to bring a page from the disk for the new or for a process. And I'm going to evict
+
+604
+01:12:00,460 --> 01:12:06,620
+ a page from that the same process. Right? So here are a few policies which are kind of obvious.
+
+605
+01:12:06,620 --> 01:12:14,780
+ Equal allocation. One way to say it is to be super fair, you just divide statically the memory across
+
+606
+01:12:14,780 --> 01:12:21,260
+ processes. You have five processes, you have 100 frames, then each process gets 20 frames, period.
+
+607
+01:12:21,900 --> 01:12:28,460
+ Right? Or you can have a proportional allocation, also fixed scheme, in which you have a weight and
+
+608
+01:12:28,460 --> 01:12:33,980
+ you are going to allocate the memory according to that weight. Now, what is the problem with
+
+609
+01:12:33,980 --> 01:12:38,700
+ a fixed allocation? Can someone tell me what is the problem with these fixed allocations?
+
+610
+01:12:38,700 --> 01:13:03,340
+ Yep, these are very good questions. Very good answers, Michael and Alison. So one problem is
+
+611
+01:13:03,340 --> 01:13:14,220
+ that if a process requires less than its allocation, then memory is wasted. The other thing is that
+
+612
+01:13:14,220 --> 01:13:23,820
+ what happens when a new process is created? Okay, then you need to redistribute all these pages
+
+613
+01:13:23,820 --> 01:13:31,420
+ across the processes. Then it's a priority allocation. You can use a priority and you can
+
+614
+01:13:31,420 --> 01:13:38,460
+ assign priority to each process. You can use the same priority which are used for scheduling.
+
+615
+01:13:38,460 --> 01:13:45,100
+ And then when you need to decide which page to evict, you are going to evict a page
+
+616
+01:13:45,100 --> 01:13:52,780
+ from the process with a lower priority. Right? Or you can use any adaptive schemes.
+
+617
+01:13:52,780 --> 01:14:01,340
+ Another way to think it is about frequency allocation. So basically here you think about
+
+618
+01:14:01,900 --> 01:14:08,380
+ I want everyone to kind of get the same performance and the performance is dictated by
+
+619
+01:14:08,380 --> 01:14:14,620
+ the frequency of the page faults. So I want kind of to equalize the page faults that each process
+
+620
+01:14:14,620 --> 01:14:21,980
+ experience a frequency. Right? So in this particular case, you are going to look, you can
+
+621
+01:14:21,980 --> 01:14:31,900
+ look at, you know, to have some thresholds. And if a process, the number of frequency of the page
+
+622
+01:14:31,900 --> 01:14:40,140
+ faults is lower than this lower bound, then you are going to evict pages from this process. You
+
+623
+01:14:40,140 --> 01:14:47,180
+ are going to reduce the number of pages allocated to this process. If the number of page faults for
+
+624
+01:14:47,180 --> 01:14:56,220
+ the process exceed another threshold, then you have too many page faults. You are going to
+
+625
+01:14:56,220 --> 01:15:03,340
+ allocate more pages to this process. Okay? So that's what you can do.
+
+626
+01:15:03,340 --> 01:15:13,100
+ But still, no matter what you are talking about here, there can be still cases in which you don't
+
+627
+01:15:13,100 --> 01:15:18,540
+ have enough memory. And when you don't have enough memories, what happens is kind of trashing.
+
+628
+01:15:18,540 --> 01:15:27,260
+ And trashing, you can actually identify that in a simpler way, you see a lot of I/O activity and the
+
+629
+01:15:27,260 --> 01:15:33,900
+ CPU very little utilization because trashing meaning that you have a very high number of page
+
+630
+01:15:33,900 --> 01:15:40,780
+ faults. So the program or the, you know, the processes spend most of their time page faulting
+
+631
+01:15:41,900 --> 01:15:49,020
+ than doing useful work. And in that case, no one is making progress. So what is the solution here?
+
+632
+01:15:49,020 --> 01:15:57,500
+ Right? By the way, how do you take the trashing? It's very simple, right? It's like I mentioned
+
+633
+01:15:57,500 --> 01:16:04,060
+ to you, right? It's like you have a lot of I/O activity and the CPU utilization is basically zero.
+
+634
+01:16:04,620 --> 01:16:15,980
+ Right? So what you can do here? No one is making progress. So what you can do?
+
+635
+01:16:15,980 --> 01:16:28,140
+ Well, one simple solution you can do is to
+
+636
+01:16:31,100 --> 01:16:35,020
+ yes, suspend one process or kill a process.
+
+637
+01:16:35,020 --> 01:16:45,980
+ Very good. So we went over this last time and you remember that, you know, we have a similar plot
+
+638
+01:16:45,980 --> 01:16:55,740
+ here and this represent the access pattern of a program, of a process over time. On the y-axis,
+
+639
+01:16:55,740 --> 01:17:01,660
+ you have the page number on the x-axis, you have the time and you have a dot at every position
+
+640
+01:17:01,660 --> 01:17:07,980
+ where you have an access to a particular page, you know, offset at a particular time.
+
+641
+01:17:07,980 --> 01:17:16,060
+ Right? So that's kind of what you have here. Okay. And it's again, when the program executes,
+
+642
+01:17:16,060 --> 01:17:22,060
+ you are going to at different times, you are going to access different location in memory.
+
+643
+01:17:23,260 --> 01:17:31,020
+ And the group of pages which are accessed together at a given time, they are called working set.
+
+644
+01:17:31,020 --> 01:17:37,100
+ Right? And the working set defines a minimum number of pages that a process have to have
+
+645
+01:17:37,100 --> 01:17:44,460
+ in memory in order to work well. So to not spend too much time in page folding.
+
+646
+01:17:45,180 --> 01:17:54,940
+ Okay. So therefore, this means that if you do not have enough space in memory to accommodate
+
+647
+01:17:54,940 --> 01:18:02,380
+ the working sets of all the active processes, then you have a problem. So the solution like
+
+648
+01:18:02,380 --> 01:18:08,300
+ we discussed is to swap out a process. Now, how you define the working set? When you
+
+649
+01:18:08,300 --> 01:18:13,900
+ design a group of pages access at the same time, we need to define the same time. And typically,
+
+650
+01:18:13,900 --> 01:18:20,060
+ this is a time interval. So basically, look at the current time and you are looking in the past
+
+651
+01:18:20,060 --> 01:18:26,540
+ for some time interval about to all the active all the pages which are accessed during that interval.
+
+652
+01:18:26,540 --> 01:18:32,220
+ And this is what you call the working set. Okay. And obviously about how long is the interval,
+
+653
+01:18:32,220 --> 01:18:40,940
+ which is also, you know, is also called working set window is that, you know, it's a good question,
+
+654
+01:18:40,940 --> 01:18:50,060
+ but you need to take a good, you know, because if it's too long, then it encompasses all the pages
+
+655
+01:18:50,060 --> 01:18:57,660
+ ever accessed by the program. Right. So that's not good. If it's too little, it's going to encompass
+
+656
+01:18:57,660 --> 01:19:02,700
+ only the most recent pages and you are going to miss maybe as many other pages that should be
+
+657
+01:19:02,700 --> 01:19:13,500
+ accessed, you know, in a very, you know, very in the near future. Right. So you miss the locality.
+
+658
+01:19:13,500 --> 01:19:22,540
+ Okay. But anyway, so once you set up this window, now you can define the working set. And then the
+
+659
+01:19:22,540 --> 01:19:31,180
+ simple thing is that the sum of the working set of all programs, you let's say is defined by D.
+
+660
+01:19:31,180 --> 01:19:40,140
+ And if D is greater than the memory size, you have trashing. Okay. And if D is less than the
+
+661
+01:19:40,140 --> 01:19:50,940
+ memory size, you are fine. Okay. And this is the last slide I'm going to make about like we
+
+662
+01:19:50,940 --> 01:19:58,540
+ discussed, you remember that when we discussed about this page replacement policies and about
+
+663
+01:19:58,540 --> 01:20:05,500
+ these examples, always we are going to start with this compulsory misses. Right. And obviously
+
+664
+01:20:05,500 --> 01:20:12,380
+ compulsory misses are unavoidable in some sense, but the question, can you do it better? And the
+
+665
+01:20:12,380 --> 01:20:19,660
+ answer, yes, you can do it better. Like for instance, for clustering the pages and when a
+
+666
+01:20:19,660 --> 01:20:26,060
+ page falls, you do not drink only one page in memory. You are bringing a set of pages,
+
+667
+01:20:26,060 --> 01:20:32,300
+ these consecutive pages, because if you assume locality, you assume that if you access say
+
+668
+01:20:32,300 --> 01:20:38,540
+ instructions in the current page, you are also as likely to access instruction in the next page.
+
+669
+01:20:38,540 --> 01:20:48,780
+ So you are more ties the cost of page faults by bringing more pages in memory. Right. And the same
+
+670
+01:20:48,780 --> 01:20:53,660
+ things about the working set. If you know kind of the working set and you have some knowledge
+
+671
+01:20:53,660 --> 01:21:03,420
+ about the locality, you can try to, for instance, when you swap a process on the disk,
+
+672
+01:21:03,420 --> 01:21:07,820
+ you swap its working set and when you bring the process in, you bring its working set,
+
+673
+01:21:07,820 --> 01:21:14,780
+ all the pages in the working set. So we are going to stop here and thank you very much. And let me
+
+674
+01:21:14,780 --> 01:21:26,940
+ know if you have any other questions.
+

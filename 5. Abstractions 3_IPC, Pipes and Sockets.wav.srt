@@ -1,0 +1,2868 @@
+1
+00:00:00,000 --> 00:00:23,000
+ Okay.
+
+2
+00:00:23,000 --> 00:00:47,680
+ So hello, everyone. Welcome to the fifth lecture of CS162. Today we are going to continue with
+
+3
+00:00:47,680 --> 00:00:56,280
+ the exciting topic of files. And then we are going to start another topic, which is on
+
+4
+00:00:56,280 --> 00:01:02,440
+ communications between processes, or IPC, interprocess communication techniques and
+
+5
+00:01:02,440 --> 00:01:13,000
+ mechanisms. Okay. As always, if you have any questions, ask on the Q&A. And let's start.
+
+6
+00:01:13,000 --> 00:01:20,620
+ So yesterday, not yesterday, two days ago, we discussed about the streams, which is a
+
+7
+00:01:20,620 --> 00:01:27,480
+ highest level API for the file systems. Today we are going to talk a little bit of a lower
+
+8
+00:01:27,480 --> 00:01:39,160
+ level file IO API, which is centered around file descriptors. And then we are going to
+
+9
+00:01:39,160 --> 00:01:43,600
+ talk about the difference between the high level and low level APIs. Why do we have two
+
+10
+00:01:43,600 --> 00:01:56,200
+ kinds of APIs? And about how a state is managed across processes, especially when you create
+
+11
+00:01:56,200 --> 00:02:02,840
+ another process using fork. What happens with the file descriptors in the parent and the
+
+12
+00:02:02,840 --> 00:02:13,840
+ child? And finally, two or three common pitfalls you may want to avoid in your projects or
+
+13
+00:02:13,840 --> 00:02:22,480
+ homeworks. Or in general, when you are going to write a program using these APIs for file
+
+14
+00:02:22,480 --> 00:02:24,760
+ systems.
+
+15
+00:02:24,760 --> 00:02:35,880
+ So first, remember what we discussed last time, that one unique thing about Unix is
+
+16
+00:02:35,880 --> 00:02:46,880
+ that it uses a file system of generic abstractions, not only to build all the files or on a storage
+
+17
+00:02:46,880 --> 00:02:56,800
+ device like a disk drive, but also to deal with different devices like keyboard, terminals,
+
+18
+00:02:56,800 --> 00:03:05,840
+ printer, and so forth. The second thing is that the abstraction which is provided, it's
+
+19
+00:03:05,840 --> 00:03:14,160
+ byte-oriented. So byte-oriented means that you have what you get and you read and write
+
+20
+00:03:14,160 --> 00:03:20,760
+ to the devices is basically a bunch of bytes. And you can think about like a sequence of
+
+21
+00:03:20,760 --> 00:03:28,720
+ bytes and you can address it by the index of a particular byte. So you can identify
+
+22
+00:03:28,720 --> 00:03:35,560
+ the byte in the sequence by its index in that sequence.
+
+23
+00:03:35,560 --> 00:03:40,520
+ The other things we are going to learn more is that when you are going to do reads and
+
+24
+00:03:40,520 --> 00:03:47,560
+ writes, these reads and writes are not going to come directly to your application. They
+
+25
+00:03:47,560 --> 00:03:53,520
+ are going first to be buffered in the operating system. And as you'll see also with streams
+
+26
+00:03:53,520 --> 00:04:01,560
+ of high-level API we talked last time, there is also a buffer in the application level.
+
+27
+00:04:01,560 --> 00:04:10,120
+ And finally, the pattern is very simple. You open the file, a file, and you have to close
+
+28
+00:04:10,120 --> 00:04:21,960
+ it at the end and in between you read and write from that particular file descriptor.
+
+29
+00:04:21,960 --> 00:04:32,120
+ So this is a low-level file I/O API and it's quite similar from the high-level file I/O
+
+30
+00:04:32,120 --> 00:04:43,800
+ API. One difference though, it's similar in the sense that it has an open, close, and
+
+31
+00:04:43,800 --> 00:04:49,240
+ in between like your series and writes. It's different, it provides a slightly different
+
+32
+00:04:49,240 --> 00:04:59,080
+ semantics and instead of F open, like for the high-level API, you have just open. And
+
+33
+00:04:59,080 --> 00:05:04,200
+ when you open a file, you pass a file name, then a bunch of flags, which basically says
+
+34
+00:05:04,200 --> 00:05:12,120
+ what is the access, what are the access rights, and whether you read, you have the rights
+
+35
+00:05:12,120 --> 00:05:21,200
+ to read from the file, write from the file, or rewrite the file. And then there are also
+
+36
+00:05:21,200 --> 00:05:32,040
+ bit vector with the permission bits, which are also who is going to have the rights to
+
+37
+00:05:32,040 --> 00:05:41,440
+ access that file. And you can have users. The user is a user who actually runs a program,
+
+38
+00:05:41,440 --> 00:05:48,920
+ which invokes this API to open the file. Then it's a group. This is the concept that user
+
+39
+00:05:48,920 --> 00:05:55,800
+ belongs to a group. We learn more about that. And others means everyone else can access
+
+40
+00:05:55,800 --> 00:06:07,760
+ this file. Then you have the close and you have create when you first time when you create
+
+41
+00:06:07,760 --> 00:06:20,600
+ a file. Now the important thing here is that open returns you an integer. The integer is
+
+42
+00:06:20,600 --> 00:06:27,280
+ also called file descriptor. The integers are greater than zero. If it's less than zero,
+
+43
+00:06:27,280 --> 00:06:40,720
+ this means that it's error. And this integer, it used to identify the metadata associated
+
+44
+00:06:40,720 --> 00:06:52,160
+ with a file you open, and this metadata is stored in the operating system. So that's
+
+45
+00:06:52,160 --> 00:07:02,560
+ why you are going to have-- why do you have then an integer to identify this kind of this
+
+46
+00:07:02,560 --> 00:07:12,400
+ metadata, which also, again, is file descriptor. And why do you have a file descriptor specified
+
+47
+00:07:12,400 --> 00:07:20,560
+ as an integer than specifies as a pointer? Can anyone answer that question?
+
+48
+00:07:20,560 --> 00:07:30,920
+ So it's again, open returns an integer. It's a file descriptor, which identifies the metadata
+
+49
+00:07:30,920 --> 00:07:43,920
+ associated with that file in the kernel. So why not just have a pointer? Yes, less dangerous.
+
+50
+00:07:43,920 --> 00:07:56,560
+ Can anyone save memory? Not exactly. Yes, that's correct. Having a pointer to kernel
+
+51
+00:07:56,560 --> 00:08:02,800
+ will allow-- will mean that will allow the process, which is a user process, which opens
+
+52
+00:08:02,800 --> 00:08:09,640
+ a file to have access to the kernel. Actually, but we know that processes have their own
+
+53
+00:08:09,640 --> 00:08:13,680
+ address space, which is different from the kernel. So you cannot have a pointer to the
+
+54
+00:08:13,680 --> 00:08:21,640
+ space of the kernel. So that's why you have an integer, because an integer is going--
+
+55
+00:08:21,640 --> 00:08:29,000
+ when you are going to invoke one of these operation of the file systems, then you are
+
+56
+00:08:29,000 --> 00:08:36,400
+ going to pass a file descriptor. And the file descriptor is going to be an index in a table
+
+57
+00:08:36,400 --> 00:08:42,720
+ of the file descriptors, which are open at that given time. And that index will point
+
+58
+00:08:42,720 --> 00:08:53,400
+ out to the metadata as sort of the state associated with this open file. So it's a portable way
+
+59
+00:08:53,400 --> 00:09:05,120
+ to identify the file state or the metadata associated with the open file.
+
+60
+00:09:05,120 --> 00:09:17,800
+ Now there are several default files, file names. It's like standard in, standard out,
+
+61
+00:09:17,800 --> 00:09:29,400
+ standard file-- sorry, these are the standard file descriptors. OK? Standard in, it's when
+
+62
+00:09:29,400 --> 00:09:37,960
+ you want to read from the keyboard, standard out when you are going to write to the keyboard.
+
+63
+00:09:37,960 --> 00:09:45,280
+ And the other thing is, again, we have high level APIs, low level APIs. The high level
+
+64
+00:09:45,280 --> 00:09:51,240
+ APIs or stream APIs, if you remember from last time, when you do an Fopen, you return
+
+65
+00:09:51,240 --> 00:09:57,640
+ a file, a pointer. And that pointer, it's actually a pointer to data structures in the
+
+66
+00:09:57,640 --> 00:10:09,780
+ user space. And that address in that data structure in the user space also contains
+
+67
+00:10:09,780 --> 00:10:20,640
+ the file descriptors associated with that open. OK? We'll talk more about that.
+
+68
+00:10:20,640 --> 00:10:29,240
+ And therefore, there is a way to go from the file descriptors and the pointer, which is
+
+69
+00:10:29,240 --> 00:10:39,160
+ returned by an Fopen, Fopen system call. Right? So you remember, if you do Fopen, you get
+
+70
+00:10:39,160 --> 00:10:41,240
+ this pointer, file pointer.
+
+71
+00:10:41,810 --> 00:10:49,010
+ and you can from this file pointer return by an fopen,
+
+72
+00:10:49,010 --> 00:10:57,570
+ you can get the associated file descriptor by using file now operation.
+
+73
+00:10:57,570 --> 00:11:01,730
+ And the reverse is also true from
+
+74
+00:11:04,930 --> 00:11:14,130
+ a file descriptor you got when you open a file, you can get the file pointer
+
+75
+00:11:14,130 --> 00:11:22,450
+ to that file by specifying the file descriptors and the open type. And now you can use these file
+
+76
+00:11:22,450 --> 00:11:30,770
+ descriptors to invoke on that file the high level APIs, the stream level APIs.
+
+77
+00:11:33,410 --> 00:11:42,770
+ Okay. Low level APIs you have again read and write, but typically here when you have read and write,
+
+78
+00:11:42,770 --> 00:11:54,370
+ you are going to read a buffer of a certain size. You read it into a buffer of a certain size,
+
+79
+00:11:54,370 --> 00:12:03,090
+ or you write a buffer of a certain size, right? So read will read the elements from the files
+
+80
+00:12:03,570 --> 00:12:08,050
+ up to the size of the buffer, which is max size. Obviously when you read,
+
+81
+00:12:08,050 --> 00:12:16,930
+ you need to allocate space for the buffer. And the write, it's again similar. You provide the
+
+82
+00:12:16,930 --> 00:12:25,810
+ pointer to a buffer, which of this of a given size, and that will result taking this buffer
+
+83
+00:12:25,810 --> 00:12:34,930
+ and writing it to the device. In addition, the other way to look at, in addition,
+
+84
+00:12:34,930 --> 00:12:42,450
+ you have this common, which is L-seq. So remember the abstraction is byte oriented.
+
+85
+00:12:42,450 --> 00:12:50,690
+ If you look at the file, it's a sequence of bytes. Okay. So if you want now to read or to write in a
+
+86
+00:12:50,690 --> 00:12:59,970
+ file at a particular position, you can use L-seq. And you basically are going to say, where do you
+
+87
+00:12:59,970 --> 00:13:10,050
+ want to offset is from the current position. You want to add an offset to get to a particular,
+
+88
+00:13:10,050 --> 00:13:15,250
+ to a new location, or you want to read from or to write to.
+
+89
+00:13:18,370 --> 00:13:25,490
+ Okay. So let me answer some of the questions. Can we put the PowerPoint into presentation mode?
+
+90
+00:13:25,490 --> 00:13:32,050
+ Thank you. Sorry about that. Yes, absolutely. That was an easy one.
+
+91
+00:13:32,050 --> 00:13:40,930
+ What does mode mean on the open code? Does it apply to just the file descriptor? Can I share
+
+92
+00:13:40,930 --> 00:13:53,010
+ a file descriptor with loser permission than the file in the FS? The mode is again referring
+
+93
+00:13:53,010 --> 00:14:01,410
+ to who has the rights to access the open file using that file descriptor. And it does apply
+
+94
+00:14:01,410 --> 00:14:08,210
+ to a file descriptor. It's per file descriptor. Can I share a file descriptor with loser permission
+
+95
+00:14:08,210 --> 00:14:19,650
+ than the file in the... Well, you cannot because if the file,
+
+96
+00:14:19,650 --> 00:14:29,890
+ the access rights are like the name implies are enforced when you access a file.
+
+97
+00:14:30,610 --> 00:14:41,810
+ So if the file, for instance, when you create it, you can only read and again,
+
+98
+00:14:41,810 --> 00:14:47,650
+ when you are going to create a file, you are going to basically say something like with these flags,
+
+99
+00:14:47,650 --> 00:14:57,250
+ all people, for instance, in my group can access a file. So now if you share your file descriptor
+
+100
+00:14:57,250 --> 00:15:01,890
+ to someone in the same group, they are going to have a right to access a file.
+
+101
+00:15:01,890 --> 00:15:12,930
+ But if you share with someone from other, outside your group, that person cannot access a file
+
+102
+00:15:12,930 --> 00:15:18,450
+ because the operating system is going to look who is going to access a file and is like,
+
+103
+00:15:18,450 --> 00:15:22,290
+ "Oh, it's not the same group." Then it's going to procure the access.
+
+104
+00:15:25,250 --> 00:15:30,450
+ Why is a buffer, this next question, is why is a buffer of type void?
+
+105
+00:15:30,450 --> 00:15:37,970
+ It's basically saying this signifies the fact that in that buffer, you can have anything,
+
+106
+00:15:37,970 --> 00:15:45,570
+ right? It's for generality. But if you put car, for instance, then it suggests that these are
+
+107
+00:15:45,570 --> 00:15:51,650
+ kind of the characters probably in us format and things like that. Void is basically saying it can
+
+108
+00:15:51,650 --> 00:16:04,450
+ be also binary representation. So it can be anything. It's a convention more than anything.
+
+109
+00:16:04,450 --> 00:16:19,890
+ Yeah, so this is an example of a simple example. You open a listing file.
+
+110
+00:16:19,890 --> 00:16:33,730
+ And you open an existing file and you write the output. And
+
+111
+00:16:38,770 --> 00:16:55,490
+ here it's read only. And the user is writing access for the user. And then you read it,
+
+112
+00:16:55,490 --> 00:17:07,490
+ you close, and you send the output to standard out file number.
+
+113
+00:17:07,490 --> 00:17:18,930
+ So one question here is about how many bytes this program reads. So you can see when you read,
+
+114
+00:17:18,930 --> 00:17:26,370
+ and this is an important instruction, you read into a buffer of which you allocated 1000 bytes.
+
+115
+00:17:27,010 --> 00:17:43,330
+ Okay. So how many bytes does this program read? Should be easy. Any answers?
+
+116
+00:17:43,330 --> 00:17:48,210
+ Okay. We have some answers here.
+
+117
+00:17:53,250 --> 00:18:01,970
+ Size of buffer, we have some answers. 1000 or less, at most 1000. Okay. That's correct.
+
+118
+00:18:01,970 --> 00:18:13,890
+ With just a little tiny clarification. You read if the size of the file is less than 1000
+
+119
+00:18:13,890 --> 00:18:21,410
+ bytes, you read everything. You read the entire file. If the size of the file is greater than
+
+120
+00:18:21,410 --> 00:18:36,450
+ 1000 bytes, you read the first 1000 bytes of the file. Okay. Like I mentioned, the design pattern,
+
+121
+00:18:36,450 --> 00:18:47,250
+ it's open before user file. At the end, you close it. And in between, add read and write from the
+
+122
+00:18:47,250 --> 00:18:57,970
+ file. Okay. With a low level IO API, you basically read and write a bunch of bytes. That's all.
+
+123
+00:18:57,970 --> 00:19:05,250
+ And you can use L-seq to reposition inside a file.
+
+124
+00:19:05,250 --> 00:19:16,050
+ So one important aspect I mentioned early on, you also need to think about the buffers.
+
+125
+00:19:16,690 --> 00:19:25,890
+ When you read something from a file, that thing doesn't go, it's not read directly to
+
+126
+00:19:25,890 --> 00:19:36,050
+ the operating system, to the application. It reads first, the information from a file,
+
+127
+00:19:36,050 --> 00:19:41,490
+ the data from the file is first read and is buffered in the kernel.
+
+128
+00:19:43,490 --> 00:19:49,170
+ The same is a write. When you write, you don't write directly to the device.
+
+129
+00:19:49,170 --> 00:19:56,450
+ You write to a buffer into the kernel and the kernel writes after that to the device.
+
+130
+00:19:56,450 --> 00:20:07,250
+ Okay. Now, can you think about why would you read and write to a buffer
+
+131
+00:20:07,250 --> 00:20:12,530
+ from and to and from a buffer in the kernel rather directly from the device?
+
+132
+00:20:12,530 --> 00:20:32,370
+ To check for malicious input, faster, the devices might not be directly ready. That's good. Yeah,
+
+133
+00:20:32,370 --> 00:20:41,730
+ it's faster and the devices might not be directly ready. And think about this way, right? It's like,
+
+134
+00:20:42,290 --> 00:20:51,810
+ it's also the fact that the devices, when they transfer data, they may have a natural
+
+135
+00:20:51,810 --> 00:21:02,610
+ granularity at which they transfer the data. Okay. So for instance, when you read from the disk,
+
+136
+00:21:02,610 --> 00:21:12,050
+ you read kind of granularities like blocks, a few kilobytes, right? So this is what you get
+
+137
+00:21:12,450 --> 00:21:18,610
+ from a disk drive. You don't get one byte at a time, you get a block at a time. So even if you
+
+138
+00:21:18,610 --> 00:21:22,690
+ ask for one character, you get a block. So you need to put that block somewhere. So you are going
+
+139
+00:21:23,630 --> 00:21:31,070
+ this is how we are going to put in the buffer, the kernel buffer. Otherwise, it means you throw
+
+140
+00:21:31,070 --> 00:21:37,230
+ it away. And then if you read the second character from that block, you need to bring it again.
+
+141
+00:21:37,230 --> 00:21:46,750
+ The other thing is about another situation is that when I write, say, a buffer to the device,
+
+142
+00:21:46,750 --> 00:21:54,270
+ the device may not be ready. Maybe another write is happening on the device. Or simply,
+
+143
+00:21:54,270 --> 00:22:04,830
+ if you have a disk drive, you need to wait for the disk to rotate such that the head of the disk
+
+144
+00:22:04,830 --> 00:22:11,070
+ to be above the region of the disk which is available, so you can write new data.
+
+145
+00:22:14,510 --> 00:22:21,790
+ So in that particular case, instead of blocking the application, then to wait for that event,
+
+146
+00:22:21,790 --> 00:22:28,910
+ then instead you are going to write to this kernel buffer and the kernel is going to take
+
+147
+00:22:28,910 --> 00:22:38,990
+ care of the rest. The same is another. If I'm going to write at once a big chunk of data
+
+148
+00:22:38,990 --> 00:22:45,790
+ and this is larger than what the network can send at once, larger than one packet,
+
+149
+00:22:45,790 --> 00:22:54,350
+ then what will happen is that case that you are going to write all these kind of chunk of data
+
+150
+00:22:54,350 --> 00:23:01,550
+ in the kernel. And then the kernel will take care to chop how much you want to send in smaller
+
+151
+00:23:01,550 --> 00:23:08,910
+ packets and send packets in each packet at a time. So hopefully, this is enough to give you a sense
+
+152
+00:23:08,910 --> 00:23:15,870
+ about why you need to buffer the data, why you need to buffer to have kernel buffers when you
+
+153
+00:23:15,870 --> 00:23:29,150
+ didn't write. Then there is another operation. It's again, there are differences. While everything
+
+154
+00:23:29,150 --> 00:23:34,350
+ is a file, there are different between devices like you mentioned last time. For instance,
+
+155
+00:23:34,350 --> 00:23:41,710
+ from a terminal, you have terminal is only output, a printer is only output, the keyboard is only
+
+156
+00:23:41,710 --> 00:23:51,070
+ input or the mouse is only input. Like for instance, and then also you may want to configure
+
+157
+00:23:51,070 --> 00:23:56,670
+ the other parameters like a printer to configure the line speed or things like that. And what you
+
+158
+00:23:56,670 --> 00:24:03,070
+ are going to do when you have these extra parameters to configure for which are particular
+
+159
+00:24:03,870 --> 00:24:11,230
+ to a given device, then you have this IOCTL as a escape patch. So that allows you to deal with
+
+160
+00:24:11,230 --> 00:24:19,310
+ these specialized particular parameters for different devices. The other one is to duplicate
+
+161
+00:24:19,310 --> 00:24:26,990
+ the file descriptors. And to duplicate, you can open a file, you can get a file descriptors,
+
+162
+00:24:26,990 --> 00:24:31,470
+ and you can, if you want to share that file descriptor to someone else,
+
+163
+00:24:32,670 --> 00:24:40,830
+ maybe another thread in the same application, or maybe another process to operate on the same file,
+
+164
+00:24:40,830 --> 00:24:47,950
+ then one way to do it is to create another file descriptors, which point to the same metadata,
+
+165
+00:24:47,950 --> 00:24:55,150
+ to the same instance of the open file. We'll show examples of that. And the difference between
+
+166
+00:24:56,110 --> 00:25:04,190
+ Doop and Doop is that with Doop 2, you can actually specify the file descriptors you want
+
+167
+00:25:04,190 --> 00:25:17,710
+ to point to the same data structure of open file. With Doop, you get back the next lowest number
+
+168
+00:25:17,710 --> 00:25:25,550
+ available in the file descriptor state, in the file descriptor of the file descriptor numbers.
+
+169
+00:25:25,870 --> 00:25:34,910
+ The lowest available. Pype, it's about, it's like you'll see, it's a way to communicate
+
+170
+00:25:34,910 --> 00:25:47,070
+ between two processes. You can think as a queue. And we are going to talk about
+
+171
+00:25:47,070 --> 00:25:52,990
+ memory mapping files, file locking, and things like that. So now the question,
+
+172
+00:25:52,990 --> 00:25:57,710
+ an obvious question here is that why do we have high level and low level APIs?
+
+173
+00:25:57,710 --> 00:26:03,870
+ How do we have, why do we have streams and why you have file descriptors? Why do we have fopens?
+
+174
+00:26:03,870 --> 00:26:15,950
+ And why do you have open? Right. And first of all, this is how they compare. So
+
+175
+00:26:18,510 --> 00:26:26,270
+ here it's high level operation, which is on streams of bytes. And here it's operation,
+
+176
+00:26:26,270 --> 00:26:39,870
+ which is on a buffer, right? And the files, the stream of APIs are preceded by f with f letter.
+
+177
+00:26:39,870 --> 00:26:47,870
+ And obviously the other low level API, they don't have any of this prefix letter. So the middle is
+
+178
+00:26:47,870 --> 00:26:56,750
+ the same, right? Remember this is, are going to be converted to a system call because this operation
+
+179
+00:26:56,750 --> 00:27:04,110
+ are implemented by the kernel, right? So what happens here, you are going to call, invoke the
+
+180
+00:27:04,110 --> 00:27:13,790
+ functionality in the operating system by using this kind of trap, right? And special drop
+
+181
+00:27:13,790 --> 00:27:20,670
+ instruction. And before you do that, you are going to fill in some registers with the data
+
+182
+00:27:20,670 --> 00:27:27,230
+ for the operating systems, for the kernel to know which files you are referring, right?
+
+183
+00:27:27,230 --> 00:27:33,550
+ And what operation you want to perform on that file. And for that operation, what are the
+
+184
+00:27:33,550 --> 00:27:39,470
+ arguments? Okay. So this is what you put in registers here, just before the trap instruction.
+
+185
+00:27:40,190 --> 00:27:47,790
+ And then after you do the stop, after you execute the trap instructions, the kernel will take over,
+
+186
+00:27:47,790 --> 00:27:51,950
+ will look at the register to initialize, is figuring out the file descriptors you are
+
+187
+00:27:51,950 --> 00:27:57,390
+ referring to, figure out what is the operation you want to perform, figure out the arguments
+
+188
+00:27:57,390 --> 00:28:02,910
+ of the operation, which are in other registers, perform the operation, and then returns back
+
+189
+00:28:02,910 --> 00:28:10,030
+ to the users once the operation is performed. And if the return values, it's also make sure
+
+190
+00:28:10,030 --> 00:28:18,430
+ that puts a return value in a particular register, like EX, right? The only difference is that,
+
+191
+00:28:18,430 --> 00:28:25,550
+ as you see, the fread, and so this is middle part, it's identical. The only difference is that
+
+192
+00:28:25,550 --> 00:28:36,190
+ with fread, with the high level APIs, you do a lot of some work before or after you
+
+193
+00:28:36,990 --> 00:28:42,510
+ invoke the operating system, you invoke the system call as a user level, you do some more work.
+
+194
+00:28:42,510 --> 00:28:49,790
+ And that has to do is the fact that, as you will see, with the high level APIs,
+
+195
+00:28:49,790 --> 00:28:57,390
+ we have a buffer, not only the kernel, but also we have a buffer in the user level. Okay.
+
+196
+00:29:01,950 --> 00:29:08,270
+ And this is exactly to illustrate that point, right? So if there are two examples here,
+
+197
+00:29:08,270 --> 00:29:15,870
+ we try to achieve mostly the same thing, but they have different behavior. Okay. So in the first
+
+198
+00:29:15,870 --> 00:29:24,190
+ case, you are going to, in both cases, with printf. printf is, at the end of the day,
+
+199
+00:29:24,190 --> 00:29:31,390
+ it's a write operation to the terminal, right? You give a string and you print to the terminal,
+
+200
+00:29:31,390 --> 00:29:42,270
+ right? So this is a high level API, right? And here we have the same kind of operation,
+
+201
+00:29:42,270 --> 00:29:51,150
+ but using the low level API, right? To standard out to the output, to the terminal. Okay.
+
+202
+00:29:51,150 --> 00:29:58,590
+ In both cases, what we do, we write a string, the first part of a string, begin offline,
+
+203
+00:29:58,590 --> 00:30:05,950
+ then we sleep for 10 seconds, and then we write the second part of the string, and, you know,
+
+204
+00:30:05,950 --> 00:30:14,830
+ which is ends with carry return, slash n. Okay. So what is the difference between the two? What
+
+205
+00:30:14,830 --> 00:30:21,150
+ is the difference in behavior? The difference in behavior is that the first one, it prints
+
+206
+00:30:21,150 --> 00:30:27,630
+ everything at once. So although you print beginning offline, you don't see anything at the terminal
+
+207
+00:30:28,190 --> 00:30:36,510
+ before you also print the end of the string, which finishes, which ends with carry return,
+
+208
+00:30:36,510 --> 00:30:45,470
+ right? In the second case, again, you're spraying the same thing. You are going to see beginning
+
+209
+00:30:45,470 --> 00:30:52,830
+ offline, printed, then sleep 10, after 10 seconds, you are going to see the end. Okay.
+
+210
+00:30:53,470 --> 00:30:58,910
+ So what happened under the hood and why do you have this behavior? Well, you have the behavior
+
+211
+00:30:58,910 --> 00:31:05,950
+ because in the second case, you have a buffer and that buffer, it is a kernel. So you send to
+
+212
+00:31:05,950 --> 00:31:12,670
+ the kernel, this kind of the first 18 bits beginning offline. And then the kernel is
+
+213
+00:31:12,670 --> 00:31:20,430
+ going to print on the terminal. The second one, and then when you send the last 16 bits,
+
+214
+00:31:20,430 --> 00:31:28,830
+ the kernel, beautifully, will print the end, right, of the sentence. Okay.
+
+215
+00:31:28,830 --> 00:31:37,950
+ In contrast with the stream level interface, you have another buffer,
+
+216
+00:31:37,950 --> 00:31:47,390
+ which is in the application level. So you don't directly write in the kernel buffer,
+
+217
+00:31:47,390 --> 00:31:54,830
+ you write in the application buffer. And the application buffer is written to the kernel
+
+218
+00:31:54,830 --> 00:32:05,230
+ buffer only when you have in this particular case, when you encounter the slash n character, right?
+
+219
+00:32:05,450 --> 00:32:12,330
+ the end of line character. So in this case, you're reprinting beginning of line. This is going into
+
+220
+00:32:12,330 --> 00:32:21,370
+ application buffer. Nothing happens. After 10 seconds, you add end of line in the application
+
+221
+00:32:21,370 --> 00:32:28,090
+ buffer. And then only now, because you have this kind of line fit, so the end of line,
+
+222
+00:32:28,890 --> 00:32:37,050
+ it's the entire application buffer is written in the kernel buffer, and the kernel will
+
+223
+00:32:37,050 --> 00:32:44,650
+ write on the terminal as the entire sentence. Does it make sense?
+
+224
+00:32:47,610 --> 00:33:00,170
+ Okay. So that's what happens. Now, what is the file into the file data structure? Again,
+
+225
+00:33:00,170 --> 00:33:05,050
+ this pointer to a file data structure is returned by the high-level APIs by FO1.
+
+226
+00:33:05,050 --> 00:33:10,010
+ So you have the file descriptors. This is the one which is returned by the low-level API,
+
+227
+00:33:10,010 --> 00:33:15,690
+ which is this integer. And you have the buffer, like I mentioned, this is the buffer we are
+
+228
+00:33:15,690 --> 00:33:21,450
+ talking about you have at the application level. And you also have a lock in case there are multiple
+
+229
+00:33:21,450 --> 00:33:28,010
+ threads using the file concurrently, then you want to lock and you have only one thread accessing the
+
+230
+00:33:28,010 --> 00:33:34,810
+ file at the same time. Remember about the concurrency discussion we had last lecture.
+
+231
+00:33:34,810 --> 00:33:44,010
+ Of course, there are many other things in the file data structures, but this is,
+
+232
+00:33:44,970 --> 00:33:53,610
+ we are not going to discuss those now. So now when you call a F write or any kind of high-level
+
+233
+00:33:53,610 --> 00:34:02,330
+ API, a stream API, what happens to the data you provide is the following. You get to write in the
+
+234
+00:34:02,330 --> 00:34:08,010
+ files buffer, this application buffer. This is exactly what I mentioned to you. And then
+
+235
+00:34:10,010 --> 00:34:17,850
+ this application buffer or file buffer is written in the kernel buffer in a flash. You have a special
+
+236
+00:34:17,850 --> 00:34:24,330
+ instruction to flash it. In the particular case of the printf, it is flashed when you get the line fit.
+
+237
+00:34:24,330 --> 00:34:37,130
+ Okay, so that's basically what it is. So what does this mean? So when you write code, you make the
+
+238
+00:34:37,130 --> 00:34:43,370
+ weakest possible assumption about how data is flushed from the file buffer. You need to make
+
+239
+00:34:43,370 --> 00:34:50,970
+ that assumption. And why is that important? So your application, in your application, you write,
+
+240
+00:34:50,970 --> 00:34:58,490
+ you use F write. And from your point of view, you may think that all this data already made it onto
+
+241
+00:34:58,490 --> 00:35:07,130
+ the disk. But that's not the case. If you have a failure just after an F write, you are not
+
+242
+00:35:07,130 --> 00:35:13,850
+ guaranteed that the data you wrote is making on the disk. In order to do that, you need to make
+
+243
+00:35:13,850 --> 00:35:21,130
+ sure that it's flashed, the data is flashed to the kernel. And actually, and then the kernel is going
+
+244
+00:35:21,130 --> 00:35:29,450
+ to make sure that it's going to be written on the disk. Okay, so you need to be careful about that.
+
+245
+00:35:29,450 --> 00:35:38,970
+ Okay, and this is a reminder for you, how to use a high-level Stream API
+
+246
+00:35:38,970 --> 00:35:49,850
+ in this particular case to write and read. And this is another important aspect
+
+247
+00:35:49,930 --> 00:35:55,610
+ to allow you to understand the subtel bits associated with this high-level interface.
+
+248
+00:35:55,610 --> 00:36:01,850
+ So in this code, what you have, I have a character C, and I am going to write it
+
+249
+00:36:01,850 --> 00:36:12,570
+ in a file, file.txt. Then I'm going to open the file again, and this is another descriptor here,
+
+250
+00:36:12,570 --> 00:36:19,290
+ F2. And I'm going to read from that file. And I'm going to write it in a file. So I'm going to
+
+251
+00:36:19,530 --> 00:36:25,290
+ write it in a file. Okay, so you write a character in the file, and you are going to read the
+
+252
+00:36:25,290 --> 00:36:34,010
+ character from the same file using different files, pointers. Okay, so what happens in this case?
+
+253
+00:36:34,810 --> 00:36:55,530
+ Right, well, there happen, you know, yeah, sorry, you initialize X here to C, and what you write in
+
+254
+00:36:55,530 --> 00:37:02,810
+ the file is B, not C. Sorry, okay, so then the question, what you are going to get? Okay, well,
+
+255
+00:37:02,810 --> 00:37:12,890
+ you are going to get an monotonistic behavior. When you read here, you can have C or you can have B.
+
+256
+00:37:12,890 --> 00:37:25,850
+ So why is that? Can someone say it?
+
+257
+00:37:32,090 --> 00:37:34,410
+ Okay, there are two questions here. So please try to,
+
+258
+00:37:34,410 --> 00:37:45,610
+ yes, that's very good. So to answer this question, there is an answer to my question.
+
+259
+00:37:45,610 --> 00:37:50,570
+ And the answer to my question is that why you can get a monotonistic behavior is because you
+
+260
+00:37:50,570 --> 00:37:59,690
+ don't know when the file's buffer is flashed to disk, right? So what can happen, remember,
+
+261
+00:38:00,250 --> 00:38:08,090
+ when you are going to write B, that B is written in the file buffer, which is associated with F1.
+
+262
+00:38:08,090 --> 00:38:14,650
+ Now you open F2, and now this is going to create another file buffer, which is associated with F2.
+
+263
+00:38:14,650 --> 00:38:23,690
+ So when you read it, if this B didn't make it from the file buffer of F1 to the kernel buffer
+
+264
+00:38:23,690 --> 00:38:33,290
+ and to the disk, you are not going to read it. Okay? If it made it, then you are going to read B.
+
+265
+00:38:33,290 --> 00:38:38,410
+ Okay? So basically here, you write B in a file buffer,
+
+266
+00:38:38,410 --> 00:38:41,530
+ and you are going to read from a different file buffer.
+
+267
+00:38:41,530 --> 00:38:51,530
+ Okay? So if B didn't make it from this file buffer of F1 to the disk, so then it's available when you
+
+268
+00:38:51,530 --> 00:38:58,010
+ are going to open the second, the file, using another file descriptor, you are not going to see B.
+
+269
+00:38:58,010 --> 00:39:03,290
+ So now there are two other questions on this.
+
+270
+00:39:03,290 --> 00:39:10,890
+ On the second point, does it mean that if a file buffer is full, then the buffer is flashed?
+
+271
+00:39:10,890 --> 00:39:16,890
+ Yes. If the file buffer is full, it is flashed. There are other policies you have no control of,
+
+272
+00:39:17,450 --> 00:39:22,810
+ when the file buffer can be flashed periodically, even before it's full,
+
+273
+00:39:22,810 --> 00:39:28,970
+ after you have data stay too much, maybe in the file buffer. Or you can do it explicitly.
+
+274
+00:39:28,970 --> 00:39:37,050
+ There is a flash command, like I mentioned. Why do we have to make the weakest possible assumptions
+
+275
+00:39:37,050 --> 00:39:45,450
+ on when file is flashed? It's again, because you do not know, unless you flash it explicitly,
+
+276
+00:39:45,450 --> 00:39:48,970
+ you do not know when the file buffer is flashed to the kernel.
+
+277
+00:39:48,970 --> 00:40:02,170
+ Okay? And let me see, there are some other questions. Is there a way to atomic,
+
+278
+00:40:02,170 --> 00:40:13,530
+ to do atomic file operations? There is no easy way to do atomic file, atomic operation,
+
+279
+00:40:13,530 --> 00:40:22,810
+ you can do that. And we are going to learn how to do it. But one of the original designs of,
+
+280
+00:40:22,810 --> 00:40:31,530
+ design decision in Unix was to not support transaction semantics when you update the files.
+
+281
+00:40:31,530 --> 00:40:37,050
+ That's why you have database. But you will say you can do it, but you don't have an operation to do
+
+282
+00:40:37,050 --> 00:40:44,650
+ it. On a F write, if the buffer is flashed, does the input data go into the newly cleaned buffer,
+
+283
+00:40:44,650 --> 00:40:51,450
+ or does it get written to file as part of the flash? If it's flashed, the flash is,
+
+284
+00:40:51,450 --> 00:40:57,290
+ you can sync as an atomic operation, you flash it and then you write in the buffer.
+
+285
+00:41:02,570 --> 00:41:10,730
+ Okay. Does file buffer have a default size or does it depend on the size of the file being opened?
+
+286
+00:41:10,730 --> 00:41:19,050
+ That's a great question. I think I'll check, but as far as I know, you have a default size,
+
+287
+00:41:19,050 --> 00:41:27,610
+ which you may be able to configure. But from what I remember, it's a default size.
+
+288
+00:41:29,450 --> 00:41:37,610
+ Okay. Let's move on. We have still a lot of things to cover. So writing the correct code is like I
+
+289
+00:41:37,610 --> 00:41:45,690
+ mentioned to you, is basically you have to flash the data. So now this is the explicit command I
+
+290
+00:41:45,690 --> 00:41:52,970
+ mentioned to you, FF flush. So now you are going to flash to force the file buffer being flushed.
+
+291
+00:41:53,770 --> 00:42:01,290
+ Okay. With the low level API, we don't have this problem because you are going to write in the
+
+292
+00:42:01,290 --> 00:42:10,730
+ buffer or in the kernel and both descriptors, when I'm going to open the descriptor for the same file,
+
+293
+00:42:10,730 --> 00:42:13,930
+ they are going to see the same kernel buffer.
+
+294
+00:42:13,930 --> 00:42:21,610
+ So when you have one write complete, it's going to be visible to subsequent reads.
+
+295
+00:42:21,930 --> 00:42:28,330
+ Now, the key question, which I expected to get, and I didn't, but it's a very natural question.
+
+296
+00:42:28,330 --> 00:42:37,770
+ And the key question, why do you have a buffer as a user level? So why do you have the file buffer
+
+297
+00:42:37,770 --> 00:42:45,610
+ when you already have a kernel buffer? The answer is one of the answers.
+
+298
+00:42:45,610 --> 00:42:47,610
+ Is one of the answers
+
+299
+00:42:47,610 --> 00:42:48,940
+ is performance.
+
+300
+00:42:48,940 --> 00:42:54,480
+ If you write the character at the time,
+
+301
+00:42:54,480 --> 00:42:57,500
+ if you use a stream API,
+
+302
+00:42:57,500 --> 00:43:02,880
+ you are going to write the character in the file buffer.
+
+303
+00:43:02,880 --> 00:43:04,860
+ This is a user level.
+
+304
+00:43:04,860 --> 00:43:06,400
+ It's just a function call.
+
+305
+00:43:06,400 --> 00:43:12,580
+ If you want to write one character using
+
+306
+00:43:12,580 --> 00:43:15,720
+ the low level API,
+
+307
+00:43:16,600 --> 00:43:18,340
+ that's a system call.
+
+308
+00:43:18,340 --> 00:43:21,800
+ It requires context switching to the kernel.
+
+309
+00:43:21,800 --> 00:43:25,420
+ And a system call,
+
+310
+00:43:25,420 --> 00:43:27,600
+ because the context switching to the kernel
+
+311
+00:43:27,600 --> 00:43:32,020
+ is far more expensive than a local function call,
+
+312
+00:43:32,020 --> 00:43:37,760
+ which is 25 times more expensive.
+
+313
+00:43:37,760 --> 00:43:41,160
+ So let me put it this way and you should try it.
+
+314
+00:43:42,660 --> 00:43:47,260
+ If you write, say, 1,000 characters,
+
+315
+00:43:47,260 --> 00:43:50,060
+ or say 10,000 characters,
+
+316
+00:43:50,060 --> 00:43:54,260
+ if you write it character by character
+
+317
+00:43:54,260 --> 00:43:58,340
+ using the high level API,
+
+318
+00:43:58,340 --> 00:44:03,700
+ will be much faster than writing character by character
+
+319
+00:44:03,700 --> 00:44:05,020
+ using the low level API.
+
+320
+00:44:05,020 --> 00:44:09,300
+ Because in the first case,
+
+321
+00:44:09,300 --> 00:44:11,020
+ you are going to have a context switching
+
+322
+00:44:11,020 --> 00:44:13,860
+ only when the file buffer is flashed.
+
+323
+00:44:13,860 --> 00:44:17,060
+ While in the second case,
+
+324
+00:44:17,060 --> 00:44:21,300
+ you have context switching every time you write a character.
+
+325
+00:44:21,300 --> 00:44:27,220
+ Sorry.
+
+326
+00:44:27,220 --> 00:44:34,300
+ So the other thing is that you can implement
+
+327
+00:44:34,300 --> 00:44:37,300
+ more sophisticated things at the user level.
+
+328
+00:44:40,980 --> 00:44:45,800
+ So the second point here about fgetc,
+
+329
+00:44:45,800 --> 00:44:47,860
+ what I told you about writing,
+
+330
+00:44:47,860 --> 00:44:52,860
+ it also apply about writing, about reading, right?
+
+331
+00:44:52,860 --> 00:44:56,340
+ Because when you read, you can have the entire block,
+
+332
+00:44:56,340 --> 00:44:58,640
+ which will be transferring the file buffers.
+
+333
+00:44:58,640 --> 00:45:03,640
+ And then when you do the fgetc on the next character,
+
+334
+00:45:03,640 --> 00:45:05,780
+ then to get the next character,
+
+335
+00:45:05,780 --> 00:45:07,580
+ you are going to be a local call
+
+336
+00:45:07,580 --> 00:45:10,340
+ because the block is already in the file buffer.
+
+337
+00:45:10,340 --> 00:45:12,620
+ If the block is only on the kernel buffer,
+
+338
+00:45:12,620 --> 00:45:15,580
+ then every time you get the next characters
+
+339
+00:45:15,580 --> 00:45:17,020
+ with a low level API,
+
+340
+00:45:17,020 --> 00:45:19,140
+ it's going to be a context switch.
+
+341
+00:45:19,140 --> 00:45:19,960
+ Okay.
+
+342
+00:45:19,960 --> 00:45:22,380
+ So hopefully this is clarify a few things.
+
+343
+00:45:22,380 --> 00:45:27,020
+ Our system call operation,
+
+344
+00:45:27,020 --> 00:45:31,340
+ which is a low level API,
+
+345
+00:45:31,340 --> 00:45:34,460
+ so in general, less capable.
+
+346
+00:45:34,460 --> 00:45:37,300
+ You can have more functionality like formatting, right?
+
+347
+00:45:37,300 --> 00:45:38,460
+ There's a high level.
+
+348
+00:45:38,460 --> 00:45:40,100
+ And why it's important is
+
+349
+00:45:40,100 --> 00:45:43,700
+ because you want the kernel to be as small as possible,
+
+350
+00:45:43,700 --> 00:45:44,540
+ right?
+
+351
+00:45:44,540 --> 00:45:47,540
+ You want, because the kernel is always resilient
+
+352
+00:45:47,540 --> 00:45:48,380
+ in the memory.
+
+353
+00:45:48,380 --> 00:45:51,500
+ And it's not only that, if you have less code,
+
+354
+00:45:51,500 --> 00:45:56,100
+ it's less chances to introduce bugs, right?
+
+355
+00:45:56,100 --> 00:45:57,420
+ Okay.
+
+356
+00:45:57,420 --> 00:45:59,820
+ So that's why this is another reason
+
+357
+00:45:59,820 --> 00:46:03,140
+ for it to have stream API and high level API
+
+358
+00:46:03,140 --> 00:46:06,700
+ and low level system API
+
+359
+00:46:06,700 --> 00:46:09,380
+ is because you can add more functionality
+
+360
+00:46:09,380 --> 00:46:10,900
+ in the file level API
+
+361
+00:46:10,900 --> 00:46:13,860
+ without making the kernel more complex.
+
+362
+00:46:13,860 --> 00:46:16,540
+ Okay.
+
+363
+00:46:16,540 --> 00:46:18,780
+ So process state for file descriptors.
+
+364
+00:46:18,780 --> 00:46:20,120
+ Let's move quickly.
+
+365
+00:46:20,120 --> 00:46:23,300
+ So here we are doing,
+
+366
+00:46:23,300 --> 00:46:26,900
+ so let's see how the state is maintained in the kernel.
+
+367
+00:46:26,900 --> 00:46:27,740
+ Right?
+
+368
+00:46:27,740 --> 00:46:30,540
+ Recall on a successful call to open,
+
+369
+00:46:30,540 --> 00:46:31,820
+ you have a file descriptor,
+
+370
+00:46:31,820 --> 00:46:33,340
+ which you return to the user
+
+371
+00:46:33,340 --> 00:46:37,180
+ and an open file description.
+
+372
+00:46:37,180 --> 00:46:40,140
+ So the state associated with that file descriptor
+
+373
+00:46:40,140 --> 00:46:42,700
+ is created in the kernel, right?
+
+374
+00:46:42,700 --> 00:46:43,980
+ When the feature system calls,
+
+375
+00:46:43,980 --> 00:46:46,820
+ the kernel looks to the open file description
+
+376
+00:46:46,820 --> 00:46:49,460
+ using the file descriptor, right?
+
+377
+00:46:49,460 --> 00:46:50,340
+ Okay.
+
+378
+00:46:50,340 --> 00:46:55,340
+ So here's a very simple code here.
+
+379
+00:46:55,340 --> 00:46:59,380
+ So this is a code we have two buffers,
+
+380
+00:46:59,380 --> 00:47:00,820
+ buffer one and buffer two.
+
+381
+00:47:00,820 --> 00:47:02,500
+ And we are using the system calls,
+
+382
+00:47:02,500 --> 00:47:07,500
+ the low level calls to read from foo.txt.
+
+383
+00:47:07,500 --> 00:47:10,980
+ And we want to read the first 100 bytes in buffer one,
+
+384
+00:47:10,980 --> 00:47:14,100
+ the second 100 bytes in buffer two.
+
+385
+00:47:14,100 --> 00:47:15,420
+ Right?
+
+386
+00:47:15,420 --> 00:47:16,260
+ Okay.
+
+387
+00:47:16,260 --> 00:47:21,420
+ So the important point here,
+
+388
+00:47:21,420 --> 00:47:24,460
+ it's about the current location in the file
+
+389
+00:47:24,460 --> 00:47:30,540
+ is kept by in this file description, right?
+
+390
+00:47:30,820 --> 00:47:34,420
+ So that's why if you have consecutive calls of read,
+
+391
+00:47:34,420 --> 00:47:36,660
+ you are going first to read the first 100 bytes,
+
+392
+00:47:36,660 --> 00:47:38,620
+ the next read the next 100 bytes.
+
+393
+00:47:38,620 --> 00:47:41,100
+ Okay.
+
+394
+00:47:41,100 --> 00:47:44,060
+ So here is just a slide showing about
+
+395
+00:47:44,060 --> 00:47:47,340
+ what is the file description, how it looks like.
+
+396
+00:47:47,340 --> 00:47:49,020
+ And this is LOV,
+
+397
+00:47:49,020 --> 00:47:52,660
+ is a position of the current position in the file.
+
+398
+00:47:52,660 --> 00:47:56,540
+ The structure of inode, we are going to talk later.
+
+399
+00:47:56,540 --> 00:47:59,540
+ It's where the file is located on the disk.
+
+400
+00:48:00,540 --> 00:48:02,460
+ And there are a lot of other information
+
+401
+00:48:02,460 --> 00:48:04,620
+ is not important for our discussion now,
+
+402
+00:48:04,620 --> 00:48:06,620
+ but it's important for our discussion.
+
+403
+00:48:06,620 --> 00:48:11,260
+ It's about, let's see how things are maintained
+
+404
+00:48:11,260 --> 00:48:14,020
+ in the memory.
+
+405
+00:48:14,020 --> 00:48:16,300
+ Okay.
+
+406
+00:48:16,300 --> 00:48:19,500
+ So you have here a process and here we have the kernel,
+
+407
+00:48:19,500 --> 00:48:20,340
+ right?
+
+408
+00:48:20,340 --> 00:48:22,460
+ Above the dash line, you have the process,
+
+409
+00:48:22,460 --> 00:48:26,860
+ the below the dash line, it's a kernel, right?
+
+410
+00:48:28,740 --> 00:48:31,260
+ In the process, you have the address space,
+
+411
+00:48:31,260 --> 00:48:35,660
+ and then you have a thread and you have the thread registers.
+
+412
+00:48:35,660 --> 00:48:38,340
+ Remember the thread is a unit of execution
+
+413
+00:48:38,340 --> 00:48:42,500
+ and every process has at least one thread, right?
+
+414
+00:48:42,500 --> 00:48:45,380
+ So suppose that we execute open food or text
+
+415
+00:48:45,380 --> 00:48:46,820
+ and the result is three.
+
+416
+00:48:46,820 --> 00:48:50,380
+ So the file descriptor, which is returned by open is three.
+
+417
+00:48:50,380 --> 00:48:55,220
+ So you have open file descriptions,
+
+418
+00:48:55,220 --> 00:48:58,460
+ you have the file which is opened and the position.
+
+419
+00:48:58,460 --> 00:49:00,820
+ Start with zero, right?
+
+420
+00:49:00,820 --> 00:49:04,780
+ And this is where the file descriptor points, okay?
+
+421
+00:49:04,780 --> 00:49:05,620
+ That's it.
+
+422
+00:49:05,620 --> 00:49:06,460
+ This is what I want,
+
+423
+00:49:06,460 --> 00:49:09,300
+ the open file description is what I mentioned earlier.
+
+424
+00:49:09,300 --> 00:49:11,460
+ It's like the state of the file
+
+425
+00:49:11,460 --> 00:49:13,540
+ and the metadata associated with the file.
+
+426
+00:49:13,540 --> 00:49:15,500
+ Okay.
+
+427
+00:49:15,500 --> 00:49:20,420
+ So what is now, so now initially you may ask why it's three?
+
+428
+00:49:20,420 --> 00:49:22,940
+ Well, because the standard in, standard out
+
+429
+00:49:22,940 --> 00:49:27,060
+ and standard error are zero, one and two are already taken.
+
+430
+00:49:27,060 --> 00:49:29,580
+ Remember this has the default file descriptors.
+
+431
+00:49:29,580 --> 00:49:34,300
+ Next, suppose that you execute read
+
+432
+00:49:34,300 --> 00:49:36,060
+ from this file descriptors,
+
+433
+00:49:36,060 --> 00:49:39,180
+ the first 100 bytes in this buffer, right?
+
+434
+00:49:39,180 --> 00:49:42,140
+ Remember the previous code, right?
+
+435
+00:49:42,140 --> 00:49:43,460
+ Okay, so you read that.
+
+436
+00:49:43,460 --> 00:49:46,860
+ And once you read it, the position notice
+
+437
+00:49:46,860 --> 00:49:51,860
+ is the open file description is set, updated to 100, okay?
+
+438
+00:49:56,220 --> 00:49:59,380
+ Now, suppose that you execute close three,
+
+439
+00:49:59,380 --> 00:50:03,820
+ and you execute close three, the file descriptor is gone
+
+440
+00:50:03,820 --> 00:50:07,380
+ as well as a file description, okay?
+
+441
+00:50:07,380 --> 00:50:09,500
+ So it's simply enough, right?
+
+442
+00:50:09,500 --> 00:50:13,740
+ But now instead of closing,
+
+443
+00:50:13,740 --> 00:50:17,540
+ after you read the first 100 bytes, let's say we fork.
+
+444
+00:50:17,540 --> 00:50:21,540
+ Now, if you fork, remember,
+
+445
+00:50:23,100 --> 00:50:26,420
+ the entire state and the entire code of the pattern process
+
+446
+00:50:26,420 --> 00:50:29,420
+ is going to be copied in the child process.
+
+447
+00:50:29,420 --> 00:50:37,740
+ So this is going also to have what is going to happen
+
+448
+00:50:37,740 --> 00:50:40,580
+ is the file descriptors are going to be copied.
+
+449
+00:50:40,580 --> 00:50:44,340
+ So now you have to the same open file descriptions,
+
+450
+00:50:44,340 --> 00:50:47,980
+ you have two pointers, three,
+
+451
+00:50:47,980 --> 00:50:49,420
+ both of them are three obviously,
+
+452
+00:50:49,420 --> 00:50:53,580
+ because that's how you index in this open file description.
+
+453
+00:50:53,580 --> 00:50:58,140
+ One from pattern process and one from the child process,
+
+454
+00:50:58,140 --> 00:51:00,620
+ right?
+
+455
+00:51:00,620 --> 00:51:02,260
+ And you are shared the same state,
+
+456
+00:51:02,260 --> 00:51:06,700
+ the shared state in the open file description, right?
+
+457
+00:51:06,700 --> 00:51:10,980
+ So now if you read from buffer 100,
+
+458
+00:51:10,980 --> 00:51:14,620
+ or in from process one, using the file descriptor three,
+
+459
+00:51:14,620 --> 00:51:16,860
+ now the position is advanced to 200.
+
+460
+00:51:17,940 --> 00:51:21,340
+ Now, if you read the process three, the child process,
+
+461
+00:51:21,340 --> 00:51:24,540
+ it is from the same file descriptor, what happens?
+
+462
+00:51:24,540 --> 00:51:27,220
+ The position is updated to 300,
+
+463
+00:51:27,220 --> 00:51:29,980
+ because again, both the child and the pattern
+
+464
+00:51:29,980 --> 00:51:33,700
+ operate on the same open file description, okay?
+
+465
+00:51:33,700 --> 00:51:39,620
+ And now when you close three in the parent,
+
+466
+00:51:39,620 --> 00:51:45,660
+ the file that is closed from the perspective of process one,
+
+467
+00:51:47,860 --> 00:51:50,940
+ but the open file description is not destroyed
+
+468
+00:51:50,940 --> 00:51:53,420
+ because it's still referred by the client,
+
+469
+00:51:53,420 --> 00:51:56,580
+ by the child process.
+
+470
+00:51:56,580 --> 00:52:02,140
+ So only when the child process is going to close,
+
+471
+00:52:02,140 --> 00:52:07,060
+ it's on the file descriptor three,
+
+472
+00:52:07,060 --> 00:52:09,580
+ only then open file description associated
+
+473
+00:52:09,580 --> 00:52:12,580
+ with the file descriptor three is going to go away, okay?
+
+474
+00:52:16,420 --> 00:52:19,980
+ So the cool thing about this,
+
+475
+00:52:19,980 --> 00:52:22,380
+ now you can have remembered one of the potential,
+
+476
+00:52:22,380 --> 00:52:24,260
+ and we are going to learn more about that.
+
+477
+00:52:24,260 --> 00:52:28,460
+ One of the problems when you have processes on one hand,
+
+478
+00:52:28,460 --> 00:52:31,660
+ you have strong isolation because each of them
+
+479
+00:52:31,660 --> 00:52:36,540
+ commits with own other space.
+
+480
+00:52:36,540 --> 00:52:38,980
+ But you still want to communicate in some cases
+
+481
+00:52:38,980 --> 00:52:40,460
+ between the two processes.
+
+482
+00:52:40,460 --> 00:52:43,220
+ Well, this is one way to communicate, right?
+
+483
+00:52:43,220 --> 00:52:47,620
+ You open a file and you fork a child,
+
+484
+00:52:47,620 --> 00:52:50,660
+ then both the child and the parent
+
+485
+00:52:50,660 --> 00:52:53,140
+ have access to the same file system.
+
+486
+00:52:53,140 --> 00:52:56,300
+ So you can use file system to exchange the data, okay?
+
+487
+00:52:56,300 --> 00:53:03,140
+ It's again, this is the same repeating it
+
+488
+00:53:03,140 --> 00:53:07,180
+ that everything or every device,
+
+489
+00:53:07,180 --> 00:53:12,020
+ it's abstraction, it's a file like disks, networking,
+
+490
+00:53:12,900 --> 00:53:16,180
+ and you'll see some other communication primitives.
+
+491
+00:53:16,180 --> 00:53:18,980
+ And this means that they are going to have a high level,
+
+492
+00:53:18,980 --> 00:53:22,500
+ the same high level API, open, read, write, close.
+
+493
+00:53:22,500 --> 00:53:29,020
+ The same thing happen when...
+
+494
+00:53:29,080 --> 00:53:34,920
+ you have for the first default script or 0, 1, and 2, obviously they are going to be shared between
+
+495
+00:53:34,920 --> 00:53:42,200
+ the child and the parent. So if the child and the parent are going to write, they are going to see
+
+496
+00:53:42,200 --> 00:53:53,880
+ interleaved there, whatever they are writing on the terminal, for instance. So it's again,
+
+497
+00:53:55,160 --> 00:54:01,320
+ if one processor closes standard in, this means that it can no longer get an input from the
+
+498
+00:54:01,320 --> 00:54:08,360
+ keyboard, then the processor child is the only one which can receive inputs from the keyboard.
+
+499
+00:54:08,360 --> 00:54:13,400
+ And that's very important because you may want in your program only the child process to get
+
+500
+00:54:13,400 --> 00:54:18,600
+ the input from the keyboard, not both the parent and the child.
+
+501
+00:54:24,680 --> 00:54:29,640
+ So many of the things we talk about and we are going to talk in the remaining of the lecture
+
+502
+00:54:29,640 --> 00:54:34,200
+ are going to be helpful for you in home or too when you have to write a shell.
+
+503
+00:54:34,200 --> 00:54:44,440
+ And the fork will be very useful for networking because you can handle each connection in a
+
+504
+00:54:44,440 --> 00:54:52,120
+ different process. Now there is another way you can share the access to the same file,
+
+505
+00:54:52,120 --> 00:55:00,120
+ and that is using dupe. So what dupe is meaning, you duplicate the file descriptors and the file
+
+506
+00:55:00,120 --> 00:55:06,120
+ descriptor is going to point to the same open file description. So here you have this, like think
+
+507
+00:55:06,120 --> 00:55:15,640
+ about an alias. So if you created and you open a file, you go to the file descriptor 3. Now if you
+
+508
+00:55:15,640 --> 00:55:24,120
+ call dupe on 3, you're going to get a 4. Now both file descriptors 3 and 4 point out to the same
+
+509
+00:55:24,120 --> 00:55:31,320
+ open file description. There is another instruction which is dupe 2, which has a second argument.
+
+510
+00:55:31,320 --> 00:55:38,040
+ And the second argument is actually saying what is a file descriptor you want
+
+511
+00:55:38,040 --> 00:55:45,400
+ to point out to the same open file description, like the first argument in the call in this
+
+512
+00:55:45,400 --> 00:55:55,560
+ case file descriptor 3. So this is useful if, for instance, you have multiple processes of the same
+
+513
+00:55:55,560 --> 00:56:01,640
+ application, you run all of them and you have a constant there, basically say each of them,
+
+514
+00:56:01,640 --> 00:56:13,080
+ they should operate on the file descriptor 162. One process creates a file, opens the files,
+
+515
+00:56:13,080 --> 00:56:18,040
+ then it calls dupe and then everyone can operate on that file descriptor.
+
+516
+00:56:18,040 --> 00:56:22,360
+ Okay, we are running a little bit late.
+
+517
+00:56:22,360 --> 00:56:32,120
+ So here are some, based on what we discussed, there are some challenges or some things you
+
+518
+00:56:32,120 --> 00:56:37,560
+ need to be careful with when you work with the file systems. And this is particularly very
+
+519
+00:56:37,560 --> 00:56:48,440
+ important for your homework and projects. First, don't fork in a process that already has multiple
+
+520
+00:56:48,440 --> 00:57:00,040
+ threads. Okay. Why? Because the threads are not forked, right? You forked the state of the process,
+
+521
+00:57:00,040 --> 00:57:09,560
+ that is copied. And when you copy a process, when you duplicate all the state from the parent
+
+522
+00:57:09,560 --> 00:57:19,960
+ to the child, the threads are not copied because they are execution, they are ephemeral, right?
+
+523
+00:57:19,960 --> 00:57:29,720
+ So in the second, in the child, you have only one process, one thread. Okay. All the other
+
+524
+00:57:29,720 --> 00:57:37,480
+ threads will disappear. Okay. So many remember. Okay. Only the threads that call the fork exist
+
+525
+00:57:37,480 --> 00:57:45,960
+ in the new process. It's, this is, and remember when you call exec, you don't care about it,
+
+526
+00:57:45,960 --> 00:57:51,320
+ whether there are multiple threads because exec is basically replacing the entire space
+
+527
+00:57:51,320 --> 00:57:57,960
+ of the process who called exec with a program which is going to be executed
+
+528
+00:57:59,000 --> 00:58:01,480
+ in that process. Okay.
+
+529
+00:58:01,480 --> 00:58:08,280
+ Be very mindful when you mix a low level and high level file I/Os.
+
+530
+00:58:08,280 --> 00:58:19,560
+ Okay. It's again, the main reason, remember high level I/O has a file pointer and a file buffer.
+
+531
+00:58:19,560 --> 00:58:31,320
+ They have the file buffer. Right? So in this case, for instance, when here is a subtle problem.
+
+532
+00:58:31,320 --> 00:58:39,480
+ In this case, you have, you open a file as a, with a high level API, you get file pointer F,
+
+533
+00:58:39,480 --> 00:58:45,160
+ and then you get from that file pointer, you get the file descriptor. And now you call Fread
+
+534
+00:58:46,600 --> 00:58:53,240
+ on that file and read on that file. And the file, a file read, you get, you say,
+
+535
+00:58:53,240 --> 00:58:59,080
+ I want to read only the first 10 bytes. And then with a read, which is a low level API,
+
+536
+00:58:59,080 --> 00:59:05,160
+ I want to read the next 10 bytes. This is what you'd expect when you look at this code, I say,
+
+537
+00:59:05,160 --> 00:59:12,120
+ okay, Fread will read the file, the first 10 bytes, read will read the next 10 bytes.
+
+538
+00:59:13,480 --> 00:59:23,480
+ Okay. The problem, maybe that might not happen because Fread, yes, it returns to the applications
+
+539
+00:59:23,480 --> 00:59:31,320
+ of first 10 bytes, but from the kernel, you may get an entire block, which is going to be stored
+
+540
+00:59:31,320 --> 00:59:38,040
+ in the file buffer. So you may get the first 4,000 bytes from the file,
+
+541
+00:59:40,760 --> 00:59:46,680
+ which means that in the kernel, in the associated file description,
+
+542
+00:59:46,680 --> 00:59:55,240
+ the position now will be 4,000. So when you call the read, this will go directly to the kernel
+
+543
+00:59:55,240 --> 01:00:00,760
+ and it will read from the current position. So it may read the bytes from 4,000 to 4,000.
+
+544
+01:00:00,760 --> 01:00:10,440
+ Okay. Before continuing, actually, let me answer this question.
+
+545
+01:00:11,160 --> 01:00:17,640
+ On an Fread, if the buffer is flushed, does the input data go into the newly cleaned buffer or
+
+546
+01:00:17,640 --> 01:00:24,680
+ does it get written to the file? Yeah, I answered this question. First you do the flush, then you
+
+547
+01:00:24,680 --> 01:00:35,560
+ are going to write the new data. Okay. Announcements. The group DA assignments have been released.
+
+548
+01:00:36,120 --> 01:00:46,040
+ If you don't know yet, check on Piazza. Project Zero is due today. Good luck with your submission.
+
+549
+01:00:46,040 --> 01:00:57,640
+ And Project One will be released on Friday. Other than that, many of you are still online. Please
+
+550
+01:00:57,640 --> 01:01:01,400
+ start planning on how your group will collaborate in the most effective way.
+
+551
+01:01:02,200 --> 01:01:10,040
+ Virtual coffee hours, regular brainstorming meeting. And again, try to communicate as much as possible.
+
+552
+01:01:10,040 --> 01:01:25,400
+ Okay. Now we switch the gears and we are going to talk about how two processes can communicate
+
+553
+01:01:25,400 --> 01:01:36,040
+ to each other. Okay. One way to communicate is using the networking. This is a very, very general
+
+554
+01:01:36,040 --> 01:01:41,800
+ way to communicate between two processes, because you can do that even when processes
+
+555
+01:01:41,800 --> 01:01:51,800
+ run on different machines. And this can happen when you have your web browser and
+
+556
+01:01:53,640 --> 01:02:00,440
+ if your browser, this is how your browser communicate with the web browser, with the web server.
+
+557
+01:02:00,440 --> 01:02:11,880
+ Okay. And under the hood, use TCP/IP protocol. We are going to learn about it. For now,
+
+558
+01:02:11,880 --> 01:02:19,560
+ it's just suffice to say and to take a look about the API. The API is very similar. When you want to
+
+559
+01:02:19,560 --> 01:02:26,200
+ send data, you instantiate what is called a socket. This is in some sense, think about the
+
+560
+01:02:26,200 --> 01:02:34,200
+ equivalent of the file descriptor and the file description with the socket. And you are going to
+
+561
+01:02:34,200 --> 01:02:42,760
+ write to that socket, like you write for a file descriptor, but otherwise the API is the same.
+
+562
+01:02:43,640 --> 01:02:50,200
+ Write to file descriptors, a buffer of certain length. And then on the receiving side, when you
+
+563
+01:02:50,200 --> 01:02:57,480
+ want to get data, you are going to have a read, again, the same API read from the file descriptor.
+
+564
+01:02:57,480 --> 01:03:07,880
+ This is the socket descriptor in a buffer of a certain size. Okay. Again, we are going to have
+
+565
+01:03:07,880 --> 01:03:17,000
+ an entire lecture about TCP/IP. What is the other way to communicate between processes? Another way
+
+566
+01:03:17,000 --> 01:03:24,440
+ to communicate between processes, like you'll see that are using pipes and using the shared memory.
+
+567
+01:03:24,440 --> 01:03:32,920
+ But again, taking a step back, here we want fundamentally to punch a hole between the
+
+568
+01:03:32,920 --> 01:03:38,600
+ processes. Because otherwise the process cannot communicate with each other. That's the entire
+
+569
+01:03:38,600 --> 01:03:44,840
+ idea about processes, to be isolated from each other. Each of them has its own address space.
+
+570
+01:03:44,840 --> 01:03:52,600
+ They cannot address data from each other, from each other's address space. Okay.
+
+571
+01:03:55,640 --> 01:04:05,960
+ So here is one example. This is about shared memory. But before, let's again, think again,
+
+572
+01:04:05,960 --> 01:04:11,000
+ and recall about how processes are protected.
+
+573
+01:04:11,000 --> 01:04:16,900
+ from each other. You have two processes here on the left and the right hand side, right?
+
+574
+01:04:16,900 --> 01:04:23,220
+ Program one runs in the first process, program two in the second process. And then you have
+
+575
+01:04:23,220 --> 01:04:32,100
+ each process, it is some code, data segment, heap and stack. Now, both processes share
+
+576
+01:04:32,100 --> 01:04:40,020
+ the same physical memory. Okay? So in the middle, you have the physical memory.
+
+577
+01:04:40,020 --> 01:04:51,300
+ The physical memory is divided into regions. And what happens is the operating system or
+
+578
+01:04:51,300 --> 01:05:00,260
+ the kernel map the code, the data and the heap from different processes in different regions.
+
+579
+01:05:01,620 --> 01:05:11,140
+ Right? And these regions are disjointed. Okay? So that's why you cannot address the data from
+
+580
+01:05:11,140 --> 01:05:19,620
+ another process. Right? Because in the physical memory, each process owns a disjointed space
+
+581
+01:05:21,300 --> 01:05:32,900
+ of addresses. Okay? And the way you achieve that is through translation map. Again,
+
+582
+01:05:32,900 --> 01:05:36,900
+ we are going to learn about that. That's where the magic happens. And making sure
+
+583
+01:05:36,900 --> 01:05:43,620
+ that the processes do not step on each other toes. Okay?
+
+584
+01:05:47,540 --> 01:05:53,220
+ So that's what we have. In spite of this, and despite this protection,
+
+585
+01:05:53,220 --> 01:05:59,140
+ enforced by the kernel, we still want to communicate between processes. Right? Like we
+
+586
+01:05:59,140 --> 01:06:07,380
+ mentioned. Okay? Okay. So how do we do that? And we already shown some examples with the sockets.
+
+587
+01:06:07,380 --> 01:06:17,060
+ Another way, you already know, you can use a file system. Right? A file system can write to a file
+
+588
+01:06:17,060 --> 01:06:24,100
+ data and another process, sorry, a process can write data to a file. And the process can read
+
+589
+01:06:24,100 --> 01:06:30,100
+ from the same file, the data written by the first process using the read and write primitives.
+
+590
+01:06:30,100 --> 01:06:41,860
+ Okay? Now, you can do that. However, this is quite expensive. Because the write to a file
+
+591
+01:06:42,740 --> 01:06:51,300
+ is expensive. And reading from a file is slow. And also, in most of the cases,
+
+592
+01:06:51,300 --> 01:06:58,900
+ you don't need a persistent store. It's an overkill. Okay? Like think about, you know,
+
+593
+01:06:58,900 --> 01:07:06,980
+ if you want to go from your client to the web, to your web browser, you don't need to store
+
+594
+01:07:06,980 --> 01:07:13,380
+ every request and every reply. Furthermore, this works only on the same machine. And
+
+595
+01:07:13,380 --> 01:07:19,620
+ otherwise, you need a distributed file system if the processes are not located on the same machine.
+
+596
+01:07:19,620 --> 01:07:31,940
+ So one solution is to have ability to have shared memory. And the operating system provides that
+
+597
+01:07:31,940 --> 01:07:41,860
+ ability. You can actually create a memory, a process can create a memory, and say that memory
+
+598
+01:07:41,860 --> 01:07:54,660
+ can be shared with other processes. Okay? So, and therefore, in this case, both processes, one and
+
+599
+01:07:54,660 --> 01:08:02,660
+ two, they are going to point to the shares, the same share space is a physical memory, which means
+
+600
+01:08:02,660 --> 01:08:10,500
+ that within this space, they can share data. Okay? So there is an API, there is a way by which you
+
+601
+01:08:10,500 --> 01:08:18,980
+ can create shared memory, and share memory regions, and share that region between two different
+
+602
+01:08:18,980 --> 01:08:31,380
+ processes. Okay? See, it's a question. What is the benefit to having memory of the individual
+
+603
+01:08:31,380 --> 01:08:38,660
+ processes be de-joined? The benefit of having the memory of individual processes be de-joined
+
+604
+01:08:38,660 --> 01:08:47,460
+ is to ensure protection. You do not want a malicious process to access the memory of
+
+605
+01:08:47,460 --> 01:08:57,620
+ another process, or worse, to access the memory of the kernel. Hopefully I answered the question.
+
+606
+01:08:57,620 --> 01:09:14,660
+ What about the other things? What about, you know, if we want to, is there anything the kernel
+
+607
+01:09:14,660 --> 01:09:28,100
+ can provide us to facilitate the communication between two processes? Okay? So, by the way,
+
+608
+01:09:28,100 --> 01:09:40,020
+ so the answer is yes, which I already alluded by providing this kind of socket mechanism,
+
+609
+01:09:41,940 --> 01:09:48,420
+ like when I talk about TCP/IP, right? But fundamentally, it's again, the abstraction you want,
+
+610
+01:09:48,420 --> 01:09:56,500
+ which is useful to provide is like a queue, right? And because we do not want at least four processes
+
+611
+01:09:56,500 --> 01:10:02,100
+ which run on the same machine, we want kind of in-memory queue, right? Again, we don't want to
+
+612
+01:10:02,100 --> 01:10:09,940
+ build something on top of the storage, file storage. We said it's too expensive, too slow.
+
+613
+01:10:10,500 --> 01:10:21,380
+ Okay? So, and what is memory queue means is basically the semantic is that a process
+
+614
+01:10:21,380 --> 01:10:28,900
+ just pushes the data to the queue, and the other is the producer and the consumer read from the queue,
+
+615
+01:10:28,900 --> 01:10:35,700
+ right? And typically the queues, it's first in, first out. There are other kind of queues,
+
+616
+01:10:35,700 --> 01:10:39,860
+ like last in, first out, but typically it's first in, first out, what we are going to talk about.
+
+617
+01:10:40,500 --> 01:10:47,380
+ in this lecture. And one abstraction of such queue is a pipe, is a Unix pipe.
+
+618
+01:10:47,380 --> 01:10:56,340
+ Okay? So the Unix pipe, you are going to have, you can open a pipe and you can, again, it's like
+
+619
+01:10:56,340 --> 01:11:08,900
+ a file descriptor and you can use read and write. Okay? When you write, you write at the end
+
+620
+01:11:09,620 --> 01:11:13,460
+ of the pipe. When you read, you read from the front of the pipe.
+
+621
+01:11:13,460 --> 01:11:19,780
+ Okay? So that's exactly the queue semantics. Okay? Now,
+
+622
+01:11:19,780 --> 01:11:32,260
+ this pipe and you have a buffer of a certain size, so it's not infinite. So if the pipe is full,
+
+623
+01:11:33,060 --> 01:11:41,460
+ then the write blocks, you can no longer write to the pipe unless the consumer, a process,
+
+624
+01:11:41,460 --> 01:11:49,140
+ reads from the pipe and makes room for new data to be written in the pipe. The same, if the pipe
+
+625
+01:11:49,140 --> 01:11:55,300
+ is empty and you want to read from the pipe, you block until someone puts some data in the pipe.
+
+626
+01:11:57,540 --> 01:12:09,700
+ Okay? And when you create a pipe, what you get, you get two file descriptors, like you
+
+627
+01:12:09,700 --> 01:12:17,620
+ may imagine, one file descriptor to write to and one file descriptor to read from.
+
+628
+01:12:18,420 --> 01:12:28,100
+ Right? So file, you have the first file descriptor is to read from, file des
+
+629
+01:12:28,100 --> 01:12:34,660
+ zero and file descriptor one is the second file descriptor is to write to.
+
+630
+01:12:34,660 --> 01:12:40,020
+ And it's implemented, like I mentioned, as a fixed size queue.
+
+631
+01:12:40,900 --> 01:12:54,580
+ Okay? Right? So here is how you can use it. You create a file again, you create a pipe and
+
+632
+01:12:54,580 --> 01:13:02,660
+ then you are going to write to the second file descriptor, you are going to read from the second
+
+633
+01:13:02,660 --> 01:13:08,340
+ file, first file descriptors and make sure that when you close, you close both file descriptors.
+
+634
+01:13:09,700 --> 01:13:18,820
+ Okay? So, pipe between two processes. Again, here you create a pipe, you get the first
+
+635
+01:13:18,820 --> 01:13:24,500
+ file descriptor three and four pointing to read and write from that pipe. Now you do a fork,
+
+636
+01:13:24,500 --> 01:13:35,540
+ the file descriptors are copied. And now you also have these file descriptors pointing to the same
+
+637
+01:13:35,540 --> 01:13:44,020
+ instance of the pipe. Right? So if you want to write, to use this pipe to communicate between
+
+638
+01:13:44,020 --> 01:13:56,660
+ the parent and the child, then you need also, and this is in one direction. So in this particular
+
+639
+01:13:56,660 --> 01:14:08,740
+ case, I want the parent, say I want the parent to send data to the child. Right? So I create the pipe
+
+640
+01:14:08,740 --> 01:14:20,900
+ which is not shown here. And then I fork. Remember, if the result of the fork is not zero,
+
+641
+01:14:21,700 --> 01:14:29,220
+ this means that I am the parent. Okay? When I execute the code. Because the result from the
+
+642
+01:14:29,220 --> 01:14:37,220
+ fork is going to be the PID, the process identifier of the child. So then I'm going to write the second
+
+643
+01:14:37,220 --> 01:14:45,060
+ descriptor and I'm going to close the, this is the right descriptor, pipe FD of one, and then to
+
+644
+01:14:46,500 --> 01:14:52,900
+ close the read descriptor. Why? Because again, in this example, I want only
+
+645
+01:14:52,900 --> 01:15:02,310
+ the parent to send data to the child. The same for the child, right? I am going to read from the
+
+646
+01:15:02,310 --> 01:15:08,070
+ first file descriptors and I don't want to write, so I'm going to close the write descriptor.
+
+647
+01:15:08,070 --> 01:15:17,110
+ Okay, this is what happens. Close three and close four, right? So now the pattern I have is that
+
+648
+01:15:18,230 --> 01:15:23,830
+ the parent process is going to send data to the child process through a pipe.
+
+649
+01:15:23,830 --> 01:15:32,710
+ Okay, of course, if you want to the other way around to get the child to communicate
+
+650
+01:15:32,710 --> 01:15:41,030
+ to the parent, you can do the other way around by closing the other file descriptors. Okay.
+
+651
+01:15:46,550 --> 01:15:57,270
+ When do you get end of file on a pipe? After the last write descriptor is closed to a pipe,
+
+652
+01:15:57,270 --> 01:16:04,470
+ if you continue to read, so if you continue to read from a pipe and there is no write descriptor
+
+653
+01:16:04,470 --> 01:16:17,990
+ open for that pipe, you get end of file. Okay. If the read descriptor is closed and you try to
+
+654
+01:16:17,990 --> 01:16:25,430
+ write to a file, you get a sick pipe, which is an interrupt, right? And you can ignore it,
+
+655
+01:16:26,790 --> 01:16:34,950
+ but then the write will fail. Okay. So here, if you close the write descriptor,
+
+656
+01:16:34,950 --> 01:16:42,390
+ and you continue to read from that pipe, you are going to get end of file.
+
+657
+01:16:42,390 --> 01:16:53,910
+ Okay. Now, once you have established a communication, you need a protocol.
+
+658
+01:16:54,470 --> 01:17:03,030
+ And the protocol need about how we are going to communicate between two parties. Okay.
+
+659
+01:17:03,030 --> 01:17:13,910
+ And the protocol will have a syntax, right? Which will specify how you need to specify
+
+660
+01:17:13,910 --> 01:17:20,710
+ the protocol, the format, the message order, or things like that. How do you send and receive
+
+661
+01:17:22,390 --> 01:17:27,990
+ data? And then the semantics is that what communication means, right?
+
+662
+01:17:27,990 --> 01:17:38,630
+ When you call, make a call to send some data, what actually happens? Right? Okay. Is the data
+
+663
+01:17:38,630 --> 01:17:46,790
+ always guaranteed to get to the destination or maybe lost? Right? Is the data guaranteed to be
+
+664
+01:17:46,790 --> 01:17:52,950
+ get the either destination or the receiver guaranteed to get the data in the same order
+
+665
+01:17:52,950 --> 01:18:03,750
+ in which you're sent out? Right? It's also more complicated because if you communicate over network,
+
+666
+01:18:03,750 --> 01:18:13,030
+ different computers make, you have different data formats. So you need to convert between different
+
+667
+01:18:13,030 --> 01:18:24,310
+ formats. Okay. This is also part of the protocol. Okay. And this is things about like, you know,
+
+668
+01:18:24,310 --> 01:18:32,630
+ like you talk to write telephone, right? You pick up, you dial the number, then you talk with your
+
+669
+01:18:32,630 --> 01:18:44,790
+ friend. And then at the end, you end up, right? You hang up, right? But the protocol here,
+
+670
+01:18:44,790 --> 01:18:53,510
+ part of the protocol is, you know, it's about what are the part of the protocols, right? Of course,
+
+671
+01:18:53,510 --> 01:19:00,390
+ like pick up the phone and open it. It's like an open. Closing the phone is, you know,
+
+672
+01:19:00,390 --> 01:19:06,790
+ closing the call. It's like a close. And then the brick, you mean in the middle, you have read and
+
+673
+01:19:06,790 --> 01:19:11,750
+ writes. But what I mean by the protocol here, like for instance, the dial is how you are going
+
+674
+01:19:11,750 --> 01:19:18,150
+ to contact the other part. That's part of the protocol. It's an address. It's a number, right?
+
+675
+01:19:18,150 --> 01:19:23,910
+ You need to figure out. Then it's this kind of, you know, part of the protocol, typically you start
+
+676
+01:19:23,910 --> 01:19:32,470
+ with a hello, right? I mean, I'm here, right? Also, it's used implicitly to recognize because
+
+677
+01:19:32,470 --> 01:19:37,590
+ the other party, if it's your friend, is going to recognize your voice. Or maybe recognize because
+
+678
+01:19:37,590 --> 01:19:44,390
+ of the number you see, he or he sees. And then before hanging up, you don't just hang up, you say
+
+679
+01:19:44,390 --> 01:19:52,150
+ bye, right? You also, that's an implicit protocol here. When you pause, you expect for the other
+
+680
+01:19:52,150 --> 01:20:04,790
+ person to talk, right? So things like that. Okay. Okay. So the web server, this is a very simple
+
+681
+01:20:04,790 --> 01:20:10,230
+ example. You also have a high level protocol. It's the application protocol, which you have a request
+
+682
+01:20:10,230 --> 01:20:19,110
+ and the reply, right? That's how you are going, you know, you see the results from the websites,
+
+683
+01:20:19,110 --> 01:20:27,350
+ from your Facebook account, or when you do a query on Google, this is exactly how things are working.
+
+684
+01:20:27,350 --> 01:20:32,070
+ You send a request and you get a reply, which is going to be rendered and shown to you in our
+
+685
+01:20:32,070 --> 01:20:44,470
+ browser. Okay. So I'm going to stop here. And in the meantime, I'm going to take the last question.
+
+686
+01:20:44,470 --> 01:20:51,350
+ So we are done. So for people who have questions, I'm going to spend a few more minutes to answer
+
+687
+01:20:51,350 --> 01:21:11,030
+ this question. Okay. So this is a question I actually missed recently. What happens if the
+
+688
+01:21:11,030 --> 01:21:19,190
+ new argument in the DAPT2 function is already being used as another file descriptor? Great
+
+689
+01:21:19,190 --> 01:21:31,270
+ question. Yes. It's the old one. It's overwritten by the Duktu. Okay.
+
+690
+01:21:34,070 --> 01:21:41,990
+ Why is file IO slow? The file IO is slow is because every operation like read and write
+
+691
+01:21:41,990 --> 01:21:49,990
+ leads to context switching to the kernel. It has to be implemented by the, is going to be executed
+
+692
+01:21:49,990 --> 01:21:59,830
+ by the kernel. So if you are going to write one character at a time, the low-level file IO,
+
+693
+01:22:01,270 --> 01:22:10,710
+ what will cause that for every character, you have a context switch from the user process
+
+694
+01:22:10,710 --> 01:22:18,790
+ to the kernel for the kernel to write that character. You write 1000 characters,
+
+695
+01:22:18,790 --> 01:22:26,150
+ one by one, then you have 1000 context switches. And the context switch is expensive.
+
+696
+01:22:27,430 --> 01:22:33,270
+ You need to save the state of the process, load the state of the operating system, and then go
+
+697
+01:22:33,270 --> 01:22:43,750
+ back. Like I shown you from this data is to have 20 function call, it's at least to an order of
+
+698
+01:22:43,750 --> 01:22:54,870
+ magnitude faster than a system call to the operating system. So we can pipe between any two
+
+699
+01:22:54,870 --> 01:23:04,390
+ processes. Yes. You can pipe between any two processes on the same machine. It's a question
+
+700
+01:23:04,390 --> 01:23:10,230
+ from Miles. Can a process ever make a malicious system call? Can you assume that relying on the
+
+701
+01:23:10,230 --> 01:23:17,750
+ kernel for IPC secure? Yes, you can assume because the operating system is again, you cannot, the way
+
+702
+01:23:17,750 --> 01:23:26,150
+ you ask the operating system to do something is to put some data, the system call or the file
+
+703
+01:23:26,150 --> 01:23:32,550
+ descriptor, the argument for the system calls in registers. And the operating system is going to
+
+704
+01:23:32,550 --> 01:23:38,230
+ read the context of the registers. This is how it's going to execute the system call. And when
+
+705
+01:23:38,230 --> 01:23:46,870
+ reading is going to validate the data you put in the registers. So you assume that the validation
+
+706
+01:23:46,870 --> 01:23:54,230
+ is done correctly. And therefore by using a system call, you cannot cause any harm to the operating
+
+707
+01:23:54,230 --> 01:24:07,750
+ system. Okay. Let me see whether there are any other questions on the chat. It's a last one.
+
+708
+01:24:07,750 --> 01:24:12,630
+ It looked like the physical memory of a single process was the joint. I was wondering why not
+
+709
+01:24:12,630 --> 01:24:16,950
+ keep the physical memory of each process continuous? That's an excellent question,
+
+710
+01:24:16,950 --> 01:24:26,390
+ Jasper. So the reason is you cannot have contiguous because you do not know as the
+
+711
+01:24:26,390 --> 01:24:34,550
+ beginning of the process of a program, how much memory you need. Why? A simple reason is, for
+
+712
+01:24:34,550 --> 01:24:41,670
+ instance, a stack. You don't know how much stack will grow. Another reason is heap. When you
+
+713
+01:24:41,670 --> 01:24:47,750
+ allocate dynamically memory, the program allocate dynamically memory, how much, how do you know how
+
+714
+01:24:47,750 --> 01:24:54,630
+ much the program is going to allocate? So because of this reason and because the address space,
+
+715
+01:24:54,630 --> 01:25:03,430
+ the virtual address space, everything that the user sees can be much larger than the physical
+
+716
+01:25:03,430 --> 01:25:12,470
+ address space. Then there is no way, well, you cannot allocate a contiguous region.
+
+717
+01:25:16,470 --> 01:25:34,390
+ Thank you. Thanks everyone. Good luck with the first project and I'll see you next week.
+

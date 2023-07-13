@@ -1,0 +1,3480 @@
+1
+00:00:00,000 --> 00:00:20,440
+ So, hello everyone. Hope everyone had a great long weekend. So, we'll start today the first
+
+2
+00:00:20,440 --> 00:00:31,660
+ lecture of the class. And during this lecture, we are going to finish our discussion on threads
+
+3
+00:00:31,660 --> 00:00:38,120
+ and processes from last time. And then we are going to start the discussion on file
+
+4
+00:00:38,120 --> 00:00:47,120
+ systems. In particular, we are going to go over high level file, IO and streams. As always,
+
+5
+00:00:47,120 --> 00:00:55,000
+ please, if you have questions, ask in the Q&A. I will stop periodically during the lecture
+
+6
+00:00:55,000 --> 00:01:02,280
+ to answer these questions. So, with that being said, let's start.
+
+7
+00:01:02,280 --> 00:01:11,840
+ So, we discussed quite a bit about threads. And as you know by now, the threads are the
+
+8
+00:01:11,840 --> 00:01:27,800
+ execution entity which run some code within an address context and or within a process.
+
+9
+00:01:27,800 --> 00:01:41,760
+ So the threads in the same address space, in the same process, share the content of the
+
+10
+00:01:41,760 --> 00:01:49,320
+ memory. This means global variables heap as well as other resources like file descriptors,
+
+11
+00:01:49,320 --> 00:02:01,920
+ network connections and their state. At the same time, each thread has private state and
+
+12
+00:02:01,920 --> 00:02:10,920
+ that state captures the execution of a particular thread. And this information is stored in
+
+13
+00:02:10,920 --> 00:02:16,040
+ what we call thread control block. And like we discussed in the past, it contains the
+
+14
+00:02:16,040 --> 00:02:22,160
+ CPU registers, including the program counters and the execution stack.
+
+15
+00:02:22,160 --> 00:02:26,680
+ Now next, we are going to talk a little bit more about the execution stack. What does
+
+16
+00:02:26,680 --> 00:02:38,120
+ it contain and why is it part of the thread private state? So, at the high level, the
+
+17
+00:02:38,120 --> 00:02:48,480
+ execution stack stores the parameters, arguments passed on a caller function and the return
+
+18
+00:02:48,480 --> 00:02:57,280
+ address from that function. So, here is a very simple example on the left-hand side.
+
+19
+00:02:57,280 --> 00:03:04,840
+ We have three functions, a, b and c. And on the left, we have some labels and this thing
+
+20
+00:03:04,840 --> 00:03:17,720
+ about the label like addresses for the particular line in the code. And the red rectangle illustrates
+
+21
+00:03:17,720 --> 00:03:28,320
+ the code, the line we are currently executing. So, let's start by invoking function a with
+
+22
+00:03:28,320 --> 00:03:40,160
+ argument one. So, now you see on the right-hand side, you see the stack. So, what happens
+
+23
+00:03:40,160 --> 00:03:48,760
+ here, we push the argument of a on the stack, the value, so it's one. And then we also push
+
+24
+00:03:48,760 --> 00:03:56,280
+ the return address after a is executed. So, the return address here is exit and you can
+
+25
+00:03:56,280 --> 00:04:08,080
+ see the exit, it's the address in memory right after a1 is called. So, because stamp is one
+
+26
+00:04:08,080 --> 00:04:17,280
+ on execute a, then we take this branch and execute b. When we call b, now there is no
+
+27
+00:04:17,280 --> 00:04:23,740
+ argument passed to b. So, on the stack, we are only going to push the address. We need
+
+28
+00:04:23,740 --> 00:04:32,120
+ to go back after executing b. So, this is a plus two. b call c. Again, no argument is
+
+29
+00:04:32,120 --> 00:04:41,540
+ passed here to c. We just push the return address after re-execute c. And c is calling
+
+30
+00:04:41,540 --> 00:04:50,600
+ a again with argument two. Now, we push the argument on the stack and the return address
+
+31
+00:04:50,600 --> 00:04:59,620
+ is c plus one after a of two is executed. And now when a is executed with the argument
+
+32
+00:04:59,620 --> 00:05:09,540
+ of two, we are going to run the final, the others, we are going to run printf. We are
+
+33
+00:05:09,540 --> 00:05:19,700
+ going to skip calling b. And the output right now, because stamp is two, the printf here,
+
+34
+00:05:19,700 --> 00:05:29,760
+ you also can see on the bottom right, the outputs being printed. So, we are going to
+
+35
+00:05:29,760 --> 00:05:37,900
+ print two. Now, a finishes, finishes being executed. And now we look at the stack where
+
+36
+00:05:37,900 --> 00:05:47,780
+ you need to return. So, we need to return to c plus one because that was the next line
+
+37
+00:05:47,780 --> 00:05:55,460
+ after a two was invoked. Now, c terminates. So, again, we look at the stack where we need
+
+38
+00:05:55,460 --> 00:06:03,980
+ to go. So, we need to go to b plus one. And now we terminate b. So, we need to go back
+
+39
+00:06:03,980 --> 00:06:12,260
+ to the instruction right after b was invoked. And now this is printf. But now the temp is
+
+40
+00:06:12,260 --> 00:06:17,980
+ one because this is from the first invocation of a. You can look also this at this on the
+
+41
+00:06:17,980 --> 00:06:29,260
+ stack. And now we are done. So, the output is going to b to n one. Okay. So, the stack
+
+42
+00:06:29,260 --> 00:06:36,980
+ is extremely important. It holds only not only variables and the arguments and return,
+
+43
+00:06:36,980 --> 00:06:46,020
+ the return address after we exit the function. But in this way, it also allows for recursive
+
+44
+00:06:46,020 --> 00:06:54,340
+ writing your recursive programs. So, really this is the key of all modern languages. One
+
+45
+00:06:54,340 --> 00:07:05,380
+ thing to note though is that the stack grows down. It starts from high addresses. And then
+
+46
+00:07:05,380 --> 00:07:12,660
+ as we push on the stack, the addresses will go down, will decrease. Okay. So, if we look
+
+47
+00:07:12,660 --> 00:07:18,740
+ here as a memory layout for two threads which are running the same processes in the same
+
+48
+00:07:18,740 --> 00:07:26,980
+ process, you see that again here the two threads, they have, they share the code, the global
+
+49
+00:07:26,980 --> 00:07:37,980
+ data, the heap, but they don't share the stack because each stack contains the execution
+
+50
+00:07:37,980 --> 00:07:47,380
+ state of that thread. Okay. So, we have to set of stacks. But now obviously one question
+
+51
+00:07:47,380 --> 00:07:52,140
+ is that when you start these stacks, where do you put them? Right? Because you need to
+
+52
+00:07:52,140 --> 00:08:02,660
+ put them such a way that each stack has enough room to grow. Okay. So, you need to make sure
+
+53
+00:08:02,660 --> 00:08:09,860
+ that you need to leave enough room to grow. And also you need to make sure that one stack
+
+54
+00:08:09,860 --> 00:08:16,980
+ will not write over another stack. So, in this case, you should make sure the stack
+
+55
+00:08:16,980 --> 00:08:28,700
+ one as it grows is not going to go and override stack two. So, how many, two questions here.
+
+56
+00:08:28,700 --> 00:08:35,260
+ What happens if the threads violate this? You can answer that on the question and answers
+
+57
+00:08:35,260 --> 00:08:58,300
+ thread. Okay. No answer. So, what happened? Yeah. Stack corruption, second fault. Right?
+
+58
+00:08:58,300 --> 00:09:05,540
+ Why? Because if you override on the stack, what happens? Right? If you override, you
+
+59
+00:09:05,540 --> 00:09:15,600
+ can override the return address of a function invoked by a particular thread. So, now you
+
+60
+00:09:15,600 --> 00:09:19,340
+ are going to have garbage there and then you are going to go back, you are going to execute
+
+61
+00:09:19,340 --> 00:09:25,900
+ some random code. You can even try to executing the random code of a different process or
+
+62
+00:09:25,900 --> 00:09:34,340
+ an operating system in case you are going to get segmentation fault. How am I to catch
+
+63
+00:09:34,340 --> 00:09:52,340
+ violations? Okay. Guard pages. That's quite sophisticated. Yeah. Stack canary. So, you
+
+64
+00:09:52,340 --> 00:10:03,300
+ need, you know, if you can, yeah, user, it's very good. So, we can use, there are different
+
+65
+00:10:03,300 --> 00:10:13,460
+ mechanisms, but fundamentally you want to make sure that you know we can use bounds
+
+66
+00:10:13,460 --> 00:10:21,700
+ like we discussed in the past. So, each stack is confined to a particular region of memory.
+
+67
+00:10:21,700 --> 00:10:27,980
+ So, that you make sure that, and you make sure
+
+68
+00:10:28,070 --> 00:10:31,790
+ that region is owned only by one thread,
+
+69
+00:10:31,790 --> 00:10:35,070
+ by that particular stack, right?
+
+70
+00:10:35,070 --> 00:10:36,970
+ And then you cannot go out,
+
+71
+00:10:36,970 --> 00:10:41,970
+ so therefore you cannot step over other stack.
+
+72
+00:10:41,970 --> 00:10:48,050
+ Of course, that will add overhead
+
+73
+00:10:48,050 --> 00:10:50,150
+ because now you need to check.
+
+74
+00:10:50,150 --> 00:10:55,150
+ It also adds some memory protection for the stack.
+
+75
+00:10:55,150 --> 00:10:57,690
+ We are going to talk more about that.
+
+76
+00:10:57,690 --> 00:10:58,990
+ And there is a trade-off there,
+
+77
+00:10:58,990 --> 00:11:02,990
+ but most your questions, your answers are correct.
+
+78
+00:11:02,990 --> 00:11:16,750
+ Okay, so now we are going to touch
+
+79
+00:11:16,750 --> 00:11:18,630
+ on a very important aspect,
+
+80
+00:11:18,630 --> 00:11:22,350
+ and we are going to talk about this a lots of times.
+
+81
+00:11:22,350 --> 00:11:25,030
+ And it's not only important, it's also painful.
+
+82
+00:11:26,470 --> 00:11:31,470
+ And this, it happens
+
+83
+00:11:31,470 --> 00:11:38,230
+ because we want to provide this kind of great abstractions
+
+84
+00:11:38,230 --> 00:11:44,630
+ to the programmer in which each thread owes its own CPU.
+
+85
+00:11:44,630 --> 00:11:46,470
+ Okay?
+
+86
+00:11:46,470 --> 00:11:51,470
+ And you want to provide on one hand this abstraction,
+
+87
+00:11:52,710 --> 00:11:57,710
+ you know, like act like illusionist.
+
+88
+00:11:57,710 --> 00:12:01,790
+ And on the other hand, in reality,
+
+89
+00:12:01,790 --> 00:12:05,290
+ you don't have as many core as a thread you have.
+
+90
+00:12:05,290 --> 00:12:08,550
+ So in order to provide that abstraction,
+
+91
+00:12:08,550 --> 00:12:12,230
+ the way you do it, like we discussed in the past,
+
+92
+00:12:12,230 --> 00:12:16,070
+ is to interleave the threads
+
+93
+00:12:16,070 --> 00:12:19,030
+ on a limited number of cores.
+
+94
+00:12:19,030 --> 00:12:21,910
+ Okay?
+
+95
+00:12:21,910 --> 00:12:24,750
+ So now, what is the problem?
+
+96
+00:12:24,750 --> 00:12:27,510
+ The problem is that if you are interleaved the threads,
+
+97
+00:12:27,510 --> 00:12:30,970
+ this means that you need to stop to suspend a thread
+
+98
+00:12:30,970 --> 00:12:33,110
+ to run another thread.
+
+99
+00:12:33,110 --> 00:12:37,430
+ And since the threads you are running
+
+100
+00:12:37,430 --> 00:12:39,990
+ can share the same address space,
+
+101
+00:12:39,990 --> 00:12:44,990
+ then they can modify the same location in the memory.
+
+102
+00:12:48,710 --> 00:12:51,710
+ And as a result, they can step on each other's toes.
+
+103
+00:12:51,710 --> 00:12:55,310
+ And because you don't know exactly
+
+104
+00:12:55,310 --> 00:12:58,430
+ when the threads are going to be interrupted
+
+105
+00:12:58,430 --> 00:13:00,750
+ at what instructions to be suspended,
+
+106
+00:13:00,750 --> 00:13:06,030
+ this kind of interaction, it's also unpredictable,
+
+107
+00:13:06,030 --> 00:13:07,070
+ non-deterministic.
+
+108
+00:13:07,070 --> 00:13:09,050
+ Okay?
+
+109
+00:13:09,050 --> 00:13:10,770
+ So that's the TLDR.
+
+110
+00:13:10,770 --> 00:13:14,510
+ And so for instance, this is a piece with us,
+
+111
+00:13:14,510 --> 00:13:17,210
+ you have three instructions here.
+
+112
+00:13:17,210 --> 00:13:19,410
+ And now this is in a thread,
+
+113
+00:13:19,410 --> 00:13:22,310
+ which at some point will be suspended.
+
+114
+00:13:22,310 --> 00:13:26,690
+ And one possible execution is to go through the completion
+
+115
+00:13:26,690 --> 00:13:29,710
+ and run all these instructions.
+
+116
+00:13:29,710 --> 00:13:31,450
+ But another possible execution
+
+117
+00:13:31,450 --> 00:13:33,610
+ is after execute the first instruction,
+
+118
+00:13:33,610 --> 00:13:35,950
+ which is X equal with X plus one,
+
+119
+00:13:35,950 --> 00:13:39,650
+ the thread is suspending and other threads will run instead.
+
+120
+00:13:39,650 --> 00:13:43,930
+ Or this thread can be suspended
+
+121
+00:13:43,930 --> 00:13:48,930
+ after the first two instructions are going to be executed.
+
+122
+00:13:48,930 --> 00:13:50,230
+ Okay?
+
+123
+00:13:50,230 --> 00:13:55,150
+ And you can have a myriad of way
+
+124
+00:13:55,150 --> 00:13:58,310
+ in which the threads interleave, right?
+
+125
+00:13:58,310 --> 00:14:00,370
+ Like you see here, C.
+
+126
+00:14:00,370 --> 00:14:03,670
+ You can also, in some cases,
+
+127
+00:14:03,670 --> 00:14:06,110
+ the threads can each of them go through completion
+
+128
+00:14:06,110 --> 00:14:08,050
+ because they are very short.
+
+129
+00:14:08,050 --> 00:14:09,970
+ Or if you have enough cores,
+
+130
+00:14:09,970 --> 00:14:11,470
+ then they are not interleaving
+
+131
+00:14:11,470 --> 00:14:14,550
+ because each thread is going to run on its core.
+
+132
+00:14:14,550 --> 00:14:15,390
+ Right?
+
+133
+00:14:15,390 --> 00:14:16,810
+ But the interesting part is C
+
+134
+00:14:16,810 --> 00:14:19,170
+ when they are going to interleave.
+
+135
+00:14:19,170 --> 00:14:20,010
+ Right?
+
+136
+00:14:20,010 --> 00:14:25,970
+ And again, the point here is that as a programmer,
+
+137
+00:14:25,970 --> 00:14:30,170
+ you do not know when the thread is suspended
+
+138
+00:14:30,170 --> 00:14:33,010
+ because the operating system in particular,
+
+139
+00:14:33,010 --> 00:14:35,170
+ the scheduler has no idea
+
+140
+00:14:35,170 --> 00:14:36,950
+ about the semantics of your program.
+
+141
+00:14:36,950 --> 00:14:38,030
+ So you cannot do anything.
+
+142
+00:14:38,030 --> 00:14:41,730
+ So from an operating system point of view,
+
+143
+00:14:41,730 --> 00:14:43,770
+ it's a bunch of instructions.
+
+144
+00:14:43,770 --> 00:14:47,610
+ And at any given time, it can, in theory,
+
+145
+00:14:47,610 --> 00:14:48,790
+ it can interrupt you,
+
+146
+00:14:48,790 --> 00:14:50,690
+ or it can suspend your thread
+
+147
+00:14:50,690 --> 00:14:53,910
+ and run another thread instead on the same core.
+
+148
+00:14:53,910 --> 00:14:55,850
+ Okay?
+
+149
+00:14:55,850 --> 00:15:00,750
+ So now there are two kinds of threads
+
+150
+00:15:00,750 --> 00:15:02,970
+ you can think in this world.
+
+151
+00:15:02,970 --> 00:15:07,090
+ There are threads which modifies different variables.
+
+152
+00:15:07,090 --> 00:15:10,170
+ So the variables they modify, they are disjoint.
+
+153
+00:15:10,170 --> 00:15:11,670
+ These are independent threads.
+
+154
+00:15:11,670 --> 00:15:17,210
+ And they are going to provide a term in these things up
+
+155
+00:15:17,210 --> 00:15:20,130
+ because it doesn't matter when they are suspended.
+
+156
+00:15:20,130 --> 00:15:22,990
+ They are not going to use the same variables.
+
+157
+00:15:22,990 --> 00:15:26,190
+ So they are not going to interfere with each other.
+
+158
+00:15:26,190 --> 00:15:28,010
+ And then there are cooperating threads
+
+159
+00:15:28,010 --> 00:15:31,090
+ and these are the interesting ones and the difficult ones.
+
+160
+00:15:31,090 --> 00:15:34,250
+ We share a state, we share the state.
+
+161
+00:15:34,250 --> 00:15:35,570
+ Okay?
+
+162
+00:15:35,570 --> 00:15:40,570
+ Now the goal is how to design a program which is correct.
+
+163
+00:15:40,570 --> 00:15:45,930
+ So no matter when cooperating threads are suspended,
+
+164
+00:15:45,930 --> 00:15:50,950
+ you are going to get a predictable, a correct result.
+
+165
+00:15:50,950 --> 00:15:51,890
+ Right?
+
+166
+00:15:51,890 --> 00:15:59,350
+ So let's take a few simple examples to illustrate the point.
+
+167
+00:16:04,050 --> 00:16:09,050
+ And by the way, when two threads interleave
+
+168
+00:16:09,050 --> 00:16:11,890
+ and modify the same variables,
+
+169
+00:16:11,890 --> 00:16:14,170
+ many times we refer to that as race condition
+
+170
+00:16:14,170 --> 00:16:17,930
+ because one thread races against the other thread.
+
+171
+00:16:17,930 --> 00:16:19,930
+ Now, in this first example,
+
+172
+00:16:19,930 --> 00:16:21,730
+ is to have two threads, A and B,
+
+173
+00:16:21,730 --> 00:16:24,770
+ and these threads modify a different variable.
+
+174
+00:16:24,770 --> 00:16:27,850
+ Thread A modify X, thread B Y.
+
+175
+00:16:27,850 --> 00:16:29,250
+ Okay?
+
+176
+00:16:29,250 --> 00:16:34,250
+ So this is an example of independent threads here
+
+177
+00:16:34,250 --> 00:16:38,770
+ because again, they write, they modify,
+
+178
+00:16:38,770 --> 00:16:40,570
+ and they read different variables.
+
+179
+00:16:40,570 --> 00:16:43,250
+ Right?
+
+180
+00:16:43,250 --> 00:16:47,730
+ So for instance, no matter how the scheduler
+
+181
+00:16:47,730 --> 00:16:50,990
+ interleaves the threads,
+
+182
+00:16:50,990 --> 00:16:54,310
+ the output for thread A will be always fun.
+
+183
+00:16:54,310 --> 00:16:56,670
+ Okay?
+
+184
+00:16:58,510 --> 00:17:01,170
+ But now let me ask you, you know,
+
+185
+00:17:01,170 --> 00:17:04,650
+ let me ask you in this example, what is the output?
+
+186
+00:17:04,650 --> 00:17:07,510
+ So you have to get two threads,
+
+187
+00:17:07,510 --> 00:17:11,110
+ but now they share one variable, which is Y.
+
+188
+00:17:11,110 --> 00:17:14,110
+ Okay?
+
+189
+00:17:14,110 --> 00:17:16,850
+ Both of them read and, both of, you know,
+
+190
+00:17:16,850 --> 00:17:21,230
+ thread B reads and modify Y, and A reads Y.
+
+191
+00:17:21,230 --> 00:17:27,410
+ And let's assume initially that X is zero and Y is zero.
+
+192
+00:17:27,910 --> 00:17:28,750
+ Okay?
+
+193
+00:17:28,750 --> 00:17:35,090
+ So the question in this case, for this cooperative threads,
+
+194
+00:17:35,090 --> 00:17:37,530
+ what are the possible values of X?
+
+195
+00:17:37,530 --> 00:17:40,850
+ Okay?
+
+196
+00:17:40,850 --> 00:17:44,730
+ And why don't we take two, three minutes
+
+197
+00:17:44,730 --> 00:17:49,730
+ and think and please write down the values
+
+198
+00:17:49,730 --> 00:17:54,970
+ you believe X can get.
+
+199
+00:17:54,970 --> 00:17:57,130
+ (silence)
+
+200
+00:17:57,130 --> 00:18:02,110
+ Yes, that's correct.
+
+201
+00:18:02,110 --> 00:18:03,970
+ One, three, five.
+
+202
+00:18:03,970 --> 00:18:05,790
+ That's perfect.
+
+203
+00:18:05,790 --> 00:18:07,510
+ Thank you.
+
+204
+00:18:07,510 --> 00:18:09,630
+ Right?
+
+205
+00:18:09,630 --> 00:18:14,630
+ So because if the first, if thread A executes first
+
+206
+00:18:14,630 --> 00:18:21,630
+ and the first instruction is executed to completion,
+
+207
+00:18:21,630 --> 00:18:24,670
+ then Y was zero, so X would be one.
+
+208
+00:18:24,730 --> 00:18:27,410
+ (silence)
+
+209
+00:18:27,410 --> 00:18:29,710
+ But there are other possible executions.
+
+210
+00:18:29,710 --> 00:18:33,410
+ For instance, the first instruction of thread B can execute
+
+211
+00:18:33,410 --> 00:18:38,410
+ Y is equal to, and then the instruction of A can execute.
+
+212
+00:18:38,410 --> 00:18:43,330
+ So now X is Y, which are set by thread B to two,
+
+213
+00:18:43,330 --> 00:18:45,650
+ so X will be three.
+
+214
+00:18:45,650 --> 00:18:50,090
+ Or thread B can execute all both instruction first
+
+215
+00:18:50,090 --> 00:18:52,010
+ and then thread A.
+
+216
+00:18:52,010 --> 00:18:56,550
+ And if thread B can execute all instruction first,
+
+217
+00:18:56,550 --> 00:18:58,830
+ then Y will be four.
+
+218
+00:18:58,830 --> 00:19:03,410
+ So X, so then thread A, that is Y,
+
+219
+00:19:03,410 --> 00:19:05,750
+ value of four plus one is five.
+
+220
+00:19:05,750 --> 00:19:07,050
+ So X is five.
+
+221
+00:19:07,050 --> 00:19:07,890
+ Okay?
+
+222
+00:19:07,890 --> 00:19:13,030
+ So now you can see that even in this simple example,
+
+223
+00:19:13,030 --> 00:19:16,650
+ means you are going, things are getting complicated
+
+224
+00:19:19,010 --> 00:19:22,730
+ when the threads share the same variables.
+
+225
+00:19:22,730 --> 00:19:23,910
+ Okay?
+
+226
+00:19:23,910 --> 00:19:28,030
+ Now you can imagine that for more realistic program,
+
+227
+00:19:28,030 --> 00:19:30,170
+ this is even much more complex.
+
+228
+00:19:30,170 --> 00:19:35,610
+ So there is a question here.
+
+229
+00:19:35,610 --> 00:19:37,570
+ How does thread share a variable?
+
+230
+00:19:37,570 --> 00:19:39,550
+ If a thread is a unit of execution,
+
+231
+00:19:39,550 --> 00:19:42,890
+ wouldn't local variable be local to each thread?
+
+232
+00:19:42,890 --> 00:19:45,750
+ This is a good question, but let's go back.
+
+233
+00:19:47,730 --> 00:19:52,730
+ I'm going to go back here to answer this question.
+
+234
+00:19:52,730 --> 00:19:57,990
+ And the answer is here.
+
+235
+00:19:57,990 --> 00:20:01,210
+ As you can see, it's again,
+
+236
+00:20:01,210 --> 00:20:07,690
+ all thread in the same process share the code,
+
+237
+00:20:07,690 --> 00:20:11,650
+ the data, and the file descriptors.
+
+238
+00:20:11,650 --> 00:20:12,530
+ Okay?
+
+239
+00:20:12,530 --> 00:20:16,770
+ What they don't share are the registers
+
+240
+00:20:16,770 --> 00:20:18,870
+ and they don't share the stack.
+
+241
+00:20:18,870 --> 00:20:22,690
+ But the stack only contains
+
+242
+00:20:22,690 --> 00:20:27,050
+ the temporary variables
+
+243
+00:20:27,050 --> 00:20:31,330
+ and the argument which are passed to the functions
+
+244
+00:20:31,330 --> 00:20:33,090
+ and the return parameters.
+
+245
+00:20:33,090 --> 00:20:36,170
+ It does, the stack does not contain the global variables.
+
+246
+00:20:36,170 --> 00:20:40,050
+ The global variables are in the data segment here.
+
+247
+00:20:40,050 --> 00:20:45,310
+ And in this example, I just gave one.
+
+248
+00:20:45,310 --> 00:20:50,310
+ This we are talking about X and Y are global variables.
+
+249
+00:20:50,310 --> 00:20:52,990
+ Okay?
+
+250
+00:20:52,990 --> 00:20:56,310
+ So all the global variables are shared by all.
+
+251
+00:20:56,310 --> 00:21:13,300
+ the thread in the process. Okay? So going further, let me just go in. Okay, there is
+
+252
+00:21:13,300 --> 00:21:22,500
+ another question. I will take this as a... Do threads share the heap as well? Yes, the
+
+253
+00:21:22,500 --> 00:21:30,740
+ thread shares the heap as well. So if one thread allocates something on the heap, it
+
+254
+00:21:30,740 --> 00:21:40,620
+ can give the pointer to another thread which can read the data allocated from the heap
+
+255
+00:21:40,620 --> 00:21:49,640
+ or read the data allocated by the first thread. How do different processes communicate? We
+
+256
+00:21:49,640 --> 00:21:55,740
+ are going to learn about that. They can communicate by reading and writing on the file system.
+
+257
+00:21:55,740 --> 00:22:00,760
+ They can communicate through sockets, pipes. There are many ways they can communicate.
+
+258
+00:22:00,760 --> 00:22:06,220
+ And there is actually also a mechanism to provide shared memory between processes. Okay?
+
+259
+00:22:06,220 --> 00:22:16,940
+ We'll talk more about that. Thanks for your questions. So now if you write a program which
+
+260
+00:22:16,940 --> 00:22:26,060
+ you have multiple threads which share the same data, then you need somehow to coordinate
+
+261
+00:22:26,060 --> 00:22:33,420
+ among them to make sure that you get the same results no matter how the threads are intermixed.
+
+262
+00:22:33,420 --> 00:22:46,900
+ So what we need to synchronize, when a thread should access what. And so a particular way
+
+263
+00:22:46,900 --> 00:22:56,340
+ to synchronize thread is to make sure that only one thread is doing one thing at a time.
+
+264
+00:22:56,340 --> 00:23:04,100
+ Okay? This is mutual exclusion. We'll have examples. And another important concept is
+
+265
+00:23:04,100 --> 00:23:12,700
+ critical section. You can define a section in the code which is a critical section, which
+
+266
+00:23:12,700 --> 00:23:22,260
+ this means that that section can only be executed by one thread at a time. Right? So you cannot
+
+267
+00:23:22,260 --> 00:23:29,300
+ have the two threads executing instruction from the critical section at a different time,
+
+268
+00:23:29,300 --> 00:23:38,700
+ at the same time. Another way to think about, okay, is that from the programmer point of
+
+269
+00:23:38,700 --> 00:23:48,760
+ view, all the instruction in the critical section, they are executed sequentially. Okay?
+
+270
+00:23:48,760 --> 00:23:57,540
+ No one else will modify the variables which are in the critical section from the thread
+
+271
+00:23:57,540 --> 00:24:09,180
+ executing it. Okay? And then how do you enforce these critical
+
+272
+00:24:09,180 --> 00:24:14,220
+ sections? And again, critical section and mutual exclusion are the two sides of the
+
+273
+00:24:14,220 --> 00:24:20,180
+ same coin. In order to have a critical section, to implement a critical section, you need
+
+274
+00:24:20,180 --> 00:24:26,180
+ to have mutual exclusion, beginning that while a thread executes a critical section, another
+
+275
+00:24:26,180 --> 00:24:31,400
+ thread cannot execute instruction in the critical section. And then how, at the lower level,
+
+276
+00:24:31,400 --> 00:24:37,140
+ how you implement a mutual exclusion in the critical section is using locks. So basically
+
+277
+00:24:37,140 --> 00:24:42,260
+ the concept is that when you are going to enter a critical section, you are going to
+
+278
+00:24:42,260 --> 00:24:49,020
+ acquire a lock and everyone who has to enter the critical session has to acquire the lock
+
+279
+00:24:49,020 --> 00:24:53,980
+ before entering it. So if you have the lock, no one else can enter. When you access a critical
+
+280
+00:24:53,980 --> 00:25:02,300
+ section, you release a lock. Okay? And this lock operation, like typically
+
+281
+00:25:02,300 --> 00:25:09,820
+ it's lock acquire and release are atomic. But meaning that something is atomic is that
+
+282
+00:25:09,820 --> 00:25:17,140
+ you cannot be the set with executing lock acquire, cannot be suspended in the middle
+
+283
+00:25:17,140 --> 00:25:28,460
+ of executing lock acquire. The same about lock release. Okay? And we are going to learn
+
+284
+00:25:28,460 --> 00:25:35,140
+ how we are going to implement these locks later. So for the pthreads libraries, you
+
+285
+00:25:35,140 --> 00:25:45,500
+ do have the lock primitive. You have a pthread mutex int where you are going to create a
+
+286
+00:25:45,500 --> 00:25:52,780
+ lock and then you can acquire the lock and by pthread mutex lock and pthread mutex unlock
+
+287
+00:25:52,780 --> 00:26:01,460
+ you release a lock. Okay? And you are going to do this in homework one.
+
+288
+00:26:01,460 --> 00:26:08,780
+ So here it's a simple example. This is a piece of code from the code I showed last time in
+
+289
+00:26:08,780 --> 00:26:17,180
+ which we apply that we have the critical section here for my common is common plus plus, right?
+
+290
+00:26:17,180 --> 00:26:25,420
+ Common plus plus, common, sorry. It's a global variable if you remember. So now you may ask
+
+291
+00:26:25,420 --> 00:26:32,260
+ yourself, well, why do we have it's there that it's just a single line of code. Why
+
+292
+00:26:32,260 --> 00:26:39,980
+ do we need to protect by locks? Is that single line of code? Okay?
+
+293
+00:26:39,980 --> 00:26:45,220
+ The reason, and again, we are going to discuss more about this in the future. This is just
+
+294
+00:26:45,220 --> 00:26:56,540
+ a preview, is that this line, my common is equal is common plus plus is basically composed
+
+295
+00:26:56,540 --> 00:27:08,820
+ by multiple instructions, processor instructions. Okay? So, and therefore you can be interrupted
+
+296
+00:27:08,820 --> 00:27:19,220
+ in the middle of executing these instructions, this line of code. And that can lead to inaccurate
+
+297
+00:27:19,220 --> 00:27:28,940
+ results. Like for instance, this line, what may do is going to access common from the
+
+298
+00:27:28,940 --> 00:27:38,980
+ main memory, bring it in a register, add one to that value and then store the value back
+
+299
+00:27:38,980 --> 00:27:48,700
+ in the memory. Okay? If you are interrupted after you brought the value in of the memory
+
+300
+00:27:48,700 --> 00:27:56,740
+ of the common in register, right? And someone else read and writes it. Well, when you are
+
+301
+00:27:56,740 --> 00:28:05,060
+ going to be resume execution, you are going to execute the old value, which is the registers
+
+302
+00:28:05,060 --> 00:28:13,060
+ and then write it back so you can override the value of a different thread. Okay?
+
+303
+00:28:13,060 --> 00:28:19,660
+ So another way to, another primitive besides lock, and again, don't tell you are going
+
+304
+00:28:19,660 --> 00:28:23,300
+ to talk more about locks. This is just to give you a sense and also because you are
+
+305
+00:28:23,300 --> 00:28:33,500
+ going to use, you have to deal with this in homework one. Another way to implement locks
+
+306
+00:28:33,500 --> 00:28:40,300
+ is semaphore. Think about the generalized locks. This was defined by Dijkstra, one of
+
+307
+00:28:40,300 --> 00:28:47,340
+ the parents of computer science all the way in sixties. And this is also the main synchronization
+
+308
+00:28:47,340 --> 00:28:54,580
+ primitive using original Unix and Pintos. Okay. And the way to think about this, you
+
+309
+00:28:54,580 --> 00:29:05,260
+ have these two primitives P and V. They P comes from Proberon to test and V Verhogen
+
+310
+00:29:05,260 --> 00:29:14,700
+ to increment from Dutch. Dijkstra was Dutch. And basically the way they are working is
+
+311
+00:29:14,700 --> 00:29:34,380
+ that P tries to decrement. And if the value of the semaphore is zero, then it blocks and
+
+312
+00:29:34,380 --> 00:29:42,220
+ it's waiting for that value for the semaphore to be incremented. And if one is incremented,
+
+313
+00:29:42,220 --> 00:29:54,060
+ it's unblocked and the value is decremented. And V it's incrementing the value of the semaphore.
+
+314
+00:29:54,060 --> 00:30:03,900
+ And if there is any P, waiting P is going to signal to it. So it can decrement and continue.
+
+315
+00:30:03,900 --> 00:30:09,420
+ So here is a piece of code, which shows you how thread join is implemented. You remember
+
+316
+00:30:09,420 --> 00:30:20,820
+ for the thread join means that I am waiting for a thread to finish. So in this case, basically
+
+317
+00:30:20,820 --> 00:30:30,060
+ the thread join is implementing, I'm doing semaphore down and the semaphore it's set
+
+318
+00:30:30,060 --> 00:30:41,180
+ to one. And this is the critical section. It's like in something, like you semaphore
+
+319
+00:30:41,180 --> 00:30:47,900
+ down, what does that mean here? Semaphore down here is going to decrement the semaphore
+
+320
+00:30:47,900 --> 00:30:52,380
+ to one from one to zero. So you are going to have zero and you are going to enter the
+
+321
+00:30:52,380 --> 00:30:59,340
+ critical section. Notice that again, this part, the mutual exclusion part, it's implemented
+
+322
+00:30:59,340 --> 00:31:15,420
+ by all the threads. And only one thread can enter the critical section. Because once a
+
+323
+00:31:15,420 --> 00:31:40,780
+ thread enters this critical section, you are going to have zero and you are going to have
+
+324
+00:31:40,780 --> 00:31:34,210
+ [BLANK_AUDIO]
+
+325
+00:31:34,210 --> 00:31:44,210
+ [BLANK_AUDIO]
+
+326
+00:31:44,210 --> 00:31:54,210
+ [BLANK_AUDIO]
+
+327
+00:31:54,210 --> 00:32:04,210
+ [BLANK_AUDIO]
+
+328
+00:32:04,210 --> 00:32:14,210
+ [BLANK_AUDIO]
+
+329
+00:32:14,210 --> 00:32:24,210
+ [BLANK_AUDIO]
+
+330
+00:32:24,210 --> 00:32:34,210
+ [BLANK_AUDIO]
+
+331
+00:32:34,210 --> 00:32:44,210
+ [BLANK_AUDIO]
+
+332
+00:32:44,210 --> 00:32:54,210
+ [BLANK_AUDIO]
+
+333
+00:32:54,210 --> 00:33:04,210
+ [BLANK_AUDIO]
+
+334
+00:33:04,210 --> 00:33:14,210
+.
+
+335
+00:33:14,210 --> 00:33:24,210
+ [BLANK_AUDIO]
+
+336
+00:33:24,210 --> 00:33:28,210
+ Hey everyone, sorry about that.
+
+337
+00:33:28,210 --> 00:33:31,210
+ I got disconnected.
+
+338
+00:33:31,210 --> 00:33:41,210
+ [BLANK_AUDIO]
+
+339
+00:33:41,210 --> 00:33:48,210
+ [BLANK_AUDIO]
+
+340
+00:33:48,210 --> 00:33:55,210
+ Okay, so please add the questions and let me try to answer the questions.
+
+341
+00:33:55,210 --> 00:34:03,210
+ [BLANK_AUDIO]
+
+342
+00:34:03,210 --> 00:34:05,210
+ Okay, sorry about that.
+
+343
+00:34:05,210 --> 00:34:07,210
+ Zoom up.
+
+344
+00:34:07,210 --> 00:34:16,210
+ Okay, so please, there are a few questions I haven't answered.
+
+345
+00:34:16,210 --> 00:34:20,210
+ And I no longer see them after reconnecting.
+
+346
+00:34:20,210 --> 00:34:22,210
+ So please ask them again.
+
+347
+00:34:22,210 --> 00:34:25,210
+ Okay, so let's move on.
+
+348
+00:34:25,210 --> 00:34:31,210
+ [BLANK_AUDIO]
+
+349
+00:34:31,210 --> 00:34:43,210
+ Okay, so basically here if we want to implement the signaling for the thread join, like I mentioned earlier, you can use a semaphore.
+
+350
+00:34:43,210 --> 00:34:47,210
+ When a thread finishes, you're just doing the semaphore up.
+
+351
+00:34:47,210 --> 00:34:54,210
+ And therefore, it, okay, sorry, taking a step back.
+
+352
+00:34:54,210 --> 00:35:01,210
+ So in this particular, so initially what we saw in the previous example, I don't know how much you lost from what I said.
+
+353
+00:35:01,210 --> 00:35:04,210
+ We are implementing a critical section, right?
+
+354
+00:35:04,210 --> 00:35:12,210
+ This is the first example about using semaphores to implement a critical section where only one thread at a time can execute in the critical section.
+
+355
+00:35:12,210 --> 00:35:23,210
+ The second example is implement the thread join, and with the thread join, the way we implemented it is like, first of all, the semaphore now is initialized to zero, not one.
+
+356
+00:35:23,210 --> 00:35:29,210
+ And when a thread finishes, it's going to increment the semaphore, right?
+
+357
+00:35:29,210 --> 00:35:37,210
+ The main thread which created the other threads and waits for the threads to finish is going only to call semaphore down.
+
+358
+00:35:37,210 --> 00:35:44,210
+ And initially, if the thread no thread has finished, the semaphore is zero and remains zero.
+
+359
+00:35:44,210 --> 00:35:50,210
+ So the main thread calling thread join is blocked, okay?
+
+360
+00:35:50,210 --> 00:36:01,210
+ And when a thread finishes, then this is decremented, which is exactly the behavior you want.
+
+361
+00:36:01,210 --> 00:36:10,210
+ Okay.
+
+362
+00:36:10,210 --> 00:36:17,210
+ So if there is one question, semaphores don't have an owner like locks do, right?
+
+363
+00:36:17,210 --> 00:36:26,210
+ This depends on the implementation. There's nothing fundamental about locks or semaphores to have an owner.
+
+364
+00:36:26,210 --> 00:36:37,210
+ Yeah. The only important things even for locks is to make sure that only one thread can get a lock at a given time.
+
+365
+00:36:37,210 --> 00:36:43,210
+ In our context, the next question, in our context, you can potentially have infinitely many threads, right?
+
+366
+00:36:43,210 --> 00:36:53,210
+ Then what's the difference between our concept of thread and the limited hardware threads, like a CPU has 12 cores or 24 threads?
+
+367
+00:36:53,210 --> 00:36:58,210
+ So it's again, the thread is the programming construct, right?
+
+368
+00:36:58,210 --> 00:37:06,210
+ And you can have infinitely, an infinite number, you know, not an infinite, nothing can be infinite here.
+
+369
+00:37:06,210 --> 00:37:10,210
+ But you can have a very large number of threads, let's say 1000.
+
+370
+00:37:10,210 --> 00:37:20,210
+ But at the same time, you have four cores and one core, say it can execute only one thread at a time, right?
+
+371
+00:37:20,210 --> 00:37:27,210
+ So basically the difference here is that again, the thread is a programming construct.
+
+372
+00:37:27,210 --> 00:37:34,210
+ It's what you create in a program and the core is what you have physically, right?
+
+373
+00:37:34,210 --> 00:37:40,210
+ And you need to deal with that constraints. You can run at a given time, for example, only four threads.
+
+374
+00:37:40,210 --> 00:37:45,210
+ And that's why you need to do the interleaving to map all these 1000 threads you have as the application level,
+
+375
+00:37:45,210 --> 00:37:52,210
+ as the programmer level to these four cores. And the way to do it, like I mentioned many times, is by interleaving.
+
+376
+00:37:52,210 --> 00:37:57,210
+ By running a thread for a little bit, then running another thread, running another thread and so forth.
+
+377
+00:37:57,210 --> 00:38:04,210
+ Maybe the question here is also related with the concept of hyper-threading.
+
+378
+00:38:04,210 --> 00:38:10,210
+ Okay, now hyper-threading, we haven't talked and we are not going to talk during the class.
+
+379
+00:38:10,210 --> 00:38:22,210
+ By hyper-threading, it is a hardware concept and this allows a core to execute two threads at a time.
+
+380
+00:38:22,210 --> 00:38:34,210
+ But that doesn't modify the fact that the number of threads that the hardware can run at a given time is limited.
+
+381
+00:38:34,210 --> 00:38:43,210
+ It will only say that instead of running, if I have four cores, instead of running four threads at a time, now I can run eight threads at a time.
+
+382
+00:38:43,210 --> 00:38:49,210
+ Okay. So there is no fundamental difference.
+
+383
+00:38:49,210 --> 00:38:53,210
+ Okay, let's move on.
+
+384
+00:38:53,210 --> 00:39:01,210
+ So now we talk about threads. Now let's talk a little bit, step back and talk more about processes.
+
+385
+00:39:01,210 --> 00:39:12,210
+ Okay. The process is an environment in which you execute your code and has restricted writes.
+
+386
+00:39:12,210 --> 00:39:22,210
+ Okay, so process, remember, contains one or more threads, because the threads are the unit of execution,
+
+387
+00:39:22,210 --> 00:39:32,210
+ and a single address space, and the address space is protected from other address spaces owned by other processes.
+
+388
+00:39:32,210 --> 00:39:40,210
+ And it also owns the file process, also owns the resources like file descriptors, network connections.
+
+389
+00:39:40,210 --> 00:39:46,210
+ Okay. When you run a program, the program executes within a process.
+
+390
+00:39:46,210 --> 00:39:57,210
+ Okay. And an application like we discussed in the past can run on more than one processes, can have more than one processes.
+
+391
+00:39:57,210 --> 00:40:08,210
+ Remember the example about, a trivial example is Facebook. It's one application, but there are many processes that are not even running on the same machine,
+
+392
+00:40:08,210 --> 00:40:14,210
+ they're running on different machines.
+
+393
+00:40:14,210 --> 00:40:25,210
+ And in all the operating systems, today's operating systems, everything which runs outside the kernel,
+
+394
+00:40:25,210 --> 00:40:34,210
+ it's a process. The kernel, if you remember, is a part of the operating system, which is always a resident in the memory.
+
+395
+00:40:34,210 --> 00:40:42,210
+ Okay. Now, the processes have a similar mechanism to create other processes.
+
+396
+00:40:42,210 --> 00:40:51,210
+ Okay. And you also have for processes a fork command to create another process.
+
+397
+00:40:51,210 --> 00:41:01,210
+ Okay. But what is the fundamental difference between forking a process or forking or creating a new thread?
+
+398
+00:41:01,210 --> 00:41:14,210
+ The fundamental difference is that when you create a new thread, that thread, like we just discussed, shares the code and the global variables
+
+399
+00:41:14,210 --> 00:41:24,210
+ and other resources with the other thread in the same process, the thread which created it.
+
+400
+00:41:24,210 --> 00:41:32,210
+ But in the case of a process, if a process creates another process, the new processes, a new address, a different address space,
+
+401
+00:41:32,210 --> 00:41:39,210
+ share nothing with the process which created it.
+
+402
+00:41:39,210 --> 00:41:52,210
+ In order to go around this limitation, what the fork is doing, it copies everything the parent process had to the child process.
+
+403
+00:41:52,280 --> 00:42:03,280
+ So it copies the code, it copies the resources with the process who created another process to the new process.
+
+404
+00:42:03,280 --> 00:42:05,280
+ Okay?
+
+405
+00:42:05,280 --> 00:42:23,280
+ So if a process one creates process two using fork, the fork operation will copy the code and the access to the resources that process one has to process two.
+
+406
+00:42:23,280 --> 00:42:29,280
+ So therefore the process to execute the same code.
+
+407
+00:42:29,280 --> 00:42:47,280
+ And now, when you call fork, it returns immediately and it's depending the value it returns depends on whether the fork is in the child process or is a parent process.
+
+408
+00:42:47,280 --> 00:43:07,280
+ If it's a parent process, the fork returns the process identifier of the child. If it's in the child process, it returns zero. And if it's less than zero, then it's an error.
+
+409
+00:43:07,280 --> 00:43:12,280
+ Okay?
+
+410
+00:43:12,280 --> 00:43:18,280
+ Okay, so now let's look at this simple example. Okay?
+
+411
+00:43:18,280 --> 00:43:34,280
+ So you basically call fork here and it returns CPID and if CPID is zero, you do something and if CPID equals zero, you do something else, right?
+
+412
+00:43:34,280 --> 00:43:46,280
+ So again, when you call fork, a new in this process, this runs into a process, a new process is created.
+
+413
+00:43:46,280 --> 00:43:53,280
+ And that new process is going to run the same code because the code will be copied in the new process.
+
+414
+00:43:53,280 --> 00:44:04,280
+ In the first process, which is a parent process, the CPID will be the identifier, the process identifier of the child process, so it will be greater than zero.
+
+415
+00:44:04,280 --> 00:44:09,280
+ So this is what you are going to happen in the parent process.
+
+416
+00:44:09,280 --> 00:44:17,280
+ The else branch, where the CPID is zero, will happen and it will be run, this instruction will be run in the child process.
+
+417
+00:44:17,280 --> 00:44:20,280
+ Right?
+
+418
+00:44:20,280 --> 00:44:22,280
+ Okay?
+
+419
+00:44:22,280 --> 00:44:26,280
+ So, and what you are going to get here,
+
+420
+00:44:26,280 --> 00:44:46,280
+ right? What is the output you are going to get from this code?
+
+421
+00:44:46,280 --> 00:45:08,280
+ So you should try it. So very likely what will happen here, you are going to see the first process, the parent, say you can see the parent will see parent one, two, three, four, top to ten and then from, okay, I see that there are some answers.
+
+422
+00:45:08,280 --> 00:45:15,280
+ Okay, yes. Parent ten times and
+
+423
+00:45:15,280 --> 00:45:24,280
+ now the parent will do it ten times and the child will do ten times and this is what you are going to get.
+
+424
+00:45:24,280 --> 00:45:30,280
+ Okay? The parent will do ten and then child ten, something like that.
+
+425
+00:45:30,280 --> 00:45:45,280
+ And however, if you are asleep, will something change?
+
+426
+00:45:45,280 --> 00:45:49,280
+ That's a great question. So it was a question, when is the child code executed?
+
+427
+00:45:49,280 --> 00:45:56,280
+ So when is the child code executed? The child is a different process, which is on thread.
+
+428
+00:45:56,280 --> 00:46:07,280
+ That's a good question. Well, the answer is on the operating system decide to execute the thread of the other process. It's a schedule of deciding it.
+
+429
+00:46:07,280 --> 00:46:13,280
+ And that's exactly what the question tries to say, to try to illustrate.
+
+430
+00:46:13,280 --> 00:46:19,280
+ If you just print one after another, then the code, this green code,
+
+431
+00:46:19,280 --> 00:46:24,280
+ can run fast enough
+
+432
+00:46:24,280 --> 00:46:29,280
+ so it's not, the process is not suspended.
+
+433
+00:46:29,280 --> 00:46:40,280
+ That's why likely what you are going to see, you are going to see the parent consecutively printing from one to ten and then the child from one to ten.
+
+434
+00:46:40,280 --> 00:46:44,280
+ Okay? Or the other way around.
+
+435
+00:46:44,280 --> 00:46:55,280
+ However, if you put sleep, then that's enough time for the parent to be suspended and the child running.
+
+436
+00:46:55,280 --> 00:47:06,280
+ And the other way around. So we are going to see an interleaved, interleaving the printer from the parent and the child, we are going to see them interleaving.
+
+437
+00:47:06,280 --> 00:47:09,280
+ Okay?
+
+438
+00:47:09,280 --> 00:47:14,280
+ This is another view.
+
+439
+00:47:14,280 --> 00:47:23,280
+ And this is a view it's executing as an exec. We'll talk a little bit about the exec, but for this purpose,
+
+440
+00:47:23,280 --> 00:47:42,280
+ it's again, you see here that the parent executes. Now look at the if function is reversed. So the if checks first whether the PID return from the fork is zero. Right? And we know if the return is zero, the code is executed by the child.
+
+441
+00:47:42,280 --> 00:47:45,280
+ Right? So this is exec.
+
+442
+00:47:45,280 --> 00:47:54,280
+ And else if PID is different than zero, hopefully it's greater than zero, then the parent is executing while waiting in this case.
+
+443
+00:47:54,280 --> 00:47:56,280
+ Okay?
+
+444
+00:47:56,280 --> 00:48:07,280
+ And we are going to. So what exec is doing and we'll learn, we'll talk more about it briefly.
+
+445
+00:48:07,280 --> 00:48:17,280
+ Exec is running a program and that program will replace the code of the child with the program itself.
+
+446
+00:48:17,280 --> 00:48:22,280
+ Okay? Think about, right?
+
+447
+00:48:22,280 --> 00:48:41,280
+ So right now the fork replicated, duplicated the code of the parent to the child. Now with exec, we are just some sense of conceptually we override the child code with a code of the program we want to execute.
+
+448
+00:48:41,280 --> 00:48:49,280
+ And this is what happens when you implement the shell and you are going to do that in your homework.
+
+449
+00:48:49,280 --> 00:48:55,280
+ Right? So what happens is that shell is a parent, the shell where you type in the commands.
+
+450
+00:48:55,280 --> 00:49:02,280
+ And you type your command, right? What happens?
+
+451
+00:49:02,280 --> 00:49:14,280
+ The shell process forks another process and the fork process is going to use exec to run the program you want to run.
+
+452
+00:49:14,280 --> 00:49:26,280
+ Okay? And this wait is similar with a thread join, right? It's waiting for the child to finish.
+
+453
+00:49:26,280 --> 00:49:28,280
+ Okay?
+
+454
+00:49:28,280 --> 00:49:31,280
+ Makes sense. I'll answer the questions immediately.
+
+455
+00:49:31,280 --> 00:49:48,280
+ So wait for process to finish. These are some other APIs. Exit, you terminate the process. You have also exit for these threads. And then you have this command which is killed.
+
+456
+00:49:48,280 --> 00:49:59,280
+ I can kill a particular process if I send this kind of signal. Like for instance, the operating system, this is how it kills a process, right? For one reason or another.
+
+457
+00:49:59,280 --> 00:50:13,280
+ It sends a kill signal to it. And then if you are a process, you get a signal, then you can actually sometimes can do something about the signal.
+
+458
+00:50:13,280 --> 00:50:17,280
+ Okay? We'll talk more about it.
+
+459
+00:50:17,280 --> 00:50:43,280
+ But this is again a simple program in which, again, for CPID equals zero, everything within that branch is executed by the child. So the child executing gets its PID, prints its PID, and then exits with a 42, which is, you know, it's a return code, whatever you want to pick.
+
+460
+00:50:43,280 --> 00:50:55,280
+ And the code executed by the parent, it's waiting for the child to exit. Okay? This is a wait and status.
+
+461
+00:50:55,280 --> 00:51:12,280
+ And now, like I mentioned, when you get an action, a signal, as a process, you can do something about it. How you can do about it? Well, you intercept it.
+
+462
+00:51:12,280 --> 00:51:23,280
+ So for instance, you get, this is a sync interrupt. You can also send from a user process to another user process, you can send this sync interrupt.
+
+463
+00:51:23,280 --> 00:51:34,280
+ And basically you can associate, you can say that when you get this sync interrupt, you are going to execute a piece of code.
+
+464
+00:51:34,280 --> 00:51:54,280
+ So you write a function, which takes a piece of code, and then use a sync action to pass the address of that function to be invoked when a sync is, when you receive, using the process to receive the sync.
+
+465
+00:51:54,280 --> 00:51:57,280
+ Right?
+
+466
+00:51:57,280 --> 00:51:59,280
+ Okay.
+
+467
+00:51:59,280 --> 00:52:18,280
+ If you don't have registered for a sync, this callback to handle it, the process just dies. Right? Otherwise, you can, you know, you may want to keep the process around and do something about it.
+
+468
+00:52:18,280 --> 00:52:22,020
+ (speaks in foreign language)
+
+469
+00:52:22,020 --> 00:52:30,090
+ I told SIGINT, SIGINT is also, it's when you do control C, right? When you have a program
+
+470
+00:52:30,090 --> 00:52:36,330
+ and runs into control C, that generates a SIGINT. Okay? And then in your program, if
+
+471
+00:52:36,330 --> 00:52:42,530
+ you don't do anything, it will be killed. But if you do something, control C, you intercept
+
+472
+00:52:42,530 --> 00:52:58,390
+ it. It doesn't need to kill the process. SIGSTEP, it's control Z. You stop the process. And
+
+473
+00:52:58,390 --> 00:53:03,290
+ when you, SIGTERM is when you have a shell command and you want to kill it. There are
+
+474
+00:53:03,290 --> 00:53:14,150
+ SIGKILL and SIGSTOP to terminate the process, you cannot intercept by SIGACTION. So this
+
+475
+00:53:14,150 --> 00:53:19,670
+ will terminate your process. And these are in general what is used by the operating system
+
+476
+00:53:19,670 --> 00:53:28,350
+ to terminate the processes, the process. Okay. Let me just stop briefly here and see what
+
+477
+00:53:28,350 --> 00:53:37,750
+ are the questions. RP said mutex, lock and unlock implement with the semaphore. It's
+
+478
+00:53:37,750 --> 00:53:42,270
+ again, it depends on the operating system. They don't need to be. We are going to learn
+
+479
+00:53:42,270 --> 00:53:49,670
+ different implementations for lock and unlock. How do you know the scheduler won't switch
+
+480
+00:53:49,670 --> 00:53:55,070
+ in the middle of the parents for loop? You do not know. And that's exactly the point.
+
+481
+00:53:55,070 --> 00:53:59,790
+ I said, what I mentioned in the previous example, that if you don't have the sleep with a high
+
+482
+00:53:59,790 --> 00:54:05,790
+ probability, what you are going to see is that the parent output from the parent, the
+
+483
+00:54:05,790 --> 00:54:10,790
+ for loop, the printing, the 10 values, and then from the child. But yeah, there is a
+
+484
+00:54:10,790 --> 00:54:17,750
+ very small probability that you can also be interrupted during that look. The point is
+
+485
+00:54:17,750 --> 00:54:23,070
+ that if we insert the sleeps, then now the entire loop will take you 10 seconds. And
+
+486
+00:54:23,070 --> 00:54:28,150
+ therefore you are almost, you are guaranteed to be interrupted by the child, the parent
+
+487
+00:54:28,150 --> 00:54:38,950
+ by the child and the child by the parent. So does the child always has a PID zero? Remember
+
+488
+00:54:38,950 --> 00:54:45,230
+ the child is a process. The process has an identifier. What we have is here, what we
+
+489
+00:54:45,230 --> 00:54:52,890
+ are only talking here about the PID is the return of the fork function. Right? So basically
+
+490
+00:54:52,890 --> 00:55:02,870
+ the return for the fork functions is a child process doesn't return the child process ID.
+
+491
+00:55:02,870 --> 00:55:12,070
+ Return is zero. Okay? It doesn't mean the process ID is zero. We are only saying that
+
+492
+00:55:12,070 --> 00:55:24,770
+ the fork, let me repeat, the fork is a child code returns when executed, returns zero.
+
+493
+00:55:24,770 --> 00:55:47,410
+ And when executing fork is a parent return the child process identifier.
+
+494
+00:55:47,410 --> 00:56:01,210
+ How does a parent on calling wait and now who to wait for? If I remember correctly,
+
+495
+00:56:01,210 --> 00:56:18,210
+ you can specify that in wait. We'll see that. Okay. Let me continue a little and I'll stop
+
+496
+00:56:18,210 --> 00:56:27,530
+ for more questions. So the shell, it's a job control system. You know that it's what you
+
+497
+00:56:27,530 --> 00:56:32,610
+ get in a terminal. You have the prompt, that's the shell. And from there you can execute
+
+498
+00:56:32,610 --> 00:56:43,090
+ other programs or other commands. And you are going to build your own shell in homework
+
+499
+00:56:43,090 --> 00:56:49,210
+ two, and you are going to use fork and exec to create new processes, to create programs
+
+500
+00:56:49,210 --> 00:56:57,810
+ like we mentioned earlier on. Right? Your shell will fork a child which will use exec
+
+501
+00:56:57,810 --> 00:57:14,250
+ to execute the program. Okay. So this process versus threads. One question here is why have
+
+502
+00:57:14,250 --> 00:57:19,890
+ fork and exec system call for processes but just the piece thread create function for
+
+503
+00:57:19,890 --> 00:57:33,250
+ thread? Okay. The answer is here, but again, to summarize the main reason for that is that
+
+504
+00:57:33,250 --> 00:57:42,450
+ within which threads, if one thread create another thread, the new thread share the subcode
+
+505
+00:57:42,450 --> 00:57:49,210
+ and share the global variables and the heap with a thread which created it. Right? While
+
+506
+00:57:49,210 --> 00:58:01,650
+ in the case, and then also the piece thread, you give the code to execute. Right? You give
+
+507
+00:58:01,650 --> 00:58:06,690
+ when you create a thread, you give the code the function to be executed by the thread.
+
+508
+00:58:06,690 --> 00:58:16,970
+ In the case of fork, when you create a new process, because there is no sharing between
+
+509
+00:58:16,970 --> 00:58:22,210
+ two processes, they have different other spaces, you are going to duplicate the code and the
+
+510
+00:58:22,210 --> 00:58:28,650
+ resources from the parent to the child. But now the parent and child execute the same
+
+511
+00:58:28,650 --> 00:58:35,610
+ code. So to execute a different kind of code for a program, you are going to call exec.
+
+512
+00:58:35,610 --> 00:58:42,970
+ Right? With piece threads, there is no need for such thing because first of all, there
+
+513
+00:58:42,970 --> 00:58:50,410
+ is no need for fork functionality because the threads share the same other space. And
+
+514
+00:58:50,410 --> 00:58:57,570
+ then it's also when you create a thread, you point out to the address of the function the
+
+515
+00:58:57,570 --> 00:59:07,050
+ thread should execute. Yeah. By the way, as a note in Windows, instead of fork, we have
+
+516
+00:59:07,050 --> 00:59:16,530
+ create process. Okay. Here is a question for you. If we have two tasks to run concurrently,
+
+517
+00:59:16,530 --> 00:59:25,370
+ do we run them in separate threads or are we running in separate processes? Okay. And
+
+518
+00:59:25,370 --> 00:59:31,250
+ again, I shouldn't have had the answer here, but it depends is how much isolation you want
+
+519
+00:59:31,250 --> 00:59:37,970
+ to have. The threads are lighter weight. Why is that lighter weight? Well, because they
+
+520
+00:59:37,970 --> 00:59:42,530
+ don't share all, because they don't have a lot of state associated with them. So when
+
+521
+00:59:42,530 --> 00:59:48,650
+ you switch them, when the scheduler switch from one side to another, doesn't need to
+
+522
+00:59:48,650 --> 00:59:54,610
+ save all the context associated with the process. It's just a teeny bit of context associated
+
+523
+00:59:54,610 --> 01:00:01,090
+ with the thread. So it's much faster. On the other hand, the processes are much stronger
+
+524
+01:00:01,090 --> 01:00:08,610
+ isolated. Again, each process lives in its own address space. Okay. Let me just see a
+
+525
+01:00:08,610 --> 01:00:20,530
+ few more questions. Since threads share other spaces, but not stack, do the stack start
+
+526
+01:00:20,530 --> 01:00:42,530
+ a different offset? Absolutely. Yes. The stack, they do start a different processes. And if
+
+527
+01:00:42,530 --> 01:01:02,690
+ you remember from here, right from this figure. Here. Oh, gosh. Something is very slow. Okay.
+
+528
+01:01:02,690 --> 01:01:12,450
+ So here you have two stacks, they have different stack pointers. Start the different addresses.
+
+529
+01:01:12,450 --> 01:01:28,170
+ Okay. Okay. So let's see. Let me see that. I think there are some questions about on
+
+530
+01:01:28,170 --> 01:01:38,210
+ the chat. Yes. The new stack frames, the new stacks are in the same address space, but
+
+531
+01:01:38,210 --> 01:01:42,810
+ at different point, at different addresses. What happens to the stack when you make a
+
+532
+01:01:42,810 --> 01:01:51,490
+ new thread? Well, when you create a new thread, you create a new stack for that thread, which
+
+533
+01:01:51,490 --> 01:02:00,170
+ will not interfere with the stack of the current thread. Okay. So I think this is pretty much
+
+534
+01:02:00,170 --> 01:02:07,450
+ it. If I didn't answer any questions because I disconnect and everything else, let me know.
+
+535
+01:02:07,450 --> 01:02:20,850
+ Okay. So some announcements, the project zero is due this Thursday. So today from now, it's
+
+536
+01:02:20,850 --> 01:02:27,330
+ again, it needs to be done on your own like homework. It's the only one you need to do
+
+537
+01:02:27,330 --> 01:02:34,050
+ on your own. All the other projects are group projects. Group assignments will be released
+
+538
+01:02:34,050 --> 01:02:41,130
+ by end of day this Wednesday. A discussion, a section attendance is mandatory and with
+
+539
+01:02:41,130 --> 01:02:48,410
+ cameras on if you are remote. And starts already planning.
+
+540
+01:02:48,420 --> 01:02:52,620
+ with your group how to best collaborate on the project,
+
+541
+01:02:52,620 --> 01:02:54,780
+ especially if you are remote,
+
+542
+01:02:54,780 --> 01:02:57,300
+ virtual coffee hours with the camera,
+
+543
+01:02:57,300 --> 01:02:59,460
+ regular brainstorming meeting,
+
+544
+01:02:59,460 --> 01:03:03,540
+ and try to meet multiple times a week.
+
+545
+01:03:03,540 --> 01:03:06,140
+ Most of the problems which we,
+
+546
+01:03:06,140 --> 01:03:08,820
+ from our experience with the groups,
+
+547
+01:03:08,820 --> 01:03:10,620
+ happens because communication.
+
+548
+01:03:10,620 --> 01:03:13,740
+ It turns out that not everyone in the group
+
+549
+01:03:13,740 --> 01:03:14,860
+ is on the same page.
+
+550
+01:03:14,860 --> 01:03:17,320
+ Not everyone understood the same thing, right?
+
+551
+01:03:18,320 --> 01:03:21,360
+ What everyone has to do and by what.
+
+552
+01:03:21,360 --> 01:03:24,880
+ And what to do.
+
+553
+01:03:24,880 --> 01:03:27,240
+ So over communicate, over community.
+
+554
+01:03:27,240 --> 01:03:30,400
+ There is nothing like too much communication
+
+555
+01:03:30,400 --> 01:03:33,040
+ for your group to be successful.
+
+556
+01:03:33,040 --> 01:03:36,360
+ Okay?
+
+557
+01:03:36,360 --> 01:03:38,520
+ (silence)
+
+558
+01:03:38,520 --> 01:03:50,280
+ Okay.
+
+559
+01:03:50,280 --> 01:03:52,680
+ So,
+
+560
+01:03:52,680 --> 01:04:03,040
+ so for the rest of this lecture,
+
+561
+01:04:03,040 --> 01:04:05,440
+ we are starting to talk about,
+
+562
+01:04:05,440 --> 01:04:09,560
+ we are diving into file systems, file abstraction.
+
+563
+01:04:09,560 --> 01:04:12,280
+ And in particular,
+
+564
+01:04:12,280 --> 01:04:15,120
+ we are only going to talk about high level file IO
+
+565
+01:04:15,120 --> 01:04:16,920
+ and these are streams.
+
+566
+01:04:16,920 --> 01:04:20,400
+ We are going to talk more about files
+
+567
+01:04:20,400 --> 01:04:21,880
+ next lecture on Saturday.
+
+568
+01:04:21,880 --> 01:04:28,600
+ So now, basically you are, we are, you know,
+
+569
+01:04:28,600 --> 01:04:33,600
+ a lot of concepts we are going to work on are inherited.
+
+570
+01:04:33,600 --> 01:04:37,880
+ Carried from original Unix.
+
+571
+01:04:37,880 --> 01:04:40,240
+ Okay?
+
+572
+01:04:40,240 --> 01:04:41,680
+ And indeed, you know, why not?
+
+573
+01:04:41,680 --> 01:04:43,120
+ Linux, it's Unix.
+
+574
+01:04:43,120 --> 01:04:48,960
+ Like we discussed, iOS or Mac OS, it's on top.
+
+575
+01:04:48,960 --> 01:04:51,880
+ It's a Unix system at the core.
+
+576
+01:04:51,880 --> 01:04:56,880
+ And even Windows, it's now more and more similar to Unix
+
+577
+01:04:56,880 --> 01:04:59,520
+ than it was 20 years ago.
+
+578
+01:05:00,640 --> 01:05:03,840
+ So the main point about the Unix,
+
+579
+01:05:03,840 --> 01:05:07,080
+ and this is brilliant idea at this day,
+
+580
+01:05:07,080 --> 01:05:09,800
+ is to provide as much as possible,
+
+581
+01:05:09,800 --> 01:05:12,160
+ a homogeneous abstraction
+
+582
+01:05:12,160 --> 01:05:18,280
+ across different IO devices.
+
+583
+01:05:18,280 --> 01:05:21,600
+ And that concept is about a file,
+
+584
+01:05:21,600 --> 01:05:23,440
+ which is a stream of bytes.
+
+585
+01:05:23,440 --> 01:05:26,560
+ And this is not only the files
+
+586
+01:05:28,560 --> 01:05:32,600
+ on your, you know, disk,
+
+587
+01:05:32,600 --> 01:05:37,040
+ but also the way you operate and the API
+
+588
+01:05:37,040 --> 01:05:41,280
+ when you send messages or receive messages,
+
+589
+01:05:41,280 --> 01:05:43,360
+ or you send data up to the,
+
+590
+01:05:43,360 --> 01:05:46,120
+ send the file to the printer to be printed,
+
+591
+01:05:46,120 --> 01:05:49,600
+ or you get input from the terminal.
+
+592
+01:05:49,600 --> 01:05:55,280
+ All of this, you interact with all of these
+
+593
+01:05:55,280 --> 01:06:00,120
+ different devices in a very similar way.
+
+594
+01:06:00,120 --> 01:06:04,920
+ You can think again at a high level
+
+595
+01:06:04,920 --> 01:06:07,560
+ that everything is a file when you interact with them.
+
+596
+01:06:07,560 --> 01:06:13,480
+ So the base system calls then are open,
+
+597
+01:06:13,480 --> 01:06:15,880
+ read, write, and close.
+
+598
+01:06:15,880 --> 01:06:20,880
+ So it's open file, close file, read from file, write to file.
+
+599
+01:06:20,880 --> 01:06:23,160
+ And of course, some of the devices
+
+600
+01:06:23,160 --> 01:06:25,360
+ will not have some of these operations.
+
+601
+01:06:25,360 --> 01:06:27,280
+ Like for instance, for a printer,
+
+602
+01:06:27,280 --> 01:06:32,280
+ you have open, call, close, and write, not read.
+
+603
+01:06:32,280 --> 01:06:35,520
+ For a input terminal, you have read, but not write.
+
+604
+01:06:35,520 --> 01:06:36,360
+ Okay.
+
+605
+01:06:36,360 --> 01:06:47,040
+ And then you have also this kind of catch-all API,
+
+606
+01:06:47,040 --> 01:06:52,360
+ IOCTL for to customly configure different devices.
+
+607
+01:06:52,360 --> 01:06:53,200
+ Right?
+
+608
+01:06:53,200 --> 01:06:59,640
+ It's again, for people who are interested
+
+609
+01:06:59,640 --> 01:07:02,200
+ in a little bit of history and actually to get,
+
+610
+01:07:02,200 --> 01:07:06,840
+ I mean, very useful even for this class to get context
+
+611
+01:07:06,840 --> 01:07:09,040
+ about how things evolved and why,
+
+612
+01:07:09,040 --> 01:07:13,600
+ you can read this Unix, the Unix Time Sharing System,
+
+613
+01:07:13,600 --> 01:07:16,120
+ which is very old book, right?
+
+614
+01:07:16,120 --> 01:07:19,680
+ It's almost 50 years old, very old paper,
+
+615
+01:07:19,680 --> 01:07:22,720
+ but it's extremely influential paper.
+
+616
+01:07:22,720 --> 01:07:24,160
+ And it's quite amazing.
+
+617
+01:07:24,160 --> 01:07:26,240
+ It's again, we are still using
+
+618
+01:07:26,240 --> 01:07:28,560
+ the same concept fundamentally,
+
+619
+01:07:28,560 --> 01:07:33,560
+ like this paper described, okay, almost 50 years ago.
+
+620
+01:07:33,560 --> 01:07:44,320
+ So if you have one hour, this is a fantastic paper to read.
+
+621
+01:07:44,320 --> 01:07:47,600
+ You will hear more about POSIX.
+
+622
+01:07:47,600 --> 01:07:51,280
+ What is POSIX? It's Portable Operating System Interface,
+
+623
+01:07:51,280 --> 01:07:53,800
+ excuse me, for Unix.
+
+624
+01:07:53,800 --> 01:07:59,160
+ And it defines kind of a standard,
+
+625
+01:07:59,160 --> 01:08:01,320
+ it's an effort of standardizing.
+
+626
+01:08:01,320 --> 01:08:07,360
+ It was an effort to standardize different Unix flavors.
+
+627
+01:08:07,360 --> 01:08:11,080
+ You know, 20 or 25 years ago,
+
+628
+01:08:11,080 --> 01:08:14,080
+ there are a lot of Unix flavors,
+
+629
+01:08:14,080 --> 01:08:17,160
+ a different company, they have their own Unix version,
+
+630
+01:08:17,160 --> 01:08:22,160
+ and POSIX was the effort to standardize a subset of APIs
+
+631
+01:08:22,160 --> 01:08:26,040
+ across these Unixes.
+
+632
+01:08:26,040 --> 01:08:31,120
+ Okay, so the File System Abstraction.
+
+633
+01:08:31,120 --> 01:08:37,000
+ So it's a name collection of data in a file system,
+
+634
+01:08:37,000 --> 01:08:40,920
+ and the POSIX file data, it's a sequence of bytes.
+
+635
+01:08:40,920 --> 01:08:45,560
+ Could be text, binary,
+
+636
+01:08:45,560 --> 01:08:50,120
+ you can have serialized objects, almost anything.
+
+637
+01:08:50,120 --> 01:08:53,440
+ And in addition to the file data, you have metadata.
+
+638
+01:08:53,440 --> 01:08:56,760
+ And the metadata associated with the file
+
+639
+01:08:56,760 --> 01:08:59,400
+ contains things like the size of the file,
+
+640
+01:08:59,400 --> 01:09:02,360
+ when was the last time modified, who is the owner,
+
+641
+01:09:02,360 --> 01:09:05,560
+ security information, who has access control, and so forth.
+
+642
+01:09:05,560 --> 01:09:10,400
+ The files are stored in folders, right?
+
+643
+01:09:10,400 --> 01:09:13,040
+ And the folder contains files and directory.
+
+644
+01:09:13,040 --> 01:09:15,920
+ A directory is a special kind of file.
+
+645
+01:09:15,920 --> 01:09:20,920
+ And the directories are organized in a hierarchical fashion,
+
+646
+01:09:20,920 --> 01:09:24,320
+ as you very well know, okay?
+
+647
+01:09:24,320 --> 01:09:28,960
+ And there are also concept of links and volumes,
+
+648
+01:09:28,960 --> 01:09:30,200
+ hard links, soft links,
+
+649
+01:09:30,200 --> 01:09:34,680
+ we are going to learn about those later, okay?
+
+650
+01:09:34,680 --> 01:09:41,680
+ Now, every process has its own current working directory.
+
+651
+01:09:42,840 --> 01:09:43,920
+ Okay?
+
+652
+01:09:43,920 --> 01:09:48,920
+ When you start a program from a current directory,
+
+653
+01:09:48,920 --> 01:09:53,400
+ that typically is a current working directory
+
+654
+01:09:53,400 --> 01:09:55,160
+ of that program.
+
+655
+01:09:55,160 --> 01:10:00,160
+ So if you just read and write without providing a path,
+
+656
+01:10:00,160 --> 01:10:05,480
+ then you read and write on the current directory, right?
+
+657
+01:10:05,480 --> 01:10:09,200
+ Now, you can also refer, like you very well known,
+
+658
+01:10:09,200 --> 01:10:12,240
+ to a file using the absolute directory.
+
+659
+01:10:12,240 --> 01:10:16,760
+ In that case, the current working directory, it's ignored.
+
+660
+01:10:16,760 --> 01:10:20,200
+ And again, the current working directory,
+
+661
+01:10:20,200 --> 01:10:23,800
+ you can see, thinking about like environment variable,
+
+662
+01:10:23,800 --> 01:10:26,360
+ right, which is set when the program is started.
+
+663
+01:10:26,360 --> 01:10:29,440
+ Okay?
+
+664
+01:10:29,440 --> 01:10:32,320
+ And you can have relative,
+
+665
+01:10:32,320 --> 01:10:35,720
+ specify relative paths to the current directory, right?
+
+666
+01:10:35,720 --> 01:10:40,720
+ So, ./ means you go one level up, okay?
+
+667
+01:10:41,720 --> 01:10:46,720
+ And tilde means home directory and so forth.
+
+668
+01:10:46,720 --> 01:10:57,720
+ And the storage, it's actually a pretty complex,
+
+669
+01:10:57,720 --> 01:11:00,080
+ has a pretty complex architecture.
+
+670
+01:11:00,080 --> 01:11:05,400
+ It goes all the way from IO drivers,
+
+671
+01:11:05,400 --> 01:11:08,160
+ and this is controlled all these devices.
+
+672
+01:11:08,160 --> 01:11:11,960
+ Then you have the file system,
+
+673
+01:11:11,960 --> 01:11:13,560
+ which is implemented,
+
+674
+01:11:13,560 --> 01:11:16,240
+ functionality implementing the operating system.
+
+675
+01:11:16,240 --> 01:11:18,400
+ This is called, this is the interface provided
+
+676
+01:11:18,400 --> 01:11:19,880
+ by the operating system,
+
+677
+01:11:19,880 --> 01:11:23,360
+ through which the user level programs
+
+678
+01:11:23,360 --> 01:11:28,360
+ can invoke file system operations.
+
+679
+01:11:28,360 --> 01:11:32,200
+ Then you have the low level IO and high level IO
+
+680
+01:11:32,200 --> 01:11:35,200
+ which provide different levels of abstractions
+
+681
+01:11:35,200 --> 01:11:37,520
+ of the file system to the application.
+
+682
+01:11:37,520 --> 01:11:38,560
+ Okay?
+
+683
+01:11:38,560 --> 01:11:41,960
+ So, and here we are going to start
+
+684
+01:11:41,960 --> 01:11:46,760
+ from high level IO streams, right?
+
+685
+01:11:46,760 --> 01:11:51,760
+ And again, a stream is a sequence of bytes.
+
+686
+01:11:51,760 --> 01:11:53,080
+ Okay?
+
+687
+01:11:53,080 --> 01:11:54,640
+ That's it, right?
+
+688
+01:11:54,640 --> 01:12:01,200
+ And how you open a file for the stream format,
+
+689
+01:12:01,200 --> 01:12:07,160
+ for this with a stream API, you use fopen.
+
+690
+01:12:07,160 --> 01:12:12,160
+ You include SDO, this represent contains the API,
+
+691
+01:12:12,160 --> 01:12:20,120
+ the file related file stream, file APIs.
+
+692
+01:12:20,120 --> 01:12:25,640
+ Fopen obviously is part of SDO.h.
+
+693
+01:12:25,640 --> 01:12:30,640
+ And SD, fopen take several arguments.
+
+694
+01:12:30,640 --> 01:12:34,000
+ One is a file name, right?
+
+695
+01:12:34,000 --> 01:12:35,200
+ Which is the name of the file.
+
+696
+01:12:35,200 --> 01:12:37,840
+ And here you can specify, if you don't specify the path,
+
+697
+01:12:37,840 --> 01:12:41,320
+ again, you are referring to a file in the current directory.
+
+698
+01:12:41,320 --> 01:12:43,920
+ If you specify an absolute path,
+
+699
+01:12:43,920 --> 01:12:46,680
+ then the current directory is ignored.
+
+700
+01:12:46,680 --> 01:12:52,280
+ And you have also a mode, right?
+
+701
+01:12:52,280 --> 01:12:56,560
+ And the mode, it tells basically
+
+702
+01:12:56,560 --> 01:13:03,880
+ what is this, what you can do with this file, right?
+
+703
+01:13:04,720 --> 01:13:09,720
+ You can, and what kind of file is this one?
+
+704
+01:13:09,720 --> 01:13:13,920
+ You can have text files or binary files, right?
+
+705
+01:13:13,920 --> 01:13:16,800
+ With the text files, the code is...
+
+706
+01:13:16,800 --> 01:13:19,490
+ it's interpreted as being a character.
+
+707
+01:13:19,490 --> 01:13:22,210
+ With a binary file, the byte, sorry,
+
+708
+01:13:22,210 --> 01:13:25,290
+ it's not interpretable, it's not interpreted
+
+709
+01:13:25,290 --> 01:13:28,690
+ when you try to print it.
+
+710
+01:13:28,690 --> 01:13:34,610
+ So, and in addition, from the type of the file
+
+711
+01:13:34,610 --> 01:13:37,010
+ whether it's text or binary,
+
+712
+01:13:37,010 --> 01:13:40,930
+ the other is about what is a kind of operation
+
+713
+01:13:40,930 --> 01:13:43,010
+ which are allowed on the file.
+
+714
+01:13:43,010 --> 01:13:48,010
+ R is for read, write is for obviously modifying,
+
+715
+01:13:48,010 --> 01:13:54,330
+ append it's for writing only at the end of the file.
+
+716
+01:13:54,330 --> 01:14:01,370
+ And then you can write,
+
+717
+01:14:01,370 --> 01:14:05,250
+ of course you can also open a file both for read and write.
+
+718
+01:14:05,250 --> 01:14:10,770
+ And you can also take into account what happens
+
+719
+01:14:10,770 --> 01:14:13,890
+ if I open a file but the file doesn't exist.
+
+720
+01:14:13,890 --> 01:14:16,250
+ You can get a rarer file not found
+
+721
+01:14:16,250 --> 01:14:20,650
+ or you can have a use another option to say if it's not,
+
+722
+01:14:20,650 --> 01:14:24,610
+ if it file doesn't exist, create it as an empty file.
+
+723
+01:14:24,610 --> 01:14:30,330
+ So, okay.
+
+724
+01:14:30,330 --> 01:14:34,890
+ So when you open the file, what you are going to get,
+
+725
+01:14:34,890 --> 01:14:39,890
+ you are going to get a pointer to the file data structure.
+
+726
+01:14:40,210 --> 01:14:43,250
+ And also you are going to get a pointer, right?
+
+727
+01:14:43,250 --> 01:14:46,090
+ You represent the state of the file.
+
+728
+01:14:46,090 --> 01:14:48,370
+ Open file is represented by the pointer
+
+729
+01:14:48,370 --> 01:14:52,330
+ and it was a current byte is a file
+
+730
+01:14:52,330 --> 01:14:57,770
+ that you are going to read or write, okay?
+
+731
+01:14:57,770 --> 01:15:07,850
+ There are also several specialized files.
+
+732
+01:15:07,850 --> 01:15:12,850
+ Standard in, standard out, standard error, okay?
+
+733
+01:15:12,850 --> 01:15:17,730
+ So standard in it's obviously from input from the terminal.
+
+734
+01:15:17,730 --> 01:15:21,290
+ Standard out it's also when you write out to the terminal.
+
+735
+01:15:21,290 --> 01:15:24,330
+ Standard error when you write and it's error.
+
+736
+01:15:24,330 --> 01:15:28,570
+ And again, the important point to note here,
+
+737
+01:15:28,570 --> 01:15:33,570
+ it's again, it's treated all this input from your keyboard,
+
+738
+01:15:33,570 --> 01:15:35,090
+ output to the terminal.
+
+739
+01:15:35,090 --> 01:15:38,130
+ They are all treated as files.
+
+740
+01:15:38,130 --> 01:15:44,130
+ And this standard in and standard out
+
+741
+01:15:44,130 --> 01:15:48,930
+ enable composition in Unix because everything is a file.
+
+742
+01:15:48,930 --> 01:15:52,090
+ So therefore you can pipe,
+
+743
+01:15:52,090 --> 01:15:56,130
+ you can create a pipeline of commands
+
+744
+01:15:56,130 --> 01:15:59,090
+ because in general, each command is going to read
+
+745
+01:15:59,090 --> 01:16:00,890
+ from a file and write to a file.
+
+746
+01:16:01,890 --> 01:16:06,890
+ So for instance, here you have cat hello text, grab word.
+
+747
+01:16:06,890 --> 01:16:09,090
+ Well, what does that mean?
+
+748
+01:16:09,090 --> 01:16:12,490
+ Cat hello text is basically, it's going to,
+
+749
+01:16:12,490 --> 01:16:14,090
+ if you just execute that,
+
+750
+01:16:14,090 --> 01:16:17,010
+ it's going to write on the terminal,
+
+751
+01:16:17,010 --> 01:16:19,450
+ the content of the file hello.txt.
+
+752
+01:16:19,450 --> 01:16:23,810
+ But because the content, what hello.
+
+753
+01:16:23,810 --> 01:16:28,810
+ The standard out is going to be the same.
+
+754
+01:16:29,810 --> 01:16:33,810
+ The standard out where the file is written,
+
+755
+01:16:33,810 --> 01:16:37,650
+ it's also a file you can pipe in the grab word,
+
+756
+01:16:37,650 --> 01:16:39,850
+ which take as the input of a file
+
+757
+01:16:39,850 --> 01:16:44,850
+ to look for the occurrences of the word exclamation point,
+
+758
+01:16:44,850 --> 01:16:47,370
+ exclamation mark.
+
+759
+01:16:47,370 --> 01:16:49,330
+ Okay.
+
+760
+01:16:49,330 --> 01:16:54,570
+ Okay.
+
+761
+01:16:54,570 --> 01:16:59,570
+ So a little bit more, the API is a little bit richer.
+
+762
+01:16:59,650 --> 01:17:04,650
+ Once you open it, then you can do a lot of things
+
+763
+01:17:04,650 --> 01:17:06,930
+ with the data in that file.
+
+764
+01:17:06,930 --> 01:17:11,970
+ F for C, right?
+
+765
+01:17:11,970 --> 01:17:16,490
+ It puts a character, it writes a character
+
+766
+01:17:16,490 --> 01:17:21,490
+ as a current location in the file, right?
+
+767
+01:17:21,490 --> 01:17:26,970
+ Remember this FP is returned by F open,
+
+768
+01:17:26,970 --> 01:17:29,930
+ this pointer to the file data structures.
+
+769
+01:17:29,930 --> 01:17:33,930
+ F put S puts an entire string, right?
+
+770
+01:17:33,930 --> 01:17:37,610
+ So a set of characters, which end with a zero
+
+771
+01:17:37,610 --> 01:17:41,610
+ in the file from the current position.
+
+772
+01:17:41,610 --> 01:17:46,850
+ F get C and F get S do the reversing,
+
+773
+01:17:46,850 --> 01:17:48,890
+ read from the current position in the file
+
+774
+01:17:48,890 --> 01:17:50,650
+ or read from the current position
+
+775
+01:17:55,530 --> 01:17:57,570
+ for a given set of characters.
+
+776
+01:17:57,570 --> 01:18:01,450
+ So read this given set of characters
+
+777
+01:18:01,450 --> 01:18:04,410
+ from the given position and put them in a string.
+
+778
+01:18:04,410 --> 01:18:09,410
+ So, and when you are going to write to the current position,
+
+779
+01:18:09,410 --> 01:18:14,370
+ the current position is implemented.
+
+780
+01:18:14,370 --> 01:18:17,890
+ So if you are going to that to call for F puts multiple
+
+781
+01:18:17,890 --> 01:18:21,770
+ times, it's not going to write in the same position.
+
+782
+01:18:21,770 --> 01:18:23,770
+ It writes as a subsequent positions.
+
+783
+01:18:23,770 --> 01:18:28,770
+ So this first set of APIs are character oriented.
+
+784
+01:18:28,770 --> 01:18:34,650
+ Then we have block oriented,
+
+785
+01:18:34,650 --> 01:18:38,730
+ in which you can operate on a bunch of elements.
+
+786
+01:18:38,730 --> 01:18:40,570
+ This is, if you think about,
+
+787
+01:18:40,570 --> 01:18:43,370
+ it's very useful when you have records,
+
+788
+01:18:43,370 --> 01:18:46,570
+ your file is a bunch of records, right?
+
+789
+01:18:46,570 --> 01:18:51,490
+ Seems like a, you know, poor man database, right?
+
+790
+01:18:51,490 --> 01:18:52,770
+ You have records.
+
+791
+01:18:52,770 --> 01:18:56,450
+ So then you want to read and write a bunch of records
+
+792
+01:18:56,450 --> 01:18:58,690
+ at a time, okay?
+
+793
+01:18:58,690 --> 01:19:01,290
+ So in this case, you would need to give the number
+
+794
+01:19:01,290 --> 01:19:04,810
+ of the elements you want, the number of records
+
+795
+01:19:04,810 --> 01:19:08,210
+ you want to read, write, and also the size of each record.
+
+796
+01:19:08,210 --> 01:19:13,570
+ And then the last it's a type of,
+
+797
+01:19:13,570 --> 01:19:18,450
+ it's of APIs are formatted, right?
+
+798
+01:19:18,450 --> 01:19:21,210
+ Remember when you do F print F, right?
+
+799
+01:19:21,210 --> 01:19:25,170
+ You are going to format the string, right?
+
+800
+01:19:25,170 --> 01:19:27,170
+ The output string, right?
+
+801
+01:19:27,170 --> 01:19:32,170
+ And F scan F is again, it reads a formatted string.
+
+802
+01:19:32,170 --> 01:19:34,330
+ Okay?
+
+803
+01:19:34,330 --> 01:19:40,410
+ So yeah, so this is an example of having a character
+
+804
+01:19:40,410 --> 01:19:44,690
+ by character IO.
+
+805
+01:19:44,690 --> 01:19:49,730
+ This is about reading,
+
+806
+01:19:49,730 --> 01:19:54,730
+ copying from an input to an output.
+
+807
+01:19:54,730 --> 01:20:01,730
+ You get, you open input and output files,
+
+808
+01:20:01,730 --> 01:20:08,170
+ and then you'll get one character from the input
+
+809
+01:20:08,170 --> 01:20:10,970
+ and then you write the character to the output.
+
+810
+01:20:10,970 --> 01:20:12,930
+ And then once you are done,
+
+811
+01:20:12,930 --> 01:20:16,930
+ then you close the input and the output.
+
+812
+01:20:16,930 --> 01:20:17,770
+ Okay?
+
+813
+01:20:18,690 --> 01:20:22,010
+ So that, and how do you know it's done?
+
+814
+01:20:22,010 --> 01:20:27,010
+ When you get to the end of the files,
+
+815
+01:20:27,010 --> 01:20:32,010
+ you get your end of file, EOF.
+
+816
+01:20:32,010 --> 01:20:34,090
+ Okay?
+
+817
+01:20:34,090 --> 01:20:41,570
+ So this is an example again to do block by block IO.
+
+818
+01:20:46,770 --> 01:20:51,770
+ And in this case, again, you open again to input and output.
+
+819
+01:20:51,770 --> 01:20:56,650
+ And now you are going to write,
+
+820
+01:20:56,650 --> 01:21:03,210
+ in this case, you write by like array of bytes
+
+821
+01:21:03,210 --> 01:21:07,090
+ or you read array of bytes.
+
+822
+01:21:07,090 --> 01:21:10,410
+ So you have a buffer size and say, this is,
+
+823
+01:21:10,410 --> 01:21:13,610
+ I don't know, it's 1024, so it's one kilobyte.
+
+824
+01:21:13,610 --> 01:21:17,970
+ And you write the size of each record, it's one character.
+
+825
+01:21:17,970 --> 01:21:18,810
+ Right?
+
+826
+01:21:18,810 --> 01:21:22,290
+ So here you are going to,
+
+827
+01:21:22,290 --> 01:21:29,130
+ again, to read and write from a file
+
+828
+01:21:29,130 --> 01:21:32,210
+ at the level of a block and a variety,
+
+829
+01:21:32,210 --> 01:21:33,610
+ but a block and a variety again,
+
+830
+01:21:33,610 --> 01:21:36,410
+ a buffer and a variety which is here one kilobyte.
+
+831
+01:21:36,410 --> 01:21:38,170
+ Okay?
+
+832
+01:21:38,170 --> 01:21:40,410
+ So,
+
+833
+01:21:40,410 --> 01:21:45,410
+ it's again, this is most,
+
+834
+01:21:45,410 --> 01:21:51,770
+ and I'm going to end up with this.
+
+835
+01:21:51,770 --> 01:21:55,170
+ This is for you to keep in mind
+
+836
+01:21:55,170 --> 01:21:57,010
+ when you are going to work on the homework,
+
+837
+01:21:57,010 --> 01:22:00,970
+ when you are going to work on the projects, be paranoid,
+
+838
+01:22:00,970 --> 01:22:03,730
+ try to be defensive, try to think hard
+
+839
+01:22:03,730 --> 01:22:07,370
+ and try to capture every error.
+
+840
+01:22:07,370 --> 01:22:08,250
+ Right?
+
+841
+01:22:08,250 --> 01:22:10,890
+ And that's why when you call a function call,
+
+842
+01:22:10,890 --> 01:22:15,130
+ when you call an op, when you open a file and so forth,
+
+843
+01:22:15,130 --> 01:22:18,050
+ just check for errors.
+
+844
+01:22:18,050 --> 01:22:20,690
+ This will save you a lot of pain.
+
+845
+01:22:20,690 --> 01:22:21,530
+ Okay?
+
+846
+01:22:21,530 --> 01:22:26,090
+ Even if you need to write a few more line of code
+
+847
+01:22:26,090 --> 01:22:28,610
+ and this will also earn you a better grade.
+
+848
+01:22:28,610 --> 01:22:29,450
+ Okay?
+
+849
+01:22:29,450 --> 01:22:32,050
+ So please, please check on the return values.
+
+850
+01:22:32,050 --> 01:22:35,050
+ Okay.
+
+851
+01:22:35,050 --> 01:22:37,370
+ So let's stop here
+
+852
+01:22:37,370 --> 01:22:42,370
+ and we'll just this one,
+
+853
+01:22:42,370 --> 01:22:48,170
+ what we learned here is we learn about the threads,
+
+854
+01:22:48,170 --> 01:22:53,170
+ are the OS unit of concurrency and abstract virtual CPU.
+
+855
+01:22:53,170 --> 01:22:57,370
+ And the thread contains all the state,
+
+856
+01:22:57,370 --> 01:23:00,410
+ all the state related to its executions
+
+857
+01:23:00,410 --> 01:23:03,170
+ and the processes contain all the more threads
+
+858
+01:23:03,170 --> 01:23:04,770
+ and an address space.
+
+859
+01:23:04,770 --> 01:23:09,610
+ And all the threads in the same process,
+
+860
+01:23:09,610 --> 01:23:14,290
+ they share the same code and the same variables,
+
+861
+01:23:14,290 --> 01:23:17,770
+ global variables, all the global variables.
+
+862
+01:23:17,770 --> 01:23:18,610
+ Okay?
+
+863
+01:23:18,610 --> 01:23:21,170
+ And the project's idea, everything is a file.
+
+864
+01:23:21,170 --> 01:23:22,010
+ Okay.
+
+865
+01:23:22,010 --> 01:23:22,850
+ Thank you.
+
+866
+01:23:22,850 --> 01:23:28,530
+ And let's see.
+
+867
+01:23:33,770 --> 01:23:36,610
+ So I see no new questions.
+
+868
+01:23:36,610 --> 01:23:40,650
+ So with this, we'll end up and see you all on Saturday.
+
+869
+01:23:40,650 --> 01:23:42,890
+ Thank you.
+
+870
+01:23:42,890 --> 01:24:01,170
+ Thank you very much.
+

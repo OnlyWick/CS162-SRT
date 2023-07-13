@@ -1,0 +1,4320 @@
+1
+00:00:00,000 --> 00:00:13,740
+ Hello everyone. So let's start the sixth lecture. So today we are going to continue the inter-process
+
+2
+00:00:13,740 --> 00:00:19,180
+ communication to talk about the inter-process communication primitives. In particular, we
+
+3
+00:00:19,180 --> 00:00:28,060
+ are going to talk about sockets, which allow two applications to communicate over the network.
+
+4
+00:00:28,060 --> 00:00:34,240
+ And then we are going to start talking about concurrency. And this will be a pretty long
+
+5
+00:00:34,240 --> 00:00:40,880
+ topic, which will go over the next couple of lectures. As always, if you have any questions,
+
+6
+00:00:40,880 --> 00:00:56,880
+ please ask in the Q&A thread, or I'll try also to check on the chat. And let's start.
+
+7
+00:00:56,880 --> 00:01:06,320
+ So again, like we discussed earlier in this class, today a lot of applications are distributed,
+
+8
+00:01:06,320 --> 00:01:11,820
+ right? They are not only running on a single machine on your laptop, but most of them,
+
+9
+00:01:11,820 --> 00:01:20,380
+ they have a backend. You need to go over the network in order to implement almost any functionality
+
+10
+00:01:20,380 --> 00:01:26,800
+ of the application. And your web browser, it's a great example. And anything you are
+
+11
+00:01:26,800 --> 00:01:33,940
+ using today, almost like many of the applications like Facebook, Twitter, and Google application,
+
+12
+00:01:33,940 --> 00:01:41,640
+ like Google Docs and obviously Google itself, they look this way. You have a piece of code
+
+13
+00:01:41,640 --> 00:01:48,600
+ running on the client side, on your machine, on your phone, and a bigger piece of code,
+
+14
+00:01:48,600 --> 00:01:57,560
+ which runs on the backend on a bunch of servers in our data centers. And typically all these
+
+15
+00:01:57,560 --> 00:02:07,040
+ applications in general looks like this. The client sends a request and it gets a reply
+
+16
+00:02:07,040 --> 00:02:21,880
+ back. The request can be a query on Google, the reply can be the reply to your search
+
+17
+00:02:21,880 --> 00:02:33,480
+ query. And for something like Netflix, the request will be your clicks, selecting a movie,
+
+18
+00:02:33,480 --> 00:02:38,680
+ the reply can be also a recommendation of other movies or the movies start streaming
+
+19
+00:02:38,680 --> 00:02:49,960
+ and things like that. Okay. And typically you have more than one client talking with
+
+20
+00:02:49,960 --> 00:02:57,320
+ the same server or the same machine. And like for instance, you have many web clients and
+
+21
+00:02:57,320 --> 00:03:03,800
+ many of them are talking with the same web server. So this is a kind of communication
+
+22
+00:03:03,800 --> 00:03:17,760
+ pattern we have to implement under the hood. So here it's about how also a little bit more
+
+23
+00:03:17,760 --> 00:03:24,120
+ details about how client and the server are similar in even more importantly, how they
+
+24
+00:03:24,120 --> 00:03:30,680
+ are different. So the client again sends a request like get index HTML, right? This basically
+
+25
+00:03:30,680 --> 00:03:39,120
+ specified to get as a content of the webpage of a site, of the first page of a site to
+
+26
+00:03:39,120 --> 00:03:49,000
+ render on your machine. And in order to do that, you need to contact a server which stores
+
+27
+00:03:49,000 --> 00:03:56,360
+ the index.html, this file, the content of the page you want to render on your machine. And
+
+28
+00:03:56,360 --> 00:04:04,040
+ one thing obviously you need to do is that we need to know is the address of that server,
+
+29
+00:04:04,040 --> 00:04:10,400
+ right? It's like when you make a call, you need to know the number you are calling. Okay.
+
+30
+00:04:10,400 --> 00:04:14,600
+ So keep in mind that. So you need to know the address of the server from which you get
+
+31
+00:04:14,600 --> 00:04:26,040
+ the content. Now, the server, it's typically always on. It has always to be ready to receive
+
+32
+00:04:26,040 --> 00:04:33,880
+ requests and answer this request. Unlike on the other hand, obviously the client is not
+
+33
+00:04:33,880 --> 00:04:39,040
+ always on your phone, your computer, your laptop is not always on. Most of the time
+
+34
+00:04:39,040 --> 00:04:43,840
+ it's actually off. But when it's on, it's going to send this request to a server which
+
+35
+00:04:43,840 --> 00:04:53,760
+ should be on all the time in order for you to get the reply right away. Okay. And obviously
+
+36
+00:04:53,760 --> 00:05:00,480
+ the clients initiate the contact to the server, not the other way around. So the client doesn't
+
+37
+00:05:00,480 --> 00:05:07,880
+ need to know to have a, because of that the client doesn't need to have a well known address,
+
+38
+00:05:07,880 --> 00:05:19,480
+ but the server has to. Okay. Okay. And like we said before, when the server gets a request,
+
+39
+00:05:19,480 --> 00:05:27,360
+ it's going to answer something back, hopefully, satisfying the reply, answering the reply
+
+40
+00:05:27,360 --> 00:05:41,440
+ according to the user expectations. Okay. So again, we need to send data over the network.
+
+41
+00:05:41,440 --> 00:05:49,800
+ Okay. And how do we do that? Well, what we do that, we need to send, we are going to
+
+42
+00:05:49,800 --> 00:05:57,920
+ send some bytes. Data consists of bits. We aggregate each. Eight bits is one byte, right?
+
+43
+00:05:57,920 --> 00:06:02,680
+ So typically you're measuring bytes. Like memory, you're also typically measuring bytes
+
+44
+00:06:02,680 --> 00:06:14,560
+ or maybe words, which is a bunch of bytes. And more than that is not only we have individual
+
+45
+00:06:14,560 --> 00:06:19,540
+ bytes, we have stream of bytes, right? Remember, the stream of bytes is the same interface.
+
+46
+00:06:19,540 --> 00:06:27,020
+ The high level interface from the file systems. Okay. And here we are going to talk more about
+
+47
+00:06:27,020 --> 00:06:33,440
+ networking later in the lecture, but here we are talking about TCP connections. TCP
+
+48
+00:06:33,440 --> 00:06:39,080
+ stands for transport control protocol. Do you know what is the other type of protocol,
+
+49
+00:06:39,080 --> 00:06:56,700
+ the common protocol besides TCP? Yep. UDP. What does UDP stands for? And ICMP. HTTP is
+
+50
+00:06:56,700 --> 00:07:06,800
+ a protocol, but it's at a higher level. It's on top of the TCP. UDP, yes. It's user datagram
+
+51
+00:07:06,800 --> 00:07:17,960
+ protocol, not unified user datagram protocol. And HTTP and FTP are also protocols, but they
+
+52
+00:07:17,960 --> 00:07:22,980
+ are the higher levels. They are running on top of TCP. Again, we are going to learn.
+
+53
+00:07:22,980 --> 00:07:30,100
+ The network software is organizing stacks in a bunch of layers. And here we are going
+
+54
+00:07:30,100 --> 00:07:37,260
+ to talk about the transport layer and TCP and UDP are at the transport layer. Okay.
+
+55
+00:07:37,260 --> 00:07:48,240
+ Yes. So thanks for your answers. Okay. So now we need to abstract the connection between
+
+56
+00:07:48,240 --> 00:07:53,300
+ two endpoints, A and B. And the way we are going to do that, it should be again, be very
+
+57
+00:07:53,300 --> 00:07:57,820
+ natural because you are going to send a stream of bytes. You need to abstract like a queue,
+
+58
+00:07:57,820 --> 00:08:05,580
+ right? Why a queue? Because for instance, a very simple example, what happened if the
+
+59
+00:08:05,580 --> 00:08:11,860
+ client sends faster than the server can receive or the server for some reason is doing something
+
+60
+00:08:11,860 --> 00:08:20,400
+ else and it cannot get the data sent to it right away. This data it's either it's lost
+
+61
+00:08:20,400 --> 00:08:25,260
+ or if you don't want to lose it, you need to buffer somewhere. Right? So you have to
+
+62
+00:08:25,260 --> 00:08:31,980
+ have a queue, right? And you need to have both from the client to the server and from
+
+63
+00:08:31,980 --> 00:08:37,100
+ the server to the client, because both of them, they are going to send data. One of
+
+64
+00:08:37,100 --> 00:08:43,860
+ them is going to send typically request and the other one replies to the request.
+
+65
+00:08:43,860 --> 00:08:50,360
+ And now, okay, but what is the abstraction? Right? This is kind of how do we manipulate
+
+66
+00:08:50,360 --> 00:08:59,440
+ this kind of connection? And remember that one of the big things about Unix is that everything
+
+67
+00:08:59,440 --> 00:09:05,380
+ looks like a file, right? Or it's abstract, very similar abstractions. So the same is
+
+68
+00:09:05,380 --> 00:09:10,540
+ true for communication. Like we saw for pipes last time, pipes again, it's how you communicate
+
+69
+00:09:10,540 --> 00:09:17,020
+ between two processes on the same machine. Here sockets about how do two processes on
+
+70
+00:09:17,020 --> 00:09:22,580
+ different machines communicate with each other? But they are very similar, the abstraction
+
+71
+00:09:22,580 --> 00:09:29,720
+ is very similar and is looking like a file. And this kind of abstraction for communication
+
+72
+00:09:29,720 --> 00:09:37,240
+ is called a socket, right? Okay. So this is how you do it, right? If you want to send
+
+73
+00:09:37,240 --> 00:09:46,200
+ some data, the process, the sender, the client, call a write, a system function call.
+
+74
+00:09:46,700 --> 00:09:50,420
+ which passes a descriptor, this is a socket descriptor,
+
+75
+00:09:50,420 --> 00:09:52,520
+ a buffer and the length of the buffer,
+
+76
+00:09:52,520 --> 00:09:56,560
+ and the receiver or the server,
+
+77
+00:09:56,560 --> 00:10:01,560
+ it's calling the read operation with a file descriptor
+
+78
+00:10:01,560 --> 00:10:07,640
+ and a buffer where it can receive the data
+
+79
+00:10:07,640 --> 00:10:08,900
+ and the size of the buffer.
+
+80
+00:10:08,900 --> 00:10:12,060
+ So to make sure that if it's more data,
+
+81
+00:10:12,060 --> 00:10:16,400
+ the operating system doesn't overflow that buffer, right?
+
+82
+00:10:16,400 --> 00:10:21,400
+ Okay, so the socket is the endpoint of communication, right?
+
+83
+00:10:21,400 --> 00:10:26,960
+ And the queues are in between here, you know,
+
+84
+00:10:26,960 --> 00:10:28,060
+ somewhere along, actually,
+
+85
+00:10:28,060 --> 00:10:29,480
+ there are many queues in the network.
+
+86
+00:10:29,480 --> 00:10:31,480
+ There are queues in the operating system,
+
+87
+00:10:31,480 --> 00:10:34,000
+ queues as the routers along the path
+
+88
+00:10:34,000 --> 00:10:35,920
+ between the sender and the receiver.
+
+89
+00:10:35,920 --> 00:10:36,840
+ It's pretty complicated.
+
+90
+00:10:36,840 --> 00:10:38,640
+ We are going to learn more about that.
+
+91
+00:10:38,640 --> 00:10:41,720
+ But in general, you know, the things for you to know,
+
+92
+00:10:41,720 --> 00:10:44,640
+ there are queues, and there are queues,
+
+93
+00:10:44,640 --> 00:10:46,680
+ one of the simplest reasons,
+
+94
+00:10:46,680 --> 00:10:50,560
+ one of the simpler motivation for queues is to, again,
+
+95
+00:10:50,560 --> 00:10:53,140
+ because the client or the two endpoints,
+
+96
+00:10:53,140 --> 00:10:59,440
+ they don't have the same speed sending and receiving.
+
+97
+00:10:59,440 --> 00:11:00,960
+ So if you receive at a lower speed,
+
+98
+00:11:00,960 --> 00:11:02,660
+ then you need to buffer the data,
+
+99
+00:11:02,660 --> 00:11:04,920
+ or that the receiver at that time
+
+100
+00:11:04,920 --> 00:11:06,760
+ maybe is doing something else
+
+101
+00:11:06,760 --> 00:11:10,320
+ and it cannot receive the data right away.
+
+102
+00:11:13,640 --> 00:11:17,120
+ Okay, so now the sockets,
+
+103
+00:11:17,120 --> 00:11:19,600
+ you have two sockets connected over the network,
+
+104
+00:11:19,600 --> 00:11:21,580
+ one of the sender and one of the receiver,
+
+105
+00:11:21,580 --> 00:11:24,620
+ or one, you know, one socket for each endpoint.
+
+106
+00:11:24,620 --> 00:11:28,240
+ And now the sockets, you remember,
+
+107
+00:11:28,240 --> 00:11:29,840
+ what do you do with sockets, right?
+
+108
+00:11:29,840 --> 00:11:31,380
+ It's like, what is a typical,
+
+109
+00:11:31,380 --> 00:11:34,480
+ what is a pattern, programming pattern?
+
+110
+00:11:34,480 --> 00:11:38,640
+ You open, you read, write, right?
+
+111
+00:11:38,640 --> 00:11:40,280
+ If you have a file descriptor, right?
+
+112
+00:11:40,280 --> 00:11:41,440
+ You open the file descriptor,
+
+113
+00:11:41,440 --> 00:11:43,000
+ you read, write from the file descriptor,
+
+114
+00:11:43,000 --> 00:11:45,200
+ and then you close the file descriptor, right?
+
+115
+00:11:45,200 --> 00:11:49,600
+ So we need to learn about how to open and close
+
+116
+00:11:49,600 --> 00:11:52,260
+ also these sockets, okay?
+
+117
+00:11:52,260 --> 00:11:54,420
+ Let me see.
+
+118
+00:11:54,420 --> 00:11:57,240
+ Here is a question.
+
+119
+00:11:57,240 --> 00:12:01,400
+ Is the communication between two processes
+
+120
+00:12:01,400 --> 00:12:04,640
+ actually communication between the thread of the processes?
+
+121
+00:12:04,640 --> 00:12:09,480
+ So this is, so,
+
+122
+00:12:11,840 --> 00:12:13,680
+ anyone wants to answer that question?
+
+123
+00:12:13,680 --> 00:12:24,000
+ So the communication, it's about,
+
+124
+00:12:24,000 --> 00:12:25,720
+ is between two processes, okay?
+
+125
+00:12:25,720 --> 00:12:29,680
+ But remember, the process is a container, right?
+
+126
+00:12:29,680 --> 00:12:32,040
+ You have the other place, address space,
+
+127
+00:12:32,040 --> 00:12:33,640
+ and it provides you protection.
+
+128
+00:12:33,640 --> 00:12:39,620
+ But the actual unit of execution or concurrency,
+
+129
+00:12:39,620 --> 00:12:41,560
+ it's a thread.
+
+130
+00:12:41,560 --> 00:12:45,280
+ So each thread, each process is at least one thread.
+
+131
+00:12:45,280 --> 00:12:47,480
+ So you can, it's correct to say
+
+132
+00:12:47,480 --> 00:12:49,680
+ that two processes communicate,
+
+133
+00:12:49,680 --> 00:12:52,040
+ but it's also say, it's correct to say
+
+134
+00:12:52,040 --> 00:12:53,600
+ that always two threads communicate
+
+135
+00:12:53,600 --> 00:12:56,960
+ because the things which are going to run the code
+
+136
+00:12:56,960 --> 00:13:01,400
+ inside this process are the threads, okay?
+
+137
+00:13:01,400 --> 00:13:04,840
+ Typically when you have one thread and one process,
+
+138
+00:13:04,840 --> 00:13:07,600
+ you just interchangeable, you can use, you know,
+
+139
+00:13:07,600 --> 00:13:12,600
+ process or thread, but hopefully that answers the question.
+
+140
+00:13:12,600 --> 00:13:15,320
+ Okay.
+
+141
+00:13:15,320 --> 00:13:22,840
+ This is a hidden abstraction for Socket.IO.
+
+142
+00:13:22,840 --> 00:13:24,880
+ Yeah, what we are going to talk about here,
+
+143
+00:13:24,880 --> 00:13:29,040
+ it's pretty much, at least in the next couple of slides,
+
+144
+00:13:29,040 --> 00:13:32,840
+ about actually it's how you are going to use
+
+145
+00:13:32,840 --> 00:13:35,460
+ a socket interface, right?
+
+146
+00:13:37,560 --> 00:13:41,280
+ So, okay, oops.
+
+147
+00:13:41,280 --> 00:13:47,400
+ Okay, so like we discussed,
+
+148
+00:13:47,400 --> 00:13:50,160
+ the socket is an abstraction for one endpoint of the network.
+
+149
+00:13:50,160 --> 00:13:54,600
+ If you have, in general, you have two processes,
+
+150
+00:13:54,600 --> 00:13:56,640
+ two endpoints communicating with each other,
+
+151
+00:13:56,640 --> 00:13:58,700
+ each of them is going to have a socket
+
+152
+00:13:58,700 --> 00:14:03,200
+ and somehow you need to connect these two sockets
+
+153
+00:14:03,200 --> 00:14:04,040
+ to each other.
+
+154
+00:14:04,920 --> 00:14:07,720
+ If you want to establish a connection,
+
+155
+00:14:07,720 --> 00:14:11,320
+ and it was introduced first
+
+156
+00:14:11,320 --> 00:14:16,320
+ in Berkeley Standard Distribution version 4.2.
+
+157
+00:14:16,320 --> 00:14:20,420
+ That is one of the biggest contributions of,
+
+158
+00:14:20,420 --> 00:14:23,000
+ actually open source contribution of Berkeley
+
+159
+00:14:23,000 --> 00:14:26,660
+ because it has huge impact.
+
+160
+00:14:26,660 --> 00:14:31,660
+ And, you know, the story here is that then the runners,
+
+161
+00:14:33,840 --> 00:14:35,800
+ you know, like during those days,
+
+162
+00:14:35,800 --> 00:14:41,880
+ you distribute these operating systems through tapes, okay?
+
+163
+00:14:41,880 --> 00:14:49,000
+ And so the things here is that it's about
+
+164
+00:14:49,000 --> 00:14:52,280
+ how you are going to, you know,
+
+165
+00:14:52,280 --> 00:14:54,980
+ then there are people waiting in line
+
+166
+00:14:54,980 --> 00:14:58,780
+ for the tapes to be copied and therefore to take it back
+
+167
+00:14:58,780 --> 00:15:03,780
+ to their companies to install the new version of Unix.
+
+168
+00:15:04,460 --> 00:15:08,620
+ To which with this kind of TCP/IP code in it.
+
+169
+00:15:08,620 --> 00:15:13,820
+ And this is a beautiful thing is that this is a local,
+
+170
+00:15:13,820 --> 00:15:17,260
+ again, it's like, it's the abstraction
+
+171
+00:15:17,260 --> 00:15:19,700
+ for a lot of kind of networks,
+
+172
+00:15:19,700 --> 00:15:22,860
+ not networks type of, when I say a lot of kind of networks,
+
+173
+00:15:22,860 --> 00:15:24,040
+ I'm talking about,
+
+174
+00:15:24,040 --> 00:15:30,300
+ almost about how they are physically implemented.
+
+175
+00:15:30,300 --> 00:15:33,380
+ They are over fiber, they are over satellite,
+
+176
+00:15:33,380 --> 00:15:34,820
+ cellular networks.
+
+177
+00:15:34,820 --> 00:15:37,460
+ So it's abstracts away what kind of, you know,
+
+178
+00:15:37,460 --> 00:15:39,060
+ your application on your iPhone,
+
+179
+00:15:39,060 --> 00:15:43,300
+ it doesn't know that you are on a cellular network, right?
+
+180
+00:15:43,300 --> 00:15:45,180
+ Or you are a Wi-Fi, right?
+
+181
+00:15:45,180 --> 00:15:48,440
+ Doesn't know, that means abstraction in that case.
+
+182
+00:15:48,440 --> 00:15:52,060
+ And, or there are also about how packets are routed
+
+183
+00:15:52,060 --> 00:15:54,140
+ in the network and many other things,
+
+184
+00:15:54,140 --> 00:15:56,340
+ lower level of the network stack.
+
+185
+00:15:56,340 --> 00:15:59,180
+ This was Apple Talk and IPX.
+
+186
+00:15:59,180 --> 00:16:01,880
+ So, and the great thing about this TCP/IP,
+
+187
+00:16:01,880 --> 00:16:06,880
+ it becomes a de facto standard of how nodes communicate
+
+188
+00:16:06,880 --> 00:16:11,040
+ over the internet, right?
+
+189
+00:16:11,040 --> 00:16:13,980
+ This is what enables the internet at the end of the day.
+
+190
+00:16:13,980 --> 00:16:15,640
+ And again, when I say de facto standard,
+
+191
+00:16:15,640 --> 00:16:18,400
+ I say because it doesn't, it was a piece of code.
+
+192
+00:16:18,400 --> 00:16:21,940
+ It was not a standard body to create it.
+
+193
+00:16:21,940 --> 00:16:23,920
+ But of course it's a standard now
+
+194
+00:16:23,920 --> 00:16:25,280
+ because everyone is using it.
+
+195
+00:16:25,280 --> 00:16:26,920
+ If you cannot, if you don't use TCP/IP,
+
+196
+00:16:26,920 --> 00:16:31,680
+ you cannot talk with other nodes in the internet, okay?
+
+197
+00:16:31,680 --> 00:16:36,680
+ So the sockets, of course you have, you'll see,
+
+198
+00:16:36,680 --> 00:16:40,240
+ it's a little bit more elaborated interface,
+
+199
+00:16:40,240 --> 00:16:42,040
+ but at the end of the day, you need to open,
+
+200
+00:16:42,040 --> 00:16:43,360
+ you need to create a socket.
+
+201
+00:16:43,360 --> 00:16:46,680
+ You can close a socket in between the read and write.
+
+202
+00:16:46,680 --> 00:16:51,480
+ Now, everything is a file descriptor, like we discussed,
+
+203
+00:16:51,480 --> 00:16:54,320
+ but also if you remember, like we discussed,
+
+204
+00:16:54,320 --> 00:16:56,240
+ although you have, you know,
+
+205
+00:16:56,240 --> 00:16:58,080
+ everything is file descriptor,
+
+206
+00:16:58,080 --> 00:17:01,540
+ you don't have for each device,
+
+207
+00:17:01,540 --> 00:17:06,320
+ you don't have all the commands,
+
+208
+00:17:06,320 --> 00:17:07,920
+ like you have for file systems, right?
+
+209
+00:17:07,920 --> 00:17:10,440
+ For file system, you have, you remember,
+
+210
+00:17:10,440 --> 00:17:12,040
+ you have a seek, right?
+
+211
+00:17:12,040 --> 00:17:17,040
+ You can reposition the pointer from where to read
+
+212
+00:17:17,040 --> 00:17:18,300
+ in a particular file.
+
+213
+00:17:18,300 --> 00:17:21,920
+ I can, L-Seek and I can read from the 100th bytes
+
+214
+00:17:21,920 --> 00:17:23,100
+ in the file, right?
+
+215
+00:17:23,100 --> 00:17:27,600
+ It's still, the abstraction is still a stream of bytes,
+
+216
+00:17:27,600 --> 00:17:29,420
+ right, but I can reposition.
+
+217
+00:17:29,420 --> 00:17:31,160
+ Here, you cannot have seek, right?
+
+218
+00:17:31,160 --> 00:17:36,160
+ You send the bytes and you receive them in the same order.
+
+219
+00:17:36,160 --> 00:17:37,340
+ It's kind of strange,
+
+220
+00:17:37,340 --> 00:17:40,120
+ it'll be, I want to read the 100 bytes, right?
+
+221
+00:17:40,120 --> 00:17:42,880
+ Maybe that 100 byte is not even, you know,
+
+222
+00:17:42,880 --> 00:17:46,520
+ you didn't, your computer didn't have a receipt yet, okay?
+
+223
+00:17:46,520 --> 00:17:48,640
+ So you don't have L-Seek.
+
+224
+00:17:48,640 --> 00:17:50,760
+ Your abstraction is just a queue, right?
+
+225
+00:17:50,760 --> 00:17:52,300
+ First in, first out.
+
+226
+00:17:52,300 --> 00:17:55,660
+ You always get the data in the order which is sent.
+
+227
+00:17:58,980 --> 00:18:03,280
+ So the other thing what happens, it's under the hood,
+
+228
+00:18:03,280 --> 00:18:06,720
+ it's abstracted away, is that you don't,
+
+229
+00:18:06,720 --> 00:18:09,780
+ over the network, you don't send a stream of bytes, right?
+
+230
+00:18:09,780 --> 00:18:13,980
+ You actually put it in packages, or you package it.
+
+231
+00:18:13,980 --> 00:18:18,160
+ You divide the data you have to send,
+
+232
+00:18:18,160 --> 00:18:20,060
+ you package it in a packet.
+
+233
+00:18:20,060 --> 00:18:22,060
+ And each packet will have addresses, right?
+
+234
+00:18:22,060 --> 00:18:24,360
+ Because each, and then this tells the network
+
+235
+00:18:24,360 --> 00:18:27,800
+ where the packet should be delivered, right?
+
+236
+00:18:27,800 --> 00:18:30,300
+ It's like, you know, you put, you know,
+
+237
+00:18:30,300 --> 00:18:34,480
+ Amazon is using tracks and each track now says an address,
+
+238
+00:18:34,480 --> 00:18:37,520
+ you know, the driver where it should deliver the packages,
+
+239
+00:18:37,520 --> 00:18:38,360
+ right?
+
+240
+00:18:38,360 --> 00:18:39,180
+ Something like that.
+
+241
+00:18:39,180 --> 00:18:45,220
+ There may need also some kind of like RPC kind of facility
+
+242
+00:18:45,220 --> 00:18:47,620
+ to, for instance,
+
+243
+00:18:47,620 --> 00:18:51,780
+ because the data format,
+
+244
+00:18:51,780 --> 00:18:53,620
+ which is understand by the receiver,
+
+245
+00:18:53,620 --> 00:18:55,940
+ is not as the same as the data format,
+
+246
+00:18:55,940 --> 00:19:00,180
+ which is understood, understand by the sender, right?
+
+247
+00:19:00,180 --> 00:19:02,860
+ And you'll talk about this, you know, big Indian,
+
+248
+00:19:02,860 --> 00:19:05,860
+ little Indian kind of different formats,
+
+249
+00:19:05,860 --> 00:19:09,520
+ different, for different processors, right?
+
+250
+00:19:09,520 --> 00:19:14,720
+ Okay, so this is a very simple example,
+
+251
+00:19:14,720 --> 00:19:17,860
+ echo server, hello world, echo means, you know,
+
+252
+00:19:17,860 --> 00:19:20,440
+ I am sending a message to the server,
+
+253
+00:19:20,440 --> 00:19:23,200
+ the server is going to send me the message back, right?
+
+254
+00:19:25,320 --> 00:19:28,080
+ So, here is how things are happening, right?
+
+255
+00:19:28,080 --> 00:19:30,380
+ You have a client on the left-hand side,
+
+256
+00:19:30,380 --> 00:19:33,200
+ server on the right-hand side, and...
+
+257
+00:19:33,400 --> 00:19:37,640
+ you have with this also the data points,
+
+258
+00:19:37,640 --> 00:19:40,760
+ the time here goes from top to the bottom.
+
+259
+00:19:40,760 --> 00:19:45,200
+ And you have this kind of this green rectangles shows
+
+260
+00:19:45,200 --> 00:19:52,640
+ about the life, lifetime of a socket
+
+261
+00:19:52,640 --> 00:19:55,760
+ or both on the client side and the server side.
+
+262
+00:19:55,760 --> 00:19:58,400
+ Socket starts with being open and close, right?
+
+263
+00:19:58,400 --> 00:19:59,800
+ Okay.
+
+264
+00:19:59,800 --> 00:20:03,760
+ So once you open and close the socket,
+
+265
+00:20:03,760 --> 00:20:06,520
+ the server should be ready to receive data.
+
+266
+00:20:06,520 --> 00:20:09,840
+ What the server is doing then, well,
+
+267
+00:20:09,840 --> 00:20:14,000
+ it's calling a read system command
+
+268
+00:20:14,000 --> 00:20:19,000
+ on the corresponding socket descriptor of that connection
+
+269
+00:20:19,000 --> 00:20:23,760
+ and provide a buffer where the operating system
+
+270
+00:20:23,760 --> 00:20:27,720
+ should pass the data it receives, okay?
+
+271
+00:20:29,180 --> 00:20:34,180
+ The clients say it do a Fget to get from the standard input
+
+272
+00:20:34,180 --> 00:20:37,520
+ from, you know, you can type the message
+
+273
+00:20:37,520 --> 00:20:40,600
+ and we want to send that message, right?
+
+274
+00:20:40,600 --> 00:20:42,320
+ How you send the message, like we discussed,
+
+275
+00:20:42,320 --> 00:20:44,600
+ you do your call write, right?
+
+276
+00:20:44,600 --> 00:20:47,120
+ And you pass the socket file descriptors
+
+277
+00:20:47,120 --> 00:20:51,200
+ from the same communication, you know,
+
+278
+00:20:51,200 --> 00:20:55,920
+ and on the center side of the client side
+
+279
+00:20:55,920 --> 00:20:59,220
+ and you pass the buffer you want to send out, right?
+
+280
+00:20:59,220 --> 00:21:05,340
+ Now, and then you want to read back, right?
+
+281
+00:21:05,340 --> 00:21:07,780
+ Notice that both the reads are blocking
+
+282
+00:21:07,780 --> 00:21:09,200
+ in this particular case, you know,
+
+283
+00:21:09,200 --> 00:21:13,540
+ there are variants of reads, calls which are not blocking,
+
+284
+00:21:13,540 --> 00:21:15,220
+ but here we are, you know, by default,
+
+285
+00:21:15,220 --> 00:21:17,440
+ we assume is blocking, we need to block
+
+286
+00:21:17,440 --> 00:21:20,240
+ until you get some data, right?
+
+287
+00:21:20,240 --> 00:21:24,840
+ So the client writes a message and then waits
+
+288
+00:21:24,840 --> 00:21:27,600
+ to get some reply back.
+
+289
+00:21:27,600 --> 00:21:29,840
+ That message may be chocked in different packets,
+
+290
+00:21:29,840 --> 00:21:32,020
+ the packets are sent over the internet.
+
+291
+00:21:32,020 --> 00:21:35,200
+ Actually, each packet can take a different path
+
+292
+00:21:35,200 --> 00:21:41,160
+ and the server gets the data, maybe, you know, writes,
+
+293
+00:21:41,160 --> 00:21:43,520
+ you know, show it on the screen,
+
+294
+00:21:43,520 --> 00:21:45,360
+ is doing some, I don't know, print types
+
+295
+00:21:45,360 --> 00:21:46,660
+ or something like that.
+
+296
+00:21:46,660 --> 00:21:51,240
+ And then you write it back to the socket,
+
+297
+00:21:51,240 --> 00:21:55,100
+ so you want to send it back to the client
+
+298
+00:21:55,100 --> 00:21:58,720
+ and the client, the read, it's again,
+
+299
+00:21:58,720 --> 00:22:01,040
+ was waiting into a read call,
+
+300
+00:22:01,040 --> 00:22:02,440
+ is going to get the message back
+
+301
+00:22:02,440 --> 00:22:04,020
+ and it's going to print on the screen.
+
+302
+00:22:04,020 --> 00:22:06,000
+ Again, the same message, we are talking here
+
+303
+00:22:06,000 --> 00:22:08,340
+ about an echo server, right?
+
+304
+00:22:08,340 --> 00:22:09,580
+ Okay, echo application.
+
+305
+00:22:09,580 --> 00:22:15,940
+ Okay, let me see, since it's another question.
+
+306
+00:22:18,640 --> 00:22:22,320
+ RPC, what is stands, Danny asked about,
+
+307
+00:22:22,320 --> 00:22:24,480
+ what does RPC stands for?
+
+308
+00:22:24,480 --> 00:22:27,720
+ RPC stands for remote procedure call.
+
+309
+00:22:27,720 --> 00:22:30,580
+ This is a higher level and again, we'll learn about it.
+
+310
+00:22:30,580 --> 00:22:33,300
+ And we just mentioned a little bit about it
+
+311
+00:22:33,300 --> 00:22:37,600
+ in a previous lecture, but this is about,
+
+312
+00:22:37,600 --> 00:22:40,360
+ think about you want to call a function
+
+313
+00:22:40,360 --> 00:22:43,720
+ and that function, instead of executing locally,
+
+314
+00:22:43,720 --> 00:22:45,720
+ it's executing on a different machine.
+
+315
+00:22:45,720 --> 00:22:48,560
+ And you want to just set the syntax
+
+316
+00:22:48,560 --> 00:22:51,000
+ and ideally the semantics, although we learned
+
+317
+00:22:51,000 --> 00:22:52,880
+ that that's not really possible,
+
+318
+00:22:52,880 --> 00:22:56,120
+ to be very similar with invoking a local function call.
+
+319
+00:22:56,120 --> 00:22:59,520
+ So you want, so how you invoke a local function,
+
+320
+00:22:59,520 --> 00:23:03,560
+ a remote function to look very similar
+
+321
+00:23:03,560 --> 00:23:06,160
+ with how you invoke a local function, okay?
+
+322
+00:23:06,160 --> 00:23:11,160
+ So RPC tries to bridge that gap and make them very similar.
+
+323
+00:23:11,160 --> 00:23:13,360
+ Okay.
+
+324
+00:23:14,280 --> 00:23:19,280
+ Okay, let's, we have a bunch of code here
+
+325
+00:23:19,280 --> 00:23:24,680
+ and I'm not going to go through every line of code.
+
+326
+00:23:24,680 --> 00:23:29,680
+ We don't have time and, but we'll try to cover
+
+327
+00:23:29,680 --> 00:23:31,720
+ as much as possible.
+
+328
+00:23:31,720 --> 00:23:34,520
+ So, but I'm saying that, you know, if I'm not going
+
+329
+00:23:34,520 --> 00:23:36,840
+ and maybe you have questions, please ask me,
+
+330
+00:23:36,840 --> 00:23:39,320
+ but it's not my intention to go through each line.
+
+331
+00:23:39,320 --> 00:23:42,320
+ Okay, so this is about, for the previous examples,
+
+332
+00:23:42,320 --> 00:23:44,320
+ how the code look like, right?
+
+333
+00:23:44,320 --> 00:23:46,320
+ So this is typically how the code look like, right?
+
+334
+00:23:46,320 --> 00:23:51,040
+ It's like, and this is the cloud client.
+
+335
+00:23:51,040 --> 00:23:53,160
+ You are in the while loop.
+
+336
+00:23:53,160 --> 00:23:56,840
+ You get some message typed by the user
+
+337
+00:23:56,840 --> 00:23:58,360
+ and you send it to the server,
+
+338
+00:23:58,360 --> 00:24:01,280
+ the server send it back and you print it, right?
+
+339
+00:24:01,280 --> 00:24:02,360
+ This is what you do.
+
+340
+00:24:02,360 --> 00:24:06,000
+ You get the message, you write to the socket,
+
+341
+00:24:06,000 --> 00:24:11,760
+ you read it back and you write to the, you print it out.
+
+342
+00:24:11,760 --> 00:24:14,120
+ And before you read it back, you clear the buffer.
+
+343
+00:24:14,120 --> 00:24:18,080
+ So you know that it's not the message you just send,
+
+344
+00:24:18,080 --> 00:24:20,000
+ it's just in the buffer.
+
+345
+00:24:20,000 --> 00:24:22,320
+ You clear it now that what you have in the buffer
+
+346
+00:24:22,320 --> 00:24:25,200
+ is what you receive from the server.
+
+347
+00:24:25,200 --> 00:24:27,680
+ And the server is very similar.
+
+348
+00:24:27,680 --> 00:24:32,680
+ You read and then, yeah,
+
+349
+00:24:32,680 --> 00:24:38,880
+ I think it's a mistake in this code.
+
+350
+00:24:38,880 --> 00:24:41,880
+ This should be if len less than zero.
+
+351
+00:24:41,880 --> 00:24:49,840
+ Yeah, so this is how much you read.
+
+352
+00:24:49,840 --> 00:24:52,760
+ And if len is less than zero,
+
+353
+00:24:52,760 --> 00:24:55,480
+ this means that it's an error, okay?
+
+354
+00:24:55,480 --> 00:25:00,080
+ If len is greater than zero, so this len,
+
+355
+00:25:00,080 --> 00:25:02,760
+ actually let me just try to, okay.
+
+356
+00:25:08,400 --> 00:25:13,400
+ Okay, so you read it, the server reads data from the socket.
+
+357
+00:25:13,400 --> 00:25:16,480
+ If it's less than zero, it's an error.
+
+358
+00:25:16,480 --> 00:25:18,960
+ You return greater than zero,
+
+359
+00:25:18,960 --> 00:25:23,960
+ you print it to the terminal
+
+360
+00:25:23,960 --> 00:25:30,240
+ and then you send it back to the client, right?
+
+361
+00:25:30,240 --> 00:25:34,720
+ You echo what you got from the client, right?
+
+362
+00:25:34,720 --> 00:25:36,640
+ So this is a send, right?
+
+363
+00:25:36,640 --> 00:25:38,920
+ From the client and the corresponding receive
+
+364
+00:25:38,920 --> 00:25:40,200
+ from the server.
+
+365
+00:25:40,200 --> 00:25:44,440
+ And this is a corresponding send from the server
+
+366
+00:25:44,440 --> 00:25:48,840
+ as a corresponding receive from the client, okay?
+
+367
+00:25:48,840 --> 00:25:49,680
+ Very simple.
+
+368
+00:25:49,680 --> 00:25:57,080
+ So now we are making some assumptions
+
+369
+00:25:57,080 --> 00:25:59,440
+ which are actually, you know, this is,
+
+370
+00:25:59,440 --> 00:26:02,560
+ in some sense, the assumption we are making here
+
+371
+00:26:02,560 --> 00:26:04,920
+ is about what is the networking field about,
+
+372
+00:26:04,920 --> 00:26:07,360
+ is about how to ensure that these assumptions
+
+373
+00:26:07,360 --> 00:26:13,120
+ are true, are standing.
+
+374
+00:26:13,120 --> 00:26:18,120
+ So one of the assumption we make is that
+
+375
+00:26:18,120 --> 00:26:22,280
+ the data is not lost, right?
+
+376
+00:26:22,280 --> 00:26:23,800
+ You send it over the network
+
+377
+00:26:23,800 --> 00:26:27,480
+ and the receiver gets all the data that the sender sent,
+
+378
+00:26:27,480 --> 00:26:30,520
+ right?
+
+379
+00:26:30,520 --> 00:26:33,920
+ And it's like a local pipe, right?
+
+380
+00:26:33,920 --> 00:26:36,440
+ But this is difficult because this is,
+
+381
+00:26:36,440 --> 00:26:40,680
+ internet is probably the biggest and the most complex system
+
+382
+00:26:40,680 --> 00:26:42,760
+ that humans build in some sense.
+
+383
+00:26:42,760 --> 00:26:46,720
+ And there are many things can go wrong in between.
+
+384
+00:26:46,720 --> 00:26:50,640
+ So making, you know, providing to the applications
+
+385
+00:26:50,640 --> 00:26:53,880
+ that no matter what happens under the hood in the network,
+
+386
+00:26:53,880 --> 00:26:56,480
+ is that data which is sent by some,
+
+387
+00:26:56,480 --> 00:27:00,400
+ the client gets to the server without being lost,
+
+388
+00:27:00,400 --> 00:27:03,080
+ is not easy, easy fit.
+
+389
+00:27:04,040 --> 00:27:07,760
+ The other thing you have is that it's again,
+
+390
+00:27:07,760 --> 00:27:11,320
+ remember this is the abstraction, it's a stream,
+
+391
+00:27:11,320 --> 00:27:12,840
+ the data abstraction is a stream.
+
+392
+00:27:12,840 --> 00:27:16,520
+ So this means that the order in which you send the data
+
+393
+00:27:16,520 --> 00:27:21,520
+ is the order in which the receiver gets the data, okay?
+
+394
+00:27:21,520 --> 00:27:25,440
+ If you write X and write Y,
+
+395
+00:27:25,440 --> 00:27:30,400
+ then the receiver reads first X and then gets Y, right?
+
+396
+00:27:30,400 --> 00:27:31,240
+ Okay.
+
+397
+00:27:32,600 --> 00:27:37,400
+ When you ask for a read, you get what it's ever at that time.
+
+398
+00:27:37,400 --> 00:27:43,520
+ So basically say you, if you write, for instance,
+
+399
+00:27:43,520 --> 00:27:45,560
+ so this is very important.
+
+400
+00:27:45,560 --> 00:27:49,840
+ So if you write say 1000 bytes,
+
+401
+00:27:49,840 --> 00:27:55,520
+ actually the receiver can get, you know,
+
+402
+00:27:55,520 --> 00:27:58,440
+ can get it in bunch of 100 bytes, right?
+
+403
+00:27:58,440 --> 00:28:00,320
+ So if you get every time 100 bytes,
+
+404
+00:28:00,320 --> 00:28:05,320
+ you need to read 10 times to get the entire content, right?
+
+405
+00:28:05,320 --> 00:28:09,360
+ If nothing, it's arrived after, you know,
+
+406
+00:28:09,360 --> 00:28:14,360
+ it's on the connection, you are blocking like we discussed.
+
+407
+00:28:14,360 --> 00:28:18,320
+ And yeah, so the semantics pretty much like pipes,
+
+408
+00:28:18,320 --> 00:28:21,080
+ but now it's over the network instead of a single node.
+
+409
+00:28:21,080 --> 00:28:25,880
+ Now, the other thing that is more interesting,
+
+410
+00:28:25,880 --> 00:28:30,000
+ it's about how do you create these sockets, right?
+
+411
+00:28:30,000 --> 00:28:35,000
+ And basically it's, you need to,
+
+412
+00:28:35,000 --> 00:28:39,720
+ if you think about it, files is simple, right?
+
+413
+00:28:39,720 --> 00:28:42,640
+ With files, you have a name of the file
+
+414
+00:28:42,640 --> 00:28:46,960
+ and you open that, the file with that particular name,
+
+415
+00:28:46,960 --> 00:28:49,840
+ and that's independent of the processes, okay?
+
+416
+00:28:49,840 --> 00:28:51,360
+ So easy to name, right?
+
+417
+00:28:51,360 --> 00:28:53,880
+ How do we do in pipes?
+
+418
+00:28:53,880 --> 00:28:55,320
+ Do you remember how do you do in pipes?
+
+419
+00:28:55,320 --> 00:28:57,440
+ How do we do, how does, for instance,
+
+420
+00:28:59,440 --> 00:29:04,440
+ and well, I guess it's the slide is already saying,
+
+421
+00:29:04,440 --> 00:29:07,200
+ but how do you do it in with pipes?
+
+422
+00:29:07,200 --> 00:29:09,320
+ A pipes is again, the pipes processes
+
+423
+00:29:09,320 --> 00:29:10,680
+ runs on the same machine.
+
+424
+00:29:10,680 --> 00:29:12,680
+ So if you are going to communicate
+
+425
+00:29:12,680 --> 00:29:16,560
+ between the parent and the child, then it's easy, right?
+
+426
+00:29:16,560 --> 00:29:20,080
+ Because a child, remember inherits all.
+
+427
+00:29:20,100 --> 00:29:25,860
+ the file descriptors of the parent. So already now the file descriptors corresponding to a pipe.
+
+428
+00:29:25,860 --> 00:29:37,300
+ Okay. So now with the sockets, there are two things. One, unlike a pipe, if you remember,
+
+429
+00:29:37,300 --> 00:29:43,620
+ it's one-way communication. With sockets, you have two-way communication, right? You need
+
+430
+00:29:43,620 --> 00:29:48,740
+ both the sender and the receiver being able to send data to each other, right?
+
+431
+00:29:49,700 --> 00:30:00,180
+ You'll see a little bit why is that. And the processes are separate, right? Are on different
+
+432
+00:30:00,180 --> 00:30:09,380
+ machines. So they cannot communicate otherwise. So how can they agree or how do I know to what
+
+433
+00:30:09,380 --> 00:30:17,940
+ other process I need to communicate, right? And so that's kind of is a crux of the problem.
+
+434
+00:30:17,940 --> 00:30:25,380
+ It's a naming. Okay. So how do independent programs know how to talk with each other?
+
+435
+00:30:25,380 --> 00:30:31,780
+ And again, we discussed a little bit about at the beginning of the class,
+
+436
+00:30:31,780 --> 00:30:41,060
+ but in the internet, the way you are going to name, it's basically using these DNS names,
+
+437
+00:30:41,060 --> 00:30:44,820
+ right? And this is an example. Again, we are going to have a lecture. We are going to talk
+
+438
+00:30:44,820 --> 00:30:52,660
+ more about that, but for now is www.ecs.berkeley.edu, right? You have a domain name, edu,
+
+439
+00:30:52,660 --> 00:30:58,740
+ and then it's a top domain. And then Berkeley is the institutions and it's a department. And this
+
+440
+00:30:58,740 --> 00:31:07,300
+ is a protocol, is application level protocol. Again, TCP and UDP are transport level protocols.
+
+441
+00:31:09,700 --> 00:31:15,940
+ But then under the hood is a transport level. This is what application knows. This is what you can
+
+442
+00:31:15,940 --> 00:31:25,140
+ type in the browser, right? www.google.com, right? This is what application understands.
+
+443
+00:31:25,140 --> 00:31:32,820
+ The transport layer, the TCP doesn't understand this. What understands are IP addresses. And there
+
+444
+00:31:32,820 --> 00:31:39,700
+ is a way is DNS name resolution by which these DNS names or the host names are translated into
+
+445
+00:31:39,700 --> 00:31:46,180
+ these IP addresses. Okay? But when we are going to operate at this level, typically we are going
+
+446
+00:31:46,180 --> 00:31:52,820
+ to operate with the IP addresses. Okay? And an IP address, it used to have 72 bits. It still has
+
+447
+00:31:52,820 --> 00:32:02,660
+ in many parts of the world. And it's still dominant. And this is IPv4. IPv4 is IP. IP stands for
+
+448
+00:32:02,660 --> 00:32:09,620
+ Internet Protocol v4 version for 32 bits. This was from the beginning of the internet. But then we
+
+449
+00:32:09,620 --> 00:32:17,940
+ ran out of addresses because IPv4, you have 32 bits, you can have only 4 billion addresses.
+
+450
+00:32:18,500 --> 00:32:26,500
+ And then now we have IPv6. And it took probably 20 or more years to start and to kind of get
+
+451
+00:32:26,500 --> 00:32:33,140
+ up to speed with the transition from IPv4 and IPv6. And IPv6 has 128 bits, a lot of bits.
+
+452
+00:32:33,140 --> 00:32:41,780
+ You can, we won't run out of them. Now, in addition to the addresses, you have what are
+
+453
+00:32:41,780 --> 00:32:50,660
+ called poor numbers. Okay? And I mean, probably there are people here who took networking.
+
+454
+00:32:50,660 --> 00:32:57,060
+ So can anyone answer? Why do we need a poor number? What is a poor number?
+
+455
+00:33:06,260 --> 00:33:12,820
+ Yes, Alison. Very good. So multiple services run on the same cost,
+
+456
+00:33:12,820 --> 00:33:22,100
+ host. So it's very simple. These IP addresses name a host, name a computer, name a machine.
+
+457
+00:33:22,100 --> 00:33:29,380
+ But a machine like we know, runs multiple processes. And your code to receive data
+
+458
+00:33:29,940 --> 00:33:37,780
+ runs in one of these process. Okay? So you don't need only to identify a host. You also need to
+
+459
+00:33:37,780 --> 00:33:43,780
+ identify the process to which you are going to send out. And from the network perspective,
+
+460
+00:33:43,780 --> 00:33:50,820
+ that process is identified by a port number. Right? It's not identified, it's not by
+
+461
+00:33:50,820 --> 00:33:58,740
+ outside the computer, it's not identified by the process ID. It's by this port number.
+
+462
+00:33:59,140 --> 00:34:10,180
+ Okay? Poor numbers has to 16 bits. And the first bits, the first 1023 ports are well known,
+
+463
+00:34:10,180 --> 00:34:17,220
+ meaning that they are well known services. What does it mean? 80. Port 80 is typically for web,
+
+464
+00:34:17,220 --> 00:34:24,260
+ web browser. So if you have, you know, if you put 80, then it's typically a web browser
+
+465
+00:34:24,260 --> 00:34:33,220
+ listen on the port 80 to get all the packets which are coming to that host.
+
+466
+00:34:33,220 --> 00:34:38,980
+ And they say they are looking for port 80. Okay?
+
+467
+00:34:38,980 --> 00:34:54,100
+ Okay. So now, when you have a server, right? And remember what we have this figure early
+
+468
+00:34:54,100 --> 00:35:00,500
+ on, we have multiple clients talking with the server. Okay? So how does the server can talk
+
+469
+00:35:00,500 --> 00:35:07,300
+ with multiple clients? How does it know which packets come from which client? That's a problem.
+
+470
+00:35:07,300 --> 00:35:21,140
+ Right? So the way we take care of that is very simple. The server doesn't communicate with each
+
+471
+00:35:21,140 --> 00:35:29,060
+ client. The server only waits for each client to connect. And when it connects, the server
+
+472
+00:35:29,060 --> 00:35:39,460
+ creates another process which communicate to the client. Okay? So that's kind of the idea. We are
+
+473
+00:35:39,460 --> 00:35:43,940
+ going to reiterate on this idea, so hopefully it will be clear by the end of this lecture.
+
+474
+00:35:43,940 --> 00:35:51,540
+ But that's what happened. That's a bad one. So the client creates a socket and connects the server
+
+475
+00:35:51,540 --> 00:35:57,700
+ request. But again, it doesn't send just a message, a request. Oh, you know, I have the request,
+
+476
+00:35:57,700 --> 00:36:03,860
+ give me a reply. The client sends a connection request to create a connection first.
+
+477
+00:36:03,860 --> 00:36:10,180
+ And only after he has a connection, you can send, sorry, you are going to send the data
+
+478
+00:36:11,060 --> 00:36:18,420
+ and your request. The server listens. It's in the state of always listen for new connections.
+
+479
+00:36:18,420 --> 00:36:30,580
+ Accept the connection. And now it creates a new socket. Okay? This socket can be in a different
+
+480
+00:36:30,580 --> 00:36:37,460
+ process or can be in a different thread in the same process. We'll see that. Okay?
+
+481
+00:36:38,180 --> 00:36:44,580
+ So now you have a connection socket for this client. And now you are going to send information
+
+482
+00:36:44,580 --> 00:36:51,780
+ about this connection socket. And you establish now a connection between the client socket
+
+483
+00:36:51,780 --> 00:37:02,180
+ and a socket on the server side, which is special for that client. Right? So this is what happens.
+
+484
+00:37:06,100 --> 00:37:09,140
+ So each connection, this yellow thing here, right?
+
+485
+00:37:09,140 --> 00:37:19,780
+ Between these two green bubbles, it's identified by five things. Source IP address, destination IP
+
+486
+00:37:19,780 --> 00:37:26,260
+ address, right? These are the source and the destination. When you send a packet,
+
+487
+00:37:26,260 --> 00:37:35,300
+ you have the source IP address of the machine, the IP address of the machine who sends that packet,
+
+488
+00:37:35,300 --> 00:37:43,540
+ and the destination IP address of the receiver machine. Right? Then you have the port numbers.
+
+489
+00:37:43,540 --> 00:37:52,420
+ These are port numbers of the process who sent the data. And then the destination port number,
+
+490
+00:37:52,420 --> 00:37:58,980
+ the port number of the process who receives the data. And then your protocol type. Now,
+
+491
+00:37:58,980 --> 00:38:05,620
+ here is the protocol type. It's TCP in this lecture, but like we discussed also, you can have
+
+492
+00:38:05,620 --> 00:38:09,940
+ UDP user data ground protocol. Okay. Let me see. It's another question.
+
+493
+00:38:09,940 --> 00:38:22,020
+ Oh, I think probably I missed this. Akshith asked this question. Isn't this also a problem
+
+494
+00:38:22,020 --> 00:38:29,060
+ for processes on the same computer? How will one identify the other PID? So basically about how
+
+495
+00:38:29,060 --> 00:38:38,020
+ do I identify the processes? So yes. So depends. So on the same machine, the problem is not about
+
+496
+00:38:38,020 --> 00:38:46,340
+ only how do I identify, but the how you are sharing the identification. Okay. For instance,
+
+497
+00:38:46,340 --> 00:38:51,860
+ on a machine, yes, you have access to the PID and you can identify everything by PID on the
+
+498
+00:38:51,860 --> 00:39:02,340
+ same machine. Right? And if you want to send to make a PID to let one process know about the
+
+499
+00:39:02,340 --> 00:39:06,580
+ identifier of another process, there are many ways to do it. Right? One.
+
+500
+00:39:06,800 --> 00:39:08,840
+ simple ways to write that in a file.
+
+501
+00:39:08,840 --> 00:39:14,920
+ Basically, now you have like the equivalent of a server
+
+502
+00:39:14,920 --> 00:39:19,580
+ on your machine and you want to now say the PID of that one,
+
+503
+00:39:19,580 --> 00:39:22,360
+ you always, when you start that server on that machine,
+
+504
+00:39:22,360 --> 00:39:23,900
+ you write the PID in a file.
+
+505
+00:39:23,900 --> 00:39:29,320
+ So that one, but by the way,
+
+506
+00:39:29,320 --> 00:39:32,240
+ by the way, the one important things to note is that
+
+507
+00:39:32,240 --> 00:39:35,580
+ while here I'm always repeating and repeating and repeating,
+
+508
+00:39:35,580 --> 00:39:40,580
+ that the sender and the receivers are on two different nodes,
+
+509
+00:39:40,580 --> 00:39:43,360
+ they can also be on the same machine
+
+510
+00:39:43,360 --> 00:39:45,480
+ and it's going to work, right?
+
+511
+00:39:45,480 --> 00:39:51,260
+ So you can use TCP to communicate
+
+512
+00:39:51,260 --> 00:39:53,360
+ between two processes on the same machine.
+
+513
+00:39:53,360 --> 00:39:55,640
+ Okay, no problem.
+
+514
+00:39:55,640 --> 00:39:58,240
+ Yes.
+
+515
+00:39:58,240 --> 00:40:01,120
+ Okay.
+
+516
+00:40:01,120 --> 00:40:04,660
+ Good.
+
+517
+00:40:04,660 --> 00:40:09,660
+ So in order to know the server, what do we need to know?
+
+518
+00:40:09,660 --> 00:40:10,800
+ Right?
+
+519
+00:40:10,800 --> 00:40:14,720
+ So again, you need to know about its IP address
+
+520
+00:40:14,720 --> 00:40:21,120
+ and then the port numbers on which this server is listening.
+
+521
+00:40:21,120 --> 00:40:25,320
+ And typically again, the well-known services,
+
+522
+00:40:25,320 --> 00:40:28,680
+ they have well-known ports, like port 80
+
+523
+00:40:28,680 --> 00:40:32,900
+ and sendmail is 25 and things like that, right?
+
+524
+00:40:33,840 --> 00:40:36,500
+ And this is well-known means that everyone knows it.
+
+525
+00:40:36,500 --> 00:40:42,540
+ If it's an observer running on one machine with this address
+
+526
+00:40:42,540 --> 00:40:44,380
+ that web server will run on port 80.
+
+527
+00:40:44,380 --> 00:40:48,480
+ Okay.
+
+528
+00:40:48,480 --> 00:40:50,300
+ So now let's go a little bit more details
+
+529
+00:40:50,300 --> 00:40:51,800
+ about how things are happening
+
+530
+00:40:51,800 --> 00:40:57,760
+ to see how this new connection are created.
+
+531
+00:40:57,760 --> 00:41:02,760
+ So the server, you create a socket
+
+532
+00:41:03,760 --> 00:41:08,760
+ and you bind it to a local address,
+
+533
+00:41:08,760 --> 00:41:11,240
+ to an address, which is a local address
+
+534
+00:41:11,240 --> 00:41:15,400
+ of the machine typically and a port, right?
+
+535
+00:41:15,400 --> 00:41:20,760
+ So if you web server, you bind it to port 80.
+
+536
+00:41:20,760 --> 00:41:26,040
+ And then you listen for connection from the clients.
+
+537
+00:41:26,040 --> 00:41:30,220
+ You get a connection, you accept it, right?
+
+538
+00:41:31,720 --> 00:41:34,200
+ And now let's move to the client side.
+
+539
+00:41:34,200 --> 00:41:36,120
+ On the client side, I create the socket
+
+540
+00:41:36,120 --> 00:41:39,360
+ and then I connect to the server,
+
+541
+00:41:39,360 --> 00:41:42,600
+ specifying the host IP address and the port number.
+
+542
+00:41:42,600 --> 00:41:44,040
+ And it's a host and the port number
+
+543
+00:41:44,040 --> 00:41:48,800
+ to which the server has binded, right?
+
+544
+00:41:48,800 --> 00:41:51,160
+ This is a little bit the pattern we saw before.
+
+545
+00:41:51,160 --> 00:41:54,920
+ You send a client, send a connection request
+
+546
+00:41:54,920 --> 00:41:57,740
+ to the server which was listening
+
+547
+00:41:57,740 --> 00:42:02,740
+ and the server accept and send back accept calls.
+
+548
+00:42:02,740 --> 00:42:08,480
+ And now a new and creates also a socket, the server
+
+549
+00:42:08,480 --> 00:42:10,400
+ and now you have a connection.
+
+550
+00:42:10,400 --> 00:42:17,280
+ Now the server goes to read, blocks into a read
+
+551
+00:42:17,280 --> 00:42:19,620
+ and the client writes.
+
+552
+00:42:19,620 --> 00:42:22,160
+ So eventually once the data written by the client
+
+553
+00:42:22,160 --> 00:42:25,580
+ gets to the server, the server reads it
+
+554
+00:42:25,580 --> 00:42:30,580
+ and writes a response, the client reads the response
+
+555
+00:42:30,580 --> 00:42:35,240
+ and then at the end, you close the socket, right?
+
+556
+00:42:35,240 --> 00:42:39,420
+ So if you can see about everyone is closing the socket,
+
+557
+00:42:39,420 --> 00:42:40,880
+ both the client and the server
+
+558
+00:42:40,880 --> 00:42:45,920
+ and the client has created the socket.
+
+559
+00:42:45,920 --> 00:42:48,240
+ This is a equivalent to an open
+
+560
+00:42:48,240 --> 00:42:51,420
+ and the equivalent socket,
+
+561
+00:42:51,420 --> 00:42:53,720
+ which is the server creates two sockets,
+
+562
+00:42:53,720 --> 00:42:57,400
+ one on which is listening for requests for new connections.
+
+563
+00:42:57,400 --> 00:43:01,840
+ And then when it's going to accept a request for connection
+
+564
+00:43:01,840 --> 00:43:05,320
+ is going to create a socket for that connection, okay?
+
+565
+00:43:05,320 --> 00:43:08,660
+ So seek accept, this call is going to create a socket
+
+566
+00:43:08,660 --> 00:43:09,840
+ for that connection.
+
+567
+00:43:09,840 --> 00:43:13,840
+ The connection corresponding to the connection request
+
+568
+00:43:13,840 --> 00:43:16,920
+ from the client, okay.
+
+569
+00:43:16,920 --> 00:43:23,420
+ Here is a question.
+
+570
+00:43:23,420 --> 00:43:26,140
+ How do you have multiple web servers on the same machine?
+
+571
+00:43:26,140 --> 00:43:27,840
+ Is there is only one port?
+
+572
+00:43:27,840 --> 00:43:32,840
+ So typically you don't have multiple web servers
+
+573
+00:43:32,840 --> 00:43:34,080
+ on the same machine.
+
+574
+00:43:34,080 --> 00:43:37,200
+ If you want to have multiple web servers on the same machine
+
+575
+00:43:37,200 --> 00:43:39,640
+ you have to assign them to a different numbers.
+
+576
+00:43:39,640 --> 00:43:45,560
+ And by this web numbers, you need to tell other clients
+
+577
+00:43:45,560 --> 00:43:50,200
+ what the new port numbers are.
+
+578
+00:43:51,520 --> 00:43:54,180
+ Like for instance, typically another port number
+
+579
+00:43:54,180 --> 00:43:58,980
+ web server use, if it's not 80, it's 8080.
+
+580
+00:43:58,980 --> 00:44:02,360
+ Oh, I didn't say that.
+
+581
+00:44:02,360 --> 00:44:07,360
+ But this is a well-known port number from zero to 1023.
+
+582
+00:44:07,360 --> 00:44:14,820
+ You can only bind them if you have root privileges, right?
+
+583
+00:44:14,820 --> 00:44:20,720
+ If you are just user, you cannot bind on all these ports.
+
+584
+00:44:20,720 --> 00:44:24,000
+ And so if you want to use, to run the web server
+
+585
+00:44:24,000 --> 00:44:29,000
+ only as a user, typically people put 8080, the port number.
+
+586
+00:44:29,000 --> 00:44:34,200
+ Okay, a few questions here.
+
+587
+00:44:34,200 --> 00:44:35,480
+ Another question.
+
+588
+00:44:35,480 --> 00:44:39,460
+ No, okay, answer the question, sorry.
+
+589
+00:44:39,460 --> 00:44:46,200
+ Pipes are one way.
+
+590
+00:44:46,200 --> 00:44:48,380
+ You need to create two pipes
+
+591
+00:44:48,380 --> 00:44:50,180
+ you want to communicate both ways.
+
+592
+00:44:50,180 --> 00:44:55,180
+ Yeah.
+
+593
+00:44:55,180 --> 00:45:01,620
+ And there is another answer for Allison.
+
+594
+00:45:01,620 --> 00:45:03,820
+ If you have multiple websites on the same server
+
+595
+00:45:03,820 --> 00:45:05,820
+ you can do it at the application layer.
+
+596
+00:45:05,820 --> 00:45:09,800
+ HTTP requests have the host header, which tells the server,
+
+597
+00:45:09,800 --> 00:45:12,540
+ hey, I want to talk to Xsite
+
+598
+00:45:12,540 --> 00:45:14,820
+ and the server can just send back the right site.
+
+599
+00:45:14,820 --> 00:45:19,820
+ Well, that's a little bit more complicated.
+
+600
+00:45:20,660 --> 00:45:25,660
+ And I guess everything is possible in software.
+
+601
+00:45:25,660 --> 00:45:30,700
+ But typically this is, yeah.
+
+602
+00:45:30,700 --> 00:45:33,740
+ You can have the content distribution networks.
+
+603
+00:45:33,740 --> 00:45:36,440
+ They do something like you propose here.
+
+604
+00:45:36,440 --> 00:45:39,040
+ We'll talk a little bit about that later.
+
+605
+00:45:39,040 --> 00:45:42,700
+ But for now, if you, again, if you,
+
+606
+00:45:42,700 --> 00:45:45,380
+ the one thing to know is that if you really want to run
+
+607
+00:45:45,380 --> 00:45:50,380
+ multiple of servers on the same host,
+
+608
+00:45:50,380 --> 00:45:54,960
+ you need to provide different port numbers.
+
+609
+00:45:54,960 --> 00:45:58,940
+ This is a client protocol, a little bit in more details.
+
+610
+00:45:58,940 --> 00:46:04,180
+ This is how you create the socket, right?
+
+611
+00:46:04,180 --> 00:46:06,540
+ Remember, and when you create the socket,
+
+612
+00:46:06,540 --> 00:46:10,060
+ first of all, you create this kind of address info,
+
+613
+00:46:10,060 --> 00:46:12,660
+ data structure, where you provide the host name
+
+614
+00:46:12,660 --> 00:46:15,360
+ and the port name, okay?
+
+615
+00:46:15,360 --> 00:46:20,220
+ And then you create the socket by using this data structure
+
+616
+00:46:20,220 --> 00:46:21,060
+ we just created.
+
+617
+00:46:21,060 --> 00:46:22,960
+ And it has three things.
+
+618
+00:46:22,960 --> 00:46:26,500
+ Typically you can add more address family.
+
+619
+00:46:26,500 --> 00:46:31,300
+ You basically, this is whether it's IPv4, IPv6,
+
+620
+00:46:31,300 --> 00:46:35,660
+ or something else that you can have.
+
+621
+00:46:35,660 --> 00:46:41,420
+ Socket type, you have socket stream.
+
+622
+00:46:41,420 --> 00:46:42,540
+ It's a typo here.
+
+623
+00:46:42,540 --> 00:46:44,980
+ It's a socket stream or socket datagram.
+
+624
+00:46:44,980 --> 00:46:47,440
+ Socket stream, this is a stream of bytes.
+
+625
+00:46:47,440 --> 00:46:51,360
+ The datagram, right, is something we are not discussing,
+
+626
+00:46:51,360 --> 00:46:52,200
+ which is in UDP.
+
+627
+00:46:52,200 --> 00:46:55,300
+ In UDP, you don't send a stream of bytes.
+
+628
+00:46:55,300 --> 00:46:58,120
+ You send packets, okay?
+
+629
+00:46:58,120 --> 00:47:05,600
+ And then you have, it's also TCP.
+
+630
+00:47:05,600 --> 00:47:07,960
+ This is a protocol type.
+
+631
+00:47:07,960 --> 00:47:10,220
+ So this can be like TCP.
+
+632
+00:47:10,220 --> 00:47:12,500
+ Zero, you can have any protocol.
+
+633
+00:47:13,660 --> 00:47:15,620
+ Then you connect.
+
+634
+00:47:15,620 --> 00:47:17,460
+ This is a connection request.
+
+635
+00:47:17,460 --> 00:47:20,740
+ And you say, you define the server address
+
+636
+00:47:20,740 --> 00:47:22,300
+ and the port number.
+
+637
+00:47:22,300 --> 00:47:27,300
+ And then you run the client code on that file descriptor,
+
+638
+00:47:27,300 --> 00:47:32,000
+ socket descriptor, and you close, right?
+
+639
+00:47:32,000 --> 00:47:34,700
+ So again, the server here, just to make sure
+
+640
+00:47:34,700 --> 00:47:40,420
+ that I didn't say something wrong.
+
+641
+00:47:40,420 --> 00:47:42,780
+ The server here, when you do the lookup,
+
+642
+00:47:42,780 --> 00:47:46,380
+ you basically provide the host name.
+
+643
+00:47:46,380 --> 00:47:49,700
+ This is a server name and the server port number, okay?
+
+644
+00:47:49,700 --> 00:47:51,660
+ This is what you provide in the server,
+
+645
+00:47:51,660 --> 00:47:55,300
+ what you do in the server data structure.
+
+646
+00:47:55,300 --> 00:48:00,100
+ And for the server protocol, it's a little bit more involved.
+
+647
+00:48:00,100 --> 00:48:05,100
+ You create a socket and you give the port name
+
+648
+00:48:05,100 --> 00:48:09,780
+ where you want to bind, to which you want to bind the server.
+
+649
+00:48:09,780 --> 00:48:13,380
+ And then you bind the server to that,
+
+650
+00:48:13,380 --> 00:48:17,460
+ typically to the local address and the port number.
+
+651
+00:48:17,460 --> 00:48:20,600
+ Then you listen for connection requests.
+
+652
+00:48:20,600 --> 00:48:23,800
+ And now what you do, you go into a loop.
+
+653
+00:48:23,800 --> 00:48:26,900
+ And when you get a connection request, you accept it.
+
+654
+00:48:26,900 --> 00:48:27,980
+ You create a socket.
+
+655
+00:48:27,980 --> 00:48:29,780
+ This is connect socket.
+
+656
+00:48:29,780 --> 00:48:34,320
+ And then you serve the client and you close the socket.
+
+657
+00:48:34,320 --> 00:48:38,460
+ And eventually when the code, when the server ends,
+
+658
+00:48:38,460 --> 00:48:42,300
+ then you also close the server socket.
+
+659
+00:48:42,300 --> 00:48:45,220
+ But the server socket is the one on which you are listening.
+
+660
+00:48:45,220 --> 00:48:46,060
+ Remember?
+
+661
+00:48:46,060 --> 00:48:53,100
+ So then, okay, so now you are going to have...
+
+662
+00:48:53,500 --> 00:48:59,100
+ requests from different clients, we saw that for each request connection, we are going to create a
+
+663
+00:48:59,100 --> 00:49:09,660
+ different socket on the server side. Now, where is a code running on the server side going to run?
+
+664
+00:49:09,660 --> 00:49:14,940
+ So where is this server client going to run? You see here, right? Where is that going to run?
+
+665
+00:49:14,940 --> 00:49:23,420
+ And there are multiple methods here. One, if you want to really protect yourself about
+
+666
+00:49:23,900 --> 00:49:36,540
+ the client sending you something stupid or you do some bad things, it causes you to do some
+
+667
+00:49:36,540 --> 00:49:42,860
+ bad things. You can do it, you can run that code in a separate process. You remember the processes
+
+668
+00:49:42,860 --> 00:49:49,420
+ are the unit of protection, right? Processes are protected from each other, right? So in this
+
+669
+00:49:49,420 --> 00:49:57,180
+ particular case, you have a connection when accept this call, create a connection socket,
+
+670
+00:49:57,180 --> 00:50:06,300
+ and then you are going to create a child and you are going to answer the client in the child
+
+671
+00:50:06,300 --> 00:50:12,060
+ while the parent doesn't do anything. It may be a waste for the child to finish, right?
+
+672
+00:50:13,580 --> 00:50:20,380
+ So this is a code on the server side, you accept not all the code, it's only in the while loop,
+
+673
+00:50:20,380 --> 00:50:28,540
+ you accept the connection request, then you remember if the result of the fork PID is zero,
+
+674
+00:50:28,540 --> 00:50:35,580
+ this means that you are here executing what? The child code, right? So the child
+
+675
+00:50:35,580 --> 00:50:41,820
+ is close the server socket. This is a socket on the server listen for new connections. So the
+
+676
+00:50:41,820 --> 00:50:47,740
+ child only needs to reply to the client, so he's not going to listen for new clients, right?
+
+677
+00:50:47,740 --> 00:50:58,220
+ And then you serve the client and you also close the connection to that client and you exit.
+
+678
+00:50:58,220 --> 00:51:04,380
+ And on the server side, on the parent side, which is a server itself,
+
+679
+00:51:04,380 --> 00:51:11,260
+ you close the connection socket because you are not going to communicate directly to that client.
+
+680
+00:51:11,660 --> 00:51:17,020
+ The child is going to communicate and then wait. While the wait is going, wait for the child to
+
+681
+00:51:17,020 --> 00:51:25,820
+ finish. And then at the end, you close the server connection, right? So to summarize, in a server,
+
+682
+00:51:25,820 --> 00:51:31,580
+ you listen and for connection request, if there are multiple requests at the same time,
+
+683
+00:51:31,580 --> 00:51:40,620
+ they are going to be queued. And then you create connections and then use these connections
+
+684
+00:51:40,620 --> 00:51:49,500
+ to communicate with the child. And this is a server because it leads an increased connection
+
+685
+00:51:49,500 --> 00:51:56,540
+ for this child can answer at the same time to mark, can talk at the same time with multiple clients.
+
+686
+00:51:56,540 --> 00:52:07,260
+ So one potential thing here is that in this code, like I said, the parent, this is a parent code in
+
+687
+00:52:07,260 --> 00:52:14,540
+ this else, on the else branch, you wait for the child to finish. But if you wait for the child to
+
+688
+00:52:14,540 --> 00:52:20,460
+ finish, then you cannot listen and you cannot satisfy other connection requests. So actually,
+
+689
+00:52:20,460 --> 00:52:28,220
+ if you write this code, the server, although you have a different process for the connection,
+
+690
+00:52:28,220 --> 00:52:32,300
+ you cannot accept new connections. So you are talking with one client at a time.
+
+691
+00:52:32,300 --> 00:52:34,380
+ So what is the fix here?
+
+692
+00:52:35,020 --> 00:52:46,540
+ Well, the fix is very simple. Don't wait. Go back, don't wait and go, like if you are a server,
+
+693
+00:52:46,540 --> 00:52:55,420
+ go back and accept, be ready to accept new connection requests from new clients. Okay.
+
+694
+00:52:59,580 --> 00:53:07,820
+ This is how you set up the address. Again, I'm not going to go from so details. You have the same
+
+695
+00:53:07,820 --> 00:53:14,380
+ things like SOX stream is like, it's a data stream. This is what you have for TCP.
+
+696
+00:53:14,380 --> 00:53:27,260
+ You don't specify the IP family and things like that. But this is, again, it's a boilerplate code
+
+697
+00:53:28,220 --> 00:53:31,420
+ to set up this address information data structure.
+
+698
+00:53:31,420 --> 00:53:45,180
+ So this is a boilerplate. It's from the client side. So this is how you set the address.
+
+699
+00:53:45,180 --> 00:53:57,420
+ And this is how you get the address of the server from the client. So you get it from
+
+700
+00:53:58,300 --> 00:54:03,580
+ you specify the host name and the port name, and you get the address information,
+
+701
+00:54:03,580 --> 00:54:07,820
+ the address information, including the IP address of the server.
+
+702
+00:54:07,820 --> 00:54:22,060
+ Okay. Now, so far I said that you can provide concurrency if you run and for each client,
+
+703
+00:54:23,260 --> 00:54:29,980
+ on the server side, you have a different process to talk with that client. So now you have
+
+704
+00:54:29,980 --> 00:54:36,060
+ concurrency because processes can run concurrently. But now the problem is processes, what it is,
+
+705
+00:54:36,060 --> 00:54:43,100
+ is that they provide protection, but they are heavyweight. If you want to provide concurrency,
+
+706
+00:54:43,100 --> 00:54:48,940
+ but more heavyweight, and you are not as concerned about protection, what you do? You can use threads.
+
+707
+00:54:50,460 --> 00:54:56,220
+ The thread, you can have multiple threads in the same process. And now what you are going to do,
+
+708
+00:54:56,220 --> 00:55:03,980
+ when you are going to accept a connection request from a client and you are creating a socket,
+
+709
+00:55:03,980 --> 00:55:12,220
+ you are going to spawn a thread. Okay. But if you spawn a thread, what is the problem right now?
+
+710
+00:55:12,220 --> 00:55:18,380
+ This was also in the case of when you use the processes. What is the problem? Right?
+
+711
+00:55:18,380 --> 00:55:31,980
+ Do you see any problem here?
+
+712
+00:55:31,980 --> 00:55:46,940
+ Well, what if you have many, many clients? You can have actually an attack. I can have
+
+713
+00:55:46,940 --> 00:55:55,580
+ many clients opening new connections and never closing them. And this way exhausts
+
+714
+00:55:55,580 --> 00:56:03,500
+ the resources on the server side. So how do you do that? What is the solution here?
+
+715
+00:56:03,500 --> 00:56:07,500
+ Well, the solution here is to create what is called a thread pool.
+
+716
+00:56:07,500 --> 00:56:11,740
+ So you create a bunch of threads, say 100 threads,
+
+717
+00:56:14,140 --> 00:56:21,500
+ which means that at a given time, you can talk concurrently of which 100 clients.
+
+718
+00:56:21,500 --> 00:56:29,100
+ What if there are more than 100 clients? Well, they have to wait for some of the current clients
+
+719
+00:56:29,100 --> 00:56:36,940
+ you are talking with to finish and release a thread. Okay. So this is a concept and it's a very
+
+720
+00:56:36,940 --> 00:56:43,500
+ useful concept about the thread pool. And the main goal of the thread pool is to protect the
+
+721
+00:56:43,500 --> 00:56:55,820
+ resources of the server from being exhausted. Okay. Very simple. Okay. And how do you have that?
+
+722
+00:56:55,820 --> 00:57:06,860
+ You have here a master thread and the master thread, this is actually the server,
+
+723
+00:57:06,860 --> 00:57:11,500
+ which is going where the code of the server, which is waiting for the connection request
+
+724
+00:57:13,180 --> 00:57:22,620
+ runs. And when you create a... Okay. When you accept a connection request and you create a
+
+725
+00:57:22,620 --> 00:57:30,780
+ socket, then you put that, you enqueue a request. Now it's a request for a thread.
+
+726
+00:57:30,780 --> 00:57:38,620
+ You ask for a thread. Okay. This is enqueue to the queue of threads, the connection.
+
+727
+00:57:39,820 --> 00:57:44,540
+ Right. And you can wake up the queue. So wake up the queue, this is another thread,
+
+728
+00:57:44,540 --> 00:57:51,660
+ actually, which basically you wake up to run the code. And on the queue side,
+
+729
+00:57:51,660 --> 00:58:03,740
+ you are going to look at the connection, you dequeue from the queue. And if the connection
+
+730
+00:58:06,460 --> 00:58:12,220
+ is not null, it's null. This means there is nothing in the queue. So you just go to sleep.
+
+731
+00:58:12,220 --> 00:58:20,780
+ And that's why the master needs to wake you up. Right. And else you serve the webpage.
+
+732
+00:58:20,780 --> 00:58:30,940
+ Okay. So I'm going to have the announcement before then, let's see what are the other questions.
+
+733
+00:58:35,260 --> 00:58:39,660
+ That is the newly created process. Start listening for new requests as well now.
+
+734
+00:58:40,200 --> 00:58:42,300
+ It's a great question.
+
+735
+00:58:42,300 --> 00:58:45,100
+ Now, the new created request do not,
+
+736
+00:58:45,100 --> 00:58:47,460
+ and I'm going to show you the code.
+
+737
+00:58:47,460 --> 00:58:55,360
+ You see here, again, the new created process,
+
+738
+00:58:55,360 --> 00:59:02,380
+ it's a child, and this is a code under the PID equals zero,
+
+739
+00:59:02,380 --> 00:59:05,860
+ which is executed by the child.
+
+740
+00:59:05,860 --> 00:59:08,340
+ So the first thing the child is doing
+
+741
+00:59:08,340 --> 00:59:10,380
+ is closing the server socket.
+
+742
+00:59:10,380 --> 00:59:15,820
+ The server socket is the one on which the server
+
+743
+00:59:15,820 --> 00:59:17,660
+ listens for new connections.
+
+744
+00:59:17,660 --> 00:59:25,220
+ So this tells you, this instruction tells you right away
+
+745
+00:59:25,220 --> 00:59:29,620
+ that the child doesn't listen
+
+746
+00:59:29,620 --> 00:59:31,820
+ for new connection to be created.
+
+747
+00:59:31,820 --> 00:59:36,820
+ The only role of the child is to deal with the connection
+
+748
+00:59:37,660 --> 00:59:41,700
+ to the client it was associated to.
+
+749
+00:59:41,700 --> 00:59:45,700
+ Okay.
+
+750
+00:59:45,700 --> 00:59:48,420
+ Let me see.
+
+751
+01:00:03,260 --> 01:00:08,260
+ Yeah, so wait for the threads to join.
+
+752
+01:00:08,260 --> 01:00:15,300
+ Yes, if you create a new thread
+
+753
+01:00:15,300 --> 01:00:21,020
+ and you have to wait for the thread to join
+
+754
+01:00:21,020 --> 01:00:22,620
+ because the thread is in the process.
+
+755
+01:00:22,620 --> 01:00:24,940
+ So if the process goes away,
+
+756
+01:00:24,940 --> 01:00:29,300
+ then the thread you created is going to go away.
+
+757
+01:00:31,020 --> 01:00:36,020
+ So you need like someone like Christian or Simon said,
+
+758
+01:00:36,020 --> 01:00:38,580
+ you need to wait for the thread to join.
+
+759
+01:00:38,580 --> 01:00:41,060
+ Let me see.
+
+760
+01:00:41,060 --> 01:00:45,420
+ Okay.
+
+761
+01:00:45,420 --> 01:00:48,500
+ Oops.
+
+762
+01:00:48,500 --> 01:00:49,660
+ Announcement.
+
+763
+01:00:49,660 --> 01:00:53,260
+ Project one, the design documents are due to Friday,
+
+764
+01:00:53,260 --> 01:00:54,580
+ this Friday.
+
+765
+01:00:54,580 --> 01:00:58,580
+ The design reviews are going to happen next week
+
+766
+01:00:58,580 --> 01:01:00,980
+ and keep a lookout on Piazza for signups.
+
+767
+01:01:00,980 --> 01:01:02,820
+ You are going to sign with your TA
+
+768
+01:01:02,820 --> 01:01:06,540
+ to give the TA will provide you with a feedback
+
+769
+01:01:06,540 --> 01:01:08,020
+ on your design.
+
+770
+01:01:08,020 --> 01:01:10,980
+ And the design is something very, very important,
+
+771
+01:01:10,980 --> 01:01:12,740
+ design documents, right?
+
+772
+01:01:12,740 --> 01:01:16,460
+ You may not have been used to this in other classes,
+
+773
+01:01:16,460 --> 01:01:17,780
+ but in this class,
+
+774
+01:01:17,780 --> 01:01:20,500
+ before you start writing the first lines of code,
+
+775
+01:01:20,500 --> 01:01:22,540
+ you are going to write a design document
+
+776
+01:01:22,540 --> 01:01:24,060
+ that is as a theory.
+
+777
+01:01:24,060 --> 01:01:27,340
+ And therefore it's going to force you to think about
+
+778
+01:01:27,340 --> 01:01:31,020
+ the design and then the idea is that
+
+779
+01:01:31,020 --> 01:01:32,980
+ once you have a good design document
+
+780
+01:01:32,980 --> 01:01:35,580
+ and you got the feedback, you address the feedback,
+
+781
+01:01:35,580 --> 01:01:40,420
+ it will have a much easier job to write
+
+782
+01:01:40,420 --> 01:01:44,900
+ and finish your project, to do your project.
+
+783
+01:01:44,900 --> 01:01:46,140
+ Okay.
+
+784
+01:01:46,140 --> 01:01:49,420
+ Think more, work less, something like that.
+
+785
+01:01:49,420 --> 01:01:54,300
+ And by the way, probably it was people,
+
+786
+01:01:55,140 --> 01:01:58,300
+ many of you, you went, did summer internships
+
+787
+01:01:58,300 --> 01:02:00,140
+ at software engineering companies,
+
+788
+01:02:00,140 --> 01:02:02,900
+ you know very well that everywhere
+
+789
+01:02:02,900 --> 01:02:06,180
+ you need to have a design document before you write the code.
+
+790
+01:02:06,180 --> 01:02:10,020
+ So this is great practice for your next job.
+
+791
+01:02:10,020 --> 01:02:14,540
+ Even if you do the next thing you are going to do,
+
+792
+01:02:14,540 --> 01:02:17,500
+ you do a PhD, still the design documents are great.
+
+793
+01:02:17,500 --> 01:02:21,580
+ The homework one is due on Thursday
+
+794
+01:02:21,580 --> 01:02:26,580
+ and the midterm is due in 15 days,
+
+795
+01:02:26,580 --> 01:02:32,660
+ five to six p.m. or it should be two weeks from now,
+
+796
+01:02:32,660 --> 01:02:34,460
+ two weeks from tomorrow.
+
+797
+01:02:34,460 --> 01:02:35,300
+ Sorry.
+
+798
+01:02:35,300 --> 01:02:39,420
+ And it will be online and proctored
+
+799
+01:02:39,420 --> 01:02:43,980
+ and we'll get more details,
+
+800
+01:02:43,980 --> 01:02:45,620
+ we'll get more details next week.
+
+801
+01:02:45,620 --> 01:02:49,300
+ Okay.
+
+802
+01:02:50,900 --> 01:02:53,300
+ So now for the last 15 minutes,
+
+803
+01:02:53,300 --> 01:02:55,180
+ we are going to switch gears
+
+804
+01:02:55,180 --> 01:02:59,700
+ and we are going to talk about a very important topic,
+
+805
+01:02:59,700 --> 01:03:04,140
+ synchronization and we are only going to start here
+
+806
+01:03:04,140 --> 01:03:07,020
+ about synchronization, concurrency and synchronization.
+
+807
+01:03:07,020 --> 01:03:14,580
+ And everything starts from the need
+
+808
+01:03:14,580 --> 01:03:19,220
+ to multiplex processes, right?
+
+809
+01:03:19,220 --> 01:03:23,100
+ And you need to run multiple activities concurrently.
+
+810
+01:03:23,100 --> 01:03:26,620
+ Like we've seen just a few minutes ago
+
+811
+01:03:26,620 --> 01:03:31,300
+ that if we want a server to handle multiple clients
+
+812
+01:03:31,300 --> 01:03:34,700
+ at the same time, the way it's doing it
+
+813
+01:03:34,700 --> 01:03:38,620
+ is they're using processes or multiple threads
+
+814
+01:03:38,620 --> 01:03:41,780
+ running at the same time where each thread or processes
+
+815
+01:03:41,780 --> 01:03:44,140
+ is associated with the client.
+
+816
+01:03:44,140 --> 01:03:44,980
+ Okay?
+
+817
+01:03:44,980 --> 01:03:48,540
+ Good.
+
+818
+01:03:49,260 --> 01:03:54,060
+ Now, again, remember for the end time, right?
+
+819
+01:03:54,060 --> 01:03:59,060
+ It's like a process is a unit of protection, right?
+
+820
+01:03:59,060 --> 01:04:03,620
+ It has another space which is protected
+
+821
+01:04:03,620 --> 01:04:04,860
+ from other processes.
+
+822
+01:04:04,860 --> 01:04:08,260
+ And the processes is represented
+
+823
+01:04:08,260 --> 01:04:10,260
+ by the process control block.
+
+824
+01:04:10,260 --> 01:04:13,500
+ We talk a little bit about that if you remember.
+
+825
+01:04:13,500 --> 01:04:16,140
+ This process control block has all the state
+
+826
+01:04:18,180 --> 01:04:22,020
+ that represents that process.
+
+827
+01:04:22,020 --> 01:04:24,660
+ In short, if you save that state,
+
+828
+01:04:24,660 --> 01:04:30,220
+ then you can restart the process from that state
+
+829
+01:04:30,220 --> 01:04:32,140
+ as if nothing had happened.
+
+830
+01:04:32,140 --> 01:04:34,740
+ Okay?
+
+831
+01:04:34,740 --> 01:04:37,620
+ So what do you have?
+
+832
+01:04:37,620 --> 01:04:38,900
+ You have the status.
+
+833
+01:04:38,900 --> 01:04:40,340
+ We'll see what is the status,
+
+834
+01:04:40,340 --> 01:04:43,380
+ whether the process was running, ready or blocked.
+
+835
+01:04:46,580 --> 01:04:49,220
+ You have some register state, one not ready,
+
+836
+01:04:49,220 --> 01:04:54,220
+ process ID, some other information
+
+837
+01:04:54,220 --> 01:05:01,340
+ like the question time, memory space.
+
+838
+01:05:01,340 --> 01:05:02,460
+ This is a big one.
+
+839
+01:05:02,460 --> 01:05:04,780
+ The memory of the process, right?
+
+840
+01:05:04,780 --> 01:05:05,860
+ It has to be somewhere.
+
+841
+01:05:05,860 --> 01:05:07,940
+ You need to add memory you are using.
+
+842
+01:05:07,940 --> 01:05:09,420
+ You have to know it.
+
+843
+01:05:09,420 --> 01:05:12,420
+ Translation, how you translate.
+
+844
+01:05:12,420 --> 01:05:14,220
+ You remember, you have virtual memory.
+
+845
+01:05:14,220 --> 01:05:16,980
+ The process, you can see the virtual memory,
+
+846
+01:05:16,980 --> 01:05:21,300
+ but the data is stored in physical memory.
+
+847
+01:05:21,300 --> 01:05:24,100
+ You need to translate between the address
+
+848
+01:05:24,100 --> 01:05:27,420
+ of the virtual memory to the physical memory.
+
+849
+01:05:27,420 --> 01:05:29,540
+ So you need to have this translation table.
+
+850
+01:05:29,540 --> 01:05:34,460
+ And again, why do you need to define this control state?
+
+851
+01:05:34,460 --> 01:05:36,900
+ It's because this allows again,
+
+852
+01:05:36,900 --> 01:05:40,540
+ the process to switch between processes, right?
+
+853
+01:05:42,380 --> 01:05:44,820
+ You save, you give a process.
+
+854
+01:05:44,820 --> 01:05:47,420
+ If you save all the state associated in the PCB
+
+855
+01:05:47,420 --> 01:05:50,620
+ with the process, and then you can give the CPU
+
+856
+01:05:50,620 --> 01:05:52,220
+ to another process to run,
+
+857
+01:05:52,220 --> 01:05:55,460
+ and then you can come back to the previous process
+
+858
+01:05:55,460 --> 01:05:59,740
+ and you can restart it from the same place, so to speak,
+
+859
+01:05:59,740 --> 01:06:01,980
+ by using all the information in the PCB.
+
+860
+01:06:01,980 --> 01:06:04,100
+ Right?
+
+861
+01:06:04,100 --> 01:06:04,940
+ Okay.
+
+862
+01:06:04,940 --> 01:06:07,460
+ Okay.
+
+863
+01:06:07,460 --> 01:06:08,860
+ And this is what happens, right?
+
+864
+01:06:08,860 --> 01:06:10,540
+ You know, this is when,
+
+865
+01:06:10,540 --> 01:06:12,820
+ how you are going to multiplex, for instance,
+
+866
+01:06:12,820 --> 01:06:17,820
+ one CPU between two processes, P0 and P1, right?
+
+867
+01:06:17,820 --> 01:06:20,900
+ And this is what you do it, you know, from P0,
+
+868
+01:06:20,900 --> 01:06:23,300
+ you want to switch from P0 to P1.
+
+869
+01:06:23,300 --> 01:06:26,340
+ The operating system is going to save the state
+
+870
+01:06:26,340 --> 01:06:30,060
+ of the PCB0 in PCB0, right?
+
+871
+01:06:30,060 --> 01:06:35,060
+ Then it's going to load the state of process P1 from PCB1.
+
+872
+01:06:35,060 --> 01:06:38,780
+ Then it's going to run the process,
+
+873
+01:06:38,780 --> 01:06:42,980
+ to run process P1, and then at some point,
+
+874
+01:06:42,980 --> 01:06:46,980
+ when the time quanta for that process P1 expired,
+
+875
+01:06:46,980 --> 01:06:50,540
+ or when it's waiting for something,
+
+876
+01:06:50,540 --> 01:06:55,260
+ then it's going to do the same thing,
+
+877
+01:06:55,260 --> 01:06:56,780
+ but the other way around.
+
+878
+01:06:56,780 --> 01:07:01,780
+ It's going to save the state of process P1 in PCB1,
+
+879
+01:07:01,780 --> 01:07:05,700
+ and then reload the state of P0 in PCB0,
+
+880
+01:07:05,700 --> 01:07:08,980
+ and then resume the execution of P0, okay?
+
+881
+01:07:08,980 --> 01:07:10,700
+ That's all.
+
+882
+01:07:10,700 --> 01:07:15,220
+ And this is operating system, high level of privilege,
+
+883
+01:07:15,220 --> 01:07:16,700
+ meaning that this code can be,
+
+884
+01:07:16,700 --> 01:07:18,780
+ cannot be executed by the applications.
+
+885
+01:07:18,780 --> 01:07:23,580
+ And all of this yellow stuff, what are those?
+
+886
+01:07:23,580 --> 01:07:27,940
+ Function calls, interrupts.
+
+887
+01:07:27,940 --> 01:07:33,020
+ Now, if you remember that here,
+
+888
+01:07:33,020 --> 01:07:35,020
+ we are talking about the status of the process
+
+889
+01:07:35,020 --> 01:07:37,580
+ in the PCB, where this is the status.
+
+890
+01:07:37,580 --> 01:07:42,780
+ This is a state or the state of the process.
+
+891
+01:07:42,780 --> 01:07:45,940
+ A process first is created.
+
+892
+01:07:45,940 --> 01:07:49,500
+ Then it's put in the queue if it's ready to execute.
+
+893
+01:07:49,500 --> 01:07:54,060
+ From the queue, from being ready to execute,
+
+894
+01:07:54,060 --> 01:07:59,180
+ it can go in running state, ready to run,
+
+895
+01:08:01,900 --> 01:08:05,780
+ is running, or, and can terminate,
+
+896
+01:08:05,780 --> 01:08:09,460
+ or it can be interrupted, right?
+
+897
+01:08:09,460 --> 01:08:11,580
+ For instance, it's time-quanta expired.
+
+898
+01:08:11,580 --> 01:08:15,300
+ So it's put again back in the ready state.
+
+899
+01:08:15,300 --> 01:08:18,100
+ Or it's doing an IO event.
+
+900
+01:08:18,100 --> 01:08:20,780
+ It's waiting for, it's doing a read,
+
+901
+01:08:20,780 --> 01:08:23,140
+ waiting for some data from the network to get,
+
+902
+01:08:23,140 --> 01:08:26,540
+ to get some data from the network, right?
+
+903
+01:08:26,910 --> 01:08:28,470
+ you are in waiting state.
+
+904
+01:08:28,470 --> 01:08:30,670
+ Again, you are no longer running.
+
+905
+01:08:30,670 --> 01:08:32,990
+ When you are going to get the data you are waiting for,
+
+906
+01:08:32,990 --> 01:08:35,990
+ you are going to be in a ready state so you can run again.
+
+907
+01:08:35,990 --> 01:08:38,470
+ Right?
+
+908
+01:08:38,470 --> 01:08:39,110
+ Oops.
+
+909
+01:08:39,110 --> 01:08:41,170
+ OK, so we have also the animation.
+
+910
+01:08:41,170 --> 01:08:43,870
+ So the process is created.
+
+911
+01:08:43,870 --> 01:08:45,630
+ You are going to go into ready state.
+
+912
+01:08:45,630 --> 01:08:48,590
+ Here you can run when the processor--
+
+913
+01:08:48,590 --> 01:08:51,270
+ when the CPU is available.
+
+914
+01:08:51,270 --> 01:08:52,030
+ Then you run.
+
+915
+01:08:52,030 --> 01:08:56,070
+ You can get an interrupt.
+
+916
+01:08:56,070 --> 01:08:59,550
+ Like I mentioned, when your time quanta expired,
+
+917
+01:08:59,550 --> 01:09:02,710
+ and then do that multiple times, like we
+
+918
+01:09:02,710 --> 01:09:07,110
+ saw in the previous slide, you can switch between P0 and P1.
+
+919
+01:09:07,110 --> 01:09:16,910
+ Then you can-- if you execute an I/O operation,
+
+920
+01:09:16,910 --> 01:09:19,070
+ the process can wait.
+
+921
+01:09:19,070 --> 01:09:20,270
+ Should wait.
+
+922
+01:09:20,270 --> 01:09:21,910
+ No longer running.
+
+923
+01:09:21,910 --> 01:09:25,710
+ When the wait ends, because it got the data, for instance,
+
+924
+01:09:25,710 --> 01:09:29,550
+ for which it's waiting for, you're into a ready state.
+
+925
+01:09:29,550 --> 01:09:32,030
+ And you run for a little bit again.
+
+926
+01:09:32,030 --> 01:09:34,590
+ And then you are done.
+
+927
+01:09:34,590 --> 01:09:35,110
+ Exit.
+
+928
+01:09:35,110 --> 01:09:42,470
+ OK.
+
+929
+01:09:42,470 --> 01:09:46,830
+ The scheduling, this is just a part.
+
+930
+01:09:46,830 --> 01:09:48,630
+ It's ready queue.
+
+931
+01:09:48,630 --> 01:09:52,630
+ And the scheduling, basically, what is a scheduler?
+
+932
+01:09:52,630 --> 01:09:54,790
+ What is the role of the scheduler?
+
+933
+01:09:54,790 --> 01:09:56,710
+ We talk about the scheduler.
+
+934
+01:09:56,710 --> 01:10:05,550
+ The scheduler picks which ready process to run next.
+
+935
+01:10:05,550 --> 01:10:06,950
+ OK?
+
+936
+01:10:06,950 --> 01:10:07,430
+ That's it.
+
+937
+01:10:07,430 --> 01:10:21,390
+ And here you see that once you run, there are multiple ways
+
+938
+01:10:21,390 --> 01:10:24,230
+ you can stop running.
+
+939
+01:10:24,230 --> 01:10:27,470
+ Like I said, time slice expires.
+
+940
+01:10:27,470 --> 01:10:29,590
+ You are doing an I/O request, and you
+
+941
+01:10:29,590 --> 01:10:34,430
+ need to wait for that to complete.
+
+942
+01:10:34,430 --> 01:10:37,910
+ You can fork a child, or you can wait for interrupt.
+
+943
+01:10:37,910 --> 01:10:42,750
+ Like, for instance, from a timer interrupt,
+
+944
+01:10:42,750 --> 01:10:47,750
+ or interrupt from the keyboard, or something like that.
+
+945
+01:10:47,750 --> 01:10:51,110
+ OK, let me see about examples.
+
+946
+01:10:51,110 --> 01:10:51,990
+ Questions, sorry.
+
+947
+01:10:51,990 --> 01:10:57,630
+ Why do we need thread pools?
+
+948
+01:10:57,630 --> 01:10:59,710
+ Can we just create thread as request comes?
+
+949
+01:10:59,710 --> 01:11:09,830
+ OK, Philip, so what happens if you have 1 million requests?
+
+950
+01:11:09,830 --> 01:11:14,470
+ Each thread actually consumes resources.
+
+951
+01:11:14,470 --> 01:11:17,390
+ So therefore, at some point, you exhaust
+
+952
+01:11:17,390 --> 01:11:21,150
+ the resources of a machine.
+
+953
+01:11:21,150 --> 01:11:23,310
+ And then everything becomes extremely slow.
+
+954
+01:11:23,310 --> 01:11:24,990
+ You get thrashing.
+
+955
+01:11:24,990 --> 01:11:26,070
+ You want to avoid that.
+
+956
+01:11:26,070 --> 01:11:31,670
+ From Miles, assuming one CPU, how does a kernel
+
+957
+01:11:31,670 --> 01:11:34,630
+ ensure each process runs smoothly?
+
+958
+01:11:34,630 --> 01:11:37,190
+ Is there a timer for when the scheduler interrupts
+
+959
+01:11:37,190 --> 01:11:38,830
+ for each PCB?
+
+960
+01:11:38,830 --> 01:11:41,230
+ That's correct.
+
+961
+01:11:41,230 --> 01:11:43,470
+ This is the one.
+
+962
+01:11:43,470 --> 01:11:45,630
+ Time slice expires.
+
+963
+01:11:45,630 --> 01:11:48,670
+ So the time slice, the kernels, they typically
+
+964
+01:11:48,670 --> 01:11:52,510
+ have, say, 10 milliseconds or 1 milliseconds.
+
+965
+01:11:52,510 --> 01:11:56,590
+ So a process, or a thread, actually, the thread runs.
+
+966
+01:11:56,590 --> 01:11:58,870
+ When I say a process, in this case,
+
+967
+01:11:58,870 --> 01:12:01,430
+ I am using interchangeably.
+
+968
+01:12:01,430 --> 01:12:04,710
+ But the process, like thread runs,
+
+969
+01:12:04,710 --> 01:12:10,190
+ it can run only up to, say, 10 milliseconds or 1 millisecond.
+
+970
+01:12:10,190 --> 01:12:17,430
+ When that expires, the process is swapped out.
+
+971
+01:12:17,430 --> 01:12:20,910
+ OK?
+
+972
+01:12:20,910 --> 01:12:21,670
+ So question.
+
+973
+01:12:21,670 --> 01:12:29,030
+ How is a process PCB distinct from the thread control block?
+
+974
+01:12:29,030 --> 01:12:31,990
+ The PCB, it's, again, contains a state
+
+975
+01:12:31,990 --> 01:12:33,150
+ associated with the process.
+
+976
+01:12:33,150 --> 01:12:34,830
+ It's a lot of more state.
+
+977
+01:12:34,830 --> 01:12:40,230
+ Like, for instance, the state about the memory, the pages,
+
+978
+01:12:40,230 --> 01:12:42,590
+ and the translation.
+
+979
+01:12:42,590 --> 01:12:46,750
+ It also contains the file descriptors.
+
+980
+01:12:46,750 --> 01:12:48,430
+ OK?
+
+981
+01:12:48,430 --> 01:12:51,910
+ The thread, it's only storing--
+
+982
+01:12:51,910 --> 01:12:54,110
+ it's the thread control block.
+
+983
+01:12:54,110 --> 01:12:58,790
+ It's only typically registers and the stack.
+
+984
+01:12:58,790 --> 01:12:59,830
+ Right?
+
+985
+01:12:59,830 --> 01:13:04,230
+ It's much smaller.
+
+986
+01:13:04,230 --> 01:13:04,730
+ OK?
+
+987
+01:13:04,730 --> 01:13:09,510
+ Hopefully, I answered the question.
+
+988
+01:13:09,510 --> 01:13:09,990
+ OK.
+
+989
+01:13:13,750 --> 01:13:18,230
+ So if the process is not running,
+
+990
+01:13:18,230 --> 01:13:22,070
+ it's PCB, which represents a process in the kernel,
+
+991
+01:13:22,070 --> 01:13:24,390
+ is in some scheduler queue.
+
+992
+01:13:24,390 --> 01:13:26,910
+ Maybe waiting for an I operation to complete,
+
+993
+01:13:26,910 --> 01:13:31,350
+ or waiting for an interrupt, or things like that.
+
+994
+01:13:31,350 --> 01:13:32,990
+ OK?
+
+995
+01:13:32,990 --> 01:13:37,670
+ And each queue, again, can have different scheduling policies
+
+996
+01:13:37,670 --> 01:13:46,630
+ about how you are going to serve the next PCB from that queue.
+
+997
+01:13:46,630 --> 01:13:48,950
+ This is a ready queue.
+
+998
+01:13:48,950 --> 01:13:49,870
+ OK?
+
+999
+01:13:49,870 --> 01:13:53,030
+ And here represent, you have this kind of each node
+
+1000
+01:13:53,030 --> 01:13:54,230
+ represent one process.
+
+1001
+01:13:54,230 --> 01:13:57,630
+ You see here the PCB.
+
+1002
+01:13:57,630 --> 01:13:59,590
+ This is a queue for each device.
+
+1003
+01:13:59,590 --> 01:14:03,510
+ You can have for the USB, for the disk, Ethernet.
+
+1004
+01:14:03,510 --> 01:14:05,150
+ This is for networking.
+
+1005
+01:14:05,150 --> 01:14:06,790
+ So there is nothing there.
+
+1006
+01:14:06,790 --> 01:14:08,390
+ Now for the disk, in this case, you
+
+1007
+01:14:08,390 --> 01:14:11,990
+ have two processes which are waiting to operate,
+
+1008
+01:14:11,990 --> 01:14:16,630
+ which are operating to waiting to operate, say, read or write
+
+1009
+01:14:16,630 --> 01:14:18,030
+ on the disk.
+
+1010
+01:14:18,030 --> 01:14:18,910
+ Right?
+
+1011
+01:14:18,910 --> 01:14:22,510
+ So the kernel will decide what is the order in which they
+
+1012
+01:14:22,510 --> 01:14:25,910
+ are going to be scheduled.
+
+1013
+01:14:25,910 --> 01:14:32,870
+ The request is going to be satisfied.
+
+1014
+01:14:32,870 --> 01:14:34,350
+ OK?
+
+1015
+01:14:34,350 --> 01:14:37,590
+ And the same for the network.
+
+1016
+01:14:37,590 --> 01:14:41,390
+ So the schedule is actually, as I call it, very simple.
+
+1017
+01:14:41,390 --> 01:14:45,550
+ Like this is for the ready process, right?
+
+1018
+01:14:45,550 --> 01:14:48,750
+ You go to the ready process.
+
+1019
+01:14:48,750 --> 01:14:50,470
+ If the ready process--
+
+1020
+01:14:50,470 --> 01:14:51,590
+ it's a ready process.
+
+1021
+01:14:51,590 --> 01:14:57,830
+ So if the queue is not empty, that's what I mean.
+
+1022
+01:14:57,830 --> 01:14:59,070
+ You select the process.
+
+1023
+01:14:59,070 --> 01:15:01,230
+ This is what from the queue.
+
+1024
+01:15:01,230 --> 01:15:04,670
+ This is a scheduling operation.
+
+1025
+01:15:04,670 --> 01:15:10,230
+ And you get the PCB of the next process to schedule.
+
+1026
+01:15:10,230 --> 01:15:12,150
+ And you run the next PCB.
+
+1027
+01:15:12,150 --> 01:15:14,190
+ Otherwise, you are idle because there
+
+1028
+01:15:14,190 --> 01:15:18,310
+ is no process to be scheduled.
+
+1029
+01:15:18,310 --> 01:15:19,790
+ So the process, like I mentioned,
+
+1030
+01:15:19,790 --> 01:15:23,270
+ the scheduling is a mechanism for deciding which process
+
+1031
+01:15:23,270 --> 01:15:26,790
+ or thread to run on the CPU.
+
+1032
+01:15:26,790 --> 01:15:29,670
+ And there are lots of different scheduling policies.
+
+1033
+01:15:29,670 --> 01:15:33,790
+ There are tens of thousands of papers on scheduling policies
+
+1034
+01:15:33,790 --> 01:15:35,630
+ because there are different properties you
+
+1035
+01:15:35,630 --> 01:15:37,190
+ want to enforce maybe.
+
+1036
+01:15:37,190 --> 01:15:41,430
+ Fairness between different application or processes.
+
+1037
+01:15:41,430 --> 01:15:43,630
+ Provide real-time guarantees.
+
+1038
+01:15:43,630 --> 01:15:47,030
+ Latency optimizations and things like that.
+
+1039
+01:15:47,030 --> 01:15:49,110
+ OK?
+
+1040
+01:15:49,110 --> 01:15:51,670
+ And remember that actually the part
+
+1041
+01:15:51,670 --> 01:15:55,470
+ which is running from a process is that thread.
+
+1042
+01:15:55,470 --> 01:15:57,990
+ That's the active component.
+
+1043
+01:15:57,990 --> 01:16:00,790
+ Address space is passive.
+
+1044
+01:16:00,790 --> 01:16:05,390
+ It's just protection.
+
+1045
+01:16:05,390 --> 01:16:08,110
+ Why have multiple threads via address space?
+
+1046
+01:16:08,110 --> 01:16:09,990
+ We already know that.
+
+1047
+01:16:09,990 --> 01:16:12,230
+ We saw that an example in which you
+
+1048
+01:16:12,230 --> 01:16:17,830
+ can have one thread for each connection for each client.
+
+1049
+01:16:17,830 --> 01:16:20,630
+ This again, it's showing you the share
+
+1050
+01:16:20,630 --> 01:16:23,310
+ the state between the thread in the same process
+
+1051
+01:16:23,310 --> 01:16:26,070
+ and then per thread states.
+
+1052
+01:16:26,070 --> 01:16:27,590
+ It's a thread control block.
+
+1053
+01:16:27,590 --> 01:16:32,310
+ And you have registers, stack information,
+
+1054
+01:16:32,310 --> 01:16:34,110
+ and that's pretty much it.
+
+1055
+01:16:34,110 --> 01:16:37,310
+ While the share state, you have global variables,
+
+1056
+01:16:37,310 --> 01:16:40,110
+ the heap, the memory, the code, and things like that.
+
+1057
+01:16:40,110 --> 01:16:47,110
+ And the core of the concurrency is this dispatch loop.
+
+1058
+01:16:47,110 --> 01:16:47,630
+ It's a loop.
+
+1059
+01:16:47,630 --> 01:16:51,510
+ You run the thread, choose the next thread, save the state.
+
+1060
+01:16:51,510 --> 01:16:55,590
+ This is now written in terms of the threads at the thread
+
+1061
+01:16:55,590 --> 01:16:59,590
+ going to write it, but this is exactly what this core loop
+
+1062
+01:16:59,590 --> 01:17:02,070
+ in the kernel is doing.
+
+1063
+01:17:02,070 --> 01:17:03,950
+ You run the current thread.
+
+1064
+01:17:03,950 --> 01:17:08,550
+ Then when that thread terminates or it's interrupted
+
+1065
+01:17:08,550 --> 01:17:12,150
+ because the timer and so forth, you choose the next thread.
+
+1066
+01:17:12,150 --> 01:17:17,150
+ From the queue, you save the state of the current thread
+
+1067
+01:17:17,150 --> 01:17:20,030
+ and you load the state of the new thread,
+
+1068
+01:17:20,030 --> 01:17:23,190
+ and now you run the new thread.
+
+1069
+01:17:23,190 --> 01:17:24,910
+ And this is an infinite loop.
+
+1070
+01:17:24,910 --> 01:17:25,550
+ You never stop.
+
+1071
+01:17:25,550 --> 01:17:38,590
+ OK, so let's stop here and let me see any other question.
+
+1072
+01:17:38,590 --> 01:17:47,790
+ OK, so no more questions.
+
+1073
+01:17:47,790 --> 01:17:52,070
+ So let's stop here, like on the dot.
+
+1074
+01:17:52,070 --> 01:17:53,870
+ Good luck with the homework.
+
+1075
+01:17:53,870 --> 01:17:55,750
+ Good luck with the project.
+
+1076
+01:17:55,750 --> 01:17:59,790
+ And let me know if you have any other questions.
+
+1077
+01:17:59,790 --> 01:18:04,990
+ If not, I'm going to see you all on Thursday.
+
+1078
+01:18:04,990 --> 01:18:08,630
+ OK, have a great day.
+
+1079
+01:18:08,630 --> 01:18:10,630
+ Thank you.
+
+1080
+01:18:10,630 --> 01:18:15,630
+ .
+

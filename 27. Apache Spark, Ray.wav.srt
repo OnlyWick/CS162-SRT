@@ -1,0 +1,3784 @@
+1
+00:00:00,000 --> 00:00:16,320
+ [Silence]
+
+2
+00:00:16,320 --> 00:00:25,360
+ So, hello everyone. Welcome to the last lecture. And today we are going to go over some special
+
+3
+00:00:25,360 --> 00:00:32,480
+ topics, this being the last lecture. In particular, I'm going to talk briefly about Apache Spark and
+
+4
+00:00:32,480 --> 00:00:42,320
+ Ray, two systems we developed at Berkeley you may have heard of. And I'll try to go quicker,
+
+5
+00:00:42,320 --> 00:00:49,840
+ although there are a lot of slides, because really I like to give you opportunity to ask any
+
+6
+00:00:49,840 --> 00:00:59,840
+ questions you may have about this lecture, about this class, or in general. So, and of course,
+
+7
+00:00:59,840 --> 00:01:11,920
+ as always, at any point, please feel free to ask any questions. So at Berkeley, we have these labs,
+
+8
+00:01:11,920 --> 00:01:18,320
+ and as you may know, each lab is around five years. Each lab has a particular mission
+
+9
+00:01:18,960 --> 00:01:26,720
+ and consists of a bunch of faculty and quite a few graduate students and postdocs.
+
+10
+00:01:26,720 --> 00:01:36,480
+ And this is what we started, this is one of the more recent one, it was AMLAB 2011-2017.
+
+11
+00:01:36,480 --> 00:01:42,640
+ It had eight faculties across different disciplines of computer science, algorithms,
+
+12
+00:01:43,760 --> 00:01:52,880
+ machine learning, and sorry, algorithms, which in what we meant by algorithms is mostly machine
+
+13
+00:01:52,880 --> 00:02:02,080
+ learning. Machines means systems. And people, we are looking at some projects, which I'm not going
+
+14
+00:02:02,080 --> 00:02:11,280
+ to talk now, it's about crowdsource. That's why, hence the name of the lab, AMP. And these labs,
+
+15
+00:02:11,280 --> 00:02:19,040
+ again, like some of you may know, are in this floor plan in open space. So even the faculty
+
+16
+00:02:19,040 --> 00:02:30,800
+ have open seating, stay in open seating. And as this lab, they have twice a year retreats
+
+17
+00:02:30,800 --> 00:02:35,840
+ with the industry, they are working very closely with the industry,
+
+18
+00:02:36,400 --> 00:02:43,440
+ between, anyway between 120 and 200 people, half from Berkeley, half from industry in general.
+
+19
+00:02:43,440 --> 00:02:55,120
+ And before pandemics, there have been nice places like Tahoe or Monterey, you go there for three
+
+20
+00:02:55,120 --> 00:03:05,200
+ days and then you present the latest results and you get feedback and you network with people from
+
+21
+00:03:05,200 --> 00:03:14,960
+ industry. And we also have this kind of AMP camps, which are basically things, once you build some
+
+22
+00:03:14,960 --> 00:03:25,120
+ systems, some artifacts, these are some events, you know, which you basically train, provide
+
+23
+00:03:25,120 --> 00:03:33,200
+ tutorials to people in particular from industry to use for this new systems you've built.
+
+24
+00:03:34,960 --> 00:03:42,720
+ Anyway, so let's start. So this is Spark. Spark started at UC Berkeley in 2009, so actually started
+
+25
+00:03:42,720 --> 00:03:54,800
+ in the lab before AMP lab, that was called rat lab. But the main development happened during the AMP
+
+26
+00:03:54,800 --> 00:04:04,480
+ lab. It became open source 2010. It becomes an Apache project, 2013, and also data breaches
+
+27
+00:04:04,480 --> 00:04:14,800
+ with the company behind the open source project has been started in 2013. And today it's a de facto
+
+28
+00:04:14,800 --> 00:04:23,600
+ standard for doing big data processing. So how did this happen? So what was, you know,
+
+29
+00:04:23,600 --> 00:04:31,520
+ in 2009 when we started to work on this, what was the state of the world? So at that time,
+
+30
+00:04:31,520 --> 00:04:41,280
+ the most popular system to process huge amounts of data, large amounts of data was Apache Hadoop.
+
+31
+00:04:41,280 --> 00:04:49,360
+ And Apache Hadoop was an open source clone of the MapReduce, which are MapReduce, which are the
+
+32
+00:04:49,360 --> 00:05:02,800
+ system, high profile system developed internally at Google. And this process, huge amount of data,
+
+33
+00:05:02,800 --> 00:05:12,320
+ the processing amount of data, but it was more bad. It was quite slow. But it had
+
+34
+00:05:12,320 --> 00:05:18,480
+ rapid, you know, it had a lot of industry adoption, some of the big high tech companies.
+
+35
+00:05:18,800 --> 00:05:31,440
+ And Cloudera, Horton, are two companies, which are two new startups, which are
+
+36
+00:05:31,440 --> 00:05:41,120
+ promoting Hadoop open source. And at that time, again, this is open source, it was free. So
+
+37
+00:05:42,880 --> 00:05:53,600
+ it came at the right time because if you probably remember or heard 2007, 2008 was this big financial
+
+38
+00:05:53,600 --> 00:06:05,760
+ crash. So, sorry, this should be hard to let me guess.
+
+39
+00:06:10,400 --> 00:06:14,720
+ So this is, and let's not simplify. So this is like how Hadoop is working.
+
+40
+00:06:14,720 --> 00:06:24,480
+ The Hadoop has two stages, map and reduce. And in each stage, each stage is done in parallel,
+
+41
+00:06:24,480 --> 00:06:33,280
+ a bunch of map tasks reads the data from the stories, from the disk. Then they process the
+
+42
+00:06:33,280 --> 00:06:38,960
+ data. Then they shuffle the data. And there is a second stage, which is a reduced stage.
+
+43
+00:06:39,840 --> 00:06:49,760
+ And the reduced stage provides you the final results. The classic example of a
+
+44
+00:06:49,760 --> 00:06:58,800
+ mabri's job is count. You count how many occurrences of each word you have in this
+
+45
+00:06:58,800 --> 00:07:06,720
+ 10 millions of documents. So this is basically the high level. And I think that many of you
+
+46
+00:07:06,720 --> 00:07:12,080
+ already know about it. You may have even done projects with Hadoop.
+
+47
+00:07:12,080 --> 00:07:29,040
+ Any questions so far? So the tasks are typically collocated with the data, with the input data.
+
+48
+00:07:30,320 --> 00:07:38,160
+ And like this figure shows, the input data as well as the intermediate data is stored on the disk.
+
+49
+00:07:50,400 --> 00:08:01,280
+ So the question, can I briefly explain what is a map and reduce means? So think about this one.
+
+50
+00:08:01,280 --> 00:08:06,800
+ And sorry, I don't have an example here right away. But I think that we can,
+
+51
+00:08:06,800 --> 00:08:14,560
+ it's hopefully reasonably easy to explain even without an example of something. Say you have 10
+
+52
+00:08:14,560 --> 00:08:21,920
+ millions documents, you have large number of documents, and you want to count the occurrences
+
+53
+00:08:21,920 --> 00:08:29,120
+ of every word, right, English word in these documents.
+
+54
+00:08:29,120 --> 00:08:38,880
+ So one way to do it is very simple. First, you define, say you have 100 machines.
+
+55
+00:08:39,760 --> 00:08:45,040
+ So you take these 10 millions documents and you divide them between 100 machines and you give
+
+56
+00:08:45,040 --> 00:08:56,400
+ to each machine, I think 100,000 documents, right. And each machine takes these pile of documents
+
+57
+00:08:56,400 --> 00:09:06,320
+ and it counts each word. Like for instance, the word Berkeley. How many times it appears in each
+
+58
+00:09:06,320 --> 00:09:15,040
+ pile of documents? And one machine will say, okay, Berkeley, it appears 200 times, another machine
+
+59
+00:09:15,040 --> 00:09:23,440
+ finds 150 times and so forth. So this first phase in which each machine is doing independently
+
+60
+00:09:23,440 --> 00:09:31,520
+ this counting on each pile of documents is called map. Now each of the, each after the first stage,
+
+61
+00:09:31,520 --> 00:09:37,440
+ you want to aggregate, right, because in order to know the total number of occurrences of the word
+
+62
+00:09:37,440 --> 00:09:44,560
+ Berkeley in all the documents, you need to sum up, right, because one machine in its own.
+
+63
+00:09:44,680 --> 00:09:48,880
+ 100,000, like again, found that Berkeley occurs 200 times,
+
+64
+00:09:48,880 --> 00:09:51,160
+ another machine 150 times and so forth.
+
+65
+00:09:51,160 --> 00:09:53,120
+ So you need to add them up.
+
+66
+00:09:53,120 --> 00:09:54,700
+ This is a reduced phase.
+
+67
+00:09:54,700 --> 00:09:55,960
+ So in the reduced phase,
+
+68
+00:09:55,960 --> 00:09:58,920
+ you are going to map each English word
+
+69
+00:09:58,920 --> 00:10:03,100
+ on one of the machines, say for instance,
+
+70
+00:10:03,100 --> 00:10:07,200
+ A on one machine, B on one machine,
+
+71
+00:10:07,200 --> 00:10:09,520
+ we were starting with A on one machine,
+
+72
+00:10:09,520 --> 00:10:13,160
+ we were starting with B on the other machines and so forth.
+
+73
+00:10:13,160 --> 00:10:18,160
+ And then each of the mapper will send for all words,
+
+74
+00:10:18,160 --> 00:10:23,660
+ the count for all words, which starts with A to machine one.
+
+75
+00:10:23,660 --> 00:10:28,720
+ So machine one now gets all the accounts
+
+76
+00:10:28,720 --> 00:10:30,680
+ for the word starting with A.
+
+77
+00:10:30,680 --> 00:10:34,800
+ So they can sum up up and finally give you the result.
+
+78
+00:10:34,800 --> 00:10:39,520
+ The second machine, which receives all the accounts
+
+79
+00:10:39,520 --> 00:10:41,520
+ for all the words starting with B,
+
+80
+00:10:41,520 --> 00:10:46,200
+ is going also to count the total number of currencies
+
+81
+00:10:46,200 --> 00:10:48,400
+ after it receives the information,
+
+82
+00:10:48,400 --> 00:10:50,960
+ if the partial counts from each of the mappers
+
+83
+00:10:50,960 --> 00:10:52,080
+ for the word Berkeley.
+
+84
+00:10:52,080 --> 00:10:55,560
+ Okay, this is a reduced phase.
+
+85
+00:10:55,560 --> 00:10:56,400
+ Make sense?
+
+86
+00:10:56,400 --> 00:11:04,200
+ The shuffle stage is exactly this, what I described.
+
+87
+00:11:04,200 --> 00:11:06,620
+ This is what it is.
+
+88
+00:11:06,620 --> 00:11:10,760
+ Like each, for instance, if this is the second machines,
+
+89
+00:11:10,760 --> 00:11:14,680
+ the second machine here is storing the count,
+
+90
+00:11:14,680 --> 00:11:19,640
+ compute the final count for all the final counts
+
+91
+00:11:19,640 --> 00:11:21,780
+ for all the words starting with B,
+
+92
+00:11:21,780 --> 00:11:26,780
+ then it has to get the data from every mapper, right?
+
+93
+00:11:26,780 --> 00:11:30,460
+ So therefore the arrows, this is what they show communication.
+
+94
+00:11:30,460 --> 00:11:34,480
+ So every map will communicate with every other reduce
+
+95
+00:11:34,480 --> 00:11:38,680
+ to send this partial information about the counts
+
+96
+00:11:38,680 --> 00:11:41,640
+ for the words it found in its piles of documents.
+
+97
+00:11:41,640 --> 00:11:44,000
+ Make sense?
+
+98
+00:11:44,000 --> 00:11:51,880
+ Okay.
+
+99
+00:11:51,880 --> 00:11:55,240
+ Okay, great.
+
+100
+00:11:55,240 --> 00:11:56,080
+ Thank you.
+
+101
+00:11:56,080 --> 00:11:59,340
+ So at the same time,
+
+102
+00:11:59,340 --> 00:12:02,200
+ and we are working on, at that time,
+
+103
+00:12:02,200 --> 00:12:06,680
+ we are working on Hadoop quite a bit, right?
+
+104
+00:12:06,680 --> 00:12:09,480
+ So we're improving the scheduling and things like that.
+
+105
+00:12:09,480 --> 00:12:14,480
+ And in 2009, Lester was a postdoc with Michael Jordan
+
+106
+00:12:14,480 --> 00:12:15,860
+ on machine learning.
+
+107
+00:12:15,860 --> 00:12:20,360
+ He came to us to people on the system
+
+108
+00:12:20,360 --> 00:12:24,980
+ because Netflix had this challenge.
+
+109
+00:12:24,980 --> 00:12:27,000
+ So the challenge it was,
+
+110
+00:12:27,000 --> 00:12:30,840
+ they have this challenge for a competition
+
+111
+00:12:30,840 --> 00:12:35,320
+ with $1 million prize for whoever can develop
+
+112
+00:12:35,320 --> 00:12:40,320
+ the best recommendation algorithm, right?
+
+113
+00:12:40,320 --> 00:12:41,880
+ So it gives you a set of data.
+
+114
+00:12:41,880 --> 00:12:43,960
+ It was supposed to be anonymized.
+
+115
+00:12:43,960 --> 00:12:48,960
+ And in the end, it ended up not, you know,
+
+116
+00:12:48,960 --> 00:12:54,080
+ people realizing that it was not as much anonymized
+
+117
+00:12:54,080 --> 00:12:55,560
+ as they thought it is.
+
+118
+00:12:55,560 --> 00:13:00,640
+ But anyway, at that stage, that was a problem.
+
+119
+00:13:00,640 --> 00:13:02,380
+ They give a set of data
+
+120
+00:13:02,380 --> 00:13:05,280
+ and these are the preference of the users.
+
+121
+00:13:05,280 --> 00:13:08,200
+ And the question is that,
+
+122
+00:13:08,200 --> 00:13:10,760
+ can you predict what movies
+
+123
+00:13:10,760 --> 00:13:13,660
+ this particular viewer is going to like?
+
+124
+00:13:13,660 --> 00:13:15,840
+ Right?
+
+125
+00:13:15,840 --> 00:13:18,000
+ This is a competition, public competition.
+
+126
+00:13:18,000 --> 00:13:24,680
+ And he came to us because the team in the AMP Lab,
+
+127
+00:13:24,680 --> 00:13:29,460
+ you know, they wanted to compete, obviously.
+
+128
+00:13:29,460 --> 00:13:33,420
+ And we told them,
+
+129
+00:13:33,420 --> 00:13:35,440
+ and obviously with this amount of,
+
+130
+00:13:35,440 --> 00:13:38,480
+ you need a lot of data because the more data you have,
+
+131
+00:13:38,480 --> 00:13:40,560
+ the better models you are going to build, right?
+
+132
+00:13:40,560 --> 00:13:42,380
+ This is one example, right?
+
+133
+00:13:42,380 --> 00:13:44,900
+ So for instance, if I want to,
+
+134
+00:13:44,900 --> 00:13:48,060
+ the question is that given your age,
+
+135
+00:13:48,060 --> 00:13:52,340
+ can I predict what kind of movie you like?
+
+136
+00:13:52,340 --> 00:13:54,040
+ And basically, the way I predict it,
+
+137
+00:13:54,040 --> 00:13:56,880
+ I am going to predict what is the rating
+
+138
+00:13:56,880 --> 00:13:58,800
+ you would give to a particular movie.
+
+139
+00:13:58,800 --> 00:14:01,440
+ So then I'm going to return the movies
+
+140
+00:14:01,440 --> 00:14:03,660
+ for which I predict that you are going to
+
+141
+00:14:03,660 --> 00:14:06,780
+ provide the highest rank, right?
+
+142
+00:14:06,780 --> 00:14:09,120
+ So you have a few data points
+
+143
+00:14:09,120 --> 00:14:11,120
+ and then I'm asking you here in the middle,
+
+144
+00:14:11,120 --> 00:14:13,860
+ what is the prediction?
+
+145
+00:14:13,860 --> 00:14:18,400
+ What, you know, it's, that's a question.
+
+146
+00:14:18,400 --> 00:14:22,960
+ And the intuition is that the more data you are going to have
+
+147
+00:14:22,960 --> 00:14:26,220
+ the better prediction you can make, right?
+
+148
+00:14:26,220 --> 00:14:29,480
+ So that's why you want ability to process
+
+149
+00:14:29,480 --> 00:14:30,880
+ a huge amount of data.
+
+150
+00:14:31,880 --> 00:14:32,880
+ Make sense?
+
+151
+00:14:32,880 --> 00:14:35,560
+ So this is a problem.
+
+152
+00:14:35,560 --> 00:14:38,560
+ So obviously we told them, okay, use Hadoop.
+
+153
+00:14:38,560 --> 00:14:41,960
+ And they use Hadoop because it processes
+
+154
+00:14:41,960 --> 00:14:45,780
+ a large amount of data, but Hadoop was extremely slow.
+
+155
+00:14:45,780 --> 00:14:48,680
+ So let me explain why.
+
+156
+00:14:48,680 --> 00:14:53,520
+ Machine learning and at that, we are talking then,
+
+157
+00:14:53,520 --> 00:14:57,040
+ we are talking about collaborative filtering algorithms.
+
+158
+00:14:57,040 --> 00:15:00,520
+ This is before deep learning, before neural networks.
+
+159
+00:15:00,520 --> 00:15:04,040
+ It's more classic machine learning.
+
+160
+00:15:04,040 --> 00:15:10,600
+ And, but still each machine learning algorithms
+
+161
+00:15:10,600 --> 00:15:15,600
+ are typically algorithms, iterative algorithms,
+
+162
+00:15:15,600 --> 00:15:19,480
+ meaning that you start with some kind of predictions
+
+163
+00:15:19,480 --> 00:15:22,200
+ and then you train the model, right?
+
+164
+00:15:22,200 --> 00:15:24,160
+ You are getting more and more data
+
+165
+00:15:24,160 --> 00:15:28,560
+ and they are going to hopefully improve the prediction,
+
+166
+00:15:28,560 --> 00:15:30,020
+ predict better and better.
+
+167
+00:15:31,020 --> 00:15:31,860
+ Right?
+
+168
+00:15:31,860 --> 00:15:39,100
+ So now each iteration, if you want to implement with Hadoop,
+
+169
+00:15:39,100 --> 00:15:43,020
+ is going to be a map reduced job, one job.
+
+170
+00:15:43,020 --> 00:15:45,960
+ One Hadoop job.
+
+171
+00:15:45,960 --> 00:15:51,060
+ And for each job, you need to read the data
+
+172
+00:15:51,060 --> 00:15:55,140
+ from the storage and you need to write the data
+
+173
+00:15:55,140 --> 00:15:56,220
+ on the storage.
+
+174
+00:15:57,780 --> 00:16:01,900
+ So each iteration needs to read and write a lot of data
+
+175
+00:16:01,900 --> 00:16:04,180
+ from the storage, from the disk.
+
+176
+00:16:04,180 --> 00:16:06,460
+ Can you remember that reading and writing
+
+177
+00:16:06,460 --> 00:16:08,900
+ is the disk is slow, right?
+
+178
+00:16:08,900 --> 00:16:13,580
+ So now if you have a few thousands of iterations,
+
+179
+00:16:13,580 --> 00:16:14,740
+ this will take forever.
+
+180
+00:16:14,740 --> 00:16:20,100
+ So that's kind of what's the motivation, one motivation.
+
+181
+00:16:20,100 --> 00:16:24,700
+ And at the same time, so this is again,
+
+182
+00:16:24,700 --> 00:16:29,100
+ so this is an example of machine learning application,
+
+183
+00:16:29,100 --> 00:16:32,380
+ but there are many other people,
+
+184
+00:16:32,380 --> 00:16:34,620
+ because once you have data, what you are going to do is,
+
+185
+00:16:34,620 --> 00:16:37,540
+ you want to do some forecast, some prediction,
+
+186
+00:16:37,540 --> 00:16:38,660
+ some optimizations.
+
+187
+00:16:38,660 --> 00:16:39,900
+ You need to process the data.
+
+188
+00:16:39,900 --> 00:16:42,500
+ And in many cases, this means machine learning
+
+189
+00:16:42,500 --> 00:16:44,500
+ or iterative computation.
+
+190
+00:16:44,500 --> 00:16:47,020
+ The other one is that once you have the data,
+
+191
+00:16:47,020 --> 00:16:51,180
+ the other application trend is once you have the data,
+
+192
+00:16:54,460 --> 00:16:59,100
+ you want to start to query the data, right?
+
+193
+00:16:59,100 --> 00:17:02,580
+ You don't want to just run a job,
+
+194
+00:17:02,580 --> 00:17:06,300
+ run up which takes a few hours to produce the results.
+
+195
+00:17:06,300 --> 00:17:12,300
+ So you also want to provide more R-Hope,
+
+196
+00:17:12,300 --> 00:17:15,900
+ like SQL kind of queries you want to ask
+
+197
+00:17:15,900 --> 00:17:20,180
+ and to get answered very quickly.
+
+198
+00:17:21,500 --> 00:17:25,780
+ Okay, so this is what was happening back then, right?
+
+199
+00:17:25,780 --> 00:17:29,780
+ At the same time, we are starting to look around
+
+200
+00:17:29,780 --> 00:17:34,500
+ and we are working with Facebook, Microsoft, Yahoo
+
+201
+00:17:34,500 --> 00:17:36,820
+ at that time, with a big company at that time.
+
+202
+00:17:36,820 --> 00:17:42,900
+ And we are starting to look at their workloads.
+
+203
+00:17:42,900 --> 00:17:48,580
+ And to our surprise, it turns out that despite that,
+
+204
+00:17:49,900 --> 00:17:54,900
+ they had huge amount of data, many working set.
+
+205
+00:17:54,900 --> 00:17:57,100
+ Remember what is a working set?
+
+206
+00:17:57,100 --> 00:18:01,620
+ The working set is how much space would you need
+
+207
+00:18:01,620 --> 00:18:06,620
+ in say in memory so that your application works well.
+
+208
+00:18:06,620 --> 00:18:13,380
+ That means your application will not access a lot of data
+
+209
+00:18:13,380 --> 00:18:17,540
+ which is not in the working set, right?
+
+210
+00:18:18,580 --> 00:18:22,140
+ So looking here, and this is what I remember,
+
+211
+00:18:22,140 --> 00:18:24,620
+ this is the data since back then.
+
+212
+00:18:24,620 --> 00:18:28,900
+ And this basically shows,
+
+213
+00:18:28,900 --> 00:18:35,020
+ basically you have here three columns, four columns.
+
+214
+00:18:35,020 --> 00:18:37,860
+ The last three columns are for different workloads
+
+215
+00:18:37,860 --> 00:18:41,060
+ from these companies, Facebook, Microsoft, and Yahoo.
+
+216
+00:18:41,060 --> 00:18:44,340
+ The first column is a memory of those machines.
+
+217
+00:18:44,340 --> 00:18:49,340
+ So this again, 2010 around, nine, 10 and so forth.
+
+218
+00:18:49,340 --> 00:18:54,180
+ So 32 gigabytes RAM for a server, it was a lot of RAM.
+
+219
+00:18:54,180 --> 00:19:00,260
+ And the numbers represent how many,
+
+220
+00:19:00,260 --> 00:19:05,260
+ what percentage of these jobs can fill their fully,
+
+221
+00:19:05,260 --> 00:19:07,420
+ can fully fit their data in memory.
+
+222
+00:19:07,420 --> 00:19:13,260
+ So it basically says that for instance, if your memory,
+
+223
+00:19:13,260 --> 00:19:15,900
+ if the server memory is 32 gigabytes,
+
+224
+00:19:15,900 --> 00:19:22,340
+ then 96% of the jobs from Facebook workload
+
+225
+00:19:22,340 --> 00:19:25,220
+ can fit their data in memory,
+
+226
+00:19:25,220 --> 00:19:29,220
+ 82% from Microsoft and 97, 5% from Yahoo.
+
+227
+00:19:29,370 --> 00:19:34,370
+ And for 64 gigabytes, 97, 98, and 99.5 respectively,
+
+228
+00:19:34,370 --> 00:19:39,530
+ and so forth, right?
+
+229
+00:19:39,530 --> 00:19:41,730
+ So that's kind of the idea.
+
+230
+00:19:41,730 --> 00:19:43,050
+ So what was the solution?
+
+231
+00:19:43,050 --> 00:19:46,610
+ And this is where Spark comes in.
+
+232
+00:19:46,610 --> 00:19:48,770
+ This was a new parallel execution engine
+
+233
+00:19:48,770 --> 00:19:50,410
+ for big data processing.
+
+234
+00:19:50,410 --> 00:19:54,330
+ It was general, provides efficient support
+
+235
+00:19:54,330 --> 00:19:56,330
+ for multiple workloads.
+
+236
+00:19:56,330 --> 00:20:01,050
+ And it was, because it has a powerful API,
+
+237
+00:20:01,050 --> 00:20:03,090
+ it reduces the code you need to write
+
+238
+00:20:03,090 --> 00:20:04,890
+ for the same application, right?
+
+239
+00:20:04,890 --> 00:20:07,590
+ Because each API was doing more.
+
+240
+00:20:07,590 --> 00:20:13,210
+ The original API was in Scala, right?
+
+241
+00:20:13,210 --> 00:20:14,650
+ It's a functional language.
+
+242
+00:20:14,650 --> 00:20:18,650
+ But you also have API in Java and later in Python.
+
+243
+00:20:18,650 --> 00:20:23,450
+ But the one thing what Spark did,
+
+244
+00:20:24,450 --> 00:20:29,450
+ and was very good at was performance,
+
+245
+00:20:29,450 --> 00:20:34,170
+ at least compared with Hadoop.
+
+246
+00:20:34,170 --> 00:20:38,970
+ So it was, for some jobs,
+
+247
+00:20:38,970 --> 00:20:42,210
+ it was 100 times faster than Hadoop,
+
+248
+00:20:42,210 --> 00:20:44,450
+ MR against MapReduce.
+
+249
+00:20:44,450 --> 00:20:50,530
+ Because it was aggressively exploiting the memory.
+
+250
+00:20:50,530 --> 00:20:53,970
+ And for most workloads, like we just seen,
+
+251
+00:20:53,970 --> 00:20:59,130
+ the data was fully fitting in memory.
+
+252
+00:20:59,130 --> 00:21:03,530
+ Again, it was general.
+
+253
+00:21:03,530 --> 00:21:05,750
+ There is a Spark core.
+
+254
+00:21:05,750 --> 00:21:08,570
+ And on top of that, you have a bunch of libraries,
+
+255
+00:21:08,570 --> 00:21:11,330
+ like to provide SQL interface,
+
+256
+00:21:11,330 --> 00:21:14,010
+ provide streaming functionality,
+
+257
+00:21:14,010 --> 00:21:16,690
+ machine learning, graph processing,
+
+258
+00:21:16,690 --> 00:21:21,690
+ and the Spark R provides support for the R language.
+
+259
+00:21:21,690 --> 00:21:26,290
+ Easy to write code.
+
+260
+00:21:26,290 --> 00:21:27,370
+ This is the word count.
+
+261
+00:21:27,370 --> 00:21:29,530
+ This is the application I mentioned to you.
+
+262
+00:21:29,530 --> 00:21:36,930
+ On the left-hand side is how the size of the code
+
+263
+00:21:36,930 --> 00:21:43,170
+ to write that application using Hadoop MapReduce APIs.
+
+264
+00:21:43,170 --> 00:21:46,410
+ And this is for Spark.
+
+265
+00:21:46,410 --> 00:21:49,730
+ So for 50 lines of code to three lines of code.
+
+266
+00:21:49,730 --> 00:21:51,490
+ Okay?
+
+267
+00:21:51,490 --> 00:21:59,690
+ Okay.
+
+268
+00:21:59,690 --> 00:22:05,610
+ So the main key abstraction of the original Spark
+
+269
+00:22:05,610 --> 00:22:11,010
+ was what we call resilient distributed datasets.
+
+270
+00:22:11,010 --> 00:22:13,570
+ So this is a set of data,
+
+271
+00:22:13,570 --> 00:22:16,170
+ which is partitioned across machines.
+
+272
+00:22:16,170 --> 00:22:18,850
+ And it was stored on RAM or on disk.
+
+273
+00:22:18,850 --> 00:22:23,290
+ And resilient because it was resilient to failures.
+
+274
+00:22:23,290 --> 00:22:25,970
+ We'll learn more about that soon.
+
+275
+00:22:25,970 --> 00:22:30,010
+ There are two kinds of operation,
+
+276
+00:22:30,010 --> 00:22:32,470
+ transformation of the data and actions.
+
+277
+00:22:32,470 --> 00:22:36,410
+ The action, the difference is a big difference
+
+278
+00:22:36,410 --> 00:22:41,410
+ is that transformation can be filtered on data,
+
+279
+00:22:41,410 --> 00:22:45,130
+ selecting just a few lines, a few rows,
+
+280
+00:22:45,130 --> 00:22:49,730
+ selecting all lines in a text,
+
+281
+00:22:49,730 --> 00:22:52,370
+ which contains one Berkeley, for instance.
+
+282
+00:22:52,370 --> 00:22:56,250
+ The actions are the one which produce an output,
+
+283
+00:22:56,250 --> 00:22:58,210
+ a visible output.
+
+284
+00:22:58,210 --> 00:23:02,130
+ Like for instance, I want to get the count for Berkeley.
+
+285
+00:23:02,130 --> 00:23:03,690
+ Right?
+
+286
+00:23:03,690 --> 00:23:08,690
+ How many occurrences of Berkeley are in all these documents.
+
+287
+00:23:08,690 --> 00:23:11,890
+ This is Spark.
+
+288
+00:23:11,890 --> 00:23:14,970
+ It's again, I'm going to show you a very similar figure,
+
+289
+00:23:14,970 --> 00:23:17,850
+ like I showed you in the case of PADU.
+
+290
+00:23:17,850 --> 00:23:19,610
+ So you have these RDDs.
+
+291
+00:23:19,610 --> 00:23:23,950
+ And then now instead of only two stages,
+
+292
+00:23:23,950 --> 00:23:27,330
+ map and reduce can have many number of stages.
+
+293
+00:23:27,330 --> 00:23:31,850
+ Map and reduce are only particular form of stages,
+
+294
+00:23:31,850 --> 00:23:34,410
+ but you can have much more general any stages.
+
+295
+00:23:34,410 --> 00:23:38,050
+ We are going to be calling these stages or steps.
+
+296
+00:23:38,050 --> 00:23:43,450
+ And then you have this kind of stage after stage
+
+297
+00:23:43,450 --> 00:23:47,730
+ and between stages, you can reshuffle the data
+
+298
+00:23:47,730 --> 00:23:50,010
+ and create new these RDDs.
+
+299
+00:23:50,010 --> 00:23:59,930
+ Now all tasks in the same stage implement the same operation
+
+300
+00:23:59,930 --> 00:24:02,850
+ like for instance, map or reduce.
+
+301
+00:24:02,850 --> 00:24:07,810
+ And typically they are single-strated
+
+302
+00:24:07,810 --> 00:24:09,370
+ and they have deterministic execution,
+
+303
+00:24:09,370 --> 00:24:11,090
+ meaning that if you execute,
+
+304
+00:24:12,450 --> 00:24:17,450
+ if you re-execute the same task on the same data,
+
+305
+00:24:17,450 --> 00:24:19,050
+ you get the same results.
+
+306
+00:24:19,050 --> 00:24:22,410
+ And this will be important for fault tolerance
+
+307
+00:24:22,410 --> 00:24:23,850
+ that you are going to see next.
+
+308
+00:24:23,850 --> 00:24:30,970
+ But I think that you already can start seeing
+
+309
+00:24:30,970 --> 00:24:32,650
+ these advantages, right?
+
+310
+00:24:32,650 --> 00:24:38,210
+ And by the way, the resilient data assets are also immutable.
+
+311
+00:24:38,210 --> 00:24:40,530
+ Immutable means that once you created them,
+
+312
+00:24:40,530 --> 00:24:41,730
+ you don't change.
+
+313
+00:24:41,730 --> 00:24:44,250
+ If you want to change them, you create a copy of them
+
+314
+00:24:44,250 --> 00:24:46,410
+ and you change the copy.
+
+315
+00:24:46,410 --> 00:24:52,210
+ And the shuffle kind of plays a role of implicit barrier,
+
+316
+00:24:52,210 --> 00:24:55,250
+ meaning that one stage cannot finish
+
+317
+00:24:55,250 --> 00:24:57,290
+ before the previous stage finished,
+
+318
+00:24:57,290 --> 00:25:02,090
+ because the current stage depends on the data
+
+319
+00:25:02,090 --> 00:25:04,050
+ being produced by the previous stage.
+
+320
+00:25:04,050 --> 00:25:08,850
+ So therefore by definition, you cannot finish, right?
+
+321
+00:25:08,890 --> 00:25:11,890
+ Yeah, so it's again, these are examples
+
+322
+00:25:11,890 --> 00:25:15,290
+ I mentioned earlier on about transformations,
+
+323
+00:25:15,290 --> 00:25:20,290
+ map, filter, group by or actions, count and stuff like that.
+
+324
+00:25:20,290 --> 00:25:23,970
+ So now you see, probably you can guess
+
+325
+00:25:23,970 --> 00:25:25,970
+ why now Spark is much better
+
+326
+00:25:25,970 --> 00:25:28,290
+ for our application on machine learning.
+
+327
+00:25:28,290 --> 00:25:34,770
+ Because now each iteration is one or more stages in Spark
+
+328
+00:25:34,770 --> 00:25:36,090
+ of a Spark job.
+
+329
+00:25:36,090 --> 00:25:41,090
+ And if you go from one iteration to another,
+
+330
+00:25:41,090 --> 00:25:45,370
+ you are going to pass the data through RAM, right?
+
+331
+00:25:45,370 --> 00:25:47,210
+ Directly through memory.
+
+332
+00:25:47,210 --> 00:25:52,210
+ You don't need to hit the disk, okay?
+
+333
+00:25:52,210 --> 00:25:56,970
+ So here you are, each iteration,
+
+334
+00:25:56,970 --> 00:26:01,290
+ except for the first one, process the data from the RAM,
+
+335
+00:26:01,290 --> 00:26:03,490
+ output the data from the memory,
+
+336
+00:26:03,490 --> 00:26:07,210
+ output the data from the RAM, output the data into the RAM
+
+337
+00:26:07,210 --> 00:26:09,090
+ for the next iteration.
+
+338
+00:26:09,090 --> 00:26:11,290
+ So it's going to be so much faster
+
+339
+00:26:11,290 --> 00:26:17,290
+ than reading and writing the data
+
+340
+00:26:17,290 --> 00:26:19,490
+ from the disk between the iterations.
+
+341
+00:26:19,490 --> 00:26:32,810
+ So it's again, this is a question about
+
+342
+00:26:32,810 --> 00:26:34,690
+ why do we need to shuffle?
+
+343
+00:26:34,690 --> 00:26:41,530
+ Yes.
+
+344
+00:26:41,530 --> 00:26:44,090
+ So there are two questions here.
+
+345
+00:26:44,090 --> 00:26:46,370
+ Wouldn't the data need to be sent over the network
+
+346
+00:26:46,370 --> 00:26:47,290
+ in the shuffle stage?
+
+347
+00:26:47,290 --> 00:26:48,130
+ Absolutely.
+
+348
+00:26:48,130 --> 00:26:55,570
+ But it's actually, the network is faster than the disk.
+
+349
+00:26:55,570 --> 00:27:00,410
+ That's number one.
+
+350
+00:27:00,410 --> 00:27:05,410
+ And the number two is again,
+
+351
+00:27:05,410 --> 00:27:12,010
+ you don't need to send them and depend on what is stage.
+
+352
+00:27:12,010 --> 00:27:13,370
+ What happens between the stages,
+
+353
+00:27:13,370 --> 00:27:16,130
+ you don't need to send all the data across the network.
+
+354
+00:27:16,130 --> 00:27:24,770
+ Again, to answer again the question,
+
+355
+00:27:24,770 --> 00:27:29,290
+ why does data needs to be shuffled between each step?
+
+356
+00:27:29,290 --> 00:27:34,290
+ It's again, it's like in our example about counting,
+
+357
+00:27:34,290 --> 00:27:39,090
+ word count, in the first stage,
+
+358
+00:27:39,090 --> 00:27:41,570
+ you devise the documents and each machine
+
+359
+00:27:41,570 --> 00:27:46,850
+ counts of occurrences of Berkeley in sets of documents.
+
+360
+00:27:46,850 --> 00:27:51,970
+ So now each machine has a partial count
+
+361
+00:27:51,970 --> 00:27:55,610
+ of Berkeley occurrences.
+
+362
+00:27:55,610 --> 00:27:59,050
+ To get the total count, you need to aggregate those.
+
+363
+00:27:59,050 --> 00:28:02,850
+ So each machine need to send to another machine
+
+364
+00:28:02,850 --> 00:28:04,930
+ is partial count.
+
+365
+00:28:04,930 --> 00:28:08,410
+ Okay.
+
+366
+00:28:08,410 --> 00:28:12,370
+ So that's why you need to communicate.
+
+367
+00:28:12,370 --> 00:28:15,450
+ And now you have every machine in the first phase,
+
+368
+00:28:15,450 --> 00:28:17,410
+ which has a partial count of Berkeley,
+
+369
+00:28:17,410 --> 00:28:20,810
+ is the first stage,
+
+370
+00:28:20,810 --> 00:28:25,490
+ sends is partial count to the machine in the second stage.
+
+371
+00:28:26,810 --> 00:28:31,690
+ And now imagine that you do this for every word.
+
+372
+00:28:31,690 --> 00:28:36,890
+ So you have to have all to all communication.
+
+373
+00:28:36,890 --> 00:28:48,930
+ Simon, great question.
+
+374
+00:28:48,930 --> 00:28:50,730
+ How do you guarantee the Internet
+
+375
+00:28:50,730 --> 00:28:52,690
+ that RDDs in the RAM stay durable
+
+376
+00:28:52,690 --> 00:28:54,930
+ since the RAM is not as persistent as this?
+
+377
+00:28:56,450 --> 00:28:57,450
+ Great question.
+
+378
+00:28:57,450 --> 00:29:00,610
+ We'll answer very quickly soon.
+
+379
+00:29:00,610 --> 00:29:05,610
+ Okay.
+
+380
+00:29:05,610 --> 00:29:10,370
+ So now you may ask what happens, you know,
+
+381
+00:29:10,370 --> 00:29:14,130
+ so basically Lester or is his group D...
+
+382
+00:29:14,130 --> 00:29:23,060
+ team use Spark to compete and their team is the assemblers.
+
+383
+00:29:23,060 --> 00:29:31,060
+ Okay. So, and as you can see, they tied for the passport,
+
+384
+00:29:31,060 --> 00:29:41,060
+ but they were second because they submitted 20 minutes late.
+
+385
+00:29:41,060 --> 00:29:51,060
+ So therefore they didn't win. This is a team which won $1 million.
+
+386
+00:29:51,060 --> 00:30:00,060
+ So it was just 20 minutes. Maybe, you know, if it had started working on Spark 20 minutes earlier.
+
+387
+00:30:00,060 --> 00:30:07,060
+ Okay. But that's the story. Now let me give you an example, another example of mining with Spark,
+
+388
+00:30:07,060 --> 00:30:14,060
+ and then I'm going to address a question about the fault tolerance. So here is log mining.
+
+389
+00:30:14,060 --> 00:30:22,060
+ You load error messages from a log into memories and you interactively search for various patterns.
+
+390
+00:30:22,060 --> 00:30:30,060
+ So Spark has a driver which runs the code, you feed in the code, and workers.
+
+391
+00:30:30,060 --> 00:30:37,060
+ The driver will send some function to the workers to execute the restep, misstage.
+
+392
+00:30:37,060 --> 00:30:42,060
+ So basically this is a Scala code.
+
+393
+00:30:42,060 --> 00:30:49,060
+ Don't worry if you don't know Scala, I think this instruction will be self-explanatory.
+
+394
+00:30:49,060 --> 00:30:56,060
+ So basically you read the lines from the text file.
+
+395
+00:30:56,060 --> 00:31:01,060
+ And this you are creating the RDD. This will be the RDD.
+
+396
+00:31:01,060 --> 00:31:08,060
+ These lines are going to be a big set and then it's going to be partitioned across machines,
+
+397
+00:31:08,060 --> 00:31:19,060
+ across the workers. Then you are going to filter each line which contains, which starts with error.
+
+398
+00:31:19,060 --> 00:31:27,060
+ And this will create another data set. Again, it represents all lines which starts with error.
+
+399
+00:31:27,060 --> 00:31:33,060
+ It's the second transform RDD.
+
+400
+00:31:33,060 --> 00:31:40,060
+ And now I want to read the messages, so I'm going to split by tab,
+
+401
+00:31:40,060 --> 00:31:44,060
+ because error sends the next of the messages separated by tab.
+
+402
+00:31:44,060 --> 00:31:50,060
+ So I'm going to split between the error and the message. These are messages.
+
+403
+00:31:50,060 --> 00:31:55,060
+ And I'm going to cache the messages.
+
+404
+00:31:55,060 --> 00:32:04,060
+ And then I want to count, for instance, all the messages, error messages, that contain MySQL.
+
+405
+00:32:04,060 --> 00:32:13,060
+ So basically how many error messages I have containing MySQL.
+
+406
+00:32:13,060 --> 00:32:23,060
+ And this is the action. Remember, you have transformation and actions. Filter, map, cache, and transformation.
+
+407
+00:32:23,060 --> 00:32:30,060
+ The code starts to, this Spark has what is called lazy evaluation.
+
+408
+00:32:30,060 --> 00:32:36,060
+ Only when you trigger an action, you start to execute the code.
+
+409
+00:32:36,060 --> 00:32:43,060
+ And the cool thing about this is that when you start to execute the code, you see all these lines you need to execute,
+
+410
+00:32:43,060 --> 00:32:53,060
+ then you can optimize. You can do data placement, compute placement, so you can have higher data localities,
+
+411
+00:32:53,060 --> 00:33:00,060
+ so you reduce the amount of data transfers over the network and things like that.
+
+412
+00:33:00,060 --> 00:33:06,060
+ It's like a SQL query. A SQL query, you present the entire SQL query to the optimizer,
+
+413
+00:33:06,060 --> 00:33:11,060
+ and the optimizer sees the entire SQL query and can do smart things about optimizing.
+
+414
+00:33:11,060 --> 00:33:16,060
+ If I give you one instruction at a time, it's not much you can do to optimize.
+
+415
+00:33:16,060 --> 00:33:21,060
+ But anyway, so all this code is run by the driver.
+
+416
+00:33:21,060 --> 00:33:29,060
+ So let's see what happens. So let's say the original data is in this HDFS distributed file system.
+
+417
+00:33:29,060 --> 00:33:38,060
+ So these are different blocks from this file I am reading, and they are across the different workers.
+
+418
+00:33:38,060 --> 00:33:47,060
+ So the driver sends the tasks to the worker. The task is to read from the first line, for instance,
+
+419
+00:33:47,060 --> 00:33:54,060
+ to read from the blocks from HDFS, this partition. They're doing the transformation,
+
+420
+00:33:54,060 --> 00:34:01,060
+ and then eventually you are going to cache it and send the results back.
+
+421
+00:34:01,060 --> 00:34:12,060
+ The results back are these kind of partial counters, because each of these workers is going to count the number of
+
+422
+00:34:12,060 --> 00:34:19,060
+ occurrences of MySQL across this data. So to get the total count, you need to sum them up.
+
+423
+00:34:19,060 --> 00:34:25,060
+ So these results represent these partial counts which are sent to the driver.
+
+424
+00:34:25,060 --> 00:34:34,060
+ OK, and now you send the second. Now I'm doing the same thing, but I want for PHP errors.
+
+425
+00:34:34,060 --> 00:34:40,060
+ Now the key point here is that now with PHP errors, when you count the PHP errors,
+
+426
+00:34:40,060 --> 00:34:46,060
+ you don't need to go all the way to read from the original file, do the filter, do the map.
+
+427
+00:34:46,060 --> 00:34:52,060
+ Now you are going to read the cache message.
+
+428
+00:34:52,060 --> 00:35:01,060
+ And if you do that, obviously the first time is follower, because you need again to read from the disk,
+
+429
+00:35:01,060 --> 00:35:07,060
+ do the map, do the filter, do the map. You were taking in these examples,
+
+430
+00:35:07,060 --> 00:35:20,060
+ 60 gigabytes, 20 EC2 machines at that time, 20 seconds for the first to get the number of the count of MySQL errors.
+
+431
+00:35:20,060 --> 00:35:28,060
+ The second time when it's already in the cache, it's only half a second.
+
+432
+00:35:28,060 --> 00:35:31,060
+ So that's the power.
+
+433
+00:35:31,060 --> 00:35:38,060
+ The second, you have language support for Python, Scala and Java. I mentioned to you,
+
+434
+00:35:38,060 --> 00:35:44,060
+ it's far more expressive APIs and you see map and reducer only towards the APIs.
+
+435
+00:35:44,060 --> 00:35:49,060
+ Even back then it has around 100 APIs.
+
+436
+00:35:49,060 --> 00:36:02,060
+ And let's see, we have another question.
+
+437
+00:36:02,060 --> 00:36:11,060
+ Now in Hadoop, you can maybe aggregate.
+
+438
+00:36:11,060 --> 00:36:14,060
+ In Hadoop you have only two stages.
+
+439
+00:36:14,060 --> 00:36:24,060
+ You need to have map and reducer. You have only two tasks, two functions. That's the only thing you can do.
+
+440
+00:36:24,060 --> 00:36:38,060
+ You have two special tasks. Here you have much more general, like you said, filter, maps, count, things like that.
+
+441
+00:36:38,060 --> 00:36:45,060
+ OK, so now we have this great question about what do you do about recovery, fault tolerance. This is a distributed system.
+
+442
+00:36:45,060 --> 00:36:53,060
+ We know the machine fails. We learn about that. We want to make it more fault tolerant.
+
+443
+00:36:53,060 --> 00:36:59,060
+ So how do we do about that? Let's see.
+
+444
+00:36:59,060 --> 00:37:04,060
+ Let me before going there, let me answer this other question, Ashif's question.
+
+445
+00:37:04,060 --> 00:37:11,060
+ For this log mining example, R is the main reason why Spark is faster because it's using RAM instead of disk totally.
+
+446
+00:37:11,060 --> 00:37:16,060
+ And lazy evaluation allowing, yes, allowing for optimization.
+
+447
+00:37:16,060 --> 00:37:23,060
+ Yes, in part of it. S3 transforms and multiple actions following it as opposed to map reduce on repeat.
+
+448
+00:37:23,060 --> 00:37:38,060
+ Yeah, these are all good reasons. Yeah, these are all true. The lazy evaluation does allow the, and we now, Spark has an optimizer called Catalyst doing quite smart optimization.
+
+449
+00:37:38,060 --> 00:37:43,060
+ Like a database optimizer.
+
+450
+00:37:43,060 --> 00:37:52,060
+ You can link multiple options, actions and multiple transformations.
+
+451
+00:37:52,060 --> 00:37:55,060
+ So you don't need different jobs for those.
+
+452
+00:37:55,060 --> 00:38:10,060
+ And yes, the biggest reason actually is because the data between stages is stored in RAM instead of on the disk.
+
+453
+00:38:10,060 --> 00:38:24,060
+ So now this is a question and this is what actually one of the main innovation of Ray is to make this data set reliable.
+
+454
+00:38:24,060 --> 00:38:29,060
+ So how do we make reliability? How do we achieve reliability? One is replication.
+
+455
+00:38:29,060 --> 00:38:34,060
+ We learn about that if you remember the rate.
+
+456
+00:38:34,060 --> 00:38:40,060
+ But you need to drive the data over the network and the memory can be inefficient.
+
+457
+00:38:40,060 --> 00:38:45,060
+ Inefficient use, right? Because now you still remember the memory is expensive.
+
+458
+00:38:45,060 --> 00:38:56,060
+ You don't have as much memory as on the disk. And now to use the memory to store multiple replicas.
+
+459
+00:38:56,060 --> 00:38:58,780
+ So the effective...
+
+460
+00:38:58,780 --> 00:39:03,500
+ memory size will decrease by half or by once,
+
+461
+00:39:03,500 --> 00:39:08,500
+ by three times, if you are going to, you know,
+
+462
+00:39:08,500 --> 00:39:11,900
+ to have three replicas, it's not good.
+
+463
+00:39:11,900 --> 00:39:18,860
+ You can do backup on persistent storage, right?
+
+464
+00:39:18,860 --> 00:39:23,860
+ But still, if you do backup, right, it's slow.
+
+465
+00:39:23,860 --> 00:39:26,180
+ I still mainly mean to go over the network.
+
+466
+00:39:27,500 --> 00:39:30,100
+ So the Spark choice is what is called
+
+467
+00:39:30,100 --> 00:39:32,020
+ lineage-based reconstruction.
+
+468
+00:39:32,020 --> 00:39:38,600
+ So what Spark is doing, it tracks the sequence of operations.
+
+469
+00:39:38,600 --> 00:39:41,220
+ It records the sequence of operations
+
+470
+00:39:41,220 --> 00:39:45,900
+ that creates a partition of a particular RBB.
+
+471
+00:39:45,900 --> 00:39:48,160
+ And if that partition misses,
+
+472
+00:39:48,160 --> 00:39:53,540
+ it re-executes the sequence of operation,
+
+473
+00:39:53,540 --> 00:39:57,580
+ which created that partition in the first place.
+
+474
+00:39:57,580 --> 00:40:01,340
+ And this way it re-creates a partition.
+
+475
+00:40:01,340 --> 00:40:07,780
+ And this is working because the inputs are immutable.
+
+476
+00:40:07,780 --> 00:40:11,380
+ Once the inputs are used by a task,
+
+477
+00:40:11,380 --> 00:40:12,740
+ they don't change after that.
+
+478
+00:40:12,740 --> 00:40:14,220
+ So you can reuse later.
+
+479
+00:40:14,220 --> 00:40:19,260
+ And the tasks are deterministic, right?
+
+480
+00:40:19,260 --> 00:40:20,500
+ So here is an example.
+
+481
+00:40:21,540 --> 00:40:24,060
+ So you have an RBD-A, you have some filter,
+
+482
+00:40:24,060 --> 00:40:29,060
+ creates an RBB-B, then you have a join operations.
+
+483
+00:40:29,060 --> 00:40:32,420
+ You have a shuffle here, then you create an RBD-C,
+
+484
+00:40:32,420 --> 00:40:35,580
+ then you have aggregation after creating an RBD-D.
+
+485
+00:40:35,580 --> 00:40:40,580
+ Here we have two machines, each like A1, A2, B1, B2,
+
+486
+00:40:40,580 --> 00:40:43,560
+ C1, C2 corresponds to two different machines.
+
+487
+00:40:43,560 --> 00:40:49,260
+ And now assume that before the aggregation get a chance
+
+488
+00:40:49,260 --> 00:40:54,260
+ to read the input, C1, that machine fails, right?
+
+489
+00:40:54,260 --> 00:41:00,800
+ So what does it do?
+
+490
+00:41:00,800 --> 00:41:05,260
+ The driver from Spark side is going to notice that
+
+491
+00:41:05,260 --> 00:41:10,020
+ and is going to just replay,
+
+492
+00:41:10,020 --> 00:41:18,380
+ re-execute the task who created C1.
+
+493
+00:41:19,380 --> 00:41:23,060
+ And find another node eventually to run the task for.
+
+494
+00:41:23,060 --> 00:41:29,020
+ So it reconstructs C1 and now the aggregation function
+
+495
+00:41:29,020 --> 00:41:31,460
+ will have both input C1 and input created.
+
+496
+00:41:31,460 --> 00:41:41,720
+ Of course, now here, for instance, maybe B1 is also lost.
+
+497
+00:41:41,720 --> 00:41:47,180
+ It's okay if B1 is lost or not B1.
+
+498
+00:41:47,180 --> 00:41:50,220
+ B2 says, yeah, B1 is lost, it's okay.
+
+499
+00:41:50,220 --> 00:41:52,580
+ You are going to go all the way to A1.
+
+500
+00:41:52,580 --> 00:41:58,380
+ So in the worst case, you go to A1 to all the data,
+
+501
+00:41:58,380 --> 00:42:01,340
+ which is input data which is stored on the disk,
+
+502
+00:42:01,340 --> 00:42:02,940
+ which is persistent with Spark.
+
+503
+00:42:02,940 --> 00:42:07,200
+ But in general, you don't need to go all the way.
+
+504
+00:42:07,200 --> 00:42:10,200
+ So that's the key.
+
+505
+00:42:10,200 --> 00:42:13,800
+ Make sense?
+
+506
+00:42:13,800 --> 00:42:14,640
+ Yeah.
+
+507
+00:42:14,640 --> 00:42:24,380
+ So this is an iterative algorithms
+
+508
+00:42:24,380 --> 00:42:26,160
+ like our machine learning algorithms.
+
+509
+00:42:26,160 --> 00:42:28,200
+ The first iteration basically,
+
+510
+00:42:28,200 --> 00:42:30,480
+ one to three iteration on the Y axis
+
+511
+00:42:30,480 --> 00:42:32,840
+ is how long the iteration takes.
+
+512
+00:42:32,840 --> 00:42:37,720
+ So here, the first iteration takes longer
+
+513
+00:42:37,720 --> 00:42:40,600
+ because you need to read the data from the disk.
+
+514
+00:42:40,600 --> 00:42:44,680
+ And then you are going, then each iteration takes much less.
+
+515
+00:42:44,680 --> 00:42:48,320
+ And at some point you have a failure,
+
+516
+00:42:48,320 --> 00:42:51,520
+ but the only things what happens when you have a failure,
+
+517
+00:42:51,520 --> 00:42:54,000
+ the next iteration will take a little bit longer
+
+518
+00:42:54,000 --> 00:42:56,300
+ because you need to reconstruct the loss state.
+
+519
+00:42:56,300 --> 00:42:59,800
+ That's all, but otherwise it's transparent.
+
+520
+00:42:59,800 --> 00:43:05,640
+ So now I'm going to end with Spark.
+
+521
+00:43:05,640 --> 00:43:09,560
+ Like I mentioned, right now,
+
+522
+00:43:10,560 --> 00:43:15,000
+ Spark is a de facto standard for distributed,
+
+523
+00:43:15,000 --> 00:43:17,480
+ for data processing.
+
+524
+00:43:17,480 --> 00:43:22,200
+ Very successful.
+
+525
+00:43:22,200 --> 00:43:23,920
+ Databricks is a successful company.
+
+526
+00:43:23,920 --> 00:43:26,580
+ So it was pretty much a success scenario here.
+
+527
+00:43:26,580 --> 00:43:33,620
+ Yes, I said that here, sorry.
+
+528
+00:43:33,620 --> 00:43:36,440
+ What I said here, not B1 is back to persistent storage.
+
+529
+00:43:36,440 --> 00:43:39,340
+ I said A1 is back to persistent storage.
+
+530
+00:43:39,340 --> 00:43:43,280
+ The inputs are read from a persistent storage,
+
+531
+00:43:43,280 --> 00:43:45,060
+ which is resilient.
+
+532
+00:43:45,060 --> 00:43:46,260
+ So in the worst case,
+
+533
+00:43:46,260 --> 00:43:48,800
+ you can go all the way back to the input
+
+534
+00:43:48,800 --> 00:43:51,800
+ to reconstruct the lost outputs.
+
+535
+00:43:51,800 --> 00:43:57,420
+ But yes, I assume that A1 and A2 are stored,
+
+536
+00:43:57,420 --> 00:43:59,460
+ the inputs are stored reliably.
+
+537
+00:43:59,460 --> 00:44:03,780
+ Okay.
+
+538
+00:44:03,780 --> 00:44:08,620
+ Announcements, congrats for taking the last midterm.
+
+539
+00:44:08,620 --> 00:44:09,620
+ - Thank you.
+
+540
+00:44:09,620 --> 00:44:14,020
+ - Project three due on,
+
+541
+00:44:14,020 --> 00:44:17,220
+ well, project three is due next Wednesday,
+
+542
+00:44:17,220 --> 00:44:22,220
+ but Sunday there is a party in Wozniak lounge.
+
+543
+00:44:22,220 --> 00:44:24,860
+ You can get help there.
+
+544
+00:44:24,860 --> 00:44:27,500
+ So if you are around,
+
+545
+00:44:27,500 --> 00:44:32,600
+ you can, you know, it should be a fun and very useful.
+
+546
+00:44:32,600 --> 00:44:35,360
+ Four hours you can spend.
+
+547
+00:44:38,300 --> 00:44:40,300
+ Discussion will be office hours,
+
+548
+00:44:40,300 --> 00:44:42,940
+ like you'll be seen probably,
+
+549
+00:44:42,940 --> 00:44:45,420
+ and the office hours will continue into that of that week.
+
+550
+00:44:45,420 --> 00:44:49,660
+ And the homework six is due tomorrow.
+
+551
+00:44:49,660 --> 00:44:56,420
+ Okay, now let's tweak the gears and talk a little about Ray.
+
+552
+00:44:56,420 --> 00:45:01,900
+ So Ray is a system, and I'll give you the history as well.
+
+553
+00:45:01,900 --> 00:45:04,420
+ We also build AfterSpark.
+
+554
+00:45:04,420 --> 00:45:08,220
+ So the trends, and I'm going to go quickly
+
+555
+00:45:08,220 --> 00:45:10,460
+ with we went through these trends earlier on
+
+556
+00:45:10,460 --> 00:45:12,340
+ when we started the class.
+
+557
+00:45:12,340 --> 00:45:14,980
+ AI demands are exploding.
+
+558
+00:45:14,980 --> 00:45:16,140
+ I show you the plot.
+
+559
+00:45:16,140 --> 00:45:19,060
+ This is a plot from OpenAI,
+
+560
+00:45:19,060 --> 00:45:22,380
+ which is the computation requirements
+
+561
+00:45:22,380 --> 00:45:25,060
+ to train the state of the art machine learning models.
+
+562
+00:45:25,060 --> 00:45:28,860
+ And it was growing 35 times every 18 miles
+
+563
+00:45:28,860 --> 00:45:31,820
+ between 2012 and 2019.
+
+564
+00:45:31,820 --> 00:45:34,060
+ And the growth continue after that.
+
+565
+00:45:34,060 --> 00:45:38,820
+ This is 2020 data point for GPT-3 from OpenAI.
+
+566
+00:45:38,820 --> 00:45:42,320
+ It's not only for kind of esoteric workloads,
+
+567
+00:45:42,320 --> 00:45:44,300
+ like playing games or things like that.
+
+568
+00:45:44,300 --> 00:45:45,780
+ It's also for image processing
+
+569
+00:45:45,780 --> 00:45:47,620
+ or natural language processing.
+
+570
+00:45:47,620 --> 00:45:49,860
+ So really very useful applications.
+
+571
+00:45:49,860 --> 00:45:54,780
+ The other thing is a more slow-as-an-d, right, as you know.
+
+572
+00:45:54,780 --> 00:45:58,660
+ It used to have, it used that, you know,
+
+573
+00:45:58,660 --> 00:46:03,300
+ like 20, 30 years ago, every one year and a half,
+
+574
+00:46:03,300 --> 00:46:05,940
+ the performance of the processors doubled.
+
+575
+00:46:05,940 --> 00:46:08,540
+ No longer true.
+
+576
+00:46:08,540 --> 00:46:11,140
+ Now we're just growing by a few percent every year.
+
+577
+00:46:11,140 --> 00:46:15,180
+ So then there is a huge gap between the more slow
+
+578
+00:46:15,180 --> 00:46:20,180
+ and actually, you know, the more slow is no longer,
+
+579
+00:46:20,180 --> 00:46:23,660
+ it's even worse because the more slow has ended,
+
+580
+00:46:23,660 --> 00:46:25,320
+ like we just mentioned.
+
+581
+00:46:25,320 --> 00:46:28,340
+ So it's a huge gap between the demands
+
+582
+00:46:28,340 --> 00:46:30,260
+ of this kind of machine learning application
+
+583
+00:46:30,260 --> 00:46:32,900
+ and capabilities of a single processors.
+
+584
+00:46:33,900 --> 00:46:35,740
+ And this is also true,
+
+585
+00:46:35,740 --> 00:46:38,100
+ even if you are looking at GPUs and DPOs,
+
+586
+00:46:38,100 --> 00:46:40,340
+ of course the gap is a little bit smaller,
+
+587
+00:46:40,340 --> 00:46:41,640
+ but it's a log scale.
+
+588
+00:46:41,640 --> 00:46:46,580
+ Why coordinate it's a log scale?
+
+589
+00:46:46,580 --> 00:46:49,200
+ It's a logarithmic scale.
+
+590
+00:46:49,200 --> 00:46:51,840
+ So all these kind of differences means
+
+591
+00:46:51,840 --> 00:46:55,280
+ that the gap increases exponentially.
+
+592
+00:46:55,280 --> 00:47:00,280
+ So huge gap growing by the way, okay?
+
+593
+00:47:01,380 --> 00:47:03,500
+ So this means that really you cannot,
+
+594
+00:47:03,500 --> 00:47:07,300
+ there is no other way to run this kind of workloads
+
+595
+00:47:07,300 --> 00:47:09,460
+ other than distributing these workloads.
+
+596
+00:47:09,460 --> 00:47:15,800
+ So Spark was more about data, scalable data processing.
+
+597
+00:47:15,800 --> 00:47:19,800
+ This is Ray is more about scalable compute processing,
+
+598
+00:47:19,800 --> 00:47:22,480
+ compute, scalable compute.
+
+599
+00:47:22,480 --> 00:47:29,780
+ This is an example recommendation service
+
+600
+00:47:29,780 --> 00:47:32,360
+ you have here, basically here,
+
+601
+00:47:32,360 --> 00:47:40,340
+ when you are going to open your application on your phone,
+
+602
+00:47:40,340 --> 00:47:45,340
+ you get some recommendation about maybe new products to buy
+
+603
+00:47:45,340 --> 00:47:50,780
+ or services download.
+
+604
+00:47:50,780 --> 00:47:53,740
+ This is from the largest one,
+
+605
+00:47:53,740 --> 00:47:56,940
+ largest one of the largest FinTech companies in the world.
+
+606
+00:47:57,960 --> 00:48:01,680
+ And the application, when you look,
+
+607
+00:48:01,680 --> 00:48:06,680
+ it looks at the high level, it has three stages.
+
+608
+00:48:06,680 --> 00:48:09,500
+ You get the data, you do some featurization,
+
+609
+00:48:09,500 --> 00:48:13,020
+ you try to extract what are the things from the data
+
+610
+00:48:13,020 --> 00:48:17,840
+ which are important, like the user IDs or things like that.
+
+611
+00:48:17,840 --> 00:48:21,860
+ Then you use that data to train the model,
+
+612
+00:48:21,860 --> 00:48:26,140
+ the recommendation, improve the recommendation
+
+613
+00:48:26,140 --> 00:48:28,140
+ and then to serve the model.
+
+614
+00:48:28,140 --> 00:48:31,820
+ So this means that the next users
+
+615
+00:48:31,820 --> 00:48:33,540
+ or you when you are coming again
+
+616
+00:48:33,540 --> 00:48:35,440
+ or you are running on the application,
+
+617
+00:48:35,440 --> 00:48:38,500
+ you are going to now to be served these recommendations
+
+618
+00:48:38,500 --> 00:48:41,200
+ based on a model you just trained.
+
+619
+00:48:41,200 --> 00:48:58,160
+ [ Silence ]
+
+620
+00:48:58,160 --> 00:48:50,630
+ So now one question is about how fast you can update this model, right?
+
+621
+00:48:50,630 --> 00:48:56,550
+ Because presumably if you are going to update with the most recent data,
+
+622
+00:48:56,550 --> 00:49:00,390
+ the model is going to perform better.
+
+623
+00:49:00,390 --> 00:49:08,470
+ Right? I mean, think about if I am going to use a model to recommend whatever
+
+624
+00:49:08,470 --> 00:49:12,350
+ services from last year, probably not going to be that accurate.
+
+625
+00:49:13,310 --> 00:49:18,910
+ Because in the meantime, there are a lot of other products, a lot of other services which are introduced.
+
+626
+00:49:18,910 --> 00:49:22,430
+ That recommendation will not even, the system will not even know about it.
+
+627
+00:49:22,430 --> 00:49:26,750
+ And certainly will not know how my preferences have been evolved.
+
+628
+00:49:26,750 --> 00:49:38,110
+ But now the question obviously, okay, it's obvious that if I train a model today, it's going to do much
+
+629
+00:49:38,110 --> 00:49:46,110
+ better than the one which I trained last year, but what about the one last week, right?
+
+630
+00:49:46,110 --> 00:49:55,710
+ Or yesterday, yesterday's model. So the question is about how much it matters. So
+
+631
+00:49:55,710 --> 00:50:02,670
+ when this company started, they started with this updating the model every one day.
+
+632
+00:50:04,590 --> 00:50:09,470
+ And they wanted to reduce to one hour and they use a state-of-the-art solution at that time.
+
+633
+00:50:09,470 --> 00:50:16,670
+ And they get pretty good results. Click-through rate is one of the main metrics
+
+634
+00:50:16,670 --> 00:50:21,390
+ for this application. And basically it tells you what is the ratio
+
+635
+00:50:21,390 --> 00:50:27,950
+ between the times you click on the offering which was shown to you
+
+636
+00:50:29,710 --> 00:50:36,910
+ over the number of times that offering was shown to you, right? So if an offering was shown to you
+
+637
+00:50:36,910 --> 00:50:45,230
+ 100 times and you click five times, then the click-through rate is 5%. So they got them
+
+638
+00:50:45,230 --> 00:50:51,550
+ increasing of this click-through rate by 5% which was massive. And then they want to get lower,
+
+639
+00:50:51,550 --> 00:50:58,350
+ but they couldn't get lower because there's a solution at that time.
+
+640
+00:50:58,590 --> 00:51:04,510
+ So the main point here is that their solution and even today many of the solutions that,
+
+641
+00:51:04,510 --> 00:51:14,990
+ remember each of these stage needs to be distributed. And we have good systems to
+
+642
+00:51:14,990 --> 00:51:19,950
+ distribute each of these stages, so we saw workload. Data ingestion and virtualization,
+
+643
+00:51:19,950 --> 00:51:25,230
+ you can use Spark or something else. For training, you can use TensorFlow serving,
+
+644
+00:51:25,230 --> 00:51:34,350
+ TensorFlow distributed. PyTorch lightning may be horrible. For serving, you can use another system.
+
+645
+00:51:34,350 --> 00:51:40,110
+ But now in order to build all this end-to-end application, you need to stitch together these
+
+646
+00:51:40,110 --> 00:51:47,470
+ stages. And this is hard. Development is hard because each of these stages is different.
+
+647
+00:51:47,470 --> 00:51:51,950
+ Then deployment is hard because now you need to deploy different distributed systems.
+
+648
+00:51:51,950 --> 00:51:57,150
+ And the management is hard because, of course, you need to manage different distributed systems,
+
+649
+00:51:57,150 --> 00:52:04,350
+ different APIs, and things like that. And also it's slow, and that's why they couldn't do it faster
+
+650
+00:52:04,350 --> 00:52:11,790
+ because now this is going to sound-- now you can recognize this pattern.
+
+651
+00:52:11,790 --> 00:52:16,110
+ To move that data between two different systems, how do you move the data between two different
+
+652
+00:52:16,110 --> 00:52:21,470
+ systems? Well, the way you move the data between two different systems is to write in a distributed
+
+653
+00:52:21,470 --> 00:52:26,110
+ storage system and to read from the distributed storage system. So that's, again, was slow.
+
+654
+00:52:26,110 --> 00:52:33,230
+ And of course, this was a very simple application, machine learning application.
+
+655
+00:52:33,230 --> 00:52:37,630
+ In general, it's much more complicated. You don't need only to do training. You also need to
+
+656
+00:52:37,630 --> 00:52:45,150
+ tune the models. And if you are thinking about something like reinforcement learning,
+
+657
+00:52:45,150 --> 00:52:49,630
+ you also need to do simulations and things like that. So it's very complicated.
+
+658
+00:52:50,830 --> 00:53:00,270
+ So the summary here, today, we need to run all this workload distributed because they need to scale.
+
+659
+00:53:00,270 --> 00:53:06,350
+ And for each of these workloads, we have good distributed systems,
+
+660
+00:53:06,350 --> 00:53:12,590
+ right? For training, model serving, simulation, streaming.
+
+661
+00:53:12,590 --> 00:53:17,150
+ But when you want to build an end-to-end applications,
+
+662
+00:53:20,030 --> 00:53:26,430
+ we need to use many of these systems together. And this is very hard, OK?
+
+663
+00:53:26,430 --> 00:53:33,710
+ It's hard to build, hard to deploy. And also, on top of that, it's also slow.
+
+664
+00:53:33,710 --> 00:53:41,230
+ So this is what is Ray. Ray tries to solve this problem. So instead of having this
+
+665
+00:53:41,230 --> 00:53:47,470
+ hodgepodge of libraries of systems, we need to stitch together.
+
+666
+00:53:49,230 --> 00:53:56,910
+ With Ray, you have one system which is very general. It's a universal framework for distributed
+
+667
+00:53:56,910 --> 00:54:01,550
+ computing. And to support these workloads, you build libraries on top of it.
+
+668
+00:54:01,550 --> 00:54:09,230
+ So now, if you want to support the workload, you just run the library, but on top of the same system.
+
+669
+00:54:14,350 --> 00:54:23,470
+ So a short story started in 2016 as a class project. Robert and Philip, they were taking
+
+670
+00:54:23,470 --> 00:54:30,590
+ a class, and their projects I was teaching. And their project was to scale distributed
+
+671
+00:54:30,590 --> 00:54:37,710
+ deep neural networks. Remember, Spark was created before deep neural networks took off.
+
+672
+00:54:39,390 --> 00:54:46,110
+ And wanted reinforcement learning. And they struggled to use existing systems to do so.
+
+673
+00:54:46,110 --> 00:54:53,150
+ And then, for the reason we mentioned, it was very hard. So we started to develop this
+
+674
+00:54:53,150 --> 00:55:05,310
+ Ray system. In 2017, R-11 Ray Tune was released. This R-11 is a reinforcement learning library.
+
+675
+00:55:05,310 --> 00:55:11,630
+ Ray Tune is a high parameter tuning library. And version 1.0 was released last year. And
+
+676
+00:55:11,630 --> 00:55:16,030
+ AnyScale is a company behind Ray. Like Databricks is behind Spark.
+
+677
+00:55:16,030 --> 00:55:26,510
+ Now, Ray Core-- this is the thing I'm talking about, this blue thing, this Ray Core-- has a very
+
+678
+00:55:26,510 --> 00:55:34,110
+ minimalist API. The core API is this one. Ray needs to start with RayPut, RayGet, Ray.Wait, and
+
+679
+00:55:34,750 --> 00:55:46,590
+ some decorators. The backend is C++. The frontend, so you know C++, this is how the backend of Ray
+
+680
+00:55:46,590 --> 00:55:54,350
+ is built. The bindings, the APIs are in Python, the most popular one. But there are also Java
+
+681
+00:55:54,350 --> 00:56:03,950
+ and some experimental API in C++. So this is what Ray in our shell is doing.
+
+682
+00:56:03,950 --> 00:56:11,630
+ So Ray in our shell is very general for the following reasons. Think about-- this is a way
+
+683
+00:56:11,630 --> 00:56:20,510
+ to think about it. What are the abstractions in most programming languages? Think about C++
+
+684
+00:56:20,510 --> 00:56:27,630
+ or Python. Compute abstractions, there are functions and classes.
+
+685
+00:56:29,790 --> 00:56:35,150
+ So Ray can take a function and can transparently run it remotely,
+
+686
+00:56:35,150 --> 00:56:44,830
+ and can take a class and instantiate it as an object. It's going to instantiate it also remotely.
+
+687
+00:56:44,830 --> 00:56:50,510
+ We call them actors. So remote function, we call them tasks, remote class instances,
+
+688
+00:56:50,510 --> 00:56:57,150
+ instances we call them actors. And stateless means that they don't have internal state.
+
+689
+00:56:57,710 --> 00:57:00,830
+ They get the input, process the input,
+
+690
+00:57:00,830 --> 00:57:11,230
+ spit out the results, and they are done. While actors, it's like they have internal state.
+
+691
+00:57:11,230 --> 00:57:17,790
+ You call the methods, and when you define a class, you have internal state,
+
+692
+00:57:17,790 --> 00:57:23,630
+ and you can modify that state. That means stateful. It also has a future abstraction,
+
+693
+00:57:24,190 --> 00:57:31,630
+ meaning that when I am going to run a task remotely, the call is going to return immediately.
+
+694
+00:57:31,630 --> 00:57:37,230
+ I'm going to show you. And also, you have an in-memory distributed object stores.
+
+695
+00:57:37,230 --> 00:57:41,630
+ And it's not a new language. It's an existing--
+
+696
+00:57:41,630 --> 00:57:47,070
+ extension to existing language. So let me give you an example.
+
+697
+00:57:48,830 --> 00:57:54,510
+ So let's say you have this Python code, you return R, and you do some computation.
+
+698
+00:57:54,510 --> 00:58:04,110
+ And now you are just running on your laptop, and then you run F of A. You run this function once,
+
+699
+00:58:04,110 --> 00:58:09,550
+ and it takes one second. You run twice. It takes another second. So basically,
+
+700
+00:58:09,550 --> 00:58:13,470
+ the program takes two seconds. Okay?
+
+701
+00:58:18,110 --> 00:58:22,110
+ So let's see how the same program is going to run in--
+
+702
+00:58:22,110 --> 00:58:38,750
+ right. Let me see.
+
+703
+00:58:38,750 --> 00:58:28,960
+ It's another.
+
+704
+00:58:28,960 --> 00:58:38,500
+ Yeah, so I was talking here about classes.
+
+705
+00:58:38,500 --> 00:58:40,620
+ It's a programming class.
+
+706
+00:58:40,620 --> 00:58:43,840
+ It's like a class in C++ or class in Python.
+
+707
+00:58:43,840 --> 00:58:45,500
+ I'll show you an example.
+
+708
+00:58:45,500 --> 00:58:46,920
+ I was answering your question now.
+
+709
+00:58:46,920 --> 00:58:50,260
+ So, okay, so this program takes two seconds.
+
+710
+00:58:50,260 --> 00:58:52,220
+ Now let's see what happens in Ray.
+
+711
+00:58:52,220 --> 00:58:55,140
+ So with Ray, if you want to run this function,
+
+712
+00:58:55,140 --> 00:59:00,140
+ f remotely to on a different node,
+
+713
+00:59:00,140 --> 00:59:04,900
+ you put, you add this decorator, Ray.remote.
+
+714
+00:59:04,900 --> 00:59:11,660
+ And then when you call f, you add the suffix, f.remote,
+
+715
+00:59:11,660 --> 00:59:14,160
+ and f, right?
+
+716
+00:59:14,160 --> 00:59:15,980
+ And now the things to notice here,
+
+717
+00:59:15,980 --> 00:59:19,300
+ and you'll see that these functions do not
+
+718
+00:59:19,300 --> 00:59:24,260
+ return the result.
+
+719
+00:59:24,260 --> 00:59:27,300
+ What they return, they return a pointer, a future,
+
+720
+00:59:27,300 --> 00:59:33,780
+ this is called a future, a pointer to the result.
+
+721
+00:59:33,780 --> 00:59:35,100
+ Okay?
+
+722
+00:59:35,100 --> 00:59:36,340
+ And why is that useful?
+
+723
+00:59:36,340 --> 00:59:37,820
+ Let's see.
+
+724
+00:59:37,820 --> 00:59:39,420
+ So this was a driver, it's a worker.
+
+725
+00:59:39,420 --> 00:59:42,260
+ So driver and workers are different machines.
+
+726
+00:59:42,260 --> 00:59:46,420
+ So when you are going to execute the first f.remote on a,
+
+727
+00:59:46,420 --> 00:59:49,820
+ now this function, instead of running locally,
+
+728
+00:59:49,820 --> 00:59:51,820
+ is going to run remotely.
+
+729
+00:59:51,820 --> 00:59:52,820
+ Okay?
+
+730
+00:59:52,820 --> 00:59:57,540
+ This is a task.
+
+731
+00:59:57,540 --> 01:00:02,540
+ But it returns immediately the result to this task.
+
+732
+01:00:02,540 --> 01:00:06,860
+ It returns immediately the pointer to the result.
+
+733
+01:00:06,860 --> 01:00:11,360
+ So this is returns even before the function is executed.
+
+734
+01:00:11,360 --> 01:00:14,380
+ And also even before the function maybe even have been
+
+735
+01:00:14,380 --> 01:00:19,440
+ scheduled on a different node.
+
+736
+01:00:19,440 --> 01:00:21,340
+ But now because it returns immediately,
+
+737
+01:00:21,340 --> 01:00:23,660
+ so basically it's non-blocking, if you remember,
+
+738
+01:00:23,660 --> 01:00:26,980
+ about blocking and non-blocking.
+
+739
+01:00:26,980 --> 01:00:31,300
+ I can execute immediately the next call.
+
+740
+01:00:31,300 --> 01:00:34,020
+ So I'm going to create another task,
+
+741
+01:00:34,020 --> 01:00:35,700
+ which takes the argument b.
+
+742
+01:00:35,700 --> 01:00:40,940
+ And this task, it's returned immediately a future,
+
+743
+01:00:40,940 --> 01:00:44,580
+ a pointer to this result.
+
+744
+01:00:44,580 --> 01:00:49,620
+ So the beauty of it right now, I launch both f and f of a
+
+745
+01:00:49,620 --> 01:00:52,660
+ and f of b simultaneously.
+
+746
+01:00:52,660 --> 01:00:55,260
+ So they can run in parallel.
+
+747
+01:00:55,260 --> 01:00:58,380
+ And now with RAID.get, this is a blocking call.
+
+748
+01:00:58,380 --> 01:01:02,220
+ If I pass the RAID.get the futures,
+
+749
+01:01:02,220 --> 01:01:06,340
+ RAID.get will wait until all the results are produced.
+
+750
+01:01:06,340 --> 01:01:07,420
+ Right?
+
+751
+01:01:07,420 --> 01:01:08,740
+ It's a blocking call.
+
+752
+01:01:08,740 --> 01:01:12,620
+ So now f and fa and fab run in parallel
+
+753
+01:01:12,620 --> 01:01:13,860
+ and returns the results.
+
+754
+01:01:13,860 --> 01:01:16,460
+ And now my program from two seconds
+
+755
+01:01:16,460 --> 01:01:18,340
+ to takes only one second.
+
+756
+01:01:18,340 --> 01:01:23,420
+ Of course, here I am ignoring the message overhead
+
+757
+01:01:23,420 --> 01:01:26,220
+ and other overheads.
+
+758
+01:01:26,220 --> 01:01:29,180
+ But that's the key.
+
+759
+01:01:29,180 --> 01:01:29,860
+ Another question.
+
+760
+01:01:29,860 --> 01:01:39,700
+ The question about the class is which class
+
+761
+01:01:39,700 --> 01:01:42,140
+ at Berkeley was the project?
+
+762
+01:01:42,140 --> 01:01:49,820
+ It was 262a, I believe, in fall 2015.
+
+763
+01:01:49,820 --> 01:01:59,180
+ And their project was to do distributed training
+
+764
+01:01:59,180 --> 01:02:01,860
+ for deep neural networks.
+
+765
+01:02:01,860 --> 01:02:05,780
+ I also asked them to do using Spark.
+
+766
+01:02:05,780 --> 01:02:08,540
+ And actually, they developed an extension
+
+767
+01:02:08,540 --> 01:02:15,940
+ of Spark called SparkNet to work with GPUs to do it.
+
+768
+01:02:15,940 --> 01:02:21,260
+ But then that was a little bit painful because, again,
+
+769
+01:02:21,260 --> 01:02:24,020
+ Spark is Java, JVM, and doesn't design
+
+770
+01:02:24,020 --> 01:02:29,100
+ for this kind of workloads and started the work on RAID.
+
+771
+01:02:29,100 --> 01:02:35,540
+ So what are the solutions before RAID
+
+772
+01:02:35,540 --> 01:02:39,780
+ to do this sort of distributed compute?
+
+773
+01:02:39,780 --> 01:02:42,260
+ Yes, they are mainly domain specific.
+
+774
+01:02:42,260 --> 01:02:44,420
+ Another system which is a little more general,
+
+775
+01:02:44,420 --> 01:02:46,660
+ but it's a pain to use and is not fault tolerant.
+
+776
+01:02:46,660 --> 01:02:49,940
+ It's MPI, but it's for high performance.
+
+777
+01:02:49,940 --> 01:02:52,300
+ Message passing interface is called.
+
+778
+01:02:52,300 --> 01:02:56,580
+ It's from high performance computing faults.
+
+779
+01:02:56,580 --> 01:02:59,140
+ There are also some actor frameworks.
+
+780
+01:03:02,620 --> 01:03:05,860
+ But none of them, at least to my best of my knowledge,
+
+781
+01:03:05,860 --> 01:03:07,420
+ is so general.
+
+782
+01:03:07,420 --> 01:03:13,820
+ Good.
+
+783
+01:03:13,820 --> 01:03:15,260
+ And now this is a Python class.
+
+784
+01:03:15,260 --> 01:03:19,940
+ This is a class I misunderstood the question.
+
+785
+01:03:19,940 --> 01:03:20,700
+ So this is a class.
+
+786
+01:03:20,700 --> 01:03:21,820
+ Now it's a counter class.
+
+787
+01:03:21,820 --> 01:03:24,260
+ And you can do the same thing with this one.
+
+788
+01:03:24,260 --> 01:03:26,780
+ You basically do RAID remote.
+
+789
+01:03:26,780 --> 01:03:32,220
+ And when you invoke, when you create the class,
+
+790
+01:03:32,220 --> 01:03:33,820
+ and you invoke the method on a class,
+
+791
+01:03:33,820 --> 01:03:35,700
+ you add the suffix dot remote.
+
+792
+01:03:35,700 --> 01:03:38,660
+ And just like that, this class is
+
+793
+01:03:38,660 --> 01:03:42,780
+ going to be instantiated as actor C.
+
+794
+01:03:42,780 --> 01:03:44,660
+ And actors means that's active.
+
+795
+01:03:44,660 --> 01:03:46,340
+ It's like a mini service.
+
+796
+01:03:46,340 --> 01:03:48,380
+ We sit there and wait for the method
+
+797
+01:03:48,380 --> 01:03:52,220
+ to be able to process the methods which
+
+798
+01:03:52,220 --> 01:03:53,140
+ are invocated on it.
+
+799
+01:03:53,140 --> 01:03:58,940
+ You can specify the number of-- also,
+
+800
+01:03:58,940 --> 01:04:01,900
+ you can specify here the number of GPUs, the number of CPUs.
+
+801
+01:04:02,740 --> 01:04:08,740
+ Which is very useful for when you do deep learning.
+
+802
+01:04:08,740 --> 01:04:11,460
+ Because a lot of tasks, they may have a lot of needs.
+
+803
+01:04:11,460 --> 01:04:16,180
+ OK, so right now, I said the last thing
+
+804
+01:04:16,180 --> 01:04:17,380
+ is distribute object store.
+
+805
+01:04:17,380 --> 01:04:19,100
+ So let's see how this is working.
+
+806
+01:04:19,100 --> 01:04:21,540
+ So again, a simple function I call.
+
+807
+01:04:21,540 --> 01:04:25,780
+ I have a function f and g.
+
+808
+01:04:25,780 --> 01:04:29,180
+ And it's very simple.
+
+809
+01:04:29,180 --> 01:04:32,740
+ f returns future, which is going to get
+
+810
+01:04:32,740 --> 01:04:36,140
+ to be taken as an argument by g, which
+
+811
+01:04:36,140 --> 01:04:39,460
+ is going to return the result.
+
+812
+01:04:39,460 --> 01:04:42,100
+ So what is this distributed memory about?
+
+813
+01:04:42,100 --> 01:04:43,980
+ Distributed object store.
+
+814
+01:04:43,980 --> 01:04:47,620
+ So when you execute f dot remote,
+
+815
+01:04:47,620 --> 01:04:49,820
+ like we've seen before, you are going
+
+816
+01:04:49,820 --> 01:04:53,060
+ to run this task on a different node.
+
+817
+01:04:53,060 --> 01:04:56,380
+ You get immediately back the future.
+
+818
+01:04:56,380 --> 01:04:58,780
+ The results to f.
+
+819
+01:04:58,780 --> 01:05:05,380
+ And again, it's not only x IDs return, not x value.
+
+820
+01:05:05,380 --> 01:05:07,740
+ And now you call again node--
+
+821
+01:05:07,740 --> 01:05:13,580
+ you call g, right?
+
+822
+01:05:13,580 --> 01:05:17,140
+ And you get the future.
+
+823
+01:05:17,140 --> 01:05:21,980
+ At some point, when f finishes, it's
+
+824
+01:05:21,980 --> 01:05:26,900
+ going to create this object, result object.
+
+825
+01:05:26,900 --> 01:05:30,980
+ And it's going to put in this object store.
+
+826
+01:05:30,980 --> 01:05:36,820
+ So now this reference ID of x or future points to x.
+
+827
+01:05:36,820 --> 01:05:40,660
+ And when that is ready, g is going
+
+828
+01:05:40,660 --> 01:05:44,700
+ to wait for the argument to be ready.
+
+829
+01:05:44,700 --> 01:05:47,420
+ So the system is going-- when it's going to be ready,
+
+830
+01:05:47,420 --> 01:05:52,300
+ then it's going to copy x to node 3 where g is.
+
+831
+01:05:52,300 --> 01:05:57,020
+ And now the argument of g is available.
+
+832
+01:05:57,020 --> 01:06:00,620
+ So now g can execute.
+
+833
+01:06:00,620 --> 01:06:08,460
+ So basically, this is what it is.
+
+834
+01:06:08,460 --> 01:06:14,540
+ So the objects are passed by reference.
+
+835
+01:06:18,900 --> 01:06:23,140
+ Now, if you don't have references, what this says,
+
+836
+01:06:23,140 --> 01:06:24,860
+ imagine that you don't have reference.
+
+837
+01:06:24,860 --> 01:06:27,860
+ If you don't have reference, f will create a result.
+
+838
+01:06:27,860 --> 01:06:32,540
+ And the result has to be returned back to node 1.
+
+839
+01:06:32,540 --> 01:06:37,300
+ And now the result is also passed now to g.
+
+840
+01:06:37,300 --> 01:06:39,300
+ So g will be executed on node 3.
+
+841
+01:06:39,300 --> 01:06:42,540
+ So g and including the results from f
+
+842
+01:06:42,540 --> 01:06:44,140
+ are going to be copied to node 3.
+
+843
+01:06:44,140 --> 01:06:46,940
+ So the results from f, it has to be copied to node 1
+
+844
+01:06:46,940 --> 01:06:50,140
+ and then to node 3.
+
+845
+01:06:50,140 --> 01:06:53,140
+ So needlessly, because node 1 doesn't do anything
+
+846
+01:06:53,140 --> 01:06:57,900
+ with the result from node 2.
+
+847
+01:06:57,900 --> 01:06:59,580
+ So that's kind of the point here.
+
+848
+01:06:59,580 --> 01:07:00,660
+ It's like by reference.
+
+849
+01:07:00,660 --> 01:07:05,340
+ When you pass-- even on a single machine,
+
+850
+01:07:05,340 --> 01:07:07,060
+ when you pass arguments by reference,
+
+851
+01:07:07,060 --> 01:07:08,740
+ one of the reasons you are going to pass
+
+852
+01:07:08,740 --> 01:07:11,060
+ is to avoid expensive copies.
+
+853
+01:07:11,060 --> 01:07:14,860
+ This is very similar, but for this to be said.
+
+854
+01:07:14,860 --> 01:07:17,700
+ So what happens with this example
+
+855
+01:07:17,700 --> 01:07:19,340
+ I showed you at the beginning?
+
+856
+01:07:19,340 --> 01:07:24,140
+ Well, they used Ray to implement this pipeline.
+
+857
+01:07:24,140 --> 01:07:26,300
+ So now everything is on different systems,
+
+858
+01:07:26,300 --> 01:07:28,060
+ but there are different libraries.
+
+859
+01:07:28,060 --> 01:07:32,780
+ And they are able to do the model update every five
+
+860
+01:07:32,780 --> 01:07:34,260
+ minutes from one hour.
+
+861
+01:07:34,260 --> 01:07:39,660
+ And they increase the clicks to rate by another 1%.
+
+862
+01:07:39,660 --> 01:07:42,220
+ So Ray Architecture, I'm going to go
+
+863
+01:07:42,220 --> 01:07:48,980
+ very, very quickly because I want two, three minutes
+
+864
+01:07:48,980 --> 01:07:53,900
+ to finish and let some time for more questions.
+
+865
+01:07:53,900 --> 01:07:56,620
+ There is a driver which runs the code, the workers.
+
+866
+01:07:56,620 --> 01:07:59,100
+ And you have here actors on different nodes
+
+867
+01:07:59,100 --> 01:08:01,980
+ to check the code, these tasks or the actors
+
+868
+01:08:01,980 --> 01:08:02,780
+ which are created.
+
+869
+01:08:02,780 --> 01:08:08,020
+ There is a distributed scheduler to decide
+
+870
+01:08:08,020 --> 01:08:13,020
+ where to run the task and where to instantiate actors.
+
+871
+01:08:13,020 --> 01:08:21,840
+ and you also keep the lineage about for the tasks which are created similar to Spark so
+
+872
+01:08:21,840 --> 01:08:25,040
+ you can reconstruct the lost objects.
+
+873
+01:08:25,040 --> 01:08:34,720
+ Okay, so today, Ray is this core and you have a lot of libraries on top of it. These are
+
+874
+01:08:34,720 --> 01:08:40,240
+ native libraries which are built by us, so to speak, by the original team of Ray. RLE
+
+875
+01:08:40,240 --> 01:08:46,400
+ Reinforcement Learning Library, high parameter tuning, Ray's service about serving, AGDs are
+
+876
+01:08:46,400 --> 01:08:51,280
+ AGDs training, now it's called Ray train, but there are also a lot of third party libraries
+
+877
+01:08:51,280 --> 01:08:55,280
+ which run on top of Ray.
+
+878
+01:08:55,280 --> 01:09:12,720
+ Okay, let me see. Okay, let me just answer this question. Ashir Saab asks, what happens
+
+879
+01:09:12,720 --> 01:09:18,080
+ when F relies on data, say on disk? If the data is on the disk, then it's going to read
+
+880
+01:09:18,080 --> 01:09:24,880
+ it from the disk. No difference that if you run it on your machine.
+
+881
+01:09:24,880 --> 01:09:30,480
+ By object store, does it just mean passing the references? Yes, the object store means
+
+882
+01:09:30,480 --> 01:09:35,360
+ that you can pass the references. You can put the results and you can put the data in
+
+883
+01:09:35,360 --> 01:09:42,160
+ the object stores and then you can pass the references to that object. It allows you to
+
+884
+01:09:42,160 --> 01:09:50,400
+ pass the references. Without the object store, you cannot pass the references.
+
+885
+01:09:50,400 --> 01:09:59,600
+ If it's on the disk of the original machine, what you are going to happen, well, you need
+
+886
+01:09:59,600 --> 01:10:03,120
+ to be careful, right? If it's a disk on the original machine, the way you are going to
+
+887
+01:10:03,120 --> 01:10:12,400
+ do it, actually, if you run it, obviously, if it's local disk, it's not going to work,
+
+888
+01:10:12,400 --> 01:10:17,440
+ right? But typically in this system, you have a distributed storage system, which is accessible
+
+889
+01:10:17,440 --> 01:10:27,280
+ from all machines. Even with Spark, you have a distributed file system, use HDFS, hard
+
+890
+01:10:27,280 --> 01:10:33,120
+ to distribute file system, for instance, or you can use a blob store like S3. But all
+
+891
+01:10:33,120 --> 01:10:36,480
+ these systems, they do assume there is a distributed storage system.
+
+892
+01:10:39,920 --> 01:10:50,080
+ OK, so this is GitHub stars and this is comparing Ray and Spark with other popular systems like
+
+893
+01:10:50,080 --> 01:10:58,640
+ Kafka, Qflow, Dask and so forth and Flink. You know, if you look here, Ray and Spark,
+
+894
+01:10:58,640 --> 01:11:05,040
+ they are actually pretty much matching the slope and they are faster than the others.
+
+895
+01:11:06,880 --> 01:11:10,000
+ There are a lot of contributors now, I think they are close to 600.
+
+896
+01:11:10,000 --> 01:11:19,840
+ This is one system, this AND group built on top of Ray and built, really the entire
+
+897
+01:11:19,840 --> 01:11:31,040
+ platform is called Fusion system. So build algorithms and application and services like
+
+898
+01:11:31,040 --> 01:11:37,440
+ for marketing, advertisement, recommendation and things like that. And they deploy it actually,
+
+899
+01:11:37,440 --> 01:11:43,600
+ double 11 and double 12. Double 11, as you may know, is the largest shopping day.
+
+900
+01:11:43,600 --> 01:11:52,160
+ So this is Uber, they build a machine learning platform, they are building on top of
+
+901
+01:11:52,160 --> 01:11:59,520
+ Ray's and new generation of machine learning platform. But this quote is great, right? It's
+
+902
+01:11:59,520 --> 01:12:05,040
+ like you're saying exactly what I said to you, but someone else is telling you, saying that.
+
+903
+01:12:05,040 --> 01:12:09,040
+ Say by leveraging Ray, we can combine the pre-processing, distributed training
+
+904
+01:12:09,040 --> 01:12:13,200
+ and high parameter search always in a single job running a single training script,
+
+905
+01:12:13,200 --> 01:12:24,080
+ right? So a single machine. And this is a fun example. You know, this is America's Cup.
+
+906
+01:12:24,080 --> 01:12:27,600
+ America's Cup is the biggest selling competition, the most prestigious.
+
+907
+01:12:28,320 --> 01:12:34,480
+ They sold it away from 1841 and it's every three or four years, I forgot.
+
+908
+01:12:34,480 --> 01:12:43,360
+ It was a few years ago, it was in San Francisco, Oracle team who own one. This year,
+
+909
+01:12:43,360 --> 01:12:50,880
+ the team who own was New Zealand team. And that New Zealand team, you know, the boat and the
+
+910
+01:12:50,880 --> 01:12:57,200
+ team was trained with tools built by this Quantum Black, which is a McKinsey company.
+
+911
+01:12:58,160 --> 01:13:07,040
+ And those tools and the boat were designed with the help of Aralib. So that was pretty cool.
+
+912
+01:13:07,040 --> 01:13:15,200
+ Okay, so I'm stopping here and I'm going to help you to take any questions for the remaining time
+
+913
+01:13:15,200 --> 01:13:24,160
+ of few minutes. Sorry, I couldn't leave more time, but really good luck with the end of the semester
+
+914
+01:13:24,160 --> 01:13:33,040
+ and with all your classes, all your projects, and obviously happy holidays. And now I'm happy. Let
+
+915
+01:13:33,040 --> 01:13:49,280
+ me take the questions. Thank you. How is this to migrate non-distributed, non-ML application to
+
+916
+01:13:49,280 --> 01:13:54,160
+ Ray? I may be not understanding, but why not just use existing scaling solutions such as
+
+917
+01:13:54,160 --> 01:14:01,120
+ containers plus Kubernetes plus traditional applications? That's a great question. Why
+
+918
+01:14:01,120 --> 01:14:06,240
+ not containers and Kubernetes? Kubernetes and containers are orthogonal.
+
+919
+01:14:06,240 --> 01:14:16,880
+ This Ray is intended for the programmer. You as a programmer, you build distributed applications
+
+920
+01:14:17,680 --> 01:14:24,480
+ by just adding these Ray remotes in the code. And it's supposed ideally to be and
+
+921
+01:14:24,480 --> 01:14:34,880
+ it's easy hopefully to run, to build this. Ray tries to reduce a gap between building
+
+922
+01:14:34,880 --> 01:14:43,920
+ applications, writing Python code, for instance, and running on your machine to developing
+
+923
+01:14:45,680 --> 01:14:51,520
+ the code and running on a cluster. Right? Tries to reduce this gap.
+
+924
+01:14:51,520 --> 01:15:02,640
+ Kubernetes is helping you, it's resource orchestration. So it helps you to manage
+
+925
+01:15:02,640 --> 01:15:08,320
+ a distributed applications. It doesn't help you to write a distributed applications.
+
+926
+01:15:08,320 --> 01:15:14,240
+ If you have distributed applications, it helps you to manage it. Right?
+
+927
+01:15:14,240 --> 01:15:22,800
+ Where to run different parts and things like that. In fact, Ray is running on top of Kubernetes.
+
+928
+01:15:22,800 --> 01:15:30,800
+ And dockers are just, obviously, you know what it is, it's a package. Right?
+
+929
+01:15:30,800 --> 01:15:38,880
+ Package all the dependencies. And also under the hood, Ray can use dockers. But that's the thing,
+
+930
+01:15:38,880 --> 01:15:43,920
+ they are at a different level. So it's a different box and they are at some level complementary.
+
+931
+01:15:43,920 --> 01:15:49,200
+ So Ray, it helps you to write, it's intended for the developers, for someone like you.
+
+932
+01:15:49,200 --> 01:15:55,920
+ Kubernetes is for DevOps in general. It allows you to manage
+
+933
+01:15:55,920 --> 01:16:00,720
+ the distributed applications, not to write it, to deploy it and manage it.
+
+934
+01:16:00,720 --> 01:16:04,960
+ And dockers is fantastic for
+
+935
+01:16:09,120 --> 01:16:14,480
+ packaging the dependencies. For Python, you also can use conda environments. Right?
+
+936
+01:16:14,480 --> 01:16:22,560
+ Yeah. So hopefully I answered your question. Any other last minute questions?
+
+937
+01:16:22,560 --> 01:16:29,520
+ We still have two, three minutes.
+
+938
+01:16:35,520 --> 01:16:40,640
+ OK. If not, it's a good way to end.
+
+939
+01:16:40,640 --> 01:16:53,920
+ So what are some systems related classes you recommend? I think you can see CS262A
+
+940
+01:16:53,920 --> 01:17:04,400
+ when it's offered. The database is 286. You may also get in if you are offered like 294
+
+941
+01:17:04,960 --> 01:17:10,160
+ with graduate special grad seminars, which are focusing on system, distributed systems. There
+
+942
+01:17:10,160 --> 01:17:17,920
+ are a few of them. But these are the few classes to look at. By the way, I just want to still,
+
+943
+01:17:17,920 --> 01:17:25,680
+ I think it's, I'm happy that and I have to apologize to you that almost all classes,
+
+944
+01:17:25,680 --> 01:17:32,240
+ I went over time. I was not over time, but I was not able to finish my material.
+
+945
+01:17:34,080 --> 01:17:42,480
+ So this is an exception and I'm glad to finish on this note. Thanks, everyone. And happy holidays
+
+946
+01:17:42,480 --> 01:17:56,640
+ and all the best. I'm sure we'll see each other many more times in the future. Yes. Bye bye.
+
