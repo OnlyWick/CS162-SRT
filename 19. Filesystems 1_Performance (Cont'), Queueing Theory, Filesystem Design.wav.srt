@@ -1,2456 +1,3074 @@
 1
 00:00:00,000 --> 00:00:20,280
- Hello everyone. So today we are going to continue the discussion about the storage devices.
+Hello everyone. So today we are going to continue the discussion about the storage devices.
+大家好。所以今天我们将继续讨论存储设备。
 
 2
 00:00:20,280 --> 00:00:25,680
- In particular, we are going to talk about SSDs or solid state devices, and we are going
+In particular, we are going to talk about SSDs or solid state devices, and we are going
+特别是，我们将要谈论SSD或固态设备，并且我们将要
 
 3
 00:00:25,680 --> 00:00:37,400
- to start the discussion on queuing theory. So last time we talked about disk drives or
+to start the discussion on queuing theory. So last time we talked about disk drives or
+开始讨论排队理论。上次我们谈到了磁盘驱动器或者
 
 4
 00:00:37,400 --> 00:00:46,000
- the spinning disks, and these are the main technologies used to store data for the first
+the spinning disks, and these are the main technologies used to store data for the first
+旋转盘片，这些是用于首次存储数据的主要技术。
 
 5
 00:00:46,000 --> 00:00:55,040
- few decades of personal computers and computers in general. And we are starting with kind
+few decades of personal computers and computers in general. And we are starting with kind
+几十年来的个人电脑和计算机的发展。我们从种类开始。
 
 6
 00:00:55,040 --> 00:01:06,560
- of two decades ago, a little bit more than that. We started to see the emergence of another
+of two decades ago, a little bit more than that. We started to see the emergence of another
+二十多年前，稍微多一点。我们开始看到另一个的出现。
 
 7
 00:01:06,560 --> 00:01:17,320
- technology to store data persistently, and that was memory-based. And the first efforts
+technology to store data persistently, and that was memory-based. And the first efforts
+技术用于持久存储数据，而且是基于内存的。而且最初的努力是
 
 8
 00:01:17,320 --> 00:01:26,360
- was in 1995, the emergencies of you have DRAM, but how you make it persistent? Well, you
+was in 1995, the emergencies of you have DRAM, but how you make it persistent? Well, you
+在1995年，你们有DRAM的紧急情况，但是你们如何使其持久化？好的，你们可以通过以下方式实现：
 
 9
 00:01:26,360 --> 00:01:33,260
- have a battery, you have DRAM powered by a battery. And then as long as the battery lasts,
+have a battery, you have DRAM powered by a battery. And then as long as the battery lasts,
+你有一个电池，你有由电池供电的DRAM。只要电池还有电，
 
 10
 00:01:33,260 --> 00:01:40,560
- you are going to store the data persistently in that memory, even when the computer is
+you are going to store the data persistently in that memory, even when the computer is
+你将会将数据持久地存储在那个内存中，即使电脑关闭。
 
 11
 00:01:40,560 --> 00:01:57,520
- unplugged. But after that, things change with this new technology, NAND, multi-level cell.
+unplugged. But after that, things change with this new technology, NAND, multi-level cell.
+拔掉插头。但是在那之后，随着这种新技术的出现，事情发生了变化，那就是NAND多级单元。
 
 12
 00:01:57,520 --> 00:02:08,160
- So basically this allows you to store, it's like a memory, but it allows you to store
+So basically this allows you to store, it's like a memory, but it allows you to store
+所以基本上这个可以让你存储，就像一个记忆，但它可以让你存储什么？
 
 13
 00:02:08,160 --> 00:02:19,840
- data, to store information, even when it's not powered. So that was kind of the key technology
+data, to store information, even when it's not powered. So that was kind of the key technology
+数据，用于存储信息，即使在没有电源的情况下也能保持。所以这就是关键技术。
 
 14
 00:02:19,840 --> 00:02:24,800
- innovation at a high level. Of course, there are many details, we don't have a lot of time
+innovation at a high level. Of course, there are many details, we don't have a lot of time
+创新水平很高。当然，还有很多细节，我们没有太多时间。
 
 15
 00:02:24,800 --> 00:02:37,760
- to go into details, but the big thing was about having this commercially available technology
+to go into details, but the big thing was about having this commercially available technology
+不详细说明，但重要的是拥有这种商业化技术。
 
 16
 00:02:37,760 --> 00:02:50,040
- to store data in this new kind of memories without needing to power them on.
+to store data in this new kind of memories without needing to power them on.
+将数据存储在这种新型的存储器中，无需将其通电。
 
 17
 00:02:50,040 --> 00:03:05,360
- And these SSDs, they store information, granularity of a memory block, and the memory block consists
+And these SSDs, they store information, granularity of a memory block, and the memory block consists
+这些SSD存储设备，它们存储信息，以内存块的粒度为单位，而内存块则由...
 
 18
 00:03:05,360 --> 00:03:14,860
- of four kilobytes, between four and 64 kilobytes pages. And remember that 40 kilobytes pages
+of four kilobytes, between four and 64 kilobytes pages. And remember that 40 kilobytes pages
+每个页面的大小为4千字节，介于4千字节至64千字节之间。请记住，页面大小为40千字节。
 
 19
 00:03:14,860 --> 00:03:21,720
- is basically more or less like a sector on a disk, disk drive. And it's also making the
+is basically more or less like a sector on a disk, disk drive. And it's also making the
+是基本上类似于磁盘驱动器上的一个扇区。它也在制造
 
 20
 00:03:21,720 --> 00:03:34,400
- size of the page for a virtual memory implementation. So you have virtual memory, the pages in the
+size of the page for a virtual memory implementation. So you have virtual memory, the pages in the
+虚拟内存实现中的页面大小。所以你有虚拟内存，页面的大小是多少？
 
 21
 00:03:34,400 --> 00:03:40,960
- virtual memory are typically four kilobytes, the same, the size is a sector size. And then
+virtual memory are typically four kilobytes, the same, the size is a sector size. And then
+虚拟内存通常为四千字节，与扇区大小相同。然后
 
 22
 00:03:40,960 --> 00:03:46,040
- when you translate those to the SSDs, you are going for this four kilobytes page are
+when you translate those to the SSDs, you are going for this four kilobytes page are
+当你将这些内容翻译成SSDs时，你要选择这个四千字节的页面。
 
 23
 00:03:46,040 --> 00:03:52,080
- part of a memory block and the memory block consists of four between four and 64 pages.
+part of a memory block and the memory block consists of four between four and 64 pages.
+一部分是内存块，而内存块由4到64个页面组成。
 
 24
 00:03:52,080 --> 00:03:59,320
- This is an important detail. There are no moving parts, just like memory. So this has
+This is an important detail. There are no moving parts, just like memory. So this has
+这是一个重要的细节。没有任何可动部件，就像内存一样。所以这个有
 
 25
 00:03:59,320 --> 00:04:06,120
- a certain advantages, big advantages. First of all, eliminate the seek and the rotation
+a certain advantages, big advantages. First of all, eliminate the seek and the rotation
+某些优势，非常大的优势。首先，消除寻道和旋转。
 
 26
 00:04:06,120 --> 00:04:10,760
- latency. Remember from last time, there's a seek and rotation latency, where is the
+latency. Remember from last time, there's a seek and rotation latency, where is the
+寻道延迟和旋转延迟。记得上次说过，有寻道延迟和旋转延迟，它们在哪里呢？
 
 27
 00:04:10,760 --> 00:04:19,280
- biggest culprits of a long latency to access data on the disk, at least randomly. That's
+biggest culprits of a long latency to access data on the disk, at least randomly. That's
+磁盘访问数据延迟最长的罪魁祸首，至少在随机访问时。
 
 28
 00:04:19,280 --> 00:04:24,240
- why we have a huge difference between the throughput of a disk when you access the data
+why we have a huge difference between the throughput of a disk when you access the data
+为什么在访问数据时，磁盘的吞吐量会有很大差异？
 
 29
 00:04:24,240 --> 00:04:30,360
- sequentially, because in that particular case, you do not need to pay for the seek and rotation
+sequentially, because in that particular case, you do not need to pay for the seek and rotation
+按顺序，因为在这种特殊情况下，您不需要支付寻道和旋转的费用。
 
 30
 00:04:30,360 --> 00:04:39,440
- delays, versus when you access the data randomly, when you need to pay for both of these delays,
+delays, versus when you access the data randomly, when you need to pay for both of these delays,
+延迟，相对于当你随机访问数据时，当你需要为这两种延迟付费时，
 
 31
 00:04:39,440 --> 00:04:47,280
- seeks and rotation. They also have requires even very low power and anything, and they
+seeks and rotation. They also have requires even very low power and anything, and they
+寻求和旋转。它们还需要非常低的功耗和任何东西，以及它们
 
 32
 00:04:47,280 --> 00:04:59,080
- are lightweight. It's not just memory. It's not like a disk metal with platters spinning
+are lightweight. It's not just memory. It's not like a disk metal with platters spinning
+是轻巧的。不仅仅是内存。它不像一个有盘片旋转的金属磁盘。
 
 33
 00:04:59,080 --> 00:05:06,520
- and heads and things like that. On the downside, it does have limited write cycles. So this
+and heads and things like that. On the downside, it does have limited write cycles. So this
+而且还有头部和类似的东西。不过，它的写入次数有限，这是一个缺点。所以这个
 
 34
 00:05:06,520 --> 00:05:17,200
- means that limited write cycle, it's when you modify a cell, when you modify a bit,
+means that limited write cycle, it's when you modify a cell, when you modify a bit,
+这意味着有限的写入周期，即当您修改一个单元格时，修改一个位时，
 
 35
 00:05:17,200 --> 00:05:23,120
- if you modify it too many times, if you write the same bit too many times, then it works
+if you modify it too many times, if you write the same bit too many times, then it works
+如果你修改它太多次，如果你写同样的部分太多次，那么它就会起作用。
 
 36
 00:05:23,120 --> 00:05:31,400
- out. You can no longer write that bit reliably. So that's one of the challenges you need to
+out. You can no longer write that bit reliably. So that's one of the challenges you need to
+面对的挑战之一是，你无法再可靠地写下那一部分。
 
 37
 00:05:31,400 --> 00:05:36,960
- deal with. And obviously, since you already introduced, there are rapid advantage and
+deal with. And obviously, since you already introduced, there are rapid advantage and
+处理。显然，既然你已经介绍了，那就有快速的优势和
 
 38
 00:05:36,960 --> 00:05:44,360
- the capacity have increased. And today, to give you a sense, obviously today is that
+the capacity have increased. And today, to give you a sense, obviously today is that
+容量已经增加。今天，为了让你有个概念，显然今天是这样的。
 
 39
 00:05:44,360 --> 00:05:52,440
- I'm not sure any of your devices you are working with still has a disk, unless you are working,
+I'm not sure any of your devices you are working with still has a disk, unless you are working,
+我不确定你正在使用的任何设备上是否还有磁盘，除非你正在工作。
 
 40
 00:05:52,440 --> 00:05:59,680
- you have a big workstation home or you are using. But certainly your laptops, obviously
+you have a big workstation home or you are using. But certainly your laptops, obviously
+你有一个大的工作站在家里或者你正在使用。但是肯定你也有笔记本电脑，显然的。
 
 41
 00:05:59,680 --> 00:06:12,840
- the phones, the IP or iPad, they no longer have disk drives to store data persistently.
+the phones, the IP or iPad, they no longer have disk drives to store data persistently.
+手机、IP或iPad，它们不再具备磁盘驱动器来持久存储数据。
 
 42
 00:06:12,840 --> 00:06:25,400
- They only have SSDs. So here it's again how SSD architecture look like. This NAND is where
+They only have SSDs. So here it's again how SSD architecture look like. This NAND is where
+它们只有固态硬盘（SSD）。所以这里再次介绍一下SSD的架构是什么样的。这个NAND是其中的一部分。
 
 43
 00:06:25,400 --> 00:06:31,160
- on the right hand side is the memory, the banks of memory, and each of these could present
+on the right hand side is the memory, the banks of memory, and each of these could present
+在右手边是内存，内存的银行，每个银行都可以呈现。
 
 44
 00:06:31,160 --> 00:06:38,880
- a block. And then you have a flash memory controller, which basically decides where
+a block. And then you have a flash memory controller, which basically decides where
+一个块。然后你有一个闪存控制器，它基本上决定了在哪里。
 
 45
 00:06:38,880 --> 00:06:45,080
- to write and what to read the data from. And you have a buffer manager and the software
+to write and what to read the data from. And you have a buffer manager and the software
+来写入和读取数据的位置。而且你还有一个缓冲区管理器和软件。
 
 46
 00:06:45,080 --> 00:06:51,160
- queue. And this is about when this is where you buffer the reads and writes requests.
+queue. And this is about when this is where you buffer the reads and writes requests.
+排队。这是关于在这里缓冲读写请求的地方。
 
 47
 00:06:51,160 --> 00:06:55,480
- So if you have many reads or writes requests at the same time, and you cannot serve at
+So if you have many reads or writes requests at the same time, and you cannot serve at
+同时有很多读取或写入请求，而且无法同时处理的话，
 
 48
 00:06:55,480 --> 00:07:02,800
- the same time, you have to buffer them and serve them one by one. It's also a DRAM here.
+the same time, you have to buffer them and serve them one by one. It's also a DRAM here.
+同时，你需要将它们缓冲并逐个提供。这里也有一个DRAM。
 
 49
 00:07:02,800 --> 00:07:09,280
- So when you cache some of the information, right, when you read, if I read only a few
+So when you cache some of the information, right, when you read, if I read only a few
+所以当你缓存一些信息时，对吗？当你阅读时，如果我只读了一小部分
 
 50
 00:07:09,280 --> 00:07:15,840
- bytes, the granularity, if you remember to read and write from this SSD, it's one of
+bytes, the granularity, if you remember to read and write from this SSD, it's one of
+字节，粒度，如果你记得从这个固态硬盘读写，它是其中之一。
 
 51
 00:07:15,840 --> 00:07:22,480
- these memory blocks, which can be between 16 and 256 kilobytes. So you have to read
+these memory blocks, which can be between 16 and 256 kilobytes. So you have to read
+这些内存块的大小可以在16到256千字节之间。所以你需要读取。
 
 52
 00:07:22,480 --> 00:07:26,920
- that granularity. And once you are reading it, you are going to cache it, because if
+that granularity. And once you are reading it, you are going to cache it, because if
+那种细粒度。而且一旦你读取它，你就会将其缓存，因为如果
 
 53
 00:07:26,920 --> 00:07:37,860
- you are going to read again the next few bytes, then it's already in DRAM. You don't need
+you are going to read again the next few bytes, then it's already in DRAM. You don't need
+你将再次读取接下来的几个字节，然后它们已经在DRAM中了。你不需要
 
 54
 00:07:37,860 --> 00:07:46,920
- to go and fetch it again. And now, this is the SATA, it's bus technology,
+to go and fetch it again. And now, this is the SATA, it's bus technology,
+去重新取回它。现在，这是SATA，它是一种总线技术，
 
 55
 00:07:46,920 --> 00:07:55,600
- and or can be PS, which is connected through a bridge to the PCI bus, like we discussed
+and or can be PS, which is connected through a bridge to the PCI bus, like we discussed
+and 或者可以是 PS，它通过桥接器连接到 PCI 总线，就像我们讨论过的那样。
 
 56
 00:07:55,600 --> 00:08:06,800
- last time, and then it's connected to the processor and to the memory.
+last time, and then it's connected to the processor and to the memory.
+上次，然后它连接到处理器和内存。
 
 57
 00:08:06,800 --> 00:08:18,000
- So here are some numbers for you. To read a 4 kilobyte page, it takes around, say, between
+So here are some numbers for you. To read a 4 kilobyte page, it takes around, say, between
+这里有一些数字给你。读取一个4千字节的页面大约需要，比如说，大约需要多少时间？
 
 58
 00:08:18,000 --> 00:08:26,280
- 10 and 25 microseconds. Again, there is no SQL rotation latency. So now the transfer
+10 and 25 microseconds. Again, there is no SQL rotation latency. So now the transfer
+10和25微秒。再次强调，没有SQL旋转延迟。所以现在进行传输。
 
 59
 00:08:26,280 --> 00:08:35,580
- time for a 4 kilobyte page for the SATA interface, you have between 300 and 600 megabytes per
+time for a 4 kilobyte page for the SATA interface, you have between 300 and 600 megabytes per
+时间为SATA接口的4千字节页面，你有300到600兆字节的空间。
 
 60
 00:08:35,580 --> 00:08:44,160
- second. Actually, the best interface is today you have 2 gigabytes per second, so a few
+second. Actually, the best interface is today you have 2 gigabytes per second, so a few
+秒。实际上，最好的接口是今天你有每秒2千兆字节，所以只需要几个
 
 61
 00:08:44,160 --> 00:08:53,600
- times larger than this. But even for, say, 400 megabytes per second to take a number,
+times larger than this. But even for, say, 400 megabytes per second to take a number,
+比这个大400兆字节每秒，但即使是以每秒400兆字节的速度来说，
 
 62
 00:08:53,600 --> 00:09:01,400
- then the transfer time, so the time to read 4 kilobyte pages is 10 microseconds. And the
+then the transfer time, so the time to read 4 kilobyte pages is 10 microseconds. And the
+然后是传输时间，所以读取4千字节页面的时间是10微秒。而且
 
 63
 00:09:01,400 --> 00:09:08,840
- latency, if you remember, what is the latency? The queuing time, so the time the request
+latency, if you remember, what is the latency? The queuing time, so the time the request
+延迟，如果你还记得的话，延迟是什么？排队时间，也就是请求的时间。
 
 64
 00:09:08,840 --> 00:09:14,240
- has to wait in the queue for the request to be satisfied, and plus the controller time,
+has to wait in the queue for the request to be satisfied, and plus the controller time,
+必须在队列中等待请求被满足，并加上控制器的时间，
 
 65
 00:09:14,240 --> 00:09:17,560
- whatever the controller needs to do and to make the decision, it's a fixed time, and
+whatever the controller needs to do and to make the decision, it's a fixed time, and
+无论控制器需要做什么和做出什么决策，都是在固定的时间内完成的。
 
 66
 00:09:17,560 --> 00:09:25,120
- the transfer time. And because this is a memory, basically you can randomly address, there
+the transfer time. And because this is a memory, basically you can randomly address, there
+传输时间。由于这是一种存储器，基本上可以随机寻址，因此您可以随意访问。
 
 67
 00:09:25,120 --> 00:09:32,320
- is not such a big difference between sequential and random reads.
+is not such a big difference between sequential and random reads.
+顺序读和随机读之间的差异并不是很大。
 
 68
 00:09:32,320 --> 00:09:42,800
- Now this was about the read. Now the writing is much more complex. And you can only write
+Now this was about the read. Now the writing is much more complex. And you can only write
+现在这是关于阅读的。现在写作要复杂得多。而且你只能写。
 
 69
 00:09:42,800 --> 00:09:54,960
- empty pages in a block. So there are three states of these pages. It's written, no, two
+empty pages in a block. So there are three states of these pages. It's written, no, two
+块中的空白页。所以这些页有三种状态。有写入的，没有，还有两个。
 
 70
 00:09:54,960 --> 00:10:05,480
- stages, whether it's written or whether it's erased or empty. And you can only write empty
+stages, whether it's written or whether it's erased or empty. And you can only write empty
+阶段，无论是书写的还是擦除的或者是空白的。而且你只能书写空白的。
 
 71
 00:10:05,480 --> 00:10:16,720
- pages. So if you want to overwrite a page, then before doing that, you need to erase
+pages. So if you want to overwrite a page, then before doing that, you need to erase
+页面。所以如果你想覆盖一个页面，在这之前，你需要先擦除。
 
 72
 00:10:16,720 --> 00:10:26,600
- a page. And now the page becomes empty and then you overwrite it. Now, the problem with
+a page. And now the page becomes empty and then you overwrite it. Now, the problem with
+一个页面。现在这个页面变成了空白，然后你覆盖了它。现在，问题出在
 
 73
 00:10:26,600 --> 00:10:34,520
- that is that this operation is far more expensive. Remember, it's like the read was say 25 microseconds.
+that is that this operation is far more expensive. Remember, it's like the read was say 25 microseconds.
+这就是说这个操作要贵得多。记住，就像读取需要25微秒一样。
 
 74
 00:10:34,520 --> 00:10:45,680
- The writing data on an empty page is 200 microseconds. And now if you want to erase a page, if you
+The writing data on an empty page is 200 microseconds. And now if you want to erase a page, if you
+想要擦除一页的话，现在的擦除时间是多少？
 
 75
 00:10:45,680 --> 00:10:55,460
- need to erase a page, if you don't have an empty page, erasing the page takes 1.5 milliseconds.
+need to erase a page, if you don't have an empty page, erasing the page takes 1.5 milliseconds.
+需要擦除一页，如果没有空白页，擦除一页需要1.5毫秒。
 
 76
 00:10:55,460 --> 00:11:00,480
- So the rule of thumb you can think about, the write is 10 times more expensive than
+So the rule of thumb you can think about, the write is 10 times more expensive than
+所以你可以考虑的经验法则是，写作比阅读贵十倍。
 
 77
 00:11:00,480 --> 00:11:09,400
- the reads and the erasers are 10 times more expensive than the writes. So 200 microseconds,
+the reads and the erasers are 10 times more expensive than the writes. So 200 microseconds,
+读取和擦除的价格是写入的10倍。所以200微秒，
 
 78
 00:11:09,400 --> 00:11:17,840
- it's around eight times larger than 25 microseconds, which is a time to read a page. And then 1.5
+it's around eight times larger than 25 microseconds, which is a time to read a page. And then 1.5
+它大约是25微秒的八倍大，这是读一页的时间。然后是1.5。
 
 79
 00:11:17,840 --> 00:11:26,000
- milliseconds is what? 7.5 times larger than 200 microseconds is the time to write an empty
+milliseconds is what? 7.5 times larger than 200 microseconds is the time to write an empty
+毫秒是什么？7.5倍于200微秒的时间是写入一个空的时间。
 
 80
 00:11:26,000 --> 00:11:32,720
- page. So therefore you need to be very careful about that. So this is the thing, the two
+page. So therefore you need to be very careful about that. So this is the thing, the two
+页。因此，你需要非常小心。所以这就是问题，这两个
 
 81
 00:11:32,720 --> 00:11:36,640
- constraints you have to operate with. And the two constraints which are different make
+constraints you have to operate with. And the two constraints which are different make
+你必须遵守的限制条件。而这两个不同的限制条件产生了不同的影响。
 
 82
 00:11:36,640 --> 00:11:47,520
- this SSD different than the DRAMs, the traditional memory. It's one, it's about you can only
+this SSD different than the DRAMs, the traditional memory. It's one, it's about you can only
+这个SSD与DRAM和传统内存不同。它是一种，它是关于你只能
 
 83
 00:11:47,520 --> 00:11:53,780
- write empty pages and read and writes are asymmetric, are not taking the same amount
+write empty pages and read and writes are asymmetric, are not taking the same amount
+写空白页和读写操作是不对称的，它们所需的时间不相等。
 
 84
 00:11:53,780 --> 00:12:01,080
- of time, eraser take even longer. So this is one. And the other one is that you can
+of time, eraser take even longer. So this is one. And the other one is that you can
+在时间方面，橡皮擦需要更长的时间。所以这是一个。另一个是你可以
 
 85
 00:12:01,080 --> 00:12:07,520
- only do a limited amount, a number of writes. Typically it's like 10,000 writes or something
+only do a limited amount, a number of writes. Typically it's like 10,000 writes or something
+只能进行有限次数的写入操作。通常是10,000次写入或者类似的数量。
 
 86
 00:12:07,520 --> 00:12:16,920
- like that. Okay. So you need to be careful. So now in order to avoid the cost of erasure,
+like that. Okay. So you need to be careful. So now in order to avoid the cost of erasure,
+那样。好的。所以你需要小心。为了避免擦除的费用，现在
 
 87
 00:12:16,920 --> 00:12:23,000
- when you need to write, so to erase first before writing, what the controller is doing,
+when you need to write, so to erase first before writing, what the controller is doing,
+当你需要写东西时，所以在写之前先擦除，控制器在做什么？
 
 88
 00:12:23,000 --> 00:12:31,280
- it maintains a pool of empty blocks. So you bring the use pages, put them in a, you know,
+it maintains a pool of empty blocks. So you bring the use pages, put them in a, you know,
+它维护了一个空块的池子。所以你把使用过的页面放进去，放在一个，你知道的，
 
 89
 00:12:31,280 --> 00:12:38,560
- put together in a block and then it pulls, you have these pools of empty blocks and then
+put together in a block and then it pulls, you have these pools of empty blocks and then
+将它们组合成一个块，然后它会被拉动，你会得到一些空块的池子，然后...
 
 90
 00:12:38,560 --> 00:12:44,960
- you can write them and then you can pay only 200 microseconds per page instead of 1.7 milliseconds.
+you can write them and then you can pay only 200 microseconds per page instead of 1.7 milliseconds.
+您可以将它们写下来，然后每页只需支付200微秒，而不是1.7毫秒。
 
 91
 00:12:44,960 --> 00:12:56,800
- SSDs provide the same interface as hard disk drives to the OS, the same API, which is great
+SSDs provide the same interface as hard disk drives to the OS, the same API, which is great
+SSDs提供与操作系统相同的接口，与硬盘驱动器相同的应用程序接口（API），这非常好。
 
 92
 00:12:56,800 --> 00:13:02,200
- because you can just swap a disk drive with an SSD and the computer will work, but it
+because you can just swap a disk drive with an SSD and the computer will work, but it
+因为你只需要将硬盘驱动器换成固态硬盘(SSD)，电脑就能正常工作，但是
 
 93
 00:13:02,200 --> 00:13:08,280
- will be much faster. Right? Like I said, when you override the data, when you, the chronology
+will be much faster. Right? Like I said, when you override the data, when you, the chronology
+将会快得多。对吗？就像我说的，当你覆盖数据时，当你，时间顺序
 
 94
 00:13:08,280 --> 00:13:16,760
- of writing, it's a, it's a block and the block can be 16 times larger than a page, sorry,
+of writing, it's a, it's a block and the block can be 16 times larger than a page, sorry,
+写作的话，它是一个，它是一个块，这个块可以比一页大16倍，抱歉，
 
 95
 00:13:16,760 --> 00:13:22,400
- 64 times larger than a page. So you have a page is four kilobytes and you have 64 pages
+64 times larger than a page. So you have a page is four kilobytes and you have 64 pages
+一个页面比一个页面大64倍。所以你有一个页面是四千字节，你有64个页面。
 
 96
 00:13:22,400 --> 00:13:32,040
- in a block. Then 64 by time of times four is 256 kilobytes. So this is what the 256
+in a block. Then 64 by time of times four is 256 kilobytes. So this is what the 256
+在一个块中。然后64乘以四次是256千字节。所以这就是256。
 
 97
 00:13:32,040 --> 00:13:41,960
- kilobytes is coming from. Okay. So I, we already discussed about it. Why not erase and rewrite
+kilobytes is coming from. Okay. So I, we already discussed about it. Why not erase and rewrite
+千字节是从哪里来的。好的。所以，我们已经讨论过了。为什么不删除并重写呢？
 
 98
 00:13:41,960 --> 00:13:49,340
- new version of the entire 256 blocks? Because erasure is extremely slow. And then each block
+new version of the entire 256 blocks? Because erasure is extremely slow. And then each block
+整个256个区块的新版本？因为擦除非常慢。然后每个区块
 
 99
 00:13:49,340 --> 00:13:56,520
- has a finite lifetime. Like I mentioned to you, you cannot erase and rewrite all the
+has a finite lifetime. Like I mentioned to you, you cannot erase and rewrite all the
+有一个有限的寿命。就像我之前跟你提到的，你不能擦除和重写所有的
 
 100
 00:13:56,520 --> 00:14:05,120
- time. You can only do that for say 10, a few tens of that 10 thousands of times. Okay.
+time. You can only do that for say 10, a few tens of that 10 thousands of times. Okay.
+时间。你只能这样做十次，大约十万次的几十倍。好的。
 
 101
 00:14:05,120 --> 00:14:09,960
- So therefore if you have heavily used blocks, you do a lot of writes, they are going to
+So therefore if you have heavily used blocks, you do a lot of writes, they are going to
+所以，如果你使用的块很多，写入操作也很频繁，那么它们会
 
 102
 00:14:09,960 --> 00:14:16,040
- wear out quickly. Okay. So now you have this problem, right? It's like, you know, you,
+wear out quickly. Okay. So now you have this problem, right? It's like, you know, you,
+穿得很快就破了。好的。所以现在你有这个问题，对吧？就像，你知道的，你，
 
 103
 00:14:16,040 --> 00:14:21,920
- you have if you have, how, how do you are going to solve it? Right. And again, the problem
+you have if you have, how, how do you are going to solve it? Right. And again, the problem
+你有的话，你会怎么解决呢？对的。再次，问题是什么？
 
 104
 00:14:21,920 --> 00:14:30,000
- is that, you know, I cannot, I can do, I am allowed to do only a limited number of writes
+is that, you know, I cannot, I can do, I am allowed to do only a limited number of writes
+这意味着，你知道的，我不能，我只能做，我只被允许做有限数量的写入操作。
 
 105
 00:14:30,000 --> 00:14:34,360
- and now I have some heavy blocks. So what I'm going to do about it, do you have any
+and now I have some heavy blocks. So what I'm going to do about it, do you have any
+现在我有一些沉重的障碍。那么我该怎么办呢，你有什么建议吗？
 
 106
 00:14:34,360 --> 00:14:38,240
- suggestions here?
+suggestions here?
+这里有什么建议吗？
 
 107
 00:14:38,240 --> 00:14:53,920
- Remap. That's exactly, that's very good. So basically when you are going to rewrite, you
+Remap. That's exactly, that's very good. So basically when you are going to rewrite, you
+重新映射。没错，非常好。所以基本上当你要重写时，你需要重新映射。
 
 108
 00:14:53,920 --> 00:14:58,280
- are not going to rewrite in the same place. You are going to write to another page, which
+are not going to rewrite in the same place. You are going to write to another page, which
+不会在同一个地方重写。你将要写到另一页，这一页是...
 
 109
 00:14:58,280 --> 00:15:07,360
- is not, was not so used in the past. And then you are going to remap the, the page to the
+is not, was not so used in the past. And then you are going to remap the, the page to the
+过去并没有这样使用。然后你打算重新映射页面，将其重新定位到
 
 110
 00:15:07,360 --> 00:15:15,240
- new block. You're you're you're used to write the new information. And this is a layer of
+new block. You're you're you're used to write the new information. And this is a layer of
+新的区块。你可以用它来写入新的信息。这是一个层级。
 
 111
 00:15:15,240 --> 00:15:22,680
- indirection. It is called flash translation layer or FTL in SSD. I assume maps, the virtual
+indirection. It is called flash translation layer or FTL in SSD. I assume maps, the virtual
+间接寻址。在固态硬盘中，它被称为闪存转换层或FTL。我假设地图，虚拟的
 
 112
 00:15:22,680 --> 00:15:28,440
- block numbers, which is uses these are the blocks actually says a page numbers, the physical
+block numbers, which is uses these are the blocks actually says a page numbers, the physical
+阻止数字，这些数字是指页面上实际显示的页码，即物理页码。
 
 113
 00:15:28,440 --> 00:15:37,280
- page numbers, which flash memory control uses. Okay. So that's the way it's it's working.
+page numbers, which flash memory control uses. Okay. So that's the way it's it's working.
+页码，闪存控制器使用的。好的。所以这就是它的工作方式。
 
 114
 00:15:37,280 --> 00:15:44,960
- Right. So from the OS perspective, you still have the same page as the same page numbers
+Right. So from the OS perspective, you still have the same page as the same page numbers
+对的。所以从操作系统的角度来看，你仍然将同一页面视为相同的页面编号。
 
 115
 00:15:44,960 --> 00:15:52,400
- and everything, but now on the physical pages, you have a map and the page number as seen
+and everything, but now on the physical pages, you have a map and the page number as seen
+和其他所有东西一样，但现在在实体页面上，你会看到一张地图和页码。
 
 116
 00:15:52,400 --> 00:16:01,760
- by the CPU is going to map to a physical page number. And the mapping is, it's, it's, it's,
+by the CPU is going to map to a physical page number. And the mapping is, it's, it's, it's,
+由CPU将映射到一个物理页码。而这个映射是，它是，它是，它是，
 
 117
 00:16:01,760 --> 00:16:08,880
- it's managed by the controller. So the controller can remap and basically say page number one
+it's managed by the controller. So the controller can remap and basically say page number one
+它由控制器管理。因此，控制器可以重新映射并基本上指定为第一页。
 
 118
 00:16:08,880 --> 00:16:16,080
- is go to physical page number 10 and next is going to go to physical page number 15.
+is go to physical page number 10 and next is going to go to physical page number 15.
+去物理页码10，然后再去物理页码15。
 
 119
 00:16:16,080 --> 00:16:24,200
- Right. So that's why, how I'm going to load balance the writes for the same page as seen
+Right. So that's why, how I'm going to load balance the writes for the same page as seen
+正确。所以这就是为什么，我要如何对同一页的写入进行负载均衡。
 
 120
 00:16:24,200 --> 00:16:37,720
- by the CPU. Okay. So this is pretty much it. It's again, copy on write. This is, or should
+by the CPU. Okay. So this is pretty much it. It's again, copy on write. This is, or should
+由CPU执行。好的。所以基本上就是这样。再次强调，这是写时复制。这是，或者应该是。
 
 121
 00:16:37,720 --> 00:16:46,040
- be obvious, right? Again, I do not want to copy to rewrite the same page. You know, even
+be obvious, right? Again, I do not want to copy to rewrite the same page. You know, even
+显而易见，对吧？再说一遍，我不想复制重写同样的页面。你知道，即使
 
 122
 00:16:46,040 --> 00:16:51,000
- if I want to modify a page, I don't rewrite it because I need to erase it first. And if
+if I want to modify a page, I don't rewrite it because I need to erase it first. And if
+如果我想修改一个页面，我不会重写它，因为我需要先将其删除。而且如果
 
 123
 00:16:51,000 --> 00:16:55,160
- I need to erase it first is expensive. So what I'm doing, I'm going to just create a
+I need to erase it first is expensive. So what I'm doing, I'm going to just create a
+我需要先擦除它是很贵的。所以我现在要做的是，我只是要创建一个
 
 124
 00:16:55,160 --> 00:17:09,280
- new version of the page and I'm, then I'm going to remap it. Isn't the lifetime of 10k
+new version of the page and I'm, then I'm going to remap it. Isn't the lifetime of 10k
+页面的新版本，然后我打算重新映射它。寿命不是10k吗？
 
 125
 00:17:09,280 --> 00:17:17,040
- eraser writes quite small, consider that we can use a laptop for multiple years. It's
+eraser writes quite small, consider that we can use a laptop for multiple years. It's
+橡皮擦写得很小，考虑到我们可以使用笔记本电脑多年。
 
 126
 00:17:17,040 --> 00:17:22,480
- not really, I mean, because if you really do load balancing, really load balancing,
+not really, I mean, because if you really do load balancing, really load balancing,
+不是真的，我的意思是，如果你真的做负载均衡，真正的负载均衡，
 
 127
 00:17:22,480 --> 00:17:27,360
- this means that you need to write or update, you can read and draft and update. Like say
+this means that you need to write or update, you can read and draft and update. Like say
+这意味着你需要写作或更新，你可以阅读、起草和更新。就像说的那样。
 
 128
 00:17:27,360 --> 00:17:38,040
- you have one terabyte of disk, right? So one terabyte of disk, then you can write the equivalent
+you have one terabyte of disk, right? So one terabyte of disk, then you can write the equivalent
+你有一块1TB的硬盘，对吗？那么一块1TB的硬盘，你可以写入相当于多少的内容呢？
 
 129
 00:17:38,040 --> 00:17:47,640
- of 10,000 multiply with one terabyte. So 10 petabytes, right? I think this is right. You
+of 10,000 multiply with one terabyte. So 10 petabytes, right? I think this is right. You
+一万乘以一太字节。所以是10拍字节，对吗？我认为是这样的。
 
 130
 00:17:47,640 --> 00:17:53,920
- can write 10 petabytes and you don't, you know, it's hard to write 10 petabytes. Yeah.
+can write 10 petabytes and you don't, you know, it's hard to write 10 petabytes. Yeah.
+你可以写10个拍字节，而你不会，你知道的，写10个拍字节很难。是的。
 
 131
 00:17:53,920 --> 00:18:03,360
- So yeah. But it's again, this works if you are going to be able to load balance, right?
+So yeah. But it's again, this works if you are going to be able to load balance, right?
+是的。但是这只适用于你能够进行负载均衡的情况下，对吗？
 
 132
 00:18:03,360 --> 00:18:14,560
- And this writes, right? And this is what the controller is doing.
+And this writes, right? And this is what the controller is doing.
+是的，这是正确的。这是控制器正在做的事情。
 
 133
 00:18:14,560 --> 00:18:26,760
- Okay. The flash translation layer also ensures that there is no need to erase and rewrite
+Okay. The flash translation layer also ensures that there is no need to erase and rewrite
+好的。闪存翻译层还确保不需要擦除和重写。
 
 134
 00:18:26,760 --> 00:18:34,220
- the entire 256 blocks when making small modification or changes. SSD controller can assign mapping
+the entire 256 blocks when making small modification or changes. SSD controller can assign mapping
+在进行小的修改或更改时，需要整个256个块。SSD控制器可以分配映射。
 
 135
 00:18:34,220 --> 00:18:39,720
- to spread or load, it's what we talk about. So you want basically to load balance the
+to spread or load, it's what we talk about. So you want basically to load balance the
+分发或加载，这是我们讨论的内容。所以你基本上想要进行负载均衡。
 
 136
 00:18:39,720 --> 00:18:44,600
- writes. This is called where labeling, and you are doing that by remapping and doing
+writes. This is called where labeling, and you are doing that by remapping and doing
+这被称为标注，你通过重新映射和执行来完成。
 
 137
 00:18:44,600 --> 00:18:50,440
- copy on write, creating new versions of the page or hopefully using a page, a physical
+copy on write, creating new versions of the page or hopefully using a page, a physical
+复制写入，创建页面的新版本，或者希望使用一个页面，一个物理的。
 
 138
 00:18:50,440 --> 00:18:57,320
- page which was not written many times. If you old version of the pages, which are, you
+page which was not written many times. If you old version of the pages, which are, you
+页面没有被多次编辑过。如果你需要旧版本的页面，它们是存在的。
 
 139
 00:18:57,320 --> 00:19:02,140
- know, you delete a file, what happened? Then they are very garbage collected in the background
+know, you delete a file, what happened? Then they are very garbage collected in the background
+了解，当你删除一个文件时，会发生什么？然后它们会在后台被很好地垃圾回收。
 
 140
 00:19:02,140 --> 00:19:06,800
- and in the background you are going to erase them. So to maybe to prepare them to be written
+and in the background you are going to erase them. So to maybe to prepare them to be written
+并且在背景中你将要抹去它们。所以也许是为了准备它们被书写。
 
 141
 00:19:06,800 --> 00:19:18,400
- again. So you, they are ready to be written again. Any questions?
+again. So you, they are ready to be written again. Any questions?
+再次。所以你们，他们准备好重新写了。有任何问题吗？
 
 142
 00:19:18,400 --> 00:19:23,800
- This again was something, some of the most, you know, now how they compare like hard disk
+This again was something, some of the most, you know, now how they compare like hard disk
+这又是一些东西，一些最，你知道的，现在他们如何比较，就像硬盘一样。
 
 143
 00:19:23,800 --> 00:19:33,500
- drives with SSDs. We'll have that in the next slide. But about SSDs themselves, you know,
+drives with SSDs. We'll have that in the next slide. But about SSDs themselves, you know,
+使用固态硬盘（SSD）进行驱动。我们将在下一张幻灯片中介绍这个。但是关于SSD本身，你知道，
 
 144
 00:19:33,500 --> 00:19:40,560
- you can buy, and these are two years old, some of the data, but you can buy 16 terabytes.
+you can buy, and these are two years old, some of the data, but you can buy 16 terabytes.
+你可以购买这些数据，它们已经有两年的历史了，但你可以购买16TB的容量。
 
 145
 00:19:40,560 --> 00:19:46,400
- You remember that we have 16 terabytes, the disk we considered last time, was this kind
+You remember that we have 16 terabytes, the disk we considered last time, was this kind
+你记得我们有16TB的硬盘，上次考虑的那个硬盘就是这个吗？
 
 146
 00:19:46,400 --> 00:19:53,600
- of the hard disk drive was having the same size, 16 terabytes, the same capacity. But
+of the hard disk drive was having the same size, 16 terabytes, the same capacity. But
+硬盘驱动器的大小都是相同的，16TB，容量也相同。但是
 
 147
 00:19:53,600 --> 00:20:01,080
- that was, if I remember correctly, and you can check, that was around $500, $550 or something
+that was, if I remember correctly, and you can check, that was around $500, $550 or something
+那是，如果我没记错的话，你可以查证一下，大约是500美元，550美元左右。
 
 148
 00:20:01,080 --> 00:20:09,680
- like that. This is $5,000. Okay. So it's 10 times more expensive. Okay. For the same capacity.
+like that. This is $5,000. Okay. So it's 10 times more expensive. Okay. For the same capacity.
+就是这样。这是5000美元。好的。所以它贵了10倍。好的。容量相同。
 
 149
 00:20:09,680 --> 00:20:18,280
- However, if you look at reads and writes, the number of sequential reads and writes,
+However, if you look at reads and writes, the number of sequential reads and writes,
+然而，如果你看一下读取和写入的数量，顺序读取和写入的数量，
 
 150
 00:20:18,280 --> 00:20:23,440
- it's 800 or 900. In that case was, if I remember correctly, it's 800 or 900.
+it's 800 or 900. In that case was, if I remember correctly, it's 800 or 900.
+是800或900。如果我没记错的话，那个情况下是800或900。
 
 151
 00:20:23,440 --> 00:20:31,990
- sequential writes it was 260 megabytes per second. So this is up to four, almost four times faster.
+sequential writes it was 260 megabytes per second. So this is up to four, almost four times faster.
+顺序写入速度为每秒260兆字节。所以这个速度提高了将近四倍，达到了四倍快。
 
 152
 00:20:31,990 --> 00:20:39,590
- And random reads and writes, there is no comparison. Okay. You can have 100,000
+And random reads and writes, there is no comparison. Okay. You can have 100,000
+和随机读写相比，没有可比性。好的。你可以拥有100,000。
 
 153
 00:20:39,590 --> 00:20:44,950
- reads per second. While a read in the case of a disk, if you remember, can take a few milliseconds.
+reads per second. While a read in the case of a disk, if you remember, can take a few milliseconds.
+每秒读取次数。如果你还记得，磁盘的读取操作可能需要几毫秒的时间。
 
 154
 00:20:44,950 --> 00:20:53,110
- So if you if you take even a few milliseconds and in a second, you can read a few hundreds
+So if you if you take even a few milliseconds and in a second, you can read a few hundreds
+所以，如果你只需要几毫秒，一秒钟内你就可以读几百个。
 
 155
 00:20:53,110 --> 00:20:59,990
- or a few hundreds reads and writes. So in order to write it better. Okay. And if you go and if
+or a few hundreds reads and writes. So in order to write it better. Okay. And if you go and if
+或者几百次读写。所以为了更好地写它。好的。如果你去，如果
 
 156
 00:20:59,990 --> 00:21:07,990
- you really want to go to the top ones, you have 100 terabytes. So SSD 100 terabytes, and you have
+you really want to go to the top ones, you have 100 terabytes. So SSD 100 terabytes, and you have
+你真的想要去买最高配置的，你有100TB的存储空间。所以你需要购买100TB的固态硬盘。
 
 157
 00:21:07,990 --> 00:21:14,710
- 500 megabytes sequential read and writes, the same kind of IOPS 100 kilobytes. IOPS means
+500 megabytes sequential read and writes, the same kind of IOPS 100 kilobytes. IOPS means
+500兆字节的顺序读写，相同类型的IOPS为100千字节。IOPS是指每秒输入/输出操作数。
 
 158
 00:21:18,470 --> 00:21:26,310
- or input operation per second. Unlimited writes for five years, so you get these guarantees.
+or input operation per second. Unlimited writes for five years, so you get these guarantees.
+或者每秒输入操作。五年内无限写入，所以您可以获得这些保证。
 
 159
 00:21:26,310 --> 00:21:34,630
- But it costs 4000, $40,000. But more, far more expensive, right? It's like a quarter of dollar
+But it costs 4000, $40,000. But more, far more expensive, right? It's like a quarter of dollar
+但它要价4000美元，也就是40,000美元。但是更贵，远远更贵，对吧？就像是四分之一美元那么多。
 
 160
 00:21:34,630 --> 00:21:43,590
- per gigabyte. Why would random versus sequential have different performance? This is this.
+per gigabyte. Why would random versus sequential have different performance? This is this.
+每千兆字节。为什么随机读取和顺序读取会有不同的性能？这是这样的。
 
 161
 00:21:44,470 --> 00:21:51,110
- If you read at the level of pages, there is no difference. And you can do probably you can do
+If you read at the level of pages, there is no difference. And you can do probably you can do
+如果你按页数阅读，没有什么区别。而且你可能可以做到。
 
 162
 00:21:51,110 --> 00:21:58,310
- the math here. Or it's very little difference. But still, if you read at the level of page,
+the math here. Or it's very little difference. But still, if you read at the level of page,
+这里的数学。或者差别很小。但是，如果你以每页的水平阅读，
 
 163
 00:21:58,310 --> 00:22:03,510
- you know, because you transfer from the SSDs as a level of page or block, right,
+you know, because you transfer from the SSDs as a level of page or block, right,
+你知道，因为你是以页面或块的级别从SSD传输的，对吧？
 
 164
 00:22:03,510 --> 00:22:11,190
- block granularity, if you read only one byte, or from that page, you are still going to lose
+block granularity, if you read only one byte, or from that page, you are still going to lose
+块粒度，如果你只读取一个字节，或者从那一页读取，你仍然会丢失数据。
 
 165
 00:22:11,190 --> 00:22:17,510
- in terms of performance or throughput. And the difference between random, the different reads
+in terms of performance or throughput. And the difference between random, the different reads
+在性能或吞吐量方面。以及随机读取和不同读取之间的差异。
 
 166
 00:22:17,510 --> 00:22:25,030
- and writes, the reason is different here is because remember that the writes are slower,
+and writes, the reason is different here is because remember that the writes are slower,
+并且写的原因不同是因为记住写作速度较慢，
 
 167
 00:22:25,030 --> 00:22:28,070
- 10 times slower almost.
+10 times slower almost.
+几乎慢了10倍。
 
 168
 00:22:28,070 --> 00:22:38,150
- Okay, so here is a comparison between hard disk drives and SSDs. And this is a nice,
+Okay, so here is a comparison between hard disk drives and SSDs. And this is a nice,
+好的，这里是硬盘驱动器和固态硬盘之间的比较。而且这是一个很好的，
 
 169
 00:22:38,150 --> 00:22:44,790
- interesting plot. Because, you know, why wouldn't use SSDs? They have all they are faster,
+interesting plot. Because, you know, why wouldn't use SSDs? They have all they are faster,
+有趣的情节。因为，你知道，为什么不使用固态硬盘呢？它们都更快，
 
 170
 00:22:44,790 --> 00:22:50,150
- they can have bigger capacity, they consume less power. So they are probably, you know,
+they can have bigger capacity, they consume less power. So they are probably, you know,
+它们可以拥有更大的容量，消耗更少的电力。所以它们很可能，你知道的，
 
 171
 00:22:50,150 --> 00:22:56,150
- they are more reliable. So why in the world you wouldn't use them? Well, the answer is simply
+they are more reliable. So why in the world you wouldn't use them? Well, the answer is simply
+它们更可靠。那么为什么你不使用它们呢？嗯，答案很简单。
 
 172
 00:22:56,150 --> 00:23:07,270
- it's cost, right? And however, and here what you see is a blue line is a flash cost. It is for
+it's cost, right? And however, and here what you see is a blue line is a flash cost. It is for
+是费用，对吗？然而，这里你看到的是一个蓝线，是一个闪光费用。它是用于...
 
 173
 00:23:07,270 --> 00:23:15,350
- and for the same capacity for the terabyte is a flash cost or a terabyte. And here is
+and for the same capacity for the terabyte is a flash cost or a terabyte. And here is
+对于相同容量的存储设备，一兆字节的闪存成本或一兆字节的硬盘成本是相同的。这里是...
 
 174
 00:23:15,350 --> 00:23:25,830
- orange is hard disk drive cost. So the hard disk drives cost much cheaper than SSDs. And with green,
+orange is hard disk drive cost. So the hard disk drives cost much cheaper than SSDs. And with green,
+橙色是指硬盘驱动器的成本。因此，硬盘驱动器的成本比固态硬盘便宜得多。而且，使用绿色的话，
 
 175
 00:23:25,830 --> 00:23:32,550
- and the green is the most important curve, is basically what is the ratio between the cost to
+and the green is the most important curve, is basically what is the ratio between the cost to
+and the green is the most important curve, is basically what is the ratio between the cost to
+
+绿色曲线是最重要的曲线，基本上是成本与
 
 176
 00:23:32,550 --> 00:23:40,470
- store one terabyte on an SSD versus the cost to store a terabyte on a hard disk drive.
+store one terabyte on an SSD versus the cost to store a terabyte on a hard disk drive.
+将一TB存储在固态硬盘(SSD)上的成本与将一TB存储在机械硬盘(HDD)上的成本进行比较。
 
 177
 00:23:40,470 --> 00:23:51,430
- So it was 37 times in 2013. Today it's around five, six times. So it's much smaller. And many
+So it was 37 times in 2013. Today it's around five, six times. So it's much smaller. And many
+所以在2013年是37倍。今天大约是五六倍。所以它小得多。而且很多
 
 178
 00:23:51,430 --> 00:23:58,550
- people predict that sometime in the future, these predictions are almost always wrong. But some in
+people predict that sometime in the future, these predictions are almost always wrong. But some in
+人们预测在未来的某个时候，这些预测几乎总是错误的。但是有些人则持不同观点。
 
 179
 00:23:58,550 --> 00:24:05,590
- the near future, the SSD will match the cost of hard disk drives. And at that point, there is very
+the near future, the SSD will match the cost of hard disk drives. And at that point, there is very
+近期内，固态硬盘（SSD）的价格将与传统硬盘驱动器相匹配。到那时，将会有非常大的
 
 180
 00:24:05,590 --> 00:24:21,190
- little reasons to use hard disk drives at all. Okay. So in summary, SSDs, they have low latency,
+little reasons to use hard disk drives at all. Okay. So in summary, SSDs, they have low latency,
+快速响应时间，高速读写速度，耐用性强，体积小巧，无噪音，低功耗，易于携带，适用于各种设备和应用。
 
 181
 00:24:21,190 --> 00:24:29,670
- high throughput, no moving parts, more reliables, lower power consumptions, and read much faster,
+high throughput, no moving parts, more reliables, lower power consumptions, and read much faster,
+高吞吐量，无动件，更可靠，功耗更低，读取速度更快。
 
 182
 00:24:29,670 --> 00:24:38,150
- read, you know, read at memory speeds. You can read even faster if you have a wider
+read, you know, read at memory speeds. You can read even faster if you have a wider
+阅读，你知道的，以内存速度阅读。如果你有更宽的阅读范围，你甚至可以阅读得更快。
 
 183
 00:24:38,150 --> 00:24:43,670
- bus by the way. That was one of the main limitations of how fast you can read and write.
+bus by the way. That was one of the main limitations of how fast you can read and write.
+顺便说一下，公交车。那是阅读和写作速度的主要限制之一。
 
 184
 00:24:46,550 --> 00:24:55,030
- The cons before the R2 is expensive, between 3 and 20x more expensive, but in a few years back,
+The cons before the R2 is expensive, between 3 and 20x more expensive, but in a few years back,
+R2之前的缺点是昂贵，价格在3到20倍之间，但在几年前的情况下，
 
 185
 00:24:55,030 --> 00:25:02,710
- like certainly 10 years back, the SSDs are much smaller than hard disk drives. So that's why
+like certainly 10 years back, the SSDs are much smaller than hard disk drives. So that's why
+就像10年前一样，固态硬盘(SSD)比传统硬盘驱动器要小得多。这就是为什么。
 
 186
 00:25:02,710 --> 00:25:09,110
- here it's smaller storage. And the people back then, they are combining the hard disk drive
+here it's smaller storage. And the people back then, they are combining the hard disk drive
+这里的存储空间较小。而且那时候的人们，他们正在结合硬盘驱动器。
 
 187
 00:25:09,110 --> 00:25:14,230
- with SSDs, using SSDs as a cache to get the performance of SSDs and to get the capacity
+with SSDs, using SSDs as a cache to get the performance of SSDs and to get the capacity
+使用SSD作为缓存，以获得SSD的性能和容量。
 
 188
 00:25:14,230 --> 00:25:20,710
- of hard disk drives. But now it's no longer needed. Because as you've seen from the data,
+of hard disk drives. But now it's no longer needed. Because as you've seen from the data,
+硬盘驱动器的需求已经不再存在了。因为从数据上可以看出，
 
 189
 00:25:20,710 --> 00:25:28,550
- now the SSDs can have higher capacities than hard disk drives. Quite amazing.
+now the SSDs can have higher capacities than hard disk drives. Quite amazing.
+现在固态硬盘（SSD）的容量可以比传统硬盘驱动器（HDD）更大。相当令人惊讶。
 
 190
 00:25:28,550 --> 00:25:36,070
- So this says, tells you, this technology, if you are to build a company based on that,
+So this says, tells you, this technology, if you are to build a company based on that,
+这段话的意思是，如果你打算基于这项技术创办一家公司，
 
 191
 00:25:36,070 --> 00:25:40,870
- it wouldn't have been a great idea because the trends are not in your favor.
+it wouldn't have been a great idea because the trends are not in your favor.
+这不是一个好主意，因为趋势不利于你。
 
 192
 00:25:43,910 --> 00:25:52,230
- Because your product to use SSDs to speed up the hard disk drives would have become obsolete.
+Because your product to use SSDs to speed up the hard disk drives would have become obsolete.
+因为您的产品使用SSD来加速硬盘驱动器，所以已经过时了。
 
 193
 00:25:52,230 --> 00:25:58,870
- There's still a reason to do that, because if you want to get the cost of the hard disk drives
+There's still a reason to do that, because if you want to get the cost of the hard disk drives
+还有一个原因要这样做，因为如果你想要得到硬盘驱动器的成本。
 
 194
 00:25:58,870 --> 00:26:05,350
- to do cheaper, right, to be cheaper and still have almost performance comparable to SSDs.
+to do cheaper, right, to be cheaper and still have almost performance comparable to SSDs.
+降低成本，对吧，要更便宜，但仍然具有与固态硬盘几乎相当的性能。
 
 195
 00:26:05,350 --> 00:26:10,870
- But that's probably true today. But in a few years, again, if SSDs are going to drop at the
+But that's probably true today. But in a few years, again, if SSDs are going to drop at the
+但这可能是今天的事实。但是再过几年，如果固态硬盘的价格会下降的话，
 
 196
 00:26:10,870 --> 00:26:14,790
- cost of hard disk drives, this is really there is no reason for these optimizations.
+cost of hard disk drives, this is really there is no reason for these optimizations.
+硬盘驱动器的成本，这真的没有理由进行这些优化。
 
 197
 00:26:14,790 --> 00:26:24,790
- You have asymmetric block rights performance. We know that. And we learn about that. And you have
+You have asymmetric block rights performance. We know that. And we learn about that. And you have
+不对称的区块权益表现。我们知道这一点。我们也了解到了。而且你有...
 
 198
 00:26:24,790 --> 00:26:32,870
- the where, the limited lifetime in terms of writing rights. So you need to be careful.
+the where, the limited lifetime in terms of writing rights. So you need to be careful.
+在写作权方面，有一个有限的使用期限。所以你需要小心。
 
 199
 00:26:32,870 --> 00:26:39,030
- And average failure rate is six years. Life expenditures between nine and 10,
+And average failure rate is six years. Life expenditures between nine and 10,
+平均故障率为六年。寿命支出在九到十之间。
 
 200
 00:26:39,030 --> 00:26:44,390
- 11 years, are actually better than hard disk drives. So it's again, the TLDR here,
+11 years, are actually better than hard disk drives. So it's again, the TLDR here,
+11年，实际上比硬盘驱动器更好。所以，总结一下，
 
 201
 00:26:44,390 --> 00:26:50,390
- SSDs are better in almost every respect. You need to be more careful. It's more complex.
+SSDs are better in almost every respect. You need to be more careful. It's more complex.
+SSD在几乎所有方面都更好。你需要更加小心。这更加复杂。
 
 202
 00:26:50,390 --> 00:26:55,910
- The algorithms are more complex to go around these limitations. The erasures are very expensive and
+The algorithms are more complex to go around these limitations. The erasures are very expensive and
+算法更复杂以应对这些限制。擦除操作非常昂贵，而且
 
 203
 00:26:55,910 --> 00:27:00,950
- you need to erase a page before writing it. And the where, you need to take into account the
+you need to erase a page before writing it. And the where, you need to take into account the
+你需要在写之前擦掉一页。而在哪里，你需要考虑到
 
 204
 00:27:00,950 --> 00:27:09,910
- wearing of pages. And it's more expensive, but the costs are dropping. So the prices are dropping.
+wearing of pages. And it's more expensive, but the costs are dropping. So the prices are dropping.
+穿着页面。而且它更贵，但成本正在下降。所以价格也在下降。
 
 205
 00:27:09,910 --> 00:27:15,510
- Okay. So there's a question here. Just wondering how much overhead generally is there for the
+Okay. So there's a question here. Just wondering how much overhead generally is there for the
+Okay. 这里有一个问题。只是想知道一般来说有多少额外开销。
 
 206
 00:27:15,510 --> 00:27:21,430
- hybrid alternative system involving both SSD and hard disk drives? It seems like it would be a lot
+hybrid alternative system involving both SSD and hard disk drives? It seems like it would be a lot
+混合替代系统，同时使用固态硬盘和机械硬盘？这似乎会更加复杂。
 
 207
 00:27:21,430 --> 00:27:29,990
- more complex keeping track going between both in the same computer. It's more complex, but the way
+more complex keeping track going between both in the same computer. It's more complex, but the way
+更复杂的是在同一台计算机上同时跟踪两者之间的转换。这样做更复杂，但方法是
 
 208
 00:27:29,990 --> 00:27:37,030
- you buy that, you buy this like, you buy that like, it's like, it's the same enclosure. The
+you buy that, you buy this like, you buy that like, it's like, it's the same enclosure. The
+你买那个，你买这个，就像你买那个一样，就像，它们是同样的包装。
 
 209
 00:27:37,030 --> 00:27:43,670
- hard disk drive, they are not two different devices. You buy like, it's like a device which
+hard disk drive, they are not two different devices. You buy like, it's like a device which
+硬盘驱动器，它们不是两个不同的设备。你购买的就像是一个设备，它包含了一个硬盘和一个驱动器。
 
 210
 00:27:43,670 --> 00:27:54,390
- you plug into your SATA bus. Right. And like, you'll buy a hard disk drive or SSD and you buy
+you plug into your SATA bus. Right. And like, you'll buy a hard disk drive or SSD and you buy
+你插入SATA总线。对的。然后，你会购买一个硬盘驱动器或固态硬盘，然后购买
 
 211
 00:27:54,390 --> 00:28:00,150
- this kind of hybrid device. And inside the device, you have the, you hide all the complexity. You
+this kind of hybrid device. And inside the device, you have the, you hide all the complexity. You
+这种混合设备。在设备内部，你隐藏了所有的复杂性。
 
 212
 00:28:00,150 --> 00:28:09,430
- have a SSD, you have the hard disk drive and you have complex logic to deal and to use SSD,
+have a SSD, you have the hard disk drive and you have complex logic to deal and to use SSD,
+你有一个固态硬盘，你还有硬盘驱动器，并且你有复杂的逻辑来处理和使用固态硬盘。
 
 213
 00:28:09,430 --> 00:28:14,630
- basically like a cache for the hard disk drives. Did I answer your question Gilbert?
+basically like a cache for the hard disk drives. Did I answer your question Gilbert?
+基本上就像是硬盘驱动器的缓存。吉尔伯特，我回答了你的问题吗？
 
 214
 00:28:22,470 --> 00:28:33,030
- Okay. So yeah, it's complex, but it's hidden. The complexity is hidden. Okay. So announcements.
+Okay. So yeah, it's complex, but it's hidden. The complexity is hidden. Okay. So announcements.
+好的。是的，它很复杂，但是它是隐藏的。复杂性是隐藏的。好的。所以公告。
 
 215
 00:28:33,030 --> 00:28:42,230
- Homework 4 is due on Mondays. You're now, midterm to review. Now we have a time between 5 and 6,
+Homework 4 is due on Mondays. You're now, midterm to review. Now we have a time between 5 and 6,
+作业4要在周一之前完成。现在是期中复习的时间。现在我们有一个在5点到6点之间的时间。
 
 216
 00:28:42,230 --> 00:28:50,550
- 7 PM on Monday. Admitter 2 is Wednesday between 7 and 9 PM. And please read the updated proctoring
+7 PM on Monday. Admitter 2 is Wednesday between 7 and 9 PM. And please read the updated proctoring
+星期一晚上7点。Admitter 2是在星期三晚上7点到9点之间。请阅读更新后的监考说明。
 
 217
 00:28:50,550 --> 00:28:59,590
- guide. You can have an additional cheat sheet for this exam. Remember that this exam will cover
+guide. You can have an additional cheat sheet for this exam. Remember that this exam will cover
+指南。你可以为这次考试准备一张额外的备忘单。记住这次考试将涵盖以下内容：
 
 218
 00:28:59,590 --> 00:29:05,510
- everything from the beginning of the semester, but we have more emphasize on the materials in the
+everything from the beginning of the semester, but we have more emphasize on the materials in the
+本学期的所有内容，但我们更加强调教材中的内容。
 
 219
 00:29:05,510 --> 00:29:12,710
- first midterm. And the project is due next Friday. So next week it's a hard week,
+first midterm. And the project is due next Friday. So next week it's a hard week,
+第一次期中考试。而且项目下周五截止。所以下周会是一个忙碌的一周，
 
 220
 00:29:12,710 --> 00:29:15,030
- but it's again, after that, it will be easier.
+but it's again, after that, it will be easier.
+但是再过一段时间，之后会变得更容易。
 
 221
 00:29:18,070 --> 00:29:25,510
- So now let's switch gears. Any question now about storage devices, what we learned over the last
+So now let's switch gears. Any question now about storage devices, what we learned over the last
+那么现在让我们换个话题。关于存储设备的任何问题，我们在过去学到了什么？
 
 222
 00:29:25,510 --> 00:29:35,110
- and this lecture, hard disk drive and solid state drives?
+and this lecture, hard disk drive and solid state drives?
+这个讲座是关于硬盘驱动器和固态驱动器吗？
 
 223
 00:29:35,110 --> 00:29:45,830
- Okay. So right now, let's, we are going to switch the gears and we are going to talk about
+Okay. So right now, let's, we are going to switch the gears and we are going to talk about
+好的。现在，让我们换个话题，我们要谈谈
 
 224
 00:29:45,830 --> 00:29:52,710
- performance and how to model performance. If you saw this kind of, even like device drivers are
+performance and how to model performance. If you saw this kind of, even like device drivers are
+性能和如何建模性能。如果你看到这种情况，甚至像设备驱动程序这样的东西也是如此。
 
 225
 00:29:52,710 --> 00:29:57,910
- pretty complex. You get a request, you enqueue the request because you may have multiple requests
+pretty complex. You get a request, you enqueue the request because you may have multiple requests
+非常复杂。你收到一个请求，你将请求加入队列，因为你可能有多个请求。
 
 226
 00:29:57,910 --> 00:30:04,070
- arriving at the same time, you serve the request. And by, from the point of view of the program who
+arriving at the same time, you serve the request. And by, from the point of view of the program who
+同时到达时，您处理该请求。而且，从程序的角度来看，
 
 227
 00:30:04,070 --> 00:30:08,630
- made the request, it cares only about the end-to-end latency, but it's end-to-end latency
+made the request, it cares only about the end-to-end latency, but it's end-to-end latency
+已经提出了请求，它只关心端到端的延迟，但它的端到端延迟是多少。
 
 228
 00:30:08,630 --> 00:30:14,550
- is divided or support is divided between multiple components. So we are going to learn a little bit
+is divided or support is divided between multiple components. So we are going to learn a little bit
+支持或分工被分配给多个组成部分。所以我们要学一点点。
 
 229
 00:30:14,550 --> 00:30:20,470
- about how to model those and let's try first to define what are the metrics we care about.
+about how to model those and let's try first to define what are the metrics we care about.
+关于如何对这些进行建模，让我们首先尝试定义我们关心的指标是什么。
 
 230
 00:30:20,470 --> 00:30:27,510
- So the response time or latency is time to perform on operation is end-to-end time. And you have the
+So the response time or latency is time to perform on operation is end-to-end time. And you have the
+因此，响应时间或延迟是执行操作所需的时间，即端到端时间。而您有...
 
 231
 00:30:27,510 --> 00:30:33,270
- bandwidth or throughput is a rate to which you can perform operations, operation per second. And for
+bandwidth or throughput is a rate to which you can perform operations, operation per second. And for
+带宽或吞吐量是指您可以执行操作的速率，即每秒操作数。而对于其他内容，我会将其翻译成中文。
 
 232
 00:30:33,270 --> 00:30:39,590
- different devices, the operation can be different. Like for instance, it's a different metric here,
+different devices, the operation can be different. Like for instance, it's a different metric here,
+不同的设备，操作可能会有所不同。例如，这里使用的度量标准是不同的。
 
 233
 00:30:39,590 --> 00:30:44,550
- but all the metrics are over second, it's some quantity over second. Like files,
+but all the metrics are over second, it's some quantity over second. Like files,
+但是所有的指标都是以秒为单位的，它是一些每秒的数量。比如文件，
 
 234
 00:30:44,550 --> 00:30:52,550
- for files when you read and write is megabytes per second. For network is megabits per second.
+for files when you read and write is megabytes per second. For network is megabits per second.
+对于文件的读写速度，以每秒兆字节（MB/s）为单位。对于网络速度，以每秒兆比特（Mbps）为单位。
 
 235
 00:30:52,550 --> 00:30:58,950
- When you say megabytes, it's power of two if you remember. Megabits for the network is power of 10.
+When you say megabytes, it's power of two if you remember. Megabits for the network is power of 10.
+当你说到兆字节时，如果你记得的话，它是以2的幂计算的。而网络中的兆比特是以10的幂计算的。
 
 236
 00:30:59,590 --> 00:31:12,390
- This is how you, for instance, one megabyte for files is 1024 kilobytes. One megabit
+This is how you, for instance, one megabyte for files is 1024 kilobytes. One megabit
+这是一个例子，例如，一个文件的一兆字节等于1024千字节。一个兆位
 
 237
 00:31:12,390 --> 00:31:22,870
- for network is 1000. Sorry, one megabit for network. What I'm saying? One megabyte for files,
+for network is 1000. Sorry, one megabit for network. What I'm saying? One megabyte for files,
+网络速度是1000。抱歉，网络速度是一兆比特。我说的是什么？文件大小是一兆字节。
 
 238
 00:31:22,870 --> 00:31:32,710
- yeah, it's 1024 kilobytes I said correctly. One megabyte per second for network is 1000
+yeah, it's 1024 kilobytes I said correctly. One megabyte per second for network is 1000
+是的，我说的没错，1024千字节。网络的速度是每秒1兆字节，相当于1000。
 
 239
 00:31:32,710 --> 00:31:38,710
- kilobytes per second. And then you have gigaflops operation per second, floating point operation
+kilobytes per second. And then you have gigaflops operation per second, floating point operation
+每秒千字节。然后你有每秒十亿次的浮点运算。
 
 240
 00:31:38,710 --> 00:31:47,510
- per second for automatic computation and things like that. Then you have a startup or overhead.
+per second for automatic computation and things like that. Then you have a startup or overhead.
+每秒自动计算和类似的事情。然后你有一个启动或开销。
 
 241
 00:31:47,510 --> 00:31:54,150
- It's a time to initiate an operation. This can be think about something like context switching.
+It's a time to initiate an operation. This can be think about something like context switching.
+现在是开始行动的时候了。这可以类比为上下文切换的概念。
 
 242
 00:31:54,150 --> 00:32:02,310
- And most of your operation are roughly linear in the number of bytes. So basically what happens
+And most of your operation are roughly linear in the number of bytes. So basically what happens
+大部分操作都是按字节数大致线性增长的。所以基本上会发生什么呢？
 
 243
 00:32:02,310 --> 00:32:08,230
- in bytes. So basically, for instance, if you are going to,
+in bytes. So basically, for instance, if you are going to,
+以字节为单位。所以基本上，例如，如果你要...
 
 244
 00:32:08,230 --> 00:32:16,550
- the way you can model this operation, there is an overhead or a fixed cost to initiate the
+the way you can model this operation, there is an overhead or a fixed cost to initiate the
+你可以对这个操作进行建模的方式，存在一个开销或固定成本来启动。
 
 245
 00:32:16,550 --> 00:32:23,110
- operation. You pay on that operation no matter how much you transfer. And then it's a variable cost.
+operation. You pay on that operation no matter how much you transfer. And then it's a variable cost.
+手续费。无论您转账金额多少，都需要支付手续费。之后，手续费是一个可变成本。
 
 246
 00:32:23,110 --> 00:32:27,510
- And the variable cost is n, how many bytes in this case you transfer over the bandwidth.
+And the variable cost is n, how many bytes in this case you transfer over the bandwidth.
+变量成本为n，那么在这种情况下，您通过带宽传输了多少字节？
 
 247
 00:32:27,510 --> 00:32:36,310
- So if you remember, we've seen this pretty much in the last lecture for hard disk drives. You
+So if you remember, we've seen this pretty much in the last lecture for hard disk drives. You
+所以如果你还记得的话，我们在上一堂硬盘驱动器的课上已经看到过这个了。
 
 248
 00:32:36,310 --> 00:32:41,830
- remember you have the overhead, which was the seek time and rotation latency. No matter how much you
+remember you have the overhead, which was the seek time and rotation latency. No matter how much you
+记住，你还有额外开销，包括寻道时间和旋转延迟。无论你有多少
 
 249
 00:32:41,830 --> 00:32:49,030
- read or write on a disk, you need to pay for that cost when you do that read and write.
+read or write on a disk, you need to pay for that cost when you do that read and write.
+读取或写入磁盘时，您需要支付相应的费用。
 
 250
 00:32:49,030 --> 00:32:57,830
- And then once you locate and you do the rest is sequential write, read and write,
+And then once you locate and you do the rest is sequential write, read and write,
+然后一旦你找到并完成剩下的部分，就是顺序的写入、读取和写入。
 
 251
 00:32:57,830 --> 00:33:05,270
- then it's about how fast you are going to be able to read bits from the disk. And that is given by
+then it's about how fast you are going to be able to read bits from the disk. And that is given by
+那么这取决于你能够从磁盘中读取位的速度有多快。这由...给出。
 
 252
 00:33:05,270 --> 00:33:15,670
- how fast is the disk rotating and the rotation of the disk. And that is a variable part. You
+how fast is the disk rotating and the rotation of the disk. And that is a variable part. You
+磁盘的旋转速度有多快以及磁盘的旋转。而这是一个可变的部分。
 
 253
 00:33:15,670 --> 00:33:22,070
- read more, it's going to take more time. So this is a way to look at it again.
+read more, it's going to take more time. So this is a way to look at it again.
+请再读一下，这会花费更多的时间。所以这是再次审视它的一种方式。
 
 254
 00:33:22,070 --> 00:33:30,230
- Basically, you have the user thread, which is going to initiate an input operation.
+Basically, you have the user thread, which is going to initiate an input operation.
+基本上，你有用户线程，它将启动一个输入操作。
 
 255
 00:33:30,230 --> 00:33:37,270
- Then you have a queue and you can have queue, this can be in controller or it can be in the
+Then you have a queue and you can have queue, this can be in controller or it can be in the
+然后你有一个队列，你可以拥有队列，这可以在控制器中，也可以在...
 
 256
 00:33:37,270 --> 00:33:41,110
- operating system. It depends on the implementation, it depends on the device,
+operating system. It depends on the implementation, it depends on the device,
+操作系统。这取决于具体的实现，取决于设备。
 
 257
 00:33:41,110 --> 00:33:48,310
- but there is a queue along the way where the requests are queued, if there are multiple
+but there is a queue along the way where the requests are queued, if there are multiple
+但是在这条路上有一个队列，请求会在队列中排队，如果有多个请求的话。
 
 258
 00:33:48,310 --> 00:33:53,670
- requests at the same time, then it's a controller and then it's finally the I/O device. So I/O
+requests at the same time, then it's a controller and then it's finally the I/O device. So I/O
+同时处理请求，首先是控制器，最后是输入/输出设备。所以I/O。
 
 259
 00:33:53,670 --> 00:33:59,750
- device service time. And this is how long I got the request, how long it takes to satisfy that
+device service time. And this is how long I got the request, how long it takes to satisfy that
+设备服务时间。这是我收到请求的时间，需要多长时间来满足请求。
 
 260
 00:33:59,750 --> 00:34:11,110
- request. So the metrics here are response times and throughput. Response time we saw in the previous
+request. So the metrics here are response times and throughput. Response time we saw in the previous
+请求。这里的指标是响应时间和吞吐量。响应时间我们在之前看到了。
 
 261
 00:34:11,110 --> 00:34:20,070
- slide is S plus N over B. And what is the bandwidth? Now, the bandwidth is that one of
+slide is S plus N over B. And what is the bandwidth? Now, the bandwidth is that one of
+滑动是S加N除以B。那么带宽是什么？现在，带宽是其中之一。
 
 262
 00:34:20,070 --> 00:34:26,950
- the bandwidths we really care and it's from the user thread perspective, it is, we call the
+the bandwidths we really care and it's from the user thread perspective, it is, we call the
+我们真正关心的带宽是从用户线程的角度来看的，我们称之为
 
 263
 00:34:26,950 --> 00:34:33,590
- effective bandwidth. And the effective bandwidth is what we, when we are saying like, for instance,
+effective bandwidth. And the effective bandwidth is what we, when we are saying like, for instance,
+有效带宽。而有效带宽是我们在说的时候，比如说，
 
 264
 00:34:33,590 --> 00:34:39,590
- if you remember, like how this drives, the throughput is very different when we are reading
+if you remember, like how this drives, the throughput is very different when we are reading
+如果你还记得，就像这样的驱动器，当我们在读取时，吞吐量是非常不同的。
 
 265
 00:34:39,590 --> 00:34:47,590
- randomly, random reads or sequential reads, right? It's very different if you remember.
+randomly, random reads or sequential reads, right? It's very different if you remember.
+随机读取或顺序读取，对吗？如果你还记得的话，这是非常不同的。
 
 266
 00:34:47,590 --> 00:34:56,070
- And that's effective bandwidth. So effective bandwidth for random reads is much lower than
+And that's effective bandwidth. So effective bandwidth for random reads is much lower than
+这就是有效带宽。因此，随机读取的有效带宽要远低于
 
 267
 00:34:56,070 --> 00:35:01,110
- effective bandwidth for sequential reads. And the reason is, and effective bandwidth basically is,
+effective bandwidth for sequential reads. And the reason is, and effective bandwidth basically is,
+顺序读取的有效带宽。原因是，有效带宽基本上是指，
 
 268
 00:35:01,110 --> 00:35:08,630
- it is how many bytes I'm sending, I read or operation I performed over how long it took me
+it is how many bytes I'm sending, I read or operation I performed over how long it took me
+我发送了多少字节，我读取或执行的操作花费了多长时间。
 
 269
 00:35:08,630 --> 00:35:15,830
- to read this and bytes, right? Or perform an operations. And the time it took to perform
+to read this and bytes, right? Or perform an operations. And the time it took to perform
+阅读这个字节，对吗？或者执行一个操作。以及执行所需的时间。
 
 270
 00:35:15,830 --> 00:35:20,950
- this operation, you know, this latency, you know, from the previous slide, it says plus N over B.
+this operation, you know, this latency, you know, from the previous slide, it says plus N over B.
+这个操作，你知道的，这个延迟，你知道的，从前面的幻灯片上可以看到，它说的是加上 N 除以 B。
 
 271
 00:35:21,830 --> 00:35:27,430
- Or you can also, you know, a little bit of refactoring is B over one plus S B over N,
+Or you can also, you know, a little bit of refactoring is B over one plus S B over N,
+或者你也可以，你知道的，稍微重构一下，变成B除以（1加S）乘以B除以N。
 
 272
 00:35:27,430 --> 00:35:35,350
- right? So now you can see exactly, right? It's like, if you read only one byte, this is,
+right? So now you can see exactly, right? It's like, if you read only one byte, this is,
+对吗？所以现在你能够清楚地看到了，对吗？就像，如果你只读取一个字节，这就是，
 
 273
 00:35:35,350 --> 00:35:42,550
- you know, the denominator will be dominated, this will be dominated by S by the overhead, right?
+you know, the denominator will be dominated, this will be dominated by S by the overhead, right?
+你知道，分母将会被主导，这将会被S通过开销主导，对吗？
 
 274
 00:35:42,550 --> 00:35:51,350
- And which is include controller time, queue delay, and things like that. And if you are going to have
+And which is include controller time, queue delay, and things like that. And if you are going to have
+并且其中包括控制器时间、队列延迟等等。如果你打算拥有的话
 
 275
 00:35:51,350 --> 00:35:59,430
- read a lot of bytes, this will be dominated by N. And actually the effective bandwidth
+read a lot of bytes, this will be dominated by N. And actually the effective bandwidth
+读取了大量的字节，这将由N主导。实际上，有效带宽是...
 
 276
 00:35:59,430 --> 00:36:08,230
- becomes similar with the bandwidth of the I/O device, like what in the case of a hard disk drive
+becomes similar with the bandwidth of the I/O device, like what in the case of a hard disk drive
+变得与I/O设备的带宽相似，就像硬盘驱动器的情况一样。
 
 277
 00:36:08,230 --> 00:36:17,270
- with a bandwidth of sequential access. Any questions?
+with a bandwidth of sequential access. Any questions?
+带有顺序访问的带宽。有什么问题吗？
 
 278
 00:36:20,790 --> 00:36:27,030
- Okay. So this is, we'll talk more about that plot you see on the right hand side.
+Okay. So this is, we'll talk more about that plot you see on the right hand side.
+好的。所以这个，我们将更多地谈论一下你在右侧看到的情节。
 
 279
 00:36:27,030 --> 00:36:33,030
- The only thing, and I'm going to repeat that a few times. The only thing to keep in mind is that
+The only thing, and I'm going to repeat that a few times. The only thing to keep in mind is that
+唯一需要记住的事情，我要重复几遍。唯一需要记住的事情是：
 
 280
 00:36:33,030 --> 00:36:40,230
- this is the kind of curve you are going to see. And this is on the X, Y axis, you have the
+this is the kind of curve you are going to see. And this is on the X, Y axis, you have the
+这是你将要看到的曲线类型。而在X、Y轴上，你有
 
 281
 00:36:40,230 --> 00:36:47,670
- utilization, right? How much utilization is about the load, which is offered to the device, the
+utilization, right? How much utilization is about the load, which is offered to the device, the
+利用率，对吗？关于负载的利用率是多少，即提供给设备的负载。
 
 282
 00:36:47,670 --> 00:36:56,310
- system over the capacity of the system, right? How much I can handle. And if you on X axis, you see
+system over the capacity of the system, right? How much I can handle. And if you on X axis, you see
+系统超出了系统的容量，对吗？我能处理多少？如果你在X轴上，你会看到什么？
 
 283
 00:36:56,310 --> 00:37:01,430
- the response, the Y axis, you see the response time. And this is how it looks like. Initially
+the response, the Y axis, you see the response time. And this is how it looks like. Initially
+响应，Y轴，你可以看到响应时间。这就是它的样子。最初的时候
 
 284
 00:37:01,430 --> 00:37:05,350
- it's going, you know, when the system is not very loaded, you have very little load,
+it's going, you know, when the system is not very loaded, you have very little load,
+还行，你知道的，当系统没有很大负荷时，你的负荷很小，
 
 285
 00:37:05,350 --> 00:37:11,910
- you get very good performance. The response time is very good, but you try to growth. And after
+you get very good performance. The response time is very good, but you try to growth. And after
+你的表现非常出色。响应时间非常好，但你可以尝试进一步提升。之后呢？
 
 286
 00:37:11,910 --> 00:37:17,030
- some point it's going to shut up. And if the load is equal to the capacity of the system, actually
+some point it's going to shut up. And if the load is equal to the capacity of the system, actually
+有些时候它会停止工作。而且如果负载等于系统的容量，实际上
 
 287
 00:37:17,590 --> 00:37:26,070
- the response time can go to infinity, right? Can grow extremely fast, right? This is the same,
+the response time can go to infinity, right? Can grow extremely fast, right? This is the same,
+响应时间可以无限增长，对吗？可以增长得非常快，对吗？这是一样的。
 
 288
 00:37:26,070 --> 00:37:31,030
- like, remember, it's like highway. When the highway is free very late in the night or very
+like, remember, it's like highway. When the highway is free very late in the night or very
+喜欢，记住，就像高速公路一样。当高速公路在深夜或清晨非常空旷时，
 
 289
 00:37:31,030 --> 00:37:37,270
- early in the morning, if you know, you'll go very fast, right? As a speed, like legal speed,
+early in the morning, if you know, you'll go very fast, right? As a speed, like legal speed,
+早上一大早，如果你知道的话，你会走得很快，对吗？就像速度快一样，合法的速度。
 
 290
 00:37:37,270 --> 00:37:45,270
- hopefully, right? And if, on the other hand, if you start like rush hour, right?
+hopefully, right? And if, on the other hand, if you start like rush hour, right?
+希望如此，对吗？而另一方面，如果你开始像交通高峰时间一样，对吗？
 
 291
 00:37:47,030 --> 00:37:54,470
- The delays can be shut up, right? And that's a big, obviously is a big problem. And then you
+The delays can be shut up, right? And that's a big, obviously is a big problem. And then you
+延误可以解决，对吗？显然这是一个大问题。然后你是指什么？
 
 292
 00:37:54,470 --> 00:37:58,630
- are stealing now is the capacity of the system, right? Because you've still added the capacity
+are stealing now is the capacity of the system, right? Because you've still added the capacity
+现在偷窃的是系统的容量，对吗？因为你仍然增加了容量。
 
 293
 00:37:58,630 --> 00:38:03,510
- of the system because eventually all the cars still get home, right? So, none of them is
+of the system because eventually all the cars still get home, right? So, none of them is
+系统的好处是最终所有的车辆都能回家，对吗？所以，它们中没有一个是
 
 294
 00:38:03,510 --> 00:38:13,590
- stuck indefinitely. So, yes, let me give me one second. I think it's the sensor light.
+stuck indefinitely. So, yes, let me give me one second. I think it's the sensor light.
+卡住了，时间不确定。所以，是的，请给我一秒钟。我觉得是传感器灯。
 
 295
 00:38:13,590 --> 00:38:18,790
- Let me just start the light again.
+Let me just start the light again.
+让我重新打开灯。
 
 296
 00:38:18,790 --> 00:38:22,330
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 297
 00:38:22,330 --> 00:38:27,670
- Sounds good. I need to move more.
+Sounds good. I need to move more.
+听起来不错。我需要多动一些。
 
 298
 00:38:27,670 --> 00:38:34,310
- Contribute, so the factor to latency, you know, I can mention this kind of S,
+Contribute, so the factor to latency, you know, I can mention this kind of S,
+贡献，所以延迟的因素，你知道，我可以提到这种S。
 
 299
 00:38:35,670 --> 00:38:45,350
- it's about hardware control, the IO service time, device service time, and so forth.
+it's about hardware control, the IO service time, device service time, and so forth.
+这是关于硬件控制、IO服务时间、设备服务时间等等的内容。
 
 300
 00:38:45,350 --> 00:38:52,870
- And, but the most interesting part, one of the most important things here is a queue, right?
+And, but the most interesting part, one of the most important things here is a queue, right?
+而且，但最有趣的部分是，这里最重要的事情之一就是排队，对吧？
 
 301
 00:38:52,870 --> 00:38:58,630
- Because queue here, you have a lot of requests coming in, you queue them. So, you can spend a
+Because queue here, you have a lot of requests coming in, you queue them. So, you can spend a
+因为在这里排队，你会有很多请求进来，你需要将它们排队。所以，你可以花费时间来处理它们。
 
 302
 00:38:58,630 --> 00:39:05,590
- lot of time in the queue. Actually, the reason response time shuts up is not because the device
+lot of time in the queue. Actually, the reason response time shuts up is not because the device
+在队列中花费了很多时间。实际上，响应时间变慢的原因并不是因为设备的问题。
 
 303
 00:39:06,550 --> 00:39:13,750
- the IO device time, service time, serving a request still takes the same amount of time.
+the IO device time, service time, serving a request still takes the same amount of time.
+IO设备的时间、服务时间以及处理请求所需的时间仍然是相同的。
 
 304
 00:39:13,750 --> 00:39:19,750
- Okay. So, this is very important to remember. The reasons is response time shuts up is because
+Okay. So, this is very important to remember. The reasons is response time shuts up is because
+好的。所以，这是非常重要的要记住。原因是响应时间变长。
 
 305
 00:39:19,750 --> 00:39:25,190
- a queue, because you have more and more requests as they have to wait for the previous request
+a queue, because you have more and more requests as they have to wait for the previous request
+一个队列，因为随着他们等待前一个请求，你会有越来越多的请求。
 
 306
 00:39:25,190 --> 00:39:36,550
- to be served. It's like you go into a grocery store. So, the time it takes a clerk
+to be served. It's like you go into a grocery store. So, the time it takes a clerk
+被服务。就像你进入一家杂货店一样。所以，一个店员花费的时间
 
 307
 00:39:36,550 --> 00:39:43,910
- to serve a customer doesn't depend on the queue size, right? It still takes the same time.
+to serve a customer doesn't depend on the queue size, right? It still takes the same time.
+对于一个顾客的服务并不取决于队列的大小，对吗？它仍然需要相同的时间。
 
 308
 00:39:43,910 --> 00:39:48,310
- Maybe, you know, if the queue is long, maybe it's going even takes less because it's going to be
+Maybe, you know, if the queue is long, maybe it's going even takes less because it's going to be
+也许，你知道，如果队伍很长，也许时间会更短，因为它会变得更快。
 
 309
 00:39:48,310 --> 00:39:56,070
- hurry. But it's, you know, ideally it doesn't depend on the queue size. However, if there are
+hurry. But it's, you know, ideally it doesn't depend on the queue size. However, if there are
+赶快。但是，你知道的，理想情况下它不取决于队列的大小。然而，如果有的话
 
 310
 00:39:56,070 --> 00:40:01,750
- many people in the store, you are going to wait more. Why? Because the queue is longer. Okay. So,
+many people in the store, you are going to wait more. Why? Because the queue is longer. Okay. So,
+因为商店里有很多人，你需要等更久。为什么呢？因为排队的人更多。好的。那么，
 
 311
 00:40:01,750 --> 00:40:08,790
- one of the most interesting and relevant aspects is a queue, of a system is a queue. And this is
+one of the most interesting and relevant aspects is a queue, of a system is a queue. And this is
+其中最有趣和相关的方面之一是队列，一个系统中的队列。这是一个非常重要的概念，它在许多领域都有应用。
 
 312
 00:40:08,790 --> 00:40:17,830
- what you are going to analyze a little bit. Okay. So, this is a way you typically present, you know,
+what you are going to analyze a little bit. Okay. So, this is a way you typically present, you know,
+你打算稍微分析一下。好的。所以，这是你通常展示的方式，你知道的。
 
 313
 00:40:17,830 --> 00:40:22,390
- you can model the system. You have arrivals and the arrival is a request which arrives,
+you can model the system. You have arrivals and the arrival is a request which arrives,
+你可以对系统进行建模。你有到达事件，到达事件是一个请求，它到达了。
 
 314
 00:40:22,390 --> 00:40:27,910
- like read request, write request, packets. These can be packets which arrive at the router and
+like read request, write request, packets. These can be packets which arrive at the router and
+喜欢阅读请求，写入请求，数据包。这些可以是到达路由器的数据包，也可以是从路由器发送出去的数据包。
 
 315
 00:40:27,910 --> 00:40:33,270
- things like that. And then you serve, you serve this request, like the server, right? You send
+things like that. And then you serve, you serve this request, like the server, right? You send
+这样的事情。然后你提供服务，就像服务器一样，对吧？你发送
 
 316
 00:40:33,270 --> 00:40:39,590
- the data out, you serve the reads and writes and things like that. And then you have two times,
+the data out, you serve the reads and writes and things like that. And then you have two times,
+数据输出，你负责读取、写入等操作。然后你有两个时间，
 
 317
 00:40:39,590 --> 00:40:48,550
- DQ, which is a queuing time and TS is a serving time. And the response time is very, very,
+DQ, which is a queuing time and TS is a serving time. And the response time is very, very,
+DQ，是排队时间，TS是服务时间。而响应时间非常非常，
 
 318
 00:40:48,550 --> 00:40:52,140
- basically TQ plus TS, the queuing time plus the service time.
+basically TQ plus TS, the queuing time plus the service time.
+基本上，TQ加上TS，即排队时间加上服务时间。
 
 319
 00:40:52,140 --> 00:41:01,380
- And now you have another one, it's TA, which is, this is obviously you have here in this
+And now you have another one, it's TA, which is, this is obviously you have here in this
+现在你又有了另一个，它是TA，显然这是你在这里拥有的。
 
 320
 00:41:01,380 --> 00:41:09,060
- figure, it's on the x-axis, you have the time, and the TA is interarrival time. So basically
+figure, it's on the x-axis, you have the time, and the TA is interarrival time. So basically
+图中，x轴代表时间，而TA则表示到达时间间隔。所以基本上
 
 321
 00:41:09,060 --> 00:41:21,580
- the difference between two consecutive, between the arrival of two consecutive requests. Okay.
+the difference between two consecutive, between the arrival of two consecutive requests. Okay.
+两个连续请求之间的差异，两个连续请求的到达之间的差异。好的。
 
 322
 00:41:21,580 --> 00:41:29,980
- And this is the arrival. And now on the y-axis, which is not shown, I should show here, if
+And this is the arrival. And now on the y-axis, which is not shown, I should show here, if
+这是到达地点。现在在y轴上，虽然没有显示，但我应该在这里显示，如果...
 
 323
 00:41:29,980 --> 00:41:41,100
- you go down, you move from down, is the time it takes, it's basically it's a response time.
+you go down, you move from down, is the time it takes, it's basically it's a response time.
+你下去，你从下面移动，就是需要的时间，基本上就是响应时间。
 
 324
 00:41:41,100 --> 00:41:58,620
- Right. So what this shows here is that, sorry, it's yeah, what it shows here is basically
+Right. So what this shows here is that, sorry, it's yeah, what it shows here is basically
+对的。所以这里显示的是，抱歉，是的，这里基本上显示的是
 
 325
 00:41:58,620 --> 00:42:07,300
- you have TQ is like, it's a time you spend in the queue. And then TS is a time you spend
+you have TQ is like, it's a time you spend in the queue. And then TS is a time you spend
+你好，TQ代表的是排队时间，即你在队伍中等待的时间。而TS代表的是你花费的时间。
 
 326
 00:42:07,300 --> 00:42:15,820
- to service TS, to service that request. And after a while you have another request, which
+to service TS, to service that request. And after a while you have another request, which
+为了服务TS，为了服务那个请求。过了一会儿，你又有了另一个请求，那个请求是什么？
 
 327
 00:42:15,820 --> 00:42:21,660
- is queue is very little. Here the queue is empty, but it's still probably a time because
+is queue is very little. Here the queue is empty, but it's still probably a time because
+队列很小。这里的队列是空的，但可能还需要一些时间，因为
 
 328
 00:42:21,660 --> 00:42:25,620
- you still need probably maybe to, even if it's one element in the queue, you need to
+you still need probably maybe to, even if it's one element in the queue, you need to
+你可能仍然需要，即使只有一个元素在队列中，你也需要。
 
 329
 00:42:25,620 --> 00:42:31,660
- enqueue it and then get it out of the queue or just checking whether the queue is empty.
+enqueue it and then get it out of the queue or just checking whether the queue is empty.
+将其加入队列，然后将其从队列中取出，或者只是检查队列是否为空。
 
 330
 00:42:31,660 --> 00:42:36,180
- So there is still a little bit of time you are going to spend. Right. But here you are
+So there is still a little bit of time you are going to spend. Right. But here you are
+所以你还要再花一点时间。对吧。但是你在这里。
 
 331
 00:42:36,180 --> 00:42:42,820
- dominated by the service time. Right. And you see, whenever you have a new request,
+dominated by the service time. Right. And you see, whenever you have a new request,
+由服务时间主导。对的。你看，每当你有一个新的请求，
 
 332
 00:42:42,820 --> 00:42:50,900
- at least in this example, you are going to the queue is empty. Right. So every response
+at least in this example, you are going to the queue is empty. Right. So every response
+至少在这个例子中，你要去的队列是空的。对吧。所以每个回答都是
 
 333
 00:42:50,900 --> 00:42:58,980
- time, the response time on February request is going to take the same time. Okay. But
+time, the response time on February request is going to take the same time. Okay. But
+时间，2月份请求的响应时间将会保持不变。好的。但是
 
 334
 00:42:58,980 --> 00:43:09,500
- now let's do, okay. So let's introduce a few more metrics. So a few more metrics here are
+now let's do, okay. So let's introduce a few more metrics. So a few more metrics here are
+现在让我们开始吧，好吗？那么让我们介绍几个更多的指标。这里有几个更多的指标：
 
 335
 00:43:09,500 --> 00:43:16,980
- basically the service rate. The service rate is basically is like how many operation you
+basically the service rate. The service rate is basically is like how many operation you
+基本上是服务速率。服务速率基本上就像是你能完成多少个操作。
 
 336
 00:43:16,980 --> 00:43:23,340
- can perform per second. Right. And basically this is one over TS. Right. It's like if,
+can perform per second. Right. And basically this is one over TS. Right. It's like if,
+每秒可以执行。对的。基本上这是1除以TS。对的。就好像，
 
 337
 00:43:23,340 --> 00:43:29,420
- for instance, if it takes me to serve a request, it takes 10 milliseconds to serve a request.
+for instance, if it takes me to serve a request, it takes 10 milliseconds to serve a request.
+例如，如果我需要处理一个请求，那么处理一个请求需要10毫秒的时间。
 
 338
 00:43:29,420 --> 00:43:36,980
- How many I can do per second? One seconds over 10 milliseconds is 100. Then it's arrival
+How many I can do per second? One seconds over 10 milliseconds is 100. Then it's arrival
+每秒钟我能做多少个？一秒钟超过10毫秒是100个。然后就到了。
 
 339
 00:43:36,980 --> 00:43:43,340
- rate. And this is one over TA. Right. This has a request per second. The request per
+rate. And this is one over TA. Right. This has a request per second. The request per
+second is a measure of how many requests are made to a system or service in one second. It indicates the rate at which requests are being processed or handled. A higher request per second value generally means that the system is able to handle a larger volume of requests and is more efficient.
 
 340
 00:43:43,340 --> 00:43:53,100
- second it's the same. Right. It's like if I am getting every one request every 20 milliseconds,
+second it's the same. Right. It's like if I am getting every one request every 20 milliseconds,
+第二个也是一样的。对的。就好像我每20毫秒收到一个请求。
 
 341
 00:43:53,100 --> 00:43:59,460
- then the Lambda, which is request per second, it's one over 20 milliseconds. One second
+then the Lambda, which is request per second, it's one over 20 milliseconds. One second
+那么Lambda，也就是每秒请求数，就是每20毫秒一次。一秒钟。
 
 342
 00:43:59,460 --> 00:44:06,060
- over 20 milliseconds is 50. Right. And then it's utilization. Utilization is your arrival
+over 20 milliseconds is 50. Right. And then it's utilization. Utilization is your arrival
+超过20毫秒是50。对的。然后是利用率。利用率是你的到达。
 
 343
 00:44:06,060 --> 00:44:14,580
- rate over the service rate. Or if you plug in in this equation, the formula for the service
+rate over the service rate. Or if you plug in in this equation, the formula for the service
+速率超过服务速率。或者如果你将其代入这个方程，就是服务的公式。
 
 344
 00:44:14,580 --> 00:44:20,300
- rate and the arrival rate, you are going to get the service time over the arrival time.
+rate and the arrival rate, you are going to get the service time over the arrival time.
+根据到达率和服务率，你将得到服务时间除以到达时间的结果。
 
 345
 00:44:20,300 --> 00:44:25,580
- Right. So basically what is this saying is that for instance, if you have the arrival
+Right. So basically what is this saying is that for instance, if you have the arrival
+对的。所以基本上这句话的意思是，例如，如果你有到达的
 
 346
 00:44:25,580 --> 00:44:31,860
- time, it's 20 milliseconds and the service time is 10 milliseconds, then you are going
+time, it's 20 milliseconds and the service time is 10 milliseconds, then you are going
+时间，它是20毫秒，服务时间是10毫秒，那么你就要去了。
 
 347
 00:44:31,860 --> 00:44:41,540
- to have 10 milliseconds over 20 milliseconds. It's 0.5. So utilization will be 50%, which
+to have 10 milliseconds over 20 milliseconds. It's 0.5. So utilization will be 50%, which
+是指在20毫秒内有10毫秒的时间。这个比例是0.5。因此利用率将为50%。
 
 348
 00:44:41,540 --> 00:44:48,100
- kind of makes sense. Right. If I have one new request arriving every 20 milliseconds
+kind of makes sense. Right. If I have one new request arriving every 20 milliseconds
+有点说得通。对的。如果我每20毫秒收到一个新的请求
 
 349
 00:44:48,100 --> 00:44:55,740
- and one request, it takes me to process one request 10 milliseconds. This means that for
+and one request, it takes me to process one request 10 milliseconds. This means that for
+每个请求需要我处理10毫秒。这意味着对于每个请求，我需要花费10毫秒的时间。
 
 350
 00:44:55,740 --> 00:44:59,860
- each request, I'm going to spend 10 milliseconds and I'm going to wait another 10 milliseconds
+each request, I'm going to spend 10 milliseconds and I'm going to wait another 10 milliseconds
+每个请求，我将花费10毫秒的时间，然后再等待10毫秒。
 
 351
 00:44:59,860 --> 00:45:18,740
- to get the new request. And I'm going to be free half of my time. Right. Make sense? So
+to get the new request. And I'm going to be free half of my time. Right. Make sense? So
+得到新的请求。我将有一半的时间是空闲的。对，合理吧？这样说清楚了吗？
 
 352
 00:45:18,740 --> 00:45:23,520
- what happens when Lambda is greater than the Mu and the arrival rate is greater than the
+what happens when Lambda is greater than the Mu and the arrival rate is greater than the
+当Lambda大于Mu且到达率大于服务率时会发生什么？
 
 353
 00:45:23,520 --> 00:45:33,960
- service rate? What do you think it happens? It's a good question. If it's a for short
+service rate? What do you think it happens? It's a good question. If it's a for short
+服务费率？你认为会发生什么？这是一个很好的问题。如果是短期的话，
 
 354
 00:45:33,960 --> 00:45:37,860
- interval of time, what is the burst? Then you are going to have the queue to absorb
+interval of time, what is the burst? Then you are going to have the queue to absorb
+时间间隔内，什么是突发？然后你将会有一个队列来吸收。
 
 355
 00:45:37,860 --> 00:45:43,340
- that burst. So the queue delay will going to increase. If it's long, it's for a long
+that burst. So the queue delay will going to increase. If it's long, it's for a long
+那个突发事件会导致排队延迟增加。如果排队时间很长，那就要等很久了。
 
 356
 00:45:43,340 --> 00:45:51,580
- time, and it's just average arrival rate is greater than the average service rate, then
+time, and it's just average arrival rate is greater than the average service rate, then
+如果时间，且仅仅是平均到达率大于平均服务率，那么
 
 357
 00:45:51,580 --> 00:46:00,920
- the queue will grow indefinitely. The system is called to be in an unstable state. In general,
+the queue will grow indefinitely. The system is called to be in an unstable state. In general,
+队列将无限增长。系统被称为处于不稳定状态。总的来说，
 
 358
 00:46:00,920 --> 00:46:10,380
- what we are going to analyze now in this lecture are systems which are stable. Means that the
+what we are going to analyze now in this lecture are systems which are stable. Means that the
+我们现在要分析的是稳定的系统。这意味着系统的输出在一段时间内不会发生剧烈的变化。
 
 359
 00:46:10,380 --> 00:46:19,360
- arrival rate is not greater than the service rate. Okay. Good. So this is basically tells
+arrival rate is not greater than the service rate. Okay. Good. So this is basically tells
+到达率不大于服务率。好的。很好。所以基本上这就是在说明
 
 360
 00:46:19,360 --> 00:46:36,060
- you is about if TS over TA is small, then we are fine. And the queue time, the queuing
+you is about if TS over TA is small, then we are fine. And the queue time, the queuing
+如果TS超过TA很小，那么我们就没问题。还有排队时间，排队。
 
 361
 00:46:36,060 --> 00:46:42,420
- delay is slow. But after some point, if you are going to get one, this is load, you see,
+delay is slow. But after some point, if you are going to get one, this is load, you see,
+延迟很慢。但是在某个点之后，如果你要得到一个，这是负载，你知道的。
 
 362
 00:46:42,420 --> 00:46:49,540
- the load is for this plot from zero to one. This is TSA over TA, right? So before one
+the load is for this plot from zero to one. This is TSA over TA, right? So before one
+负载从零到一，这是TSA超过TA，对吗？所以在一之前。
 
 363
 00:46:49,540 --> 00:46:56,360
- is fine. It grows, but it grows a little bit. But if you are going to go over one, then
+is fine. It grows, but it grows a little bit. But if you are going to go over one, then
+没问题。它在增长，但增长得很少。但如果你要超过一个，那么...
 
 364
 00:46:56,360 --> 00:47:10,040
- it's going to shut up, right? This is a queue delay. So it can be unbounded. So this is
+it's going to shut up, right? This is a queue delay. So it can be unbounded. So this is
+它要关机了，对吧？这是一个队列延迟。所以它可能是无界的。所以这就是...
 
 365
 00:47:10,040 --> 00:47:25,040
- the answer to your question. Gilbert, if the arrival rate is greater than the service rate,
+the answer to your question. Gilbert, if the arrival rate is greater than the service rate,
+你的问题的答案是，Gilbert，如果到达率大于服务率，
 
 366
 00:47:25,040 --> 00:47:33,120
- then the queue will grow unbounded. So now let's see how the requests arrive in a burst
+then the queue will grow unbounded. So now let's see how the requests arrive in a burst
+然后队列将无限增长。现在让我们看看请求是如何突然到达的。
 
 367
 00:47:33,120 --> 00:47:37,580
- and let's see what happens. And here on the vertical axis, I have queue depths. On the
+and let's see what happens. And here on the vertical axis, I have queue depths. On the
+咱们看看会发生什么。这里的纵轴表示队列深度。
 
 368
 00:47:37,580 --> 00:47:46,400
- horizontal axis is again the time. And here basically, I see here the queue depths. I'm
+horizontal axis is again the time. And here basically, I see here the queue depths. I'm
+水平轴再次是时间。在这里，基本上我看到的是队列深度。我正在
 
 369
 00:47:46,400 --> 00:47:53,080
- going to have the first request in the queue. It's empty. It's going to be serviced immediately.
+going to have the first request in the queue. It's empty. It's going to be serviced immediately.
+将在队列中有第一个请求。它是空的。将立即提供服务。
 
 370
 00:47:53,080 --> 00:47:57,760
- So this is where it's going to be the server. This is the server, the timeline for the server.
+So this is where it's going to be the server. This is the server, the timeline for the server.
+这就是服务器的位置。这是服务器，服务器的时间表。
 
 371
 00:47:57,760 --> 00:48:03,720
- So I get the request. I'm going to serve it here. But now I get the second request. So
+So I get the request. I'm going to serve it here. But now I get the second request. So
+所以我明白了你的请求。我会在这里为你提供服务。但是现在我收到了第二个请求。所以
 
 372
 00:48:03,720 --> 00:48:13,940
- if I'm getting the second request, I am going to have to queue it because the server is
+if I'm getting the second request, I am going to have to queue it because the server is
+如果我收到第二个请求，我将不得不将其排队，因为服务器正在忙碌。
 
 373
 00:48:13,940 --> 00:48:19,340
- satisfying the previous request. And now I get a new request. So new request again, I
+satisfying the previous request. And now I get a new request. So new request again, I
+满足之前的请求。现在我有一个新的请求。所以再次提出新的请求，我
 
 374
 00:48:19,340 --> 00:48:25,220
- need to queue it. Now I have two requests in the queue. Again, on the vertical axis
+need to queue it. Now I have two requests in the queue. Again, on the vertical axis
+需要排队。现在我在队列中有两个请求。再次，在垂直轴上。
 
 375
 00:48:25,220 --> 00:48:32,500
- down, you have the size of the queue. So I have two in the queue right now. And now I
+down, you have the size of the queue. So I have two in the queue right now. And now I
+明白了，你想知道队列的大小。目前我有两个在队列中。现在我...
 
 376
 00:48:32,500 --> 00:48:38,740
- get another one. So it's again, the first request has unfinished being serviced. So
+get another one. So it's again, the first request has unfinished being serviced. So
+再拿一个。所以，又是这样，第一个请求还没有完成服务。所以
 
 377
 00:48:38,740 --> 00:48:45,180
- the queue is increasing by another one request. So I have three requests in the queue. Now
+the queue is increasing by another one request. So I have three requests in the queue. Now
+队列增加了另一个请求。所以我现在有三个请求在队列中。
 
 378
 00:48:45,180 --> 00:48:52,940
- I don't get anything more. So if I don't get anything more, I'm going to start serving,
+I don't get anything more. So if I don't get anything more, I'm going to start serving,
+我什么都不明白了。所以如果我什么都不明白了，我就要开始服务了。
 
 379
 00:48:52,940 --> 00:48:57,940
- say it's a five order. So I'm going to serve the first request in the queue, the wide request.
+say it's a five order. So I'm going to serve the first request in the queue, the wide request.
+说它是第五个订单。所以我将会处理队列中的第一个请求，即广泛的请求。
 
 380
 00:48:57,940 --> 00:49:06,020
- Now while I serve the wide request, I still have two requests in the queue, the light
+Now while I serve the wide request, I still have two requests in the queue, the light
+现在虽然我正在处理广泛的请求，但我还有两个请求在队列中，其中一个是轻松的。
 
 381
 00:49:06,020 --> 00:49:12,900
- blue one and the orange one. And then when I finish serving this request, I'm going to
+blue one and the orange one. And then when I finish serving this request, I'm going to
+蓝色的一个和橙色的一个。然后当我完成这个请求的时候，我要
 
 382
 00:49:12,900 --> 00:49:20,860
- serve the orange request and finally the light blue request. Okay. So this is what happens.
+serve the orange request and finally the light blue request. Okay. So this is what happens.
+为橙色请求提供服务，最后是浅蓝色请求。好的。所以发生了什么事。
 
 383
 00:49:20,860 --> 00:49:26,960
- And now I have a new request and things like that. Any questions? So the point here is
+And now I have a new request and things like that. Any questions? So the point here is
+现在我有一个新的请求之类的东西。有什么问题吗？所以这里的重点是什么？
 
 384
 00:49:26,960 --> 00:49:34,680
- that even the utilization is low, even if the average arrival rate is lower than the
+that even the utilization is low, even if the average arrival rate is lower than the
+即使利用率很低，即使平均到达率低于预期，
 
 385
 00:49:34,680 --> 00:49:41,720
- service rate, much lower even, you can still have occasional burst. So a lot of events
+service rate, much lower even, you can still have occasional burst. So a lot of events
+服务费率，甚至更低，你仍然可以偶尔有爆发。所以很多事件
 
 386
 00:49:41,720 --> 00:49:47,780
- or a lot of operation arrive at the same time. It's like rush hour, right? Over the entire
+or a lot of operation arrive at the same time. It's like rush hour, right? Over the entire
+或者很多操作同时发生。就像高峰时间一样，对吗？在整个过程中
 
 387
 00:49:47,780 --> 00:49:54,500
- duration of a day, the arrival or the number of cars on the highway is significantly lower
+duration of a day, the arrival or the number of cars on the highway is significantly lower
+一天的持续时间，高速公路上的到达或汽车数量显著较低。
 
 388
 00:49:54,500 --> 00:50:00,880
- than the capacity of the highway. But there are some bursts in rush hours, when the number
+than the capacity of the highway. But there are some bursts in rush hours, when the number
+比高速公路的容量还要多。但在高峰时段会有一些突发情况，这时车辆数量超过了公路的承载能力。
 
 389
 00:50:00,880 --> 00:50:09,440
- of cars, it's almost at capacity and then you experience large events. So how do you
+of cars, it's almost at capacity and then you experience large events. So how do you
+关于汽车，它几乎达到了容量上限，然后你会遇到大型活动。那么你如何处理呢？
 
 390
 00:50:09,440 --> 00:50:15,020
- model the burst arrival? Now there is a lot of mathematical models, but one of the most
+model the burst arrival? Now there is a lot of mathematical models, but one of the most
+常用的模型是泊松过程。泊松过程是一种随机过程，用于描述事件在时间上的随机到达。它假设事件之间的到达是独立且服从指数分布。泊松过程的数学模型可以用来模拟突发事件的到达情况。
 
 391
 00:50:15,020 --> 00:50:23,540
- elegant one is Poisson distribution or exponential distribution. Exponential distribution, and
+elegant one is Poisson distribution or exponential distribution. Exponential distribution, and
+优雅的一个是泊松分布或指数分布。指数分布，和
 
 392
 00:50:23,540 --> 00:50:31,900
- this is f of x is lambda, where lambda is the average arrival rate in this case, or
+this is f of x is lambda, where lambda is the average arrival rate in this case, or
+这里的f(x)是λ，其中λ是该情况下的平均到达率，或者
 
 393
 00:50:31,900 --> 00:50:45,540
- average mean for that distribution times e power minus Lx. And this is how it looks like,
+average mean for that distribution times e power minus Lx. And this is how it looks like,
+该分布的平均值乘以e的负Lx次方。这就是它的样子。
 
 394
 00:50:45,540 --> 00:51:02,980
- this f of x. And this is a lambda, it's actually the mean arrival rate for this distribution,
+this f of x. And this is a lambda, it's actually the mean arrival rate for this distribution,
+这是f(x)。这个λ是指这个分布的平均到达率。
 
 395
 00:51:02,980 --> 00:51:14,300
- it's one over lambda. So actually lambda, I'm taking back, so lambda represent the interarrival
+it's one over lambda. So actually lambda, I'm taking back, so lambda represent the interarrival
+它是lambda的倒数。所以实际上，我撤回了lambda，lambda代表到达间隔。
 
 396
 00:51:14,300 --> 00:51:22,460
- time between the events, so mean arrival time is one over lambda. And the nice thing about
+time between the events, so mean arrival time is one over lambda. And the nice thing about
+事件之间的时间间隔，所以平均到达时间是lambda的倒数。而且，关于这个的好处是
 
 397
 00:51:22,460 --> 00:51:33,660
- this exponential distribution is it is what is called memoryless. Memoryless means that
+this exponential distribution is it is what is called memoryless. Memoryless means that
+指数分布是一种被称为无记忆性的分布。无记忆性意味着
 
 398
 00:51:33,660 --> 00:51:40,960
- the future doesn't depend on the past, right? And it's counterintuitive because you are
+the future doesn't depend on the past, right? And it's counterintuitive because you are
+未来不取决于过去，对吗？而且这是违反直觉的，因为你是...
 
 399
 00:51:40,960 --> 00:51:49,640
- not used to that. This will say, and maybe sometimes this happens, if you arrive at the
+not used to that. This will say, and maybe sometimes this happens, if you arrive at the
+不习惯这样。这将会说，也许有时会发生这种情况，如果你到达的话。
 
 400
 00:51:49,640 --> 00:51:58,080
- station, right, Bath station, how long it takes for the next train to arrive doesn't
+station, right, Bath station, how long it takes for the next train to arrive doesn't
+车站，对的，巴斯车站，下一班火车还要多久到达？
 
 401
 00:51:58,080 --> 00:52:04,980
- depend of when the previous train arrived, whether it arrived the last minute or whether
+depend of when the previous train arrived, whether it arrived the last minute or whether
+取决于前一班火车的到达时间，无论是在最后一分钟到达还是在其他时间到达。
 
 402
 00:52:04,980 --> 00:52:13,480
- it just leaves the station where it was 15 minutes ago. Okay. So this is what, but because
+it just leaves the station where it was 15 minutes ago. Okay. So this is what, but because
+它刚刚离开了15分钟前的车站。好的。所以这是什么，但是因为
 
 403
 00:52:13,480 --> 00:52:19,440
- it's memoryless, it's much easier to model, right? It also says, if you look at this plot,
+it's memoryless, it's much easier to model, right? It also says, if you look at this plot,
+它是无记忆的，这样建模就容易得多，对吗？它还说，如果你看这个图，
 
 404
 00:52:19,440 --> 00:52:26,800
- that this means that the lot of events which are arriving in bursts, the interval between
+that this means that the lot of events which are arriving in bursts, the interval between
+这意味着到达的事件很多，而且是突发性的，它们之间的间隔时间
 
 405
 00:52:26,800 --> 00:52:32,100
- them is short, and there are some also very long intervals between events. So if you look
+them is short, and there are some also very long intervals between events. So if you look
+他们很短，而且事件之间也有一些非常长的间隔。所以如果你看
 
 406
 00:52:32,100 --> 00:52:37,660
- at the events on the timeline, there are bursts of events arriving together, so interarrival
+at the events on the timeline, there are bursts of events arriving together, so interarrival
+在时间线上的事件中，有一连串的事件同时到达，因此可以称之为事件间隔。
 
 407
 00:52:37,660 --> 00:52:48,840
- between these events is small, and then you have long pauses, right? Long gaps. Any questions?
+between these events is small, and then you have long pauses, right? Long gaps. Any questions?
+这些事件之间的间隔很短，然后你会有很长的停顿，对吗？很长的间隔。有任何问题吗？
 
 408
 00:52:48,840 --> 00:52:55,440
- You did learn exponential distribution, I hope in some of your math classes, right,
+You did learn exponential distribution, I hope in some of your math classes, right,
+你在一些数学课上学过指数分布，对吗？
 
 409
 00:52:55,440 --> 00:53:05,320
- your statistics classes. Okay. And now with this distribution, what are the main metrics?
+your statistics classes. Okay. And now with this distribution, what are the main metrics?
+你的统计课。好的。现在有了这个分布，主要的指标是什么？
 
 410
 00:53:05,320 --> 00:53:10,100
- One of the most important metrics is the mean, obviously the mean of the distribution. And
+One of the most important metrics is the mean, obviously the mean of the distribution. And
+其中一个最重要的指标是均值，显然是分布的均值。而且
 
 411
 00:53:10,100 --> 00:53:14,380
- you know how to compute the mean. It's like it's an integral or the sum, depending on
+you know how to compute the mean. It's like it's an integral or the sum, depending on
+你知道如何计算均值。就像是一个积分或者求和，取决于
 
 412
 00:53:14,380 --> 00:53:21,500
- the discrete distribution of the P of t. So what is the probability that that event happens
+the discrete distribution of the P of t. So what is the probability that that event happens
+t的离散分布的P。那么这个事件发生的概率是多少？
 
 413
 00:53:21,500 --> 00:53:29,820
- at time, you know, at t? What is the probability that you are going to have in this case, for
+at time, you know, at t? What is the probability that you are going to have in this case, for
+在某个时间，你知道，在t时刻？在这种情况下，你会有什么概率？
 
 414
 00:53:29,820 --> 00:53:38,260
- instance, an arrival after exactly t time units, and then you are going to multiply
+instance, an arrival after exactly t time units, and then you are going to multiply
+例如，一个在确切的t时间单位后到达的实例，然后你将进行乘法运算。
 
 415
 00:53:38,260 --> 00:53:49,040
- with the t because the interarrival time, right? So, and this is the mean, right? If
+with the t because the interarrival time, right? So, and this is the mean, right? If
+是的，"t"代表到达时间间隔，对吗？那么，这是指平均值，对吗？如果是的话。
 
 416
 00:53:49,040 --> 00:53:54,980
- you have this variance of the square of the standard deviation, which is you multiply
+you have this variance of the square of the standard deviation, which is you multiply
+你有标准差的平方的方差，即你将其乘以。
 
 417
 00:53:54,980 --> 00:54:03,740
- its sum of P of t multiplied by t square minus m square, and m is again the mean, and t is
+its sum of P of t multiplied by t square minus m square, and m is again the mean, and t is
+它是P(t)乘以t的平方减去m的平方的和，其中m再次表示均值，而t是什么。
 
 418
 00:54:03,740 --> 00:54:13,580
- about, you know, how long, you know, the interarrival t, which happened is probability P of t. And
+about, you know, how long, you know, the interarrival t, which happened is probability P of t. And
+关于你说的，你知道，有多长时间，你知道，发生的间隔时间t的概率P。
 
 419
 00:54:13,580 --> 00:54:20,560
- then you square coefficient of variance, which is sigma square by the mean square. Okay.
+then you square coefficient of variance, which is sigma square by the mean square. Okay.
+然后你平方变异系数，即方差除以均值的平方。好的。
 
 420
 00:54:20,560 --> 00:54:25,560
- So I'm not going to derive this to you. I'm going to derive something more interesting
+So I'm not going to derive this to you. I'm going to derive something more interesting
+所以我不会给你推导这个。我会推导一些更有趣的东西。
 
 421
 00:54:25,560 --> 00:54:31,160
- to you. This you are supposed to know from some of your previous classes, you know, if
+to you. This you are supposed to know from some of your previous classes, you know, if
+对你来说。这是你应该从之前的一些课程中知道的，你知道的，如果
 
 422
 00:54:31,160 --> 00:54:36,360
- not, this is just the formula you can write on your cheat sheet. But typically we are going
+not, this is just the formula you can write on your cheat sheet. But typically we are going
+不，这只是你可以写在作弊纸上的公式。但通常我们会去做的是
 
 423
 00:54:36,360 --> 00:54:42,440
- to give you, if I am going to, we are going to ask you in a problem. But the most important
+to give you, if I am going to, we are going to ask you in a problem. But the most important
+是的，如果我要给你，我们将要求你解决一个问题。但最重要的是
 
 424
 00:54:42,440 --> 00:54:49,520
- things here is to look at the value of C. The C captures the burstiness, it turns out.
+things here is to look at the value of C. The C captures the burstiness, it turns out.
+这里要看的是C的价值。C捕捉到了突发性，结果表明。
 
 425
 00:54:49,520 --> 00:54:59,280
- So if C is zero, there is no variance. This also means the variance is zero square, square
+So if C is zero, there is no variance. This also means the variance is zero square, square
+所以如果C为零，就没有方差。这也意味着方差是零的平方，即零。
 
 426
 00:54:59,280 --> 00:55:08,580
- of standard deviation, which means that you have the interarrival between two events,
+of standard deviation, which means that you have the interarrival between two events,
+标准差是指两个事件之间的到达间隔，
 
 427
 00:55:08,580 --> 00:55:18,400
- between two requests is the same. Then if C is one, this means that you have exponential
+between two requests is the same. Then if C is one, this means that you have exponential
+在两个请求之间是相同的。那么如果C是一个，这意味着你有指数级的
 
 428
 00:55:18,400 --> 00:55:26,860
- distribution. It's a memoryless distribution, completely random, doesn't depend on the past.
+distribution. It's a memoryless distribution, completely random, doesn't depend on the past.
+分布。这是一个无记忆的分布，完全随机，不依赖于过去。
 
 429
 00:55:26,860 --> 00:55:35,560
- If C is 1.5, you have even a burstier distributions, the majority of C, say, for instance, or the
+If C is 1.5, you have even a burstier distributions, the majority of C, say, for instance, or the
+如果C是1.5，你会有更加爆炸性的分布，大部分的C，比如说，例如，或者
 
 430
 00:55:35,560 --> 00:55:43,040
- majority of the interarrival times are much smaller than the average. So the more C increases,
+majority of the interarrival times are much smaller than the average. So the more C increases,
+大多数的到达间隔时间远小于平均值。所以C越大，
 
 431
 00:55:43,040 --> 00:55:51,040
- the more bursty you have the distribution, meaning a lot of events coming, a lot of requests
+the more bursty you have the distribution, meaning a lot of events coming, a lot of requests
+你的分布越爆发，意味着有很多事件发生，有很多请求。
 
 432
 00:55:51,040 --> 00:56:00,880
- coming together and then long gaps. And obviously the more burstiness you have, the larger the
+coming together and then long gaps. And obviously the more burstiness you have, the larger the
+间隔越长。显然，爆发性越大，间隔越长。
 
 433
 00:56:00,880 --> 00:56:08,840
- queue will be, at least during these events. If there is no variance and if your furlough
+queue will be, at least during these events. If there is no variance and if your furlough
+排队将会至少在这些事件期间存在。如果没有变化，如果你的停职期间
 
 434
 00:56:08,840 --> 00:56:23,200
- is lower than the service capacity, then you have no queues.
+is lower than the service capacity, then you have no queues.
+如果需求量低于服务能力，那么就不会有排队。
 
 435
 00:56:23,200 --> 00:56:30,440
- So let's talk more about queuing theory. And the queuing theory is very simple. You have
+So let's talk more about queuing theory. And the queuing theory is very simple. You have
+所以让我们更多地谈谈排队理论。排队理论非常简单。你有
 
 436
 00:56:30,440 --> 00:56:37,480
- to make some assumption about the distributions. You have to make some assumptions about how
+to make some assumption about the distributions. You have to make some assumptions about how
+对于分布进行一些假设。你必须对如何进行假设做出一些假设。
 
 437
 00:56:37,480 --> 00:56:42,120
- long it takes to serve the request. What is the distribution to serve a request? What
+long it takes to serve the request. What is the distribution to serve a request? What
+是什么分布来服务请求？需要多长时间来处理请求？
 
 438
 00:56:42,120 --> 00:56:53,200
- is the distribution of arrivals? And based on this, then you are going to get some formula
+is the distribution of arrivals? And based on this, then you are going to get some formula
+这是到达的分布吗？根据这个，你将得到一些公式。
 
 439
 00:56:53,200 --> 00:57:04,240
- which will give you the service response time and the queuing delay. That's what it is.
+which will give you the service response time and the queuing delay. That's what it is.
+这将为您提供服务响应时间和排队延迟。就是这样。
 
 440
 00:57:04,240 --> 00:57:10,520
- So before talking more about this queuing and giving you those formulas about response
+So before talking more about this queuing and giving you those formulas about response
+所以在更多地讨论排队问题之前，给你提供一些关于响应的公式。
 
 441
 00:57:10,520 --> 00:57:21,440
- time and everything, let's go through this little law. And it's a very powerful law.
+time and everything, let's go through this little law. And it's a very powerful law.
+时间和一切，让我们来仔细研究这个小法则。这是一个非常强大的法则。
 
 442
 00:57:21,440 --> 00:57:27,880
- It's very simple, deceptive simple and very general. And this is what it says. It says
+It's very simple, deceptive simple and very general. And this is what it says. It says
+这非常简单，简单得令人误解，而且非常普遍。它的意思是这样的。它说
 
 443
 00:57:27,880 --> 00:57:35,400
- you have a bunch of arrivals and which are served by a system, a bunch of requests coming
+you have a bunch of arrivals and which are served by a system, a bunch of requests coming
+您有一批到达的人员，这些人员由一个系统提供服务，还有一批请求正在到来。
 
 444
 00:57:35,400 --> 00:57:42,960
- to a system, they are serving the system. And you know what is the average mean of,
+to a system, they are serving the system. And you know what is the average mean of,
+对于一个系统来说，他们是为系统服务的。而你知道平均数的意思是什么吗？
 
 445
 00:57:42,960 --> 00:57:51,400
- what is the average arrivals for the request and what is the average service for the request.
+what is the average arrivals for the request and what is the average service for the request.
+请求的平均到达量是多少，请求的平均服务量是多少。
 
 446
 00:57:51,400 --> 00:57:57,840
- And what little law is giving you is how many on the average, how many requests are waiting
+And what little law is giving you is how many on the average, how many requests are waiting
+而你所提供的少量法律是平均有多少个请求在等待。
 
 447
 00:57:57,840 --> 00:58:04,480
- in the queue to be served. That's all. And the formula is a number of requests. Here
+in the queue to be served. That's all. And the formula is a number of requests. Here
+在队列中等待服务。就这些。而公式是请求的数量。
 
 448
 00:58:04,480 --> 00:58:12,960
- I pick jobs. It's equal to the mean arrival time, lambdas, time, the response time, mean
+I pick jobs. It's equal to the mean arrival time, lambdas, time, the response time, mean
+我选择工作。这等于平均到达时间，λ，时间，响应时间，平均值。
 
 449
 00:58:12,960 --> 00:58:23,680
- response time. Okay. So this is what it is. That's it. And the beauty of it is that this
+response time. Okay. So this is what it is. That's it. And the beauty of it is that this
+响应时间。好的。所以这就是它的情况。就是这样。而且它的美妙之处在于这一点。
 
 450
 00:58:23,680 --> 00:58:31,760
- is true regardless of the structure of the arrivals. How what is a burst doesn't depend
+is true regardless of the structure of the arrivals. How what is a burst doesn't depend
+是真实的，不论到达的结构如何。什么是突发并不取决于它的结构。
 
 451
 00:58:31,760 --> 00:58:37,440
- on the distribution. Doesn't depend on the distribution of the arrival, doesn't depend
+on the distribution. Doesn't depend on the distribution of the arrival, doesn't depend
+在分布上。不依赖于到达的分布，不依赖于
 
 452
 00:58:37,440 --> 00:58:47,600
- on the distribution of the service time because the results holds for the means. Right. It
+on the distribution of the service time because the results holds for the means. Right. It
+关于服务时间的分布，因为结果适用于均值。对的。
 
 453
 00:58:47,600 --> 00:58:53,320
- does assume though that the arrivals are not larger. The arrival rate is not larger than
+does assume though that the arrivals are not larger. The arrival rate is not larger than
+假设到达量不会更大。到达率不会超过
 
 454
 00:58:53,320 --> 00:58:59,640
- mean arrival rate is not larger than the mean service rate. And here is an example just
+mean arrival rate is not larger than the mean service rate. And here is an example just
+平均到达率不得大于平均服务率。这里有一个例子。
 
 455
 00:58:59,640 --> 00:59:07,760
- to give you the, to capture that intuition. On X you have times, and let's say you have
+to give you the, to capture that intuition. On X you have times, and let's say you have
+为了给你提供，捕捉那种直觉。在X上你有一些时间，假设你有...
 
 456
 00:59:07,760 --> 00:59:13,960
- a new job or request for some reason here, you know, I put jobs coming to the system
+a new job or request for some reason here, you know, I put jobs coming to the system
+有一个新的工作或请求出现在这里，你知道，我把工作放到系统里。
 
 457
 00:59:13,960 --> 00:59:22,960
- and being serviced. And you have one job every second. So this is deterministic arrival.
+and being serviced. And you have one job every second. So this is deterministic arrival.
+并且正在接受服务。你每秒钟只有一个工作。所以这是确定性到达。
 
 458
 00:59:22,960 --> 00:59:30,560
- Every second you have a new job, exactly every second. Any job takes to serve five seconds.
+Every second you have a new job, exactly every second. Any job takes to serve five seconds.
+每秒钟你都有一份新工作，确切地说是每秒钟。任何工作都需要花费五秒钟的时间来完成。
 
 459
 00:59:30,560 --> 00:59:35,260
- Right. This is what you have, right? You have the first job starts here, you serve five
+Right. This is what you have, right? You have the first job starts here, you serve five
+是的。这是你所拥有的，对吗？你有第一份工作从这里开始，你服务五个人。
 
 460
 00:59:35,260 --> 00:59:42,320
- seconds. The second job starts, serve five seconds and so forth. So now how many of the
+seconds. The second job starts, serve five seconds and so forth. So now how many of the
+秒。第二个工作开始，持续五秒，以此类推。那么现在有多少个？
 
 461
 00:59:42,320 --> 00:59:51,280
- jobs you have in the system? At any given time, you can draw a line and the number of
+jobs you have in the system? At any given time, you can draw a line and the number of
+你在系统中有哪些工作？在任何给定的时间，你可以画一条线，然后写下数量。
 
 462
 00:59:51,280 --> 00:59:57,760
- jobs you have in the system, it's the number of jobs this line is going to intersect. And
+jobs you have in the system, it's the number of jobs this line is going to intersect. And
+你在系统中的工作是指这条线将要相交的工作数量。而且
 
 463
 00:59:57,760 --> 01:00:06,840
- how many have? Five. Right. And what is the formula saying? Number of jobs, average number
+how many have? Five. Right. And what is the formula saying? Number of jobs, average number
+有多少个？五个。对的。那么公式是说什么？工作数量，平均数量。
 
 464
 01:00:06,840 --> 01:00:12,520
- of jobs in the system is equal with average or the mean arrival rate, which was one times
+of jobs in the system is equal with average or the mean arrival rate, which was one times
+系统中的作业数量等于平均到达率或平均到达速率，即一次。
 
 465
 01:00:12,520 --> 01:00:22,240
- the mean service response time, which is five. So it's five. Okay. So let's, let me try to
+the mean service response time, which is five. So it's five. Okay. So let's, let me try to
+将这句话翻译成英文：the mean service response time, which is five. So it's five. Okay. So let's, let me try to
+
+The mean service response time is five. So it is five. Okay. So let's, let me try to.
 
 466
 01:00:22,240 --> 01:00:30,120
- derive this formula for you. Okay. So let's talk, let's say now we are going to be general,
+derive this formula for you. Okay. So let's talk, let's say now we are going to be general,
+推导这个公式给你。好的。那么让我们来讨论，假设现在我们要进行一般化的讨论，
 
 467
 01:00:30,120 --> 01:00:38,640
- right? The jobs can arrive at any time. They can take any amount of time to be, to be,
+right? The jobs can arrive at any time. They can take any amount of time to be, to be,
+对吗？工作可以随时到来。它们可能需要不同的时间来完成。
 
 468
 01:00:38,640 --> 01:00:46,620
- they are going to be in the system and yeah. So let's talk L of I is the response time
+they are going to be in the system and yeah. So let's talk L of I is the response time
+他们将会进入系统，是的。所以让我们来谈谈I的响应时间。
 
 469
 01:00:46,620 --> 01:00:56,800
- of job I and N of T is a number of jobs in the system at time T. Right? So this is N
+of job I and N of T is a number of jobs in the system at time T. Right? So this is N
+工作I和N的T是系统中在时间T的作业数量。对吗？所以这就是N。
 
 470
 01:00:56,800 --> 01:01:04,240
- of T at this particular time. So you want to see what is the system occupancy? How many
+of T at this particular time. So you want to see what is the system occupancy? How many
+在这个特定的时间，你想知道系统的占用情况是多少？有多少人在使用系统？
 
 471
 01:01:04,240 --> 01:01:10,120
- on the average? What is the number of jobs in the system? This N, the average of N of
+on the average? What is the number of jobs in the system? This N, the average of N of
+平均来说？系统中的工作数量是多少？这个N，是N的平均值。
 
 472
 01:01:10,290 --> 01:01:15,810
- This is what you want to compute. The average of N of T. OK.
+This is what you want to compute. The average of N of T. OK.
+这是你想要计算的内容。N个T的平均值。好的。
 
 473
 01:01:15,810 --> 01:01:21,410
- So before, so this is the remember is what I want to get.
+So before, so this is the remember is what I want to get.
+所以之前，这是我想要得到的记忆。
 
 474
 01:01:21,410 --> 01:01:29,810
- Now, let's do some a little bit of math. Let's assume for simplicity that the height
+Now, let's do some a little bit of math. Let's assume for simplicity that the height
+现在，让我们做一些简单的数学题。为了简单起见，假设高度为
 
 475
 01:01:29,810 --> 01:01:34,130
- of one of these things, jobs, which I represent here, it's one.
+of one of these things, jobs, which I represent here, it's one.
+这些事物之一，工作，我在这里代表的就是其中之一。
 
 476
 01:01:35,330 --> 01:01:44,930
- OK, so really the N of T represents the height of this shape, right, the blue shape.
+OK, so really the N of T represents the height of this shape, right, the blue shape.
+好的，所以实际上T的N代表的是这个形状的高度，对吗，蓝色的形状。
 
 477
 01:01:44,930 --> 01:01:52,370
- So in this case, the height is four, so you have four jobs in the system. Right.
+So in this case, the height is four, so you have four jobs in the system. Right.
+所以在这种情况下，高度是四，所以你在系统中有四个工作。对的。
 
 478
 01:01:52,370 --> 01:02:02,610
- Now, the area of each of these boxes is what? It's I of I, it's I of I, the length,
+Now, the area of each of these boxes is what? It's I of I, it's I of I, the length,
+现在，这些盒子的面积是多少？它是I的I，它是I的I，长度，
 
 479
 01:02:03,170 --> 01:02:11,250
- it's how long it takes the job response time for that particular job I times one,
+it's how long it takes the job response time for that particular job I times one,
+这是特定工作的响应时间，我乘以1，需要多长时间。
 
 480
 01:02:11,250 --> 01:02:18,770
- because we said that by convention, we say that the height is one. So the area S is S1,
+because we said that by convention, we say that the height is one. So the area S is S1,
+因为我们约定俗成地说，高度为1。所以面积S就是S1。
 
 481
 01:02:18,770 --> 01:02:27,170
- the total area here for this all the jobs within the time capital T is S1 plus S2 plus say SK.
+the total area here for this all the jobs within the time capital T is S1 plus S2 plus say SK.
+这里所有工作在时间T内的总面积是S1加上S2再加上SK。
 
 482
 01:02:27,970 --> 01:02:38,050
- It's and it's equal to is L1 plus L2 plus LK because SI is equal to is LI times one,
+It's and it's equal to is L1 plus L2 plus LK because SI is equal to is LI times one,
+这是一个等式，它等于L1加L2加LK，因为SI等于LI乘以1。
 
 483
 01:02:38,050 --> 01:02:48,930
- which is equal to is LI. And why do I do this? Right. Now, what I want to compute is to remember
+which is equal to is LI. And why do I do this? Right. Now, what I want to compute is to remember
+等于的是LI。为什么我要这样做呢？对了。现在，我想要计算的是记住。
 
 484
 01:02:48,930 --> 01:02:56,130
- that average fuel occupancy is what it is. It's this area over T. Right. This is what I'm doing.
+that average fuel occupancy is what it is. It's this area over T. Right. This is what I'm doing.
+平均燃料占用率就是它所表示的。它是T上的这个区域。对的，这就是我正在做的事情。
 
 485
 01:02:56,130 --> 01:03:01,330
- I have this shape, which I have this area, and I need to divide on the length of the area,
+I have this shape, which I have this area, and I need to divide on the length of the area,
+我有一个形状，它有一个面积，我需要根据面积的长度进行划分。
 
 486
 01:03:01,330 --> 01:03:10,930
- which is T in this case, to get to the average height of the area. Right. The N average,
+which is T in this case, to get to the average height of the area. Right. The N average,
+在这种情况下，T代表的是达到该地区平均身高所需的时间。对的。N代表平均值。
 
 487
 01:03:10,930 --> 01:03:18,210
- the average number of jobs in the system is the average height of the shape, which is S over T.
+the average number of jobs in the system is the average height of the shape, which is S over T.
+系统中的平均作业数量是形状的平均高度，即S除以T。
 
 488
 01:03:19,650 --> 01:03:26,850
- Right. But now we know that S is L of one plus L of two plus L of K over D now. And now the
+Right. But now we know that S is L of one plus L of two plus L of K over D now. And now the
+正确。但现在我们知道S是L的一加上L的二加上L的K除以D。而现在
 
 489
 01:03:26,850 --> 01:03:33,570
- beauty of it, I need to do only the one thing. I need to divide by N total and multiply with N
+beauty of it, I need to do only the one thing. I need to divide by N total and multiply with N
+美妙之处在于，我只需要做一件事。我需要将总数除以N，然后乘以N。
 
 490
 01:03:33,570 --> 01:03:43,010
- total. Right. And N total is a total number of jobs which arrived during this time T
+total. Right. And N total is a total number of jobs which arrived during this time T
+总数。对的。而N总是在这段时间T内到达的工作总数。
 
 491
 01:03:45,570 --> 01:03:51,810
- and are serviced during this time T. Right. So it's the same equation, the equation from the
+and are serviced during this time T. Right. So it's the same equation, the equation from the
+并且在这段时间T内进行维护。对的。所以这是同一个方程，来自于...
 
 492
 01:03:51,810 --> 01:03:58,050
- previous one, but I'm going to divide by N total and I'm now going to multiply by N total. N total
+previous one, but I'm going to divide by N total and I'm now going to multiply by N total. N total
+之前的一个，但我现在要除以总数N，然后再乘以总数N。总数N
 
 493
 01:03:58,050 --> 01:04:05,010
- in this example, it will be K. Right. Because it's what I showed here, like K. Right. But now
+in this example, it will be K. Right. Because it's what I showed here, like K. Right. But now
+在这个例子中，它将是K。对的。因为这是我在这里展示的，就像K。对的。但现在
 
 494
 01:04:05,010 --> 01:04:13,330
- I just reverted one, but it's the same thing. It's N total over T plus L1 plus LK over N total.
+I just reverted one, but it's the same thing. It's N total over T plus L1 plus LK over N total.
+我刚刚还原了一个，但是它是一样的。它是N总数除以T加L1加LK除以N总数。
 
 495
 01:04:14,770 --> 01:04:18,210
- But here is a thing right now. What is N total over T?
+But here is a thing right now. What is N total over T?
+但是现在有一个问题。N总数除以T是什么？
 
 496
 01:04:18,210 --> 01:04:32,850
- So I have N total jobs arriving during time T. So N total over T, it's an average,
+So I have N total jobs arriving during time T. So N total over T, it's an average,
+所以在时间T内，我总共有N个工作到达。所以N除以T，得到的是一个平均值。
 
 497
 01:04:32,850 --> 01:04:43,010
- it's how many, it's N total over T, it's arrival rate.
+it's how many, it's N total over T, it's arrival rate.
+这是多少，是N总数除以T，是到达率。
 
 498
 01:04:43,810 --> 01:04:54,210
- I mean arrival rate. If I tell you, I have 100 jobs and they arrived in 10 seconds. Right. And
+I mean arrival rate. If I tell you, I have 100 jobs and they arrived in 10 seconds. Right. And
+我是指到达速率。如果我告诉你，我有100个任务，它们在10秒内到达。对的。而且
 
 499
 01:04:54,210 --> 01:05:03,890
- I ask you, what is the arrival rate? What do you do? You say 100 over 10 seconds. Oh, it's 10 jobs
+I ask you, what is the arrival rate? What do you do? You say 100 over 10 seconds. Oh, it's 10 jobs
+我问你，到达率是多少？你做什么？你说每10秒100个。哦，那就是10个任务。
 
 500
 01:05:03,890 --> 01:05:13,490
- per second. This is Lambda. And what is L1 plus LK over N total?
+per second. This is Lambda. And what is L1 plus LK over N total?
+每秒。这是Lambda。那么L1加LK除以N总是多少？
 
 501
 01:05:13,490 --> 01:05:19,650
- L1 is the average response time for first job.
+L1 is the average response time for first job.
+L1是第一份工作的平均响应时间。
 
 502
 01:05:19,650 --> 01:05:27,810
- L2 is the average response time of the second job. If I add all these jobs up, the response
+L2 is the average response time of the second job. If I add all these jobs up, the response
+L2是第二个任务的平均响应时间。如果我将所有这些任务加起来，响应时间的总和是多少？
 
 503
 01:05:27,810 --> 01:05:32,290
- time of all the jobs, if I sum up the average response time of all jobs and I divide by the
+time of all the jobs, if I sum up the average response time of all jobs and I divide by the
+所有工作的时间，如果我将所有工作的平均响应时间相加，然后除以
 
 504
 01:05:32,290 --> 01:05:40,690
- number of jobs, what do I get? The average response time. So here you are. The average
+number of jobs, what do I get? The average response time. So here you are. The average
+工作数量，我会得到什么？平均响应时间。所以这里是。平均的。
 
 505
 01:05:40,690 --> 01:05:47,570
- occupancy or the average number of jobs in the system is equal with the average arrival rate
+occupancy or the average number of jobs in the system is equal with the average arrival rate
+占用率或系统中的平均作业数等于平均到达率。
 
 506
 01:05:47,570 --> 01:05:57,890
- of these jobs plus times, sorry, the average response time of a job. Make sense? Any questions?
+of these jobs plus times, sorry, the average response time of a job. Make sense? Any questions?
+这些工作的总和再加上时间，抱歉，是工作的平均响应时间。有意义吗？有任何问题吗？
 
 507
 01:05:57,890 --> 01:06:19,010
- Okay. So again, I want to emphasize like this is a great,
+Okay. So again, I want to emphasize like this is a great,
+好的。所以再次强调，我想说这是一个很棒的，
 
 508
 01:06:19,890 --> 01:06:29,170
- very elegant law and because it's so simple and yet is so general. It doesn't make any
+very elegant law and because it's so simple and yet is so general. It doesn't make any
+非常优雅的法律，因为它如此简单却又如此普遍。它不会造成任何
 
 509
 01:06:29,170 --> 01:06:37,250
- assumption of distributions. You need only to know the average arrival rate and average response time.
+assumption of distributions. You need only to know the average arrival rate and average response time.
+分布的假设。您只需要知道平均到达率和平均响应时间。
 
 510
 01:06:37,250 --> 01:06:39,110
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 511
 01:06:39,110 --> 01:06:45,650
- Any questions?
+Any questions?
+有任何问题吗？
 
 512
 01:06:45,650 --> 01:06:58,050
- Okay. So now let's do a little bit of queuing theory and unfortunately, and I apologize here,
+Okay. So now let's do a little bit of queuing theory and unfortunately, and I apologize here,
+好的。现在让我们来谈一下排队理论，不过很遗憾，我在这里要道歉，
 
 513
 01:06:58,050 --> 01:07:03,330
- I am going to give you some results. I'm not going to derive anymore. So hopefully you enjoyed
+I am going to give you some results. I'm not going to derive anymore. So hopefully you enjoyed
+我将给你一些结果。我不再推导了。希望你喜欢。
 
 514
 01:07:03,330 --> 01:07:12,530
- the previous derivation. But let's talk a little bit about that, about this to give you some,
+the previous derivation. But let's talk a little bit about that, about this to give you some,
+之前的推导。但是让我们稍微谈一下这个，关于这个来给你一些，
 
 515
 01:07:12,530 --> 01:07:17,490
- you know, queuing results, queuing theory results. First of all, like I mentioned,
+you know, queuing results, queuing theory results. First of all, like I mentioned,
+你知道，排队结果，排队理论结果。首先，就像我之前提到的，
 
 516
 01:07:17,490 --> 01:07:24,210
- here we only assume that the system is what you call in a queue level, which is
+here we only assume that the system is what you call in a queue level, which is
+在这里
 
 517
 01:07:24,210 --> 01:07:32,610
- basically the number, the arrival rate is not larger, is no larger than the service side.
+basically the number, the arrival rate is not larger, is no larger than the service side.
+基本上，数量的到达速率不会超过服务端。
 
 518
 01:07:32,610 --> 01:07:39,730
- We also assume that the queue has no limits. So therefore we don't drop requests.
+We also assume that the queue has no limits. So therefore we don't drop requests.
+我们还假设队列没有限制。因此，我们不会丢弃请求。
 
 519
 01:07:41,490 --> 01:07:49,170
- Okay. Let's assume that the time between two arrivals is random and is memoryless,
+Okay. Let's assume that the time between two arrivals is random and is memoryless,
+好的。让我们假设两次到达之间的时间是随机的，并且没有记忆效应。
 
 520
 01:07:49,170 --> 01:07:56,210
- it's exponentially distributed. When the time, inter-arrival time between
+it's exponentially distributed. When the time, inter-arrival time between
+它是指数分布的。当时间，到达时间间隔之间的时间
 
 521
 01:07:56,210 --> 01:08:05,570
- successive requests, it's exponentially distributed. We are saying that that arrival
+successive requests, it's exponentially distributed. We are saying that that arrival
+连续的请求，它们是指数分布的。我们说的是到达的请求数量。
 
 522
 01:08:05,570 --> 01:08:14,450
- is for us all, by the way, if you hear that. So arrival rate, Lambda, service rate is Mu,
+is for us all, by the way, if you hear that. So arrival rate, Lambda, service rate is Mu,
+是为我们所有人准备的，顺便说一下，如果你听到了。所以到达率是Lambda，服务率是Mu，
 
 523
 01:08:14,450 --> 01:08:22,050
- one over the T service. This is a TS. Previously, it was denoted by TS, it's a time to serve
+one over the T service. This is a TS. Previously, it was denoted by TS, it's a time to serve
+一次T服务。这是一个TS。以前，它被表示为TS，它是一个服务时间。
 
 524
 01:08:22,050 --> 01:08:34,130
- the request. Okay. So you have Lambda, mean number of arriving, request, customer, jobs per second,
+the request. Okay. So you have Lambda, mean number of arriving, request, customer, jobs per second,
+这个请求。好的。所以你有Lambda，表示每秒到达的请求、顾客、任务的平均数量。
 
 525
 01:08:34,130 --> 01:08:42,930
- mean time to serve the customer, it's say M, square coefficient of variance, this is one,
+mean time to serve the customer, it's say M, square coefficient of variance, this is one,
+平均服务时间，即M，方差系数，为1。
 
 526
 01:08:42,930 --> 01:08:50,210
- in the case, remember, in the case of exponential distribution, Mu is a service rate, you know that,
+in the case, remember, in the case of exponential distribution, Mu is a service rate, you know that,
+在这种情况下，请记住，在指数分布的情况下，Mu是一个服务速率，你知道的。
 
 527
 01:08:50,210 --> 01:08:57,810
- one of the TS, time to service that request. Utilization, again, you know that,
+one of the TS, time to service that request. Utilization, again, you know that,
+其中一个TS，是时候处理那个请求了。利用率，再次提醒你，你知道的。
 
 528
 01:08:57,810 --> 01:09:03,490
- your SOSA formula is a number, is arrival rate over the mean arrival rate over mean service rate.
+your SOSA formula is a number, is arrival rate over the mean arrival rate over mean service rate.
+你的SOSA公式是一个数字，表示到达率除以平均到达率与平均服务率的比值。
 
 529
 01:09:04,290 --> 01:09:10,850
- Which is Lambda over Mu or Lambda time deserve, right? Here, I just
+Which is Lambda over Mu or Lambda time deserve, right? Here, I just
+想确认一下，是Lambda除以Mu还是Lambda乘以Deserve，对吗？在这里，我只需要确认一下。
 
 530
 01:09:10,850 --> 01:09:20,450
- replace the Mu definition, which is one of the service time. Now, and if you do that,
+replace the Mu definition, which is one of the service time. Now, and if you do that,
+替换掉Mu的定义，它是服务时间的一种。现在，如果你这样做的话，
 
 531
 01:09:20,450 --> 01:09:27,890
- you get the utilization, it's arrival rate times the service time, I mean service time.
+you get the utilization, it's arrival rate times the service time, I mean service time.
+你理解了，利用率是到达率乘以服务时间，我是说服务时间。
 
 532
 01:09:30,050 --> 01:09:35,570
- What do you want to compute? Time spent in the queue, that's what I want to compute.
+What do you want to compute? Time spent in the queue, that's what I want to compute.
+你想要计算什么？我想要计算在队列中花费的时间。
 
 533
 01:09:35,570 --> 01:09:44,290
- We also want to compute the length of the queue, which is, what is the length of the queue?
+We also want to compute the length of the queue, which is, what is the length of the queue?
+我们还想计算队列的长度，也就是说，队列的长度是多少？
 
 534
 01:09:44,290 --> 01:09:51,730
- The length of the queue is Lambda of TQ, right? Because the system here is a queue,
+The length of the queue is Lambda of TQ, right? Because the system here is a queue,
+队列的长度是TQ的Lambda，对吗？因为这里的系统是一个队列。
 
 535
 01:09:51,730 --> 01:09:57,890
- this is what I'm saying, the system here is a queue, right? So you can apply little,
+this is what I'm saying, the system here is a queue, right? So you can apply little,
+这就是我说的，这里的系统是一个队列，对吧？所以你可以逐步申请。
 
 536
 01:09:59,890 --> 01:10:07,890
- low to the queue itself, or you can apply to the entire system. Here is for the queue itself.
+low to the queue itself, or you can apply to the entire system. Here is for the queue itself.
+您可以将其应用于队列本身，或者您可以将其应用于整个系统。这里是针对队列本身的设置。
 
 537
 01:10:07,890 --> 01:10:18,690
- Okay, so let's see. Like I said, when you have exponential distribution for the arrival rate,
+Okay, so let's see. Like I said, when you have exponential distribution for the arrival rate,
+好的，让我们来看看。就像我说的，当到达率服从指数分布时，
 
 538
 01:10:18,690 --> 01:10:24,690
- inter-arrival rates for the requests, this is also called Poisson arrival process.
+inter-arrival rates for the requests, this is also called Poisson arrival process.
+请求的到达间隔率，也被称为泊松到达过程。
 
 539
 01:10:25,570 --> 01:10:31,570
- We assume here that we have one server, right? We can have a, there are scenarios in which you have
+We assume here that we have one server, right? We can have a, there are scenarios in which you have
+我们在这里假设我们只有一个服务器，对吗？我们可以有一个，在某些情况下你可能会有多个。
 
 540
 01:10:31,570 --> 01:10:37,570
- multiple servers and you send the request to, if one server accepts a request, you can send
+multiple servers and you send the request to, if one server accepts a request, you can send
+多个服务器，你发送请求到其中一个服务器，如果一个服务器接受了请求，你可以发送
 
 541
 01:10:37,570 --> 01:10:47,810
- the request to another server. And it's memoryless service, so again, let's assume that the service
+the request to another server. And it's memoryless service, so again, let's assume that the service
+向另一个服务器发送请求。而且它是无记忆的服务，所以再次假设该服务
 
 542
 01:10:47,810 --> 01:10:52,530
- distribution is also exponential, so it's memoryless.
+distribution is also exponential, so it's memoryless.
+分布也是指数分布，因此它是无记忆的。
 
 543
 01:10:55,250 --> 01:11:01,330
- So this system, which Poisson arrival process, memoryless service time,
+So this system, which Poisson arrival process, memoryless service time,
+这个系统具有泊松到达过程和无记忆服务时间。
 
 544
 01:11:01,330 --> 01:11:05,730
- and one server is called MM1Q.
+and one server is called MM1Q.
+而其中一个服务器被称为MM1Q。
 
 545
 01:11:05,730 --> 01:11:16,610
- It's again, one server, inter-arrival times are exponentially distributed, service time
+It's again, one server, inter-arrival times are exponentially distributed, service time
+再次是一个服务器，到达时间间隔服从指数分布，服务时间
 
 546
 01:11:16,610 --> 01:11:33,490
- are exponentially distributed. And in this case, the queuing time, it's equal with the service time
+are exponentially distributed. And in this case, the queuing time, it's equal with the service time
+服从指数分布。在这种情况下，排队时间等于服务时间。
 
 547
 01:11:33,490 --> 01:11:38,850
- times U over one minus U, where U is the utilization.
+times U over one minus U, where U is the utilization.
+时间U除以1减U，其中U是利用率。
 
 548
 01:11:38,850 --> 01:11:46,450
- Now for general distribution, if you have the service distribution, so if the service time is
+Now for general distribution, if you have the service distribution, so if the service time is
+现在进行一般分发，如果您有服务分发，那么如果服务时间是多少。
 
 549
 01:11:47,170 --> 01:11:54,130
- a general distribution and you know for that one only the variance, the square root of variance,
+a general distribution and you know for that one only the variance, the square root of variance,
+一个普通的分布，你只知道它的方差，方差的平方根。
 
 550
 01:11:54,130 --> 01:12:02,050
- the C, then this is a formula. It's very similar formula. It's
+the C, then this is a formula. It's very similar formula. It's
+C，然后这是一个公式。这是非常相似的公式。
 
 551
 01:12:06,530 --> 01:12:19,730
- one over, let me just move the, it's service time times one over two plus one plus C,
+one over, let me just move the, it's service time times one over two plus one plus C,
+一分之一，让我把它移动一下，这是服务时间乘以一分之二再加一再加C。
 
 552
 01:12:19,730 --> 01:12:29,090
- this is again square root of, square of variance, times one over one minus U.
+this is again square root of, square of variance, times one over one minus U.
+这是方差的平方根再乘以一除以一减去U。
 
 553
 01:12:33,330 --> 01:12:46,210
- Okay, so the important takeaway from this equation, it's a very important aspect here,
+Okay, so the important takeaway from this equation, it's a very important aspect here,
+好的，所以这个方程的重要要点是，这是一个非常重要的方面。
 
 554
 01:12:46,210 --> 01:12:55,730
- is this fact, this is one over one minus U. Why is this important? Because this tells you
+is this fact, this is one over one minus U. Why is this important? Because this tells you
+这是事实，这是1除以1减去U。为什么这很重要？因为这告诉你
 
 555
 01:12:55,730 --> 01:13:01,330
- when the utilization is small, this factor is small, right? It's
+when the utilization is small, this factor is small, right? It's
+当利用率很低时，这个因素也很小，对吗？
 
 556
 01:13:01,570 --> 01:13:12,610
- basically U over one if U is very small. But what happens when the utilization approaches one,
+basically U over one if U is very small. But what happens when the utilization approaches one,
+基本上，当利用率非常小的时候，U超过1。但是当利用率接近1时会发生什么呢？
 
 557
 01:13:12,610 --> 01:13:24,610
- which is equivalent with a service rate, arrival rate approaching the service rate, what happens?
+which is equivalent with a service rate, arrival rate approaching the service rate, what happens?
+当服务速率和到达速率接近时，会发生什么情况？
 
 558
 01:13:24,610 --> 01:13:41,090
- It gets very large, the Q becomes very large. So another important aspect here is,
+It gets very large, the Q becomes very large. So another important aspect here is,
+它变得非常大，Q值变得非常大。因此，这里还有另一个重要的方面，
 
 559
 01:13:41,090 --> 01:13:45,410
- and this is food for thought, is something which is not intuitive either.
+and this is food for thought, is something which is not intuitive either.
+这是一个值得思考的问题，也不是一件直观的事情。
 
 560
 01:13:48,050 --> 01:13:55,410
- If U goes close to one, although it's not yet one, the queuing time grows to infinity.
+If U goes close to one, although it's not yet one, the queuing time grows to infinity.
+如果U接近于1，尽管还不等于1，排队时间会无限增长。
 
 561
 01:13:55,410 --> 01:14:06,450
- And then we ask, well, but hey, wait a minute. If U is one, we should be fine,
+And then we ask, well, but hey, wait a minute. If U is one, we should be fine,
+然后我们问道，嗯，等一下。如果U是一个，那我们应该没问题了，
 
 562
 01:14:06,450 --> 01:14:13,010
- because the arrival rate is not greater than the service rate. But if U is one,
+because the arrival rate is not greater than the service rate. But if U is one,
+因为到达率不大于服务率。但是如果U等于1，
 
 563
 01:14:13,010 --> 01:14:18,530
- the queuing is infinity. Why is that?
+the queuing is infinity. Why is that?
+排队是无限的。为什么会这样？
 
 564
 01:14:18,530 --> 01:14:33,730
- We'll talk more next lecture and you are not going to be asked this during the exam.
+We'll talk more next lecture and you are not going to be asked this during the exam.
+我们下一堂课会再详细讨论，而且考试时不会问到这个问题。
 
 565
 01:14:36,690 --> 01:14:43,170
- But if the system is very bursty, there can be gaps.
+But if the system is very bursty, there can be gaps.
+但是如果系统非常突发，可能会出现间断。
 
 566
 01:14:43,170 --> 01:14:48,450
- And during these gaps, there is nothing in system.
+And during these gaps, there is nothing in system.
+在这些间隙期间，系统中没有任何东西。
 
 567
 01:14:48,450 --> 01:14:58,530
- And you lose that time, you lost, you never comes back. Because the bursts you are going to get in
+And you lose that time, you lost, you never comes back. Because the bursts you are going to get in
+而你失去了那段时间，你输了，它永远不会回来。因为你即将获得的机会会消失。
 
 568
 01:14:58,530 --> 01:15:06,210
- the future are going to, then if you eliminate that gap, the number of arrival you are going
+the future are going to, then if you eliminate that gap, the number of arrival you are going
+未来将会发生变化，如果你消除这个差距，你所到达的数量将会增加。
 
 569
 01:15:06,210 --> 01:15:12,130
- to get in the future is going to be greater than the server capacity. Right?
+to get in the future is going to be greater than the server capacity. Right?
+未来的需求量将会超过服务器的容量。对吗？
 
 570
 01:15:12,130 --> 01:15:17,170
- So because this kind of this gaps where the system doesn't get,
+So because this kind of this gaps where the system doesn't get,
+所以因为这种系统无法理解的间隙，
 
 571
 01:15:17,170 --> 01:15:22,690
- doesn't do anything, when you have a very bursty arrival,
+doesn't do anything, when you have a very bursty arrival,
+当你有一个非常突发的到达时，它什么都不做。
 
 572
 01:15:22,690 --> 01:15:28,690
- this is a wasted time, it's a wasted capacity. So that capacity you cannot get back.
+this is a wasted time, it's a wasted capacity. So that capacity you cannot get back.
+这是浪费的时间，是浪费的能力。所以那个能力你无法重新获得。
 
 573
 01:15:29,970 --> 01:15:36,290
- So that's why you can... you fall behind in terms of capacity and you remain always behind.
+So that's why you can... you fall behind in terms of capacity and you remain always behind.
+所以这就是为什么你能够...你在容量方面落后，并且始终落后的原因。
 
 574
 01:15:36,290 --> 01:15:55,490
- Okay, so it's... I'm trying to give you an intuition, so it's like...
+Okay, so it's... I'm trying to give you an intuition, so it's like...
+好的，所以是这样的...我试图给你一个直观的理解，所以就像是...
 
 575
 01:15:56,290 --> 01:16:03,250
- it's not easy to get the intuition and... but this is good.
+it's not easy to get the intuition and... but this is good.
+这并不容易理解和掌握，但这是好的。
 
 576
 01:16:03,250 --> 01:16:19,410
- Okay. What else I wanted to say here? Oh, by the way, you notice that for the general service time
+Okay. What else I wanted to say here? Oh, by the way, you notice that for the general service time
+好的。我还想在这里说什么呢？哦，顺便说一下，你注意到一般的服务时间是多久了吗？
 
 577
 01:16:19,410 --> 01:16:27,810
- distribution, the formula for the queuing delay, if exponential... you remember for exponential
+distribution, the formula for the queuing delay, if exponential... you remember for exponential
+分布，排队延迟的公式，如果是指数分布...你记得指数分布的公式吗？
 
 578
 01:16:27,810 --> 01:16:38,930
- distribution, what was C? One. So if C is one, the equation, the queuing time for the general service
+distribution, what was C? One. So if C is one, the equation, the queuing time for the general service
+分布，C是什么？是一。所以如果C是一，那么方程中的排队时间是一般服务的。
 
 579
 01:16:38,930 --> 01:16:47,730
- distribution is going to reduce to the formula which you should expect for the exponential
+distribution is going to reduce to the formula which you should expect for the exponential
+分布将会减少到指数函数的公式，这是你应该期望的。
 
 580
 01:16:47,730 --> 01:16:55,010
- distribution. Let's take now simple examples and then we are going to conclude the lectures.
+distribution. Let's take now simple examples and then we are going to conclude the lectures.
+分发。现在让我们举一些简单的例子，然后我们将总结讲座。
 
 581
 01:16:55,010 --> 01:17:04,130
- Let's say the user request, you have 10 requests of... you want 8 kilobytes disk,
+Let's say the user request, you have 10 requests of... you want 8 kilobytes disk,
+让我们假设用户请求，您有10个请求...您想要8千字节的磁盘。
 
 582
 01:17:04,130 --> 01:17:13,890
- write 10 requests of each for 8 kilobytes data, and the request and the service are exponentially
+write 10 requests of each for 8 kilobytes data, and the request and the service are exponentially
+写下每个8千字节数据的10个请求，请求和服务都是指数增长的。
 
 583
 01:17:13,890 --> 01:17:22,370
- distributed. Average service is 20 milliseconds and this is controller six times, rotation, latency,
+distributed. Average service is 20 milliseconds and this is controller six times, rotation, latency,
+分布式。平均服务时间为20毫秒，这是控制器旋转六次的延迟。
 
 584
 01:17:22,370 --> 01:17:32,690
- and transfer time. And how you utilize this is a disk, right? So utilization, this is a formula,
+and transfer time. And how you utilize this is a disk, right? So utilization, this is a formula,
+和传输时间。你是如何利用这个的，是一个磁盘对吧？所以利用率，这是一个公式，
 
 585
 01:17:32,690 --> 01:17:38,130
- remember, it's lambda times the service time, these are the formula. Average time to spend in
+remember, it's lambda times the service time, these are the formula. Average time to spend in
+记住，这是λ乘以服务时间，这是公式。平均花费时间为
 
 586
 01:17:38,130 --> 01:17:45,890
- the queue to queue, average number of requests in the queue. Now this is LQ denoted here. What is
+the queue to queue, average number of requests in the queue. Now this is LQ denoted here. What is
+队列的队列，队列中的平均请求数量。这里用LQ表示。请问是什么意思？
 
 587
 01:17:45,890 --> 01:17:53,090
- the average response time for disk request? So this is the average response time. It's very simple
+the average response time for disk request? So this is the average response time. It's very simple
+磁盘请求的平均响应时间是多少？所以这就是平均响应时间。非常简单。
 
 588
 01:17:53,090 --> 01:17:57,650
- that the sum between the time you spend in the queue and time to serve is a request.
+that the sum between the time you spend in the queue and time to serve is a request.
+排队等候时间和服务时间之和是一个请求。
 
 589
 01:17:58,930 --> 01:18:10,290
- Okay, so let's do the computation. Lambda, you have 10 requests of 8 kilobytes disk per second.
+Okay, so let's do the computation. Lambda, you have 10 requests of 8 kilobytes disk per second.
+好的，那我们来进行计算。Lambda，你每秒有10个8千字节的磁盘请求。
 
 590
 01:18:10,290 --> 01:18:20,930
- So lambda, you have average arriving number of customers or request is 10 per second. Average
+So lambda, you have average arriving number of customers or request is 10 per second. Average
+So lambda, 您每秒平均到达的顾客或请求数量是10个。Average
 
 591
 01:18:20,930 --> 01:18:27,650
- time to service a customer or request 10 milliseconds. It was given here, if you remember,
+time to service a customer or request 10 milliseconds. It was given here, if you remember,
+每个客户或请求的服务时间为10毫秒。如果你还记得的话，这是给出的时间。
 
 592
 01:18:28,290 --> 01:18:34,930
- this is one average service time. Server utilization is lambda times the service time
+this is one average service time. Server utilization is lambda times the service time
+这是一个平均服务时间。服务器利用率是λ倍的服务时间。
 
 593
 01:18:34,930 --> 01:18:40,690
- is 0.2. Queuing time, now you are going to apply because everything gets exponentially distributed.
+is 0.2. Queuing time, now you are going to apply because everything gets exponentially distributed.
+是的，0.2是排队时间，现在你要申请，因为所有事情都是指数分布的。
 
 594
 01:18:40,690 --> 01:18:49,490
- Then you use a formula, which is a TS, service time times utilization over one minus utilization,
+Then you use a formula, which is a TS, service time times utilization over one minus utilization,
+然后你使用一个公式，即TS，服务时间乘以利用率除以一减去利用率，
 
 595
 01:18:49,490 --> 01:18:56,930
- and you get five milliseconds. Average length of the queue is lambda times TQ is 0.05.
+and you get five milliseconds. Average length of the queue is lambda times TQ is 0.05.
+并且你得到了五毫秒。队列的平均长度是λ乘以TQ的0.05。
 
 596
 01:18:56,930 --> 01:19:07,730
- And average time the customer spend in the system is a queuing time plus the service time
+And average time the customer spend in the system is a queuing time plus the service time
+顾客在系统中平均花费的时间是排队时间加上服务时间。
 
 597
 01:19:07,730 --> 01:19:14,850
- service to 20 milliseconds plus 5 milliseconds. Here is 25 milliseconds.
+service to 20 milliseconds plus 5 milliseconds. Here is 25 milliseconds.
+服务需要20毫秒加上5毫秒。这里总共是25毫秒。
 
 598
 01:19:14,850 --> 01:19:21,810
- There are a lot of materials here. You have some pointers if you are interested more in the
+There are a lot of materials here. You have some pointers if you are interested more in the
+这里有很多材料。如果你对这方面更感兴趣，我可以给你一些建议。
 
 599
 01:19:21,810 --> 01:19:31,650
- queuing theory. It's great. This is a fair game. This is a mistake. You are going to get this in
+queuing theory. It's great. This is a fair game. This is a mistake. You are going to get this in
+排队理论。很棒。这是一个公平的游戏。这是一个错误。你将会得到这个。
 
 600
 01:19:31,650 --> 01:19:41,010
- midterm 2, not 3. Sorry for the typo. So this lecture is included for midterm 2. And with that,
+midterm 2, not 3. Sorry for the typo. So this lecture is included for midterm 2. And with that,
+期中考试2，不是3。对于打字错误我很抱歉。所以这个讲座包括在期中考试2中。除此之外，
 
 601
 01:19:41,010 --> 01:19:51,090
- I am done. So in summary, and remember about, we look at this, how we are going to model the
+I am done. So in summary, and remember about, we look at this, how we are going to model the
+我已经完成了。所以总结一下，并记住，我们要考虑的是，我们将如何对其进行建模。
 
 602
 01:19:51,090 --> 01:19:59,170
- systems. And these systems are modeled, they have a queue. And you spend some time in the queue,
+systems. And these systems are modeled, they have a queue. And you spend some time in the queue,
+系统。而这些系统是建模的，它们有一个队列。而你在队列中花费一些时间，
 
 603
 01:19:59,170 --> 01:20:05,890
- plus have a fixed overhead, like rotation latency and so forth, and you have a transfer.
+plus have a fixed overhead, like rotation latency and so forth, and you have a transfer.
+此外，还有一些固定的开销，比如旋转延迟等等，再加上数据传输。
 
 604
 01:20:05,890 --> 01:20:11,090
- Then this will impact the effective bandwidth. Effective bandwidth is not like the device
+Then this will impact the effective bandwidth. Effective bandwidth is not like the device
+那么这将影响有效带宽。有效带宽不同于设备。
 
 605
 01:20:11,090 --> 01:20:22,290
- bandwidth because of this fixed overhead. Then we learn a little bit about this queuing theory.
+bandwidth because of this fixed overhead. Then we learn a little bit about this queuing theory.
+由于这个固定的开销，带宽受限。然后我们稍微了解一下排队论。
 
 606
 01:20:22,290 --> 01:20:31,570
- And in particular, I gave you the formulas for the queuing delay for MM1 queues, everything is
+And in particular, I gave you the formulas for the queuing delay for MM1 queues, everything is
+而且特别地，我给你了MM1队列的排队延迟公式，一切都是正确的。
 
 607
 01:20:31,570 --> 01:20:37,970
- exponentially distributed, interarrival time and the service time. And MG1 queue arrival times are
+exponentially distributed, interarrival time and the service time. And MG1 queue arrival times are
+指数分布、到达间隔时间和服务时间。而MG1队列的到达时间是什么。
 
 608
 01:20:37,970 --> 01:20:45,810
- still interarrival time, are still exponentially distributed, but the service time has a general
+still interarrival time, are still exponentially distributed, but the service time has a general
+仍然是到达间隔时间，仍然服从指数分布，但服务时间具有一般分布。
 
 609
 01:20:45,810 --> 01:20:53,090
- distribution. And remember, this is a formula for the queuing time for the general distribution of
+distribution. And remember, this is a formula for the queuing time for the general distribution of
+分布。记住，这是一个适用于一般分布的排队时间公式。
 
 610
 01:20:53,090 --> 01:21:01,970
- the service time. And remember that in both cases, both MM1 and MG1 queues, when the utilization
+the service time. And remember that in both cases, both MM1 and MG1 queues, when the utilization
+服务时间。请记住，在两种情况下，无论是MM1队列还是MG1队列，当利用率
 
 611
 01:21:01,970 --> 01:21:08,130
- approaches one, then the latency goes to infinity, the queuing delay and therefore the response time
+approaches one, then the latency goes to infinity, the queuing delay and therefore the response time
+当一个请求接近时，延迟会变得无限大，排队延迟和因此响应时间也会增加。
 
 612
 01:21:08,130 --> 01:21:16,850
- goes to infinity. So I'm stopping here. Good luck to at the midterm and really good luck for the
+goes to infinity. So I'm stopping here. Good luck to at the midterm and really good luck for the
+期中考试。祝你好运，也祝你在期中考试中好运！
 
 613
 01:21:16,850 --> 01:21:23,810
- next week. If you have any questions, please don't hesitate to ask on Piazza. And yeah, I'll see you
+next week. If you have any questions, please don't hesitate to ask on Piazza. And yeah, I'll see you
+下周。如果你有任何问题，请毫不犹豫地在Piazza上提问。嗯，我会见到你的。
 
 614
 01:21:23,810 --> 01:21:33,090
- next week.
+next week.
+下周。
 

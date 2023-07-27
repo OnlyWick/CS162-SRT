@@ -1,726 +1,906 @@
 1
 00:00:00,000 --> 00:00:16,320
- [Silence]
+[Silence]
+[沉默]
 
 2
 00:00:16,320 --> 00:00:25,360
- So, hello everyone. Welcome to the last lecture. And today we are going to go over some special
+So, hello everyone. Welcome to the last lecture. And today we are going to go over some special
+因此，大家好。欢迎来到最后一堂讲座。今天我们将讨论一些特殊的内容。
 
 3
 00:00:25,360 --> 00:00:32,480
- topics, this being the last lecture. In particular, I'm going to talk briefly about Apache Spark and
+topics, this being the last lecture. In particular, I'm going to talk briefly about Apache Spark and
+主题，这是最后一堂讲座。具体来说，我将简要谈谈Apache Spark和其他一些相关话题。
 
 4
 00:00:32,480 --> 00:00:42,320
- Ray, two systems we developed at Berkeley you may have heard of. And I'll try to go quicker,
+Ray, two systems we developed at Berkeley you may have heard of. And I'll try to go quicker,
+雷，我们在伯克利开发的两个系统你可能听说过。我会尽量快一点。
 
 5
 00:00:42,320 --> 00:00:49,840
- although there are a lot of slides, because really I like to give you opportunity to ask any
+although there are a lot of slides, because really I like to give you opportunity to ask any
+虽然有很多幻灯片，但我真的很喜欢给你机会提问任何问题。
 
 6
 00:00:49,840 --> 00:00:59,840
- questions you may have about this lecture, about this class, or in general. So, and of course,
+questions you may have about this lecture, about this class, or in general. So, and of course,
+你可能对这个讲座、这门课或者其他方面有一些问题。所以，当然，
 
 7
 00:00:59,840 --> 00:01:11,920
- as always, at any point, please feel free to ask any questions. So at Berkeley, we have these labs,
+as always, at any point, please feel free to ask any questions. So at Berkeley, we have these labs,
+一如既往，在任何时候，请随时提问。在伯克利，我们有这些实验室，
 
 8
 00:01:11,920 --> 00:01:18,320
- and as you may know, each lab is around five years. Each lab has a particular mission
+and as you may know, each lab is around five years. Each lab has a particular mission
+而且你可能知道，每个实验室的周期大约为五年。每个实验室都有特定的任务。
 
 9
 00:01:18,960 --> 00:01:26,720
- and consists of a bunch of faculty and quite a few graduate students and postdocs.
+and consists of a bunch of faculty and quite a few graduate students and postdocs.
+并且由一群教职员工、相当多的研究生和博士后组成。
 
 10
 00:01:26,720 --> 00:01:36,480
- And this is what we started, this is one of the more recent one, it was AMLAB 2011-2017.
+And this is what we started, this is one of the more recent one, it was AMLAB 2011-2017.
+这是我们开始的项目，这是其中一个比较近期的，它是AMLAB 2011-2017。
 
 11
 00:01:36,480 --> 00:01:42,640
- It had eight faculties across different disciplines of computer science, algorithms,
+It had eight faculties across different disciplines of computer science, algorithms,
+它在计算机科学、算法等不同学科领域设有八个学院。
 
 12
 00:01:43,760 --> 00:01:52,880
- machine learning, and sorry, algorithms, which in what we meant by algorithms is mostly machine
+machine learning, and sorry, algorithms, which in what we meant by algorithms is mostly machine
+学习机器，还有抱歉，算法，我们所指的算法主要是机器算法。
 
 13
 00:01:52,880 --> 00:02:02,080
- learning. Machines means systems. And people, we are looking at some projects, which I'm not going
+learning. Machines means systems. And people, we are looking at some projects, which I'm not going
+学习。机器意味着系统。而人们，我们正在看一些项目，其中我不参与。
 
 14
 00:02:02,080 --> 00:02:11,280
- to talk now, it's about crowdsource. That's why, hence the name of the lab, AMP. And these labs,
+to talk now, it's about crowdsource. That's why, hence the name of the lab, AMP. And these labs,
+现在说，是关于众包。这也是为什么实验室的名字叫AMP。而这些实验室，
 
 15
 00:02:11,280 --> 00:02:19,040
- again, like some of you may know, are in this floor plan in open space. So even the faculty
+again, like some of you may know, are in this floor plan in open space. So even the faculty
+再次，就像你们中的一些人可能知道的那样，我们在这个楼层的平面图中是开放空间。所以即使是教职员工也是如此。
 
 16
 00:02:19,040 --> 00:02:30,800
- have open seating, stay in open seating. And as this lab, they have twice a year retreats
+have open seating, stay in open seating. And as this lab, they have twice a year retreats
+有开放式座位，保持在开放式座位。而且这个实验室，他们每年有两次撤退。
 
 17
 00:02:30,800 --> 00:02:35,840
- with the industry, they are working very closely with the industry,
+with the industry, they are working very closely with the industry,
+他们与该行业密切合作。
 
 18
 00:02:36,400 --> 00:02:43,440
- between, anyway between 120 and 200 people, half from Berkeley, half from industry in general.
+between, anyway between 120 and 200 people, half from Berkeley, half from industry in general.
+大约有120到200人，一半来自伯克利，一半来自整个行业。
 
 19
 00:02:43,440 --> 00:02:55,120
- And before pandemics, there have been nice places like Tahoe or Monterey, you go there for three
+And before pandemics, there have been nice places like Tahoe or Monterey, you go there for three
+在大流行病之前，有一些很好的地方，比如塔霍湖或蒙特雷，你可以去那里待上三天。
 
 20
 00:02:55,120 --> 00:03:05,200
- days and then you present the latest results and you get feedback and you network with people from
+days and then you present the latest results and you get feedback and you network with people from
+天数，然后您呈现最新的结果，获得反馈，并与来自各地的人建立联系。
 
 21
 00:03:05,200 --> 00:03:14,960
- industry. And we also have this kind of AMP camps, which are basically things, once you build some
+industry. And we also have this kind of AMP camps, which are basically things, once you build some
+工业。我们还有这种AMP营地，基本上是一些东西，一旦你建立了一些
 
 22
 00:03:14,960 --> 00:03:25,120
- systems, some artifacts, these are some events, you know, which you basically train, provide
+systems, some artifacts, these are some events, you know, which you basically train, provide
+系统，一些工件，这些是一些事件，你知道的，基本上是你训练、提供的。
 
 23
 00:03:25,120 --> 00:03:33,200
- tutorials to people in particular from industry to use for this new systems you've built.
+tutorials to people in particular from industry to use for this new systems you've built.
+你们已经建立了这个新系统，现在需要为特定行业的人提供教程来使用。
 
 24
 00:03:34,960 --> 00:03:42,720
- Anyway, so let's start. So this is Spark. Spark started at UC Berkeley in 2009, so actually started
+Anyway, so let's start. So this is Spark. Spark started at UC Berkeley in 2009, so actually started
+无论如何，让我们开始吧。这是Spark。Spark于2009年在加州大学伯克利分校开始，实际上开始于该年。
 
 25
 00:03:42,720 --> 00:03:54,800
- in the lab before AMP lab, that was called rat lab. But the main development happened during the AMP
+in the lab before AMP lab, that was called rat lab. But the main development happened during the AMP
+在AMP实验室之前，那个实验室被称为老鼠实验室。但主要的发展发生在AMP期间。
 
 26
 00:03:54,800 --> 00:04:04,480
- lab. It became open source 2010. It becomes an Apache project, 2013, and also data breaches
+lab. It became open source 2010. It becomes an Apache project, 2013, and also data breaches
+实验室。它在2010年成为开源项目。它在2013年成为Apache项目，并且也发生了数据泄露事件。
 
 27
 00:04:04,480 --> 00:04:14,800
- with the company behind the open source project has been started in 2013. And today it's a de facto
+with the company behind the open source project has been started in 2013. And today it's a de facto
+自2013年开始，这个开源项目的背后有一家公司。如今，它已成为事实上的
 
 28
 00:04:14,800 --> 00:04:23,600
- standard for doing big data processing. So how did this happen? So what was, you know,
+standard for doing big data processing. So how did this happen? So what was, you know,
+大数据处理的标准。那么这是怎么发生的呢？你知道的，那是什么呢？
 
 29
 00:04:23,600 --> 00:04:31,520
- in 2009 when we started to work on this, what was the state of the world? So at that time,
+in 2009 when we started to work on this, what was the state of the world? So at that time,
+2009年我们开始着手这个项目时，世界的状况如何？所以当时，
 
 30
 00:04:31,520 --> 00:04:41,280
- the most popular system to process huge amounts of data, large amounts of data was Apache Hadoop.
+the most popular system to process huge amounts of data, large amounts of data was Apache Hadoop.
+处理大量数据的最流行系统是Apache Hadoop。
 
 31
 00:04:41,280 --> 00:04:49,360
- And Apache Hadoop was an open source clone of the MapReduce, which are MapReduce, which are the
+And Apache Hadoop was an open source clone of the MapReduce, which are MapReduce, which are the
+Apache Hadoop是MapReduce的开源克隆版本，MapReduce是什么，MapReduce是什么。
 
 32
 00:04:49,360 --> 00:05:02,800
- system, high profile system developed internally at Google. And this process, huge amount of data,
+system, high profile system developed internally at Google. And this process, huge amount of data,
+系统，高调系统在谷歌内部开发。而且这个过程中，涉及大量的数据，
 
 33
 00:05:02,800 --> 00:05:12,320
- the processing amount of data, but it was more bad. It was quite slow. But it had
+the processing amount of data, but it was more bad. It was quite slow. But it had
+数据处理量很大，但效果很差。速度非常慢。但它有
 
 34
 00:05:12,320 --> 00:05:18,480
- rapid, you know, it had a lot of industry adoption, some of the big high tech companies.
+rapid, you know, it had a lot of industry adoption, some of the big high tech companies.
+快速，你知道的，它在很多行业得到了广泛采用，包括一些大型高科技公司。
 
 35
 00:05:18,800 --> 00:05:31,440
- And Cloudera, Horton, are two companies, which are two new startups, which are
+And Cloudera, Horton, are two companies, which are two new startups, which are
+而Cloudera和Horton是两家公司，它们是两个新创企业，它们是
 
 36
 00:05:31,440 --> 00:05:41,120
- promoting Hadoop open source. And at that time, again, this is open source, it was free. So
+promoting Hadoop open source. And at that time, again, this is open source, it was free. So
+推广Hadoop开源。而且那个时候，这是开源的，是免费的。
 
 37
 00:05:42,880 --> 00:05:53,600
- it came at the right time because if you probably remember or heard 2007, 2008 was this big financial
+it came at the right time because if you probably remember or heard 2007, 2008 was this big financial
+它正好在合适的时候出现，因为如果你可能还记得或听说过2007年、2008年，那是一次大规模的金融危机。
 
 38
 00:05:53,600 --> 00:06:05,760
- crash. So, sorry, this should be hard to let me guess.
+crash. So, sorry, this should be hard to let me guess.
+崩溃了。很抱歉，这应该很难让我猜到。
 
 39
 00:06:10,400 --> 00:06:14,720
- So this is, and let's not simplify. So this is like how Hadoop is working.
+So this is, and let's not simplify. So this is like how Hadoop is working.
+这就是，我们不要简化。这就像Hadoop的工作方式一样。
 
 40
 00:06:14,720 --> 00:06:24,480
- The Hadoop has two stages, map and reduce. And in each stage, each stage is done in parallel,
+The Hadoop has two stages, map and reduce. And in each stage, each stage is done in parallel,
+Hadoop有两个阶段，分别是map和reduce。而且在每个阶段中，每个阶段都是并行进行的。
 
 41
 00:06:24,480 --> 00:06:33,280
- a bunch of map tasks reads the data from the stories, from the disk. Then they process the
+a bunch of map tasks reads the data from the stories, from the disk. Then they process the
+一堆地图任务从磁盘上读取故事中的数据。然后它们进行处理。
 
 42
 00:06:33,280 --> 00:06:38,960
- data. Then they shuffle the data. And there is a second stage, which is a reduced stage.
+data. Then they shuffle the data. And there is a second stage, which is a reduced stage.
+数据。然后他们对数据进行洗牌。接下来是第二阶段，也就是一个简化的阶段。
 
 43
 00:06:39,840 --> 00:06:49,760
- And the reduced stage provides you the final results. The classic example of a
+And the reduced stage provides you the final results. The classic example of a
+而降低的阶段为您提供最终结果。一个经典的例子是一个
 
 44
 00:06:49,760 --> 00:06:58,800
- mabri's job is count. You count how many occurrences of each word you have in this
+mabri's job is count. You count how many occurrences of each word you have in this
+Mabri的工作是计数。你要计算在这个文本中每个单词出现的次数。
 
 45
 00:06:58,800 --> 00:07:06,720
- 10 millions of documents. So this is basically the high level. And I think that many of you
+10 millions of documents. So this is basically the high level. And I think that many of you
+1千万份文件。所以这基本上是高层次的。我认为你们中的许多人
 
 46
 00:07:06,720 --> 00:07:12,080
- already know about it. You may have even done projects with Hadoop.
+already know about it. You may have even done projects with Hadoop.
+已经知道了。你甚至可能已经用Hadoop做过项目了。
 
 47
 00:07:12,080 --> 00:07:29,040
- Any questions so far? So the tasks are typically collocated with the data, with the input data.
+Any questions so far? So the tasks are typically collocated with the data, with the input data.
+有任何问题吗？所以任务通常与数据一起放置，与输入数据一起。
 
 48
 00:07:30,320 --> 00:07:38,160
- And like this figure shows, the input data as well as the intermediate data is stored on the disk.
+And like this figure shows, the input data as well as the intermediate data is stored on the disk.
+并且正如这个图所示，输入数据和中间数据都存储在磁盘上。
 
 49
 00:07:50,400 --> 00:08:01,280
- So the question, can I briefly explain what is a map and reduce means? So think about this one.
+So the question, can I briefly explain what is a map and reduce means? So think about this one.
+所以问题是，我能简要解释一下什么是map和reduce吗？想一想这个问题。
 
 50
 00:08:01,280 --> 00:08:06,800
- And sorry, I don't have an example here right away. But I think that we can,
+And sorry, I don't have an example here right away. But I think that we can,
+并且抱歉，我这里暂时没有例子。但是我认为我们可以，
 
 51
 00:08:06,800 --> 00:08:14,560
- it's hopefully reasonably easy to explain even without an example of something. Say you have 10
+it's hopefully reasonably easy to explain even without an example of something. Say you have 10
+这个希望是相当容易解释的，即使没有具体的例子。假设你有10个。
 
 52
 00:08:14,560 --> 00:08:21,920
- millions documents, you have large number of documents, and you want to count the occurrences
+millions documents, you have large number of documents, and you want to count the occurrences
+数百万份文件，您拥有大量的文件，并且想要统计出现次数。
 
 53
 00:08:21,920 --> 00:08:29,120
- of every word, right, English word in these documents.
+of every word, right, English word in these documents.
+对，我会将这些文件中的每个英文单词都翻译出来。
 
 54
 00:08:29,120 --> 00:08:38,880
- So one way to do it is very simple. First, you define, say you have 100 machines.
+So one way to do it is very simple. First, you define, say you have 100 machines.
+所以有一种简单的方法。首先，你定义，假设你有100台机器。
 
 55
 00:08:39,760 --> 00:08:45,040
- So you take these 10 millions documents and you divide them between 100 machines and you give
+So you take these 10 millions documents and you divide them between 100 machines and you give
+所以你将这1千万份文件分配给100台机器，并且你给出
 
 56
 00:08:45,040 --> 00:08:56,400
- to each machine, I think 100,000 documents, right. And each machine takes these pile of documents
+to each machine, I think 100,000 documents, right. And each machine takes these pile of documents
+对于每台机器，我认为有100,000份文件，对吗？然后每台机器都处理这些一堆文件。
 
 57
 00:08:56,400 --> 00:09:06,320
- and it counts each word. Like for instance, the word Berkeley. How many times it appears in each
+and it counts each word. Like for instance, the word Berkeley. How many times it appears in each
+句子 and it counts each word. Like for instance, the word Berkeley. How many times it appears in each 句子
 
 58
 00:09:06,320 --> 00:09:15,040
- pile of documents? And one machine will say, okay, Berkeley, it appears 200 times, another machine
+pile of documents? And one machine will say, okay, Berkeley, it appears 200 times, another machine
+文件堆？然后一台机器会说，好的，伯克利，它出现了200次，另一台机器...
 
 59
 00:09:15,040 --> 00:09:23,440
- finds 150 times and so forth. So this first phase in which each machine is doing independently
+finds 150 times and so forth. So this first phase in which each machine is doing independently
+找到150次，等等。所以这是第一阶段，每台机器都在独立地进行。
 
 60
 00:09:23,440 --> 00:09:31,520
- this counting on each pile of documents is called map. Now each of the, each after the first stage,
+this counting on each pile of documents is called map. Now each of the, each after the first stage,
+这个对每一堆文件进行计数的过程被称为映射。现在每一堆文件，在第一阶段之后的每一堆文件，
 
 61
 00:09:31,520 --> 00:09:37,440
- you want to aggregate, right, because in order to know the total number of occurrences of the word
+you want to aggregate, right, because in order to know the total number of occurrences of the word
+你想要汇总，对吧，因为要知道该词的总出现次数。
 
 62
 00:09:37,440 --> 00:09:44,560
- Berkeley in all the documents, you need to sum up, right, because one machine in its own.
+Berkeley in all the documents, you need to sum up, right, because one machine in its own.
+在所有的文件中，你需要总结一下，对吗？因为一台机器在自己的。
 
 63
 00:09:44,680 --> 00:09:48,880
- 100,000, like again, found that Berkeley occurs 200 times,
+100,000, like again, found that Berkeley occurs 200 times,
+10万次，再次发现伯克利出现了200次。
 
 64
 00:09:48,880 --> 00:09:51,160
- another machine 150 times and so forth.
+another machine 150 times and so forth.
+另一台机器150次，依此类推。
 
 65
 00:09:51,160 --> 00:09:53,120
- So you need to add them up.
+So you need to add them up.
+所以你需要把它们加起来。
 
 66
 00:09:53,120 --> 00:09:54,700
- This is a reduced phase.
+This is a reduced phase.
+这是一个简化的阶段。
 
 67
 00:09:54,700 --> 00:09:55,960
- So in the reduced phase,
+So in the reduced phase,
+在简化阶段中，
 
 68
 00:09:55,960 --> 00:09:58,920
- you are going to map each English word
+you are going to map each English word
+你将要将每个英文单词进行映射。
 
 69
 00:09:58,920 --> 00:10:03,100
- on one of the machines, say for instance,
+on one of the machines, say for instance,
+在其中一台机器上，比如说，
 
 70
 00:10:03,100 --> 00:10:07,200
- A on one machine, B on one machine,
+A on one machine, B on one machine,
+一台机器上的A，一台机器上的B。
 
 71
 00:10:07,200 --> 00:10:09,520
- we were starting with A on one machine,
+we were starting with A on one machine,
+我们在一台机器上开始使用A。
 
 72
 00:10:09,520 --> 00:10:13,160
- we were starting with B on the other machines and so forth.
+we were starting with B on the other machines and so forth.
+我们在其他机器上开始使用B，等等。
 
 73
 00:10:13,160 --> 00:10:18,160
- And then each of the mapper will send for all words,
+And then each of the mapper will send for all words,
+然后每个映射器都会发送所有的单词。
 
 74
 00:10:18,160 --> 00:10:23,660
- the count for all words, which starts with A to machine one.
+the count for all words, which starts with A to machine one.
+所有以A开头的单词到机器一的计数。
 
 75
 00:10:23,660 --> 00:10:28,720
- So machine one now gets all the accounts
+So machine one now gets all the accounts
+所以机器一现在获得了所有的账户。
 
 76
 00:10:28,720 --> 00:10:30,680
- for the word starting with A.
+for the word starting with A.
+对于以A开头的单词。
 
 77
 00:10:30,680 --> 00:10:34,800
- So they can sum up up and finally give you the result.
+So they can sum up up and finally give you the result.
+所以他们可以总结起来，最终给出结果。
 
 78
 00:10:34,800 --> 00:10:39,520
- The second machine, which receives all the accounts
+The second machine, which receives all the accounts
+第二台机器，负责接收所有的账目。
 
 79
 00:10:39,520 --> 00:10:41,520
- for all the words starting with B,
+for all the words starting with B,
+对于所有以B开头的单词，
 
 80
 00:10:41,520 --> 00:10:46,200
- is going also to count the total number of currencies
+is going also to count the total number of currencies
+将会计算货币的总数。
 
 81
 00:10:46,200 --> 00:10:48,400
- after it receives the information,
+after it receives the information,
+在接收到信息之后，
 
 82
 00:10:48,400 --> 00:10:50,960
- if the partial counts from each of the mappers
+if the partial counts from each of the mappers
+如果来自每个mapper的部分计数
 
 83
 00:10:50,960 --> 00:10:52,080
- for the word Berkeley.
+for the word Berkeley.
+伯克利
 
 84
 00:10:52,080 --> 00:10:55,560
- Okay, this is a reduced phase.
+Okay, this is a reduced phase.
+好的，这是一个简化的阶段。
 
 85
 00:10:55,560 --> 00:10:56,400
- Make sense?
+Make sense?
+有意义吗？
 
 86
 00:10:56,400 --> 00:11:04,200
- The shuffle stage is exactly this, what I described.
+The shuffle stage is exactly this, what I described.
+洗牌阶段就是我所描述的那样。
 
 87
 00:11:04,200 --> 00:11:06,620
- This is what it is.
+This is what it is.
+这就是它的样子。
 
 88
 00:11:06,620 --> 00:11:10,760
- Like each, for instance, if this is the second machines,
+Like each, for instance, if this is the second machines,
+就像每个例子一样，比如说，如果这是第二台机器，
 
 89
 00:11:10,760 --> 00:11:14,680
- the second machine here is storing the count,
+the second machine here is storing the count,
+第二台机器在这里存储计数。
 
 90
 00:11:14,680 --> 00:11:19,640
- compute the final count for all the final counts
+compute the final count for all the final counts
+计算所有最终计数的最终计数。
 
 91
 00:11:19,640 --> 00:11:21,780
- for all the words starting with B,
+for all the words starting with B,
+对于所有以B开头的单词，
 
 92
 00:11:21,780 --> 00:11:26,780
- then it has to get the data from every mapper, right?
+then it has to get the data from every mapper, right?
+然后它必须从每个mapper获取数据，对吗？
 
 93
 00:11:26,780 --> 00:11:30,460
- So therefore the arrows, this is what they show communication.
+So therefore the arrows, this is what they show communication.
+所以箭头，它们表示的是沟通。
 
 94
 00:11:30,460 --> 00:11:34,480
- So every map will communicate with every other reduce
+So every map will communicate with every other reduce
+所以每个地图都会与其他每个减少通信
 
 95
 00:11:34,480 --> 00:11:38,680
- to send this partial information about the counts
+to send this partial information about the counts
+发送这部分有关计数的信息。
 
 96
 00:11:38,680 --> 00:11:41,640
- for the words it found in its piles of documents.
+for the words it found in its piles of documents.
+对于它在文件堆中找到的单词。
 
 97
 00:11:41,640 --> 00:11:44,000
- Make sense?
+Make sense?
+有意义吗？
 
 98
 00:11:44,000 --> 00:11:51,880
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 99
 00:11:51,880 --> 00:11:55,240
- Okay, great.
+Okay, great.
+好的，太棒了。
 
 100
 00:11:55,240 --> 00:11:56,080
- Thank you.
+Thank you.
+谢谢你。
 
 101
 00:11:56,080 --> 00:11:59,340
- So at the same time,
+So at the same time,
+所以同时，
 
 102
 00:11:59,340 --> 00:12:02,200
- and we are working on, at that time,
+and we are working on, at that time,
+我们正在进行中，在那个时候，
 
 103
 00:12:02,200 --> 00:12:06,680
- we are working on Hadoop quite a bit, right?
+we are working on Hadoop quite a bit, right?
+我们对Hadoop的工作相当重视，对吗？
 
 104
 00:12:06,680 --> 00:12:09,480
- So we're improving the scheduling and things like that.
+So we're improving the scheduling and things like that.
+所以我们正在改进日程安排和类似的事情。
 
 105
 00:12:09,480 --> 00:12:14,480
- And in 2009, Lester was a postdoc with Michael Jordan
+And in 2009, Lester was a postdoc with Michael Jordan
+在2009年，Lester是迈克尔·乔丹的博士后。
 
 106
 00:12:14,480 --> 00:12:15,860
- on machine learning.
+on machine learning.
+关于机器学习。
 
 107
 00:12:15,860 --> 00:12:20,360
- He came to us to people on the system
+He came to us to people on the system
+他来找我们处理系统问题。
 
 108
 00:12:20,360 --> 00:12:24,980
- because Netflix had this challenge.
+because Netflix had this challenge.
+因为Netflix面临了这个挑战。
 
 109
 00:12:24,980 --> 00:12:27,000
- So the challenge it was,
+So the challenge it was,
+那么这就是挑战了，
 
 110
 00:12:27,000 --> 00:12:30,840
- they have this challenge for a competition
+they have this challenge for a competition
+他们为比赛设立了这个挑战。
 
 111
 00:12:30,840 --> 00:12:35,320
- with $1 million prize for whoever can develop
+with $1 million prize for whoever can develop
+谁能够开发出来的人将获得100万美元的奖金。
 
 112
 00:12:35,320 --> 00:12:40,320
- the best recommendation algorithm, right?
+the best recommendation algorithm, right?
+最好的推荐算法，对吗？
 
 113
 00:12:40,320 --> 00:12:41,880
- So it gives you a set of data.
+So it gives you a set of data.
+所以它给你一组数据。
 
 114
 00:12:41,880 --> 00:12:43,960
- It was supposed to be anonymized.
+It was supposed to be anonymized.
+这本应该是匿名的。
 
 115
 00:12:43,960 --> 00:12:48,960
- And in the end, it ended up not, you know,
+And in the end, it ended up not, you know,
+最后，结果并不是那样的，你知道的。
 
 116
 00:12:48,960 --> 00:12:54,080
- people realizing that it was not as much anonymized
+people realizing that it was not as much anonymized
+人们意识到它并不像匿名化那样多。
 
 117
 00:12:54,080 --> 00:12:55,560
- as they thought it is.
+as they thought it is.
+正如他们所认为的那样。
 
 118
 00:12:55,560 --> 00:13:00,640
- But anyway, at that stage, that was a problem.
+But anyway, at that stage, that was a problem.
+但无论如何，在那个阶段，那是一个问题。
 
 119
 00:13:00,640 --> 00:13:02,380
- They give a set of data
+They give a set of data
+他们提供了一组数据。
 
 120
 00:13:02,380 --> 00:13:05,280
- and these are the preference of the users.
+and these are the preference of the users.
+这些是用户的偏好。
 
 121
 00:13:05,280 --> 00:13:08,200
- And the question is that,
+And the question is that,
+而问题是，
 
 122
 00:13:08,200 --> 00:13:10,760
- can you predict what movies
+can you predict what movies
+你能预测哪些电影
 
 123
 00:13:10,760 --> 00:13:13,660
- this particular viewer is going to like?
+this particular viewer is going to like?
+这个特定的观众会喜欢什么？
 
 124
 00:13:13,660 --> 00:13:15,840
- Right?
+Right?
+对吗？
 
 125
 00:13:15,840 --> 00:13:18,000
- This is a competition, public competition.
+This is a competition, public competition.
+这是一场比赛，公开比赛。
 
 126
 00:13:18,000 --> 00:13:24,680
- And he came to us because the team in the AMP Lab,
+And he came to us because the team in the AMP Lab,
+他来找我们是因为AMP实验室的团队，
 
 127
 00:13:24,680 --> 00:13:29,460
- you know, they wanted to compete, obviously.
+you know, they wanted to compete, obviously.
+你知道，他们显然想要竞争。
 
 128
 00:13:29,460 --> 00:13:33,420
- And we told them,
+And we told them,
+我们告诉了他们，
 
 129
 00:13:33,420 --> 00:13:35,440
- and obviously with this amount of,
+and obviously with this amount of,
+而显然，有这么多的...
 
 130
 00:13:35,440 --> 00:13:38,480
- you need a lot of data because the more data you have,
+you need a lot of data because the more data you have,
+你需要大量的数据，因为你拥有的数据越多，
 
 131
 00:13:38,480 --> 00:13:40,560
- the better models you are going to build, right?
+the better models you are going to build, right?
+你要建造更好的模型，对吗？
 
 132
 00:13:40,560 --> 00:13:42,380
- This is one example, right?
+This is one example, right?
+这是一个例子，对吗？
 
 133
 00:13:42,380 --> 00:13:44,900
- So for instance, if I want to,
+So for instance, if I want to,
+那么举个例子，如果我想要的话，
 
 134
 00:13:44,900 --> 00:13:48,060
- the question is that given your age,
+the question is that given your age,
+问题是，考虑到你的年龄，
 
 135
 00:13:48,060 --> 00:13:52,340
- can I predict what kind of movie you like?
+can I predict what kind of movie you like?
+你喜欢什么类型的电影，我能预测吗？
 
 136
 00:13:52,340 --> 00:13:54,040
- And basically, the way I predict it,
+And basically, the way I predict it,
+基本上，根据我的预测，
 
 137
 00:13:54,040 --> 00:13:56,880
- I am going to predict what is the rating
+I am going to predict what is the rating
+我将要预测评分是多少。
 
 138
 00:13:56,880 --> 00:13:58,800
- you would give to a particular movie.
+you would give to a particular movie.
+你会给予一部特定电影。
 
 139
 00:13:58,800 --> 00:14:01,440
- So then I'm going to return the movies
+So then I'm going to return the movies
+那么我就要把电影还回去了。
 
 140
 00:14:01,440 --> 00:14:03,660
- for which I predict that you are going to
+for which I predict that you are going to
+对于这一点，我预测你将会...
 
 141
 00:14:03,660 --> 00:14:06,780
- provide the highest rank, right?
+provide the highest rank, right?
+提供最高级别，对吗？
 
 142
 00:14:06,780 --> 00:14:09,120
- So you have a few data points
+So you have a few data points
+所以你有一些数据点
 
 143
 00:14:09,120 --> 00:14:11,120
- and then I'm asking you here in the middle,
+and then I'm asking you here in the middle,
+然后我在这里中间问你，
 
 144
 00:14:11,120 --> 00:14:13,860
- what is the prediction?
+what is the prediction?
+预测是什么？
 
 145
 00:14:13,860 --> 00:14:18,400
- What, you know, it's, that's a question.
+What, you know, it's, that's a question.
+什么，你知道，那是一个问题。
 
 146
 00:14:18,400 --> 00:14:22,960
- And the intuition is that the more data you are going to have
+And the intuition is that the more data you are going to have
+而直觉是你拥有的数据越多
 
 147
 00:14:22,960 --> 00:14:26,220
- the better prediction you can make, right?
+the better prediction you can make, right?
+你能做出更准确的预测，对吗？
 
 148
 00:14:26,220 --> 00:14:29,480
- So that's why you want ability to process
+So that's why you want ability to process
+所以这就是你想要处理能力的原因
 
 149
 00:14:29,480 --> 00:14:30,880
- a huge amount of data.
+a huge amount of data.
+大量的数据。
 
 150
 00:14:31,880 --> 00:14:32,880
- Make sense?
+Make sense?
+有意义吗？
 
 151
 00:14:32,880 --> 00:14:35,560
- So this is a problem.
+So this is a problem.
+这是一个问题。
 
 152
 00:14:35,560 --> 00:14:38,560
- So obviously we told them, okay, use Hadoop.
+So obviously we told them, okay, use Hadoop.
+所以显然我们告诉他们，好的，使用Hadoop。
 
 153
 00:14:38,560 --> 00:14:41,960
- And they use Hadoop because it processes
+And they use Hadoop because it processes
+他们使用Hadoop是因为它能够处理大数据。
 
 154
 00:14:41,960 --> 00:14:45,780
- a large amount of data, but Hadoop was extremely slow.
+a large amount of data, but Hadoop was extremely slow.
+大量的数据，但是Hadoop非常慢。
 
 155
 00:14:45,780 --> 00:14:48,680
- So let me explain why.
+So let me explain why.
+所以让我解释一下为什么。
 
 156
 00:14:48,680 --> 00:14:53,520
- Machine learning and at that, we are talking then,
+Machine learning and at that, we are talking then,
+机器学习，而且我们在谈论的是，
 
 157
 00:14:53,520 --> 00:14:57,040
- we are talking about collaborative filtering algorithms.
+we are talking about collaborative filtering algorithms.
+我们正在讨论协同过滤算法。
 
 158
 00:14:57,040 --> 00:15:00,520
- This is before deep learning, before neural networks.
+This is before deep learning, before neural networks.
+这是在深度学习之前，神经网络之前。
 
 159
 00:15:00,520 --> 00:15:04,040
- It's more classic machine learning.
+It's more classic machine learning.
+这是更经典的机器学习。
 
 160
 00:15:04,040 --> 00:15:10,600
- And, but still each machine learning algorithms
+And, but still each machine learning algorithms
+而且，但是仍然每个机器学习算法
 
 161
 00:15:10,600 --> 00:15:15,600
- are typically algorithms, iterative algorithms,
+are typically algorithms, iterative algorithms,
+通常是算法，迭代算法，
 
 162
 00:15:15,600 --> 00:15:19,480
- meaning that you start with some kind of predictions
+meaning that you start with some kind of predictions
+意思是你从某种预测开始
 
 163
 00:15:19,480 --> 00:15:22,200
- and then you train the model, right?
+and then you train the model, right?
+然后你训练模型，对吗？
 
 164
 00:15:22,200 --> 00:15:24,160
- You are getting more and more data
+You are getting more and more data
+你正在获取越来越多的数据
 
 165
 00:15:24,160 --> 00:15:28,560
- and they are going to hopefully improve the prediction,
+and they are going to hopefully improve the prediction,
+他们希望能够改进预测。
 
 166
 00:15:28,560 --> 00:15:30,020
- predict better and better.
+predict better and better.
+预测越来越准确。
 
 167
 00:15:31,020 --> 00:15:31,860
- Right?
+Right?
+对吗？
 
 168
 00:15:31,860 --> 00:15:39,100
- So now each iteration, if you want to implement with Hadoop,
+So now each iteration, if you want to implement with Hadoop,
+那么现在每次迭代，如果你想要使用Hadoop来实现，
 
 169
 00:15:39,100 --> 00:15:43,020
- is going to be a map reduced job, one job.
+is going to be a map reduced job, one job.
+将是一个MapReduce作业，一个任务。
 
 170
 00:15:43,020 --> 00:15:45,960
- One Hadoop job.
+One Hadoop job.
+一个Hadoop作业。
 
 171
 00:15:45,960 --> 00:15:51,060
- And for each job, you need to read the data
+And for each job, you need to read the data
+并且对于每个工作，你需要阅读数据。
 
 172
 00:15:51,060 --> 00:15:55,140
- from the storage and you need to write the data
+from the storage and you need to write the data
+从存储中读取数据，然后你需要将数据写入。
 
 173
 00:15:55,140 --> 00:15:56,220
- on the storage.
+on the storage.
+在存储上。
 
 174
 00:15:57,780 --> 00:16:01,900
- So each iteration needs to read and write a lot of data
+So each iteration needs to read and write a lot of data
+所以每次迭代都需要读写大量的数据
 
 175
 00:16:01,900 --> 00:16:04,180
- from the storage, from the disk.
+from the storage, from the disk.
+从存储器中，从磁盘中。
 
 176
 00:16:04,180 --> 00:16:06,460
- Can you remember that reading and writing
+Can you remember that reading and writing
+你能记得阅读和写作吗？
 
 177
 00:16:06,460 --> 00:16:08,900
- is the disk is slow, right?
+is the disk is slow, right?
+磁盘很慢，对吗？
 
 178
 00:16:08,900 --> 00:16:13,580
- So now if you have a few thousands of iterations,
+So now if you have a few thousands of iterations,
+那么现在如果你有几千次迭代，
 
 179
 00:16:13,580 --> 00:16:14,740
- this will take forever.
+this will take forever.
+这将花费很长时间。
 
 180
 00:16:14,740 --> 00:16:20,100
- So that's kind of what's the motivation, one motivation.
+So that's kind of what's the motivation, one motivation.
+这就是某种动机，一个动机。
 
 181
 00:16:20,100 --> 00:16:24,700
- And at the same time, so this is again,
+And at the same time, so this is again,
 
 182
 00:16:24,700 --> 00:16:29,100

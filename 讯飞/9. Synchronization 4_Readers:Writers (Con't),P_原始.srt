@@ -1,0 +1,5420 @@
+﻿1
+00:00:17,250 --> 00:00:18,330
+Hello, everyone.
+
+2
+00:00:20,190 --> 00:00:22,420
+So welcome to the nice lecture. 
+
+3
+00:00:23,460 --> 00:00:26,570
+This lecture, it's the content of this lecture.
+
+4
+00:00:26,580 --> 00:00:28,910
+It's included in your first meter. 
+
+5
+00:00:32,160 --> 00:00:33,910
+That's quite important. 
+
+6
+00:00:34,740 --> 00:00:40,490
+It's also a very important lecture for your future homeworks and projects. 
+
+7
+00:00:43,460 --> 00:00:44,140
+So, 
+
+8
+00:00:44,470 --> 00:00:51,580
+and we are going to continue our discussion about abstraction to implement critical
+
+9
+00:00:51,590 --> 00:00:54,940
+sections and synchronization between processes. 
+
+10
+00:00:56,860 --> 00:00:57,810
+If you remember, 
+
+11
+00:00:59,500 --> 00:01:02,490
+last time we discussed that one of the main abstraction, 
+
+12
+00:01:02,500 --> 00:01:05,690
+which it makes it easier to implement critical sections, 
+
+13
+00:01:05,700 --> 00:01:09,330
+exclusion from critical sections. 
+
+14
+00:01:09,340 --> 00:01:12,730
+So only one thread it should be active in a critical section
+
+15
+00:01:12,740 --> 00:01:14,330
+at a given time or locks. 
+
+16
+00:01:15,900 --> 00:01:19,540
+And we discuss the implementation of locks using interrupts. 
+
+17
+00:01:19,550 --> 00:01:25,810
+And then we said there are some disadvantages of using interacts and some dangers. 
+
+18
+00:01:26,630 --> 00:01:29,080
+And then we discuss about, 
+
+19
+00:01:30,960 --> 00:01:35,700
+then using atomic operation, 
+
+20
+00:01:36,140 --> 00:01:41,030
+which are more sophisticated than load and store to implement these locks. 
+
+21
+00:01:41,420 --> 00:01:43,490
+And one of them, 
+
+22
+00:01:43,720 --> 00:01:45,090
+it will be like best and set. 
+
+23
+00:01:46,560 --> 00:01:47,630
+I if you remember, 
+
+24
+00:01:47,640 --> 00:01:48,910
+is a test and set, 
+
+25
+00:01:49,660 --> 00:01:55,900
+it's takes a value
+
+26
+00:01:56,880 --> 00:02:00,440
+and maintains a local variable. 
+
+27
+00:02:00,890 --> 00:02:03,370
+Think about distance that maintains a local variable. 
+
+28
+00:02:04,530 --> 00:02:08,850
+The atomic operation is that taking a value, 
+
+29
+00:02:09,470 --> 00:02:13,140
+updating the local variable is a new value, 
+
+30
+00:02:13,410 --> 00:02:18,600
+and then returning the previous value of the local variable. 
+
+31
+00:02:19,260 --> 00:02:20,050
+That's pretty much. 
+
+32
+00:02:21,860 --> 00:02:24,490
+This is and implementation. 
+
+33
+00:02:24,500 --> 00:02:32,160
+Again, we discussed last time of a lock acquire and lock release and
+
+34
+00:02:32,170 --> 00:02:35,160
+using test and set, 
+
+35
+00:02:35,690 --> 00:02:43,370
+and basically use test and set here also to implement mutual
+
+36
+00:02:43,380 --> 00:02:51,380
+exclusion are of operating of the is the value of the lock. 
+
+37
+00:02:52,440 --> 00:02:53,510
+The lock, 
+
+38
+00:02:53,900 --> 00:02:56,820
+value of the lock, which whereas is busy or free,
+
+39
+00:02:57,240 --> 00:03:02,560
+determine whether you can enter or not in the critical section
+
+40
+00:03:03,800 --> 00:03:05,550
+of the program of the user. 
+
+41
+00:03:06,160 --> 00:03:07,590
+Now we have a second, 
+
+42
+00:03:07,600 --> 00:03:10,910
+we use test and set for a second smaller critical section, 
+
+43
+00:03:11,330 --> 00:03:16,440
+which is only concern of updating the lock value to be your free. 
+
+44
+00:03:21,220 --> 00:03:22,770
+If you remember, 
+
+45
+00:03:23,300 --> 00:03:28,000
+all these synchronization primitives involves weight, 
+
+46
+00:03:28,950 --> 00:03:34,050
+the reason for that is because it's fundamental because if you have
+
+47
+00:03:34,440 --> 00:03:38,780
+two threads which wants to enter in the same critical section, 
+
+48
+00:03:39,030 --> 00:03:42,830
+you can only allow one thread to enter in the critical section. 
+
+49
+00:03:44,900 --> 00:03:49,320
+Therefore, the other thread has nothing else to do,
+
+50
+00:03:49,940 --> 00:03:52,460
+but wait for the first step to finish. 
+
+51
+00:03:53,960 --> 00:03:56,440
+So that's why waiting is fundamental. 
+
+52
+00:03:57,280 --> 00:03:57,620
+Okay? 
+
+53
+00:03:58,740 --> 00:04:00,190
+The other thing you remember, 
+
+54
+00:04:00,200 --> 00:04:03,270
+if you wait one way to wait, 
+
+55
+00:04:03,690 --> 00:04:06,240
+it's easy to implement the still busy waiting. 
+
+56
+00:04:07,130 --> 00:04:10,550
+You constantly check whether the critical section is free, 
+
+57
+00:04:10,560 --> 00:04:12,590
+whether you can acquire the lock. 
+
+58
+00:04:13,380 --> 00:04:20,750
+But this consumes the cpu cycles without doing any useful work. 
+
+59
+00:04:21,580 --> 00:04:22,740
+So therefore, 
+
+60
+00:04:23,700 --> 00:04:25,420
+waiting, what you want to invent,
+
+61
+00:04:25,430 --> 00:04:26,940
+the best way to implement, 
+
+62
+00:04:26,950 --> 00:04:30,160
+waiting and the preferred way is to go to sleep, 
+
+63
+00:04:30,790 --> 00:04:33,600
+to put the thread when the waiting queue, 
+
+64
+00:04:34,200 --> 00:04:40,510
+and then to be open up when there are the previous thread exceeds
+
+65
+00:04:40,520 --> 00:04:41,430
+the critical section. 
+
+66
+00:04:41,890 --> 00:04:42,340
+Okay? 
+
+67
+00:04:43,000 --> 00:04:44,030
+This is what you see here. 
+
+68
+00:04:44,040 --> 00:04:45,150
+If the value is busy, 
+
+69
+00:04:45,320 --> 00:04:51,370
+if someone acquired a lock and has acquired a locker in the critical section, 
+
+70
+00:04:51,790 --> 00:04:54,980
+you put the thread on the weight queue, 
+
+71
+00:04:54,990 --> 00:04:57,620
+and then you go to sleep, 
+
+72
+00:04:57,630 --> 00:05:00,700
+and then you reset this card, which is, again,
+
+73
+00:05:00,710 --> 00:05:02,140
+this card it's about. 
+
+74
+00:05:02,920 --> 00:05:09,640
+It's basically you freeze a lock for the critical section, 
+
+75
+00:05:09,650 --> 00:05:13,760
+which is concerned with updating the busy value. 
+
+76
+00:05:18,820 --> 00:05:21,690
+As it's the value is busy, 
+
+77
+00:05:22,550 --> 00:05:23,860
+you set the value to be, 
+
+78
+00:05:23,870 --> 00:05:25,220
+this requires a lock, 
+
+79
+00:05:25,640 --> 00:05:26,950
+then you again, said,
+
+80
+00:05:26,960 --> 00:05:28,270
+go out to zero. 
+
+81
+00:05:29,570 --> 00:05:37,430
+So that for you are going to allow another thread to look, 
+
+82
+00:05:37,440 --> 00:05:42,970
+tend to read the log value and modify it. 
+
+83
+00:05:44,980 --> 00:05:46,380
+Any questions here? 
+
+84
+00:05:55,480 --> 00:05:58,700
+So not, again, that we have the same discussion.
+
+85
+00:05:58,710 --> 00:06:03,940
+We have the same discussion like in the in the case of when using interrupt
+
+86
+00:06:04,530 --> 00:06:06,370
+to implement the choir and release. 
+
+87
+00:06:06,750 --> 00:06:10,870
+And that is is when we are going to set the guard to zero, 
+
+88
+00:06:10,880 --> 00:06:13,030
+there is one you are going to disable the interact. 
+
+89
+00:06:13,920 --> 00:06:15,490
+And this needs to be done. 
+
+90
+00:06:15,890 --> 00:06:17,440
+You cannot do before sleep, 
+
+91
+00:06:17,450 --> 00:06:20,240
+you cannot do before the thread on weight queue. 
+
+92
+00:06:20,970 --> 00:06:22,080
+Just remember. 
+
+93
+00:06:22,370 --> 00:06:22,950
+Why is that? 
+
+94
+00:06:22,960 --> 00:06:24,840
+You can look at the last lecture. 
+
+95
+00:06:24,850 --> 00:06:27,440
+So you need to do, in some sense, after,
+
+96
+00:06:27,450 --> 00:06:31,140
+but then after the thread itself, 
+
+97
+00:06:31,150 --> 00:06:33,620
+which call acquire cannot do it because it's sleeping. 
+
+98
+00:06:34,620 --> 00:06:39,340
+So that has to be done either by the operating system or by the next trend, 
+
+99
+00:06:39,830 --> 00:06:42,510
+which is going to be scheduled to reset the guard. 
+
+100
+00:06:45,250 --> 00:06:45,740
+Okay? 
+
+101
+00:06:51,280 --> 00:06:53,350
+Here it's a simple example. 
+
+102
+00:07:01,440 --> 00:07:03,330
+This is a great question. 
+
+103
+00:07:03,690 --> 00:07:08,980
+So one question here, it was a the guard and value will be on the hip.
+
+104
+00:07:09,600 --> 00:07:10,830
+They are going to be on. 
+
+105
+00:07:11,350 --> 00:07:13,870
+They're going to be a global variables, 
+
+106
+00:07:14,680 --> 00:07:17,810
+so everyone can access them. 
+
+107
+00:07:21,720 --> 00:07:22,070
+Now, 
+
+108
+00:07:22,400 --> 00:07:29,000
+we've seen two implementation is actually of acquire and release locks. 
+
+109
+00:07:30,050 --> 00:07:31,560
+One is using interacts, 
+
+110
+00:07:31,570 --> 00:07:34,600
+and the other one using test and set. 
+
+111
+00:07:35,650 --> 00:07:40,930
+And this basically shows is to show you that actually the logic is very, 
+
+112
+00:07:40,940 --> 00:07:41,650
+very similar. 
+
+113
+00:07:41,660 --> 00:07:45,950
+And you can think about while test and set, 
+
+114
+00:07:47,510 --> 00:07:52,860
+it's similarly disabled interrupts and enabling and guard a reseting guard
+
+115
+00:07:52,870 --> 00:07:55,480
+to zero is like enabling the interacts. 
+
+116
+00:07:57,820 --> 00:08:05,310
+This is against the code for we went over last lecture about implementing, 
+
+117
+00:08:05,320 --> 00:08:05,950
+acquire, 
+
+118
+00:08:05,960 --> 00:08:09,700
+and release by disabling and enabling the internet. 
+
+119
+00:08:12,550 --> 00:08:15,190
+And if you remember, 
+
+120
+00:08:15,200 --> 00:08:17,110
+also what they did last time, 
+
+121
+00:08:17,120 --> 00:08:19,830
+when we talk about locks we did in two stages. 
+
+122
+00:08:20,310 --> 00:08:20,990
+First of all, 
+
+123
+00:08:21,000 --> 00:08:24,830
+we said we gave this very trivial implementation of the locks acquire. 
+
+124
+00:08:25,170 --> 00:08:26,660
+You disable the interrupts, 
+
+125
+00:08:27,010 --> 00:08:28,860
+why it is able to interrupt, 
+
+126
+00:08:28,870 --> 00:08:33,960
+because you don't want new new threats to interrupt you, right?
+
+127
+00:08:33,970 --> 00:08:37,020
+While you are in the critical section, right?
+
+128
+00:08:37,390 --> 00:08:39,920
+And then the release is enabling the internet. 
+
+129
+00:08:40,230 --> 00:08:45,340
+But this was very dangerous because if you call as the user level, 
+
+130
+00:08:45,350 --> 00:08:47,220
+acquiring, disable, interrupts,
+
+131
+00:08:47,230 --> 00:08:51,240
+and you have a very long critical section or you make mistakes and you have
+
+132
+00:08:51,250 --> 00:08:53,400
+an infinite while loop in the critical section. 
+
+133
+00:08:53,650 --> 00:08:55,460
+Then your computer will hack. 
+
+134
+00:08:56,500 --> 00:08:57,690
+You can do anything about. 
+
+135
+00:08:59,240 --> 00:09:01,830
+The only thing probably is power off power on. 
+
+136
+00:09:02,580 --> 00:09:02,980
+Right? 
+
+137
+00:09:02,990 --> 00:09:04,020
+So therefore, 
+
+138
+00:09:04,720 --> 00:09:09,170
+is a more sophisticated implementation was to use disable and enable
+
+139
+00:09:09,180 --> 00:09:14,160
+interrupts only for updating the value of the lock. 
+
+140
+00:09:14,730 --> 00:09:18,080
+Now you have a value of the lock which set to zero and you disable
+
+141
+00:09:18,090 --> 00:09:21,000
+and enable interrupts to update that value, 
+
+142
+00:09:21,430 --> 00:09:21,650
+right? 
+
+143
+00:09:21,660 --> 00:09:22,810
+Or to leave that value. 
+
+144
+00:09:24,210 --> 00:09:26,920
+Now you still use disable and enable interacts. 
+
+145
+00:09:27,190 --> 00:09:30,000
+But now it's very short. 
+
+146
+00:09:30,500 --> 00:09:34,830
+The critical section is very short and is going to finish very fast. 
+
+147
+00:09:36,600 --> 00:09:36,980
+Right? 
+
+148
+00:09:38,220 --> 00:09:38,930
+If you look, 
+
+149
+00:09:39,560 --> 00:09:42,230
+again, if you look now at the same example,
+
+150
+00:09:42,240 --> 00:09:44,950
+but now implementing, acquire, and release,
+
+151
+00:09:44,960 --> 00:09:46,150
+using test and set, 
+
+152
+00:09:46,330 --> 00:09:48,480
+we went again through two iterations. 
+
+153
+00:09:48,490 --> 00:09:52,400
+The first iteration was very simple that while distance set values, 
+
+154
+00:09:52,610 --> 00:09:54,520
+you are doing the values, a lot of value.
+
+155
+00:09:55,260 --> 00:09:58,350
+While this is why the value is one. 
+
+156
+00:09:58,360 --> 00:09:58,660
+Right? 
+
+157
+00:09:58,670 --> 00:10:00,210
+Again, the distance said here,
+
+158
+00:10:00,260 --> 00:10:01,690
+if value is one, 
+
+159
+00:10:02,920 --> 00:10:10,330
+is going to returns the previous value of the internal variable
+
+160
+00:10:10,340 --> 00:10:11,250
+of test and set, 
+
+161
+00:10:12,040 --> 00:10:15,270
+and then set that variable to the new value. 
+
+162
+00:10:15,900 --> 00:10:18,410
+If it's the previous one was zero, returned,
+
+163
+00:10:18,420 --> 00:10:20,010
+zero means there's a lock. 
+
+164
+00:10:20,020 --> 00:10:20,650
+It's acquired. 
+
+165
+00:10:20,850 --> 00:10:22,690
+But now he said to one next time, 
+
+166
+00:10:22,700 --> 00:10:23,810
+when someone tries, 
+
+167
+00:10:24,080 --> 00:10:25,110
+the value is one, 
+
+168
+00:10:25,120 --> 00:10:26,610
+the internal variable is one. 
+
+169
+00:10:27,710 --> 00:10:28,980
+The internal variables will not change. 
+
+170
+00:10:28,990 --> 00:10:33,060
+And the test and said returns once you are going to be stuck in the white group. 
+
+171
+00:10:33,810 --> 00:10:34,170
+Okay? 
+
+172
+00:10:34,470 --> 00:10:36,080
+But it's, again, the problem is this one,
+
+173
+00:10:36,690 --> 00:10:39,220
+and the release is simply set the value to zero. 
+
+174
+00:10:40,370 --> 00:10:42,340
+And the problem with this one, 
+
+175
+00:10:42,350 --> 00:10:43,990
+remember this while, look,
+
+176
+00:10:45,470 --> 00:10:47,100
+again, it's like it's busy waiting.
+
+177
+00:10:47,810 --> 00:10:50,480
+I which we discuss that you want to wait, we want to, sorry,
+
+178
+00:10:50,490 --> 00:10:51,760
+it's busy waiting. 
+
+179
+00:10:52,080 --> 00:10:54,310
+You should remember we want to avoid. 
+
+180
+00:10:54,900 --> 00:10:55,260
+Right. 
+
+181
+00:10:55,650 --> 00:10:56,760
+Again, in this case,
+
+182
+00:10:56,770 --> 00:10:58,440
+we went to the second iteration, 
+
+183
+00:10:58,450 --> 00:11:02,920
+which we just also presented again, 
+
+184
+00:11:02,930 --> 00:11:05,640
+earlier in the lecture, today's lecture.
+
+185
+00:11:05,940 --> 00:11:11,720
+And you use the test and set only to protect the critical sections, 
+
+186
+00:11:12,130 --> 00:11:16,620
+which are concerned with updating the value of the lock. 
+
+187
+00:11:17,450 --> 00:11:20,080
+Now, again, this is much shorter,
+
+188
+00:11:20,330 --> 00:11:21,380
+critical section. 
+
+189
+00:11:21,710 --> 00:11:23,460
+The test and set will be, 
+
+190
+00:11:23,750 --> 00:11:25,870
+will you wait only for a very short time? 
+
+191
+00:11:26,480 --> 00:11:27,600
+And now, 
+
+192
+00:11:27,610 --> 00:11:29,610
+instead of like, in this case,
+
+193
+00:11:29,620 --> 00:11:31,570
+you wait pink, you are waiting.
+
+194
+00:11:31,580 --> 00:11:33,530
+In the previous case, you are waiting.
+
+195
+00:11:33,810 --> 00:11:37,090
+As long as someone is in the critical section, do busy waiting.
+
+196
+00:11:37,100 --> 00:11:39,030
+So constraints as if you cycles. 
+
+197
+00:11:39,040 --> 00:11:40,290
+In this case, 
+
+198
+00:11:42,500 --> 00:11:44,890
+in the more refined iteration, 
+
+199
+00:11:45,200 --> 00:11:50,430
+you are going to put the thread which is waiting on the wake you. 
+
+200
+00:11:50,800 --> 00:11:51,010
+Right? 
+
+201
+00:11:51,020 --> 00:11:52,370
+So there is no busy waiting. 
+
+202
+00:11:58,420 --> 00:11:59,380
+Any questions here? 
+
+203
+00:12:10,300 --> 00:12:12,130
+So what we are going again with synchronization? 
+
+204
+00:12:12,140 --> 00:12:13,510
+So let's see what we've done. 
+
+205
+00:12:13,790 --> 00:12:15,660
+We look on the hardware support. 
+
+206
+00:12:15,670 --> 00:12:19,550
+The love stores is able to interrupt test and set and compare and swap. 
+
+207
+00:12:19,560 --> 00:12:22,270
+These are similar contest and set and compare and swap. 
+
+208
+00:12:23,000 --> 00:12:26,590
+They are much more useful than load and store. 
+
+209
+00:12:27,000 --> 00:12:30,340
+And we saw how you can't use these to implement locks. 
+
+210
+00:12:30,920 --> 00:12:33,650
+And also he discusses abstraction about singapore's. 
+
+211
+00:12:34,350 --> 00:12:40,150
+And and then next also like that, 
+
+212
+00:12:40,160 --> 00:12:41,790
+we are going to talk about monitors. 
+
+213
+00:12:42,400 --> 00:12:44,440
+It's, again, the higher level,
+
+214
+00:12:44,680 --> 00:12:48,660
+the abstraction, the easier will be for the programs,
+
+215
+00:12:49,050 --> 00:12:55,200
+for the application to implement mutual exclusion and critical sections. 
+
+216
+00:12:58,690 --> 00:13:02,740
+Next, we are going to go and talk more about this abstraction.
+
+217
+00:13:02,930 --> 00:13:05,940
+Let's talk again about summer force that, right?
+
+218
+00:13:07,370 --> 00:13:09,040
+And if you remember, 
+
+219
+00:13:09,050 --> 00:13:11,000
+just to remind you the summer force, 
+
+220
+00:13:11,480 --> 00:13:15,270
+you have that a little bit more sophisticated than locks. 
+
+221
+00:13:15,700 --> 00:13:17,390
+A lock can have only two values, 
+
+222
+00:13:17,630 --> 00:13:20,240
+01, or busy and three.
+
+223
+00:13:21,170 --> 00:13:23,750
+We summer force is like a counter, 
+
+224
+00:13:23,760 --> 00:13:25,230
+write a special counter, 
+
+225
+00:13:26,150 --> 00:13:29,050
+like you have a primitive which increments the summer
+
+226
+00:13:29,060 --> 00:13:31,490
+for and a primitive decline as a summer for. 
+
+227
+00:13:31,790 --> 00:13:33,320
+Then if sum of four is zero, 
+
+228
+00:13:33,330 --> 00:13:36,300
+then you are going to wait that you are very much. 
+
+229
+00:13:37,080 --> 00:13:38,430
+You are waiting for a lock, 
+
+230
+00:13:39,000 --> 00:13:39,860
+which is busy, 
+
+231
+00:13:41,330 --> 00:13:41,960
+if you remember. 
+
+232
+00:13:41,970 --> 00:13:43,880
+So that provides you a little bit more, 
+
+233
+00:13:50,770 --> 00:13:52,010
+a little bit more power. 
+
+234
+00:13:52,490 --> 00:13:53,830
+And therefore, 
+
+235
+00:13:53,840 --> 00:13:55,110
+it also gives you more, 
+
+236
+00:13:55,870 --> 00:13:58,180
+if gives you more functionality, 
+
+237
+00:13:58,190 --> 00:14:02,150
+you can implement with the summer for both critical sections. 
+
+238
+00:14:02,400 --> 00:14:05,310
+But you also implement and material exclusion, 
+
+239
+00:14:05,320 --> 00:14:10,810
+but you also implement can scheduling constraints basically telling
+
+240
+00:14:10,820 --> 00:14:13,280
+signaling one approach a process
+
+241
+00:14:13,290 --> 00:14:15,480
+from another process or a threat from another threat. 
+
+242
+00:14:15,980 --> 00:14:16,890
+If you remember, 
+
+243
+00:14:18,230 --> 00:14:22,910
+the example we gave last time about this was about, 
+
+244
+00:14:23,340 --> 00:14:24,590
+if you remember, 
+
+245
+00:14:25,440 --> 00:14:27,950
+it was about implementing the strategy, 
+
+246
+00:14:28,320 --> 00:14:32,730
+waiting the thread who launches a create another thread, 
+
+247
+00:14:32,740 --> 00:14:34,210
+waiting for the new creative, 
+
+248
+00:14:34,220 --> 00:14:35,730
+for the greatest thread to finish. 
+
+249
+00:14:36,350 --> 00:14:36,560
+Right? 
+
+250
+00:14:36,570 --> 00:14:37,320
+It's again. 
+
+251
+00:14:38,570 --> 00:14:43,090
+Now, we are going to move from locks and some efforts to a new abstraction,
+
+252
+00:14:43,100 --> 00:14:44,330
+which is called monitors. 
+
+253
+00:14:45,650 --> 00:14:46,930
+And monitors are better, 
+
+254
+00:14:46,940 --> 00:14:50,220
+are simply more powerful. 
+
+255
+00:14:51,060 --> 00:14:58,510
+And and the main idea is to split between and
+
+256
+00:14:58,520 --> 00:15:00,990
+supporting explicitly these two functionality
+
+257
+00:15:01,000 --> 00:15:05,100
+about mark mutual exclusion and scheduling constraints. 
+
+258
+00:15:05,670 --> 00:15:10,820
+You use locks for mutual exclusion and what are called condition variable
+
+259
+00:15:10,830 --> 00:15:12,670
+for scheduling constraints, 
+
+260
+00:15:12,680 --> 00:15:12,900
+right? 
+
+261
+00:15:15,720 --> 00:15:16,400
+A monitor. 
+
+262
+00:15:16,410 --> 00:15:21,390
+It's a lock and a zero or more conditional variable for managing
+
+263
+00:15:21,400 --> 00:15:23,440
+concurrent access to share that. 
+
+264
+00:15:25,090 --> 00:15:27,430
+And we'll talk more about that. 
+
+265
+00:15:27,730 --> 00:15:30,790
+Some languages provide this negatively. 
+
+266
+00:15:34,240 --> 00:15:38,620
+And most of the others, 
+
+267
+00:15:38,630 --> 00:15:42,940
+you can use lock and conditional variables as a distinct abstractions. 
+
+268
+00:15:44,510 --> 00:15:45,730
+I'm going again, 
+
+269
+00:15:45,940 --> 00:15:47,580
+if you have any questions, 
+
+270
+00:15:47,590 --> 00:15:50,310
+let me know this is, again,
+
+271
+00:15:50,960 --> 00:15:52,230
+these lectures, 
+
+272
+00:15:52,470 --> 00:15:56,500
+the past lecture in these lectures are not very easy to follow, 
+
+273
+00:15:56,510 --> 00:15:59,230
+because they are about concurrency, 
+
+274
+00:15:59,240 --> 00:16:03,640
+are about programs which execute come correctly. 
+
+275
+00:16:03,970 --> 00:16:05,430
+And like we discussed last time, 
+
+276
+00:16:07,550 --> 00:16:09,050
+it's we, 
+
+277
+00:16:09,060 --> 00:16:13,740
+as humans are not very used about handling many things which happen
+
+278
+00:16:13,750 --> 00:16:14,660
+at the same time. 
+
+279
+00:16:14,910 --> 00:16:19,290
+We had much better in equalizing sequentializing things. 
+
+280
+00:16:19,570 --> 00:16:21,860
+So it's perfectly fine. 
+
+281
+00:16:23,120 --> 00:16:27,250
+I if you feel this is a little bit more challenging, 
+
+282
+00:16:28,500 --> 00:16:29,580
+but at the same time, 
+
+283
+00:16:29,590 --> 00:16:32,340
+this also means that you should spend a little bit more time
+
+284
+00:16:32,710 --> 00:16:35,500
+to try to understand deeply what's happening here. 
+
+285
+00:16:43,620 --> 00:16:45,610
+Again, some languages provide monitors.
+
+286
+00:16:45,620 --> 00:16:50,410
+And let's see what is conditional variables, 
+
+287
+00:16:50,820 --> 00:16:51,970
+conditional variables, 
+
+288
+00:16:51,980 --> 00:16:53,490
+what is a conditional variable? 
+
+289
+00:16:54,080 --> 00:16:59,390
+It's a queue of threads waiting for something inside a critical section to happen. 
+
+290
+00:17:03,420 --> 00:17:09,040
+And the nice thing about the critical section send the conditional, 
+
+291
+00:17:09,410 --> 00:17:09,760
+sorry, 
+
+292
+00:17:09,770 --> 00:17:16,210
+and I think about the monitors and conditional variables is conditional variables, 
+
+293
+00:17:16,760 --> 00:17:20,480
+allow sleeping inside the critical section by atomically, 
+
+294
+00:17:20,490 --> 00:17:23,000
+releasing the lock at a time regardlessly. 
+
+295
+00:17:23,830 --> 00:17:26,180
+So what I mean by that, 
+
+296
+00:17:26,940 --> 00:17:27,810
+here is what I mean. 
+
+297
+00:17:33,050 --> 00:17:34,670
+Remember about this slide? 
+
+298
+00:17:35,100 --> 00:17:38,020
+I'll go soon in again in presentation mode. 
+
+299
+00:17:38,700 --> 00:17:39,330
+Here, 
+
+300
+00:17:40,540 --> 00:17:41,060
+it's a game. 
+
+301
+00:17:42,200 --> 00:17:44,570
+If you try to acquire the lock, 
+
+302
+00:17:45,450 --> 00:17:47,250
+and the lock is busy, 
+
+303
+00:17:47,260 --> 00:17:48,610
+so the value is one. 
+
+304
+00:17:49,650 --> 00:17:50,930
+You have to go to sleep. 
+
+305
+00:17:52,340 --> 00:17:53,250
+And what you want, 
+
+306
+00:17:53,820 --> 00:17:54,640
+we want this, 
+
+307
+00:17:54,650 --> 00:17:59,610
+how we want this to happen is to put the thread in the waiting queue. 
+
+308
+00:18:00,900 --> 00:18:03,100
+But when you put the set of the waiting queue, 
+
+309
+00:18:03,110 --> 00:18:09,950
+you need also to really to resell the guard To let other threads. 
+
+310
+00:18:09,960 --> 00:18:14,220
+And there is a critical section to look at the value, 
+
+311
+00:18:14,670 --> 00:18:16,110
+maybe to modify the value. 
+
+312
+00:18:17,700 --> 00:18:21,970
+So now the sleep and the guard have to happen at the same time. 
+
+313
+00:18:23,100 --> 00:18:23,550
+Okay? 
+
+314
+00:18:24,340 --> 00:18:31,730
+They need to be atomic and monitors, 
+
+315
+00:18:32,050 --> 00:18:34,450
+provide and conditional variables for monitors. 
+
+316
+00:18:34,710 --> 00:18:42,120
+Provide you this atomicity between the threads going to sleep and giving
+
+317
+00:18:42,130 --> 00:18:43,360
+up releasing the lock, 
+
+318
+00:18:43,800 --> 00:18:50,280
+because it's equally zero release a clock associated with a guard atomically. 
+
+319
+00:18:50,810 --> 00:18:52,090
+You don't need to worry about that. 
+
+320
+00:18:52,840 --> 00:18:57,520
+That's what conditional variables in monitors are going to do for you. 
+
+321
+00:18:57,770 --> 00:19:00,310
+And that's why they are very useful. 
+
+322
+00:19:08,360 --> 00:19:09,630
+Here are the operations, 
+
+323
+00:19:10,500 --> 00:19:12,310
+the operation you wait for the lock, 
+
+324
+00:19:15,260 --> 00:19:21,700
+which I thought you can you can automatically, 
+
+325
+00:19:21,710 --> 00:19:22,860
+this is going to, 
+
+326
+00:19:22,870 --> 00:19:26,940
+the operation is going to automatically leads a lock and go to sleep. 
+
+327
+00:19:29,560 --> 00:19:31,150
+You can acquire the lock like that. 
+
+328
+00:19:31,490 --> 00:19:36,920
+Will also have a few examples to make it more understandable. 
+
+329
+00:19:37,270 --> 00:19:38,340
+Then you have signals. 
+
+330
+00:19:38,350 --> 00:19:43,700
+You remember that one of the use of the summer force was to signal when one, 
+
+331
+00:19:43,710 --> 00:19:44,750
+a thread, one,
+
+332
+00:19:44,760 --> 00:19:46,850
+an event right between two threads. 
+
+333
+00:19:49,110 --> 00:19:50,910
+So now you have a very primitive, 
+
+334
+00:19:50,920 --> 00:19:54,480
+which is called makes a lot of sense. 
+
+335
+00:19:54,490 --> 00:19:55,680
+A name is signal. 
+
+336
+00:19:56,750 --> 00:19:59,060
+You have also something which is called broadcast, 
+
+337
+00:20:00,070 --> 00:20:00,860
+the signal, 
+
+338
+00:20:02,030 --> 00:20:03,900
+its way, its waking,
+
+339
+00:20:04,330 --> 00:20:08,230
+a thread, which is waiting for some particular event to happen,
+
+340
+00:20:10,140 --> 00:20:11,040
+broadcasts, 
+
+341
+00:20:11,580 --> 00:20:13,630
+its waking multiple waiters, 
+
+342
+00:20:13,640 --> 00:20:15,330
+all the waiters, which run,
+
+343
+00:20:15,340 --> 00:20:17,030
+which waits for the people. 
+
+344
+00:20:17,640 --> 00:20:19,550
+Signal, if there are multiple waiters,
+
+345
+00:20:19,790 --> 00:20:23,580
+it's going to wake only one. 
+
+346
+00:20:25,080 --> 00:20:27,180
+And that's non deterministic. 
+
+347
+00:20:28,180 --> 00:20:30,290
+You don't know which one is going to be waking up. 
+
+348
+00:20:31,340 --> 00:20:32,800
+And in many cases, you don't care.
+
+349
+00:20:33,520 --> 00:20:35,370
+Broadcast wakes all of them. 
+
+350
+00:20:39,210 --> 00:20:39,590
+Okay. 
+
+351
+00:20:40,030 --> 00:20:42,360
+Now, when you do that,
+
+352
+00:20:42,370 --> 00:20:45,740
+when you do operation on the condition variables, 
+
+353
+00:20:46,370 --> 00:20:48,220
+you need to own the lock. 
+
+354
+00:20:48,690 --> 00:20:49,030
+Right? 
+
+355
+00:20:49,460 --> 00:20:51,650
+Because this is in critical section. 
+
+356
+00:20:52,620 --> 00:20:54,300
+This is one way to represent it. 
+
+357
+00:20:54,850 --> 00:20:55,720
+The monikers, 
+
+358
+00:20:56,550 --> 00:20:59,860
+x and y are conditional variables. 
+
+359
+00:20:59,870 --> 00:21:02,200
+Each of them is associated acute. 
+
+360
+00:21:03,700 --> 00:21:07,430
+And you have a log, 
+
+361
+00:21:07,440 --> 00:21:11,080
+which provides a mutual exclusion with a shared data. 
+
+362
+00:21:11,370 --> 00:21:12,580
+In this monitor. 
+
+363
+00:21:15,350 --> 00:21:23,540
+The conditional variables are shared it. 
+
+364
+00:21:24,810 --> 00:21:25,250
+But it's, again,
+
+365
+00:21:25,260 --> 00:21:30,320
+one of the main advantage you are allowed to wait in the critical section. 
+
+366
+00:21:32,060 --> 00:21:34,010
+This is not allowed for summer force, 
+
+367
+00:21:34,020 --> 00:21:35,650
+which makes the summer falls very, 
+
+368
+00:21:35,660 --> 00:21:36,850
+how much harder to use. 
+
+369
+00:21:38,110 --> 00:21:39,900
+Now, it's, again, let's see.
+
+370
+00:21:39,910 --> 00:21:42,100
+And we are going to have a lot of examples. 
+
+371
+00:21:42,110 --> 00:21:45,650
+So we give you a better sense about how these monitors, 
+
+372
+00:21:46,200 --> 00:21:47,470
+how you use the monitors. 
+
+373
+00:21:47,480 --> 00:21:49,990
+And also we are going to talk about how they are implemented. 
+
+374
+00:21:50,960 --> 00:21:53,190
+Hopefully, by the end of these lectures,
+
+375
+00:21:53,450 --> 00:21:56,850
+we are going to have a pretty good feeling about monitors. 
+
+376
+00:21:57,350 --> 00:21:57,770
+Okay. 
+
+377
+00:21:59,500 --> 00:22:02,490
+Here is an infinite cube, single eyes.
+
+378
+00:22:02,500 --> 00:22:04,530
+You got producer, consumer.
+
+379
+00:22:04,830 --> 00:22:10,020
+It's infinite in the sense that the producer can put any numbers of items
+
+380
+00:22:10,030 --> 00:22:12,500
+in the queue is infinite. 
+
+381
+00:22:13,550 --> 00:22:14,100
+How do you do it? 
+
+382
+00:22:14,110 --> 00:22:16,800
+The producer is like your choir is a lock. 
+
+383
+00:22:16,810 --> 00:22:17,850
+It really is a lock. 
+
+384
+00:22:18,360 --> 00:22:19,470
+You have a buffer lock, 
+
+385
+00:22:21,270 --> 00:22:25,390
+and the consumer also acquired the lock and release a lock. 
+
+386
+00:22:25,650 --> 00:22:26,050
+Right? 
+
+387
+00:22:27,080 --> 00:22:31,190
+This is in order to protect the critical sections which are operating
+
+388
+00:22:31,200 --> 00:22:31,710
+on the queue. 
+
+389
+00:22:31,840 --> 00:22:32,060
+Right? 
+
+390
+00:22:32,070 --> 00:22:35,700
+You don't want a producer and the consumer to operate on the cure
+
+391
+00:22:35,710 --> 00:22:36,820
+at the same time. 
+
+392
+00:22:37,130 --> 00:22:40,620
+Because inserting adding a new element to the queue, 
+
+393
+00:22:40,630 --> 00:22:43,580
+removing an element from the queue are not atomic operations. 
+
+394
+00:22:44,010 --> 00:22:44,290
+Therefore, 
+
+395
+00:22:44,300 --> 00:22:48,060
+bad things can happen while you both of them are manipulating the pointers, 
+
+396
+00:22:49,650 --> 00:22:49,940
+right? 
+
+397
+00:22:49,950 --> 00:22:52,500
+To insert or remove the element from the queue. 
+
+398
+00:22:55,080 --> 00:22:56,430
+Now, you need to you,
+
+399
+00:22:56,440 --> 00:23:03,760
+you can use these conditioned variables like buff cv
+
+400
+00:23:04,210 --> 00:23:07,130
+in order to signal the producer. 
+
+401
+00:23:07,140 --> 00:23:08,770
+That's basically what says. 
+
+402
+00:23:09,030 --> 00:23:11,230
+The buff cv is a signal, 
+
+403
+00:23:11,580 --> 00:23:17,700
+a is a way for the producer to signal the consumer that there are elements
+
+404
+00:23:17,710 --> 00:23:20,720
+in the buffer in the queue. 
+
+405
+00:23:22,860 --> 00:23:24,580
+This is what it is, your signal.
+
+406
+00:23:24,590 --> 00:23:31,430
+It what do you do from in the consumer? 
+
+407
+00:23:31,760 --> 00:23:32,290
+While it's empty? 
+
+408
+00:23:32,300 --> 00:23:34,630
+So you look for the cure as it's empty. 
+
+409
+00:23:35,830 --> 00:23:36,010
+Right? 
+
+410
+00:23:36,020 --> 00:23:37,330
+It's in the critical section, 
+
+411
+00:23:37,340 --> 00:23:40,290
+so it's far as fair to look at the queue, 
+
+412
+00:23:40,300 --> 00:23:42,930
+because no one else will modify the queue while you are
+
+413
+00:23:42,940 --> 00:23:45,610
+in the critical section to operate on the queue. 
+
+414
+00:23:46,250 --> 00:23:48,480
+And then you call this condition, wait.
+
+415
+00:23:48,490 --> 00:23:51,240
+So you're waiting for this signal for the best subsidy. 
+
+416
+00:23:51,250 --> 00:23:52,880
+And you also, you see,
+
+417
+00:23:52,890 --> 00:23:55,360
+this is the first argument of condition weight. 
+
+418
+00:23:55,810 --> 00:23:58,530
+And the second argument in buffalo, why is that?
+
+419
+00:23:58,880 --> 00:24:04,080
+Because if the queue is empty, 
+
+420
+00:24:05,460 --> 00:24:06,410
+this is true. 
+
+421
+00:24:07,060 --> 00:24:08,570
+This in condition wait. 
+
+422
+00:24:09,370 --> 00:24:13,890
+And but what you are going to do is basically you are going to put
+
+423
+00:24:13,900 --> 00:24:14,890
+the threat to sleep, 
+
+424
+00:24:15,210 --> 00:24:16,360
+and you need to release a lock. 
+
+425
+00:24:17,000 --> 00:24:17,380
+Right? 
+
+426
+00:24:18,330 --> 00:24:23,660
+This basically tells the condition wait to release the lock once the thread
+
+427
+00:24:23,670 --> 00:24:24,460
+is going to sleep. 
+
+428
+00:24:27,010 --> 00:24:27,580
+Remember, 
+
+429
+00:24:28,260 --> 00:24:32,360
+we want here to have atomic operation. 
+
+430
+00:24:33,240 --> 00:24:37,140
+The slip, these things above it should be an atomic operation.
+
+431
+00:24:42,000 --> 00:24:42,640
+Aaron, 
+
+432
+00:24:43,370 --> 00:24:45,040
+it has a question here. 
+
+433
+00:24:46,810 --> 00:24:47,940
+If you use a broadcast, 
+
+434
+00:24:48,510 --> 00:24:50,330
+it will create a race condition. 
+
+435
+00:24:51,840 --> 00:24:52,470
+Not necessary. 
+
+436
+00:24:52,720 --> 00:24:54,590
+We'll see that in an example. 
+
+437
+00:24:54,930 --> 00:24:55,120
+Right? 
+
+438
+00:24:55,130 --> 00:24:56,280
+Because still, 
+
+439
+00:24:56,550 --> 00:25:01,280
+not all you can wake up all the waiters, 
+
+440
+00:25:01,760 --> 00:25:05,730
+but only if all the waiters want to go to the same critical section, 
+
+441
+00:25:05,740 --> 00:25:07,330
+still only one will succeed. 
+
+442
+00:25:08,110 --> 00:25:08,610
+Okay? 
+
+443
+00:25:10,190 --> 00:25:12,160
+And the other one will go back to wait. 
+
+444
+00:25:13,250 --> 00:25:16,550
+So you you are still going to be, okay.
+
+445
+00:25:20,400 --> 00:25:20,990
+Sorry. 
+
+446
+00:25:22,770 --> 00:25:24,400
+So this is basically what happened here. 
+
+447
+00:25:31,670 --> 00:25:34,080
+Now, and I think this was a question last time.
+
+448
+00:25:34,910 --> 00:25:37,820
+I don't remember who has that question. 
+
+449
+00:25:37,830 --> 00:25:40,540
+It was a great question about what you remember. 
+
+450
+00:25:40,550 --> 00:25:41,900
+If you go to, 
+
+451
+00:25:42,250 --> 00:25:44,400
+I think, was in the context of test onset,
+
+452
+00:25:44,410 --> 00:25:48,110
+why do you use while and not if it's a similar thing here, 
+
+453
+00:25:48,120 --> 00:25:49,350
+and we'll explain why. 
+
+454
+00:25:49,950 --> 00:25:51,020
+And what is the difference. 
+
+455
+00:25:51,790 --> 00:25:55,670
+And the problem here is that if you look at this piece of code, 
+
+456
+00:25:55,680 --> 00:26:01,370
+will you just the consumer wait for the queue to be non empty to have elements? 
+
+457
+00:26:01,640 --> 00:26:02,990
+In order to be queue? 
+
+458
+00:26:03,330 --> 00:26:04,950
+A new element from the queue? 
+
+459
+00:26:07,570 --> 00:26:08,450
+It has a wire. 
+
+460
+00:26:08,810 --> 00:26:09,170
+Right? 
+
+461
+00:26:09,560 --> 00:26:12,890
+And the natural question you can ask, look, why?
+
+462
+00:26:13,400 --> 00:26:15,440
+Because the thread is going to sleep, right?
+
+463
+00:26:15,950 --> 00:26:17,820
+So why do you do that? 
+
+464
+00:26:18,740 --> 00:26:22,920
+And it's true that it's a good question. 
+
+465
+00:26:23,330 --> 00:26:24,200
+Let me start with that. 
+
+466
+00:26:25,670 --> 00:26:29,060
+You see that why should I do the while? 
+
+467
+00:26:29,280 --> 00:26:30,470
+Because again, 
+
+468
+00:26:30,480 --> 00:26:32,070
+it's like the study is going to sleep, 
+
+469
+00:26:32,080 --> 00:26:38,580
+and it's going to be open up if another thread exceeds the critical section. 
+
+470
+00:26:39,310 --> 00:26:39,590
+Right? 
+
+471
+00:26:40,090 --> 00:26:41,390
+So I should test again. 
+
+472
+00:26:45,830 --> 00:26:50,110
+The answer here is that it depends on the implementation. 
+
+473
+00:26:51,170 --> 00:26:51,660
+Okay? 
+
+474
+00:26:52,210 --> 00:26:54,530
+You can actually, depending on the implementation,
+
+475
+00:26:55,220 --> 00:26:57,690
+you can replace while with if. 
+
+476
+00:26:57,950 --> 00:26:59,840
+And that will be correct. 
+
+477
+00:27:03,180 --> 00:27:06,050
+And there are two implementation, 
+
+478
+00:27:06,470 --> 00:27:08,540
+one in which you need to put while, 
+
+479
+00:27:08,550 --> 00:27:09,990
+you have to have while. 
+
+480
+00:27:10,400 --> 00:27:13,140
+And the other one you need to have, you can do,
+
+481
+00:27:13,150 --> 00:27:18,930
+you can use if the first one in which requires you to have to save while, 
+
+482
+00:27:19,180 --> 00:27:20,390
+is called messer style, 
+
+483
+00:27:21,150 --> 00:27:21,570
+right? 
+
+484
+00:27:22,150 --> 00:27:26,040
+Because it was implemented in xerox parc mass operating system. 
+
+485
+00:27:26,520 --> 00:27:28,880
+And this is what most operating system are using. 
+
+486
+00:27:30,350 --> 00:27:33,310
+The one in which you can use if is horror, 
+
+487
+00:27:33,320 --> 00:27:34,670
+style implementation. 
+
+488
+00:27:34,910 --> 00:27:37,970
+This is a british musician tony hall. 
+
+489
+00:27:38,230 --> 00:27:41,340
+And in this case, 
+
+490
+00:27:41,350 --> 00:27:45,510
+you can use if let's see how her monitor. 
+
+491
+00:27:45,520 --> 00:27:48,600
+So this is the one you can use if how they are implement. 
+
+492
+00:27:49,200 --> 00:27:50,710
+Here is for how it's implemented. 
+
+493
+00:27:50,720 --> 00:27:54,300
+You have acquired on both sides. 
+
+494
+00:27:54,870 --> 00:27:59,780
+And let's say the first, 
+
+495
+00:28:02,740 --> 00:28:04,090
+you so, sorry,
+
+496
+00:28:04,100 --> 00:28:07,370
+so in both cases, 
+
+497
+00:28:07,380 --> 00:28:08,430
+you obviously, 
+
+498
+00:28:08,440 --> 00:28:11,870
+you protect the critical sections by above lock. 
+
+499
+00:28:12,440 --> 00:28:17,220
+And the code on the left hand side is going to send a signal. 
+
+500
+00:28:19,440 --> 00:28:21,340
+And as a result of the signal, 
+
+501
+00:28:21,680 --> 00:28:26,080
+the thread which are waiting on this conditional by variable, 
+
+502
+00:28:26,420 --> 00:28:29,160
+buff cv is going to wake up. 
+
+503
+00:28:30,810 --> 00:28:33,990
+The sled on the left is going to send a signal. 
+
+504
+00:28:34,330 --> 00:28:39,290
+And this the code on the right is going to be of a thread, 
+
+505
+00:28:39,570 --> 00:28:43,160
+which is going to be open up by this signal. 
+
+506
+00:28:44,480 --> 00:28:45,670
+Let's see what happens. 
+
+507
+00:28:45,680 --> 00:28:49,450
+So it's hard what happens when you execute this signal. 
+
+508
+00:28:50,650 --> 00:28:53,610
+You automatically release a lock, 
+
+509
+00:28:53,960 --> 00:28:55,060
+the buff lock here, 
+
+510
+00:28:55,500 --> 00:28:59,220
+and the cpu and your schedule immediately, 
+
+511
+00:28:59,870 --> 00:29:05,800
+the thread which is waiting on the above cv conditional barrier. 
+
+512
+00:29:06,640 --> 00:29:07,820
+You are going to execute it. 
+
+513
+00:29:08,640 --> 00:29:11,010
+And then at the end, 
+
+514
+00:29:11,480 --> 00:29:13,660
+you are going to release the lock. 
+
+515
+00:29:14,430 --> 00:29:19,020
+And then you go back and continue to execute the first thread, 
+
+516
+00:29:19,350 --> 00:29:22,600
+which signaled the second one. 
+
+517
+00:29:25,620 --> 00:29:28,410
+And that's what it is. 
+
+518
+00:29:29,060 --> 00:29:29,410
+Right? 
+
+519
+00:29:31,290 --> 00:29:33,040
+This is the implementation now. 
+
+520
+00:29:34,030 --> 00:29:35,880
+So this seems like good, right?
+
+521
+00:29:36,330 --> 00:29:37,920
+Is basically in the signal. 
+
+522
+00:29:38,280 --> 00:29:39,760
+When I signal someone, I stop,
+
+523
+00:29:39,770 --> 00:29:43,790
+I give the lock to the thread which is writing. 
+
+524
+00:29:43,800 --> 00:29:51,810
+And this and I the the operating system will schedule that thread to execute, 
+
+525
+00:29:52,310 --> 00:29:53,820
+exceed the critical section. 
+
+526
+00:29:53,830 --> 00:29:56,540
+And after that, I gave me that I I get the control back.
+
+527
+00:29:58,470 --> 00:29:58,780
+Good. 
+
+528
+00:29:59,770 --> 00:30:00,490
+This is correct. 
+
+529
+00:30:01,190 --> 00:30:01,990
+What is a problem? 
+
+530
+00:30:02,650 --> 00:30:04,040
+The problem here is, 
+
+531
+00:30:04,330 --> 00:30:09,030
+it's a little bit harder to implement and may lead to a lot of context switches. 
+
+532
+00:30:11,070 --> 00:30:12,510
+Furthermore, as you'll see,
+
+533
+00:30:12,520 --> 00:30:16,350
+from the next messy style implementation is not really necessary. 
+
+534
+00:30:17,810 --> 00:30:23,060
+And here it's about messer implementation with a messer implementation. 
+
+535
+00:30:23,070 --> 00:30:24,300
+When you after your signal, 
+
+536
+00:30:24,310 --> 00:30:32,370
+you do not give the control to the thread waiting for unconditioned barrier. 
+
+537
+00:30:32,810 --> 00:30:34,690
+Instead, what you do,
+
+538
+00:30:35,020 --> 00:30:37,160
+you just take that thread, 
+
+539
+00:30:38,320 --> 00:30:40,080
+waiting on the conditional variable, 
+
+540
+00:30:41,520 --> 00:30:42,860
+and you put it, 
+
+541
+00:30:43,170 --> 00:30:45,620
+move it from the waiting queue to the radical, 
+
+542
+00:30:46,400 --> 00:30:47,440
+is ready to execute. 
+
+543
+00:30:49,420 --> 00:30:50,690
+And then you continue. 
+
+544
+00:30:54,400 --> 00:30:55,480
+And eventually later, 
+
+545
+00:30:55,490 --> 00:30:56,520
+when you are done, 
+
+546
+00:30:57,490 --> 00:30:59,810
+you are going to schedule the operating system, 
+
+547
+00:30:59,820 --> 00:31:03,910
+is going to schedule the thread, 
+
+548
+00:31:04,430 --> 00:31:05,640
+which is now in the radical, 
+
+549
+00:31:10,330 --> 00:31:11,310
+sometimes later. 
+
+550
+00:31:15,890 --> 00:31:16,750
+But you see now, 
+
+551
+00:31:16,760 --> 00:31:25,210
+so what is but we see now that now you need to check this condition, again,
+
+552
+00:31:25,220 --> 00:31:27,400
+is mpq why? 
+
+553
+00:31:27,840 --> 00:31:29,460
+Because in the meantime, 
+
+554
+00:31:29,800 --> 00:31:31,580
+there can be another between, 
+
+555
+00:31:32,390 --> 00:31:33,580
+in the meantime, 
+
+556
+00:31:33,940 --> 00:31:35,900
+you can have a race condition. 
+
+557
+00:31:35,910 --> 00:31:40,370
+And another thread comes and wants to acquire acquires a lock, 
+
+558
+00:31:40,700 --> 00:31:41,570
+because it's free. 
+
+559
+00:31:41,930 --> 00:31:46,410
+And now, you are going to have two threads on this,
+
+560
+00:31:47,440 --> 00:31:49,270
+which are on the ridicule, 
+
+561
+00:31:49,280 --> 00:31:52,060
+which one to enter is the same critical section. 
+
+562
+00:31:52,580 --> 00:31:54,410
+So that is not good. 
+
+563
+00:31:55,670 --> 00:31:56,070
+Right? 
+
+564
+00:31:57,260 --> 00:32:00,080
+So that's kind of the problem, 
+
+565
+00:32:00,850 --> 00:32:01,000
+right? 
+
+566
+00:32:01,010 --> 00:32:01,320
+That's not. 
+
+567
+00:32:01,330 --> 00:32:03,140
+But by doing so, 
+
+568
+00:32:03,150 --> 00:32:06,770
+you are going to have less context switches, right?
+
+569
+00:32:06,780 --> 00:32:07,650
+In this case. 
+
+570
+00:32:08,110 --> 00:32:08,360
+Right? 
+
+571
+00:32:08,370 --> 00:32:13,670
+You have the first thread finishes exceeding the critical section. 
+
+572
+00:32:14,070 --> 00:32:16,120
+Then you are going to, 
+
+573
+00:32:17,150 --> 00:32:20,690
+after that, you are going to execute the second set.
+
+574
+00:32:20,700 --> 00:32:21,890
+So it's one context switch. 
+
+575
+00:32:21,900 --> 00:32:23,210
+In the previous case, 
+
+576
+00:32:23,220 --> 00:32:24,570
+you have one context switch, 
+
+577
+00:32:24,740 --> 00:32:28,680
+going from the signaling thread to the thread which is writing and back. 
+
+578
+00:32:29,340 --> 00:32:30,550
+So at least you have to. 
+
+579
+00:32:32,030 --> 00:32:32,300
+Right? 
+
+580
+00:32:38,370 --> 00:32:38,870
+Okay. 
+
+581
+00:32:39,440 --> 00:32:40,160
+Any questions? 
+
+582
+00:32:45,430 --> 00:32:49,060
+Let's not look now at our buffer, 
+
+583
+00:32:50,600 --> 00:32:58,330
+q example and use a more. 
+
+584
+00:32:58,860 --> 00:33:00,730
+And now we are using, 
+
+585
+00:33:03,170 --> 00:33:08,920
+we are using two conditioned variables for producer and the consumer. 
+
+586
+00:33:08,930 --> 00:33:10,200
+Let me give you the code. 
+
+587
+00:33:12,780 --> 00:33:15,540
+We are also looking now is bounded buffer. 
+
+588
+00:33:15,550 --> 00:33:17,060
+So in previous case, 
+
+589
+00:33:17,360 --> 00:33:20,940
+we use only unconditioned variable that it was unbounded buffer, 
+
+590
+00:33:21,390 --> 00:33:22,550
+infinite buffer size. 
+
+591
+00:33:23,040 --> 00:33:24,030
+Here is bounded. 
+
+592
+00:33:24,900 --> 00:33:26,570
+How do you have two variables? 
+
+593
+00:33:26,860 --> 00:33:29,650
+You can check whether the buffer is full or empty. 
+
+594
+00:33:30,580 --> 00:33:32,340
+And then, 
+
+595
+00:33:33,240 --> 00:33:40,090
+if the buffer is full, while the buffer is full, obviously,
+
+596
+00:33:40,370 --> 00:33:41,570
+the producer weights. 
+
+597
+00:33:42,490 --> 00:33:49,090
+Otherwise, you incur an item in the buffer and you signal the consumer.
+
+598
+00:33:49,450 --> 00:33:54,230
+Because now the buffer is no longer empty, 
+
+599
+00:33:54,240 --> 00:33:56,430
+and the consumer can drain, 
+
+600
+00:33:56,670 --> 00:33:58,680
+can take that element from the buffer. 
+
+601
+00:34:00,950 --> 00:34:02,100
+The consumer is the same. 
+
+602
+00:34:02,510 --> 00:34:03,660
+If the buffer was, 
+
+603
+00:34:05,090 --> 00:34:06,820
+if the buffer, if it's empty,
+
+604
+00:34:07,320 --> 00:34:08,230
+you can do anything. 
+
+605
+00:34:08,240 --> 00:34:11,310
+There is no item you can take from the buffer. 
+
+606
+00:34:14,680 --> 00:34:16,070
+If the buffer is not empty, 
+
+607
+00:34:16,080 --> 00:34:18,850
+you decue it and you signal a producer, 
+
+608
+00:34:18,860 --> 00:34:22,370
+then there is at least one free slot in the buffer. 
+
+609
+00:34:22,380 --> 00:34:24,530
+You can insert a new item. 
+
+610
+00:34:26,180 --> 00:34:26,920
+Right? 
+
+611
+00:34:28,950 --> 00:34:35,660
+This is what any questions? 
+
+612
+00:34:39,270 --> 00:34:40,700
+You see that fundamentally, 
+
+613
+00:34:40,710 --> 00:34:42,580
+what you do is condition variable. 
+
+614
+00:34:42,590 --> 00:34:45,790
+Here is like you mentioned earlier, 
+
+615
+00:34:46,030 --> 00:34:49,170
+is to signal between threads. 
+
+616
+00:34:50,060 --> 00:34:52,760
+When an event occurs. 
+
+617
+00:34:53,330 --> 00:34:54,920
+In this particular case, 
+
+618
+00:34:55,160 --> 00:35:01,890
+the producer signal to consumer when it's inserted an element in the buffer
+
+619
+00:35:04,360 --> 00:35:12,250
+and the consumer signals to the producer when it removed an element
+
+620
+00:35:12,260 --> 00:35:12,930
+from the buffer. 
+
+621
+00:35:15,720 --> 00:35:19,590
+Now, the producer now that for sure it can add a new element is above.
+
+622
+00:35:24,010 --> 00:35:31,660
+Also, again, I want to reiterate that the thread when he's waiting,
+
+623
+00:35:31,670 --> 00:35:32,700
+it doesn't do busy, 
+
+624
+00:35:32,710 --> 00:35:35,750
+waiting is sleeping. 
+
+625
+00:35:36,420 --> 00:35:37,940
+The condition variable, 
+
+626
+00:35:39,210 --> 00:35:41,870
+the semantics there or can't wait, 
+
+627
+00:35:42,280 --> 00:35:43,770
+is to take that thread, 
+
+628
+00:35:44,330 --> 00:35:50,140
+put it on the wait queue and release the lock to the critical section. 
+
+629
+00:35:50,900 --> 00:35:51,360
+Rough lock. 
+
+630
+00:35:57,190 --> 00:35:59,360
+Can you construct monitor from some of us? 
+
+631
+00:36:01,070 --> 00:36:03,070
+The locking aspect is easy, right?
+
+632
+00:36:03,080 --> 00:36:03,710
+Remember, 
+
+633
+00:36:04,890 --> 00:36:08,790
+you can use a semaphore which has only two values. 
+
+634
+00:36:09,220 --> 00:36:14,470
+And the way it's basically decrementing, the semaphore.
+
+635
+00:36:14,920 --> 00:36:17,610
+If it's one, you initialize on 4~1.
+
+636
+00:36:17,620 --> 00:36:20,610
+If it's one, you require the lock, and it's zero.
+
+637
+00:36:20,710 --> 00:36:24,550
+If someone else said calm since one to decrement it, 
+
+638
+00:36:24,970 --> 00:36:26,940
+then it came out and discussed the white. 
+
+639
+00:36:27,560 --> 00:36:27,600
+Right? 
+
+640
+00:36:27,610 --> 00:36:30,480
+Because you need to wait for the someone else, 
+
+641
+00:36:33,060 --> 00:36:37,180
+increase you to increment the semaphore back to one. 
+
+642
+00:36:37,800 --> 00:36:38,080
+Right? 
+
+643
+00:36:38,370 --> 00:36:39,800
+This will be the signal, right?
+
+644
+00:36:39,810 --> 00:36:40,440
+So you see things. 
+
+645
+00:36:43,550 --> 00:36:47,770
+But the biggest problem here is that the wait, 
+
+646
+00:36:47,780 --> 00:36:48,850
+if you do that, 
+
+647
+00:36:48,860 --> 00:36:50,650
+while you are in a critical section, 
+
+648
+00:36:50,660 --> 00:36:52,930
+and you have to do that to be in the critical section, 
+
+649
+00:36:53,180 --> 00:36:55,150
+then we are going to wait, 
+
+650
+00:36:55,560 --> 00:36:57,630
+and you are not going to release a lock. 
+
+651
+00:36:58,390 --> 00:36:58,650
+Right? 
+
+652
+00:36:58,660 --> 00:36:59,650
+So that's the key. 
+
+653
+00:37:00,030 --> 00:37:03,590
+The monitors on the conditioned variable, conditioned weight,
+
+654
+00:37:03,600 --> 00:37:08,610
+that function is releasing the lock atomically when you go to sleep. 
+
+655
+00:37:09,590 --> 00:37:09,920
+Right? 
+
+656
+00:37:11,570 --> 00:37:13,500
+And are this working? 
+
+657
+00:37:14,190 --> 00:37:15,580
+This is what about this? 
+
+658
+00:37:16,210 --> 00:37:16,580
+One, right?
+
+659
+00:37:18,720 --> 00:37:21,670
+You release a lock, you put that you release a lock immediately.
+
+660
+00:37:22,130 --> 00:37:22,440
+Right? 
+
+661
+00:37:22,450 --> 00:37:24,920
+You after wait, right?
+
+662
+00:37:25,600 --> 00:37:33,570
+This will not work in one of the reasons the conditional variables are have
+
+663
+00:37:33,580 --> 00:37:36,390
+no history in the sense that I always signal. 
+
+664
+00:37:36,400 --> 00:37:38,430
+If I signal you 5 times, 
+
+665
+00:37:38,650 --> 00:37:41,040
+you are going to be open only once, right?
+
+666
+00:37:41,560 --> 00:37:43,190
+But some of us have history. 
+
+667
+00:37:44,170 --> 00:37:44,970
+Let me see. 
+
+668
+00:37:53,150 --> 00:37:54,540
+So this is exactly what I was saying. 
+
+669
+00:37:54,550 --> 00:37:56,100
+It's a great question that I will. 
+
+670
+00:37:56,850 --> 00:37:57,830
+The question is, 
+
+671
+00:38:00,640 --> 00:38:02,750
+if the buffer is half full, 
+
+672
+00:38:02,990 --> 00:38:08,820
+will the condition variable still going to signal in a a is a in the either
+
+673
+00:38:08,830 --> 00:38:09,120
+case? 
+
+674
+00:38:09,430 --> 00:38:10,220
+Absolutely. 
+
+675
+00:38:10,430 --> 00:38:12,330
+That's exactly what we mean here. 
+
+676
+00:38:12,340 --> 00:38:14,370
+The condition variable has no history. 
+
+677
+00:38:14,810 --> 00:38:16,160
+You are going to be signaled. 
+
+678
+00:38:16,590 --> 00:38:19,140
+In that case, a signal doesn't mean anything,
+
+679
+00:38:19,410 --> 00:38:21,220
+because you may not, 
+
+680
+00:38:21,790 --> 00:38:27,570
+if you signal and there is no thread on waiting, then nothing will happen.
+
+681
+00:38:30,500 --> 00:38:31,410
+Very good question. 
+
+682
+00:38:42,830 --> 00:38:43,420
+And, 
+
+683
+00:38:44,670 --> 00:38:46,380
+yeah, this is exactly what I said.
+
+684
+00:38:46,390 --> 00:38:48,980
+It was if the thread signals and no one is waiting, 
+
+685
+00:38:48,990 --> 00:38:50,060
+there is no operation. 
+
+686
+00:38:50,070 --> 00:38:50,820
+There is no. 
+
+687
+00:38:51,730 --> 00:38:53,970
+If a sled later waits, 
+
+688
+00:38:54,210 --> 00:38:56,080
+then it's a problem right now here. 
+
+689
+00:38:56,090 --> 00:38:58,200
+But because it's, again,
+
+690
+00:38:58,210 --> 00:38:59,610
+if that happens, 
+
+691
+00:39:00,310 --> 00:39:05,700
+then it's going to you wait with your visa lock. 
+
+692
+00:39:05,930 --> 00:39:11,630
+And the other thread cannot increment the semaphore. 
+
+693
+00:39:11,640 --> 00:39:13,220
+Which correspond to the lock. 
+
+694
+00:39:13,230 --> 00:39:18,480
+So you are going to be to be stuck. 
+
+695
+00:39:20,850 --> 00:39:21,230
+Anyway. 
+
+696
+00:39:22,130 --> 00:39:24,180
+So there are a bunch of questions here, 
+
+697
+00:39:24,190 --> 00:39:27,400
+and I invite you to answer the questions. 
+
+698
+00:39:28,110 --> 00:39:33,740
+And I just want to as an exercise for you. 
+
+699
+00:39:34,320 --> 00:39:40,640
+And you may be very well get some problem like this one and asking you
+
+700
+00:39:40,650 --> 00:39:41,460
+these questions. 
+
+701
+00:39:42,790 --> 00:39:44,810
+But instead, 
+
+702
+00:39:44,820 --> 00:39:48,540
+because you have running a little bit out of time, 
+
+703
+00:39:48,550 --> 00:39:54,440
+I want to go to the next part of the lecture, 
+
+704
+00:39:54,450 --> 00:39:56,760
+which is extremely important part of the lecture. 
+
+705
+00:39:57,310 --> 00:40:05,080
+And this is about reader and write that problem. 
+
+706
+00:40:07,830 --> 00:40:08,980
+Let me just see. 
+
+707
+00:40:14,140 --> 00:40:17,540
+Ii think I don't have the announcement before going there. 
+
+708
+00:40:19,110 --> 00:40:20,000
+Let me do verbally. 
+
+709
+00:40:20,010 --> 00:40:25,850
+And i'm going to add the slide about the announcement to the lecture right
+
+710
+00:40:25,860 --> 00:40:27,970
+after the lecture slide, 
+
+711
+00:40:27,980 --> 00:40:29,090
+right after the election. 
+
+712
+00:40:29,740 --> 00:40:33,490
+So basically, the most important thing is that obviously,
+
+713
+00:40:33,500 --> 00:40:35,370
+next week, 
+
+714
+00:40:37,310 --> 00:40:41,670
+we are going to have the first meter and to be between seven and nine. 
+
+715
+00:40:41,960 --> 00:40:42,720
+On wednesday, 
+
+716
+00:40:48,590 --> 00:40:56,440
+we are going to have also a session for between 7:00 and
+
+717
+00:40:56,450 --> 00:41:00,980
+9:00 pm on monday for the midterm. 
+
+718
+00:41:01,520 --> 00:41:04,240
+So you can come and ask any questions you have. 
+
+719
+00:41:05,580 --> 00:41:10,320
+And this is pretty much it. 
+
+720
+00:41:11,130 --> 00:41:16,010
+We are going to provide more informations as you go close to the meter. 
+
+721
+00:41:17,260 --> 00:41:19,410
+But if you have now, any questions?
+
+722
+00:41:19,420 --> 00:41:20,570
+Let me know. 
+
+723
+00:41:28,880 --> 00:41:33,820
+Now, this is a more complex problem.
+
+724
+00:41:34,400 --> 00:41:38,820
+This will really illustrate very clearly the use of monitors. 
+
+725
+00:41:41,090 --> 00:41:42,250
+So here is a problem. 
+
+726
+00:41:42,920 --> 00:41:51,700
+The problem is about accessing a database which is shared by multiple people. 
+
+727
+00:41:54,080 --> 00:41:59,120
+A can have a bunch of people who want to write and a bunch of people who
+
+728
+00:41:59,130 --> 00:42:00,680
+want to read to the database. 
+
+729
+00:42:01,830 --> 00:42:05,140
+These rights and read operations happen concurrently. 
+
+730
+00:42:06,130 --> 00:42:08,820
+And they modify the same data, 
+
+731
+00:42:10,540 --> 00:42:10,890
+right? 
+
+732
+00:42:12,590 --> 00:42:14,140
+How you are going to implement it. 
+
+733
+00:42:15,400 --> 00:42:17,920
+One thing is to use a lock for the entire database. 
+
+734
+00:42:18,720 --> 00:42:19,070
+Right? 
+
+735
+00:42:21,250 --> 00:42:22,630
+You read or write, 
+
+736
+00:42:23,300 --> 00:42:24,070
+acquire the lock. 
+
+737
+00:42:24,490 --> 00:42:26,600
+You do your job, and it is a lock.
+
+738
+00:42:28,090 --> 00:42:28,880
+So is that
+
+739
+00:42:41,550 --> 00:42:41,660
+sufficient? 
+
+740
+00:42:41,670 --> 00:42:42,900
+That's a question for you. 
+
+741
+00:42:51,540 --> 00:42:52,020
+Yes. 
+
+742
+00:42:52,410 --> 00:42:56,420
+It is sufficient, meaning that.
+
+743
+00:42:56,810 --> 00:42:57,270
+Correct. 
+
+744
+00:42:57,570 --> 00:42:59,010
+But it can be very slow, right?
+
+745
+00:42:59,760 --> 00:43:05,630
+I if you think about fundamentally give me two examples why this is inefficient. 
+
+746
+00:43:09,680 --> 00:43:10,970
+It's exactly, I don't.
+
+747
+00:43:11,540 --> 00:43:13,190
+Aaron gave a great answer. 
+
+748
+00:43:13,200 --> 00:43:14,110
+So basically, 
+
+749
+00:43:15,140 --> 00:43:15,600
+for instance, 
+
+750
+00:43:16,210 --> 00:43:18,480
+if people only read from the database, 
+
+751
+00:43:18,710 --> 00:43:19,810
+there is no need to lock it, 
+
+752
+00:43:20,080 --> 00:43:21,180
+because nothing will change. 
+
+753
+00:43:25,100 --> 00:43:27,940
+Also, there are other reasons we are going to discuss later.
+
+754
+00:43:27,950 --> 00:43:30,330
+But what even if you do, 
+
+755
+00:43:30,340 --> 00:43:31,370
+if you have rights, 
+
+756
+00:43:35,330 --> 00:43:37,170
+then the rights can be different records. 
+
+757
+00:43:38,780 --> 00:43:40,740
+They don't need to wait after each other. 
+
+758
+00:43:41,220 --> 00:43:42,690
+We are not going to solve this problem. 
+
+759
+00:43:42,700 --> 00:43:43,090
+Here. 
+
+760
+00:43:43,100 --> 00:43:46,200
+We are going to solve the first problem on multiple readers. 
+
+761
+00:43:47,090 --> 00:43:52,430
+We should allow them to read the database if there are no writers. 
+
+762
+00:43:52,960 --> 00:43:54,320
+Read writers, yeah.
+
+763
+00:43:58,570 --> 00:43:59,040
+Very good. 
+
+764
+00:44:00,870 --> 00:44:03,220
+Let's see what you want the less from the solution. 
+
+765
+00:44:06,250 --> 00:44:08,250
+Readers can access database ones. 
+
+766
+00:44:08,260 --> 00:44:09,050
+There are no writers. 
+
+767
+00:44:09,610 --> 00:44:10,790
+This is exactly like we said. 
+
+768
+00:44:12,470 --> 00:44:14,260
+If there are no writers, no,
+
+769
+00:44:14,680 --> 00:44:16,750
+no value will change. 
+
+770
+00:44:18,600 --> 00:44:19,790
+So therefore, 
+
+771
+00:44:20,960 --> 00:44:23,870
+the readers, any number of readers can read concurrent.
+
+772
+00:44:26,920 --> 00:44:28,680
+Writers can access database, 
+
+773
+00:44:28,690 --> 00:44:33,770
+a writer can access a database when there is no reader reading. 
+
+774
+00:44:34,480 --> 00:44:37,370
+Now, as a writer modifying the database.
+
+775
+00:44:40,260 --> 00:44:43,080
+And finally, we have some state variables.
+
+776
+00:44:45,220 --> 00:44:48,650
+We want only one thread to modify them at a given time. 
+
+777
+00:44:50,940 --> 00:44:51,210
+Right? 
+
+778
+00:44:51,820 --> 00:44:52,400
+This is, 
+
+779
+00:44:53,420 --> 00:44:56,660
+so this is the basic solution, 
+
+780
+00:44:56,670 --> 00:44:59,240
+the structure for the reader. 
+
+781
+00:44:59,850 --> 00:45:04,050
+You wait until there are no writers access a database, 
+
+782
+00:45:05,640 --> 00:45:13,600
+check out and wake up waiting writers and the writer
+
+783
+00:45:13,980 --> 00:45:20,160
+waiting wait until there are no active readers or writers access database, 
+
+784
+00:45:20,170 --> 00:45:24,720
+and then you check out and you wake up as awaiting readers or writers. 
+
+785
+00:45:32,450 --> 00:45:33,820
+So let me ask you this question. 
+
+786
+00:45:36,390 --> 00:45:37,340
+You see here, 
+
+787
+00:45:38,240 --> 00:45:40,580
+there is some asymmetry, some asymmetry.
+
+788
+00:45:40,590 --> 00:45:44,430
+There is the river driven is derived from our constraints. 
+
+789
+00:45:45,920 --> 00:45:46,230
+Right? 
+
+790
+00:45:47,780 --> 00:45:48,750
+If a reader, 
+
+791
+00:45:49,810 --> 00:45:52,290
+it doesn't need to wait until there are no other readers, 
+
+792
+00:45:52,530 --> 00:45:54,820
+because it doesn't conflict with other readers, 
+
+793
+00:45:54,830 --> 00:45:56,460
+it can only conflict with writers. 
+
+794
+00:45:57,500 --> 00:45:59,290
+That's how you wait until no writers. 
+
+795
+00:45:59,300 --> 00:46:03,840
+The writers is going to conflict bosses, readers, and writers.
+
+796
+00:46:03,850 --> 00:46:07,300
+Because if a reader is going to read the data, 
+
+797
+00:46:07,550 --> 00:46:09,480
+while the writer changing the data, 
+
+798
+00:46:09,690 --> 00:46:12,140
+it can read, the reader can read garbage.
+
+799
+00:46:13,520 --> 00:46:17,530
+But then there is another estimate when a writer is done, is done,
+
+800
+00:46:17,930 --> 00:46:22,870
+is going to wait three wake up readers and writers. 
+
+801
+00:46:23,350 --> 00:46:25,170
+While when the reader is done, 
+
+802
+00:46:25,610 --> 00:46:28,080
+is only tried to wake up writers. 
+
+803
+00:46:28,750 --> 00:46:29,590
+Why this asymmetric? 
+
+804
+00:46:30,340 --> 00:46:31,000
+Why do you think? 
+
+805
+00:46:32,140 --> 00:46:35,580
+Why do you think the reader is not just waiting algorithms? 
+
+806
+00:46:35,970 --> 00:46:37,230
+Waking up algorithms? 
+
+807
+00:46:53,810 --> 00:46:54,290
+Very good. 
+
+808
+00:46:54,300 --> 00:46:57,330
+The readers are all concurrent so that it should be known
+
+809
+00:46:57,340 --> 00:46:59,010
+as any other reader to wake up. 
+
+810
+00:47:00,740 --> 00:47:01,170
+Very good. 
+
+811
+00:47:01,180 --> 00:47:01,730
+Okay. 
+
+812
+00:47:03,110 --> 00:47:03,940
+Let's move on. 
+
+813
+00:47:05,280 --> 00:47:08,210
+How do we implement this with our monitor? 
+
+814
+00:47:08,220 --> 00:47:10,450
+Is a beautiful abstraction we just learned about. 
+
+815
+00:47:11,410 --> 00:47:11,730
+Right? 
+
+816
+00:47:12,690 --> 00:47:14,040
+So, you see,
+
+817
+00:47:14,050 --> 00:47:19,090
+wake up a waiting a writer and wake up waiting readers or writers. 
+
+818
+00:47:20,620 --> 00:47:21,410
+What are these? 
+
+819
+00:47:23,310 --> 00:47:24,500
+You can implement them. 
+
+820
+00:47:24,980 --> 00:47:29,400
+Condition variables is like signals and wait and waiting, 
+
+821
+00:47:29,770 --> 00:47:31,090
+going to that conditional variable. 
+
+822
+00:47:33,990 --> 00:47:37,220
+We have two conditional variables to read to write. 
+
+823
+00:47:40,170 --> 00:47:41,880
+Then what are the state variables? 
+
+824
+00:47:44,230 --> 00:47:45,940
+The number of active readers, 
+
+825
+00:47:48,430 --> 00:47:50,050
+number of active writers, 
+
+826
+00:47:51,740 --> 00:47:53,940
+how many active writers can have at a given time? 
+
+827
+00:47:55,870 --> 00:47:56,210
+One. 
+
+828
+00:47:56,780 --> 00:47:57,150
+Right? 
+
+829
+00:47:57,880 --> 00:47:58,390
+Remember, 
+
+830
+00:47:59,590 --> 00:48:01,480
+we cannot have two writers at the same time. 
+
+831
+00:48:03,890 --> 00:48:07,930
+Then the number of waiting readers are the readers which are waiting to read. 
+
+832
+00:48:08,890 --> 00:48:10,460
+And the number of waiting writers, 
+
+833
+00:48:10,870 --> 00:48:14,340
+when do you have adidas waiting? 
+
+834
+00:48:28,770 --> 00:48:30,280
+When there is one active writer? 
+
+835
+00:48:32,710 --> 00:48:33,340
+Very good. 
+
+836
+00:48:42,500 --> 00:48:45,370
+So let's write the code for the reader. 
+
+837
+00:48:51,840 --> 00:48:52,030
+Here. 
+
+838
+00:48:52,040 --> 00:48:58,260
+Is it now look like acquire, lock, release, lock,
+
+839
+00:49:00,660 --> 00:49:05,830
+because we within this code, 
+
+840
+00:49:08,350 --> 00:49:10,260
+manipulates the state variables. 
+
+841
+00:49:15,530 --> 00:49:16,210
+He said either. 
+
+842
+00:49:17,890 --> 00:49:24,560
+So I am looking if there are no active writers or waiting writers, 
+
+843
+00:49:26,260 --> 00:49:26,660
+right? 
+
+844
+00:49:29,110 --> 00:49:35,110
+So if is there active writers and work waiting writers, 
+
+845
+00:49:36,480 --> 00:49:39,010
+then you wait, 
+
+846
+00:49:40,170 --> 00:49:42,970
+you implement the number of waiting readers, 
+
+847
+00:49:43,940 --> 00:49:45,750
+because now is myself. 
+
+848
+00:49:46,540 --> 00:49:47,500
+I am going to wait. 
+
+849
+00:49:51,390 --> 00:49:56,710
+And then i'm going to wait on the condition variables. 
+
+850
+00:49:57,800 --> 00:49:58,190
+Do it. 
+
+851
+00:49:58,200 --> 00:50:03,380
+I'm always need to wait until it's okay for me to read and release a lock. 
+
+852
+00:50:08,100 --> 00:50:08,520
+Now, 
+
+853
+00:50:09,050 --> 00:50:10,200
+why am I looking? 
+
+854
+00:50:10,210 --> 00:50:11,400
+Why am I going here? 
+
+855
+00:50:11,410 --> 00:50:13,160
+I am waiting for a boss. 
+
+856
+00:50:14,210 --> 00:50:15,920
+Active writers is normal, right?
+
+857
+00:50:15,930 --> 00:50:17,600
+I cannot read on someone is right. 
+
+858
+00:50:18,710 --> 00:50:23,730
+But why I am waiting also for writing writers because this means that I
+
+859
+00:50:23,740 --> 00:50:26,130
+am going to wait for other
+
+860
+00:50:26,140 --> 00:50:30,670
+writers to write before me before I can read. 
+
+861
+00:50:33,200 --> 00:50:34,070
+Why do you think is that
+
+862
+00:50:55,200 --> 00:51:02,980
+a few people say we don't read garbage or we don't read one wrong results, 
+
+863
+00:51:02,990 --> 00:51:04,140
+but why is that? 
+
+864
+00:51:04,150 --> 00:51:06,160
+Because why we do that? 
+
+865
+00:51:06,170 --> 00:51:06,360
+Right? 
+
+866
+00:51:06,370 --> 00:51:07,680
+Because in that case, 
+
+867
+00:51:08,620 --> 00:51:09,810
+you can have, 
+
+868
+00:51:09,820 --> 00:51:11,050
+so here is what can happen. 
+
+869
+00:51:14,230 --> 00:51:15,740
+You have a bunch of readers, 
+
+870
+00:51:17,000 --> 00:51:21,260
+no writers in the system. 
+
+871
+00:51:21,270 --> 00:51:24,980
+And now I have a writer which wants to write, 
+
+872
+00:51:26,950 --> 00:51:30,150
+and that writer has to wait for the current readers to complete. 
+
+873
+00:51:31,340 --> 00:51:34,730
+And in the meantime, I have another reader which wants to read.
+
+874
+00:51:36,100 --> 00:51:40,130
+I'm not going to let these readers read the database
+
+875
+00:51:40,140 --> 00:51:43,710
+together with the other readers before the
+
+876
+00:51:43,720 --> 00:51:48,810
+writer is scheduled to write and update the database. 
+
+877
+00:51:52,610 --> 00:51:58,830
+So it won't the resulting wrong results, right?
+
+878
+00:52:00,950 --> 00:52:03,330
+What the reason you do this, 
+
+879
+00:52:05,720 --> 00:52:13,110
+but it is fundamentally what it gives priority to the waiting writers, 
+
+880
+00:52:13,880 --> 00:52:14,150
+right? 
+
+881
+00:52:17,370 --> 00:52:18,270
+That what happens? 
+
+882
+00:52:21,440 --> 00:52:24,380
+And why do you give priority to the waiting writers? 
+
+883
+00:52:25,890 --> 00:52:33,840
+Is the reason was the answer is correct is from actually is that
+
+884
+00:52:34,930 --> 00:52:38,380
+you want to read the most up to date information. 
+
+885
+00:52:39,460 --> 00:52:42,080
+Otherwise, you can start of fighters.
+
+886
+00:52:43,040 --> 00:52:45,630
+If you always have readers coming in, 
+
+887
+00:52:46,810 --> 00:52:49,520
+you will never update the database. 
+
+888
+00:52:53,790 --> 00:52:54,900
+Before a reader. 
+
+889
+00:52:55,340 --> 00:52:59,630
+30 minutes finishes you have another reader sharing to schedule
+
+890
+00:52:59,640 --> 00:53:02,570
+that reader and so forth. 
+
+891
+00:53:03,320 --> 00:53:06,660
+Life as a writer will not be able to be scheduled. 
+
+892
+00:53:09,130 --> 00:53:09,880
+Sounds good. 
+
+893
+00:53:13,000 --> 00:53:13,430
+Anyway, 
+
+894
+00:53:14,930 --> 00:53:20,140
+after if there is no active writers or waiting writers, 
+
+895
+00:53:20,150 --> 00:53:26,100
+then you are going to increment is a number of active readers, 
+
+896
+00:53:26,110 --> 00:53:28,340
+because now you are allowed to read. 
+
+897
+00:53:28,350 --> 00:53:29,340
+So you are active reader, 
+
+898
+00:53:30,830 --> 00:53:32,310
+and you release a lock, 
+
+899
+00:53:35,600 --> 00:53:36,680
+you access the database. 
+
+900
+00:53:36,690 --> 00:53:38,630
+Is it only, right?
+
+901
+00:53:38,640 --> 00:53:44,010
+It's and then after you are done, 
+
+902
+00:53:45,000 --> 00:53:52,410
+you acquire the lock and to manipulate the state variables, 
+
+903
+00:53:52,420 --> 00:54:00,290
+and you decrement the active readers because i'm done. 
+
+904
+00:54:01,920 --> 00:54:03,130
+And now what do I need to do? 
+
+905
+00:54:05,610 --> 00:54:09,830
+Well, what I need to do is to wait,
+
+906
+00:54:09,840 --> 00:54:12,050
+wake up threads, which may wait,
+
+907
+00:54:13,780 --> 00:54:17,370
+for instance, to write to the database.
+
+908
+00:54:19,090 --> 00:54:21,200
+Here, if active readers is zero,
+
+909
+00:54:22,680 --> 00:54:26,710
+and there are waiting writers, 
+
+910
+00:54:28,020 --> 00:54:30,050
+then i'm going to send a signal to write. 
+
+911
+00:54:47,190 --> 00:54:49,380
+Simon has a great question here. 
+
+912
+00:54:51,310 --> 00:54:57,530
+What new writers are coming all the time when you get to read, 
+
+913
+00:54:57,540 --> 00:55:00,050
+if you keep waiting for all writers to finish. 
+
+914
+00:55:00,630 --> 00:55:01,310
+That's correct. 
+
+915
+00:55:03,440 --> 00:55:05,280
+So in this particular case, 
+
+916
+00:55:06,990 --> 00:55:08,780
+if writers come up all the time, 
+
+917
+00:55:08,790 --> 00:55:10,460
+you are not going to get a chance to it. 
+
+918
+00:55:11,800 --> 00:55:15,250
+In practice, you need to be a little bit more sophisticated.
+
+919
+00:55:17,720 --> 00:55:23,820
+But that's a good.. 
+
+920
+00:55:27,410 --> 00:55:28,600
+This is one question here, 
+
+921
+00:55:28,610 --> 00:55:31,000
+is why do you want why you release locks there? 
+
+922
+00:55:33,590 --> 00:55:35,600
+Why don't you release a lock all the way to the end? 
+
+923
+00:55:40,720 --> 00:55:48,410
+Why is not access database part of the critical section here? 
+
+924
+00:55:59,000 --> 00:56:00,710
+So any readers can get the lock. 
+
+925
+00:56:03,420 --> 00:56:04,970
+You don't change the state variables. 
+
+926
+00:56:04,980 --> 00:56:07,210
+The locks are for changing the state variables. 
+
+927
+00:56:09,120 --> 00:56:10,350
+In this particular case, 
+
+928
+00:56:10,360 --> 00:56:12,390
+you also want all the readers. 
+
+929
+00:56:13,060 --> 00:56:15,270
+If there are only active readers in the system, 
+
+930
+00:56:16,100 --> 00:56:17,620
+if there are only leaders in the system, 
+
+931
+00:56:17,630 --> 00:56:19,780
+you want them to read concurrent, 
+
+932
+00:56:23,490 --> 00:56:23,760
+right? 
+
+933
+00:56:26,880 --> 00:56:28,870
+Very good answers. 
+
+934
+00:56:31,810 --> 00:56:32,250
+Now, let's see.
+
+935
+00:56:32,260 --> 00:56:35,940
+The code for the writer is very similar. 
+
+936
+00:56:37,630 --> 00:56:37,900
+Right? 
+
+937
+00:56:37,910 --> 00:56:39,570
+You acquire the lock. 
+
+938
+00:56:40,580 --> 00:56:46,400
+And now you check whether you can write and what is a test. 
+
+939
+00:56:47,960 --> 00:56:49,390
+There should be no active readers. 
+
+940
+00:56:49,400 --> 00:56:50,980
+You cannot write. 
+
+941
+00:56:51,560 --> 00:56:53,590
+While you have readers reading the data, 
+
+942
+00:56:54,070 --> 00:56:55,990
+you need manipulating the state variables. 
+
+943
+00:56:58,290 --> 00:57:01,320
+And obviously you cannot have writers, 
+
+944
+00:57:03,000 --> 00:57:03,720
+active writers. 
+
+945
+00:57:06,090 --> 00:57:09,070
+You don't, if you have any of those, you go to wait,
+
+946
+00:57:10,390 --> 00:57:12,860
+you wait on the conditional variable to write, 
+
+947
+00:57:12,870 --> 00:57:14,020
+because you are a writer. 
+
+948
+00:57:15,600 --> 00:57:18,640
+If not, you are going to increment active writers,
+
+949
+00:57:18,650 --> 00:57:20,120
+because now you are an active writer, 
+
+950
+00:57:20,130 --> 00:57:22,370
+it is a lock. 
+
+951
+00:57:24,030 --> 00:57:26,180
+You ask the database, read, write.
+
+952
+00:57:28,050 --> 00:57:29,480
+Then once you are done, 
+
+953
+00:57:29,490 --> 00:57:32,320
+you acquire the lock again to manipulate the state variables, 
+
+954
+00:57:32,330 --> 00:57:35,000
+to decline the number of active writers, 
+
+955
+00:57:35,010 --> 00:57:36,840
+because now you are no longer writing. 
+
+956
+00:57:38,380 --> 00:57:43,550
+And then you check if the number of if there are still waiting writers, 
+
+957
+00:57:43,560 --> 00:57:49,980
+you are going to wake up one of those by sending signal. 
+
+958
+00:57:52,530 --> 00:57:59,450
+And now, if that's not the case and the number of waiting writers is zero,
+
+959
+00:57:59,460 --> 00:58:01,780
+but there are waiting readers, 
+
+960
+00:58:02,280 --> 00:58:04,000
+then you send a broadcast to read. 
+
+961
+00:58:04,010 --> 00:58:06,750
+So now you see the use of the broadcast. 
+
+962
+00:58:07,380 --> 00:58:11,250
+You are going to wake up all The readers, 
+
+963
+00:58:13,390 --> 00:58:17,640
+because all the readers can read at the same time conqueror. 
+
+964
+00:58:32,150 --> 00:58:34,260
+Let me ask this answer this question. 
+
+965
+00:58:36,750 --> 00:58:38,460
+Does the question is, 
+
+966
+00:58:38,470 --> 00:58:42,660
+does there exist some situation that the reader is waiting to read
+
+967
+00:58:42,670 --> 00:58:44,750
+some the media state? 
+
+968
+00:58:45,430 --> 00:58:47,870
+While some writer joins the way? 
+
+969
+00:58:48,890 --> 00:58:49,520
+Definitely. 
+
+970
+00:58:52,200 --> 00:58:56,080
+Yeah, but the writer is not going to be able to modify the state.
+
+971
+00:58:56,550 --> 00:58:57,910
+So we are going to be fine. 
+
+972
+00:59:07,770 --> 00:59:11,720
+Sorry, so basically you say if I read so that is already waiting.
+
+973
+00:59:12,750 --> 00:59:14,110
+And now, yes,
+
+974
+00:59:14,120 --> 00:59:16,150
+a new writer joins the way. 
+
+975
+00:59:19,610 --> 00:59:21,700
+So that's valid. 
+
+976
+00:59:22,200 --> 00:59:23,750
+In that particular case, 
+
+977
+00:59:23,980 --> 00:59:26,150
+the writer will be prioritized over the reader, 
+
+978
+00:59:29,980 --> 00:59:30,770
+but it's again, 
+
+979
+00:59:31,660 --> 00:59:33,150
+at a given time, 
+
+980
+00:59:33,930 --> 00:59:40,430
+only one reader and one or only one writer can manipulate the state variables. 
+
+981
+00:59:43,560 --> 00:59:44,580
+So you should be fine. 
+
+982
+00:59:49,730 --> 00:59:53,240
+We discussed why giving the prairie to write us earlier on. 
+
+983
+00:59:54,480 --> 00:59:54,930
+Okay. 
+
+984
+00:59:55,970 --> 00:59:56,680
+Now, 
+
+985
+01:00:00,710 --> 01:00:02,340
+let's do the following. 
+
+986
+01:00:02,720 --> 01:00:03,880
+We are going to, 
+
+987
+01:00:05,130 --> 01:00:11,970
+in order to get, 
+
+988
+01:00:12,800 --> 01:00:15,450
+hopefully, you do better understand what's happening here.
+
+989
+01:00:16,000 --> 01:00:17,720
+Let's go through a simulation. 
+
+990
+01:00:18,620 --> 01:00:19,100
+Okay? 
+
+991
+01:00:23,900 --> 01:00:28,210
+Let's assume the following sequence of operators operations. 
+
+992
+01:00:31,030 --> 01:00:34,840
+We have three writers and one writer, 
+
+993
+01:00:35,570 --> 01:00:37,880
+siri, the story three readers,
+
+994
+01:00:38,500 --> 01:00:42,530
+are one, are two and are three and one writer.
+
+995
+01:00:43,470 --> 01:00:43,840
+Okay? 
+
+996
+01:00:45,640 --> 01:00:47,190
+So first we get the first reader, 
+
+997
+01:00:47,960 --> 01:00:49,870
+the second reader, then the writer,
+
+998
+01:00:49,880 --> 01:00:51,110
+and then the third reader. 
+
+999
+01:00:53,420 --> 01:00:57,170
+Initially, all the state variables are set to zero.
+
+1000
+01:00:59,740 --> 01:01:02,050
+Let's see what happens. 
+
+1001
+01:01:02,060 --> 01:01:03,610
+R one comes along. 
+
+1002
+01:01:05,000 --> 01:01:05,870
+There are no waiting threats. 
+
+1003
+01:01:05,880 --> 01:01:07,710
+There are no other threats in the system. 
+
+1004
+01:01:09,430 --> 01:01:10,310
+So let's see what happens. 
+
+1005
+01:01:12,110 --> 01:01:13,220
+It acquires a lock, 
+
+1006
+01:01:14,750 --> 01:01:18,790
+check whether there is an active writer or awaiting writer. 
+
+1007
+01:01:19,880 --> 01:01:21,350
+Both of these variables are zero, 
+
+1008
+01:01:21,360 --> 01:01:24,870
+none of them in none of such straight in the system. 
+
+1009
+01:01:27,070 --> 01:01:28,260
+You exit the while loop. 
+
+1010
+01:01:29,900 --> 01:01:32,640
+And r one can start reading. 
+
+1011
+01:01:34,180 --> 01:01:36,020
+You increment the active reader variable, 
+
+1012
+01:01:36,030 --> 01:01:38,540
+you raise a log. 
+
+1013
+01:01:41,180 --> 01:01:44,750
+We know that why you access a database. 
+
+1014
+01:01:47,870 --> 01:01:54,610
+Let's say that while you are accessing the database are two comes along. 
+
+1015
+01:01:57,310 --> 01:01:57,740
+Okay? 
+
+1016
+01:01:59,660 --> 01:02:01,540
+Remember, now the number of activators,
+
+1017
+01:02:01,550 --> 01:02:02,580
+it's one, 
+
+1018
+01:02:03,330 --> 01:02:05,720
+because r one is still accessing the database. 
+
+1019
+01:02:09,380 --> 01:02:10,730
+What is r one? 
+
+1020
+01:02:10,740 --> 01:02:11,530
+R two doing? 
+
+1021
+01:02:12,580 --> 01:02:14,620
+Obviously is going to execute the same code, 
+
+1022
+01:02:15,540 --> 01:02:16,710
+is acquiring the log. 
+
+1023
+01:02:17,760 --> 01:02:20,480
+Now it's checking whether it's an active writer or a waiting writer, 
+
+1024
+01:02:22,030 --> 01:02:24,620
+none this none such strategy in the system. 
+
+1025
+01:02:27,880 --> 01:02:28,630
+So, 
+
+1026
+01:02:30,910 --> 01:02:36,160
+again, you skip the while up and increment the number of active writers.
+
+1027
+01:02:38,510 --> 01:02:41,780
+These are lock and you access the database. 
+
+1028
+01:02:42,400 --> 01:02:45,470
+Now, both r one and r two are accessing the database.
+
+1029
+01:02:45,480 --> 01:02:48,070
+The number of active writers is two. 
+
+1030
+01:02:48,630 --> 01:02:50,520
+All the other state variables started zero. 
+
+1031
+01:03:04,080 --> 01:03:07,870
+Now, it's again assume that it does take a while to access database
+
+1032
+01:03:17,110 --> 01:03:22,020
+and assume that during this time, 
+
+1033
+01:03:22,360 --> 01:03:24,320
+now when w is a writer, 
+
+1034
+01:03:24,330 --> 01:03:26,540
+the writer comes along w one. 
+
+1035
+01:03:28,950 --> 01:03:29,790
+So what is that? 
+
+1036
+01:03:30,630 --> 01:03:33,230
+The writer is going to execute the writer code. 
+
+1037
+01:03:35,850 --> 01:03:40,780
+So it acquires a lock and now it looks at active writers and active readers
+
+1038
+01:03:41,140 --> 01:03:41,680
+in the system. 
+
+1039
+01:03:43,460 --> 01:03:44,820
+There are two active readers. 
+
+1040
+01:03:45,680 --> 01:03:48,550
+Now active writers still, 
+
+1041
+01:03:50,000 --> 01:03:52,280
+because there are two active readers. 
+
+1042
+01:03:55,180 --> 01:03:58,690
+The writer cannot proceed. 
+
+1043
+01:03:59,970 --> 01:04:00,770
+So what do you do? 
+
+1044
+01:04:01,610 --> 01:04:03,930
+You increment the number of waiting writers, 
+
+1045
+01:04:05,840 --> 01:04:06,050
+right? 
+
+1046
+01:04:06,060 --> 01:04:07,290
+Because now you have to wait, 
+
+1047
+01:04:08,900 --> 01:04:14,760
+and you call your weight on to write condition variables. 
+
+1048
+01:04:15,290 --> 01:04:16,120
+And you release a lock. 
+
+1049
+01:04:22,830 --> 01:04:26,480
+W one cannot start because of readers. 
+
+1050
+01:04:29,860 --> 01:04:31,660
+Finally, r three comes along,
+
+1051
+01:04:34,410 --> 01:04:40,730
+choirs a lock, and now it checks whether active writers or waiting writers.
+
+1052
+01:04:42,150 --> 01:04:43,470
+There are no active writers, 
+
+1053
+01:04:44,120 --> 01:04:46,390
+but there is one waiting writers, w one.
+
+1054
+01:04:48,010 --> 01:04:49,250
+So therefore, 
+
+1055
+01:04:50,580 --> 01:04:54,160
+the new reader r three has to wait
+
+1056
+01:05:00,230 --> 01:05:02,580
+increment writing readers now by one. 
+
+1057
+01:05:03,700 --> 01:05:07,790
+And you are going to wait for the condition variable to read. 
+
+1058
+01:05:08,460 --> 01:05:09,410
+They release a lock. 
+
+1059
+01:05:15,350 --> 01:05:17,810
+Any questions here? 
+
+1060
+01:05:17,820 --> 01:05:19,050
+Is that clear so far? 
+
+1061
+01:05:34,380 --> 01:05:37,730
+Let's go with our simulation status like this time. 
+
+1062
+01:05:37,740 --> 01:05:40,270
+R one and r two are still reading. 
+
+1063
+01:05:40,740 --> 01:05:42,920
+W and r three are waiting. 
+
+1064
+01:05:47,470 --> 01:05:49,570
+So let's say r two finishes, 
+
+1065
+01:05:53,170 --> 01:05:55,360
+add one, still accessing database.
+
+1066
+01:05:55,370 --> 01:05:57,960
+W one and r three are still waiting. 
+
+1067
+01:06:00,780 --> 01:06:07,610
+R two is going to acquire the lock to update the state variables, 
+
+1068
+01:06:07,620 --> 01:06:08,410
+in particular, 
+
+1069
+01:06:08,420 --> 01:06:12,890
+to update the number of active readers now is less to decrement it, 
+
+1070
+01:06:13,620 --> 01:06:15,020
+because out of finishes. 
+
+1071
+01:06:15,870 --> 01:06:18,920
+And now is looking whether the active, 
+
+1072
+01:06:18,930 --> 01:06:20,200
+whether it can wait, 
+
+1073
+01:06:20,430 --> 01:06:22,080
+can wake up any threat. 
+
+1074
+01:06:23,430 --> 01:06:25,390
+And she's looking whether there are active readers, 
+
+1075
+01:06:25,400 --> 01:06:26,830
+if there are no active readers, 
+
+1076
+01:06:28,160 --> 01:06:29,510
+and that are waiting writers, 
+
+1077
+01:06:32,050 --> 01:06:33,040
+you're looking for that. 
+
+1078
+01:06:34,640 --> 01:06:40,770
+And then the condition is false, 
+
+1079
+01:06:41,600 --> 01:06:43,200
+because there are still active readers. 
+
+1080
+01:06:44,580 --> 01:06:45,420
+This is r one. 
+
+1081
+01:06:46,730 --> 01:06:47,600
+Then you release along. 
+
+1082
+01:06:49,690 --> 01:06:51,390
+And r one now is done. 
+
+1083
+01:06:56,210 --> 01:06:56,630
+Okay. 
+
+1084
+01:07:00,150 --> 01:07:03,920
+Now let's say r finishes, sorry, r two is done.
+
+1085
+01:07:04,920 --> 01:07:05,210
+Right? 
+
+1086
+01:07:05,560 --> 01:07:07,080
+Now, say r one finishes.
+
+1087
+01:07:07,090 --> 01:07:08,320
+He's doing the same thing. 
+
+1088
+01:07:08,980 --> 01:07:12,150
+Acquire the lock, decrement the number of active readers.
+
+1089
+01:07:12,160 --> 01:07:14,790
+Now both are one and are two are going to be done. 
+
+1090
+01:07:15,650 --> 01:07:17,590
+And our active readers become zero. 
+
+1091
+01:07:19,360 --> 01:07:21,100
+And there waiting writers, 
+
+1092
+01:07:21,900 --> 01:07:23,040
+there is w one. 
+
+1093
+01:07:24,610 --> 01:07:26,770
+So that now this condition is true. 
+
+1094
+01:07:28,650 --> 01:07:34,730
+And now you are going to signal to the writer that it's okay to write. 
+
+1095
+01:07:42,050 --> 01:07:42,280
+Right? 
+
+1096
+01:07:42,290 --> 01:07:43,320
+Readers are done. 
+
+1097
+01:07:43,330 --> 01:07:50,570
+You can see it's the signal to write aw so now, 
+
+1098
+01:07:51,110 --> 01:07:52,110
+the writer, 
+
+1099
+01:07:53,420 --> 01:07:55,970
+which was waiting was a condition variable to write, 
+
+1100
+01:07:55,980 --> 01:07:57,170
+to receive the signal. 
+
+1101
+01:07:59,340 --> 01:08:00,930
+It's moved to the ridicule. 
+
+1102
+01:08:00,940 --> 01:08:03,170
+And now we can start executing it, 
+
+1103
+01:08:03,180 --> 01:08:04,250
+executing this slide. 
+
+1104
+01:08:05,990 --> 01:08:08,670
+It acquires a lock back because remember, 
+
+1105
+01:08:09,380 --> 01:08:15,990
+we are still in the critical section decrement number of waiting writers. 
+
+1106
+01:08:16,740 --> 01:08:18,080
+I am no longer waiting now. 
+
+1107
+01:08:19,740 --> 01:08:21,770
+Increment is a number of active writers. 
+
+1108
+01:08:21,780 --> 01:08:22,650
+I am active now, 
+
+1109
+01:08:24,680 --> 01:08:27,160
+but it is a log and access a database. 
+
+1110
+01:08:30,190 --> 01:08:31,770
+This again, although I am writing now,
+
+1111
+01:08:31,780 --> 01:08:36,210
+is still okay to accept to access a database outside the locks. 
+
+1112
+01:08:37,610 --> 01:08:43,810
+Because this database is going to be accessed can show only if the number
+
+1113
+01:08:43,820 --> 01:08:44,970
+of active writers. 
+
+1114
+01:08:45,690 --> 01:08:46,260
+It's one. 
+
+1115
+01:08:47,890 --> 01:08:50,130
+You are guaranteed it will not be greater than one. 
+
+1116
+01:08:54,480 --> 01:08:55,810
+Then say you are done, 
+
+1117
+01:08:56,880 --> 01:08:58,010
+you acquire the lock, 
+
+1118
+01:08:59,520 --> 01:09:01,520
+you decline the number of active writers. 
+
+1119
+01:09:03,630 --> 01:09:05,250
+And now you look to signal. 
+
+1120
+01:09:06,770 --> 01:09:09,010
+Again, you give priority to the waiting writers,
+
+1121
+01:09:09,910 --> 01:09:09,970
+right? 
+
+1122
+01:09:09,980 --> 01:09:12,350
+Because you are prioritized writings of readings. 
+
+1123
+01:09:14,760 --> 01:09:16,870
+So now is there are awaiting writers, 
+
+1124
+01:09:16,880 --> 01:09:18,360
+you call okay to write. 
+
+1125
+01:09:18,370 --> 01:09:20,880
+But in this case, there are no longer waiting writers.
+
+1126
+01:09:24,240 --> 01:09:27,990
+Therefore, you are going to look where there are waiting readers.
+
+1127
+01:09:29,080 --> 01:09:30,850
+There is one is r three. 
+
+1128
+01:09:32,820 --> 01:09:40,140
+Then you are going to signal to r three that it can is okay to continue to read. 
+
+1129
+01:09:45,290 --> 01:09:49,030
+Now we start executing the code for our three, 
+
+1130
+01:09:49,330 --> 01:09:51,140
+who is resuming the execution, 
+
+1131
+01:09:53,320 --> 01:09:55,100
+acquires a lock back, 
+
+1132
+01:09:56,060 --> 01:09:57,410
+decrement avoiding readers, 
+
+1133
+01:09:58,610 --> 01:10:02,040
+access the database requires a lock, 
+
+1134
+01:10:02,050 --> 01:10:03,880
+decrement the number of active readers. 
+
+1135
+01:10:03,890 --> 01:10:05,290
+It is a lock. 
+
+1136
+01:10:07,160 --> 01:10:08,100
+So we are done. 
+
+1137
+01:10:09,440 --> 01:10:11,290
+Now all the readers are done, 
+
+1138
+01:10:11,300 --> 01:10:12,840
+all the writers are done. 
+
+1139
+01:10:25,110 --> 01:10:27,240
+So here is question. 
+
+1140
+01:10:27,540 --> 01:10:32,790
+How from how young if we want to signal the writer with a fixed order? 
+
+1141
+01:10:33,900 --> 01:10:35,270
+How should we modify our code? 
+
+1142
+01:10:36,990 --> 01:10:38,090
+Any suggestion here? 
+
+1143
+01:10:38,630 --> 01:10:41,020
+The question, if the way I understand it,
+
+1144
+01:10:41,570 --> 01:10:45,110
+if we want to signals the writers in a particular order, 
+
+1145
+01:10:45,120 --> 01:10:46,350
+how do we signal them? 
+
+1146
+01:11:04,130 --> 01:11:05,770
+Any suggestion here from the class? 
+
+1147
+01:11:17,620 --> 01:11:18,200
+That's great. 
+
+1148
+01:11:18,210 --> 01:11:18,480
+Quite. 
+
+1149
+01:11:24,390 --> 01:11:25,820
+There are two ways to do it. 
+
+1150
+01:11:25,830 --> 01:11:26,820
+One easy way. 
+
+1151
+01:11:30,570 --> 01:11:34,470
+You can use a different condition variable for each writer. 
+
+1152
+01:11:35,360 --> 01:11:36,420
+Very good style. 
+
+1153
+01:11:37,620 --> 01:11:42,060
+The other one is to be five more conditioned variables than to have a queue
+
+1154
+01:11:43,310 --> 01:11:44,730
+of writers. 
+
+1155
+01:11:47,410 --> 01:11:52,580
+But I to maintain it and only wake up the one from the head of the queue. 
+
+1156
+01:11:53,800 --> 01:11:55,150
+But this is pretty complicated. 
+
+1157
+01:11:57,180 --> 01:11:58,960
+But anyway, it's a possibility.
+
+1158
+01:12:03,760 --> 01:12:06,230
+Very good. 
+
+1159
+01:12:08,340 --> 01:12:09,250
+So we are all done. 
+
+1160
+01:12:10,330 --> 01:12:11,660
+So here are some questions. 
+
+1161
+01:12:12,500 --> 01:12:13,100
+Let's see. 
+
+1162
+01:12:13,110 --> 01:12:14,860
+Let's check your understanding. 
+
+1163
+01:12:17,480 --> 01:12:19,680
+So let's say, 
+
+1164
+01:12:27,020 --> 01:12:27,530
+sorry, 
+
+1165
+01:12:30,910 --> 01:12:31,960
+can read a starter. 
+
+1166
+01:12:36,970 --> 01:12:40,420
+We answered this question. 
+
+1167
+01:12:41,700 --> 01:12:45,490
+Readers can start off if that or you have continuous stream of writers. 
+
+1168
+01:12:47,320 --> 01:12:48,240
+Here is the second question. 
+
+1169
+01:12:48,250 --> 01:12:53,730
+What if we erase a condition check in reader x this one? 
+
+1170
+01:12:59,940 --> 01:13:04,700
+Basically, we say wherever a reader finishes,
+
+1171
+01:13:05,420 --> 01:13:12,300
+say it's okay to write what will happen. 
+
+1172
+01:13:20,710 --> 01:13:21,710
+It is a good idea, 
+
+1173
+01:13:21,720 --> 01:13:23,190
+it is worth going to work. 
+
+1174
+01:13:24,840 --> 01:13:25,760
+Any drawbacks? 
+
+1175
+01:13:38,730 --> 01:13:39,360
+Okay? 
+
+1176
+01:13:39,950 --> 01:13:40,540
+Question here, 
+
+1177
+01:13:40,550 --> 01:13:44,220
+one answer here is writers can start writing when readers are separating, 
+
+1178
+01:13:45,730 --> 01:13:46,980
+as I said, can be reading.
+
+1179
+01:13:47,450 --> 01:13:47,830
+Okay. 
+
+1180
+01:13:50,310 --> 01:13:51,260
+Let's look at this one. 
+
+1181
+01:13:53,350 --> 01:13:55,110
+In order to answer that question, 
+
+1182
+01:13:56,140 --> 01:13:59,760
+let's look at the code to write. 
+
+1183
+01:14:00,080 --> 01:14:03,360
+This is a greater code here. 
+
+1184
+01:14:09,240 --> 01:14:10,190
+What will happen here? 
+
+1185
+01:14:10,200 --> 01:14:10,430
+Guys? 
+
+1186
+01:14:12,810 --> 01:14:13,420
+You see? 
+
+1187
+01:14:14,320 --> 01:14:15,400
+You get okay to write. 
+
+1188
+01:14:17,910 --> 01:14:23,550
+You go out here is waiting right to you decrement waiting writers. 
+
+1189
+01:14:24,600 --> 01:14:25,720
+But then what do you do next? 
+
+1190
+01:14:26,670 --> 01:14:28,110
+You go back to the while look. 
+
+1191
+01:14:30,420 --> 01:14:31,410
+And in the while, look,
+
+1192
+01:14:32,220 --> 01:14:34,900
+if there are still active writers or active readers, 
+
+1193
+01:14:37,770 --> 01:14:39,660
+you still cannot write. 
+
+1194
+01:14:40,660 --> 01:14:41,630
+You go to sleep again. 
+
+1195
+01:14:44,230 --> 01:14:44,730
+You see, 
+
+1196
+01:14:45,370 --> 01:14:47,680
+because it's wild, because you check again,
+
+1197
+01:14:51,910 --> 01:14:53,080
+the state variables. 
+
+1198
+01:14:54,990 --> 01:14:56,020
+You are going to be fine. 
+
+1199
+01:14:57,980 --> 01:15:02,870
+While this will happen is that he just wakes a writer, 
+
+1200
+01:15:03,750 --> 01:15:06,210
+just for the writer to go immediately back to sleep. 
+
+1201
+01:15:07,640 --> 01:15:09,600
+So just graduates contacts region. 
+
+1202
+01:15:11,650 --> 01:15:13,150
+So it's an efficiency problem, 
+
+1203
+01:15:13,960 --> 01:15:15,260
+is not a correctness problem. 
+
+1204
+01:15:18,030 --> 01:15:18,550
+Okay. 
+
+1205
+01:15:22,630 --> 01:15:22,870
+Good. 
+
+1206
+01:15:23,160 --> 01:15:25,310
+Let's go to the next one. 
+
+1207
+01:15:28,100 --> 01:15:33,080
+So go
+
+1208
+01:15:39,040 --> 01:15:39,440
+farther. 
+
+1209
+01:15:39,450 --> 01:15:43,500
+What if we turn the signal into broadcasts to, 
+
+1210
+01:15:44,150 --> 01:15:47,490
+instead of having a condition broadcast to write? 
+
+1211
+01:15:48,780 --> 01:15:51,610
+You broadcast to write every analog instead of the signal? 
+
+1212
+01:15:52,480 --> 01:15:53,540
+What will happen in this case? 
+
+1213
+01:15:54,440 --> 01:15:55,210
+Is it correct? 
+
+1214
+01:15:57,050 --> 01:15:59,080
+First question. 
+
+1215
+01:16:10,120 --> 01:16:15,120
+Let's try to give an answer to anyone. 
+
+1216
+01:16:29,320 --> 01:16:29,970
+Yes. 
+
+1217
+01:16:36,030 --> 01:16:37,620
+It's correct. 
+
+1218
+01:16:37,630 --> 01:16:38,070
+Somali. 
+
+1219
+01:16:39,920 --> 01:16:40,340
+Yeah. 
+
+1220
+01:16:41,110 --> 01:16:41,510
+Yes. 
+
+1221
+01:16:41,520 --> 01:16:43,230
+And it's absolutely correct. 
+
+1222
+01:16:44,060 --> 01:16:45,310
+It's for the same reasons. 
+
+1223
+01:16:45,950 --> 01:16:48,820
+You see the fundamental observation here. 
+
+1224
+01:16:48,830 --> 01:16:48,940
+It's, 
+
+1225
+01:16:51,280 --> 01:16:51,860
+again, 
+
+1226
+01:16:52,500 --> 01:16:54,680
+the fundamental observation here is, again,
+
+1227
+01:16:54,690 --> 01:16:55,910
+for the writer, 
+
+1228
+01:16:56,490 --> 01:16:57,860
+i'm going here to the code. 
+
+1229
+01:16:58,320 --> 01:16:59,530
+You are still in the while loop. 
+
+1230
+01:16:59,950 --> 01:17:03,680
+So no matter, even if you are going to be okay, not by mistake,
+
+1231
+01:17:03,690 --> 01:17:05,480
+no matter who is waking you up, 
+
+1232
+01:17:06,530 --> 01:17:10,090
+you are still going to check whether there are active writers and active readers. 
+
+1233
+01:17:10,960 --> 01:17:12,690
+And if they are, you go back to sleep.
+
+1234
+01:17:14,470 --> 01:17:15,620
+It's inefficiency problem. 
+
+1235
+01:17:15,630 --> 01:17:15,940
+Again. 
+
+1236
+01:17:16,930 --> 01:17:19,410
+It doesn't matter how many times you are waking up open up. 
+
+1237
+01:17:20,180 --> 01:17:21,690
+You are not going to do stupid things. 
+
+1238
+01:17:22,850 --> 01:17:23,360
+Okay? 
+
+1239
+01:17:25,590 --> 01:17:26,460
+The last one. 
+
+1240
+01:17:26,870 --> 01:17:29,900
+Finally, if we use only one condition variable,
+
+1241
+01:17:30,890 --> 01:17:33,410
+call it continue instead of two separate ones, 
+
+1242
+01:17:34,330 --> 01:17:37,460
+both readers and writers are going to wake up. 
+
+1243
+01:17:39,370 --> 01:17:40,800
+These are going to be correct. 
+
+1244
+01:17:50,810 --> 01:17:52,680
+It's going to be correct for the same reason. 
+
+1245
+01:17:53,740 --> 01:18:01,020
+Neither writer nor the right reader are going to continue if the test
+
+1246
+01:18:01,030 --> 01:18:01,980
+for the while loop. 
+
+1247
+01:18:04,730 --> 01:18:05,530
+It's still true. 
+
+1248
+01:18:10,900 --> 01:18:12,110
+So here is what happens, 
+
+1249
+01:18:14,630 --> 01:18:14,820
+right? 
+
+1250
+01:18:14,830 --> 01:18:17,340
+And this is what i'm going to end up with this one. 
+
+1251
+01:18:22,510 --> 01:18:23,640
+So you can use one. 
+
+1252
+01:18:27,410 --> 01:18:27,760
+But, 
+
+1253
+01:18:30,230 --> 01:18:30,770
+okay, 
+
+1254
+01:18:32,290 --> 01:18:35,850
+although there is in theory that there is one thing here, 
+
+1255
+01:18:36,850 --> 01:18:39,080
+but I this is subtle things. 
+
+1256
+01:18:40,460 --> 01:18:47,610
+This is correct with one condition to continue that it's actually, 
+
+1257
+01:18:48,100 --> 01:18:55,310
+if I continue is going to wake up one single thread, 
+
+1258
+01:18:55,320 --> 01:18:59,030
+and that single thread is an incorrect one and go to sleep here is a sink. 
+
+1259
+01:18:59,950 --> 01:19:01,310
+If I wake up, 
+
+1260
+01:19:02,640 --> 01:19:06,950
+if I do, if I have only one continue conditional variable,
+
+1261
+01:19:07,590 --> 01:19:11,630
+both the writers and readers are going to wait up, wake up on that.
+
+1262
+01:19:11,640 --> 01:19:15,710
+And now assume that by mistake, not by mistake,
+
+1263
+01:19:15,720 --> 01:19:17,090
+it just happens. 
+
+1264
+01:19:17,590 --> 01:19:18,620
+I wake up the reader, 
+
+1265
+01:19:18,630 --> 01:19:22,670
+the reader is going to check and there are waiting writers
+
+1266
+01:19:22,680 --> 01:19:24,670
+and it's going to go immediately to sleep. 
+
+1267
+01:19:26,070 --> 01:19:28,310
+But now these signals were spent out. 
+
+1268
+01:19:29,620 --> 01:19:30,090
+Okay? 
+
+1269
+01:19:30,910 --> 01:19:33,560
+And the writer cannot continue. 
+
+1270
+01:19:33,960 --> 01:19:34,590
+It's already, 
+
+1271
+01:19:35,120 --> 01:19:35,870
+it's a slip. 
+
+1272
+01:19:36,620 --> 01:19:37,900
+The reader is a slip. 
+
+1273
+01:19:39,190 --> 01:19:41,140
+If there is no, as I said, coming in,
+
+1274
+01:19:41,680 --> 01:19:42,640
+we are deadlocked. 
+
+1275
+01:19:43,510 --> 01:19:45,250
+In order for this tour at work, 
+
+1276
+01:19:45,560 --> 01:19:52,380
+need to also change this signal from the right reader to broadcast. 
+
+1277
+01:19:53,630 --> 01:19:54,110
+Okay? 
+
+1278
+01:19:56,720 --> 01:19:58,150
+Okay, so you need to broadcast.
+
+1279
+01:20:00,560 --> 01:20:01,070
+Okay? 
+
+1280
+01:20:02,520 --> 01:20:03,660
+And you also need to broadcast, 
+
+1281
+01:20:03,670 --> 01:20:05,100
+so you need to do some changes. 
+
+1282
+01:20:07,510 --> 01:20:08,020
+So, 
+
+1283
+01:20:09,390 --> 01:20:13,320
+so the summary here and we are going to end up with this is
+
+1284
+01:20:13,330 --> 01:20:17,360
+that these wild looks are extremely powerful, 
+
+1285
+01:20:18,470 --> 01:20:18,740
+right? 
+
+1286
+01:20:18,750 --> 01:20:25,210
+Because they are going to guard against doing stupid things or incorrect things. 
+
+1287
+01:20:26,270 --> 01:20:28,440
+If you are woken up by mistake. 
+
+1288
+01:20:31,250 --> 01:20:32,080
+So we are safe. 
+
+1289
+01:20:32,090 --> 01:20:36,690
+So what we need to be careful about is that because there is no history
+
+1290
+01:20:36,700 --> 01:20:38,250
+with this condition variables, 
+
+1291
+01:20:39,670 --> 01:20:41,720
+I am protected to waking up the wrong, 
+
+1292
+01:20:41,730 --> 01:20:42,880
+but the wrong thread. 
+
+1293
+01:20:43,880 --> 01:20:46,300
+But then if I am waking up the wrong thread, 
+
+1294
+01:20:47,090 --> 01:20:49,180
+that signal was wasted, 
+
+1295
+01:20:50,250 --> 01:20:53,520
+and the correct thread will not be open up. 
+
+1296
+01:20:54,300 --> 01:20:55,580
+So you can have deadlocks. 
+
+1297
+01:20:58,340 --> 01:21:02,030
+So that's why here you need to be careful what you need to be careful about. 
+
+1298
+01:21:03,380 --> 01:21:05,630
+That's why you have to be a liberal with a broadcast. 
+
+1299
+01:21:07,540 --> 01:21:09,500
+So we are going to end up with this one. 
+
+1300
+01:21:10,350 --> 01:21:14,600
+And I think that it's a good place we are done with this example. 
+
+1301
+01:21:15,780 --> 01:21:17,970
+Please take a look at these examples, 
+
+1302
+01:21:18,920 --> 01:21:20,180
+careful carefully. 
+
+1303
+01:21:21,200 --> 01:21:23,410
+And for the exam, 
+
+1304
+01:21:24,240 --> 01:21:25,340
+and i'll stop here. 
+
+1305
+01:21:25,350 --> 01:21:27,780
+And the lecture is done. 
+
+1306
+01:21:28,150 --> 01:21:30,060
+I there is one last question. 
+
+1307
+01:21:30,070 --> 01:21:32,060
+I am going to try to answer. 
+
+1308
+01:21:33,140 --> 01:21:33,950
+Thank you. 
+
+1309
+01:21:33,960 --> 01:21:36,410
+And i'll see you on monday, 
+
+1310
+01:21:37,020 --> 01:21:39,110
+on tuesday and monday. 
+
+1311
+01:21:40,320 --> 01:21:45,110
+And thank you. 
+
+1312
+01:21:46,320 --> 01:21:48,100
+So two questions. 
+
+1313
+01:21:49,060 --> 01:21:49,850
+Why not question? 
+
+1314
+01:21:49,860 --> 01:21:51,850
+The why look give us good protection? 
+
+1315
+01:21:51,860 --> 01:21:55,650
+But doesn't that cost a lot of cpu cycles since we are constantly pulling? 
+
+1316
+01:21:56,010 --> 01:21:56,750
+Absolutely. 
+
+1317
+01:21:56,970 --> 01:21:57,860
+It's inefficiency. 
+
+1318
+01:21:59,100 --> 01:22:00,340
+It's your absolutely correct. 
+
+1319
+01:22:01,280 --> 01:22:02,050
+It's inefficient. 
+
+1320
+01:22:03,030 --> 01:22:04,290
+It's correct, but inefficient.
+
+1321
+01:22:05,850 --> 01:22:08,340
+And from Chad, 
+
+1322
+01:22:09,760 --> 01:22:14,610
+wouldn't this possibly make a finished writers broadcast hit awaiting reader? 
+
+1323
+01:22:14,850 --> 01:22:15,890
+First before awaiting reader, 
+
+1324
+01:22:15,900 --> 01:22:18,590
+if there was both waiting read as a writer, 
+
+1325
+01:22:18,930 --> 01:22:23,540
+which means observed ordering priority of writers of writers before readers, 
+
+1326
+01:22:25,460 --> 01:22:29,170
+this will no longer guarantee the priority order between writers and readers. 
+
+1327
+01:22:29,830 --> 01:22:31,510
+If you have only one conditioned variables, 
+
+1328
+01:22:31,520 --> 01:22:36,290
+you are no longer going to be guaranteed this one unnecessary, 
+
+1329
+01:22:40,730 --> 01:22:44,280
+although it is still, 
+
+1330
+01:22:44,690 --> 01:22:49,240
+II you are not guaranteed readers when you wake up, 
+
+1331
+01:22:49,890 --> 01:22:51,070
+but still in, 
+
+1332
+01:22:51,080 --> 01:22:52,510
+if you want to proceed, 
+
+1333
+01:22:53,150 --> 01:22:55,470
+you are the while loop will take care of that. 
+
+1334
+01:22:57,050 --> 01:22:59,480
+In from the point of view of accessing the database, 
+
+1335
+01:23:00,410 --> 01:23:04,790
+the while loop is going to enforce a priority because a reader, 
+
+1336
+01:23:06,960 --> 01:23:11,680
+it's going to look whether there are active writers or waiting writers. 
+
+1337
+01:23:11,690 --> 01:23:13,480
+And if they are waiting writers, 
+
+1338
+01:23:13,840 --> 01:23:15,100
+it's not going to proceed. 
+
+1339
+01:23:15,740 --> 01:23:16,120
+Right? 
+
+1340
+01:23:16,610 --> 01:23:18,550
+So as long as they are waiting writers, 
+
+1341
+01:23:19,270 --> 01:23:23,280
+these wire conditions will ensure that the reader cannot proceed. 
+
+1342
+01:23:23,970 --> 01:23:25,350
+So actually, 
+
+1343
+01:23:25,360 --> 01:23:29,110
+the priority is still enforced. 
+
+1344
+01:23:30,410 --> 01:23:30,900
+Okay? 
+
+1345
+01:23:31,770 --> 01:23:34,370
+The priority is enforced by the while of conditions. 
+
+1346
+01:23:36,280 --> 01:23:41,620
+But the priority is not enforcing the sense that you can wake
+
+1347
+01:23:41,630 --> 01:23:46,020
+up every a reader while you shouldn't have woken up. 
+
+1348
+01:23:46,850 --> 01:23:48,030
+And this can lead, 
+
+1349
+01:23:48,520 --> 01:23:56,450
+again to deadlocks without without changing the code and more be
+
+1350
+01:23:56,460 --> 01:23:59,170
+more liberal in broadcasting the ok continue. 
+
+1351
+01:24:00,010 --> 01:24:00,400
+Okay. 
+
+1352
+01:24:01,190 --> 01:24:01,590
+Thank you. 
+
+1353
+01:24:01,600 --> 01:24:04,310
+And i'll see you on Tuesday and Monday. 
+
+1354
+01:24:04,320 --> 01:24:04,650
+Bye. 
+
+1355
+01:24:05,170 --> 01:24:05,540
+Bye. 
+

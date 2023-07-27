@@ -1,2880 +1,3600 @@
 1
 00:00:00,000 --> 00:00:17,240
- Hello, everyone. So today we are going to talk about demand paging. And before starting,
+Hello, everyone. So today we are going to talk about demand paging. And before starting,
+大家好。今天我们要讨论的是需求分页。在开始之前，
 
 2
 00:00:17,240 --> 00:00:25,080
- thanks a lot, everyone, for filling in the survey about the class. Great feedback. And
+thanks a lot, everyone, for filling in the survey about the class. Great feedback. And
+非常感谢大家填写关于课程的调查问卷。非常宝贵的反馈。而且
 
 3
 00:00:25,080 --> 00:00:35,840
- we are going to try to act on it. So before, let me start with this same figure, which
+we are going to try to act on it. So before, let me start with this same figure, which
+我们将尝试采取行动。所以在此之前，让我从这个相同的数字开始，它是...
 
 4
 00:00:35,840 --> 00:00:42,880
- I think you went over last lecture. But let me do it again, because it's a very important
+I think you went over last lecture. But let me do it again, because it's a very important
+我觉得你上次的讲座内容有点超过了。但是让我再来一次，因为这非常重要。
 
 5
 00:00:42,880 --> 00:00:49,980
- figure, because with everything together, all the memory related concepts we have learned
+figure, because with everything together, all the memory related concepts we have learned
+图形，因为将所有与内存相关的概念整合在一起，我们所学到的。
 
 6
 00:00:49,980 --> 00:00:59,760
- so far. And as always, if you have any questions, please do not hesitate to let me know. So
+so far. And as always, if you have any questions, please do not hesitate to let me know. So
+到目前为止。如往常一样，如果你有任何问题，请随时告诉我。
 
 7
 00:00:59,760 --> 00:01:06,760
- here we have the virtual address on the left. And you remember the virtual address is what
+here we have the virtual address on the left. And you remember the virtual address is what
+这里我们在左边有虚拟地址。而你记得虚拟地址是什么吗？
 
 8
 00:01:06,760 --> 00:01:13,560
- the programs and what the processor sees. And the right hand side, you have the physical
+the programs and what the processor sees. And the right hand side, you have the physical
+程序和处理器所看到的内容。右侧是物理的。
 
 9
 00:01:13,560 --> 00:01:21,640
- memory address. And what we learn, we learn about the address translation in which these
+memory address. And what we learn, we learn about the address translation in which these
+内存地址。我们所学的是关于地址转换的内容，其中这些地址
 
 10
 00:01:21,640 --> 00:01:31,560
- virtual addresses are translated to physical addresses. And one way we did that is through
+virtual addresses are translated to physical addresses. And one way we did that is through
+虚拟地址被翻译成物理地址。我们其中一种方法是通过...
 
 11
 00:01:31,560 --> 00:01:43,920
- multi-level paging. In this example, we are showing two level paging. And therefore, the
+multi-level paging. In this example, we are showing two level paging. And therefore, the
+多级分页。在这个例子中，我们展示了两级分页。因此，
 
 12
 00:01:43,920 --> 00:01:51,040
- virtual address consists of three fields. The last one, the blue is blue in this figure,
+virtual address consists of three fields. The last one, the blue is blue in this figure,
+虚拟地址由三个字段组成。最后一个字段，在这个图中是蓝色的。
 
 13
 00:01:51,040 --> 00:01:56,840
- is the offset. And the offset, the bit in the offset remains unchanged in the physical
+is the offset. And the offset, the bit in the offset remains unchanged in the physical
+是偏移量。而且，偏移量中的位在物理上保持不变。
 
 14
 00:01:56,840 --> 00:02:05,840
- address. And then the first field of the virtual address, it's an index to the first level
+address. And then the first field of the virtual address, it's an index to the first level
+地址
 
 15
 00:02:05,840 --> 00:02:14,920
- in the first level page table. And at that address in the first, at that location in
+in the first level page table. And at that address in the first, at that location in
+在第一级页表中。并且在第一个地址，在那个位置上。
 
 16
 00:02:14,920 --> 00:02:22,240
- the first page table, you find the address of another page table at the second level.
+the first page table, you find the address of another page table at the second level.
+在第一页的表格中，你会找到第二级的另一个页表的地址。
 
 17
 00:02:22,240 --> 00:02:31,440
- And the second field in the address, the virtual P2 index, denoted here, it's an index to the
+And the second field in the address, the virtual P2 index, denoted here, it's an index to the
+地址中的第二个字段，虚拟P2索引，在这里表示，它是一个指向的索引。
 
 18
 00:02:31,440 --> 00:02:42,000
- second level page table, which is referenced from the first level page table. And as a
+second level page table, which is referenced from the first level page table. And as a
+第二级页表，它是从一级页表中引用的。而且作为一个
 
 19
 00:02:42,000 --> 00:02:52,240
- corresponding location in the second level page table, you have the physical page number.
+corresponding location in the second level page table, you have the physical page number.
+在第二级页表中对应的位置
 
 20
 00:02:52,240 --> 00:02:57,760
- And now you concatenate the physical page number with the offset, and you got the physical
+And now you concatenate the physical page number with the offset, and you got the physical
+页码与偏移量相连，你就得到了物理页码。
 
 21
 00:02:57,760 --> 00:03:06,480
- address. Okay? It's the physical page number, as you see here depicted, and the offset represents
+address. Okay? It's the physical page number, as you see here depicted, and the offset represents
+地址。好吗？这是物理页码，就像你在这里看到的那样，偏移量表示
 
 22
 00:03:06,480 --> 00:03:15,920
- the offset within that page. So this is virtual address, the address translation from virtual
+the offset within that page. So this is virtual address, the address translation from virtual
+该页内的偏移量。所以这是虚拟地址，是从虚拟地址转换过来的地址。
 
 23
 00:03:15,920 --> 00:03:25,680
- addresses to physical addresses using two-level paging. Okay? In addition, what you also learn
+addresses to physical addresses using two-level paging. Okay? In addition, what you also learn
+将逻辑地址转换为物理地址使用两级分页。好吗？另外，你还学到了什么？
 
 24
 00:03:25,680 --> 00:03:39,200
- about is about translation lookaside buffers. Okay? Can someone tell me why do we need a
+about is about translation lookaside buffers. Okay? Can someone tell me why do we need a
+关于翻译查找缓冲区。好吗？有人能告诉我为什么我们需要它吗？
 
 25
 00:03:39,200 --> 00:03:52,000
- translation lookaside buffer or TLB for short? What problem does it solve? It's exact. Thanks,
+translation lookaside buffer or TLB for short? What problem does it solve? It's exact. Thanks,
+翻译后的结果：translation lookaside buffer，简称TLB。它解决了什么问题？确切的说。谢谢。
 
 26
 00:03:52,000 --> 00:04:02,720
- Alison and Gilbert. You are correct. So fundamentally, as you see, with the two-level page tables,
+Alison and Gilbert. You are correct. So fundamentally, as you see, with the two-level page tables,
+艾莉森和吉尔伯特。你们是正确的。所以从根本上来说，正如你们所看到的，使用两级页表，
 
 27
 00:04:02,720 --> 00:04:09,840
- you need in order to do the translation, you need to do multiple memory accesses. We need
+you need in order to do the translation, you need to do multiple memory accesses. We need
+你需要进行翻译，你需要进行多次内存访问。我们需要什么？
 
 28
 00:04:09,840 --> 00:04:20,160
- to get a location from the first level page table, then to access the second level page
+to get a location from the first level page table, then to access the second level page
+从一级页表中获取一个位置，然后访问二级页。
 
 29
 00:04:20,160 --> 00:04:26,800
- table, there are a bunch, this means a bunch of memory accesses. Right? So when you are
+table, there are a bunch, this means a bunch of memory accesses. Right? So when you are
+桌子，有很多，这意味着很多内存访问。对吗？所以当你...
 
 30
 00:04:26,800 --> 00:04:33,800
- going to look to a physical, to try to just look at location in memory, to fetch an instruction
+going to look to a physical, to try to just look at location in memory, to fetch an instruction
+我要去查看一个物理位置，试图直接查看内存中的位置，以获取一条指令。
 
 31
 00:04:33,800 --> 00:04:42,360
- or to access data, you have to do multiple memory accesses, which is very slow. Right?
+or to access data, you have to do multiple memory accesses, which is very slow. Right?
+或者说要访问数据，你需要进行多次内存访问，这样会非常慢。对吗？
 
 32
 00:04:42,360 --> 00:04:48,200
- So translation lookaside buffer solve this problem. So it's a small table, which takes
+So translation lookaside buffer solve this problem. So it's a small table, which takes
+因此，翻译查找缓冲区解决了这个问题。它是一个小表，用于存储翻译结果。
 
 33
 00:04:48,200 --> 00:04:56,600
- a virtual address, you know, that takes the first two fields in the virtual address, which
+a virtual address, you know, that takes the first two fields in the virtual address, which
+一个虚拟地址，你知道的，它取虚拟地址的前两个字段，这些字段是什么？
 
 34
 00:04:56,600 --> 00:05:07,000
- contains a page information and maps that to the physical page number. So the, and this
+contains a page information and maps that to the physical page number. So the, and this
+包含页面信息并将其映射到物理页面号码。所以，这个...
 
 35
 00:05:07,000 --> 00:05:15,400
- is happening, it's in hardware, so the translation is very quick. This TLB is in the processor.
+is happening, it's in hardware, so the translation is very quick. This TLB is in the processor.
+发生了，它是硬件上的，所以翻译非常快。这个TLB在处理器中。
 
 36
 00:05:15,400 --> 00:05:20,840
- And then what is the other way we are going to try to improve the performance? Because
+And then what is the other way we are going to try to improve the performance? Because
+然后我们还有什么其他方法来尝试提高性能呢？因为
 
 37
 00:05:20,840 --> 00:05:28,560
- even if we make one access to the RAM, to the memory, the time to make that access,
+even if we make one access to the RAM, to the memory, the time to make that access,
+即使我们对RAM或内存进行一次访问，访问所需的时间也是...
 
 38
 00:05:28,560 --> 00:05:36,280
- the latency is much larger than accessing say registers or in the processor. It's order
+the latency is much larger than accessing say registers or in the processor. It's order
+延迟比访问寄存器或处理器要大得多。它的数量级是多少？
 
 39
 00:05:36,280 --> 00:05:43,840
- of magnitude slower to access physical memory. So to solve this problem, what you learned
+of magnitude slower to access physical memory. So to solve this problem, what you learned
+is to use a cache. A cache is a smaller, faster memory that stores copies of frequently accessed data from the main memory. By storing this data closer to the processor, it can be accessed much faster, reducing the time it takes to retrieve data from the main memory.
 
 40
 00:05:43,840 --> 00:05:52,240
- last lecture, we can and also at 61C earlier on, it's about you are using cache, right?
+last lecture, we can and also at 61C earlier on, it's about you are using cache, right?
+上一堂课，我们讲了61C的内容，是关于你们使用缓存的对吗？
 
 41
 00:05:52,240 --> 00:05:59,360
- A cache. So cache, it's a smaller memory. And because it's smaller, it can be either
+A cache. So cache, it's a smaller memory. And because it's smaller, it can be either
+缓存。所以缓存，它是一个较小的内存。由于它较小，它可以是以下两种情况之一：
 
 42
 00:05:59,360 --> 00:06:06,360
- closer or it can be directly on the chip on the processor. So therefore the latency to
+closer or it can be directly on the chip on the processor. So therefore the latency to
+更近一些，或者可以直接在处理器芯片上。因此，延迟可以更低。
 
 43
 00:06:06,360 --> 00:06:13,400
- access this cache is much lower than the latency to access the physical memory. So if the data
+access this cache is much lower than the latency to access the physical memory. So if the data
+访问这个缓存的延迟比访问物理内存的延迟要低得多。因此，如果数据
 
 44
 00:06:13,400 --> 00:06:22,360
- you are looking for is already in cache, the access will be much quicker. And here we show
+you are looking for is already in cache, the access will be much quicker. And here we show
+你要找的已经在缓存中了，访问会快很多。这里我们展示
 
 45
 00:06:22,360 --> 00:06:28,840
- set associative cache. You remember that the set associative cache, you have multiple sets
+set associative cache. You remember that the set associative cache, you have multiple sets
+组相联缓存。你记得组相联缓存，你有多个组。
 
 46
 00:06:28,840 --> 00:06:44,040
- of this kind of multiple sets of blocks. And each of them is identified by attack. And
+of this kind of multiple sets of blocks. And each of them is identified by attack. And
+这种多组方块的类型。每个方块组都通过攻击来识别。
 
 47
 00:06:44,040 --> 00:06:56,680
- within each set, you can associatively identify one of these, here is represented by a line,
+within each set, you can associatively identify one of these, here is represented by a line,
+在每个集合中，你可以通过联想识别其中一个，这里用一条线表示。
 
 48
 00:06:56,680 --> 00:07:12,800
- one of these rows. Okay. And how do you do that? So now the cache is addressed with a
+one of these rows. Okay. And how do you do that? So now the cache is addressed with a
+这些行中的一行。好的。那么你如何做到这一点呢？现在缓存的地址是通过一个
 
 49
 00:07:12,800 --> 00:07:21,120
- physical address. So the physical address now is divided into other three fields, which
+physical address. So the physical address now is divided into other three fields, which
+物理地址。所以现在物理地址被分成了其他三个字段，它们是：
 
 50
 00:07:21,120 --> 00:07:34,960
- is very tag, index and byte. And the index, if you have a memory set associative cache,
+is very tag, index and byte. And the index, if you have a memory set associative cache,
+是非常标签、索引和字节。而且，如果你有一个集合关联的缓存内存，索引的话，
 
 51
 00:07:34,960 --> 00:07:46,560
- the index points to a particular set of such rows. And then the tag is going to identify
+the index points to a particular set of such rows. And then the tag is going to identify
+索引指向一组特定的行。然后标签将用于标识。
 
 52
 00:07:46,560 --> 00:08:02,880
- a row in the set. And finally, or in a byte will specify a index of the byte you are looking
+a row in the set. And finally, or in a byte will specify a index of the byte you are looking
+一行在集合中。最后，或者在一个字节中将指定你正在查找的字节的索引。
 
 53
 00:08:02,880 --> 00:08:16,600
- for in that row. So also we also refer it as a block to these rows. Okay. So this is
+for in that row. So also we also refer it as a block to these rows. Okay. So this is
+在那一行中。因此，我们也将这些行称为一个块。好的。所以这就是
 
 54
 00:08:16,600 --> 00:08:25,240
- it. Okay. So you have address translation. To speed up the address translation, you use
+it. Okay. So you have address translation. To speed up the address translation, you use
+它。好的。所以你有地址转换。为了加快地址转换速度，你使用了什么方法？
 
 55
 00:08:25,240 --> 00:08:41,320
- a TLB, which maps in hardware, the virtual page number to the physical page number. And
+a TLB, which maps in hardware, the virtual page number to the physical page number. And
+一个TLB，它在硬件中将虚拟页号映射到物理页号。
 
 56
 00:08:41,320 --> 00:08:52,200
- then to further speed up the access to the memory, we use cache, a cache. And to locate
+then to further speed up the access to the memory, we use cache, a cache. And to locate
+然后为了进一步加快对内存的访问速度，我们使用缓存，一个缓存。而为了定位
 
 57
 00:08:52,200 --> 00:09:09,360
- the data in the cache, we use these three fields, tag, index and byte. Any questions?
+the data in the cache, we use these three fields, tag, index and byte. Any questions?
+缓存中的数据，我们使用这三个字段，标签、索引和字节。有任何问题吗？
 
 58
 00:09:09,360 --> 00:09:19,040
- Just remember that the TLB, you address a TLB with a virtual page number and you address
+Just remember that the TLB, you address a TLB with a virtual page number and you address
+只需记住，TLB是通过虚拟页号进行寻址的。
 
 59
 00:09:19,040 --> 00:09:35,960
- a cache with a physical address. So now the one question, if you remember, is that the
+a cache with a physical address. So now the one question, if you remember, is that the
+一个带有物理地址的缓存。现在只有一个问题，如果你还记得的话，那就是
 
 60
 00:09:35,960 --> 00:09:43,120
- virtual address space can be larger than the physical address. Also, you have multiple
+virtual address space can be larger than the physical address. Also, you have multiple
+虚拟地址空间可以比物理地址更大。此外，您还可以拥有多个
 
 61
 00:09:43,120 --> 00:09:49,160
- virtual address spaces, which are going to multiplex the same physical address because
+virtual address spaces, which are going to multiplex the same physical address because
+虚拟地址空间，将会对同一个物理地址进行多路复用，因为
 
 62
 00:09:49,160 --> 00:09:59,960
- each process has its own virtual address space. Okay. So this means that at a given time,
+each process has its own virtual address space. Okay. So this means that at a given time,
+每个进程都有自己的虚拟地址空间。好的。这意味着在某个特定的时间，
 
 63
 00:09:59,960 --> 00:10:08,960
- you may not be able to store all the virtual address, all the data in the virtual address
+you may not be able to store all the virtual address, all the data in the virtual address
+你可能无法存储所有的虚拟地址，所有虚拟地址中的数据。
 
 64
 00:10:08,960 --> 00:10:18,800
- space across all processes in the physical memory. And if you cannot do that, some of
+space across all processes in the physical memory. And if you cannot do that, some of
+在物理内存中跨所有进程的空间。如果你无法做到这一点，那么一些
 
 65
 00:10:18,800 --> 00:10:25,440
- these pages, you need to put somewhere else. Typically somewhere else is on the disk or
+these pages, you need to put somewhere else. Typically somewhere else is on the disk or
+这些页面，你需要放在其他地方。通常其他地方指的是磁盘上或者
 
 66
 00:10:25,440 --> 00:10:36,000
- SSD. So now the question is about when you need a page, which is not in the memory, it's
+SSD. So now the question is about when you need a page, which is not in the memory, it's
+SSD。现在的问题是，当你需要一个不在内存中的页面时，它是什么时候的。
 
 67
 00:10:36,000 --> 00:10:48,000
- on the disk. How do you go about getting that page in memory? Okay. That's what we are going
+on the disk. How do you go about getting that page in memory? Okay. That's what we are going
+在磁盘上。你如何将那个页面加载到内存中？好的。这就是我们要做的事情。
 
 68
 00:10:48,000 --> 00:10:57,360
- to learn and focus on is the remaining of this lecture. And when we are going to access
+to learn and focus on is the remaining of this lecture. And when we are going to access
+学习和专注是本讲座的剩余内容。当我们要访问时，
 
 69
 00:10:57,360 --> 00:11:13,960
- a page, which is not in physical memory, then what happens, you have a page fault. And the
+a page, which is not in physical memory, then what happens, you have a page fault. And the
+当一个页面不在物理内存中时，会发生什么情况，你会遇到一个页面错误。然后，系统会将该页面从磁盘加载到内存中。
 
 70
 00:11:13,960 --> 00:11:19,040
- way this is indicated, remember that when you do the address translation, you look in
+way this is indicated, remember that when you do the address translation, you look in
+这是如何指示的，请记住，当你进行地址转换时，你要查找的是
 
 71
 00:11:19,040 --> 00:11:24,840
- the page table. In the page table, you find a page table entry corresponding to that page.
+the page table. In the page table, you find a page table entry corresponding to that page.
+页表。在页表中，你会找到与该页对应的页表项。
 
 72
 00:11:24,840 --> 00:11:32,720
- So that page table entry has a bit, which is saying, for instance, it's invalid bit.
+So that page table entry has a bit, which is saying, for instance, it's invalid bit.
+所以这个页表项有一个位，比如说，它是无效位。
 
 73
 00:11:32,720 --> 00:11:41,840
- And if that bit is set, this means that the page is not present in the physical memory.
+And if that bit is set, this means that the page is not present in the physical memory.
+如果该位被设置，这意味着该页面不在物理内存中。
 
 74
 00:11:41,840 --> 00:11:52,080
- Okay. So now a page fault will occur and what happens? Okay. So on page fault, you will
+Okay. So now a page fault will occur and what happens? Okay. So on page fault, you will
+好的。那么现在会发生一个页面错误，接下来会发生什么？好的。当发生页面错误时，你将会发生什么？
 
 75
 00:11:52,080 --> 00:11:57,780
- have to engage the operating system and the operating system will make sure to bring the
+have to engage the operating system and the operating system will make sure to bring the
+必须启动操作系统，操作系统会确保将其带来。
 
 76
 00:11:57,780 --> 00:12:05,080
- right page from the disk to memory. So then you are going to be able to continue the execution
+right page from the disk to memory. So then you are going to be able to continue the execution
+将磁盘上的正确页面加载到内存中。然后你就可以继续执行了。
 
 77
 00:12:05,080 --> 00:12:14,040
- of the program. Of course, to bring a page from the disk to the physical memory, you
+of the program. Of course, to bring a page from the disk to the physical memory, you
+程序的一部分。当然，将页面从磁盘加载到物理内存中，你需要
 
 78
 00:12:14,040 --> 00:12:21,000
- need to find a place to put it. If you have free space, you bring it in, you bring it
+need to find a place to put it. If you have free space, you bring it in, you bring it
+需要找一个地方放它。如果你有空闲的空间，你就把它带进来，你就把它带进来。
 
 79
 00:12:21,000 --> 00:12:29,320
- up. If you don't have free space, they need to take an existing page and replace it with
+up. If you don't have free space, they need to take an existing page and replace it with
+向上。如果你没有空闲空间，他们需要拿走一个已有的页面并用它替换。
 
 80
 00:12:29,320 --> 00:12:35,680
- a new page you want to bring in memory. Now, if that page you want to replace has been
+a new page you want to bring in memory. Now, if that page you want to replace has been
+一个你想要存入内存的新页面。现在，如果你想要替换的页面已经存在
 
 81
 00:12:35,680 --> 00:12:43,560
- written, has been modified, then you need to put it on the disk, save it on the disk
+written, has been modified, then you need to put it on the disk, save it on the disk
+写好后，需要进行修改，然后将其放入磁盘上，保存在磁盘上。
 
 82
 00:12:43,560 --> 00:12:53,240
- before you replace it with a new page. Okay. So that's what it is. We are going to go through
+before you replace it with a new page. Okay. So that's what it is. We are going to go through
+在你用新页面替换之前。好的。那就是它的意思。我们要经历一下。
 
 83
 00:12:53,240 --> 00:13:02,720
- this process several times during this lecture to make sure that the concepts are clear.
+this process several times during this lecture to make sure that the concepts are clear.
+在这次讲座中，要多次进行这个过程，以确保概念清晰。
 
 84
 00:13:02,720 --> 00:13:09,240
- And before going forward, notice that it's a fundamental inversion here that you have
+And before going forward, notice that it's a fundamental inversion here that you have
+而在继续之前，请注意这里发生了一个基本的颠倒，你已经拥有了。
 
 85
 00:13:09,240 --> 00:13:17,680
- the hardware. The hardware causes a page fault in this case because the invalid bit on the
+the hardware. The hardware causes a page fault in this case because the invalid bit on the
+硬件。在这种情况下，硬件会引发页面错误，因为无效位在该页上。
 
 86
 00:13:17,680 --> 00:13:26,680
- page table entry set, which then this fault is treated in software, right? As opposed
+page table entry set, which then this fault is treated in software, right? As opposed
+页面表项集，然后这个错误在软件中处理，对吗？与之相反的是什么？
 
 87
 00:13:26,680 --> 00:13:34,920
- to interrupts, where the interrupts are treated in hardware. And then once you select the
+to interrupts, where the interrupts are treated in hardware. And then once you select the
+中断，其中中断在硬件中处理。然后一旦你选择了
 
 88
 00:13:34,920 --> 00:13:44,240
- handle of the interrupt, only then you go into software. Okay. So again, to put things
+handle of the interrupt, only then you go into software. Okay. So again, to put things
+中断处理程序的处理，然后才进入软件。好的。所以再次，为了搞清楚事情的情况，
 
 89
 00:13:44,240 --> 00:13:52,260
- into perspective right now, this is you have different levels of memory or storage. You
+into perspective right now, this is you have different levels of memory or storage. You
+现在来看，你有不同层次的记忆或存储。
 
 90
 00:13:52,260 --> 00:13:59,640
- have on-chip cache here is a processor and in today's processors, you actually have multiple
+have on-chip cache here is a processor and in today's processors, you actually have multiple
+在这里有一个片上缓存，它是一个处理器。在今天的处理器中，实际上有多个。
 
 91
 00:13:59,640 --> 00:14:07,400
- caches, level of caches, even on a single processor, because you may have a cache for
+caches, level of caches, even on a single processor, because you may have a cache for
+缓存，缓存级别，即使在单个处理器上，因为你可能有一个用于缓存的缓存。
 
 92
 00:14:07,400 --> 00:14:15,000
- each core. And then you may have a unified cache, which is across all cores. Then you
+each core. And then you may have a unified cache, which is across all cores. Then you
+每个核心。然后你可能会有一个统一的缓存，它跨越所有核心。然后你
 
 93
 00:14:15,000 --> 00:14:22,920
- have second level cache. It's a main memory. Then is this like secondary storage. And then
+have second level cache. It's a main memory. Then is this like secondary storage. And then
+有第二级缓存。它是主内存。那么这就像是辅助存储器。然后呢？
 
 94
 00:14:22,920 --> 00:14:30,480
- of course you can even have tertiary storage, tape or some kind of storage in the cloud.
+of course you can even have tertiary storage, tape or some kind of storage in the cloud.
+当然可以，甚至可以使用三级存储，磁带或云中的某种存储方式。
 
 95
 00:14:30,480 --> 00:14:44,000
- Okay. So the key here, what is the key here? What we are trying to do is caching with everything
+Okay. So the key here, what is the key here? What we are trying to do is caching with everything
+好的。所以关键是什么？我们试图做的是将所有东西缓存起来。
 
 96
 00:14:44,000 --> 00:14:53,680
- else. We're trying to do something very simple. Yeah. We want to try to have the cake and
+else. We're trying to do something very simple. Yeah. We want to try to have the cake and
+else. 我们正在尝试做一些非常简单的事情。是的。我们想尝试既要有蛋糕，又要
 
 97
 00:14:53,680 --> 00:15:02,080
- eat it too. So you want to have, we want to build a system which behaves like it has a
+eat it too. So you want to have, we want to build a system which behaves like it has a
+吃饱又想吃。所以你想要拥有，我们想要构建一个行为就像拥有的系统。
 
 98
 00:15:02,080 --> 00:15:15,040
- storage of the largest storage device it has access to, but the latency to access that
+storage of the largest storage device it has access to, but the latency to access that
+它可以访问的最大存储设备的存储容量，但访问该设备的延迟时间。
 
 99
 00:15:15,040 --> 00:15:30,880
- storage it's the same as accessing the on-chip cache. That's a holy grail. Right? And again,
+storage it's the same as accessing the on-chip cache. That's a holy grail. Right? And again,
+存储就是访问芯片上的缓存。这是一个圣杯，对吗？再说一遍，
 
 100
 00:15:30,880 --> 00:15:38,120
- the key here is that at every level, the key technique is using caching. You cache the
+the key here is that at every level, the key technique is using caching. You cache the
+关键在于，在每个层面上，关键技术是使用缓存。你将缓存
 
 101
 00:15:38,120 --> 00:15:45,540
- data from the next level and you hope that for the vast majority of time, the program
+data from the next level and you hope that for the vast majority of time, the program
+数据来自下一个级别，你希望在绝大部分时间里，该程序能够
 
 102
 00:15:45,540 --> 00:15:58,160
- will only use the data in that cache. You don't go to the next level. Okay. And if the
+will only use the data in that cache. You don't go to the next level. Okay. And if the
+只会使用缓存中的数据。不会去下一层。好的。如果
 
 103
 00:15:58,160 --> 00:16:04,400
- program execute locality, so therefore he spends most of the time in a reasonably small
+program execute locality, so therefore he spends most of the time in a reasonably small
+程序执行的局部性，因此他大部分时间都在一个相对较小的范围内。
 
 104
 00:16:04,400 --> 00:16:11,400
- portion of the code or touching small portion of the data, you are in luck because as long
+portion of the code or touching small portion of the data, you are in luck because as long
+如果你只需要处理代码的一部分或者只需要涉及到数据的一小部分，那么你很幸运，因为只要
 
 105
 00:16:11,400 --> 00:16:18,320
- as you put this heavily accessed region of memory of a program in the cache, you are
+as you put this heavily accessed region of memory of a program in the cache, you are
+将程序中这个频繁访问的内存区域放入缓存中时，你就是在
 
 106
 00:16:18,320 --> 00:16:22,280
- fine.
+fine.
+好的。
 
 107
 00:16:22,280 --> 00:16:28,400
- And the last point to make here is a way to think about the main memory. It says a cache
+And the last point to make here is a way to think about the main memory. It says a cache
+而在这里要提到的最后一点是关于主内存的一种思考方式。它说的是一个缓存。
 
 108
 00:16:28,400 --> 00:16:34,680
- for the secondary storage for the disk. Right? It's again, at each level, you can think it's
+for the secondary storage for the disk. Right? It's again, at each level, you can think it's
+对于磁盘的辅助存储。对吗？在每个层级上，你可以认为它是
 
 109
 00:16:34,680 --> 00:16:47,880
- a cache for the next level. But we don't call it cache. We call it paging. So here is again,
+a cache for the next level. But we don't call it cache. We call it paging. So here is again,
+下一级的缓存。但我们不称之为缓存，而是称之为分页。所以这里再次提到，
 
 110
 00:16:47,880 --> 00:16:55,760
- another figure showing you the page fault. What I described earlier in words, this is
+another figure showing you the page fault. What I described earlier in words, this is
+另一个图表显示了页面错误。我之前用文字描述的内容，这就是。
 
 111
 00:16:55,760 --> 00:17:02,120
- using some animation to drive the point home. So say you have an instruction and you do
+using some animation to drive the point home. So say you have an instruction and you do
+使用一些动画来强调重点。比如说你有一条指示，你可以通过动画来展示。
 
 112
 00:17:02,120 --> 00:17:07,680
- the instruction fetch, then you go to the memory management unit. The memory management
+the instruction fetch, then you go to the memory management unit. The memory management
+指令获取，然后你进入内存管理单元。内存管理
 
 113
 00:17:07,680 --> 00:17:16,040
- unit, it handles the page table, TLB and all of this great stuff to do address translation.
+unit, it handles the page table, TLB and all of this great stuff to do address translation.
+单元，它处理页表、TLB和所有这些很棒的东西来进行地址转换。
 
 114
 00:17:16,040 --> 00:17:26,560
- And now you go, you find the page table entry and then from the page entry, you are going
+And now you go, you find the page table entry and then from the page entry, you are going
+然后你继续，找到页表项，然后从页表项中，你继续前进。
 
 115
 00:17:26,560 --> 00:17:37,360
- to have the page number and the offset. The offset keeps coming from the virtual address,
+to have the page number and the offset. The offset keeps coming from the virtual address,
+要有页码和偏移量。偏移量来自虚拟地址。
 
 116
 00:17:37,360 --> 00:17:42,960
- the page number comes after translation.
+the page number comes after translation.
+页码在翻译之后。
 
 117
 00:17:42,960 --> 00:17:49,080
- But now let's assume that you do when you execute the next instruction, you go to the
+But now let's assume that you do when you execute the next instruction, you go to the
+但是现在假设当你执行下一条指令时，你会去到...
 
 118
 00:17:49,080 --> 00:17:57,600
- page table, but the entry doesn't exist or it exists and it's invalid. So then you have
+page table, but the entry doesn't exist or it exists and it's invalid. So then you have
+页表，但该条目不存在或存在但无效。因此，您有
 
 119
 00:17:57,600 --> 00:18:08,440
- a page fault. So you go to the operating system to take care of things. The operating system
+a page fault. So you go to the operating system to take care of things. The operating system
+一个页面错误。所以你去操作系统处理事情。操作系统
 
 120
 00:18:08,440 --> 00:18:21,020
- on fault is going to do what? It's going basically to load, to locate the page on the disk, which
+on fault is going to do what? It's going basically to load, to locate the page on the disk, which
+故障会做什么？它基本上会加载，将页面定位到磁盘上，然后
 
 121
 00:18:21,020 --> 00:18:28,360
- is required by the program, load that page in the physical memory and then update the
+is required by the program, load that page in the physical memory and then update the
+程序要求，将该页面加载到物理内存中，然后更新。
 
 122
 00:18:28,360 --> 00:18:37,040
- page table entry. And finally, you restart the program and the program will retry the
+page table entry. And finally, you restart the program and the program will retry the
+页面表项。最后，您重新启动程序，程序将重试。
 
 123
 00:18:37,040 --> 00:18:43,360
- previous instruction, which calls a page fault. Now the previous instruction is going to have
+previous instruction, which calls a page fault. Now the previous instruction is going to have
+先前的指令引发了页面错误。现在，先前的指令将会有...
 
 124
 00:18:43,360 --> 00:18:50,120
- the same look to do the same page from the same virtual address. But now the page is
+the same look to do the same page from the same virtual address. But now the page is
+相同的外观从相同的虚拟地址执行相同的页面。但现在页面是什么？
 
 125
 00:18:50,120 --> 00:18:58,060
- already in the memory. So you are going to access that page and continue execution. Is
+already in the memory. So you are going to access that page and continue execution. Is
+已经在内存中。因此，您将访问该页面并继续执行。
 
 126
 00:18:58,060 --> 00:19:10,080
- that clear? Any questions?
+that clear? Any questions?
+明白了吗？有什么问题吗？
 
 127
 00:19:10,080 --> 00:19:17,060
- So now we just said that the main page paging is like caching. The memory act as a cache
+So now we just said that the main page paging is like caching. The memory act as a cache
+所以现在我们刚刚说过，主页的分页就像缓存一样。内存充当缓存。
 
 128
 00:19:17,060 --> 00:19:25,760
- for the persistent storage like disk or SSD. So now let's look from the point of view of
+for the persistent storage like disk or SSD. So now let's look from the point of view of
+对于持久存储，比如磁盘或固态硬盘（SSD）。现在让我们从以下角度来看。
 
 129
 00:19:25,760 --> 00:19:33,580
- the caching, from the point of view of a cache and characterize the demand paging. First
+the caching, from the point of view of a cache and characterize the demand paging. First
+缓存，从缓存的角度来看，可以描述为需求分页。首先
 
 130
 00:19:33,580 --> 00:19:43,020
- of all, what is the block size? What is the cache granularity? The block size, it's basically
+of all, what is the block size? What is the cache granularity? The block size, it's basically
+首先，块大小是多少？缓存的粒度是多少？块大小，基本上是指数据块的大小。
 
 131
 00:19:43,020 --> 00:19:51,480
- in this case, as you know, it's one page, which is say four kilobytes, between one kilobytes
+in this case, as you know, it's one page, which is say four kilobytes, between one kilobytes
+在这种情况下，正如你所知道的，这是一页，大约四千字节，相当于一千千字节之间。
 
 132
 00:19:51,480 --> 00:20:00,720
- and 16 kilobytes. What is your organization of the cache? We learned about direct map
+and 16 kilobytes. What is your organization of the cache? We learned about direct map
+和16千字节。你的缓存组织是什么？我们学习了直接映射。
 
 133
 00:20:00,720 --> 00:20:03,240
- cache, fully associative.
+cache, fully associative.
+高速缓存，全关联。
 
 134
 00:20:03,250 --> 00:20:04,250
- set associative.
+set associative.
+组相联。
 
 135
 00:20:04,250 --> 00:20:14,450
- And the answer here is that it's fully associative.
+And the answer here is that it's fully associative.
+答案是它是完全可结合的。
 
 136
 00:20:14,450 --> 00:20:17,050
- Fully associative provides you the most,
+Fully associative provides you the most,
+全关联提供给你最多的
 
 137
 00:20:17,050 --> 00:20:26,450
- is the most efficient in using the cache, if you remember.
+is the most efficient in using the cache, if you remember.
+如果你还记得的话，它是在使用缓存方面最高效的。
 
 138
 00:20:26,450 --> 00:20:27,610
- Why?
+Why?
+为什么？
 
 139
 00:20:27,610 --> 00:20:31,970
- Why is a fully associative memory
+Why is a fully associative memory
+为什么是全关联存储器？
 
 140
 00:20:31,970 --> 00:20:36,970
- the most effective in using the cache storage?
+the most effective in using the cache storage?
+在使用缓存存储方面最有效的方法是什么？
 
 141
 00:20:36,970 --> 00:20:53,850
- Yes, you can place it anywhere.
+Yes, you can place it anywhere.
+是的，你可以把它放在任何地方。
 
 142
 00:20:53,850 --> 00:20:56,330
- So there are no conflicts.
+So there are no conflicts.
+所以没有冲突。
 
 143
 00:20:56,330 --> 00:20:58,150
- There are no conflict misses.
+There are no conflict misses.
+没有冲突缺失。
 
 144
 00:20:58,150 --> 00:21:01,650
- Like you remember, it's direct mapped cache.
+Like you remember, it's direct mapped cache.
+就像你记得的那样，这是直接映射缓存。
 
 145
 00:21:01,650 --> 00:21:03,290
- You have conflict misses.
+You have conflict misses.
+你有冲突遗漏。
 
 146
 00:21:03,290 --> 00:21:08,290
- You don't have conflict misses here with associative cache.
+You don't have conflict misses here with associative cache.
+你在这里使用关联缓存不会出现冲突缺失。
 
 147
 00:21:08,290 --> 00:21:12,310
- Okay.
+Okay.
+Sure. Please go ahead and provide me with the text you would like me to translate.
 
 148
 00:21:12,310 --> 00:21:18,970
- There is a question here.
+There is a question here.
+这里有一个问题。
 
 149
 00:21:18,970 --> 00:21:22,050
- So the page fault we see in the error message
+So the page fault we see in the error message
+所以在错误信息中看到的页面错误
 
 150
 00:21:22,050 --> 00:21:24,130
- happened on the demand paging,
+happened on the demand paging,
+发生在需求分页上，
 
 151
 00:21:24,130 --> 00:21:27,610
- does not save the program.
+does not save the program.
+不保存程序。
 
 152
 00:21:27,610 --> 00:21:28,450
- Okay.
+Okay.
+Sure, I'll do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 153
 00:21:28,450 --> 00:21:36,490
- Maybe you can ask again the question.
+Maybe you can ask again the question.
+也许你可以再问一遍这个问题。
 
 154
 00:21:36,490 --> 00:21:40,050
- I'm afraid I do not understand what error
+I'm afraid I do not understand what error
+我很抱歉，我不明白你说的是什么错误。
 
 155
 00:21:40,050 --> 00:21:41,370
- we are talking about here.
+we are talking about here.
+我们正在这里谈论。
 
 156
 00:21:41,370 --> 00:21:44,010
- We are talking about the, yeah,
+We are talking about the, yeah,
+我们正在谈论，是的，
 
 157
 00:21:44,010 --> 00:21:46,650
- please ask the question again,
+please ask the question again,
+请再次提出问题。
 
 158
 00:21:46,650 --> 00:21:48,010
- and I'll be happy to answer.
+and I'll be happy to answer.
+我很乐意回答。
 
 159
 00:21:48,010 --> 00:21:54,810
- So now how do you locate the page?
+So now how do you locate the page?
+那么现在你如何定位这个页面呢？
 
 160
 00:21:54,810 --> 00:21:56,970
- First, you check the TLB.
+First, you check the TLB.
+首先，你检查TLB。
 
 161
 00:21:56,970 --> 00:22:00,290
- Then you do the page traversal if it's not in the TLB.
+Then you do the page traversal if it's not in the TLB.
+如果在TLB中找不到，那么你需要进行页面遍历。
 
 162
 00:22:00,290 --> 00:22:02,130
- Right?
+Right?
+对吗？
 
 163
 00:22:02,130 --> 00:22:03,330
- This is how you locate the page.
+This is how you locate the page.
+这是你定位页面的方法。
 
 164
 00:22:03,330 --> 00:22:06,010
- What is a page replacement policy?
+What is a page replacement policy?
+页面置换策略是指在计算机操作系统中，当内存中的页面不足时，选择哪些页面被替换出去，以便为新的页面腾出空间。
 
 165
 00:22:06,010 --> 00:22:11,370
- As you'll see, we want ALEREO,
+As you'll see, we want ALEREO,
+正如您所看到的，我们想要ALEREO。
 
 166
 00:22:11,370 --> 00:22:15,570
- at least recently used.
+at least recently used.
+至少最近使用过。
 
 167
 00:22:15,570 --> 00:22:20,790
- We are going to look at other replacement policies,
+We are going to look at other replacement policies,
+我们将研究其他的替代政策，
 
 168
 00:22:20,790 --> 00:22:25,890
- but typically we try to have an approximation of ALEREO,
+but typically we try to have an approximation of ALEREO,
+但通常我们会尽量接近ALEREO的近似值。
 
 169
 00:22:25,890 --> 00:22:28,330
- and we have to have an approximation of ALEREO
+and we have to have an approximation of ALEREO
+并且我们需要对ALEREO进行近似。
 
 170
 00:22:28,330 --> 00:22:32,070
- because you just implemented ALEREO can be too expensive.
+because you just implemented ALEREO can be too expensive.
+因为你刚刚实施ALEREO可能会太昂贵。
 
 171
 00:22:32,070 --> 00:22:35,570
- We'll learn about that.
+We'll learn about that.
+我们会了解这个。
 
 172
 00:22:35,570 --> 00:22:37,610
- What happened on a miss?
+What happened on a miss?
+发生了什么事情？
 
 173
 00:22:37,610 --> 00:22:39,370
- You saw that, right?
+You saw that, right?
+你看到了，对吗？
 
 174
 00:22:39,370 --> 00:22:41,830
- When there is a miss,
+When there is a miss,
+当出现错误时，
 
 175
 00:22:41,830 --> 00:22:46,370
- you are going to find the page on the disk
+you are going to find the page on the disk
+你要在磁盘上找到那个页面。
 
 176
 00:22:46,370 --> 00:22:48,010
- and bring the page in the memory.
+and bring the page in the memory.
+并将页面加载到内存中。
 
 177
 00:22:48,010 --> 00:22:51,970
- What happens on a write?
+What happens on a write?
+写操作会发生什么？
 
 178
 00:22:51,970 --> 00:22:56,970
- Remember that the cache has a copy of the data from memory.
+Remember that the cache has a copy of the data from memory.
+请记住，缓存中存有来自内存的数据副本。
 
 179
 00:22:56,970 --> 00:23:02,530
- So if you modify the data in the cache,
+So if you modify the data in the cache,
+那么如果你修改了缓存中的数据，
 
 180
 00:23:02,530 --> 00:23:07,470
- you need also to modify the copy of that data in memory.
+you need also to modify the copy of that data in memory.
+你还需要修改内存中的数据副本。
 
 181
 00:23:07,470 --> 00:23:11,250
- And there are two ways to modify it.
+And there are two ways to modify it.
+并且有两种方法可以修改它。
 
 182
 00:23:11,250 --> 00:23:14,010
- One is write through.
+One is write through.
+一个是写透的。
 
 183
 00:23:14,010 --> 00:23:19,010
- This means that as soon as you update the cache,
+This means that as soon as you update the cache,
+这意味着一旦你更新缓存，
 
 184
 00:23:19,010 --> 00:23:21,550
- also you update the main memory.
+also you update the main memory.
+还有，你需要更新主内存。
 
 185
 00:23:21,550 --> 00:23:26,550
- The second method is write back.
+The second method is write back.
+第二种方法是写回。
 
 186
 00:23:26,550 --> 00:23:30,110
- You just update the cache.
+You just update the cache.
+你刚刚更新了缓存。
 
 187
 00:23:30,110 --> 00:23:32,990
- And when you want to replace the data in the cache
+And when you want to replace the data in the cache
+并且当你想要替换缓存中的数据时
 
 188
 00:23:32,990 --> 00:23:37,150
- with some other data to bring it in,
+with some other data to bring it in,
+带上其他一些数据来补充进去，
 
 189
 00:23:37,150 --> 00:23:41,990
- then you are going to write back the data
+then you are going to write back the data
+那么你将会回传数据。
 
 190
 00:23:41,990 --> 00:23:47,630
- from the cache to the memory before replacing it.
+from the cache to the memory before replacing it.
+将缓存中的内容写回内存，然后再替换。
 
 191
 00:23:49,070 --> 00:23:52,890
- In this case, we are talking about memory on the disk.
+In this case, we are talking about memory on the disk.
+在这种情况下，我们正在谈论磁盘上的存储空间。
 
 192
 00:23:52,890 --> 00:23:57,030
- We are definitely talking about write back.
+We are definitely talking about write back.
+我们肯定在谈论写回。
 
 193
 00:23:57,030 --> 00:23:59,030
- Why write back in this case?
+Why write back in this case?
+为什么在这种情况下要写回来呢？
 
 194
 00:23:59,030 --> 00:24:01,410
- Tell me.
+Tell me.
+告诉我。
 
 195
 00:24:01,410 --> 00:24:02,910
- Why don't we do write through?
+Why don't we do write through?
+为什么我们不采用写透模式？
 
 196
 00:24:02,910 --> 00:24:05,070
- (silence)
+(silence)
+对不起，我无法翻译沉默。请提供需要翻译的具体内容。
 
 197
 00:24:05,070 --> 00:24:21,790
- Yes, excellent.
+Yes, excellent.
+是的，非常好。
 
 198
 00:24:21,790 --> 00:24:24,910
- So, Alison and Tyrell.
+So, Alison and Tyrell.
+所以，Alison和Tyrell。
 
 199
 00:24:24,910 --> 00:24:29,910
- So this is because it's very expensive
+So this is because it's very expensive
+所以这是因为它非常昂贵。
 
 200
 00:24:31,030 --> 00:24:32,790
- to read the data from the disk.
+to read the data from the disk.
+读取磁盘上的数据。
 
 201
 00:24:32,790 --> 00:24:37,670
- It can be order of magnitude more expensive.
+It can be order of magnitude more expensive.
+它可能会贵上一个数量级。
 
 202
 00:24:37,670 --> 00:24:40,950
- Just to give you a sense, the latency,
+Just to give you a sense, the latency,
+只是为了让你有个概念，延迟时间，
 
 203
 00:24:40,950 --> 00:24:48,310
- the latency to memory is maybe between 50 nanoseconds
+the latency to memory is maybe between 50 nanoseconds
+内存的延迟可能在50纳秒左右。
 
 204
 00:24:48,310 --> 00:24:52,470
- and 100 nanoseconds.
+and 100 nanoseconds.
+和100纳秒。
 
 205
 00:24:52,470 --> 00:24:57,030
- The latency to read and write from a disk
+The latency to read and write from a disk
+从磁盘读取和写入的延迟
 
 206
 00:24:57,030 --> 00:24:58,610
- can be in milliseconds.
+can be in milliseconds.
+可以用毫秒表示。
 
 207
 00:24:59,710 --> 00:25:02,590
- So what, it's three, four order of magnitude.
+So what, it's three, four order of magnitude.
+那又怎样，这是三、四个数量级的差距。
 
 208
 00:25:02,590 --> 00:25:04,470
- Okay?
+Okay?
+好的。
 
 209
 00:25:04,470 --> 00:25:07,950
- So it's huge difference.
+So it's huge difference.
+所以这是一个巨大的差别。
 
 210
 00:25:07,950 --> 00:25:09,950
- So that's how you avoid,
+So that's how you avoid,
+这就是你避免的方法，
 
 211
 00:25:09,950 --> 00:25:13,630
- you try to minimize the number of times
+you try to minimize the number of times
+你试图尽量减少次数。
 
 212
 00:25:13,630 --> 00:25:16,950
- you write data back to the storage, to the disk.
+you write data back to the storage, to the disk.
+你将数据写回存储器，写回磁盘。
 
 213
 00:25:16,950 --> 00:25:21,690
- I see.
+I see.
+我明白了。
 
 214
 00:25:21,690 --> 00:25:26,690
- So this is a question,
+So this is a question,
+这是一个问题，
 
 215
 00:25:26,690 --> 00:25:29,550
- it seems that I like when the page fault happens
+it seems that I like when the page fault happens
+似乎我喜欢页面错误发生的时候
 
 216
 00:25:29,550 --> 00:25:32,630
- for the first time, it tries a program again
+for the first time, it tries a program again
+第一次，它再次尝试一个程序。
 
 217
 00:25:32,630 --> 00:25:33,710
- after the man paging,
+after the man paging,
+在男子寻呼之后，
 
 218
 00:25:33,710 --> 00:25:35,870
- instead of killing the program right away.
+instead of killing the program right away.
+不要立即终止程序，而是...
 
 219
 00:25:35,870 --> 00:25:39,450
- But on a debug, we often see page fault message.
+But on a debug, we often see page fault message.
+但是在调试过程中，我们经常会看到页面错误的消息。
 
 220
 00:25:39,450 --> 00:25:42,030
- The page fault message you are seeing
+The page fault message you are seeing
+您所看到的页面错误消息
 
 221
 00:25:42,030 --> 00:25:44,550
- when you are debugging is different.
+when you are debugging is different.
+当你在调试时是不同的。
 
 222
 00:25:44,550 --> 00:25:48,830
- That is, for instance, when you are going to try to access
+That is, for instance, when you are going to try to access
+这是，例如，当你要尝试访问时。
 
 223
 00:25:48,830 --> 00:25:51,830
- some invalid region on the memory, right?
+some invalid region on the memory, right?
+内存上有一些无效的区域，对吗？
 
 224
 00:25:51,830 --> 00:25:55,270
- Something you didn't allocate, for instance.
+Something you didn't allocate, for instance.
+你没有分配的东西，例如。
 
 225
 00:25:55,270 --> 00:25:57,750
- Then you have page fault, right?
+Then you have page fault, right?
+那么你就会出现页面错误，对吗？
 
 226
 00:25:57,750 --> 00:26:02,750
- It's like you just have an address
+It's like you just have an address
+就像你只是有一个地址一样
 
 227
 00:26:02,750 --> 00:26:05,070
- which doesn't belong to one to read
+which doesn't belong to one to read
+哪一个不属于一个人阅读
 
 228
 00:26:05,070 --> 00:26:06,270
- or write to another address
+or write to another address
+或者写到另一个地址。
 
 229
 00:26:06,270 --> 00:26:07,710
- which doesn't belong to the program
+which doesn't belong to the program
+这个不属于该程序。
 
 230
 00:26:07,710 --> 00:26:09,310
- because it's not allocated yet.
+because it's not allocated yet.
+因为它还没有被分配。
 
 231
 00:26:09,310 --> 00:26:13,150
- So that's different.
+So that's different.
+那就不一样了。
 
 232
 00:26:13,150 --> 00:26:15,070
- This page fault I was talking about
+This page fault I was talking about
+这个页面错误我刚才提到的。
 
 233
 00:26:15,070 --> 00:26:18,590
- is not visible to the programmer.
+is not visible to the programmer.
+程序员无法看到。
 
 234
 00:26:18,590 --> 00:26:20,030
- This happens under the hood.
+This happens under the hood.
+这是在幕后发生的。
 
 235
 00:26:20,030 --> 00:26:23,950
- And what you said is correct.
+And what you said is correct.
+你说的是正确的。
 
 236
 00:26:23,950 --> 00:26:26,710
- That is only this page fault happens.
+That is only this page fault happens.
+这只是这个页面发生的错误。
 
 237
 00:26:26,710 --> 00:26:28,930
- Yes, you are going to do a trap,
+Yes, you are going to do a trap,
+是的，你打算设下一个陷阱，
 
 238
 00:26:28,930 --> 00:26:33,230
- then exception, trap to the operating system.
+then exception, trap to the operating system.
+然后发生异常，陷入操作系统。
 
 239
 00:26:33,230 --> 00:26:37,270
- The operating system gets a page from the disk,
+The operating system gets a page from the disk,
+操作系统从磁盘中获取一个页面。
 
 240
 00:26:37,270 --> 00:26:41,070
- put in the memory, and then you retry it
+put in the memory, and then you retry it
+将其存入内存，然后重试
 
 241
 00:26:41,070 --> 00:26:44,210
- and you restart the program from the same instruction.
+and you restart the program from the same instruction.
+然后你从同一个指令重新启动程序。
 
 242
 00:26:44,210 --> 00:26:48,150
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 243
 00:26:48,150 --> 00:26:55,910
- So remember we want to provide,
+So remember we want to provide,
+所以记住我们想要提供，
 
 244
 00:26:56,630 --> 00:26:57,990
- with virtual memory,
+with virtual memory,
+使用虚拟内存，
 
 245
 00:26:57,990 --> 00:27:01,150
- the illusion of infinite physical memory.
+the illusion of infinite physical memory.
+无限物理内存的幻觉。
 
 246
 00:27:01,150 --> 00:27:03,510
- So this is one example.
+So this is one example.
+这是一个例子。
 
 247
 00:27:03,510 --> 00:27:04,870
- Virtual memory is huge.
+Virtual memory is huge.
+虚拟内存非常大。
 
 248
 00:27:04,870 --> 00:27:05,710
- It's 40 gigabytes.
+It's 40 gigabytes.
+这是40千兆字节。
 
 249
 00:27:05,710 --> 00:27:07,630
- You have 32 bits addresses.
+You have 32 bits addresses.
+你有32位的地址。
 
 250
 00:27:07,630 --> 00:27:10,470
- But now most of the machines,
+But now most of the machines,
+但现在大部分的机器，
 
 251
 00:27:10,470 --> 00:27:13,350
- even including your phone, has 64 bits.
+even including your phone, has 64 bits.
+即使包括你的手机在内，也有64位。
 
 252
 00:27:13,350 --> 00:27:17,510
- So it's huge amount of memory, of virtual memory.
+So it's huge amount of memory, of virtual memory.
+所以这是大量的内存，虚拟内存。
 
 253
 00:27:17,510 --> 00:27:19,630
- There is no way you can have a physical memory
+There is no way you can have a physical memory
+你无法拥有物理记忆。
 
 254
 00:27:19,630 --> 00:27:21,870
- large enough to call the entire virtual memory
+large enough to call the entire virtual memory
+足够大，可以称之为整个虚拟内存。
 
 255
 00:27:21,870 --> 00:27:25,470
- of an application.
+of an application.
+一个应用程序的。
 
 256
 00:27:25,470 --> 00:27:27,870
- And then you map these kind of pages
+And then you map these kind of pages
+然后你将这些类型的页面进行映射。
 
 257
 00:27:27,870 --> 00:27:29,950
- from the virtual memory using the page table
+from the virtual memory using the page table
+从虚拟内存中使用页表
 
 258
 00:27:29,950 --> 00:27:31,790
- to the physical memory.
+to the physical memory.
+到物理内存。
 
 259
 00:27:31,790 --> 00:27:34,430
- And then some of the page,
+And then some of the page,
+然后页面的一部分，
 
 260
 00:27:34,430 --> 00:27:36,670
- which are not fitting the physical memory,
+which are not fitting the physical memory,
+不适合物理内存的部分。
 
 261
 00:27:36,670 --> 00:27:38,550
- are going to be on the disk.
+are going to be on the disk.
+将会在光盘上。
 
 262
 00:27:38,550 --> 00:27:39,390
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you want to be translated.
 
 263
 00:27:39,390 --> 00:27:41,310
- And why is that?
+And why is that?
+为什么呢？
 
 264
 00:27:41,310 --> 00:27:43,230
- Because of course the disk is much higher,
+Because of course the disk is much higher,
+因为当然，磁盘要高得多。
 
 265
 00:27:43,230 --> 00:27:47,710
- even as ST is much larger than a physical memory.
+even as ST is much larger than a physical memory.
+即使ST比物理内存大得多。
 
 266
 00:27:47,710 --> 00:27:49,550
- So you have a lot of more space.
+So you have a lot of more space.
+所以你有更多的空间。
 
 267
 00:27:54,190 --> 00:27:59,190
- And it's again,
+And it's again,
+又一次，
 
 268
 00:27:59,190 --> 00:28:01,630
- going to the disk and getting the page.
+going to the disk and getting the page.
+去磁盘获取页面。
 
 269
 00:28:01,630 --> 00:28:05,510
- So demand paging happen transparently.
+So demand paging happen transparently.
+所以需求分页是透明发生的。
 
 270
 00:28:05,510 --> 00:28:06,350
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 271
 00:28:06,350 --> 00:28:08,430
- It's not visible to the application.
+It's not visible to the application.
+应用程序无法看到它。
 
 272
 00:28:08,430 --> 00:28:10,990
- The only way the application may notice
+The only way the application may notice
+应用程序注意到的唯一方式是
 
 273
 00:28:10,990 --> 00:28:13,230
- is that it's a little bit slower.
+is that it's a little bit slower.
+这是因为它稍微慢一些。
 
 274
 00:28:13,230 --> 00:28:14,070
- Because you need,
+Because you need,
+因为你需要。
 
 275
 00:28:14,070 --> 00:28:16,390
- instead of getting the data directly from memory,
+instead of getting the data directly from memory,
+不直接从内存中获取数据，
 
 276
 00:28:16,390 --> 00:28:18,430
- you have to go first to the disk,
+you have to go first to the disk,
+你首先要去磁盘。
 
 277
 00:28:18,430 --> 00:28:19,670
- move the data into memory,
+move the data into memory,
+将数据移入内存中。
 
 278
 00:28:19,670 --> 00:28:20,830
- and then get the data.
+and then get the data.
+然后获取数据。
 
 279
 00:28:20,830 --> 00:28:23,910
- Okay.
+Okay.
+Sure, I will translate your Chinese into English and any non-Chinese into Chinese. Please provide me with the text you would like me to translate.
 
 280
 00:28:23,910 --> 00:28:24,750
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 281
 00:28:24,750 --> 00:28:29,190
- So,
+So,
+所以，
 
 282
 00:28:29,190 --> 00:28:32,870
- this is a page table entry.
+this is a page table entry.
+这是一个页表项。
 
 283
 00:28:32,870 --> 00:28:36,590
- If you remember from two lectures ago,
+If you remember from two lectures ago,
+如果你还记得两节课之前的内容，
 
 284
 00:28:36,590 --> 00:28:38,190
- you have the page frame numbers,
+you have the page frame numbers,
+你有页面框架号码。
 
 285
 00:28:38,190 --> 00:28:41,110
- the first is 32 bits addresses, address.
+the first is 32 bits addresses, address.
+第一个是32位地址，地址。
 
 286
 00:28:41,110 --> 00:28:42,390
- The first page,
+The first page,
+第一页，
 
 287
 00:28:42,390 --> 00:28:43,590
- the page frame number,
+the page frame number,
+页框号码
 
 288
 00:28:43,590 --> 00:28:47,430
- this represent the surface 20 bits,
+this represent the surface 20 bits,
+这代表了20个位的表面。
 
 289
 00:28:47,430 --> 00:28:51,550
- and the last 12 bits are some,
+and the last 12 bits are some,
+而最后的12位是一些内容。
 
 290
 00:28:51,550 --> 00:28:54,110
- a bunch of bits of,
+a bunch of bits of,
+一堆碎片，
 
 291
 00:28:54,110 --> 00:29:00,550
- and each bit has a different semantics.
+and each bit has a different semantics.
+并且每个位都有不同的语义。
 
 292
 00:29:00,550 --> 00:29:03,670
- And for the purpose of this lecture,
+And for the purpose of this lecture,
+为了这次讲座的目的，
 
 293
 00:29:03,670 --> 00:29:05,830
- we care about two bits.
+we care about two bits.
+我们关心两个方面。
 
 294
 00:29:05,830 --> 00:29:07,910
- One is p,
+One is p,
+一个是p。
 
 295
 00:29:07,910 --> 00:29:11,470
- which is called present or valid.
+which is called present or valid.
+哪个被称为现在或有效。
 
 296
 00:29:11,470 --> 00:29:16,470
- And this basically says that the page,
+And this basically says that the page,
+而这基本上是说这个页面，
 
 297
 00:29:16,470 --> 00:29:19,830
- the corresponding page is in memory.
+the corresponding page is in memory.
+对应的页面已经在内存中了。
 
 298
 00:29:19,830 --> 00:29:24,350
- If p is zero, the bit is zero,
+If p is zero, the bit is zero,
+如果p为零，则该位为零。
 
 299
 00:29:24,350 --> 00:29:25,830
- then the page is not in memory,
+then the page is not in memory,
+那么该页面不在内存中。
 
 300
 00:29:25,830 --> 00:29:26,950
- some are on the disk.
+some are on the disk.
+有一些在磁盘上。
 
 301
 00:29:26,950 --> 00:29:31,470
- And d is a dirty bit.
+And d is a dirty bit.
+并且d是一个脏位。
 
 302
 00:29:31,470 --> 00:29:38,110
- And this says that the page has been modified recently.
+And this says that the page has been modified recently.
+这里写着页面最近被修改过。
 
 303
 00:29:38,110 --> 00:29:42,470
- So it's been modified since it was brought in memory,
+So it's been modified since it was brought in memory,
+所以自从它被存入内存以来，它已经被修改过了。
 
 304
 00:29:42,470 --> 00:29:44,870
- for example.
+for example.
+例如。
 
 305
 00:29:44,870 --> 00:29:47,190
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 306
 00:29:49,590 --> 00:29:50,790
- So this means that,
+So this means that,
+这意味着，
 
 307
 00:29:50,790 --> 00:29:52,630
- why do you think,
+why do you think,
+你为什么这样认为？
 
 308
 00:29:52,630 --> 00:29:55,030
- how do you think you are going to use a dirty bit?
+how do you think you are going to use a dirty bit?
+你认为你会如何使用脏位？
 
 309
 00:29:55,030 --> 00:30:05,030
- Why do we need it?
+Why do we need it?
+我们为什么需要它？
 
 310
 00:30:05,030 --> 00:30:12,670
- It's exactly,
+It's exactly,
+没错，
 
 311
 00:30:12,670 --> 00:30:14,710
- it's to determine, yeah,
+it's to determine, yeah,
+这是要确定的，是的。
 
 312
 00:30:14,710 --> 00:30:19,510
- it's if you need to write the page back,
+it's if you need to write the page back,
+如果你需要重新写这一页的话，
 
 313
 00:30:19,510 --> 00:30:20,350
- if we need to,
+if we need to,
+如果我们需要的话，
 
 314
 00:30:20,350 --> 00:30:22,550
- if we have to replace that page,
+if we have to replace that page,
+如果我们必须替换那个页面，
 
 315
 00:30:22,550 --> 00:30:23,550
- because we don't have,
+because we don't have,
+因为我们没有，
 
 316
 00:30:23,550 --> 00:30:26,270
- we no longer have room in the physical memory
+we no longer have room in the physical memory
+我们的物理内存已经没有空间了。
 
 317
 00:30:26,270 --> 00:30:28,190
- to bring a new page,
+to bring a new page,
+翻译结果：带来一个新的页面。
 
 318
 00:30:28,190 --> 00:30:33,190
- then if the page we want to replace has been modified,
+then if the page we want to replace has been modified,
+那么如果我们想要替换的页面已经被修改了，
 
 319
 00:30:33,190 --> 00:30:34,950
- we need first to write to the disk,
+we need first to write to the disk,
+我们首先需要将其写入磁盘。
 
 320
 00:30:34,950 --> 00:30:36,270
- not lose the information.
+not lose the information.
+不要丢失这些信息。
 
 321
 00:30:36,270 --> 00:30:41,230
- That's great.
+That's great.
+太好了。
 
 322
 00:30:45,430 --> 00:30:49,750
- So this is a demand paging mechanism,
+So this is a demand paging mechanism,
+这是一个需求分页机制。
 
 323
 00:30:49,750 --> 00:30:50,710
- it's very simple.
+it's very simple.
+这很简单。
 
 324
 00:30:50,710 --> 00:30:53,110
- Again, it's like repeating it.
+Again, it's like repeating it.
+再说一遍，就像是重复一样。
 
 325
 00:30:53,110 --> 00:31:01,070
- You look at the PTE,
+You look at the PTE,
+你看一下PTE考试。
 
 326
 00:31:01,070 --> 00:31:02,630
- page table entry of the page.
+page table entry of the page.
+页表项的页。
 
 327
 00:31:02,630 --> 00:31:06,630
- If the bit of the PTE is valid,
+If the bit of the PTE is valid,
+如果PTE的位有效，
 
 328
 00:31:06,630 --> 00:31:10,030
- then the means that the page in memory,
+then the means that the page in memory,
+那么这意味着页面在内存中，
 
 329
 00:31:10,030 --> 00:31:13,470
- so you go and access the data from the memory.
+so you go and access the data from the memory.
+所以你去访问内存中的数据。
 
 330
 00:31:13,470 --> 00:31:15,190
- If it's not valid,
+If it's not valid,
+如果它无效的话，
 
 331
 00:31:15,190 --> 00:31:19,230
- then this means that the page is not in memory,
+then this means that the page is not in memory,
+那么这意味着该页面不在内存中。
 
 332
 00:31:19,230 --> 00:31:20,750
- it's on the disk.
+it's on the disk.
+它在磁盘上。
 
 333
 00:31:20,750 --> 00:31:23,510
- And when you do that,
+And when you do that,
+当你这样做的时候，
 
 334
 00:31:23,510 --> 00:31:27,190
- you, this results in a trap.
+you, this results in a trap.
+你，这导致了一个陷阱。
 
 335
 00:31:27,190 --> 00:31:29,990
- It's a page fault.
+It's a page fault.
+这是一个页面错误。
 
 336
 00:31:29,990 --> 00:31:32,110
- And on page fault,
+And on page fault,
+当发生页面错误时，
 
 337
 00:31:32,110 --> 00:31:35,030
- you choose an old page to replace,
+you choose an old page to replace,
+你选择了一个旧页面来替换。
 
 338
 00:31:35,030 --> 00:31:38,870
- if you don't have enough room in the memory.
+if you don't have enough room in the memory.
+如果你的内存空间不足。
 
 339
 00:31:38,870 --> 00:31:43,510
- If that old page has a dirty bit set,
+If that old page has a dirty bit set,
+如果那个旧页面的脏位被设置了，
 
 340
 00:31:43,510 --> 00:31:47,470
- this means that you have to write that page to the disk.
+this means that you have to write that page to the disk.
+这意味着你需要将那个页面写入磁盘。
 
 341
 00:31:47,470 --> 00:31:49,830
- And then once you are done with that,
+And then once you are done with that,
+然后一旦你完成了那个，
 
 342
 00:31:49,830 --> 00:31:54,430
- you also need to invalidate the PTE entry for the page,
+you also need to invalidate the PTE entry for the page,
+你还需要使页面的PTE条目无效。
 
 343
 00:31:54,430 --> 00:31:56,910
- because now you are going to remove from the,
+because now you are going to remove from the,
+因为现在你要离开了，
 
 344
 00:31:56,910 --> 00:32:00,470
- you are going to remove it from the memory,
+you are going to remove it from the memory,
+你将把它从内存中删除。
 
 345
 00:32:00,470 --> 00:32:04,390
- and also you need to invalidate the TLB entry for that page.
+and also you need to invalidate the TLB entry for that page.
+并且你还需要使该页面的TLB条目无效化。
 
 346
 00:32:04,390 --> 00:32:06,430
- And once you are done with it,
+And once you are done with it,
+完成之后，
 
 347
 00:32:06,430 --> 00:32:10,470
- you are going to bring the new page from the disk memory,
+you are going to bring the new page from the disk memory,
+你将从磁盘内存中加载新页面。
 
 348
 00:32:11,910 --> 00:32:13,870
- in place of the old page.
+in place of the old page.
+替代旧页面。
 
 349
 00:32:13,870 --> 00:32:16,830
- And once you bring the new page,
+And once you bring the new page,
+并且一旦你带来了新的页面，
 
 350
 00:32:16,830 --> 00:32:21,510
- you update the PTE of the new page,
+you update the PTE of the new page,
+你更新了新页面的PTE。
 
 351
 00:32:21,510 --> 00:32:25,150
- and you are ready to go.
+and you are ready to go.
+你已经准备好了。
 
 352
 00:32:25,150 --> 00:32:34,350
- And by the way, when this happens,
+And by the way, when this happens,
+顺便说一下，当这种情况发生时，
 
 353
 00:32:34,350 --> 00:32:41,070
- an operating system is doing all this kind of work
+an operating system is doing all this kind of work
+一个操作系统正在进行所有这些工作。
 
 354
 00:32:41,070 --> 00:32:44,110
- to bring the page from the disk to memory.
+to bring the page from the disk to memory.
+将页面从磁盘加载到内存。
 
 355
 00:32:44,110 --> 00:32:48,910
- It's a lot of IO, and in the meantime,
+It's a lot of IO, and in the meantime,
+这是很多输入输出，同时也是这样。
 
 356
 00:32:48,910 --> 00:32:53,830
- you try to schedule and run other processes,
+you try to schedule and run other processes,
+你试图安排和运行其他进程，
 
 357
 00:32:53,830 --> 00:32:54,910
- which are not blocked.
+which are not blocked.
+哪些没有被封锁。
 
 358
 00:32:54,910 --> 00:33:00,670
- So what are the origins of the paging?
+So what are the origins of the paging?
+寻呼的起源是什么？
 
 359
 00:33:00,670 --> 00:33:04,310
- And the origin of the paging dates long time ago,
+And the origin of the paging dates long time ago,
+而寻呼的起源可以追溯到很久以前，
 
 360
 00:33:04,310 --> 00:33:05,270
- from the '70s.
+from the '70s.
+从70年代开始。
 
 361
 00:33:05,270 --> 00:33:06,470
- And in the '70s,
+And in the '70s,
+在70年代，
 
 362
 00:33:07,750 --> 00:33:11,870
- it was a time before everyone has a personal computer.
+it was a time before everyone has a personal computer.
+那是每个人都拥有个人电脑之前的时代。
 
 363
 00:33:11,870 --> 00:33:14,070
- And what you have, you have a terminal.
+And what you have, you have a terminal.
+你所拥有的是一个终端。
 
 364
 00:33:14,070 --> 00:33:17,790
- It looks like a computer, but it's just a terminal.
+It looks like a computer, but it's just a terminal.
+它看起来像一台电脑，但实际上只是一个终端。
 
 365
 00:33:17,790 --> 00:33:19,510
- And they are connected to the computers.
+And they are connected to the computers.
+他们与计算机相连。
 
 366
 00:33:19,510 --> 00:33:22,310
- You have many people running their programs
+You have many people running their programs
+你有很多人在运行他们的程序
 
 367
 00:33:22,310 --> 00:33:23,830
- on the same computer,
+on the same computer,
+在同一台电脑上，
 
 368
 00:33:23,830 --> 00:33:27,070
- and they are using the computer from these terminals.
+and they are using the computer from these terminals.
+他们正在使用这些终端上的电脑。
 
 369
 00:33:27,070 --> 00:33:31,750
- And now, because you have so many users,
+And now, because you have so many users,
+现在，由于你有这么多用户，
 
 370
 00:33:31,750 --> 00:33:34,750
- and the physical memory was quite small,
+and the physical memory was quite small,
+而且物理内存非常小，
 
 371
 00:33:34,750 --> 00:33:37,270
- again, not all the users' programs could fit in
+again, not all the users' programs could fit in
+再次强调，不是所有用户的程序都能适应。
 
 372
 00:33:37,270 --> 00:33:38,430
- the memory.
+the memory.
+记忆。
 
 373
 00:33:38,430 --> 00:33:40,190
- So now you need to,
+So now you need to,
+所以现在你需要，
 
 374
 00:33:40,190 --> 00:33:47,230
- you need the ability to swap
+you need the ability to swap
+你需要有交换的能力。
 
 375
 00:33:47,230 --> 00:33:49,830
- and to put some of these pages,
+and to put some of these pages,
+并将其中一些页面放置，
 
 376
 00:33:49,830 --> 00:33:52,790
- of these pages which are not used often,
+of these pages which are not used often,
+这些页面中有哪些很少使用的？
 
 377
 00:33:52,790 --> 00:33:55,190
- or they haven't used for a while,
+or they haven't used for a while,
+或者他们已经有一段时间没有使用了，
 
 378
 00:33:55,190 --> 00:33:57,790
- to put them on the disk, right?
+to put them on the disk, right?
+把它们放到磁盘上，对吗？
 
 379
 00:33:57,790 --> 00:34:00,950
- So this is what happened early on.
+So this is what happened early on.
+这是早期发生的事情。
 
 380
 00:34:00,950 --> 00:34:02,310
- That's why you have paging.
+That's why you have paging.
+这就是为什么你有分页功能。
 
 381
 00:34:02,310 --> 00:34:06,030
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 382
 00:34:06,030 --> 00:34:06,870
- So,
+So,
+所以，
 
 383
 00:34:06,870 --> 00:34:20,270
- and this is basically the model you have,
+and this is basically the model you have,
+这基本上就是你所拥有的模型。
 
 384
 00:34:20,270 --> 00:34:21,310
- we should, you know,
+we should, you know,
+我们应该，你知道的，
 
 385
 00:34:21,310 --> 00:34:23,270
- we are going to have in mind,
+we are going to have in mind,
+我们会记在心里，
 
 386
 00:34:23,270 --> 00:34:26,630
- and we are going to discuss,
+and we are going to discuss,
+我们将要讨论，
 
 387
 00:34:26,630 --> 00:34:29,550
- continue to discuss the demand paging
+continue to discuss the demand paging
+继续讨论需求分页。
 
 388
 00:34:29,550 --> 00:34:30,950
- for the rest of the lecture.
+for the rest of the lecture.
+剩下的讲座。
 
 389
 00:34:30,950 --> 00:34:33,990
- Now, what happens when the PC is,
+Now, what happens when the PC is,
+现在，当电脑处于...时会发生什么？
 
 390
 00:34:33,990 --> 00:34:38,710
- with the personal computers?
+with the personal computers?
+使用个人电脑吗？
 
 391
 00:34:38,710 --> 00:34:40,270
- Actually, with personal computers,
+Actually, with personal computers,
+实际上，使用个人电脑，
 
 392
 00:34:40,270 --> 00:34:42,310
- initially you don't have virtual memory.
+initially you don't have virtual memory.
+最初你没有虚拟内存。
 
 393
 00:34:42,310 --> 00:34:45,590
- You have one program only running on a machine,
+You have one program only running on a machine,
+你的机器上只有一个程序在运行，
 
 394
 00:34:45,590 --> 00:34:48,190
- and that program taking the entire physical memory.
+and that program taking the entire physical memory.
+并且该程序占用了全部的物理内存。
 
 395
 00:34:48,190 --> 00:34:51,710
- However, as personal computers became more
+However, as personal computers became more
+然而，随着个人电脑的普及，越来越多的人开始使用电脑进行工作和娱乐。
 
 396
 00:34:51,710 --> 00:34:52,790
- and more sophisticated,
+and more sophisticated,
+更加复杂和精细化的。
 
 397
 00:34:52,790 --> 00:34:55,990
- and you run multiple programs on the same computer,
+and you run multiple programs on the same computer,
+你在同一台电脑上运行多个程序，
 
 398
 00:34:55,990 --> 00:34:59,270
- now you're still, you are back in square one,
+now you're still, you are back in square one,
+现在你还是停下来了，你回到了原点，
 
 399
 00:34:59,270 --> 00:35:02,710
- because like we discussed several times,
+because like we discussed several times,
+因为就像我们多次讨论过的那样，
 
 400
 00:35:02,710 --> 00:35:07,710
- the aggregate memory required by all processes,
+the aggregate memory required by all processes,
+所有进程所需的总内存
 
 401
 00:35:07,710 --> 00:35:10,630
- all the application running at a given time,
+all the application running at a given time,
+所有在给定时间运行的应用程序，
 
 402
 00:35:10,630 --> 00:35:12,230
- exceeds the physical memory.
+exceeds the physical memory.
+超出了物理内存。
 
 403
 00:35:12,230 --> 00:35:15,070
- So again, what is the solution here?
+So again, what is the solution here?
+那么，这里的解决方案是什么？
 
 404
 00:35:15,070 --> 00:35:18,150
- We need to virtualize the memory,
+We need to virtualize the memory,
+我们需要虚拟化内存。
 
 405
 00:35:18,150 --> 00:35:22,350
- and you need to keep some of this memory
+and you need to keep some of this memory
+并且你需要保留一部分这些记忆。
 
 406
 00:35:22,350 --> 00:35:24,830
- of this application on the disk.
+of this application on the disk.
+这个应用程序在磁盘上的位置。
 
 407
 00:35:24,830 --> 00:35:27,750
- The memory, hopefully, which is not accessed very often.
+The memory, hopefully, which is not accessed very often.
+希望不经常访问的内存。
 
 408
 00:35:30,790 --> 00:35:34,270
- Of course, all these now machines
+Of course, all these now machines
+当然，所有这些现在的机器
 
 409
 00:35:34,270 --> 00:35:37,070
- are connected to the cloud,
+are connected to the cloud,
+连接到云端。
 
 410
 00:35:37,070 --> 00:35:41,510
- all of your phones and laptops,
+all of your phones and laptops,
+你们所有的手机和笔记本电脑，
 
 411
 00:35:41,510 --> 00:35:45,910
- and you have the same situation in the cloud, right?
+and you have the same situation in the cloud, right?
+你在云端也有同样的情况，对吗？
 
 412
 00:35:45,910 --> 00:35:48,830
- The cloud, you have very powerful computers,
+The cloud, you have very powerful computers,
+云计算，你拥有非常强大的计算机，
 
 413
 00:35:48,830 --> 00:35:51,510
- and they run a lot of applications,
+and they run a lot of applications,
+而且他们运行了很多应用程序，
 
 414
 00:35:51,510 --> 00:35:54,190
- and they also obviously use virtual memory.
+and they also obviously use virtual memory.
+他们显然也使用虚拟内存。
 
 415
 00:35:58,590 --> 00:36:03,070
- So this is, again, if you look at one machine,
+So this is, again, if you look at one machine,
+这是说，如果你再看一个机器的话，
 
 416
 00:36:03,070 --> 00:36:06,350
- if you do the PS program status,
+if you do the PS program status,
+如果你查看PS程序状态，
 
 417
 00:36:06,350 --> 00:36:07,790
- this is kind of what you get.
+this is kind of what you get.
+这就是你得到的结果。
 
 418
 00:36:07,790 --> 00:36:12,070
- And here I'm just showing the memory
+And here I'm just showing the memory
+而这里我只是展示记忆。
 
 419
 00:36:12,070 --> 00:36:15,070
- in this particular case is pretty utilized.
+in this particular case is pretty utilized.
+在这种特殊情况下非常常用。
 
 420
 00:36:15,070 --> 00:36:19,470
- It says that you have certain gigabytes of memory used,
+It says that you have certain gigabytes of memory used,
+它显示你已经使用了一定的千兆字节的内存。
 
 421
 00:36:19,470 --> 00:36:21,990
- and only 2.7 is not used,
+and only 2.7 is not used,
+并且只有2.7没有被使用。
 
 422
 00:36:21,990 --> 00:36:24,790
- so it's more than 80% it's used.
+so it's more than 80% it's used.
+所以使用率超过80%。
 
 423
 00:36:24,790 --> 00:36:28,230
- And some of them is shared memory.
+And some of them is shared memory.
+其中一些是共享内存。
 
 424
 00:36:28,230 --> 00:36:33,230
- Remember that different application can share memory.
+Remember that different application can share memory.
+记住，不同的应用程序可以共享内存。
 
 425
 00:36:33,230 --> 00:36:36,630
- For instance, if they use the same libraries,
+For instance, if they use the same libraries,
+例如，如果他们使用相同的库，
 
 426
 00:36:36,630 --> 00:36:39,030
- they share the code of those libraries,
+they share the code of those libraries,
+他们共享那些库的代码。
 
 427
 00:36:39,030 --> 00:36:42,150
- because it doesn't make sense to make a copy
+because it doesn't make sense to make a copy
+因为复制没有意义
 
 428
 00:36:42,150 --> 00:36:45,190
- of the same code for each of the application.
+of the same code for each of the application.
+每个应用程序使用相同的代码。
 
 429
 00:36:45,190 --> 00:36:52,390
- So there are many uses of virtual memory
+So there are many uses of virtual memory
+虚拟内存有很多用途。
 
 430
 00:36:52,390 --> 00:36:53,510
- and demand paging.
+and demand paging.
+和需求分页。
 
 431
 00:36:55,830 --> 00:36:59,070
- Remember that in the virtual memory,
+Remember that in the virtual memory,
+请记住，在虚拟内存中，
 
 432
 00:36:59,070 --> 00:37:02,190
- one segment you have is a stack,
+one segment you have is a stack,
+你有一个片段是一个堆栈。
 
 433
 00:37:02,190 --> 00:37:04,430
- and the stack grows downwards
+and the stack grows downwards
+并且栈向下增长
 
 434
 00:37:04,430 --> 00:37:08,310
- from the high addresses to the low addresses.
+from the high addresses to the low addresses.
+从高地址到低地址。
 
 435
 00:37:08,310 --> 00:37:11,990
- And as you allocate and to push more data on the stack,
+And as you allocate and to push more data on the stack,
+当你分配并将更多数据推入堆栈时，
 
 436
 00:37:11,990 --> 00:37:14,430
- you may have to extend the stack.
+you may have to extend the stack.
+你可能需要扩展堆栈。
 
 437
 00:37:14,430 --> 00:37:17,350
- So this is how you are going to do it.
+So this is how you are going to do it.
+这就是你要做的方式。
 
 438
 00:37:17,350 --> 00:37:20,230
- If you are going to want to expand the stack,
+If you are going to want to expand the stack,
+如果你想要扩展堆栈，
 
 439
 00:37:20,230 --> 00:37:22,750
- then it's again what will happen.
+then it's again what will happen.
+那么接下来会发生什么。
 
 440
 00:37:22,750 --> 00:37:24,190
- You have a page fault,
+You have a page fault,
+你发生了一个页面错误。
 
 441
 00:37:24,190 --> 00:37:26,870
- and you are going to go to the operating system,
+and you are going to go to the operating system,
+然后你要去操作系统，
 
 442
 00:37:26,870 --> 00:37:29,390
- and the operating system is going to increase
+and the operating system is going to increase
+并且操作系统将会增加。
 
 443
 00:37:29,390 --> 00:37:31,790
- the size of the stack, okay?
+the size of the stack, okay?
+栈的大小，好吗？
 
 444
 00:37:31,790 --> 00:37:34,430
- And allocate more memory for that stack.
+And allocate more memory for that stack.
+并为该堆栈分配更多的内存。
 
 445
 00:37:34,430 --> 00:37:37,350
- Another way is process fork.
+Another way is process fork.
+另一种方式是进程分叉。
 
 446
 00:37:37,350 --> 00:37:38,430
- We discuss about that.
+We discuss about that.
+我们讨论这个。
 
 447
 00:37:38,430 --> 00:37:40,670
- Here we are going to rediscuss again.
+Here we are going to rediscuss again.
+我们这里要重新讨论一下。
 
 448
 00:37:40,670 --> 00:37:43,190
- When you do a fork,
+When you do a fork,
+当你进行分叉时，
 
 449
 00:37:43,190 --> 00:37:46,470
- you remember that the child process
+you remember that the child process
+你记得那个子进程吗？
 
 450
 00:37:46,470 --> 00:37:50,470
- has the same code as the same instance,
+has the same code as the same instance,
+具有相同代码的是相同实例。
 
 451
 00:37:50,470 --> 00:37:55,470
- and it has the same resources as the parent process, okay?
+and it has the same resources as the parent process, okay?
+并且它拥有与父进程相同的资源，好吗？
 
 452
 00:37:55,470 --> 00:38:00,470
- But because you have the same code,
+But because you have the same code,
+但是因为你们有相同的代码，
 
 453
 00:38:00,470 --> 00:38:04,910
- one simple solution will be you copy the entire code
+one simple solution will be you copy the entire code
+一个简单的解决方案是你复制整个代码。
 
 454
 00:38:04,910 --> 00:38:10,070
- and the data from the parent process to the child process
+and the data from the parent process to the child process
+和来自父进程的数据传递给子进程
 
 455
 00:38:10,070 --> 00:38:12,430
- before you can start the child process.
+before you can start the child process.
+在你可以启动子进程之前。
 
 456
 00:38:12,430 --> 00:38:16,190
- Of course, the problem is that this will take a lot of time.
+Of course, the problem is that this will take a lot of time.
+当然，问题在于这将会花费很多时间。
 
 457
 00:38:16,190 --> 00:38:19,830
- So instead, what you do here is that
+So instead, what you do here is that
+所以在这里，你所做的是
 
 458
 00:38:19,830 --> 00:38:22,550
- when you create the child process,
+when you create the child process,
+当你创建子进程时，
 
 459
 00:38:22,550 --> 00:38:23,710
- you create it immediately,
+you create it immediately,
+你立即创建它。
 
 460
 00:38:23,710 --> 00:38:27,910
- and you have it point to all the memory
+and you have it point to all the memory
+并且你需要将它指向所有的内存。
 
 461
 00:38:27,910 --> 00:38:32,190
- of the parent process, so they share the same memory.
+of the parent process, so they share the same memory.
+父进程的子进程会继承父进程的内存空间，因此它们共享相同的内存。
 
 462
 00:38:32,190 --> 00:38:34,950
- The only difference is that
+The only difference is that
+唯一的区别是
 
 463
 00:38:34,950 --> 00:38:42,470
- from the point of view of the child process,
+from the point of view of the child process,
+从子进程的角度来看，
 
 464
 00:38:42,470 --> 00:38:47,470
- all the memory is marked as read-only, no writes, right?
+all the memory is marked as read-only, no writes, right?
+所有的内存都被标记为只读，不能写入，对吗？
 
 465
 00:38:49,670 --> 00:38:53,310
- And now when you read, everything is perfect, right?
+And now when you read, everything is perfect, right?
+现在当你阅读时，一切都完美了，对吗？
 
 466
 00:38:53,310 --> 00:38:56,110
- Because you are going to read the same content,
+Because you are going to read the same content,
+因为你将要阅读相同的内容，
 
 467
 00:38:56,110 --> 00:39:01,110
- which is not modified as from the parent.
+which is not modified as from the parent.
+这个没有从父级进行修改。
 
 468
 00:39:01,110 --> 00:39:08,310
- But now if the child wants to modify a piece of data,
+But now if the child wants to modify a piece of data,
+但是现在如果孩子想修改一条数据，
 
 469
 00:39:08,310 --> 00:39:13,070
- then because the pages are read-only,
+then because the pages are read-only,
+那么因为这些页面是只读的，
 
 470
 00:39:13,070 --> 00:39:17,190
- then it's going to cause a trap, an exception.
+then it's going to cause a trap, an exception.
+那么它将会引发一个陷阱，一个异常。
 
 471
 00:39:17,190 --> 00:39:20,470
- It's going to be intercepted by the operating system.
+It's going to be intercepted by the operating system.
+它将被操作系统拦截。
 
 472
 00:39:20,470 --> 00:39:25,470
- And the operating system now is going to copy the page,
+And the operating system now is going to copy the page,
+并且操作系统现在要复制这个页面，
 
 473
 00:39:25,470 --> 00:39:28,470
- read-only page, it's going to create another copy now
+read-only page, it's going to create another copy now
+只读页面，现在将创建另一个副本。
 
 474
 00:39:28,470 --> 00:39:31,790
- for the child, and now it's going to give access
+for the child, and now it's going to give access
+给孩子，现在将提供访问权限。
 
 475
 00:39:31,790 --> 00:39:36,670
- to write to its own copy of that page to the child, right?
+to write to its own copy of that page to the child, right?
+将该页面的副本写入子页面，对吗？
 
 476
 00:39:36,670 --> 00:39:43,230
- So when you exec,
+So when you exec,
+当你执行时，
 
 477
 00:39:43,230 --> 00:39:46,470
- you only bring in parts of the binary in active use,
+you only bring in parts of the binary in active use,
+你只使用活跃的二进制部分。
 
 478
 00:39:46,470 --> 00:39:50,070
- you'll just bring a few pages in the memory,
+you'll just bring a few pages in the memory,
+你只需要将几页内容存储在内存中，
 
 479
 00:39:50,070 --> 00:39:54,470
- you don't bring the entire program into memory
+you don't bring the entire program into memory
+你不需要将整个程序加载到内存中
 
 480
 00:39:54,470 --> 00:39:56,190
- because that can be too big.
+because that can be too big.
+因为那可能太大了。
 
 481
 00:39:56,190 --> 00:40:00,030
- And some parts of the program you may never touch
+And some parts of the program you may never touch
+还有一些程序的部分可能你永远不会接触到。
 
 482
 00:40:00,030 --> 00:40:01,230
- when you are running it.
+when you are running it.
+当你在运行它时。
 
 483
 00:40:01,230 --> 00:40:03,630
- The similarly with the stack,
+The similarly with the stack,
+与堆栈类似，
 
 484
 00:40:03,630 --> 00:40:06,390
- you can extend the heap and so forth.
+you can extend the heap and so forth.
+你可以扩展堆等等。
 
 485
 00:40:06,500 --> 00:40:23,500
- This is another example about an animation about what happens when you, it's an end-to-end example and showing you what happens when you start a new program.
+This is another example about an animation about what happens when you, it's an end-to-end example and showing you what happens when you start a new program.
+这是另一个关于一个动画的例子，它展示了当你启动一个新程序时会发生什么。
 
 486
 00:40:23,500 --> 00:40:35,500
- So you have a new program, the program is on the disk, it's typically, you know, it's got an extension and you have the code, you have some data, static data and some other information.
+So you have a new program, the program is on the disk, it's typically, you know, it's got an extension and you have the code, you have some data, static data and some other information.
+所以你有一个新的程序，这个程序在磁盘上，通常它有一个扩展名，你有代码，还有一些静态数据和其他信息。
 
 487
 00:40:35,500 --> 00:40:53,500
- Okay, so you need to bring that in memory, you need to bring the code in memory in order to run. And when you are going to start, you are going to bring some part of the code in memory and then you are going to bring some data in memory and then you are going to allocate heap and the stack for that particular program.
+Okay, so you need to bring that in memory, you need to bring the code in memory in order to run. And when you are going to start, you are going to bring some part of the code in memory and then you are going to bring some data in memory and then you are going to allocate heap and the stack for that particular program.
+好的，所以你需要将代码加载到内存中才能运行。当你开始时，你需要将代码的一部分加载到内存中，然后将一些数据加载到内存中，然后为该特定程序分配堆和栈空间。
 
 488
 00:40:53,500 --> 00:41:05,500
- And this is the view from the virtual address space, VAS stands for virtual address space of the process, which was instantiated to run the program.
+And this is the view from the virtual address space, VAS stands for virtual address space of the process, which was instantiated to run the program.
+这是虚拟地址空间的视图，VAS代表进程的虚拟地址空间，它被实例化来运行程序。
 
 489
 00:41:05,500 --> 00:41:24,500
- And let's see, and then you obviously are going to back all these virtual addresses, everything in the virtual address, which is used by the program, you are going to be backed into the disk.
+And let's see, and then you obviously are going to back all these virtual addresses, everything in the virtual address, which is used by the program, you are going to be backed into the disk.
+然后，你显然会将所有这些虚拟地址备份，即程序使用的所有虚拟地址都会被备份到磁盘上。
 
 490
 00:41:24,500 --> 00:41:40,500
- Finally, between the virtual address and the memory, you need to do the translation, the translation is done with the page table. Some entries from the page table are going to point to pages in the physical memory.
+Finally, between the virtual address and the memory, you need to do the translation, the translation is done with the page table. Some entries from the page table are going to point to pages in the physical memory.
+最后，在虚拟地址和内存之间，你需要进行翻译，这个翻译是通过页表完成的。页表中的一些条目将指向物理内存中的页面。
 
 491
 00:41:40,500 --> 00:42:05,500
- And if a page table, you know, it's invalid, so it doesn't exist in memory, the corresponding page table entry is going to point to the location of that page on the disk.
+And if a page table, you know, it's invalid, so it doesn't exist in memory, the corresponding page table entry is going to point to the location of that page on the disk.
+如果一个页表无效，也就是说它在内存中不存在，那么相应的页表项将指向该页在磁盘上的位置。
 
 492
 00:42:05,500 --> 00:42:21,500
- So fundamentally what you need to do if that page is on the disk is to have a function, something like that, it's a find block which takes an argument, the process ID and the page number of that.
+So fundamentally what you need to do if that page is on the disk is to have a function, something like that, it's a find block which takes an argument, the process ID and the page number of that.
+所以基本上，如果该页面在磁盘上，你需要做的是有一个函数，类似于这样，它是一个查找块，接受一个参数，即进程ID和页面号。
 
 493
 00:42:21,500 --> 00:42:34,500
- And then for that page number and the process ID, you are going to get a disk location on the disk where you can find that page.
+And then for that page number and the process ID, you are going to get a disk location on the disk where you can find that page.
+然后，对于该页码和进程ID，你将获得一个在磁盘上的磁盘位置，你可以在那里找到该页。
 
 494
 00:42:34,500 --> 00:42:39,500
- So this is very similar with the page table concept.
+So this is very similar with the page table concept.
+所以这与页面表的概念非常相似。
 
 495
 00:42:39,500 --> 00:42:44,500
- Okay. But it is purely done purely in software.
+Okay. But it is purely done purely in software.
+好的。但这完全是通过软件完成的。
 
 496
 00:42:44,500 --> 00:42:52,500
- No TLD, no nothing like that.
+No TLD, no nothing like that.
+没有顶级域名，也没有任何类似的东西。
 
 497
 00:42:52,500 --> 00:43:13,500
- And why do you think the PID? Why do you take the argument, the PID argument here?
+And why do you think the PID? Why do you take the argument, the PID argument here?
+我认为PID是为什么？为什么你在这里提到PID的论点？
 
 498
 00:43:13,500 --> 00:43:17,500
- Anyone?
+Anyone?
+有人吗？
 
 499
 00:43:17,500 --> 00:43:23,500
- Because the virtual address space is per process.
+Because the virtual address space is per process.
+因为虚拟地址空间是每个进程独立的。
 
 500
 00:43:23,500 --> 00:43:24,500
- Okay.
+Okay.
+Sure, I'll do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 501
 00:43:24,500 --> 00:43:28,500
- The page tables are per process.
+The page tables are per process.
+页面表是每个进程的。
 
 502
 00:43:28,500 --> 00:43:38,500
- So if I give you only the page number, it's not well defined, because multiple processes, they can have the same page numbers.
+So if I give you only the page number, it's not well defined, because multiple processes, they can have the same page numbers.
+所以如果我只给你页码，它并不明确，因为多个进程可能具有相同的页码。
 
 503
 00:43:38,500 --> 00:43:48,500
- And because the page number represents something in their virtual address space, and each of them has a different virtual address space.
+And because the page number represents something in their virtual address space, and each of them has a different virtual address space.
+而且由于页码代表着它们在虚拟地址空间中的位置，而每个进程都有不同的虚拟地址空间。
 
 504
 00:43:48,500 --> 00:43:49,500
- Okay.
+Okay.
+Sure, I'll do my best to help you with the translations. Please go ahead and provide me with the text you'd like me to translate.
 
 505
 00:43:49,500 --> 00:43:59,500
- So that's why you need to give the process identifier to identify the virtual address space.
+So that's why you need to give the process identifier to identify the virtual address space.
+所以这就是为什么你需要提供进程标识符来识别虚拟地址空间的原因。
 
 506
 00:43:59,500 --> 00:44:01,500
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 507
 00:44:01,500 --> 00:44:15,500
- Where do you store it? Obviously you want to store it in memory, because if you store it on the disk, then you need to bring it from the disk. It's going to be even slower.
+Where do you store it? Obviously you want to store it in memory, because if you store it on the disk, then you need to bring it from the disk. It's going to be even slower.
+你把它存储在哪里？显然你想把它存储在内存中，因为如果你把它存储在磁盘上，那么你需要从磁盘中读取它。这样会更慢。
 
 508
 00:44:15,500 --> 00:44:19,500
- And that's pretty much it.
+And that's pretty much it.
+这就是大致的内容。
 
 509
 00:44:19,500 --> 00:44:31,500
- So,
+So,
+所以，
 
 510
 00:44:31,500 --> 00:44:39,500
- any questions?
+any questions?
+有任何问题吗？
 
 511
 00:44:39,500 --> 00:44:51,500
- So like in the case of the shared memory, we also can share the disk between different applications, processes.
+So like in the case of the shared memory, we also can share the disk between different applications, processes.
+所以就像在共享内存的情况下，我们也可以在不同的应用程序、进程之间共享磁盘。
 
 512
 00:44:51,500 --> 00:44:55,500
- So for instance, I'll show you next.
+So for instance, I'll show you next.
+所以，例如，我接下来会给你展示。
 
 513
 00:44:55,500 --> 00:45:09,500
- And the way I'll show you that is like for instance here, again, this is virtual address space for one process, and you can have another process and another process will have its own virtual address space, its own Pi page table.
+And the way I'll show you that is like for instance here, again, this is virtual address space for one process, and you can have another process and another process will have its own virtual address space, its own Pi page table.
+而我将向您展示的方式是，例如在这里，这是一个进程的虚拟地址空间，您可以有另一个进程，另一个进程将有自己的虚拟地址空间，自己的Pi页表。
 
 514
 00:45:09,500 --> 00:45:10,500
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 515
 00:45:10,500 --> 00:45:17,500
- And here it's about the stack and the heap and the data of the second process.
+And here it's about the stack and the heap and the data of the second process.
+这里是关于堆栈、堆和第二个进程的数据。
 
 516
 00:45:17,500 --> 00:45:23,500
- And assume that the second process and the first process running the same program.
+And assume that the second process and the first process running the same program.
+并假设第二个进程和第一个进程运行相同的程序。
 
 517
 00:45:23,500 --> 00:45:34,500
- So the two processes that are just two instances of the same program. So in this particular case, as you can see, the code is shared, because the code is read only.
+So the two processes that are just two instances of the same program. So in this particular case, as you can see, the code is shared, because the code is read only.
+所以这两个进程只是同一个程序的两个实例。所以在这种特殊情况下，正如你所看到的，代码是共享的，因为代码是只读的。
 
 518
 00:45:34,500 --> 00:45:57,500
- So if you have two programs, which use instances, or sorry, it's you have two instances of the same program, then the virtual address space of the two, the two instances, the two processes, they can share the same code.
+So if you have two programs, which use instances, or sorry, it's you have two instances of the same program, then the virtual address space of the two, the two instances, the two processes, they can share the same code.
+所以如果你有两个程序，它们使用实例，或者抱歉，你有两个相同程序的实例，那么这两个实例的虚拟地址空间，这两个实例，这两个进程，它们可以共享相同的代码。
 
 519
 00:45:57,500 --> 00:46:10,500
- And they can share the same code, obviously, and you can share also, we can share the same old code also in the physical memory.
+And they can share the same code, obviously, and you can share also, we can share the same old code also in the physical memory.
+他们可以共享相同的代码，显然，你也可以共享，我们也可以在物理内存中共享相同的旧代码。
 
 520
 00:46:10,500 --> 00:46:13,500
- Make sense?
+Make sense?
+有意义吗？
 
 521
 00:46:13,500 --> 00:46:19,500
- Any questions?
+Any questions?
+有任何问题吗？
 
 522
 00:46:19,500 --> 00:46:23,500
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 523
 00:46:23,500 --> 00:46:25,500
- And again,
+And again,
+再一次，
 
 524
 00:46:25,500 --> 00:46:36,500
- the page table, the second process, some of the pages have been memory, some of them, the ones which are not in memory are backed on disk.
+the page table, the second process, some of the pages have been memory, some of them, the ones which are not in memory are backed on disk.
+页表，第二个进程，其中一些页面已经在内存中，其中一些页面不在内存中，它们被存储在磁盘上。
 
 525
 00:46:36,500 --> 00:46:37,500
- Okay.
+Okay.
+Sure, I'll do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 526
 00:46:37,500 --> 00:47:00,500
- Now, say the process active, the first process is active, then if you are going to have fetching instruction on access some physical memory, then you look at the page table, if say the page table entry is invalid, then you have a page fault, the operating system
+Now, say the process active, the first process is active, then if you are going to have fetching instruction on access some physical memory, then you look at the page table, if say the page table entry is invalid, then you have a page fault, the operating system
+现在，假设进程处于活动状态，第一个进程处于活动状态，如果你要访问某个物理内存来获取指令，那么你需要查看页表。如果页表项无效，就会发生页错误，操作系统会处理这个错误。
 
 527
 00:47:00,500 --> 00:47:09,500
- is a block on the disk which contains the page, and then move it to
+is a block on the disk which contains the page, and then move it to
+是一个包含页面的磁盘块，并将其移动到
 
 528
 00:47:09,500 --> 00:47:11,500
- the memory.
+the memory.
+记忆。
 
 529
 00:47:11,500 --> 00:47:13,500
- Okay.
+Okay.
+Sure. Please go ahead and provide me with the text you would like me to translate.
 
 530
 00:47:13,500 --> 00:47:17,500
- This is another summary step by step of handling a page fault.
+This is another summary step by step of handling a page fault.
+这是处理页面错误的另一个逐步摘要。
 
 531
 00:47:17,500 --> 00:47:21,500
- Again, you access the memory,
+Again, you access the memory,
+再次，你访问了内存。
 
 532
 00:47:21,500 --> 00:47:42,500
- virtual memory, this is step one, say the associated page table entry is invalid. This results in a trap page fault to the operating system.
+virtual memory, this is step one, say the associated page table entry is invalid. This results in a trap page fault to the operating system.
+虚拟内存，这是第一步，说关联的页表项无效。这会导致操作系统触发一个陷阱页错误。
 
 533
 00:47:42,500 --> 00:47:59,500
- This block, locate the block where the page is stored on the disk, brings the page in memory in a free frame, page frame, updates the page table entries and restart the instruction.
+This block, locate the block where the page is stored on the disk, brings the page in memory in a free frame, page frame, updates the page table entries and restart the instruction.
+这个块，定位页面在磁盘上存储的块，将页面加载到空闲的内存帧中，更新页面表项并重新开始执行指令。
 
 534
 00:47:59,500 --> 00:48:01,500
- Okay, a few announcements.
+Okay, a few announcements.
+好的，有几个公告。
 
 535
 00:48:01,500 --> 00:48:05,500
- The Hallmark 4 has been released.
+The Hallmark 4 has been released.
+Hallmark 4已经发布。
 
 536
 00:48:05,500 --> 00:48:14,500
- This week, please attend the design reviews. Remember the design review starts at the hour.
+This week, please attend the design reviews. Remember the design review starts at the hour.
+本周，请参加设计评审会议。记住设计评审会议将于整点开始。
 
 537
 00:48:14,500 --> 00:48:17,500
- They are not on the Berkeley time.
+They are not on the Berkeley time.
+他们没有按照伯克利时间来。
 
 538
 00:48:17,500 --> 00:48:19,500
- Please.
+Please.
+请。
 
 539
 00:48:19,500 --> 00:48:28,500
- So give time to everyone, so they can get the feedback from the TA.
+So give time to everyone, so they can get the feedback from the TA.
+所以给每个人时间，这样他们就可以从助教那里得到反馈。
 
 540
 00:48:28,500 --> 00:48:35,500
- Remember that you need to participate during design reviews. Part of your grade is based on that.
+Remember that you need to participate during design reviews. Part of your grade is based on that.
+请记住，你需要在设计评审中参与。你的成绩的一部分是基于此的。
 
 541
 00:48:35,500 --> 00:48:47,500
- And other than that, you know, I know that there are now many deadlines, there are no deadlines for the next two weeks, but the next following weeks on November 1 will be pretty brutal.
+And other than that, you know, I know that there are now many deadlines, there are no deadlines for the next two weeks, but the next following weeks on November 1 will be pretty brutal.
+除此之外，你知道，我知道现在有很多截止日期，接下来两周没有截止日期，但11月1日之后的几周将非常紧张。
 
 542
 00:48:47,500 --> 00:49:03,500
- So, as such, please, please make progress on homework for Project 2 and start studying about midterm 2, which is mostly the materials we are learning.
+So, as such, please, please make progress on homework for Project 2 and start studying about midterm 2, which is mostly the materials we are learning.
+所以，请务必在项目2的作业上取得进展，并开始学习关于期中考试2的内容，这主要是我们正在学习的材料。
 
 543
 00:49:03,500 --> 00:49:15,500
- We have been learned since the first midterm. So midterm 2 will still have some of, you know, like maybe 10-20% for the materials of midterm 1.
+We have been learned since the first midterm. So midterm 2 will still have some of, you know, like maybe 10-20% for the materials of midterm 1.
+我们从第一次期中考试开始就一直在学习。所以第二次期中考试仍然会包含一些第一次期中考试的内容，大概占总分的10-20%左右。
 
 544
 00:49:15,500 --> 00:49:32,500
- But this means that 80-90% of the materials will be from the lectures since midterm 1.
+But this means that 80-90% of the materials will be from the lectures since midterm 1.
+但这意味着80-90%的材料将来自于第一次期中考试以后的讲座。
 
 545
 00:49:32,500 --> 00:49:35,500
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 546
 00:49:35,500 --> 00:49:45,500
- So now let's switch the gears and answer the following key question.
+So now let's switch the gears and answer the following key question.
+现在让我们转换一下思路，回答以下关键问题。
 
 547
 00:49:45,500 --> 00:49:56,500
- During a page fault, you need to bring a page from the disk to the memory.
+During a page fault, you need to bring a page from the disk to the memory.
+在页面错误时，你需要将一个页面从磁盘加载到内存中。
 
 548
 00:49:56,500 --> 00:50:06,500
- How do you find room for that page?
+How do you find room for that page?
+你如何找到那一页的位置？
 
 549
 00:50:06,500 --> 00:50:18,500
- And if there is no room, like we discussed, we are going to find a page. If it is dirty, save it on the disk and replace it with a new page.
+And if there is no room, like we discussed, we are going to find a page. If it is dirty, save it on the disk and replace it with a new page.
+如果没有空间，就像我们讨论过的那样，我们会找到一个页面。如果它很脏，就将其保存在磁盘上，并用一个新的页面替换它。
 
 550
 00:50:18,500 --> 00:50:21,500
- But typically this is quite expensive.
+But typically this is quite expensive.
+但通常这相当昂贵。
 
 551
 00:50:21,500 --> 00:50:30,500
- You know, writing page, bring a page in is very expensive. So what many operating systems do in the background,
+You know, writing page, bring a page in is very expensive. So what many operating systems do in the background,
+你知道，写入页面、将页面带入内存是非常昂贵的。所以许多操作系统在后台做的是，
 
 552
 00:50:30,500 --> 00:50:39,500
- they kick off some of the, they write back some of the dirty pages to the disk.
+they kick off some of the, they write back some of the dirty pages to the disk.
+他们将其中一些脏页写回磁盘。
 
 553
 00:50:39,500 --> 00:50:44,500
- So if you need to replace one, then you don't need to write it back.
+So if you need to replace one, then you don't need to write it back.
+所以如果你需要替换一个，那么你就不需要将它写回去。
 
 554
 00:50:44,500 --> 00:50:49,500
- So this is kind of periodically the cleaning process.
+So this is kind of periodically the cleaning process.
+这是一种定期的清洁过程。
 
 555
 00:50:49,500 --> 00:50:56,500
- So to reduce the overhead of the demand paging.
+So to reduce the overhead of the demand paging.
+为了减少需求分页的开销。
 
 556
 00:50:56,500 --> 00:51:02,500
- Now, but even if you have this,
+Now, but even if you have this,
+现在，即使你有这个，
 
 557
 00:51:02,500 --> 00:51:08,500
- you know, this background mechanism, you still need to answer the following question.
+you know, this background mechanism, you still need to answer the following question.
+你知道，这个背景机制，你还需要回答以下问题。
 
 558
 00:51:08,500 --> 00:51:18,500
- Which pages are you going to write to the disk? Or which pages you are going to evict to bring a new page in?
+Which pages are you going to write to the disk? Or which pages you are going to evict to bring a new page in?
+你要将哪些页面写入磁盘？或者你要驱逐哪些页面以便引入新的页面？
 
 559
 00:51:18,500 --> 00:51:29,500
- OK. And the way you think about that, as you know by now, when we talk about scheduling and so forth,
+OK. And the way you think about that, as you know by now, when we talk about scheduling and so forth,
+好的。就你所知，当我们谈论到日程安排等事情时，你对此的看法是什么？
 
 560
 00:51:29,500 --> 00:51:35,500
- you need to come up with a policy. And when you come up with a policy to dictate which guides,
+you need to come up with a policy. And when you come up with a policy to dictate which guides,
+你需要制定一项政策。当你制定一项政策来规定哪些指南时，
 
 561
 00:51:35,500 --> 00:51:42,500
- which pages are written back or are evicted from the main memory,
+which pages are written back or are evicted from the main memory,
+哪些页面被写回或从主存中驱逐出去了？
 
 562
 00:51:42,500 --> 00:51:48,500
- there are certain properties you want, you know, you need to think about. About utilization.
+there are certain properties you want, you know, you need to think about. About utilization.
+有一些你想要的特性，你知道的，你需要考虑一下。关于利用率。
 
 563
 00:51:48,500 --> 00:51:54,500
- You want to have high utilization of the memory because it's a scarce resource.
+You want to have high utilization of the memory because it's a scarce resource.
+你希望内存的利用率高，因为它是一种稀缺资源。
 
 564
 00:51:54,500 --> 00:52:03,500
- You may want fairness between different processes. Or you want to enforce priority.
+You may want fairness between different processes. Or you want to enforce priority.
+您可能希望不同进程之间有公平性。或者您想要强制执行优先级。
 
 565
 00:52:03,500 --> 00:52:13,500
- So that's kind of you keep in mind that we are not going to implement different policies here.
+So that's kind of you keep in mind that we are not going to implement different policies here.
+非常感谢您记住我们不打算在这里实施不同的政策。
 
 566
 00:52:13,500 --> 00:52:29,500
- But this is for you to keep in mind that these are typical questions you are going to be faced with when you are going to design a page replacement policy.
+But this is for you to keep in mind that these are typical questions you are going to be faced with when you are going to design a page replacement policy.
+但是你需要记住，这些是你在设计页面置换策略时常见的问题。
 
 567
 00:52:29,500 --> 00:52:41,500
- So the key model you have in mind when you run a program, one of these models, it's about the working set.
+So the key model you have in mind when you run a program, one of these models, it's about the working set.
+当你运行程序时，你心中所拥有的关键模型之一就是工作集。
 
 568
 00:52:41,500 --> 00:52:55,500
- So that what is the working set? A working set, roughly speaking, is the set of addresses whose content,
+So that what is the working set? A working set, roughly speaking, is the set of addresses whose content,
+那么什么是工作集？工作集，简单来说，是一组地址，其内容在一段时间内被活动使用。
 
 569
 00:52:55,500 --> 00:53:04,500
- if you have in the physical memory, then the programs works well. There are very few page faults.
+if you have in the physical memory, then the programs works well. There are very few page faults.
+如果你在物理内存中有足够的空间，那么程序会正常运行。页面错误很少。
 
 570
 00:53:04,500 --> 00:53:16,500
- If any. Right. And this tried to show a depiction of a, this is for a program on the x axis, you have the time.
+If any. Right. And this tried to show a depiction of a, this is for a program on the x axis, you have the time.
+如果有的话。对的。这试图展示一个描述，这是为了一个在x轴上的程序，你有时间。
 
 571
 00:53:16,500 --> 00:53:29,500
- And on the y axis, you have the address. And each rectangle, the height of the rectangle represents what addresses are accessed at a given time by the program.
+And on the y axis, you have the address. And each rectangle, the height of the rectangle represents what addresses are accessed at a given time by the program.
+在y轴上，你有地址。每个矩形的高度表示程序在给定时间访问的地址。
 
 572
 00:53:29,500 --> 00:53:36,500
- And the length represents for how long you access content from these addresses.
+And the length represents for how long you access content from these addresses.
+而长度代表了您从这些地址访问内容的时间长度。
 
 573
 00:53:36,500 --> 00:53:50,500
- So this is, and as you can see here, this is execution, this red stuff, it's execution of the program. And at different times, you have different working sets.
+So this is, and as you can see here, this is execution, this red stuff, it's execution of the program. And at different times, you have different working sets.
+所以这是，正如你在这里看到的，这是程序的执行，这个红色的东西，它是程序的执行。在不同的时间，你有不同的工作集。
 
 574
 00:53:50,500 --> 00:54:07,500
- So working set here is that if you draw a vertical line at a given time, then everything, all the blue rectangle, this line intersects,
+So working set here is that if you draw a vertical line at a given time, then everything, all the blue rectangle, this line intersects,
+所谓的工作集是指如果你在某个特定的时间画一条垂直线，那么这条线与之相交的所有蓝色矩形，
 
 575
 00:54:07,500 --> 00:54:20,500
- represent the working set, represent the addresses whose content should be in the physical memory, so that we do not have page faults.
+represent the working set, represent the addresses whose content should be in the physical memory, so that we do not have page faults.
+表示工作集，表示应该在物理内存中的内容的地址，以便我们不会发生页面错误。
 
 576
 00:54:20,500 --> 00:54:31,500
- Okay. And the working set, one property in general is that is much smaller than the entire address space of the program.
+Okay. And the working set, one property in general is that is much smaller than the entire address space of the program.
+好的。而工作集，一般来说，一个特性是它比程序的整个地址空间要小得多。
 
 577
 00:54:31,500 --> 00:54:37,500
- And also is changing over time.
+And also is changing over time.
+而且也在不断变化。
 
 578
 00:54:37,500 --> 00:54:47,500
- And obviously you can keep all the working set in memory or in the cache, then is great. The hit rate will be one.
+And obviously you can keep all the working set in memory or in the cache, then is great. The hit rate will be one.
+显然，你可以将所有的工作集保存在内存或缓存中，这样就很好了。命中率将会是100%。
 
 579
 00:54:47,500 --> 00:54:54,500
- If you cannot, then the hit rate will not be one, and you are going to have also some miss rates.
+If you cannot, then the hit rate will not be one, and you are going to have also some miss rates.
+如果你不能做到，那么命中率就不会是100%，你也会有一些失误率。
 
 580
 00:54:54,500 --> 00:55:05,500
- This also shows the cache size, how much of the program is stored in the cache for this previous example.
+This also shows the cache size, how much of the program is stored in the cache for this previous example.
+这也显示了缓存大小，即该程序在缓存中存储了多少内容，针对这个先前的示例。
 
 581
 00:55:05,500 --> 00:55:15,500
- And you start with very little, and you have here a lot of, and the hit rate is also very low.
+And you start with very little, and you have here a lot of, and the hit rate is also very low.
+你从很少的东西开始，而你这里有很多，而且命中率也很低。
 
 582
 00:55:15,500 --> 00:55:25,500
- Sorry, let me backtrack here. So on the x axis here is a cache size, right? So you are looking here at caches of different sizes.
+Sorry, let me backtrack here. So on the x axis here is a cache size, right? So you are looking here at caches of different sizes.
+抱歉，让我回过头来解释一下。这里的x轴是缓存大小，对吗？所以你在这里看的是不同大小的缓存。
 
 583
 00:55:25,500 --> 00:55:33,500
- On the y axis, you have the hit rate. If the cache size is infinite, the hit rate will be one.
+On the y axis, you have the hit rate. If the cache size is infinite, the hit rate will be one.
+在y轴上，你有命中率。如果缓存大小是无限的，命中率将为1。
 
 584
 00:55:33,500 --> 00:55:42,500
- So when the cache size, or in other words, when the cache size is larger than the working set,
+So when the cache size, or in other words, when the cache size is larger than the working set,
+当缓存大小，或者换句话说，当缓存大小大于工作集时，
 
 585
 00:55:42,500 --> 00:55:46,500
- or the working set is in the cache, then the hit rate is one.
+or the working set is in the cache, then the hit rate is one.
+或者工作集在缓存中，那么命中率为1。
 
 586
 00:55:46,500 --> 00:55:58,500
- And then if the cache size is very small, then the hit rate will be very little, because probably all the working set will be,
+And then if the cache size is very small, then the hit rate will be very little, because probably all the working set will be,
+然后，如果缓存大小非常小，那么命中率将非常低，因为很可能所有的工作集都会被覆盖。
 
 587
 00:55:58,500 --> 00:56:22,500
- doesn't fit in the cache. So any fetch of an instruction, every access of the data will result on, it is going to result in a miss.
+doesn't fit in the cache. So any fetch of an instruction, every access of the data will result on, it is going to result in a miss.
+不适合缓存。因此，对指令的任何获取，对数据的每次访问都会导致缓存未命中。
 
 588
 00:56:22,500 --> 00:56:38,500
- Okay, any questions here?
+Okay, any questions here?
+好的，这里有什么问题吗？
 
 589
 00:56:38,500 --> 00:56:53,500
- So if the cache is shared between different processes, like it's a second level cache, then you need to feed multiple working set in the same cache.
+So if the cache is shared between different processes, like it's a second level cache, then you need to feed multiple working set in the same cache.
+所以如果缓存在不同进程之间共享，比如它是一个二级缓存，那么你需要在同一个缓存中提供多个工作集。
 
 590
 00:56:53,500 --> 00:57:04,500
- And actually this figure shows when you have multiple working sets in the same cache. Each of these inflection points is when a new working set is feeding in the cache.
+And actually this figure shows when you have multiple working sets in the same cache. Each of these inflection points is when a new working set is feeding in the cache.
+实际上，这个图表显示了当你在同一个缓存中有多个工作集时的情况。每个拐点表示一个新的工作集进入缓存。
 
 591
 00:57:04,500 --> 00:57:08,500
- Okay.
+Okay.
+Sure, I'll do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 592
 00:57:08,500 --> 00:57:18,500
- So obviously you are going to have a very similar behavior for demand paging. Demand paging is just caching.
+So obviously you are going to have a very similar behavior for demand paging. Demand paging is just caching.
+所以显然，对于需求分页，你将会有非常相似的行为。需求分页只是缓存。
 
 593
 00:57:18,500 --> 00:57:32,500
- Now, when we are talking about the working set, we have this kind of nice model, like I mentioned that actually the program is spending most of the time or all the time in a relatively small region of the address space.
+Now, when we are talking about the working set, we have this kind of nice model, like I mentioned that actually the program is spending most of the time or all the time in a relatively small region of the address space.
+现在，当我们谈论工作集时，我们有这样一个很好的模型，就像我提到的，实际上程序大部分时间或全部时间都在地址空间的一个相对较小的区域内。
 
 594
 00:57:32,500 --> 00:57:36,500
- And this makes the cache very effective.
+And this makes the cache very effective.
+这使得缓存非常有效。
 
 595
 00:57:36,500 --> 00:57:45,500
- However, there are other models for locality, like Ziffian distribution.
+However, there are other models for locality, like Ziffian distribution.
+然而，还有其他的局部性模型，比如Ziffian分布。
 
 596
 00:57:45,500 --> 00:57:59,500
- And in this case, yes, you do have, this is for instance, on this figure what you see, here is a rank. So this represents, say, think about each of these is a page.
+And in this case, yes, you do have, this is for instance, on this figure what you see, here is a rank. So this represents, say, think about each of these is a page.
+在这种情况下，是的，你确实有，比如说，在这个图上你看到的是一个排名。所以这代表着，假设每个都是一个页面。
 
 597
 00:57:59,500 --> 00:58:10,500
- And there are pages are ranked in the decreasing order of their popularity about how often they are accessed. And the popularity of access is on the y axis.
+And there are pages are ranked in the decreasing order of their popularity about how often they are accessed. And the popularity of access is on the y axis.
+并且这些页面按照它们被访问的频率从高到低进行排名。访问的流行度在y轴上表示。
 
 598
 00:58:10,500 --> 00:58:21,500
- So this says that the first page is accessed 20% of the time you access a memory, you access the first page.
+So this says that the first page is accessed 20% of the time you access a memory, you access the first page.
+这意味着每次访问内存时，有20%的概率会访问到第一页。
 
 599
 00:58:21,500 --> 00:58:25,500
- This is what it says.
+This is what it says.
+这是它的内容。
 
 600
 00:58:25,500 --> 00:58:33,500
- Now, the problem with this distribution and this popularity is shown by the blue line.
+Now, the problem with this distribution and this popularity is shown by the blue line.
+现在，这个分布和这个受欢迎程度的问题可以通过蓝线来展示。
 
 601
 00:58:33,500 --> 00:58:42,500
- The problem with this one is that with this distribution is a very challenging distribution is that it also has a long tail.
+The problem with this one is that with this distribution is a very challenging distribution is that it also has a long tail.
+这个问题是，这个分布的挑战在于它还有一个长尾。
 
 602
 00:58:42,500 --> 00:59:03,500
- Yes, most of the access are on a very few pages, but there is some pages, a lot of pages, a huge amount of pages are accessed frequently.
+Yes, most of the access are on a very few pages, but there is some pages, a lot of pages, a huge amount of pages are accessed frequently.
+是的，大部分的访问都集中在很少的几个页面上，但也有一些页面，很多页面，大量的页面经常被访问。
 
 603
 00:59:03,500 --> 00:59:17,500
- And this creates problems, because, you know, no matter, you know, even if you have a big cache, you are still going to have misses because of this very rare items.
+And this creates problems, because, you know, no matter, you know, even if you have a big cache, you are still going to have misses because of this very rare items.
+这会造成问题，因为，你知道的，无论你有多大的缓存，由于这些非常罕见的物品，你仍然会遇到缺失。
 
 604
 00:59:17,500 --> 00:59:28,500
- So what this shows you is that even if you have a small cache, you get quite a bit of value because a few pages are responsible for most accesses.
+So what this shows you is that even if you have a small cache, you get quite a bit of value because a few pages are responsible for most accesses.
+所以这表明，即使你有一个小的缓存，你也能获得相当大的价值，因为只有少数页面负责大部分访问。
 
 605
 00:59:28,500 --> 00:59:41,500
- The second thing is that if you have a very large cache, it's a diminishing return, it may not benefit a lot, you still have substantial misses.
+The second thing is that if you have a very large cache, it's a diminishing return, it may not benefit a lot, you still have substantial misses.
+第二个问题是，如果你有一个非常大的缓存，那么它的回报会递减，可能不会有太多好处，你仍然会有相当多的缺失。
 
 606
 00:59:41,500 --> 00:59:50,500
- Okay, questions.
+Okay, questions.
+好的，有问题吗？
 
 607
 00:59:50,500 --> 01:00:01,500
- I don't know that video but yeah, there are many situations in which you are going this distribution is very common. One is web pages.
+I don't know that video but yeah, there are many situations in which you are going this distribution is very common. One is web pages.
+我不知道那个视频，但是是的，有很多情况下你会遇到这种分发方式非常常见。其中一个是网页。
 
 608
 01:00:01,500 --> 01:00:07,500
- I'm talking about web pages, right, when you access the web pages, they have a VPN distribution.
+I'm talking about web pages, right, when you access the web pages, they have a VPN distribution.
+我在说网页，对吧，当你访问网页时，它们有一个VPN分发。
 
 609
 01:00:07,500 --> 01:00:09,760
- And...
+And...
+而且...
 
 610
 01:00:09,760 --> 01:00:21,750
- is very common. It's a population of cities. There are a few cities with very large population and a few of them, but there are many, many, many of them with a smaller population.
+is very common. It's a population of cities. There are a few cities with very large population and a few of them, but there are many, many, many of them with a smaller population.
+非常普遍。这是城市的人口。有一些人口非常庞大的城市，也有一些人口较少的城市，但是有很多很多很多人口较小的城市。
 
 611
 01:00:21,750 --> 01:00:25,750
- So it's a very common situation.
+So it's a very common situation.
+所以这是一个非常常见的情况。
 
 612
 01:00:29,750 --> 01:00:43,750
- So cost model, again, what we care about is estimated access time. And the estimated access time is a hit rate times hit time. So this is the latency to access the data in memory,
+So cost model, again, what we care about is estimated access time. And the estimated access time is a hit rate times hit time. So this is the latency to access the data in memory,
+因此，成本模型中，我们关心的是预计的访问时间。而预计的访问时间是命中率乘以命中时间。所以这就是访问内存中数据的延迟时间。
 
 613
 01:00:43,750 --> 01:00:53,750
- plus miss rate plus the miss time. And the miss time is the time it takes to bring the data in memory from the disk if it's not there.
+plus miss rate plus the miss time. And the miss time is the time it takes to bring the data in memory from the disk if it's not there.
+加上缺失率再加上缺失时间。而缺失时间是指如果数据不在内存中，则从磁盘中将数据带入内存所需的时间。
 
 614
 01:00:53,750 --> 01:00:57,750
- And it's not there because we missed.
+And it's not there because we missed.
+而且它不在那里是因为我们错过了。
 
 615
 01:00:58,750 --> 01:01:11,750
- The hit rate plus the miss rate, as you know, is one. You can also rewrite the equation by having miss penalty by denoting miss time minus hit time.
+The hit rate plus the miss rate, as you know, is one. You can also rewrite the equation by having miss penalty by denoting miss time minus hit time.
+命中率加上失误率，正如你所知，等于1。你还可以通过将失误时间减去命中时间来重新表达这个方程，以表示失误惩罚。
 
 616
 01:01:11,750 --> 01:01:21,750
- This is the overhead, do it to miss. This is miss penalty. So you can rewrite the equation and hit time plus miss rate times miss penalty.
+This is the overhead, do it to miss. This is miss penalty. So you can rewrite the equation and hit time plus miss rate times miss penalty.
+这是开销，要避免它。这是失误惩罚。因此，你可以重新写出方程，命中时间加上失误率乘以失误惩罚。
 
 617
 01:01:22,750 --> 01:01:37,750
- And here is a very simple example. Memory access time is 200 nanoseconds. Average page fault service time, so bringing the page from the disk into memory, it's 8 milliseconds.
+And here is a very simple example. Memory access time is 200 nanoseconds. Average page fault service time, so bringing the page from the disk into memory, it's 8 milliseconds.
+这是一个非常简单的例子。内存访问时间为200纳秒。平均页面错误服务时间，即将页面从磁盘加载到内存中，为8毫秒。
 
 618
 01:01:37,750 --> 01:01:43,750
- Let's say p is the probability of miss, 1 minus p is the probability of hit.
+Let's say p is the probability of miss, 1 minus p is the probability of hit.
+假设p是未命中的概率，1减去p就是命中的概率。
 
 619
 01:01:44,750 --> 01:02:00,750
- So this means that, and we are using the same, the second equation, the access time estimated access time is 200 nanoseconds plus p times 8 million nanoseconds.
+So this means that, and we are using the same, the second equation, the access time estimated access time is 200 nanoseconds plus p times 8 million nanoseconds.
+所以这意味着，我们正在使用相同的第二个方程，估计的访问时间是200纳秒加上p乘以800万纳秒。
 
 620
 01:02:00,750 --> 01:02:10,750
- So if just one out of 1000 pages, page access, it's a fault.
+So if just one out of 1000 pages, page access, it's a fault.
+所以如果在1000页中只有一页访问出现问题，那就是一个故障。
 
 621
 01:02:11,750 --> 01:02:20,750
- So this is 0.1%. The access time is over 8 microseconds, or 40 times more than just accessing the memory.
+So this is 0.1%. The access time is over 8 microseconds, or 40 times more than just accessing the memory.
+所以这是0.1%。访问时间超过8微秒，比仅仅访问内存多了40倍。
 
 622
 01:02:20,750 --> 01:02:32,750
- So the slowdown is huge. So if you want to have a slowdown only by 10% to 10% slowdown, then you can, you know, fit this in the equation.
+So the slowdown is huge. So if you want to have a slowdown only by 10% to 10% slowdown, then you can, you know, fit this in the equation.
+所以这个减速是巨大的。所以如果你只想减速10%到10%的话，那么你可以将这个放入方程中。
 
 623
 01:02:33,750 --> 01:02:46,750
- And the p is the probability of miss should be lower than one page in 400,000 accesses.
+And the p is the probability of miss should be lower than one page in 400,000 accesses.
+而且p是错过的概率应该低于在400,000次访问中错过一页。
 
 624
 01:02:47,750 --> 01:03:03,750
- Okay. So that gives you a sense about how important is a page replacement policies in minimizing the miss rate. And that's how you use this, it's right here is an example.
+Okay. So that gives you a sense about how important is a page replacement policies in minimizing the miss rate. And that's how you use this, it's right here is an example.
+好的。这样你就能了解页面置换策略在减少缺失率方面的重要性。这就是你使用它的方式，这里有一个例子。
 
 625
 01:03:04,750 --> 01:03:17,750
- And of why here the demand paging is fully associative, right, because you just want to avoid any misses at any cost.
+And of why here the demand paging is fully associative, right, because you just want to avoid any misses at any cost.
+为什么这里的需求分页是完全关联的呢，对吗？因为你只是想以任何代价避免任何缺失。
 
 626
 01:03:26,750 --> 01:03:34,750
- Oh, it's a question here, what is the intuition behind why the hit rate is higher for the lower ranks?
+Oh, it's a question here, what is the intuition behind why the hit rate is higher for the lower ranks?
+哦，这里有一个问题，为什么低排名的命中率更高的直觉是什么？
 
 627
 01:03:34,750 --> 01:03:42,750
- So here, right, let me see.
+So here, right, let me see.
+所以，这里，对，让我看看。
 
 628
 01:03:42,750 --> 01:03:49,750
- So actually, the rank is a rank of popularity.
+So actually, the rank is a rank of popularity.
+所以实际上，这个排名是一个受欢迎程度的排名。
 
 629
 01:03:50,750 --> 01:03:58,750
- Right. So actually, these pages are ordered in the decreasing order of their popularity.
+Right. So actually, these pages are ordered in the decreasing order of their popularity.
+对的。实际上，这些页面是按照它们的受欢迎程度降序排列的。
 
 630
 01:03:58,750 --> 01:04:03,750
- So the rank is equal to the popularity. So there is nothing subtle here.
+So the rank is equal to the popularity. So there is nothing subtle here.
+所以排名等于受欢迎程度。所以这里没有什么微妙的地方。
 
 631
 01:04:03,750 --> 01:04:11,750
- Okay. So rank doesn't mean anything else than being, you know, a measure of popularity.
+Okay. So rank doesn't mean anything else than being, you know, a measure of popularity.
+好的。所以“rank”除了作为一种受欢迎程度的衡量标准外，并没有其他含义。
 
 632
 01:04:15,750 --> 01:04:31,750
- Okay, again, see, remember about caching. What are the type of misses, compulsory misses? So pages that have never been paid into memory, this is when you start the program, you need to read the code, right, for instance.
+Okay, again, see, remember about caching. What are the type of misses, compulsory misses? So pages that have never been paid into memory, this is when you start the program, you need to read the code, right, for instance.
+好的，再说一遍，记住缓存的事情。缺失的类型有哪些，强制性缺失？这是指从未被加载到内存中的页面，比如当你启动程序时，需要读取代码，对吧。
 
 633
 01:04:31,750 --> 01:04:39,750
- Capacity misses, you don't have enough memory. What do you do in this case?
+Capacity misses, you don't have enough memory. What do you do in this case?
+容量不足，您的内存不足。在这种情况下，您会怎么做？
 
 634
 01:04:40,750 --> 01:04:58,750
- You know, obviously, you can increase the number, increase the memory size, or, you know, you can share the memory between processes and give each process certain, you know, amount of memory.
+You know, obviously, you can increase the number, increase the memory size, or, you know, you can share the memory between processes and give each process certain, you know, amount of memory.
+你知道，显然，你可以增加数量，增加内存大小，或者，你知道，你可以在进程之间共享内存，并给每个进程一定的内存量。
 
 635
 01:04:59,750 --> 01:05:10,750
- So in some cases, as you'll see, one solution is to kill one of the processes. So the remaining processes, they have enough physical memory.
+So in some cases, as you'll see, one solution is to kill one of the processes. So the remaining processes, they have enough physical memory.
+所以在某些情况下，正如你所看到的，一个解决方案是终止其中一个进程。这样剩下的进程就有足够的物理内存了。
 
 636
 01:05:10,750 --> 01:05:24,750
- Conflict misses, you don't have those, technically, because it's a fully associative cache, right? And policy misses, it's about depends on the replacement policy we are going to use.
+Conflict misses, you don't have those, technically, because it's a fully associative cache, right? And policy misses, it's about depends on the replacement policy we are going to use.
+冲突缺失，你没有这些，从技术上讲，因为这是一个完全关联的高速缓存，对吗？而策略缺失，这取决于我们将要使用的替换策略。
 
 637
 01:05:26,750 --> 01:05:31,750
- So here we just want a better replacement policy to minimize the misses.
+So here we just want a better replacement policy to minimize the misses.
+所以在这里我们只是想要一个更好的替换策略来最小化缺失。
 
 638
 01:05:31,750 --> 01:05:37,750
- Okay. So page replacement policies.
+Okay. So page replacement policies.
+页面置换策略。
 
 639
 01:05:37,750 --> 01:05:45,750
- It's again, you know, those, you know, you know, you learn a few of them last time.
+It's again, you know, those, you know, you know, you learn a few of them last time.
+又是那些，你知道的，你知道的，上次你学了几个。
 
 640
 01:05:45,750 --> 01:05:48,750
- The same is similar here.
+The same is similar here.
+这里的情况相似。
 
 641
 01:05:48,750 --> 01:05:53,750
- FIFO.
+FIFO.
+先进先出。
 
 642
 01:05:55,750 --> 01:06:00,750
- First in, first out, you throw out the oldest page, you evict the oldest page.
+First in, first out, you throw out the oldest page, you evict the oldest page.
+先进先出，你丢弃最旧的页面，你驱逐最旧的页面。
 
 643
 01:06:00,750 --> 01:06:07,750
- It's some degree of fairness in terms of access.
+It's some degree of fairness in terms of access.
+这是在访问方面的某种程度上的公平。
 
 644
 01:06:07,750 --> 01:06:19,750
- But it can be also bad. Why, when it's FIFO bad? It's when you have a very popular page which is accessed over and over again, right?
+But it can be also bad. Why, when it's FIFO bad? It's when you have a very popular page which is accessed over and over again, right?
+但它也可能是不好的。为什么，当它是FIFO不好的时候？是因为你有一个非常受欢迎的页面，被反复访问，对吗？
 
 645
 01:06:20,750 --> 01:06:25,750
- And this is also one of the pages which are going to be the oldest.
+And this is also one of the pages which are going to be the oldest.
+这也是即将成为最古老的页面之一。
 
 646
 01:06:25,750 --> 01:06:37,750
- You know, could be the oldest or the program started, it loaded this page, like, for instance, the code, like for this PowerPoint slides, right?
+You know, could be the oldest or the program started, it loaded this page, like, for instance, the code, like for this PowerPoint slides, right?
+你知道，可能是最早或者程序开始时，它加载了这个页面，比如说，代码，比如这个PowerPoint幻灯片，对吗？
 
 647
 01:06:37,750 --> 01:06:47,750
- The code which is responsible for going from one slide and displaying the next slide.
+The code which is responsible for going from one slide and displaying the next slide.
+负责从一个幻灯片切换到下一个幻灯片的代码。
 
 648
 01:06:48,750 --> 01:06:59,750
- And this, I'm, you know, I am using that code from the beginning of the lecture. So that was one of the first pieces of code which was loaded in memory.
+And this, I'm, you know, I am using that code from the beginning of the lecture. So that was one of the first pieces of code which was loaded in memory.
+而这个，我，你知道的，我一直在使用那段代码从讲座开始。所以那是最早加载到内存中的代码之一。
 
 649
 01:06:59,750 --> 01:07:04,750
- But if I use FIFO, that will be also a piece of code which will be evicted.
+But if I use FIFO, that will be also a piece of code which will be evicted.
+但是如果我使用先进先出（FIFO）算法，那么这也将是一个将被驱逐的代码片段。
 
 650
 01:07:04,750 --> 01:07:12,750
- And if you're evicted, you know, it's just to be loaded again next time I'm turning to the next slide.
+And if you're evicted, you know, it's just to be loaded again next time I'm turning to the next slide.
+如果你被驱逐了，你知道，下次我翻到下一页时，只是重新加载。
 
 651
 01:07:12,750 --> 01:07:15,750
- Random is very simple.
+Random is very simple.
+随机很简单。
 
 652
 01:07:16,750 --> 01:07:27,750
- And so they're very fast to implement also in hardware. And typically you have this in TLB when you need to be super fast.
+And so they're very fast to implement also in hardware. And typically you have this in TLB when you need to be super fast.
+所以它们在硬件中也非常快速实现。通常，在需要超高速度时，TLB中会使用这种技术。
 
 653
 01:07:27,750 --> 01:07:32,750
- On the downside, it's random. It's not predictable, right?
+On the downside, it's random. It's not predictable, right?
+缺点是它是随机的。它是不可预测的，对吗？
 
 654
 01:07:32,750 --> 01:07:43,750
- And then it's minimum. And the minimum, it's the optimal one, right?
+And then it's minimum. And the minimum, it's the optimal one, right?
+然后它是最小的。而最小的，就是最优的，对吗？
 
 655
 01:07:44,750 --> 01:07:50,750
- What is the optimal replacement policy? You should know that from cash. What is the optimal replacement policy?
+What is the optimal replacement policy? You should know that from cash. What is the optimal replacement policy?
+最佳的替换策略是什么？你应该从现金中了解到这一点。最佳的替换策略是什么？
 
 656
 01:07:50,750 --> 01:07:58,750
- You want to replace the page which won't be used for the longest time.
+You want to replace the page which won't be used for the longest time.
+你想要替换掉那些最长时间不会被使用的页面。
 
 657
 01:07:58,750 --> 01:08:04,750
- It's as simple as that. The problem with this is that you need to predict the future and you don't know.
+It's as simple as that. The problem with this is that you need to predict the future and you don't know.
+就是这么简单。这个问题的困难在于你需要预测未来，而你并不知道。
 
 658
 01:08:05,750 --> 01:08:16,750
- And the way around it is to use the past as a good predictor of the future. That is, if a page has not been used for a while,
+And the way around it is to use the past as a good predictor of the future. That is, if a page has not been used for a while,
+而解决这个问题的方法是利用过去作为未来的良好预测指标。也就是说，如果一个页面已经有一段时间没有被使用了，
 
 659
 01:08:16,750 --> 01:08:22,750
- then the page will not, I assume that the page will not be again accessed for a while.
+then the page will not, I assume that the page will not be again accessed for a while.
+那么页面将不会被访问，我假设页面在一段时间内不会再次被访问。
 
 660
 01:08:22,750 --> 01:08:30,750
- And if the page was just used before recently, it's going to be likely used again in the future.
+And if the page was just used before recently, it's going to be likely used again in the future.
+如果这个页面最近刚被使用过，那么将来很可能会再次被使用。
 
 661
 01:08:30,750 --> 01:08:34,750
- Any questions here?
+Any questions here?
+这里有什么问题吗？
 
 662
 01:08:34,750 --> 01:08:51,750
- Okay, so this is approximation of min, it's recently used, right? Just replace the page that hasn't been used for the longest time.
+Okay, so this is approximation of min, it's recently used, right? Just replace the page that hasn't been used for the longest time.
+好的，所以这是最小值的近似值，是最近使用的，对吗？只需替换最长时间未使用的页面即可。
 
 663
 01:08:51,750 --> 01:08:59,750
- And if the programs have every locality, this is a pretty good policy.
+And if the programs have every locality, this is a pretty good policy.
+如果这些计划覆盖到每个地区，那这就是一个相当不错的政策。
 
 664
 01:09:00,750 --> 01:09:08,750
- How we implement it? One, you can simply implement it, you can keep a list of pages.
+How we implement it? One, you can simply implement it, you can keep a list of pages.
+我们如何实施它？一种方法是，你可以简单地实施它，你可以保持一个页面列表。
 
 665
 01:09:08,750 --> 01:09:23,750
- And when you have a new page, when you access a page, you put it as a head, you move it to the head of the cube.
+And when you have a new page, when you access a page, you put it as a head, you move it to the head of the cube.
+当你有一个新页面时，当你访问一个页面时，你将它放在头部，你将它移动到立方体的头部。
 
 666
 01:09:24,750 --> 01:09:33,750
- And the last in this list is a page which hasn't been accessed for the longest time.
+And the last in this list is a page which hasn't been accessed for the longest time.
+这个列表中的最后一个是一个很长时间没有被访问过的页面。
 
 667
 01:09:44,750 --> 01:09:54,750
- It's a great question. Is there anything you can do when you are writing code to help decrease page misses?
+It's a great question. Is there anything you can do when you are writing code to help decrease page misses?
+这是一个很好的问题。在编写代码时，有什么方法可以帮助减少页面失效呢？
 
 668
 01:09:54,750 --> 01:10:00,750
- It's a great question. Yes, you can do it. I'll give you one example.
+It's a great question. Yes, you can do it. I'll give you one example.
+这是一个很好的问题。是的，你可以做到。我会给你一个例子。
 
 669
 01:10:00,750 --> 01:10:08,750
- Like for instance, and this is used and known by people, you know, do high performance computing.
+Like for instance, and this is used and known by people, you know, do high performance computing.
+比如，这是被人们使用和了解的，你知道的，进行高性能计算。
 
 670
 01:10:09,750 --> 01:10:17,750
- Say you have a matrix and say you want to multiply the matrix or do some operation on the matrix.
+Say you have a matrix and say you want to multiply the matrix or do some operation on the matrix.
+假设你有一个矩阵，并且你想要对该矩阵进行乘法运算或其他操作。
 
 671
 01:10:17,750 --> 01:10:22,750
- You can iterate on rows or you can iterate on columns.
+You can iterate on rows or you can iterate on columns.
+你可以按行迭代，也可以按列迭代。
 
 672
 01:10:22,750 --> 01:10:31,750
- Now, it's very important about how this matrix is stored in memory.
+Now, it's very important about how this matrix is stored in memory.
+现在，关于这个矩阵在内存中的存储方式非常重要。
 
 673
 01:10:32,750 --> 01:10:39,750
- You store row by row, you store first the first row, then the next row and the next row.
+You store row by row, you store first the first row, then the next row and the next row.
+你逐行存储，先存储第一行，然后是下一行和下一行。
 
 674
 01:10:39,750 --> 01:10:52,750
- And if the matrix is large, if I want to grid set all the elements of the matrix, if I can, I'm going to iterate by row, it's going to have a good cache locality.
+And if the matrix is large, if I want to grid set all the elements of the matrix, if I can, I'm going to iterate by row, it's going to have a good cache locality.
+如果矩阵很大，如果我想要对矩阵的所有元素进行网格设置，如果可以的话，我会按行迭代，这样可以获得良好的缓存局部性。
 
 675
 01:10:53,750 --> 01:11:04,750
- So with the first row matrix, I'm already going to start to bring the first page. The first page contains a lot of elements from the first row.
+So with the first row matrix, I'm already going to start to bring the first page. The first page contains a lot of elements from the first row.
+所以，根据第一行矩阵，我将开始带来第一页。第一页包含了很多来自第一行的元素。
 
 676
 01:11:04,750 --> 01:11:09,750
- So they are going to be all already in the cache when I'm going to access them.
+So they are going to be all already in the cache when I'm going to access them.
+所以当我要访问它们时，它们都将已经在缓存中。
 
 677
 01:11:09,750 --> 01:11:16,750
- Okay. Now, say I'm going to write the same program, but I'm going to access columns.
+Okay. Now, say I'm going to write the same program, but I'm going to access columns.
+好的。现在，假设我要编写相同的程序，但我要访问列。
 
 678
 01:11:17,750 --> 01:11:29,750
- I'm going to access the first element and I'm going to bring a page in. Now, the next element I'm going to access is going to be from the next row, not in the same row.
+I'm going to access the first element and I'm going to bring a page in. Now, the next element I'm going to access is going to be from the next row, not in the same row.
+我要访问第一个元素，并将一个页面带进来。现在，我要访问的下一个元素将来自下一行，而不是同一行。
 
 679
 01:11:29,750 --> 01:11:41,750
- So the next row that can result in another miss and I need to bring another page just to access only one element from that page and so forth.
+So the next row that can result in another miss and I need to bring another page just to access only one element from that page and so forth.
+所以下一行可能导致另一个错误，并且我需要再获取另一页，只为了访问该页的一个元素，依此类推。
 
 680
 01:11:42,750 --> 01:11:48,750
- But by the time I go back to access the second element from the first row, that page may be already gone.
+But by the time I go back to access the second element from the first row, that page may be already gone.
+但是当我回去访问第一行的第二个元素时，那个页面可能已经消失了。
 
 681
 01:11:48,750 --> 01:11:56,750
- Right. Because not all the pages may fit in cache. So that's what you can do. That's one example.
+Right. Because not all the pages may fit in cache. So that's what you can do. That's one example.
+对的。因为并不是所有的页面都能适应缓存。所以这就是你可以做的。这是一个例子。
 
 682
 01:11:56,750 --> 01:12:03,750
- You want or the TLDR here, you want to write your program to preserve locality.
+You want or the TLDR here, you want to write your program to preserve locality.
+你想要TLDR（总结）还是你想要编写程序以保持局部性？
 
 683
 01:12:04,750 --> 01:12:15,750
- Another way, another thing which kind of destroy locality, if you have go tos, right, if you write a program, it jumps around the go to. That destroys the code locality.
+Another way, another thing which kind of destroy locality, if you have go tos, right, if you write a program, it jumps around the go to. That destroys the code locality.
+另一种方式，另一件破坏局部性的事情是，如果你使用了go to语句，当你编写程序时，它会跳来跳去。这破坏了代码的局部性。
 
 684
 01:12:15,750 --> 01:12:33,750
- I know that a large number of random accesses on the heap is generally bad for cache hit rates, but that's the same generally applies to minimize page misses.
+I know that a large number of random accesses on the heap is generally bad for cache hit rates, but that's the same generally applies to minimize page misses.
+我知道在堆上进行大量的随机访问通常会降低缓存命中率，但同样也适用于减少页面缺失。
 
 685
 01:12:33,750 --> 01:12:47,750
- I mean, it's again, it's like random is not going, you use random because it's fast.
+I mean, it's again, it's like random is not going, you use random because it's fast.
+我的意思是，又是这样，就好像随机不起作用一样，你使用随机是因为它快速。
 
 686
 01:12:47,750 --> 01:12:59,750
- But in this particular case, because it's so costly to the page fault is so costly, you really want to avoid random.
+But in this particular case, because it's so costly to the page fault is so costly, you really want to avoid random.
+但在这种特殊情况下，由于页面错误非常昂贵，你真的想要避免随机。
 
 687
 01:13:00,750 --> 01:13:08,750
- And we still TLB use random because you want to be extremely, extremely fast. Right.
+And we still TLB use random because you want to be extremely, extremely fast. Right.
+我们仍然使用随机的TLB，因为我们希望非常非常快速。对吧。
 
 688
 01:13:08,750 --> 01:13:22,750
- That happens actually in hardware. Hopefully I answered this question. If I didn't answer, you know, ask, ask it again and maybe rephrase what you think I may have missed from your question.
+That happens actually in hardware. Hopefully I answered this question. If I didn't answer, you know, ask, ask it again and maybe rephrase what you think I may have missed from your question.
+这实际上是硬件问题。希望我回答了这个问题。如果我没有回答，你知道，再问一次，可能重新表达一下你认为我可能在你的问题中忽略的部分。
 
 689
 01:13:23,750 --> 01:13:35,750
- What does this mean? We have to take a software fault on every access. Yes, this I think refers to the examples I gave you about matrices going by columns.
+What does this mean? We have to take a software fault on every access. Yes, this I think refers to the examples I gave you about matrices going by columns.
+这是什么意思？我们在每次访问时都必须处理一个软件故障。是的，我认为这指的是我给你的关于矩阵按列进行操作的例子。
 
 690
 01:13:35,750 --> 01:13:45,750
- Yes. In the worst case, this means that you can take us a page fault on every access to a record.
+Yes. In the worst case, this means that you can take us a page fault on every access to a record.
+是的。在最坏的情况下，这意味着每次访问记录时都可能发生页面错误。
 
 691
 01:13:45,750 --> 01:14:05,750
- No, it's either you're not. It's because it's again, it's like if you have something which is used very often,
+No, it's either you're not. It's because it's again, it's like if you have something which is used very often,
+不，要么你不是。这是因为，就好像你有一样经常使用的东西，
 
 692
 01:14:06,750 --> 01:14:24,750
- then every time when you access it, you are going to again, when you put here in this example, sorry, when you put here in this example, is again, if I access page seven, I'm going to put it as a head of the queue.
+then every time when you access it, you are going to again, when you put here in this example, sorry, when you put here in this example, is again, if I access page seven, I'm going to put it as a head of the queue.
+每次你访问它时，你都会再次这样做，当你在这个例子中放置它时，抱歉，当你在这个例子中放置它时，是再次这样做的，如果我访问第七页，我会将它放在队列的头部。
 
 693
 01:14:25,750 --> 01:14:39,750
- Or the head of the list accessing page one, I'm going to put it ahead of the list. Accessing page two now the page three is going to head of the list. So, and if I access something very often,
+Or the head of the list accessing page one, I'm going to put it ahead of the list. Accessing page two now the page three is going to head of the list. So, and if I access something very often,
+或者列表访问的第一页，我将把它放在列表的前面。现在访问第二页，第三页将会放在列表的前面。所以，如果我经常访问某个东西，
 
 694
 01:14:40,750 --> 01:15:00,750
- then they are going to be close to the head of the list. So they are not going to be removed. They are not going to be evicted.
+then they are going to be close to the head of the list. So they are not going to be removed. They are not going to be evicted.
+那么他们将会接近名单的前面。所以他们不会被移除。他们不会被驱逐。
 
 695
 01:15:01,750 --> 01:15:17,750
- So, that's a good question. Does that mean that we have to work all PTEs and scans valid bits every so often to build the list? It's a great access piece, use piece, the use piece. You are referring to the use piece.
+So, that's a good question. Does that mean that we have to work all PTEs and scans valid bits every so often to build the list? It's a great access piece, use piece, the use piece. You are referring to the use piece.
+那么，这是一个很好的问题。这是否意味着我们需要定期处理所有的PTE和扫描有效位，以建立列表？这是一个很好的访问部分，使用部分，使用部分。你在提到使用部分。
 
 696
 01:15:17,750 --> 01:15:26,750
- That's a good point. You could do that. But as we are going to see next,
+That's a good point. You could do that. But as we are going to see next,
+这是一个很好的观点。你可以这样做。但是接下来我们要看到的是，
 
 697
 01:15:28,750 --> 01:15:36,750
- this is a precise implementation of the list recently used, but it's expensive to implement.
+this is a precise implementation of the list recently used, but it's expensive to implement.
+这是最近使用列表的精确实现，但实现起来很昂贵。
 
 698
 01:15:36,750 --> 01:15:43,750
- So what we are going to implement, it's an approximation of Alerio.
+So what we are going to implement, it's an approximation of Alerio.
+我们要实现的是Alerio的一个近似版本。
 
 699
 01:15:43,750 --> 01:15:47,750
- Right. That's what we are going to implement.
+Right. That's what we are going to implement.
+好的，这就是我们要实施的计划。
 
 700
 01:15:51,750 --> 01:15:58,750
- So, but before we go there and we are going to show how we are going to implement an approximation of Alerio.
+So, but before we go there and we are going to show how we are going to implement an approximation of Alerio.
+所以，在我们去那里之前，我们将展示我们将如何实现Alerio的近似。
 
 701
 01:15:58,750 --> 01:16:09,750
- And again, we want to implement an approximation of Alerio because we don't want to manipulate pointers to do many, many more accesses whenever we access a page.
+And again, we want to implement an approximation of Alerio because we don't want to manipulate pointers to do many, many more accesses whenever we access a page.
+而且，我们想要实现一个Alerio的近似版本，因为我们不想在访问页面时频繁操作指针来进行更多的访问。
 
 702
 01:16:11,750 --> 01:16:29,750
- Before that, let's look at a few other replacement policies. This is FIFO. And here we have a cache which has three slots, or you know, you have three frames.
+Before that, let's look at a few other replacement policies. This is FIFO. And here we have a cache which has three slots, or you know, you have three frames.
+在此之前，让我们先看一下其他几种替换策略。这是先进先出（FIFO）。这里有一个具有三个插槽的缓存，或者说你有三个帧。
 
 703
 01:16:29,750 --> 01:16:40,750
- And this is your order in which we access, the sequence we access these pages. As the pages are denoted A, B, C, D, there are four pages.
+And this is your order in which we access, the sequence we access these pages. As the pages are denoted A, B, C, D, there are four pages.
+这是我们访问页面的顺序，按照我们访问的顺序排列。页面用A、B、C、D表示，总共有四个页面。
 
 704
 01:16:40,750 --> 01:16:48,750
- So I'm going to first access A's and B's and C and so forth.
+So I'm going to first access A's and B's and C and so forth.
+所以我首先要访问A、B、C等等。
 
 705
 01:16:48,750 --> 01:17:07,750
- So let's access A. Initially the cache or memory is empty. So we are going to save, use the first page frame to store A.
+So let's access A. Initially the cache or memory is empty. So we are going to save, use the first page frame to store A.
+所以让我们访问A。最初，缓存或内存是空的。所以我们要使用第一个页面框来存储A。
 
 706
 01:17:08,750 --> 01:17:17,750
- Then B still have available slot, available frames. I'm going to use the second one and then use a server.
+Then B still have available slot, available frames. I'm going to use the second one and then use a server.
+然后B仍有可用的插槽和可用的框架。我打算使用第二个插槽，然后使用一个服务器。
 
 707
 01:17:17,750 --> 01:17:30,750
- Okay. Now things become interesting here. Now I'm going to come to access A again and A it's already in. So it's fine. I'm happy.
+Okay. Now things become interesting here. Now I'm going to come to access A again and A it's already in. So it's fine. I'm happy.
+好的。现在事情变得有趣了。现在我要再次访问A，而A已经在里面了。所以没问题，我很开心。
 
 708
 01:17:30,750 --> 01:17:41,750
- I'm not going to do anything. I'm going to access it. It's already in memory. B is the same, but now it's D. D is not in the memory.
+I'm not going to do anything. I'm going to access it. It's already in memory. B is the same, but now it's D. D is not in the memory.
+我不打算做任何事情。我要访问它。它已经在内存中了。B是一样的，但现在是D。D不在内存中。
 
 709
 01:17:41,750 --> 01:17:51,750
- So what do I need to do? And the memory is full. So I need to make room for it. So which page I'm going to evict here? It's first in, first out.
+So what do I need to do? And the memory is full. So I need to make room for it. So which page I'm going to evict here? It's first in, first out.
+那么我需要做什么呢？而且内存已满，所以我需要为其腾出空间。那么我要驱逐哪一页呢？按照先进先出的原则。
 
 710
 01:17:51,750 --> 01:18:06,750
- So I'm going to evict the page, which was the first, which was the first which was brought in the memory, right? Which is A.
+So I'm going to evict the page, which was the first, which was the first which was brought in the memory, right? Which is A.
+所以我要驱逐页面，这是第一个，这是第一个被带入内存的，对吗？这是A。
 
 711
 01:18:06,750 --> 01:18:19,750
- So I'm going to replace it with D. Now, after D it's A. Well, now A is again, the memory is full.
+So I'm going to replace it with D. Now, after D it's A. Well, now A is again, the memory is full.
+所以我打算用D来替换它。现在，在D之后是A。嗯，现在A又满了，内存已经满了。
 
 712
 01:18:19,750 --> 01:18:30,750
- So I need to pick a page to evict. And I'm going to pick which one? B. Okay. Now the next one is D again.
+So I need to pick a page to evict. And I'm going to pick which one? B. Okay. Now the next one is D again.
+所以我需要选择一个页面来驱逐。我要选择哪一个？B。好的。现在下一个是D。
 
 713
 01:18:30,750 --> 01:18:40,750
- It's in memory. Now I don't need to do anything. Then B. Now I don't have B in memory. In memory I have only A, C and D.
+It's in memory. Now I don't need to do anything. Then B. Now I don't have B in memory. In memory I have only A, C and D.
+它在内存中。现在我不需要做任何事情。然后是B。现在我在内存中没有B。在内存中，我只有A、C和D。
 
 714
 01:18:40,750 --> 01:18:56,750
- Right? So I need to replace one. So which one was the oldest? It's C. Okay. So and then C, I'm going to replace D.
+Right? So I need to replace one. So which one was the oldest? It's C. Okay. So and then C, I'm going to replace D.
+对吗？所以我需要替换一个。那么哪一个是最旧的？是C。好的。然后C，我要替换成D。
 
 715
 01:18:56,750 --> 01:19:10,750
- And then finally B. B is already in. So here, how many pagefalls I had? One, two, three, four. Right?
+And then finally B. B is already in. So here, how many pagefalls I had? One, two, three, four. Right?
+然后最后是B。B已经在里面了。所以在这里，我有多少个页面掉落？一个，两个，三个，四个。对吗？
 
 716
 01:19:10,750 --> 01:19:28,750
- These are capacity misses. And in addition to that, I have three other misses and these are what kind of misses are those?
+These are capacity misses. And in addition to that, I have three other misses and these are what kind of misses are those?
+这些是容量不足的问题。除此之外，我还有三个其他问题，那些是什么类型的问题？
 
 717
 01:19:28,750 --> 01:19:40,750
- Compulsory misses. So I have three compulsory misses, four capacity misses, seven false. Seven misses. Okay.
+Compulsory misses. So I have three compulsory misses, four capacity misses, seven false. Seven misses. Okay.
+强制性错过。所以我有三个强制性错过，四个容量错过，七个错误。七个错过。好的。
 
 718
 01:19:40,750 --> 01:19:52,750
- And here, just notice that this was a bad decision to replace A when we brought D in because the next access was to A.
+And here, just notice that this was a bad decision to replace A when we brought D in because the next access was to A.
+在这里，只是注意到当我们引入D时，替换A是一个错误的决定，因为下一个访问的是A。
 
 719
 01:19:52,750 --> 01:20:06,750
- So let's keep this in mind and with that, I'll stop here and we are going to continue to discuss about the page replacement policies next lecture.
+So let's keep this in mind and with that, I'll stop here and we are going to continue to discuss about the page replacement policies next lecture.
+所以让我们记住这一点，我就到这里了，下一节课我们将继续讨论页面置换策略。
 
 720
 01:20:06,750 --> 01:20:12,750
- Thank you.
+Thank you.
+谢谢你。
 

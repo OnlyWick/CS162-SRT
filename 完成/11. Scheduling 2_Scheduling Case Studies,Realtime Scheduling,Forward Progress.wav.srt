@@ -1,0 +1,3805 @@
+1
+00:00:00,000 --> 00:00:29,100
+Okay.
+Sure, I can help you with that. Please provide me with the text you would like me to translate.
+
+2
+00:00:29,100 --> 00:00:31,360
+Hello everybody.
+大家好。
+
+3
+00:00:31,360 --> 00:00:35,120
+So welcome to the 11th lecture.
+所以欢迎来到第11讲。
+
+4
+00:00:35,120 --> 00:00:37,920
+So hopefully you hear me.
+希望你能听到我。
+
+5
+00:00:37,920 --> 00:00:43,680
+And today we are going to continue our discussion about scheduling.
+今天我们将继续讨论关于日程安排的话题。
+
+6
+00:00:43,680 --> 00:00:50,160
+We are going to learn a bit about fairness, real time, and making forward progress, avoiding
+我们将学习一些关于公平、实时和取得进步的内容，避免
+
+7
+00:00:50,160 --> 00:00:56,220
+starvation and do one or two case studies.
+饥饿和进行一两个案例研究。
+
+8
+00:00:56,220 --> 00:01:03,260
+So one thing just to start with, this was a question I got from some people also before
+所以首先，这是我之前从一些人那里得到的一个问题。
+
+9
+00:01:03,260 --> 00:01:05,120
+the midterm.
+期中考试。
+
+10
+00:01:05,120 --> 00:01:12,800
+It's about what is the operating system scheduling?
+操作系统调度是什么？
+
+11
+00:01:12,800 --> 00:01:15,360
+Processes or threats?
+是指流程还是威胁？
+
+12
+00:01:15,360 --> 00:01:19,000
+And the answer obviously is threats.
+答案显然是威胁。
+
+13
+00:01:19,000 --> 00:01:22,000
+A process has at least one threat.
+一个过程至少有一个威胁。
+
+14
+00:01:22,000 --> 00:01:28,640
+So when a process has exactly one threat, then you can think about it's interchangeable.
+所以当一个过程只有一个威胁时，你可以认为它是可互换的。
+
+15
+00:01:28,640 --> 00:01:34,480
+The kernel will schedule either a process or a threat, you can say.
+内核会调度进程或线程，可以这么说。
+
+16
+00:01:34,480 --> 00:01:42,000
+But obviously when a process has multiple threats, kernel threats, then the operating
+但是显然，当一个过程有多个威胁，内核威胁时，操作系统
+
+17
+00:01:42,000 --> 00:01:47,440
+system will schedule independently each threat of the process.
+系统将独立地为每个进程的威胁进行调度。
+
+18
+00:01:47,440 --> 00:01:48,440
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
+
+19
+00:01:48,440 --> 00:01:54,680
+Now, the one thing to keep in mind is that when you switch between two contexts, switching
+现在，要记住的一件事是，当你在两个不同的情境之间切换时，切换
+
+20
+00:01:54,680 --> 00:02:01,040
+between two threads, if you remember, which belong to the same process, that's much quicker
+在两个线程之间，如果你记得的话，它们属于同一个进程，那会更快。
+
+21
+00:02:01,040 --> 00:02:04,080
+because they are living in the same address space.
+因为它们位于相同的地址空间中。
+
+22
+00:02:04,080 --> 00:02:07,480
+So you do not need to switch the address space.
+所以你不需要切换地址空间。
+
+23
+00:02:07,480 --> 00:02:13,720
+However, when you switch between two threads, which are in different processes, then you
+然而，当你在两个不同的进程中切换线程时，你会发现
+
+24
+00:02:13,720 --> 00:02:16,560
+need also to switch the address space.
+还需要切换地址空间。
+
+25
+00:02:16,560 --> 00:02:18,440
+And that's much more expensive.
+这个要贵得多。
+
+26
+00:02:18,440 --> 00:02:23,720
+Think about one order of magnitude more expensive to switch, to context switch between two threads
+考虑到切换两个线程之间的上下文，需要增加一个数量级的开销。
+
+27
+00:02:23,720 --> 00:02:29,400
+in different processes, then switching between two threads in the same process.
+在不同的进程中，然后在同一进程中的两个线程之间切换。
+
+28
+00:02:29,400 --> 00:02:31,100
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+29
+00:02:31,100 --> 00:02:38,280
+And also remember here that actually there is this multi-threading or simultaneous multi-threading
+并且在这里要记住，实际上存在着多线程或同时多线程的概念。
+
+30
+00:02:38,280 --> 00:02:44,960
+or hyper-threading, that's kind of the hardware level, which allows you to run multiple threads
+或者超线程，那是一种硬件级别的技术，它允许你同时运行多个线程。
+
+31
+00:02:44,960 --> 00:02:46,200
+on the same core.
+在同一个核心上。
+
+32
+00:02:46,200 --> 00:02:52,280
+But from the operating system and from the application, the only difference is that with
+但是从操作系统和应用程序来看，唯一的区别就是使用了
+
+33
+00:02:52,280 --> 00:02:55,920
+hyper-threading, you can run more threads, kernel threads at the same time.
+超线程技术可以同时运行更多的线程，包括内核线程。
+
+34
+00:02:55,920 --> 00:02:57,800
+That's the only difference.
+这是唯一的区别。
+
+35
+00:02:57,800 --> 00:02:58,800
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide the text you would like me to translate.
+
+36
+00:02:58,800 --> 00:03:00,200
+Nothing more.
+没有更多了。
+
+37
+00:03:00,200 --> 00:03:07,880
+Now, we discussed last time we did first come first serve, and we also ended up with this
+现在，我们上次讨论了我们采用先到先服务的方式，最终也得出了这个结论。
+
+38
+00:03:07,880 --> 00:03:12,840
+kind of discipline, which is when we look at the best first come first serve, if you
+有一种纪律，就是我们首先看最好的，先来先服务，如果你
+
+39
+00:03:12,840 --> 00:03:20,440
+know, we are starting with the smallest job first, and then to minimize the waiting time
+知道了，我们先从最小的工作开始，然后尽量减少等待时间。
+
+40
+00:03:20,440 --> 00:03:22,680
+and to minimize the completion time.
+并且尽量减少完成时间。
+
+41
+00:03:22,680 --> 00:03:23,680
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+42
+00:03:23,680 --> 00:03:29,440
+So, obviously the question here is that for that we need to know the future.
+所以，显然问题在于我们需要知道未来。
+
+43
+00:03:29,440 --> 00:03:36,920
+And if we know the future, can we mirror the best first come first serve?
+如果我们知道未来，我们能否将最好的先来先服务反映出来？
+
+44
+00:03:36,920 --> 00:03:41,280
+And the answer is obviously yes, we all be set what is the discipline.
+答案显然是肯定的，我们都会明确自己的纪律。
+
+45
+00:03:41,280 --> 00:03:48,280
+And that is to run the first job first, right?
+是的，那就是先运行第一个任务，对吗？
+
+46
+00:03:48,280 --> 00:03:54,280
+So whatever job takes the least run, it has priority over other jobs.
+所以无论哪个工作所需的时间最短，都优先于其他工作。
+
+47
+00:03:54,280 --> 00:03:55,280
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+48
+00:03:55,280 --> 00:03:58,480
+And there are two versions of that.
+而且有两个版本。
+
+49
+00:03:58,480 --> 00:04:04,720
+One it's a preempt, it's non-preemptive version and one and the other one is preemptive version.
+其中一个是预防性措施，它是非预防性版本，另一个是预防性版本。
+
+50
+00:04:04,720 --> 00:04:11,520
+As the name implies for the non-preemptive version, you run each job all the way to completion.
+正如其名称所示，非抢占式版本会将每个作业运行到完成。
+
+51
+00:04:11,520 --> 00:04:16,440
+In the preemptive version, you are going to can preempt the existing jobs for, for instance,
+在预抢版本中，你可以抢占现有的任务，例如，
+
+52
+00:04:16,440 --> 00:04:21,240
+if an existing jobs, say still 10 seconds to run, and now a new job arrives, which has
+如果有一个正在运行的任务，比如还需要10秒钟才能完成，现在又来了一个新任务，它需要多长时间才能完成呢？
+
+53
+00:04:21,240 --> 00:04:27,280
+only one second to run, the new job is going to preempt the existing job because it has
+只需要一秒钟就能运行，新的工作将会抢占现有的工作，因为它具有
+
+54
+00:04:27,280 --> 00:04:32,520
+only one second to finish while the previous, while the existing job still has 10 seconds
+只需要一秒钟就能完成，而之前的工作和现有的工作还需要10秒钟。
+
+55
+00:04:32,520 --> 00:04:33,520
+to finish.
+完成。
+
+56
+00:04:33,520 --> 00:04:34,520
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+57
+00:04:34,520 --> 00:04:37,080
+And this is about shortest remaining time first, right?
+是的，这是关于最短剩余时间优先的算法，对吗？
+
+58
+00:04:37,080 --> 00:04:42,600
+And this is a preemptive version of shorter job first.
+这是一个先发制人的短作业优先版本。
+
+59
+00:04:42,600 --> 00:04:43,680
+Okay.
+Sure, I will translate your Chinese into English and any non-Chinese into Chinese. Please provide me with the text you would like me to translate.
+
+60
+00:04:43,680 --> 00:04:47,280
+So, so remember about that.
+好的，好的，请记住这件事。
+
+61
+00:04:47,280 --> 00:04:53,320
+So this is optimal and you can show that this is optimal from the point of view of reducing
+所以这是最优的，你可以从减少的角度证明这是最优的。
+
+62
+00:04:53,320 --> 00:04:57,040
+or minimizing the completion time.
+或者最小化完成时间。
+
+63
+00:04:57,040 --> 00:04:58,400
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
+
+64
+00:04:58,400 --> 00:05:05,000
+So, so keeping, keep, keep in mind, this is an optimal schedule basically.
+所以，记住，这基本上是一个最佳的时间表。
+
+65
+00:05:05,000 --> 00:05:19,400
+Now so it's so one, one question here is that when you have a shortest remaining time first
+现在有一个问题，当你使用最短剩余时间优先算法时，有一个问题。
+
+66
+00:05:19,400 --> 00:05:25,840
+and if you want to compare with first come first serve, the one question is what if all
+而且如果你想与先到先得进行比较，其中一个问题是，如果全部都...
+
+67
+00:05:25,840 --> 00:05:28,960
+jobs have the same length because it's all jobs at the same length, what you are going
+工作的长度都是相同的，因为它们都是相同长度的工作，你正在做什么
+
+68
+00:05:28,960 --> 00:05:32,280
+to do, all of them are going to take the same time.
+做这些事情，它们都需要相同的时间。
+
+69
+00:05:32,280 --> 00:05:35,360
+And in this case, there is no difference between them, right?
+在这种情况下，它们之间没有区别，对吗？
+
+70
+00:05:35,360 --> 00:05:39,000
+Because it doesn't matter in which order you are going to run because they have, you need
+因为无论你以什么顺序运行，都没有关系，因为他们已经有了，你需要的。
+
+71
+00:05:39,000 --> 00:05:44,000
+to break the ties because they all have the same length in some arbitrary fashion and
+以某种任意方式打破这些关系，因为它们的长度都相同。
+
+72
+00:05:44,000 --> 00:05:48,800
+first come first serve is one of these ways to break the ties.
+先到先得是其中一种解决纠纷的方式。
+
+73
+00:05:48,800 --> 00:05:51,280
+And you are going to get the same results.
+你将会得到相同的结果。
+
+74
+00:05:51,280 --> 00:06:00,600
+Obviously if the jobs have varying length, then with the shorter remaining time first
+显然，如果工作的长度不同，那么应该先处理剩余时间较短的工作。
+
+75
+00:06:00,600 --> 00:06:07,320
+is going to prioritize obviously the short jobs and they are not going to go to be stuck
+将明显优先考虑短期工作，并且不会陷入困境。
+
+76
+00:06:07,320 --> 00:06:08,640
+behind the long ones.
+长的后面。
+
+77
+00:06:08,640 --> 00:06:13,440
+Remember that the first come first serve, they didn't have, you may not have a good
+记住，先到先得，他们没有，你可能没有好的。
+
+78
+00:06:13,440 --> 00:06:22,520
+average response time when you have a big job and then other small jobs are just stuck
+当您有一个大任务时，平均响应时间会增加，而其他小任务则会被堵塞。
+
+79
+00:06:22,520 --> 00:06:28,240
+behind the big job because all the small jobs are going to inherit the completion time,
+因为所有的小任务都要继承完成时间，所以大任务的后面。
+
+80
+00:06:28,240 --> 00:06:34,120
+the running time of the big job because they have to wait after it.
+大任务的运行时间会延长，因为他们需要在之后等待。
+
+81
+00:06:34,120 --> 00:06:40,760
+Here is a simple example to illustrate the benefit of the shortest remaining time first
+这里有一个简单的例子来说明最短剩余时间优先的好处。
+
+82
+00:06:40,760 --> 00:06:44,840
+against the shortest remaining time first.
+对最短剩余时间优先算法的反对。
+
+83
+00:06:44,840 --> 00:06:51,280
+It's a preemptive version of shorter job first.
+这是短作业优先的一种预防性版本。
+
+84
+00:06:51,280 --> 00:06:56,920
+And here you have two jobs, A and B, and they are CPU bound, meaning that they use only
+而这里有两个工作，A和B，它们是CPU密集型的，意味着它们只使用CPU资源。
+
+85
+00:06:56,920 --> 00:07:00,720
+the CPU, say run for a week or for a long time.
+CPU，即中央处理器，可以连续运行一周或者很长时间。
+
+86
+00:07:00,720 --> 00:07:05,800
+And then you have another job C, which is IO bound.
+然后你还有另一份工作C，它是I/O绑定的。
+
+87
+00:07:05,800 --> 00:07:12,100
+This means that you do an IO operation in one, it takes one minute seconds to do IO operation,
+这意味着你在其中进行了一个IO操作，完成这个IO操作需要一分钟的时间。
+
+88
+00:07:12,100 --> 00:07:18,560
+like say read or write to the disk, but then you wait for nine milliseconds for the operation
+像读取或写入磁盘这样的操作，但是你需要等待九毫秒才能完成。
+
+89
+00:07:18,560 --> 00:07:20,120
+to complete.
+完成。
+
+90
+00:07:20,120 --> 00:07:21,380
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
+
+91
+00:07:21,380 --> 00:07:31,360
+So if you run one of the jobs at a time, then job A or B will use 100% of the CPU and 0%
+因此，如果您一次只运行一个作业，那么作业A或B将使用100%的CPU，而另一个作业将使用0%。
+
+92
+00:07:31,360 --> 00:07:33,240
+of the IO of the disk.
+磁盘的输入/输出(IO)速度。
+
+93
+00:07:33,240 --> 00:07:44,220
+While if you run C at the time, C will use 10% of the CPU and 90% of the disk.
+当你同时运行C程序时，C程序将使用10%的CPU和90%的磁盘空间。
+
+94
+00:07:44,220 --> 00:07:49,520
+So what will happen with first come first serve?
+那么先到先得的原则会发生什么情况呢？
+
+95
+00:07:49,520 --> 00:08:01,960
+Once A or B is scheduled, then it's going to hold the CPU for two weeks together.
+一旦A或B被安排，那么它们将连续占用CPU两周。
+
+96
+00:08:01,960 --> 00:08:10,720
+And they are going to get in because even if C starts to run, after one minute seconds,
+他们会进来的，因为即使C开始跑，一分钟后，
+
+97
+00:08:10,720 --> 00:08:20,760
+it's going to give up the CPU because it has to wait for, you know, to get the IO operation
+它将放弃CPU，因为它需要等待IO操作。
+
+98
+00:08:20,760 --> 00:08:21,760
+complete.
+完成。
+
+99
+00:08:21,760 --> 00:08:22,760
+Right?
+对吗？
+
+100
+00:08:22,760 --> 00:08:29,280
+Now, what about round robin or shorter remaining time first in this particular case?
+现在，在这种特殊情况下，轮询或较短剩余时间优先如何处理？
+
+101
+00:08:29,280 --> 00:08:32,140
+So let's see what happens.
+那么让我们看看会发生什么。
+
+102
+00:08:32,140 --> 00:08:38,720
+So this is round robin and assume the round robin, the time slice is 100 milliseconds.
+所以这是循环调度，并假设循环调度的时间片是100毫秒。
+
+103
+00:08:38,720 --> 00:08:39,780
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+104
+00:08:39,780 --> 00:08:44,780
+So you're executing round robin every job.
+所以你正在执行轮转调度算法来处理每个作业。
+
+105
+00:08:44,780 --> 00:08:51,760
+So let's start with C. It's again, and say the time slice is 100 milliseconds again.
+所以我们从C开始。再次，假设时间片是100毫秒。
+
+106
+00:08:51,760 --> 00:08:58,920
+So you start with C. C runs for one millisecond and then gives up, yields the CPU because
+所以你从C开始。C运行了一毫秒，然后放弃，让出CPU，因为
+
+107
+00:08:58,920 --> 00:09:02,480
+it needs to wait for the IO operation to complete.
+它需要等待IO操作完成。
+
+108
+00:09:02,480 --> 00:09:06,280
+Then you have to run A and then B and C again.
+然后你需要先运行A，然后再运行B和C。
+
+109
+00:09:06,280 --> 00:09:11,400
+Now A and B because they're CPU bounded, they are going to take their entire time quanta,
+现在A和B因为受限于CPU，它们将会使用完整的时间片，
+
+110
+00:09:11,400 --> 00:09:13,120
+that is 100 milliseconds.
+这是100毫秒。
+
+111
+00:09:13,120 --> 00:09:14,120
+Right?
+对吗？
+
+112
+00:09:14,120 --> 00:09:20,800
+So in this case, a disk utilization, if you look about, is like from around when you schedule
+所以在这种情况下，磁盘利用率，如果你看一下，大约是从你安排的时间开始。
+
+113
+00:09:20,800 --> 00:09:32,000
+C, A, B, C, then it takes to all of them to complete, takes 201 milliseconds, 100 for A,
+C, A, B, C, 然后完成它们所需的时间总共是201毫秒，其中A需要100毫秒。
+
+114
+00:09:32,000 --> 00:09:39,040
+100 for B and one for C. And out of this time, because you are exactly only one IO operation,
+100 for B and one for C. 并且在这次中，因为你只有一个IO操作，
+
+115
+00:09:39,040 --> 00:09:43,800
+because you schedule C only once, the IO operation takes nine milliseconds.
+因为你只调度了一次C，所以IO操作需要九毫秒。
+
+116
+00:09:43,800 --> 00:09:51,440
+So the disk utilization is nine over 201, which is 4.5 percent.
+所以磁盘利用率是201的九分之一，即4.5%。
+
+117
+00:09:51,440 --> 00:09:52,440
+Very, very little.
+非常非常少。
+
+118
+00:09:52,440 --> 00:09:56,640
+Now let's say you do the round robin of one milliseconds.
+现在假设你进行一毫秒的轮询。
+
+119
+00:09:56,640 --> 00:10:01,600
+If you do round robin of about one milliseconds, what happens?
+如果你执行大约一毫秒的轮询，会发生什么？
+
+120
+00:10:01,600 --> 00:10:05,200
+You schedule C first, it takes one milliseconds.
+你先安排C，它需要1毫秒的时间。
+
+121
+00:10:05,200 --> 00:10:11,040
+Then C will have to wait for nine milliseconds is going to be in the waiting queue to wait
+然后C将不得不等待九毫秒，进入等待队列等待。
+
+122
+00:10:11,040 --> 00:10:13,840
+for the IO operation to complete.
+等待IO操作完成。
+
+123
+00:10:13,840 --> 00:10:18,280
+And during these nine milliseconds, you are going to alternate between A and B, each of
+这九毫秒期间，你将在A和B之间交替进行，每个都要。
+
+124
+00:10:18,280 --> 00:10:23,080
+them for one milliseconds, because they are ready to always run because they are only
+他们只停留了一毫秒，因为他们随时准备奔跑，因为他们只是
+
+125
+00:10:23,080 --> 00:10:25,240
+CPU bounded.
+CPU受限。
+
+126
+00:10:25,240 --> 00:10:30,080
+And what you get here, the disk utilization is 90 percent.
+在这里，你所得到的是磁盘利用率达到了90%。
+
+127
+00:10:30,080 --> 00:10:39,680
+Because C, it's already, once an IO completes, C is ready to launch the next IO.
+因为C，一旦一个IO完成，C就准备好启动下一个IO。
+
+128
+00:10:39,680 --> 00:10:45,160
+The problem here is if you see, and this is great, maximize the disk utilization, but
+这里的问题是，如果你看到了，这是很好的，最大化磁盘利用率，但是
+
+129
+00:10:45,160 --> 00:10:49,080
+in this particular case, you have a loss of context switches, right?
+在这个特定的情况下，你有上下文切换的损失，对吗？
+
+130
+00:10:49,080 --> 00:10:53,960
+Because between A and B, you have a lot of context switches, you know, and at every one
+因为在A和B之间，你会有很多上下文切换，你知道的，而且每一个切换都会
+
+131
+00:10:53,960 --> 00:10:55,520
+millisecond.
+毫秒。
+
+132
+00:10:55,520 --> 00:11:01,160
+Now, what happens is the shortest time first, the shortest time first, remaining time first,
+现在，发生的是最短时间优先，最短时间优先，剩余时间优先。
+
+133
+00:11:01,160 --> 00:11:03,160
+sorry, shortest remaining time first.
+抱歉，最短剩余时间优先算法。
+
+134
+00:11:03,160 --> 00:11:04,800
+Let's see what happens.
+让我们看看会发生什么。
+
+135
+00:11:04,800 --> 00:11:12,480
+First, execute C, like in the previous two cases, it takes one millisecond and then it's
+首先，执行C，就像前两种情况一样，它需要一毫秒，然后它就完成了。
+
+136
+00:11:12,480 --> 00:11:20,800
+going to wait for nine milliseconds for the IO to complete.
+等待九毫秒以完成IO操作。
+
+137
+00:11:20,800 --> 00:11:27,000
+So C is on the waiting queue, so now you need to schedule between A and B. Let's say you
+那么C在等待队列中，现在你需要在A和B之间安排时间。假设你
+
+138
+00:11:27,000 --> 00:11:35,520
+schedule A. You are going to schedule A until C becomes again ready for execute and C will
+日程安排A。您将继续执行日程安排A，直到C再次准备好执行，而C将
+
+139
+00:11:35,520 --> 00:11:39,080
+become ready to execute when its IO has completed.
+当其IO完成时，准备执行。
+
+140
+00:11:39,080 --> 00:11:40,720
+So after nine milliseconds.
+所以经过九毫秒。
+
+141
+00:11:40,720 --> 00:11:47,960
+So in the first nine seconds, you run A and now C is ready to execute and C takes only
+所以在前九秒钟，你运行A，现在C准备执行，C只需要
+
+142
+00:11:47,960 --> 00:11:49,360
+one second.
+一秒钟。
+
+143
+00:11:49,360 --> 00:11:57,440
+So the remaining time to finish for C it's one millisecond while for A it's one week
+所以C完成的剩余时间是1毫秒，而A完成的剩余时间是1周。
+
+144
+00:11:57,440 --> 00:12:02,080
+minus nine milliseconds.
+负九毫秒。
+
+145
+00:12:02,080 --> 00:12:06,600
+So we are going to schedule C. C again takes one millisecond to go to sleep because it's
+所以我们要安排C。C再次进入睡眠状态需要一毫秒的时间，因为它是
+
+146
+00:12:06,600 --> 00:12:10,120
+just waiting for the IO operation to complete.
+只是等待IO操作完成。
+
+147
+00:12:10,120 --> 00:12:16,920
+And now you have A and B. A remaining time is one week minus nine milliseconds.
+现在你有A和B。A剩余时间是一周减去九毫秒。
+
+148
+00:12:16,920 --> 00:12:22,340
+The remaining time for B, we didn't run at all B, so it's one week.
+B的剩余时间，我们一点都没有跑B，所以是一周。
+
+149
+00:12:22,340 --> 00:12:26,200
+So A is one week minus nine milliseconds, B is one week.
+所以A是一周减去九毫秒，B是一周。
+
+150
+00:12:26,200 --> 00:12:32,720
+A will take shorter to complete to terminate, so therefore you are going to schedule again.
+A将需要更短的时间来完成终止，因此你需要重新安排日程。
+
+151
+00:12:32,720 --> 00:12:38,640
+So you do C, A, C, A, C, A until A finishes.
+所以你要做C，A，C，A，C，A直到A完成。
+
+152
+00:12:38,640 --> 00:12:44,720
+Disc utilization 90% and much fewer context switches.
+磁盘利用率为90%，上下文切换较少。
+
+153
+00:12:44,720 --> 00:12:46,500
+Any questions, please ask.
+有任何问题，请提问。
+
+154
+00:12:46,500 --> 00:12:51,480
+Let's make it again more interactive.
+让我们再次让它更加互动。
+
+155
+00:12:51,480 --> 00:12:54,440
+It's pretty hard to just stare at the screen.
+只盯着屏幕看真的很难受。
+
+156
+00:12:54,440 --> 00:13:02,120
+So anyway, so now what is the problem with shortest time first?
+那么，现在最短时间优先算法有什么问题呢？
+
+157
+00:13:02,120 --> 00:13:06,140
+Shortest remaining time first is starvation.
+最短剩余时间优先算法会导致饥饿现象。
+
+158
+00:13:06,140 --> 00:13:07,900
+So what does it mean starvation?
+饥饿是指人体长时间没有得到足够的食物和营养所导致的身体状况。
+
+159
+00:13:07,900 --> 00:13:12,200
+Can someone tell me what starvation means and why we are going to have starvation in
+the future?
+
+饥饿是指人们因长期缺乏足够的食物而导致身体无法正常运作。未来为什么会出现饥饿问题？
+
+160
+00:13:12,200 --> 00:13:13,200
+this case?
+这个案件？
+
+161
+00:13:13,200 --> 00:13:28,660
+Never getting to run B never is scheduled.
+从来没有机会运行B，从来没有被安排。
+
+162
+00:13:28,660 --> 00:13:33,660
+Yes, in the previous example, well, in the previous example, actually, after you finish
+是的，在之前的例子中，嗯，在之前的例子中，实际上，在你完成之后
+
+163
+00:13:33,660 --> 00:13:35,860
+A you are going to eventually run.
+你最终会去跑步的。
+
+164
+00:13:35,860 --> 00:13:41,320
+So yes, B will wait a long time, but starvation means that it may never be, you may never
+所以是的，B会等很长时间，但饥饿意味着它可能永远不会实现，你可能永远不会。
+
+165
+00:13:41,320 --> 00:13:45,600
+run a job.
+运行一个任务。
+
+166
+00:13:45,600 --> 00:13:53,000
+OK, any other answer?
+好的，还有其他答案吗？
+
+167
+00:13:53,000 --> 00:13:58,200
+So starvation means that the job remains in the system without ever being run.
+饥饿状态意味着作业在系统中保留而从未被执行。
+
+168
+00:13:58,200 --> 00:14:03,760
+When can this happen?
+这个什么时候可以发生？
+
+169
+00:14:03,760 --> 00:14:08,140
+That's great.
+太好了。
+
+170
+00:14:08,140 --> 00:14:17,780
+So Alison, so if you have a stream of short jobs, you always get new short jobs, then
+那么，艾莉森，如果你有一连串的短期工作，你总是能够得到新的短期工作，那么
+
+171
+00:14:17,780 --> 00:14:22,800
+the long job may never be scheduled.
+这个长期的工作可能永远不会被安排。
+
+172
+00:14:22,800 --> 00:14:26,660
+That's exactly what happens.
+这正是发生的事情。
+
+173
+00:14:26,660 --> 00:14:29,740
+OK.
+Sure. Please go ahead and provide the text you would like me to translate.
+
+174
+00:14:29,740 --> 00:14:35,860
+The other problem with this shortest remaining time first is that you need to predict the
+另一个问题是，使用最短剩余时间优先算法需要预测
+
+175
+00:14:35,860 --> 00:14:40,860
+future, you need to know how long a job is going to take.
+未来，你需要知道一项工作需要多长时间完成。
+
+176
+00:14:40,860 --> 00:14:45,060
+And there was a question or two last lectures about this.
+还有一两个问题在上一堂课上提到了这个。
+
+177
+00:14:45,060 --> 00:14:51,540
+And there are some ways, none of them is perfect.
+有一些方法，但没有一个是完美的。
+
+178
+00:14:51,540 --> 00:14:56,420
+One way is to rely on the users and as the users, how long will take the job or a job
+一种方法是依靠用户，作为用户，需要多长时间来完成工作或一项工作？
+
+179
+00:14:56,420 --> 00:14:57,420
+will take.
+会拿。
+
+180
+00:14:57,420 --> 00:15:00,660
+But with this has certain problems.
+但是这也存在一些问题。
+
+181
+00:15:00,660 --> 00:15:07,860
+First of all, you assume the user knows, which is not always true or which is rarely true.
+首先，你假设用户已经知道，但这并不总是真实的，或者很少是真实的。
+
+182
+00:15:07,860 --> 00:15:14,940
+And also you open yourself to an attack in the sense that a user, because if the user
+而且你会暴露自己受到攻击的风险，因为用户可以...
+
+183
+00:15:14,940 --> 00:15:19,860
+knows that the system using the shortest remaining time first will declare a very short time,
+知道使用最短剩余时间优先的系统会声明一个非常短的时间。
+
+184
+00:15:19,860 --> 00:15:25,780
+even if the job will take long, because in this way, she can ensure that the job will
+即使工作需要很长时间，因为这样她可以确保工作会
+
+185
+00:15:25,780 --> 00:15:29,980
+be scheduled.
+安排好了。
+
+186
+00:15:29,980 --> 00:15:32,940
+The other thing which is not here is basically to keep the history.
+另外一件不在这里的事情基本上是为了保留历史。
+
+187
+00:15:32,940 --> 00:15:39,300
+If you run a job repeatedly, you look at the history and if you see how long you basically
+如果您反复运行一个任务，您可以查看历史记录，如果您看到了基本的运行时间，
+
+188
+00:15:39,300 --> 00:15:45,980
+assume that the past running time is a good predictor for the future running time for
+假设过去的运行时间是未来运行时间的一个很好的预测指标。
+
+189
+00:15:45,980 --> 00:15:46,980
+the same job.
+同样的工作。
+
+190
+00:15:46,980 --> 00:15:50,980
+And you are going to use that prediction.
+你打算利用那个预测。
+
+191
+00:15:50,980 --> 00:15:52,940
+But anyway, so this is hard.
+但无论如何，这很困难。
+
+192
+00:15:52,940 --> 00:15:59,460
+However, shortest running time first is still a very important discipline for one reason.
+然而，以最短运行时间为先的原则仍然是一个非常重要的规则，原因有一点。
+
+193
+00:15:59,460 --> 00:16:01,040
+It represents a yardstick.
+它代表了一个标准。
+
+194
+00:16:01,040 --> 00:16:08,460
+It's a baseline for measuring other policies when it comes to minimize the average response
+这是在最小化平均响应时衡量其他政策的基准。
+
+195
+00:16:08,460 --> 00:16:10,460
+time.
+时间。
+
+196
+00:16:10,460 --> 00:16:11,460
+So it's optimal.
+所以它是最优的。
+
+197
+00:16:11,460 --> 00:16:13,460
+You cannot do it better.
+你做不得更好。
+
+198
+00:16:13,460 --> 00:16:18,780
+So if you are designing a new scheduler, one of the metrics will be average response time
+如果你正在设计一个新的调度器，其中一个指标将是平均响应时间。
+
+199
+00:16:18,780 --> 00:16:23,640
+and you are going to compare the average response time of that new discipline or scheduling
+你将要比较该新学科或调度的平均响应时间。
+
+200
+00:16:23,640 --> 00:16:29,780
+disciplines you design against the shortest remaining time first.
+你设计的学科是以最短剩余时间优先的。
+
+201
+00:16:29,780 --> 00:16:33,620
+The closer you are, the better you are.
+你越近，你就越好。
+
+202
+00:16:33,620 --> 00:16:38,580
+So in summary, for shortest remaining time first, it's optimal with respect to average
+所以总结一下，对于最短剩余时间优先算法来说，它在平均情况下是最优的。
+
+203
+00:16:38,580 --> 00:16:42,580
+response time, but it can be hard to predict the future.
+回应时间，但是预测未来可能会很困难。
+
+204
+00:16:42,580 --> 00:16:51,420
+You need to predict the future and this is hard and can be unfair here means also starvation.
+你需要预测未来，这是困难的，也可能是不公平的，这里还意味着饥饿。
+
+205
+00:16:51,420 --> 00:17:00,580
+The long jobs may never be scheduled.
+长时间的工作可能永远不会被安排。
+
+206
+00:17:00,580 --> 00:17:08,280
+So this is what I said in the early, this is one way to implement what I said in the
+之前我说的是这样的，这是一种实现我所说的方法之一。
+
+207
+00:17:08,280 --> 00:17:12,820
+previous slides that one way is to predict is based on the past behavior.
+以往的幻灯片中提到的一种预测方法是基于过去的行为。
+
+208
+00:17:12,820 --> 00:17:19,920
+So you look at how long a particular job or process, the burst time in the previous burst
+所以你要看一下特定工作或过程的持续时间，即前一次的爆发时间。
+
+209
+00:17:19,920 --> 00:17:27,640
+time and you use that as a prediction for the future of times and for the future.
+时间，你将其用作对未来时间和未来的预测。
+
+210
+00:17:27,640 --> 00:17:33,480
+And one way is to do is to do this exponential averaging in which you are going to put away
+一种方法是进行指数平均，你将会将其放置在一边。
+
+211
+00:17:33,480 --> 00:17:46,500
+against the duration of the last time the job runs and then discount to, and one minus
+对于上次作业运行的持续时间进行折扣，并取其相反数。
+
+212
+00:17:46,500 --> 00:17:52,360
+alpha for the existing prediction.
+现有预测的α值。
+
+213
+00:17:52,360 --> 00:17:56,860
+So you have an existing prediction and then you are going to put, you can multiply that
+所以你有一个现有的预测，然后你要进行加工，可以对其进行乘法运算。
+
+214
+00:17:56,860 --> 00:18:04,320
+for existing prediction with a weight and then you add to one minus weight the last
+对于现有的预测，使用一个权重，并将其加到1减去权重的最后一个。
+
+215
+00:18:04,320 --> 00:18:08,180
+running time of the job.
+工作的运行时间。
+
+216
+00:18:08,180 --> 00:18:17,680
+So at one extreme, if you wait with zero, the previous prediction, this means that you
+所以在一个极端情况下，如果你等待的时间为零，即前一个预测，这意味着你
+
+217
+00:18:17,680 --> 00:18:23,280
+don't care about the past execution, but the last one, because the weight will be one for
+不要在意过去的执行情况，只关注最后一次，因为它的权重将为1。
+
+218
+00:18:23,280 --> 00:18:25,280
+the last execution.
+最后一次执行。
+
+219
+00:18:25,280 --> 00:18:29,880
+And if you have a small weight for the last execution, this means that you are going to
+而且如果你在最后一次执行时使用了较小的重量，这意味着你打算
+
+220
+00:18:29,880 --> 00:18:38,160
+put a lot of weight on the previous executions before the last one.
+在最后一次执行之前，非常重视之前的执行记录。
+
+221
+00:18:38,160 --> 00:18:44,640
+So what about the fairness?
+那公平性呢？
+
+222
+00:18:44,640 --> 00:18:48,300
+And this is a very important aspect we are going to talk about.
+这是我们要讨论的一个非常重要的方面。
+
+223
+00:18:48,300 --> 00:18:51,800
+We discuss about first come first serve, not really fair.
+我们讨论的是先到先得，不太公平。
+
+224
+00:18:51,800 --> 00:18:56,160
+We discuss about shortage of first, not really necessarily fair.
+我们讨论的是短缺问题，而不是公平性问题。
+
+225
+00:18:56,160 --> 00:19:00,620
+We discuss about Ron Robin, actually that's kind of fair.
+我们讨论了一下罗恩·罗宾，其实这还算公平。
+
+226
+00:19:00,620 --> 00:19:13,640
+And now, keep in mind that this kind of fairness is another very important metric we are going
+现在，请记住，这种公平性是我们另一个非常重要的指标。
+
+227
+00:19:13,640 --> 00:19:19,240
+to use to characterize the scheduler.
+用于描述调度程序的方式。
+
+228
+00:19:19,240 --> 00:19:26,600
+And fundamentally there is a strict, it's a hard trade-off between the average response
+和根本上有一个严格的、艰难的权衡，这是平均响应的结果。
+
+229
+00:19:26,600 --> 00:19:29,600
+time and the fairness.
+时间和公平。
+
+230
+00:19:29,600 --> 00:19:37,800
+And if you remember, we had, last lecture we had this example between the round Robin,
+如果你还记得的话，上一堂课我们讲了一个关于轮转调度算法的例子。
+
+231
+00:19:37,800 --> 00:19:44,780
+which is fair because during one round you schedule every process or, you know, every
+轮到每个进程或者说每个任务都被调度一次，这是公平的。
+
+232
+00:19:44,860 --> 00:19:50,200
+every job, and first come first serve.
+每个工作，先到先得。
+
+233
+00:19:50,200 --> 00:19:56,820
+If you remember, we are looking at equal length jobs.
+如果你还记得的话，我们正在寻找长度相等的工作。
+
+234
+00:19:56,820 --> 00:20:03,200
+And because if you really want to be fair, everyone will finish at the same time, so
+而且，如果你真的想要公平，每个人都会在同一时间完成，所以...
+
+235
+00:20:03,200 --> 00:20:05,820
+everyone will be late.
+大家都会迟到。
+
+236
+00:20:05,820 --> 00:20:13,820
+So her job is response time, while if you are not fair, and you run everyone at comfort,
+所以她的工作是响应时间，而如果你不公平，你会让每个人都感到舒适。
+
+237
+00:20:13,820 --> 00:20:19,380
+every job to completion, then the one which you get first are going to finish much earlier
+每个工作都要完成，然后先开始的那个会更早完成。
+
+238
+00:20:19,380 --> 00:20:20,380
+than the last one.
+比上一个更好。
+
+239
+00:20:20,380 --> 00:20:23,780
+So you are going to get better response time.
+所以你打算提高响应时间。
+
+240
+00:20:23,780 --> 00:20:30,580
+So keep in mind, the fairness may in general hurt the response time.
+所以请记住，公平性可能会普遍影响响应时间。
+
+241
+00:20:30,580 --> 00:20:35,620
+So how do you, and basically also have other scheduling discipline, like we are going to
+那么你是如何安排时间的，基本上也有其他的时间管理方法，比如我们要...
+
+242
+00:20:35,620 --> 00:20:41,060
+learn about fixed priority, and the fixed priority is also fundamental and fair, with
+学习固定优先级，固定优先级也是基本和公平的。
+
+243
+00:20:41,060 --> 00:20:47,260
+a priority basically assign different jobs, different priorities, because you deem that
+优先级基本上是为不同的工作分配不同的优先级，因为你认为这样做是合理的。
+
+244
+00:20:47,260 --> 00:20:49,540
+some jobs are more important than the others.
+有些工作比其他工作更重要。
+
+245
+00:20:49,540 --> 00:20:53,820
+And by the way, whenever you say something is more important than the other, basically
+而且，顺便说一下，每当你说某件事比另一件事更重要时，基本上
+
+246
+00:20:53,820 --> 00:20:57,880
+you give up on the fairness at some level.
+你在某种程度上放弃了公平。
+
+247
+00:20:57,880 --> 00:21:01,260
+So how do you implement fairness?
+那么你如何实施公平性呢？
+
+248
+00:21:01,260 --> 00:21:13,060
+One is round robin, but the fundamental thing is that to implement fairness, you need, in
+一种是循环调度，但最基本的是，为了实现公平性，你需要在实现调度算法时考虑到以下几点：
+
+249
+00:21:13,060 --> 00:21:20,060
+some sense, to divide, to virtualize the CPU, you need to divide the CPU and give each job
+一些意义上，要进行CPU虚拟化，你需要将CPU进行划分，并为每个任务分配。
+
+250
+00:21:20,060 --> 00:21:27,900
+a fraction of the CPU.
+CPU的一小部分。
+
+251
+00:21:27,900 --> 00:21:32,580
+And now let's talk a little bit about Unix.
+现在让我们稍微谈谈Unix。
+
+252
+00:21:32,580 --> 00:21:41,660
+So in Unix, it's using, in original Unix, it's using priority scheduling.
+在Unix中，原始的Unix系统使用的是优先级调度。
+
+253
+00:21:41,660 --> 00:21:49,300
+So you have a bunch of priorities, and if you remember from last time, and the jobs
+所以你有一堆优先事项，如果你还记得上次的话，还有工作。
+
+254
+00:21:49,300 --> 00:21:54,580
+that are with the highest priority are going to run first, and jobs with a lower priority
+优先级最高的任务将首先运行，而优先级较低的任务将在后面运行。
+
+255
+00:21:54,580 --> 00:22:02,460
+can run only if there are no other jobs with higher priority which are ready to run.
+只有在没有其他优先级更高且准备就绪的作业时才能运行。
+
+256
+00:22:02,460 --> 00:22:03,840
+So this is a call.
+这是一个电话。
+
+257
+00:22:03,840 --> 00:22:07,700
+But now how you are going to get some fairness?
+但是现在你打算如何获得一些公平呢？
+
+258
+00:22:07,700 --> 00:22:13,920
+And there are many, many, many proposals.
+还有很多很多很多提案。
+
+259
+00:22:13,920 --> 00:22:19,500
+One way to implement is lottery scheduling.
+一种实现的方法是抽签调度。
+
+260
+00:22:19,500 --> 00:22:26,020
+So this one, and it's a very nice analogy, is basically the lottery scheduling will give
+所以这个，这是一个非常好的比喻，基本上是说抽奖调度会给予...
+
+261
+00:22:26,020 --> 00:22:29,820
+each job some number of lottery tickets.
+每个工作都会有一定数量的彩票。
+
+262
+00:22:29,820 --> 00:22:34,920
+And each time slice, you randomly pick a winning ticket.
+每个时间片，你随机选择一张中奖票。
+
+263
+00:22:34,920 --> 00:22:41,900
+And on average, the CPU time is proportionally allocated to the number of tickets given to
+而且平均而言，CPU时间是按照分配给的票数成比例分配的。
+
+264
+00:22:41,900 --> 00:22:45,380
+each job.
+每个工作。
+
+265
+00:22:45,380 --> 00:22:49,500
+Now how you can assign the tokens, right?
+现在你可以如何分配这些令牌呢？
+
+266
+00:22:49,500 --> 00:22:54,500
+How you are going to-- and it turns out that the nice thing about this lottery scheduling,
+你打算怎么做——结果发现这个抽奖调度的好处是，
+
+267
+00:22:54,500 --> 00:23:05,740
+you can approximate some of these other recipients.
+你可以近似地翻译一些其他的收件人。
+
+268
+00:23:05,740 --> 00:23:09,460
+If you want, or you can use to implement it.
+如果你愿意的话，你可以使用它来实施。
+
+269
+00:23:09,460 --> 00:23:16,300
+If you want to implement shortest running time first, you can give to the small jobs
+如果你想实施最短运行时间优先，你可以将任务分配给小的工作。
+
+270
+00:23:16,300 --> 00:23:19,540
+a much larger number of tickets, right?
+更多的门票，对吗？
+
+271
+00:23:19,540 --> 00:23:22,180
+And the long jobs get fewer tickets.
+而且长时间的工作得到的票数较少。
+
+272
+00:23:22,180 --> 00:23:27,140
+Now the nice thing is also you can avoid starvation.
+现在的好处是你也可以避免饥饿。
+
+273
+00:23:27,140 --> 00:23:32,780
+If I give to each job at least one ticket, right?
+如果我给每个工作至少一张票，对吗？
+
+274
+00:23:32,780 --> 00:23:34,700
+At least one ticket.
+至少一张票。
+
+275
+00:23:34,700 --> 00:23:43,820
+Then that job is not going to be stuck forever because it will be at some point that each
+那份工作不会永远被困住，因为总会有一个时刻，每个人都会找到自己的出路。
+
+276
+00:23:43,820 --> 00:23:51,740
+ticket will be selected and therefore it will be scheduled.
+票将被选中，因此将被安排。
+
+277
+00:23:51,740 --> 00:23:54,960
+So this is one advantage of our strict priorities, right?
+这就是我们严格优先级的一个优势，对吗？
+
+278
+00:23:54,960 --> 00:24:06,600
+So again, with strict priorities, if a job cannot run unless there is no other job ready
+所以，再次强调，如果一个任务只有在没有其他任务准备好的情况下才能运行。
+
+279
+00:24:06,600 --> 00:24:11,080
+to execute, which has higher priority.
+执行，具有更高的优先级。
+
+280
+00:24:11,080 --> 00:24:15,960
+With this one, we say, okay, the jobs with a higher priority have more tickets, but job
+随着这个例子，我们可以说，好吧，优先级更高的工作有更多的票，但是工作
+
+281
+00:24:15,960 --> 00:24:19,900
+with a lower priority have at least one ticket.
+优先级较低的人至少要有一张票。
+
+282
+00:24:19,900 --> 00:24:25,440
+So now I will be stuck.
+那么现在我会被困住了。
+
+283
+00:24:25,440 --> 00:24:28,480
+So here is one example.
+这里有一个例子。
+
+284
+00:24:28,480 --> 00:24:38,460
+Lottery scheduling, so assume that you have short jobs and long jobs and you have a job
+彩票调度，假设你有短作业和长作业，你有一个作业。
+
+285
+00:24:38,460 --> 00:24:44,480
+get 10 tickets and long job get one ticket, right?
+获得10张票，长时间工作获得一张票，对吗？
+
+286
+00:24:44,480 --> 00:24:56,160
+So if a short job gets 10 tickets and a long job gets one ticket, then the CPU get given
+那么，如果一个短任务得到10张票，而一个长任务得到一张票，那么CPU会被分配到
+
+287
+00:24:56,160 --> 00:24:59,560
+to the short jobs is 91%, right?
+对于短期工作的比例是91%，对吗？
+
+288
+00:24:59,560 --> 00:25:02,120
+And the other one is 9%.
+另一个是9%。
+
+289
+00:25:02,120 --> 00:25:08,000
+Because in total you have 11 tickets in the system, 10 for the short jobs, one for the
+因为您在系统中总共有11张票，其中10张是用于短期工作，一张是用于长期工作。
+
+290
+00:25:08,000 --> 00:25:10,440
+long jobs.
+长时间的工作。
+
+291
+00:25:10,440 --> 00:25:23,880
+If you are going to give, you have two long jobs, okay?
+如果你要给的话，你有两个长时间的工作，好吗？
+
+292
+00:25:23,880 --> 00:25:32,600
+And you zero short jobs, you are going to divide because each long job get one ticket.
+你没有短工作，你将要分配，因为每个长工作都会得到一张票。
+
+293
+00:25:32,600 --> 00:25:34,560
+So you have only two tickets in the system.
+所以你们系统里只有两张票。
+
+294
+00:25:34,560 --> 00:25:37,240
+So each of the long jobs will get 50%.
+所以每个长期工作都会得到50%的比例。
+
+295
+00:25:37,240 --> 00:25:42,220
+If you have two short jobs, you have 50% each short jobs, you don't have any long jobs.
+如果你有两个短期工作，那么每个短期工作占比50%，你没有任何长期工作。
+
+296
+00:25:42,220 --> 00:25:46,000
+You have 10 short jobs and one long jobs.
+你有10个短工作和一个长工作。
+
+297
+00:25:46,000 --> 00:25:54,240
+You have now 101 tickets in the system because each short job will have 10 tickets.
+您现在在系统中有101张票，因为每个短任务都会有10张票。
+
+298
+00:25:54,240 --> 00:26:04,040
+So therefore the short jobs get, each short job get 9.9%.
+所以每个短期工作都占总数的9.9%。
+
+299
+00:26:04,040 --> 00:26:06,680
+All short jobs will get 99%.
+所有短期工作将获得99%的报酬。
+
+300
+00:26:06,680 --> 00:26:12,240
+The long job will get 1% and so forth.
+长期的工作将获得1%等等。
+
+301
+00:26:12,240 --> 00:26:13,240
+Okay.
+Sure, I will translate your Chinese text into English and translate any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
+
+302
+00:26:13,240 --> 00:26:17,440
+Let me see if there is a question.
+让我看看是否有问题。
+
+303
+00:26:17,440 --> 00:26:24,800
+Ah, since the scheduling is probabilistic, isn't there still the possibility that the
+啊，既然调度是概率性的，那还是有可能的，
+
+304
+00:26:24,800 --> 00:26:28,480
+long job gets started for quite a while?
+这个工作进行了很长时间了吗？
+
+305
+00:26:28,480 --> 00:26:31,040
+Yes, that's correct.
+是的，那是正确的。
+
+306
+00:26:31,040 --> 00:26:39,120
+The long job can still wait for a while, but eventually is going to be selected.
+这个长期的工作还可以等一段时间，但最终会被选中。
+
+307
+00:26:39,120 --> 00:26:53,280
+While in, say for instance, with shorter job first or with strict priority scheduling,
+在这种情况下，比如说，使用短作业优先或严格优先调度算法，
+
+308
+00:26:53,280 --> 00:27:01,040
+a job might never ever be scheduled if there are always enough lower priority jobs in the
+队列中。
+
+309
+00:27:01,040 --> 00:27:02,040
+system.
+系统。
+
+310
+00:27:02,040 --> 00:27:07,040
+Very good question.
+非常好的问题。
+
+311
+00:27:07,040 --> 00:27:09,040
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+312
+00:27:09,040 --> 00:27:17,800
+So, what if too many short jobs are in the system to give reasonable response time?
+那么，如果系统中有太多的短期工作，无法在合理的时间内给出响应，该怎么办呢？
+
+313
+00:27:17,800 --> 00:27:24,240
+Well, you know, it can take a long time, so it can be hard to make progress, right?
+嗯，你知道的，这可能需要很长时间，所以要取得进展可能会很困难，对吧？
+
+314
+00:27:24,240 --> 00:27:25,900
+Because there are too many jobs.
+因为有太多的工作。
+
+315
+00:27:25,900 --> 00:27:32,640
+So it takes too long to get your tab.
+所以要等很久才能拿到你的账单。
+
+316
+00:27:32,640 --> 00:27:41,760
+Of course, one answer here is that, you know, kick some users out of the system.
+当然，这里的一个答案是，你知道的，将一些用户从系统中踢出去。
+
+317
+00:27:41,760 --> 00:27:50,720
+So now let's take a step back and let's say, what are the kind of jobs you are expecting
+现在让我们退一步来说，你期望的工作类型是什么？
+
+318
+00:27:50,720 --> 00:27:54,200
+to run on your computer?
+在你的电脑上运行？
+
+319
+00:27:54,200 --> 00:27:57,720
+And typically there is a mix of jobs.
+通常情况下，工作种类是多样的。
+
+320
+00:27:57,720 --> 00:28:00,000
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
+
+321
+00:28:00,000 --> 00:28:06,160
+So one of them will have the short burst time and some of them longer burst times.
+所以其中一个会有短暂的爆发时间，而其他一些会有较长的爆发时间。
+
+322
+00:28:06,160 --> 00:28:09,360
+And let's think about what are these kinds of jobs?
+让我们来思考一下这些工作是什么类型的？
+
+323
+00:28:09,360 --> 00:28:11,480
+What are the possible ones?
+可能的有哪些？
+
+324
+00:28:11,480 --> 00:28:14,760
+Some jobs are interactive jobs, right?
+有些工作是互动性的工作，对吗？
+
+325
+00:28:14,760 --> 00:28:29,040
+These are, you know, it's editors, your chat application, you're interacting with the browser.
+这些是，你知道的，它是编辑器，你的聊天应用，你正在与浏览器进行交互。
+
+326
+00:28:29,040 --> 00:28:30,600
+And these are short bursts, right?
+这些是短暂的爆发，对吗？
+
+327
+00:28:30,600 --> 00:28:31,600
+It's interactive, right?
+是的，它是互动的，对吗？
+
+328
+00:28:31,600 --> 00:28:38,280
+With the short bursts, they have to respond quickly to the user in your interaction.
+使用短暂的爆发，他们必须在与用户的互动中迅速做出回应。
+
+329
+00:28:38,280 --> 00:28:39,280
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
+
+330
+00:28:39,280 --> 00:28:43,560
+Then there are other ones which are IO.
+然后还有其他一些是IO的。
+
+331
+00:28:43,560 --> 00:28:49,920
+It's also IO, not necessarily the users, but they are waiting for networking to get data
+这也是IO，不一定是用户，而是他们在等待网络获取数据。
+
+332
+00:28:49,920 --> 00:28:54,920
+from the network or for an IO to complete, right?
+是指从网络上获取数据或完成IO操作，对吗？
+
+333
+00:28:54,920 --> 00:29:00,840
+And there are others which are long running.
+还有一些是长期运行的。
+
+334
+00:29:00,840 --> 00:29:09,440
+Like for instance, one example would be a compiler or one example you do training, machine
+例如，一个例子是编译器，另一个例子是培训机器。
+
+335
+00:29:09,440 --> 00:29:10,440
+learning.
+学习。
+
+336
+00:29:10,440 --> 00:29:11,440
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
+
+337
+00:29:11,440 --> 00:29:20,440
+And, you know, you'd expect here that if something is interactive, it has to get a higher priority
+而且，你知道的，你会期望如果某个东西是互动的，它必须得到更高的优先级。
+
+338
+00:29:20,440 --> 00:29:23,280
+because it needs to provide the user good user experience.
+因为它需要为用户提供良好的用户体验。
+
+339
+00:29:23,280 --> 00:29:28,480
+And the one which are not in long running jobs, it's okay if they are not interactive
+而那些不是长期运行的工作，如果它们不是交互式的，那也没关系。
+
+340
+00:29:28,480 --> 00:29:30,720
+because they are running in the background, right?
+因为它们在后台运行，对吗？
+
+341
+00:29:30,720 --> 00:29:38,040
+It doesn't matter if a training neural network model is going to take five hours or five
+无论训练神经网络模型需要五个小时还是五天，都没有关系。
+
+342
+00:29:38,040 --> 00:29:40,160
+hours and five minutes.
+五小时零五分钟。
+
+343
+00:29:40,160 --> 00:29:41,160
+Okay.
+Sure, I will do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
+
+344
+00:29:41,160 --> 00:29:46,760
+The user will not realize.
+用户将不会意识到。
+
+345
+00:29:46,760 --> 00:29:48,560
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+346
+00:29:48,560 --> 00:29:57,460
+So, again, in general, it's hard to characterize all the application, but again, you can classify
+因此，总的来说，很难对所有的应用进行概括，但是你可以进行分类。
+
+347
+00:29:57,460 --> 00:30:01,120
+broadly in interactive applications.
+广泛应用于互动应用中。
+
+348
+00:30:01,120 --> 00:30:06,380
+They typically have short bursts and long running applications, which have obviously
+它们通常具有短暂的爆发和长时间运行的应用程序，这显然是
+
+349
+00:30:06,380 --> 00:30:09,720
+longer bursts.
+更长时间的爆发。
+
+350
+00:30:09,720 --> 00:30:19,640
+So in recognizing that, this is how Unix implements the scheduler.
+所以，鉴于这一点，这就是Unix实现调度器的方式。
+
+351
+00:30:19,640 --> 00:30:23,380
+This is multi-level feedback scheduling.
+这是多级反馈调度。
+
+352
+00:30:23,380 --> 00:30:30,760
+And the mind level scheduling is like it has a bunch of queues and each queue has a different
+优先级。每个队列都有不同的优先级。
+
+353
+00:30:30,760 --> 00:30:38,520
+priority and a different time quan.
+优先级和不同的时间量度。
+
+354
+00:30:38,520 --> 00:30:49,960
+So the queue at the top has a highest priority and there were a task, it's a process, it's
+所以顶部的队列具有最高优先级，并且有一个任务，它是一个进程。
+
+355
+00:30:49,960 --> 00:30:57,460
+a queue first and the same time quanta, it's eight milliseconds.
+一个队列首先，同时也是一个量子，它是八毫秒。
+
+356
+00:30:57,460 --> 00:31:14,000
+And if a job spends too much time on at some level is demoted to the next level, in this
+case, it is considered a demotion.
+
+357
+00:31:14,000 --> 00:31:24,640
+case to the next queue, which is quanta of 16 milliseconds.
+将案例转移到下一个队列，该队列的时间片为16毫秒。
+
+358
+00:31:24,640 --> 00:31:31,520
+And if you spend too much in this level, at this level, you are demoted to the next queue,
+而且如果你在这个级别花费太多，在这个级别上，你会被降级到下一个队列。
+
+359
+00:31:31,520 --> 00:31:34,640
+which is first count for seven.
+第一个是七。
+
+360
+00:31:34,640 --> 00:31:42,400
+So the first two, each of these levels can use a different scheduling discipline.
+所以前两个，每个级别都可以使用不同的调度策略。
+
+361
+00:31:42,400 --> 00:31:49,760
+The first two in this case can use round robin, the last one first count for seven.
+在这种情况下，前两个可以使用轮询算法，最后一个先计算七次。
+
+362
+00:31:49,760 --> 00:31:55,960
+So basically what does this mean is that if you have an interactive job, which has small
+所以基本上这意味着，如果你有一个交互式的工作，它有一些小的
+
+363
+00:31:55,960 --> 00:32:04,080
+bursts, that will be first and queued at the first level, has a highest priority, it will
+爆发，将首先排队在第一层，具有最高优先级，它将
+
+364
+00:32:04,080 --> 00:32:06,580
+be scheduled quickly.
+安排得快一点。
+
+365
+00:32:06,580 --> 00:32:14,560
+And if it's a small burst, then it relinquishes the CPU, goes to sleep.
+如果是一个小的爆发，那么它会释放CPU，进入休眠状态。
+
+366
+00:32:14,560 --> 00:32:19,640
+So it will always remain at the first level.
+所以它将始终保持在第一级别。
+
+367
+00:32:19,640 --> 00:32:25,560
+Now consider a long job, like training a neural network.
+现在考虑一个长时间的任务，比如训练神经网络。
+
+368
+00:32:25,560 --> 00:32:35,480
+It starts at the first level and after a while, say after several seconds, it's still running
+它从第一级开始，过了一段时间后，比如几秒钟后，它仍在运行。
+
+369
+00:32:35,480 --> 00:32:40,720
+right?
+对吗？
+
+370
+00:32:40,720 --> 00:32:46,540
+It's going to be demoted to the second level.
+它将被降级到第二级。
+
+371
+00:32:46,540 --> 00:32:53,440
+And the second level, if it stays and continues running for, say I'm just making up like for
+而第二个层次，如果它保持并继续运行，比如我随便编个数字，比如说为了
+
+372
+00:32:53,440 --> 00:33:00,480
+another one hour, then it's pushed to the lower level.
+再过一个小时，然后它就会被推到更低的级别。
+
+373
+00:33:00,480 --> 00:33:05,280
+So you can see that in this way, the jobs which takes a long time, they are going to
+所以你可以看到，用这种方式，那些耗时很长的工作，它们将会...
+
+374
+00:33:05,280 --> 00:33:12,760
+fall through these kind of different levels to the bottom level and will have lower priority.
+从这些不同的层级中跌落到最底层，并且会具有较低的优先级。
+
+375
+00:33:12,760 --> 00:33:21,440
+It's a very nice mechanism, adaptive mechanism, in which that jobs with short bursts remains
+这是一个非常好的机制，自适应机制，其中短时间内有爆发性工作的工作仍然存在。
+
+376
+00:33:21,440 --> 00:33:27,880
+a high priority, remains a high priority at high levels and the one is lower, which takes
+高优先级，在高层级仍然是高优先级，而较低的一个则是次要的。
+
+377
+00:33:27,880 --> 00:33:42,320
+a long time, they are going to be demoted naturally to the levels with a lower priority.
+很长一段时间后，它们将自然地被降级到优先级较低的级别。
+
+378
+00:33:42,320 --> 00:33:46,880
+And the results really here, you can think of approximately the shortest remaining time
+结果真的在这里，你可以大致考虑剩余时间最短的情况
+
+379
+00:33:46,880 --> 00:33:53,800
+first, because if again, if the job is small enough, you always are executed with the highest
+首先，因为如果再说一次，如果工作足够小，你总是以最高的执行。
+
+380
+00:33:53,800 --> 00:33:54,800
+priority.
+优先级。
+
+381
+00:33:54,800 --> 00:34:10,400
+Again, between the queues, you have fixed priorities and then you can have different
+再次，在队列之间，你有固定的优先级，然后可以有不同的
+
+382
+00:34:10,400 --> 00:34:17,680
+time quanta like we saw in these examples between different queues.
+时间量子，就像我们在不同队列之间看到的这些例子中所见。
+
+383
+00:34:17,680 --> 00:34:25,840
+Oh, here is a question.
+哦，这里有一个问题。
+
+384
+00:34:25,840 --> 00:34:28,000
+This was probably about lottery scheduling.
+这可能是关于抽奖调度的事情。
+
+385
+00:34:28,000 --> 00:34:29,800
+Sorry for not seeing it.
+对不起，没有看到它。
+
+386
+00:34:29,800 --> 00:34:34,560
+Did short job, did a short job and long job run simultaneously?
+短工作做了吗，短工作和长工作同时进行了吗？
+
+387
+00:34:34,560 --> 00:34:35,560
+Yes.
+是的。
+
+388
+00:34:35,560 --> 00:34:40,640
+In that case, we assume, well, they don't run to completion.
+在这种情况下，我们假设，嗯，它们没有完全运行。
+
+389
+00:34:40,640 --> 00:34:46,520
+We assume a lottery scheduling, assume a preemptive scheduling.
+我们假设使用抽签调度算法，假设使用抢占式调度算法。
+
+390
+00:34:46,520 --> 00:34:49,580
+This is a preemptive scheduling discipline.
+这是一种预先调度的规则。
+
+391
+00:34:49,580 --> 00:34:56,400
+So you're basically, you know, each time quanta is again, you run a lottery and you award
+所以基本上，你知道的，每次量子再次出现，你都会进行一次抽奖，然后颁发奖励。
+
+392
+00:34:56,400 --> 00:35:02,720
+the CPU to the winning ticket, to the process with the winning ticket.
+将CPU分配给中奖票，将中奖票分配给中奖进程。
+
+393
+00:35:02,720 --> 00:35:06,080
+So from that perspective, yes, they are interleaved.
+从这个角度来看，是的，它们是交错的。
+
+394
+00:35:06,080 --> 00:35:13,320
+The short jobs, the long run, long jobs are interleaved.
+短期工作和长期工作交替进行。
+
+395
+00:35:13,320 --> 00:35:30,880
+Now, obviously, if you know the scheduler, you can actually fool the scheduler.
+现在，显然，如果你了解调度程序，你实际上可以欺骗调度程序。
+
+396
+00:35:30,880 --> 00:35:37,800
+And for instance, if I want, what can I do for my job to remain as a high priority?
+例如，如果我想让我的工作保持高优先级，我可以做些什么呢？
+
+397
+00:35:37,800 --> 00:35:45,480
+Well, I'm going to insert some IO operations from time to time because IO operations put
+嗯，我会时不时地插入一些IO操作，因为IO操作会导致程序的执行速度变慢。
+
+398
+00:35:45,480 --> 00:36:05,640
+this the process or the job to sleep and therefore it remain as a high in the top level queues.
+这是一个睡眠的过程或工作，因此它会保持在高优先级队列的顶部。
+
+399
+00:36:05,640 --> 00:36:14,760
+And there are actually even games in which it's an old program game and you try to play
+而且实际上还有一些游戏，它们是旧的程序游戏，你可以尝试玩。
+
+400
+00:36:14,760 --> 00:36:15,760
+against competitors.
+对抗竞争对手。
+
+401
+00:36:15,760 --> 00:36:28,520
+So the key is to do computation at a higher priority than the competitor.
+所以关键是将计算优先级设置得比竞争对手高。
+
+402
+00:36:28,520 --> 00:36:35,240
+And again, the way you do it, the way you are doing it, some of these game developers
+再说一次，你的做法，你正在做的方式，其中一些游戏开发者
+
+403
+00:36:35,240 --> 00:36:39,580
+just put a bunch of print Fs because the print Fs again, you have IO.
+只需连续使用一系列的print F，因为再次使用print F，你就有了输入输出。
+
+404
+00:36:39,580 --> 00:36:44,880
+So the thread is put to sleep and then when you come back, it's going to go to the high
+所以线程被暂停，当你回来时，它将进入高优先级。
+
+405
+00:36:44,880 --> 00:36:45,880
+priority queue.
+优先队列。
+
+406
+00:36:45,880 --> 00:36:51,360
+While if you don't have to go to sleep, you are going to fall through the levels to the
+当然，如果你不必要去睡觉，你会一直陷入各个层次，直到最后一层。
+
+407
+00:36:51,360 --> 00:36:56,200
+bottom level and you are going to be treated with a lower priority.
+底层，你将会被给予较低的优先级对待。
+
+408
+00:36:56,200 --> 00:36:58,200
+So it's fun.
+那真是太有趣了。
+
+409
+00:36:58,200 --> 00:37:01,400
+Multi-core scheduling.
+多核调度。
+
+410
+00:37:01,400 --> 00:37:02,400
+You have multiple core.
+你有多个核心。
+
+411
+00:37:02,400 --> 00:37:07,120
+Now all the processors have multiple cores, your Mac has multiple cores, your PC has multiple
+现在所有的处理器都有多个核心，你的Mac有多个核心，你的PC也有多个核心。
+
+412
+00:37:07,120 --> 00:37:09,360
+cores, your phones have multiple cores.
+核心，你的手机有多个核心。
+
+413
+00:37:09,360 --> 00:37:16,440
+Algorithmically is not a huge difference now, but implementation wise, there are some things
+算法上现在没有太大的区别，但在实现上，有一些事情。
+
+414
+00:37:16,440 --> 00:37:18,800
+you need to keep in mind.
+你需要记住。
+
+415
+00:37:18,800 --> 00:37:22,440
+And one thing to keep in mind is a cache coherence.
+还有一件事要记住，那就是缓存一致性。
+
+416
+00:37:22,440 --> 00:37:30,240
+Every core has its own cache and therefore you want to have this affinity scheduling.
+每个核心都有自己的缓存，因此你希望进行亲和调度。
+
+417
+00:37:30,240 --> 00:37:39,440
+You want to schedule a thread on the same CPU when it turns calm.
+你想在CPU变得空闲时安排一个线程。
+
+418
+00:37:39,440 --> 00:37:40,440
+Why?
+为什么？
+
+419
+00:37:40,440 --> 00:37:46,520
+Because if you do so, that thread, you can leverage the data of that thread, which is
+因为如果你这样做，那个线程，你可以利用那个线程的数据，这是一个很好的机会。
+
+420
+00:37:46,520 --> 00:37:49,200
+still in the local cache of the same CPU.
+仍然在同一CPU的本地缓存中。
+
+421
+00:37:49,200 --> 00:37:54,920
+If you schedule the thread on a different CPU, then that cache will not have any data
+如果你将线程调度到不同的CPU上，那么该缓存将不会有任何数据。
+
+422
+00:37:54,920 --> 00:37:59,080
+of that thread.
+那个帖子的内容。
+
+423
+00:37:59,080 --> 00:38:03,400
+So spinlock and multiprocessor.
+所以自旋锁和多处理器。
+
+424
+00:38:03,400 --> 00:38:08,600
+Let me just...
+让我只是...
+
+425
+00:38:08,600 --> 00:38:20,280
+So it turns out that the one way actually to, especially for multiprocessors, is not...
+所以事实证明，对于多处理器来说，唯一的方法实际上并不是...
+
+426
+00:38:20,280 --> 00:38:25,640
+There are two reasons why you use spinlocks.
+使用自旋锁有两个原因。
+
+The first reason is that spinlocks provide a simple and efficient way to synchronize access to shared resources in a multi-threaded environment. When a thread encounters a spinlock, it will repeatedly check if the lock is available, rather than immediately blocking and waiting for the lock to be released. This can be beneficial in situations where the lock is expected to be held for a short period of time, as it avoids the overhead of context switching between threads.
+
+The second reason is that spinlocks can be used in real-time systems or in situations where blocking is not allowed. In these cases, it is important to avoid the unpredictability and potential delays that can occur when a thread is blocked and has to wait for a lock to be released. Spinlocks allow threads to continuously check for the availability of a lock, ensuring that they can make progress without being blocked.
+
+427
+00:38:25,640 --> 00:38:30,120
+And the spinlock is just waiting for some condition to become true and you can do the
+而自旋锁只是在等待某个条件变为真时，你可以执行
+
+428
+00:38:30,120 --> 00:38:32,720
+test and set on a particular value.
+测试并设置特定值。
+
+429
+00:38:32,720 --> 00:38:37,280
+It's like, think about acquiring the lock.
+就像，想象一下获取锁。
+
+430
+00:38:37,280 --> 00:38:39,720
+And there are two cases to use a spinlock.
+并且使用自旋锁有两种情况。
+
+431
+00:38:39,720 --> 00:38:44,360
+One is typically when you have multiple threads to execute at the same time.
+一个典型的情况是当你需要同时执行多个线程时。
+
+432
+00:38:44,360 --> 00:38:47,600
+Like for instance, you have two threads which communicate between each other, so you have
+例如，你有两个线程彼此之间进行通信，所以你有
+
+433
+00:38:47,600 --> 00:38:49,640
+to run them at the same time.
+同时运行它们。
+
+434
+00:38:49,640 --> 00:38:56,200
+So you want then the threads to wait for each other to be scheduled at the same time.
+所以你希望线程等待彼此在同一时间被调度。
+
+435
+00:38:56,200 --> 00:39:02,680
+So if one thread is scheduled first, the second thread, it has to wait for the second thread
+所以如果一个线程被先调度，第二个线程就必须等待第一个线程。
+
+436
+00:39:02,680 --> 00:39:07,040
+to be scheduled in order for instance to start the communication.
+为了安排顺序，以便开始沟通。
+
+437
+00:39:07,040 --> 00:39:09,400
+And you use typically for that test and set.
+你通常使用那个测试和设置。
+
+438
+00:39:09,400 --> 00:39:11,680
+Now, the problem is this test and set.
+现在，问题是这个测试和设置。
+
+439
+00:39:11,680 --> 00:39:19,120
+If this test and set is done on, you know, you have different threads on different cores,
+如果对这个测试和设置进行操作，你知道，在不同的核心上有不同的线程，
+
+440
+00:39:19,120 --> 00:39:25,920
+the test and set you are going to enforce a write, right?
+你要执行的是测试并设置操作，对吗？
+
+441
+00:39:25,920 --> 00:39:29,680
+If you remember the test and set takes a value from the others.
+如果你记得测试和设置从其他地方获取一个值。
+
+442
+00:39:29,720 --> 00:39:34,720
+and then set that value to one,
+然后将该值设置为1。
+
+443
+00:39:34,720 --> 00:39:38,160
+irrespective of what was the value before
+不论之前的价值如何
+
+444
+00:39:38,160 --> 00:39:39,760
+and write it back in the memory
+并将其写回内存中
+
+445
+00:39:39,760 --> 00:39:43,080
+and then return the original value.
+然后返回原始值。
+
+446
+00:39:43,080 --> 00:39:47,440
+Okay, so this is what is test and set if you remember.
+好的，如果你还记得的话，这是测试和设置的内容。
+
+447
+00:39:47,440 --> 00:39:49,060
+But if I'm going to write
+但是如果我要写的话
+
+448
+00:39:49,060 --> 00:39:51,360
+and another test and set is going to read
+另一个测试和设置即将读取。
+
+449
+00:39:51,360 --> 00:39:53,600
+from a different processor,
+来自另一个处理器，
+
+450
+00:39:53,600 --> 00:39:55,780
+then you are going to,
+那么你打算去哪里？
+
+451
+00:39:55,780 --> 00:39:58,080
+the value has to go through the memory
+这个值必须经过内存。
+
+452
+00:39:58,080 --> 00:40:00,060
+and then go back between,
+然后来回穿梭，
+
+453
+00:40:00,060 --> 00:40:05,000
+it's going to need to go to the other process
+需要将其转到其他流程中。
+
+454
+00:40:05,000 --> 00:40:06,220
+which runs the thread again,
+再次运行线程的是哪个部分？
+
+455
+00:40:06,220 --> 00:40:07,760
+it is in test and set.
+它正在进行测试和设置。
+
+456
+00:40:07,760 --> 00:40:10,240
+So if two threads are going to test and set
+那么如果有两个线程要进行测试和设置操作
+
+457
+00:40:10,240 --> 00:40:12,760
+and they run on different CPUs,
+并且它们运行在不同的CPU上，
+
+458
+00:40:12,760 --> 00:40:14,600
+then you are going to ping pong the value
+然后你要来回传递这个值
+
+459
+00:40:14,600 --> 00:40:18,720
+between each other without doing anything.
+彼此之间什么都不做。
+
+460
+00:40:18,720 --> 00:40:19,560
+Okay?
+好的。
+
+461
+00:40:19,560 --> 00:40:23,600
+Another way to do it,
+另一种方法是，
+
+462
+00:40:23,600 --> 00:40:25,120
+if you need to do that,
+如果你需要这样做的话，
+
+463
+00:40:25,120 --> 00:40:27,400
+is to do this test, test and set.
+是要做这个测试，测试并设置。
+
+464
+00:40:27,400 --> 00:40:29,080
+And basically instead of doing,
+而基本上不是做...
+
+465
+00:40:29,080 --> 00:40:31,220
+having in the wild test and set,
+在野外进行测试和设置，
+
+466
+00:40:31,220 --> 00:40:32,680
+in the wild you have the value,
+在野外，你有价值。
+
+467
+00:40:32,680 --> 00:40:34,360
+just look at the value
+只看价值
+
+468
+00:40:34,360 --> 00:40:36,240
+and you look for the value for the acquiree,
+你需要寻找被收购方的价值。
+
+469
+00:40:36,240 --> 00:40:38,240
+look for the value to become zero.
+寻找使值变为零的方法。
+
+470
+00:40:38,240 --> 00:40:46,800
+And then, so this is going to just do a read.
+然后，这只是一个读取操作。
+
+471
+00:40:46,800 --> 00:40:49,680
+So you read local value always.
+所以你总是读取本地值。
+
+472
+00:40:49,680 --> 00:40:57,200
+And then you are going to do again a wild test and set
+然后你打算再次进行一次疯狂的测试和设置。
+
+473
+00:40:57,200 --> 00:40:58,840
+if the value read is zero.
+如果读取的值为零。
+
+474
+00:40:58,840 --> 00:41:01,160
+And the reason it was a second test and set
+而且这是第二次测试和设置的原因
+
+475
+00:41:01,160 --> 00:41:02,580
+is because the race condition,
+是因为竞态条件。
+
+476
+00:41:02,580 --> 00:41:04,400
+because you don't want,
+因为你不想。
+
+477
+00:41:04,400 --> 00:41:08,440
+because you want to acquire the lock in this case,
+因为在这种情况下你想要获取锁。
+
+478
+00:41:08,440 --> 00:41:11,120
+or which means to set the value to one
+或者意味着将值设置为一。
+
+479
+00:41:11,120 --> 00:41:12,620
+and you don't know the race condition
+而且你不知道竞态条件是什么
+
+480
+00:41:12,620 --> 00:41:17,120
+is that two threads executing test and set at the same time,
+这是两个线程同时执行测试和设置吗？
+
+481
+00:41:17,120 --> 00:41:19,120
+they receive the value zero
+他们收到了零的价值。
+
+482
+00:41:19,120 --> 00:41:20,760
+and then the both of them,
+然后他们两个，
+
+483
+00:41:20,760 --> 00:41:22,560
+they are going to set to one.
+他们打算开始。
+
+484
+00:41:22,560 --> 00:41:23,720
+In order to avoid that,
+为了避免这种情况，
+
+485
+00:41:23,720 --> 00:41:26,400
+you do a test and set again to the value
+你重新进行一次测试并将值设置回去。
+
+486
+00:41:26,400 --> 00:41:29,160
+and you have only one will succeed
+你只有一个机会成功。
+
+487
+00:41:29,160 --> 00:41:32,120
+because test and set is going to be atomic.
+因为测试和设置操作将是原子操作。
+
+488
+00:41:32,120 --> 00:41:36,820
+But again, the main point here is that you avoid a write
+但是再次强调，这里的主要观点是你要避免写入。
+
+489
+00:41:36,820 --> 00:41:38,560
+and because you avoid a write,
+因为你避免了一次写入操作，
+
+490
+00:41:38,560 --> 00:41:40,480
+you are going to go through the main memory
+你将要经过主内存。
+
+491
+00:41:40,480 --> 00:41:45,480
+and you are going to go to avoid a lot of context switches.
+你将要去避免很多上下文切换。
+
+492
+00:41:45,480 --> 00:41:51,780
+This, okay, that's great question.
+这个，好的，那是个很好的问题。
+
+493
+00:41:51,780 --> 00:41:55,760
+Is this an issue of correctness or efficiency?
+这是一个关于正确性还是效率的问题？
+
+494
+00:41:55,760 --> 00:41:58,320
+This is a question from Arshad.
+这是Arshad的一个问题。
+
+495
+00:41:58,320 --> 00:42:03,320
+Yes, it's about, this is about the efficiency.
+是的，这是关于效率的。
+
+496
+00:42:03,320 --> 00:42:05,200
+It's not about correctness.
+这不是关于正确与否。
+
+497
+00:42:05,200 --> 00:42:07,780
+Both codes are correct.
+这两个代码都是正确的。
+
+498
+00:42:07,780 --> 00:42:09,440
+Both using both test and set
+同时使用测试和设置
+
+499
+00:42:09,440 --> 00:42:11,480
+and test and set are correct.
+并且测试和设置是正确的。
+
+500
+00:42:11,480 --> 00:42:12,880
+It's only about efficiency.
+这只是关于效率的问题。
+
+501
+00:42:12,880 --> 00:42:20,280
+Okay, good.
+好的，很好。
+
+502
+00:42:25,000 --> 00:42:28,540
+And this is exactly why when these are used,
+而这正是为什么当它们被使用时，
+
+503
+00:42:28,540 --> 00:42:34,020
+this spin locks and spin waiting,
+这个自旋锁会自旋等待。
+
+504
+00:42:34,020 --> 00:42:37,800
+when multiple threads, again, like I just mentioned,
+当多个线程再次出现时，就像我刚才提到的那样，
+
+505
+00:42:37,800 --> 00:42:39,580
+work together on a multiple core,
+一起在多核上工作。
+
+506
+00:42:39,580 --> 00:42:41,240
+try to schedule them together.
+尽量安排它们在一起。
+
+507
+00:42:41,240 --> 00:42:43,480
+This is also called gang scheduling.
+这也被称为团队调度。
+
+508
+00:42:43,480 --> 00:42:47,300
+There are other ways to do it instead of using spin lock.
+除了使用自旋锁之外，还有其他方法可以做到。
+
+509
+00:42:47,300 --> 00:42:50,240
+Another way is basically to tell the OS
+另一种方法基本上是告诉操作系统。
+
+510
+00:42:50,240 --> 00:42:51,800
+to tell the application,
+告诉应用程序
+
+511
+00:42:51,800 --> 00:42:55,600
+hey, I could schedule only three of your threads
+嘿，我只能安排你的三个主题。
+
+512
+00:42:55,600 --> 00:42:56,600
+and you take care.
+你也要保重。
+
+513
+00:42:56,600 --> 00:43:01,400
+You know that you have three slides running parallel.
+你知道你有三个幻灯片并行运行。
+
+514
+00:43:01,400 --> 00:43:05,680
+So you configure the way you run the program,
+所以你配置程序运行的方式，
+
+515
+00:43:05,680 --> 00:43:07,280
+knowing that you have only three slides
+知道你只有三张幻灯片
+
+516
+00:43:07,280 --> 00:43:08,760
+which are running in parallel.
+同时运行的是哪些？
+
+517
+00:43:08,760 --> 00:43:09,860
+Right.
+正确的。
+
+518
+00:43:09,860 --> 00:43:13,640
+By the way, there is another reason,
+顺便说一下，还有另一个原因，
+
+519
+00:43:13,640 --> 00:43:19,420
+there is another example in which you do the spin locks.
+有另一个例子，你可以使用自旋锁。
+
+520
+00:43:19,420 --> 00:43:22,780
+And the reason is that if you expect
+而原因是，如果你期望的话
+
+521
+00:43:22,780 --> 00:43:25,540
+that you have an IO operation,
+你有一个IO操作。
+
+522
+00:43:25,540 --> 00:43:28,420
+which we expect to finish very quickly.
+我们预计会很快完成。
+
+523
+00:43:28,420 --> 00:43:29,260
+Okay.
+Sure, I'll do my best to help you with the translations. Please go ahead and provide the text you would like me to translate.
+
+524
+00:43:29,260 --> 00:43:35,180
+So, and this is to avoid context switches.
+所以，这是为了避免上下文切换。
+
+525
+00:43:35,180 --> 00:43:39,920
+So say a context switch, it takes one millisecond,
+所以说，上下文切换需要一毫秒的时间。
+
+526
+00:43:39,920 --> 00:43:42,460
+but you are a program and you do an operation
+但是你是一个程序，你执行一个操作。
+
+527
+00:43:42,460 --> 00:43:45,220
+which takes 0.1 milliseconds.
+需要0.1毫秒。
+
+528
+00:43:45,220 --> 00:43:47,700
+So you do not want to be just
+那么你不想只是
+
+529
+00:43:47,700 --> 00:43:52,520
+suspending the link with the CPU.
+暂停与CPU的连接。
+
+530
+00:43:52,520 --> 00:43:55,060
+And also it's not very effective for the system
+而且对系统来说并不是很有效。
+
+531
+00:43:55,060 --> 00:43:57,480
+because it takes one milliseconds,
+因为它只需要一毫秒。
+
+532
+00:43:57,480 --> 00:44:01,260
+which is wasted time to context switching to another slide.
+这是浪费时间去切换到另一张幻灯片。
+
+533
+00:44:01,260 --> 00:44:03,380
+Instead, you just do a,
+相反，你只需要做一个，
+
+534
+00:44:03,380 --> 00:44:05,660
+you are waiting, busy waiting
+你在等待，忙着等待。
+
+535
+00:44:05,660 --> 00:44:08,880
+for the IO operation to complete.
+等待IO操作完成。
+
+536
+00:44:08,880 --> 00:44:10,940
+And then you wait only for 0.1 milliseconds
+然后你只需要等待0.1毫秒。
+
+537
+00:44:10,940 --> 00:44:12,080
+and then continue.
+然后继续。
+
+538
+00:44:12,080 --> 00:44:12,920
+Right.
+对的。
+
+539
+00:44:12,920 --> 00:44:13,740
+No context switching.
+不要切换上下文。
+
+540
+00:44:13,740 --> 00:44:16,240
+Yes, you wasted one 0.1 millisecond,
+是的，你浪费了0.1毫秒的时间。
+
+541
+00:44:16,240 --> 00:44:17,680
+but it's shorter than one millisecond
+但它比一毫秒还要短。
+
+542
+00:44:17,680 --> 00:44:18,900
+since the context switching.
+自从上下文切换以来。
+
+543
+00:44:18,900 --> 00:44:22,020
+And you are going to get much better response time
+而且你将会得到更快的响应时间。
+
+544
+00:44:22,020 --> 00:44:23,540
+because you are continuing to run
+因为你继续奔跑。
+
+545
+00:44:23,540 --> 00:44:26,120
+instead of waiting to be scheduled again to run.
+而不是等待再次安排运行。
+
+546
+00:44:26,120 --> 00:44:27,300
+Okay.
+Sure. Please provide me with the text you would like me to translate.
+
+547
+00:44:27,300 --> 00:44:30,340
+So announcements, congrats for finishing with term one.
+所以，公告一下，恭喜你顺利完成第一学期。
+
+548
+00:44:30,340 --> 00:44:31,460
+We started to grade.
+我们开始评分了。
+
+549
+00:44:31,460 --> 00:44:33,180
+It will take a little bit of time.
+需要一点时间。
+
+550
+00:44:33,180 --> 00:44:35,500
+We'll let you know for sure what is the EPA
+我们会确切告诉你什么是EPA。
+
+551
+00:44:35,500 --> 00:44:37,060
+to give you a grading on Monday.
+星期一给你一个评分。
+
+552
+00:44:37,060 --> 00:44:41,880
+Hopefully it will be very close to Monday after Monday.
+希望下周一之后很快就能到周一了。
+
+553
+00:44:41,880 --> 00:44:44,820
+Homework two is due on Monday
+作业二要在星期一之前完成。
+
+554
+00:44:44,820 --> 00:44:47,580
+and project one code and final reporting member
+和项目一的代码和最终报告成员
+
+555
+00:44:47,580 --> 00:44:49,720
+is due on Wednesday next week.
+是下周三到期。
+
+556
+00:44:49,720 --> 00:44:54,420
+Now I understand that things are difficult, right?
+现在我明白事情很困难，对吗？
+
+557
+00:44:54,420 --> 00:44:59,420
+It's like we are still in this kind of remote instruction
+感觉我们还是在进行远程教学。
+
+558
+00:44:59,420 --> 00:45:04,360
+and you still have a tough time, maybe home and so forth
+而且你仍然过得很艰难，也许是因为家庭等等。
+
+559
+00:45:04,360 --> 00:45:08,520
+and making things work, you are stressed.
+并且让事情正常运转，你感到压力很大。
+
+560
+00:45:08,520 --> 00:45:12,500
+So make sure that your DA understand any issue
+所以请确保您的DA了解任何问题。
+
+561
+00:45:12,500 --> 00:45:14,320
+that you may be having
+你可能正在经历一些事情。
+
+562
+00:45:14,320 --> 00:45:18,120
+because of that and also as a group.
+因为这个原因，还有作为一个团体。
+
+563
+00:45:18,120 --> 00:45:22,040
+And if you want to escalate,
+如果你想升级的话，
+
+564
+00:45:22,040 --> 00:45:26,160
+I'll be happy to meet with a group, just send me an email
+我很乐意与团队见面，只需给我发送一封电子邮件即可。
+
+565
+00:45:26,160 --> 00:45:29,360
+and I'll be happy to meet with you
+我很乐意与你见面。
+
+566
+00:45:29,360 --> 00:45:33,400
+and provide some best practices and some advice.
+并提供一些最佳实践和建议。
+
+567
+00:45:33,400 --> 00:45:35,800
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
+
+568
+00:45:41,260 --> 00:45:44,920
+So next let's talk about real time scheduling.
+那么接下来我们来谈谈实时调度。
+
+569
+00:45:44,920 --> 00:45:48,700
+So real time scheduling, think about
+实时调度，考虑一下
+
+570
+00:45:48,700 --> 00:46:01,280
+the programs which runs on your car, like ABS,
+车上运行的程序，比如防抱死制动系统（ABS），
+
+571
+00:46:01,280 --> 00:46:05,980
+anti-blocking, whatever for brakes.
+防堵塞，无论是用于刹车还是其他用途。
+
+572
+00:46:05,980 --> 00:46:10,940
+You have in your car, you have probably tens of processors,
+你的车里可能装有数十个处理器。
+
+573
+00:46:10,940 --> 00:46:13,580
+tens, hundreds of programs run, okay?
+有成千上万的程序在运行，好吗？
+
+574
+00:46:13,580 --> 00:46:15,920
+Or think about self-driving.
+或者考虑一下自动驾驶。
+
+575
+00:46:15,920 --> 00:46:22,520
+You really want their predictable performance.
+你真的想要他们可预测的表现。
+
+576
+00:46:22,520 --> 00:46:27,240
+You run things to finish by a certain time,
+你要确保事情在特定时间内完成。
+
+577
+00:46:27,240 --> 00:46:31,080
+like out steering or, you know,
+喜欢外向的掌舵或者，你知道的，
+
+578
+00:46:31,080 --> 00:46:35,040
+if out in a self-driving car, you need to steer in time,
+如果在一辆自动驾驶汽车中，你需要及时转动方向盘。
+
+579
+00:46:35,040 --> 00:46:38,020
+right? If you don't steer in time, you have an accident.
+对吗？如果你不及时转向，就会发生事故。
+
+580
+00:46:38,020 --> 00:46:39,360
+Okay?
+好的。
+
+581
+00:46:39,360 --> 00:46:42,380
+So therefore these are the core of the power plant,
+所以这些是发电厂的核心部分，
+
+582
+00:46:42,380 --> 00:46:48,300
+or, you know, think about landing
+或者，你知道的，考虑一下着陆。
+
+583
+00:46:48,300 --> 00:46:53,140
+and taking off for airplanes, which is done automatically.
+并且飞机起飞时，这是自动完成的。
+
+584
+00:46:53,140 --> 00:46:57,040
+For all of these use cases, you need to have programs.
+对于所有这些用例，你需要有程序。
+
+585
+00:46:57,040 --> 00:47:01,080
+For sure it doesn't, you know, you don't get starvation,
+当然不会，你知道的，你不会挨饿，
+
+586
+00:47:01,080 --> 00:47:05,440
+right? And you can predict they're predictable.
+对吗？而且你可以预测它们是可预测的。
+
+587
+00:47:05,440 --> 00:47:07,160
+So now the real time is again,
+所以现在是真实的时间了，
+
+588
+00:47:07,160 --> 00:47:10,520
+is predict about predictability about things happening
+预测是关于事情发生的可预测性的。
+
+589
+00:47:10,520 --> 00:47:16,440
+by a certain time is not about being fast.
+按照一定的时间并不是指要快速。
+
+590
+00:47:16,440 --> 00:47:17,960
+Okay?
+好的？
+
+591
+00:47:17,960 --> 00:47:22,800
+And there are multiple classes about real time
+还有多个关于实时的课程。
+
+592
+00:47:22,800 --> 00:47:24,680
+and real time, it's again, a big area.
+而实时性，又是一个广阔的领域。
+
+593
+00:47:24,680 --> 00:47:27,540
+There are conferences only dedicated real time.
+有一些专门致力于实时的会议。
+
+594
+00:47:27,540 --> 00:47:31,240
+And it's about meeting the deadlines, right?
+是的，这是关于遵守截止日期的问题，对吗？
+
+595
+00:47:31,240 --> 00:47:34,340
+You have some deadlines by which some task is to finish.
+你有一些截止日期，需要完成一些任务。
+
+596
+00:47:35,600 --> 00:47:39,480
+And in these areas, there are different categories.
+而在这些领域中，有不同的分类。
+
+597
+00:47:39,480 --> 00:47:41,080
+There are soft real time deadlines,
+有软实时的截止日期，
+
+598
+00:47:41,080 --> 00:47:43,340
+hard real time deadlines, hard real time deadlines.
+硬实时截止日期，硬实时截止日期。
+
+599
+00:47:43,340 --> 00:47:45,640
+You need to meet all the deadlines.
+你需要按时完成所有的截止日期。
+
+600
+00:47:45,640 --> 00:47:47,840
+Soft real times, best effort.
+软实时，尽力而为。
+
+601
+00:47:47,840 --> 00:47:50,240
+Try to be your best to meet most of them.
+尽力去满足他们的大部分需求。
+
+602
+00:47:50,240 --> 00:47:51,960
+Depends on the application.
+这取决于具体的应用。
+
+603
+00:47:51,960 --> 00:47:54,080
+And like you expect, there are a lot of algorithms
+而且正如你所期望的那样，有很多算法。
+
+604
+00:47:54,080 --> 00:47:56,800
+and the algorithms, scheduling algorithms are quite different
+而且算法，调度算法也是非常不同的。
+
+605
+00:47:56,800 --> 00:48:00,880
+and we are going to look at only one,
+我们只会看一个
+
+606
+00:48:00,880 --> 00:48:04,800
+which is very simple, which is early deadline first, right?
+是的，这是非常简单的，先处理早期的截止日期，对吗？
+
+607
+00:48:04,800 --> 00:48:08,800
+By the way, another, an example of our soft real time
+顺便说一下，我们软实时的另一个例子是
+
+608
+00:48:08,800 --> 00:48:12,040
+is for multimedia, for your playing back video
+是为了多媒体，用于播放视频。
+
+609
+00:48:12,040 --> 00:48:17,040
+or voiceover, when you chat over your phone, right?
+或者配音，当你在手机上聊天时，对吗？
+
+610
+00:48:17,040 --> 00:48:21,720
+It's great to have hard deadlines,
+有严格的截止日期真是太好了，
+
+611
+00:48:21,720 --> 00:48:25,480
+your message, what you are saying to arrive to the other end,
+你的信息，你所说的要传达到另一端，
+
+612
+00:48:25,480 --> 00:48:28,440
+say within 15 milliseconds, never later.
+说出来，不要超过15毫秒，绝对不能晚。
+
+613
+00:48:28,440 --> 00:48:32,400
+But if it's a little bit longer, it's okay.
+但如果稍微长一点，也没关系。
+
+614
+00:48:32,400 --> 00:48:34,000
+The humans are going to adapt.
+人类将会适应。
+
+615
+00:48:34,000 --> 00:48:39,000
+And here we are, and we are going to talk about
+现在我们在这里，我们要谈论的是
+
+616
+00:48:39,000 --> 00:48:44,920
+only one soft scheduling discipline,
+只有一种软调度策略。
+
+617
+00:48:44,920 --> 00:48:46,880
+which is early deadline first.
+哪个是先到期的截止日期？
+
+618
+00:48:46,880 --> 00:48:48,560
+But here is a model.
+但是这里有一个模型。
+
+619
+00:48:48,560 --> 00:48:52,360
+The model is that the task have deadlines,
+这个模型是任务有截止日期的。
+
+620
+00:48:52,360 --> 00:48:58,200
+and they declare about the computation time is now.
+他们宣布计算时间现在是多少。
+
+621
+00:48:58,200 --> 00:49:00,960
+So here we are talking about things
+所以我们在谈论事情
+
+622
+00:49:00,960 --> 00:49:03,040
+getting repeatedly being done.
+被反复做。
+
+623
+00:49:04,040 --> 00:49:09,040
+So you have pretty good idea about when each task,
+所以你对每个任务的时间安排有一个相当好的想法，
+
+624
+00:49:09,040 --> 00:49:11,680
+how long each task is going to take.
+每个任务需要多长时间。
+
+625
+00:49:11,680 --> 00:49:13,840
+So it's different from general case
+所以它与一般情况不同。
+
+626
+00:49:13,840 --> 00:49:16,280
+in which it's hard to predict the future.
+在这种情况下，很难预测未来。
+
+627
+00:49:16,280 --> 00:49:17,840
+Here you have to predict the future
+在这里，你需要预测未来。
+
+628
+00:49:17,840 --> 00:49:21,480
+because how can you set up a deadline
+因为你怎么能设定一个截止日期呢？
+
+629
+00:49:21,480 --> 00:49:24,040
+without knowing how much the computation will take?
+不知道计算需要多长时间？
+
+630
+00:49:24,040 --> 00:49:25,000
+It's impossible.
+这是不可能的。
+
+631
+00:49:25,000 --> 00:49:29,840
+So it's part of the game here that you are going to know
+所以这是这里的一部分游戏规则，你会知道的。
+
+632
+00:49:29,840 --> 00:49:32,680
+how long the task is going to take.
+这个任务需要多长时间完成？
+
+633
+00:49:32,680 --> 00:49:36,520
+And now the question is you have multiple tasks,
+现在的问题是你有多个任务，
+
+634
+00:49:36,520 --> 00:49:39,360
+each of them, they have certain computation time
+每个人，他们都有一定的计算时间。
+
+635
+00:49:39,360 --> 00:49:41,080
+and certain deadlines.
+和特定的截止日期。
+
+636
+00:49:41,080 --> 00:49:43,360
+And the thing is that,
+而事实是，
+
+637
+00:49:43,360 --> 00:49:47,960
+can all the tasks meet their deadlines?
+所有任务都能按时完成吗？
+
+638
+00:49:47,960 --> 00:49:49,120
+That's the key question.
+这是关键问题。
+
+639
+00:49:49,120 --> 00:49:54,400
+And here is one example, one of example of scheduling.
+这是一个例子，一个关于日程安排的例子。
+
+640
+00:49:54,400 --> 00:49:56,240
+It's again, it's preemptive.
+这是再次发生，这是预防性的。
+
+641
+00:49:56,240 --> 00:50:00,000
+You still have time quanta between these tasks.
+你在这些任务之间还有时间间隔。
+
+642
+00:50:01,160 --> 00:50:03,520
+And it turns out these are the deadlines,
+原来这些是截止日期，
+
+643
+00:50:03,520 --> 00:50:05,680
+you know, the app arrows,
+你知道，那个应用程序的名字是“箭头”，
+
+644
+00:50:05,680 --> 00:50:10,040
+the app arrows is when the task,
+这个应用程序"arrows"是用来管理任务的。
+
+645
+00:50:10,040 --> 00:50:14,360
+a event which triggers the computation arrives
+一个触发计算的事件到达了。
+
+646
+00:50:14,360 --> 00:50:18,880
+and the down arrows are the deadlines.
+并且向下的箭头表示截止日期。
+
+647
+00:50:18,880 --> 00:50:22,560
+And here is an example in which this scheduling,
+这里有一个例子，其中使用了这种调度方法，
+
+648
+00:50:22,560 --> 00:50:24,960
+particular scheduling of these tasks
+这些任务的具体安排
+
+649
+00:50:24,960 --> 00:50:29,160
+is going to violate the deadlines for task one.
+将要违反任务一的截止日期。
+
+650
+00:50:30,800 --> 00:50:31,640
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to have translated.
+
+651
+00:50:31,640 --> 00:50:33,560
+So now,
+所以现在，
+
+652
+00:50:33,560 --> 00:50:36,200
+like I mentioned,
+就像我之前提到的那样，
+
+653
+00:50:36,200 --> 00:50:39,680
+we are going to learn about one such scheduling discipline,
+我们将要学习一种这样的调度规则，
+
+654
+00:50:39,680 --> 00:50:40,840
+a leader line first.
+首先是一条引线。
+
+655
+00:50:40,840 --> 00:50:45,360
+Typically they assume that the task I is periodic,
+通常他们假设任务I是周期性的。
+
+656
+00:50:45,360 --> 00:50:50,200
+is periodic PI, meaning that, and computation CI,
+是周期性的PI，意思是，以及计算CI。
+
+657
+00:50:50,200 --> 00:50:53,880
+meaning that in each period,
+意思是在每个时期，
+
+658
+00:50:53,880 --> 00:50:58,880
+you have to perform a computation for that task.
+你需要为那个任务进行计算。
+
+659
+00:51:00,080 --> 00:51:03,640
+Like for instance, every 100 milliseconds,
+比如，每100毫秒，
+
+660
+00:51:03,640 --> 00:51:07,640
+the task needs to perform a computation of 10 milliseconds.
+这个任务需要执行一个10毫秒的计算。
+
+661
+00:51:07,640 --> 00:51:10,000
+Example, think about,
+例子，考虑一下。
+
+662
+00:51:10,000 --> 00:51:13,120
+it's again, something like a self-driving car
+这又是类似于自动驾驶汽车的东西。
+
+663
+00:51:13,120 --> 00:51:14,760
+or anything in the car,
+或者车里的任何东西，
+
+664
+00:51:14,760 --> 00:51:16,520
+you have sensors,
+你有传感器。
+
+665
+00:51:16,520 --> 00:51:19,920
+which are like video cameras and so forth,
+这些就像是视频相机之类的设备。
+
+666
+00:51:19,920 --> 00:51:23,320
+which periodically take, you know,
+你知道的，定期进行的活动。
+
+667
+00:51:23,320 --> 00:51:27,200
+take a measurement,
+测量一下。
+
+668
+00:51:27,200 --> 00:51:31,080
+maybe the state of the brake or the speed,
+也许是刹车状态或速度的问题。
+
+669
+00:51:31,080 --> 00:51:35,280
+or obviously a video frame, right?
+或者显然是一个视频帧，对吗？
+
+670
+00:51:35,280 --> 00:51:39,960
+And these are periodic and they need to be processed.
+这些是周期性的，需要进行处理。
+
+671
+00:51:39,960 --> 00:51:42,680
+So before the next measurement is taken,
+所以在进行下一次测量之前，
+
+672
+00:51:42,680 --> 00:51:45,160
+we need to process the previous measurement, right?
+我们需要处理之前的测量结果，对吗？
+
+673
+00:51:45,160 --> 00:51:46,640
+That's kind of our motivation.
+这是我们的动力所在。
+
+674
+00:51:46,640 --> 00:51:52,160
+And the early deadline first is very simple.
+而且，最早的截止日期首先非常简单。
+
+675
+00:51:52,160 --> 00:51:55,080
+It's basically saying, like the name implies,
+这基本上是在说，就像名字所暗示的那样，
+
+676
+00:51:55,080 --> 00:51:57,960
+you always schedule the task,
+你总是安排任务，
+
+677
+00:51:57,960 --> 00:52:00,200
+whose deadline is the earliest.
+哪个截止日期最早。
+
+678
+00:52:00,200 --> 00:52:03,840
+Okay.
+Sure, I will do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
+
+679
+00:52:03,840 --> 00:52:05,160
+That's it.
+就这样。
+
+680
+00:52:05,160 --> 00:52:06,760
+Let's take an example.
+让我们举个例子。
+
+681
+00:52:06,760 --> 00:52:07,640
+Okay.
+Sure. Please go ahead and provide me with the text you would like me to translate.
+
+682
+00:52:07,640 --> 00:52:11,000
+So let's have three tasks.
+那么我们来安排三个任务吧。
+
+683
+00:52:11,000 --> 00:52:13,080
+And for each task,
+而对于每个任务，
+
+684
+00:52:13,080 --> 00:52:18,080
+the two numbers in parentheses represent the period,
+括号中的两个数字代表时期。
+
+685
+00:52:18,080 --> 00:52:19,440
+the first number,
+第一个数字，
+
+686
+00:52:19,440 --> 00:52:22,280
+and how long it needs to come,
+并且需要多长时间才能到达？
+
+687
+00:52:22,280 --> 00:52:24,440
+it should take to compute in this period.
+这个时间段应该需要计算。
+
+688
+00:52:25,440 --> 00:52:28,480
+So 4-1 means that every four time you need,
+所以4-1的意思是每四次你需要一次。
+
+689
+00:52:28,480 --> 00:52:30,680
+say for every four seconds,
+每四秒钟说一次，
+
+690
+00:52:30,680 --> 00:52:35,320
+T1 requires one second of computation.
+T1需要一秒钟的计算时间。
+
+691
+00:52:35,320 --> 00:52:40,320
+T2 during five seconds requires two seconds of computation.
+T2在五秒钟内需要两秒的计算时间。
+
+692
+00:52:40,320 --> 00:52:44,480
+T3 every seven seconds requires two seconds of computation.
+T3每七秒需要两秒的计算时间。
+
+693
+00:52:44,480 --> 00:52:45,560
+Right?
+对吗？
+
+694
+00:52:45,560 --> 00:52:47,640
+And these are the first two deadlines, right?
+是的，这是前两个截止日期，对吗？
+
+695
+00:52:47,640 --> 00:52:50,080
+Because you need to finish to process
+因为你需要完成处理。
+
+696
+00:52:51,320 --> 00:52:54,720
+in the current period before the next period starts.
+在下一个周期开始之前的当前时期。
+
+697
+00:52:54,720 --> 00:52:59,640
+So for T1, the first deadline is time five,
+所以对于T1，第一个截止时间是时间五。
+
+698
+00:52:59,640 --> 00:53:02,160
+for T2, time four, sorry,
+对于T2，时间是四，抱歉。
+
+699
+00:53:02,160 --> 00:53:05,400
+for T2 is five, for T3 is seven, right?
+T2是五，T3是七，对吗？
+
+700
+00:53:05,400 --> 00:53:08,440
+So therefore, first,
+所以，首先，
+
+701
+00:53:08,440 --> 00:53:13,920
+you are going to schedule,
+你要安排时间表。
+
+702
+00:53:13,920 --> 00:53:16,880
+and say the time quanta here is one.
+并且说这里的时间量子是一。
+
+703
+00:53:16,880 --> 00:53:20,840
+So first you are going to schedule T1, right?
+首先你要安排T1，对吗？
+
+704
+00:53:20,840 --> 00:53:21,680
+Why?
+为什么？
+
+705
+00:53:21,680 --> 00:53:23,760
+Because the deadline is the earliest, right?
+因为截止日期是最早的，对吗？
+
+706
+00:53:23,760 --> 00:53:25,760
+You see, it's at four.
+你看，时间是四点。
+
+707
+00:53:25,760 --> 00:53:28,360
+The other deadlines are at five and seven.
+其他截止日期分别是五点和七点。
+
+708
+00:53:28,360 --> 00:53:30,880
+Once you are done with that,
+一旦你完成了那个，
+
+709
+00:53:30,880 --> 00:53:32,880
+you are going to schedule T2.
+你要安排T2。
+
+710
+00:53:32,880 --> 00:53:36,040
+And let's assume that we don't preempt here,
+然后假设我们不在这里抢先行动，
+
+711
+00:53:36,040 --> 00:53:36,880
+for simplicity.
+为了简单起见。
+
+712
+00:53:36,880 --> 00:53:43,960
+And because T2 has earlier deadlines than T3,
+而且由于T2的截止日期比T3早，
+
+713
+00:53:43,960 --> 00:53:45,120
+five versus seven.
+五对七。
+
+714
+00:53:45,120 --> 00:53:49,640
+So schedule that, and finally, you schedule T3.
+好的，我会安排这个，最后，你要安排T3。
+
+715
+00:53:49,640 --> 00:53:53,280
+Now, what are the next deadlines?
+现在，下一个截止日期是什么？
+
+716
+00:53:53,280 --> 00:53:55,000
+These are the next deadlines.
+这些是接下来的截止日期。
+
+717
+00:53:55,000 --> 00:53:56,720
+The next deadlines of T1,
+T1的下一个截止日期是什么？
+
+718
+00:53:56,720 --> 00:54:00,800
+it's at time eight.
+它在八点钟。
+
+719
+00:54:00,800 --> 00:54:02,800
+The next deadline of T2 is time 10.
+T2的下一个截止日期是10点。
+
+720
+00:54:02,800 --> 00:54:06,080
+And the next deadline of T3 is time 14.
+下一个T3的截止日期是14号。
+
+721
+00:54:06,080 --> 00:54:08,800
+We are going to schedule first here.
+我们要先安排日程。
+
+722
+00:54:08,800 --> 00:54:10,160
+Which is the next deadline?
+下一个截止日期是什么？
+
+723
+00:54:10,160 --> 00:54:16,080
+Again, T1 is the earliest one.
+再次强调，T1是最早的。
+
+724
+00:54:17,440 --> 00:54:21,480
+Then again, T2, and again T3.
+再一次，T2，再一次T3。
+
+725
+00:54:21,480 --> 00:54:24,440
+Again, but again, before going to T3,
+再一次，但是再一次，在去T3之前，
+
+726
+00:54:24,440 --> 00:54:26,040
+let's look at the next deadlines.
+让我们来看一下接下来的截止日期。
+
+727
+00:54:26,040 --> 00:54:32,480
+So the next deadline of T1 is now 12.
+下一个T1的截止日期现在是12号。
+
+728
+00:54:32,480 --> 00:54:36,480
+The next deadline of T2 is now 15.
+T2的下一个截止日期现在是15号。
+
+729
+00:54:36,480 --> 00:54:38,480
+And the next deadline of T3,
+下一个T3的截止日期是什么？
+
+730
+00:54:38,480 --> 00:54:43,120
+actually the second deadline, it's 14.
+实际上是第二个截止日期，是14号。
+
+731
+00:54:43,120 --> 00:54:44,720
+So which is the earliest deadlines
+最早的截止日期是哪个？
+
+732
+00:54:44,720 --> 00:54:46,240
+we need to consider now?
+我们现在需要考虑什么？
+
+733
+00:54:47,160 --> 00:54:48,440
+Right?
+对吗？
+
+734
+00:54:48,440 --> 00:54:49,600
+T1 is the next one.
+T1是下一个。
+
+735
+00:54:49,600 --> 00:54:54,600
+It's 12, T2, 15, T3, 14.
+这是12，T2，15，T3，14。
+
+736
+00:54:54,600 --> 00:54:56,840
+Obviously, it's T1.
+显然
+
+737
+00:54:56,840 --> 00:54:59,000
+So you are going to schedule T1.
+所以你要安排T1。
+
+738
+00:54:59,000 --> 00:55:02,200
+So now you see that you schedule
+所以现在你看到你的日程安排了
+
+739
+00:55:02,200 --> 00:55:05,320
+for the first three periods of T1,
+在T1的前三个时期，
+
+740
+00:55:05,320 --> 00:55:07,960
+while for T3, you schedule for only one.
+对于T3，你只安排了一个时间。
+
+741
+00:55:07,960 --> 00:55:12,240
+But now after the schedule for T1,
+但是现在T1的日程安排已经确定之后，
+
+742
+00:55:12,240 --> 00:55:13,680
+you are going to consider T3
+你将考虑T3。
+
+743
+00:55:13,680 --> 00:55:16,800
+because it's deadline is earliest.
+因为它的截止日期最早。
+
+744
+00:55:17,320 --> 00:55:19,160
+It's earlier than T2.
+比T2早。
+
+745
+00:55:19,160 --> 00:55:21,920
+And then you continue.
+然后你继续。
+
+746
+00:55:21,920 --> 00:55:22,760
+Okay?
+好的。
+
+747
+00:55:22,760 --> 00:55:27,560
+Now, an interesting question here.
+现在，这里有一个有趣的问题。
+
+748
+00:55:27,560 --> 00:55:32,600
+Oh, let me just, sorry.
+哦，让我看看，抱歉。
+
+749
+00:55:32,600 --> 00:55:37,040
+How do you know that you can satisfy,
+你怎么知道你能满足我呢？
+
+750
+00:55:37,040 --> 00:55:41,840
+the algorithms can satisfy all the task deadlines?
+算法能够满足所有任务的截止日期吗？
+
+751
+00:55:41,840 --> 00:55:43,200
+As you can see from the beginning,
+正如你从一开始所看到的，
+
+752
+00:55:43,200 --> 00:55:44,200
+that is not easy.
+那并不容易。
+
+753
+00:55:45,120 --> 00:55:50,040
+The order, you know, it changes as you progress.
+订单，你知道的，随着进展而改变。
+
+754
+00:55:50,040 --> 00:55:52,400
+Okay?
+好的。
+
+755
+00:55:52,400 --> 00:55:53,960
+It's actually quite complicated.
+这实际上相当复杂。
+
+756
+00:55:53,960 --> 00:55:59,280
+Now, it turns out that with early deadline first,
+现在，事实证明，优先处理早期截止日期的任务。
+
+757
+00:55:59,280 --> 00:56:02,440
+there is a simple condition you can use to check
+有一个简单的条件可以用来检查。
+
+758
+00:56:02,440 --> 00:56:05,320
+whether you can satisfy early deadline first,
+你能否先满足提前截止日期的要求？
+
+759
+00:56:05,320 --> 00:56:08,360
+satisfy the deadlines of all tasks.
+满足所有任务的截止日期。
+
+760
+00:56:08,360 --> 00:56:14,440
+And that you've sum up the computation
+并且你已经总结了计算结果。

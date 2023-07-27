@@ -1,2186 +1,2731 @@
 1
 00:00:00,000 --> 00:00:17,920
- Hello everyone. So today we are going to continue our discussion on file system reliability
+Hello everyone. So today we are going to continue our discussion on file system reliability
+大家好。今天我们将继续讨论文件系统的可靠性。
 
 2
 00:00:17,920 --> 00:00:28,180
- and we are going to talk a little bit about transactions and start talking about networking.
+and we are going to talk a little bit about transactions and start talking about networking.
+我们要谈一下交易，然后开始谈论网络。
 
 3
 00:00:28,180 --> 00:00:37,600
- So if you remember from last time, these are the three notions which are characterizing
+So if you remember from last time, these are the three notions which are characterizing
+所以如果你还记得上次的话，这些是用来描述的三个概念。
 
 4
 00:00:37,600 --> 00:00:48,160
- a system's ability to function. One is availability and refers to the system's ability to respond
+a system's ability to function. One is availability and refers to the system's ability to respond
+一个系统的功能能力。其中之一是可用性，指的是系统响应的能力。
 
 5
 00:00:48,160 --> 00:00:55,080
- to the requests, to process and respond to the requests. Durability refers to the fact
+to the requests, to process and respond to the requests. Durability refers to the fact
+对于这些请求，我们会处理并回复。耐久性是指这个事实。
 
 6
 00:00:55,080 --> 00:01:06,440
- that it's reflected as storage. It means that if you successfully store a piece of data,
+that it's reflected as storage. It means that if you successfully store a piece of data,
+这意味着它被反映为存储。这意味着如果你成功地存储了一段数据，
 
 7
 00:01:06,440 --> 00:01:15,240
- you are going to be able to later retrieve that piece of data. So it's not going to disappear
+you are going to be able to later retrieve that piece of data. So it's not going to disappear
+你以后可以检索到那个数据。所以它不会消失。
 
 8
 00:01:15,240 --> 00:01:25,280
- or it's going to be lost despite maybe some storage device failures.
+or it's going to be lost despite maybe some storage device failures.
+或者它会丢失，尽管可能会有一些存储设备故障。
 
 9
 00:01:25,280 --> 00:01:34,280
- And then reliability puts the two together, both availability and durability, and basically
+And then reliability puts the two together, both availability and durability, and basically
+然后可靠性将两者结合在一起，即可用性和耐久性，并基本上
 
 10
 00:01:34,280 --> 00:01:49,400
- the ability of the system to perform the required function according to some specification.
+the ability of the system to perform the required function according to some specification.
+系统根据某些规范执行所需功能的能力。
 
 11
 00:01:49,400 --> 00:01:55,160
- For instance, if you are going to send a request, you are going to get a response within a specified
+For instance, if you are going to send a request, you are going to get a response within a specified
+例如，如果你要发送一个请求，你会在指定的时间内收到一个回复。
 
 12
 00:01:55,160 --> 00:02:04,840
- time period. And obviously that should be correct. And last time we discussed a little
+time period. And obviously that should be correct. And last time we discussed a little
+时间段。显然应该是正确的。上次我们讨论了一点。
 
 13
 00:02:04,840 --> 00:02:12,800
- about durability. And let's go again back and we discuss about this is basically a summary
+about durability. And let's go again back and we discuss about this is basically a summary
+关于耐久性。让我们再回顾一下，我们讨论的基本上是一个总结。
 
 14
 00:02:12,800 --> 00:02:20,000
- of the last few slides from the last lecture. So one way to provide your ability, so it's
+of the last few slides from the last lecture. So one way to provide your ability, so it's
+从上一堂课的最后几张幻灯片中，所以提供你的能力的一种方式，这样就可以
 
 15
 00:02:20,000 --> 00:02:25,120
- again the ability that once you store a piece of data, you can later retrieve that piece
+again the ability that once you store a piece of data, you can later retrieve that piece
+再次，一旦您存储了一条数据，您以后可以检索到该数据。
 
 16
 00:02:25,120 --> 00:02:34,240
- of data. It's basically replicating the data. And if you replicate the data, then it provides
+of data. It's basically replicating the data. And if you replicate the data, then it provides
+数据的备份。基本上是复制数据。如果你复制数据，那么它就提供了数据的备份。
 
 17
 00:02:34,240 --> 00:02:42,720
- you the ability to survive to one failure because if one fail, you still have the other
+you the ability to survive to one failure because if one fail, you still have the other
+你有能力在失败中生存下来，因为如果一个失败了，你还有另一个。
 
 18
 00:02:42,720 --> 00:02:50,600
- disk storing the replica of the data. So the data is not lost. And we also discuss what
+disk storing the replica of the data. So the data is not lost. And we also discuss what
+磁盘存储数据的副本。因此数据不会丢失。我们还讨论了什么
 
 19
 00:02:50,600 --> 00:02:56,360
- are the characteristics of this system, of this RAID 1, where you replicate any piece
+are the characteristics of this system, of this RAID 1, where you replicate any piece
+这个系统的特点是RAID 1，它可以复制任何部分。
 
 20
 00:02:56,360 --> 00:03:02,680
- of data on two different disks. One is that when you write a piece of data, you need to
+of data on two different disks. One is that when you write a piece of data, you need to
+将数据存储在两个不同的磁盘上。其中一个是，当你写入一段数据时，你需要
 
 21
 00:03:02,680 --> 00:03:09,720
- write on both disks. So therefore you sacrifice the bandwidth of the write because each write
+write on both disks. So therefore you sacrifice the bandwidth of the write because each write
+在两个磁盘上写入。因此，你会牺牲写入的带宽，因为每次写入都会同时发生在两个磁盘上。
 
 22
 00:03:09,720 --> 00:03:17,160
- now becomes two writes, two different disks. It's also you need to wait for the slower,
+now becomes two writes, two different disks. It's also you need to wait for the slower,
+现在变成了两个写入操作，使用了两个不同的硬盘。这也意味着你需要等待较慢的那个。
 
 23
 00:03:17,160 --> 00:03:24,000
- slowest disk to do the write. And if you want to really optimize of how long this write
+slowest disk to do the write. And if you want to really optimize of how long this write
+写入速度最慢的磁盘。如果你想真正优化写入时间的话，
 
 24
 00:03:24,000 --> 00:03:30,160
- latency, you probably want to synchronize the disks. So therefore both writes take the
+latency, you probably want to synchronize the disks. So therefore both writes take the
+延迟，你可能想要同步磁盘。因此，两个写入都需要进行。
 
 25
 00:03:30,160 --> 00:03:36,240
- same amount of time, more or less. On the other hand, for reads, things are a little
+same amount of time, more or less. On the other hand, for reads, things are a little
+多或少相同的时间。另一方面，对于阅读来说，情况有点不同。
 
 26
 00:03:36,240 --> 00:03:41,680
- bit different and are better because now you have two replicas and when you read, you need
+bit different and are better because now you have two replicas and when you read, you need
+有点不同，而且更好，因为现在你有两个副本，当你读取时，你需要
 
 27
 00:03:41,680 --> 00:03:49,920
- just to get a piece of data. So you can get from either disk. So actually you can improve
+just to get a piece of data. So you can get from either disk. So actually you can improve
+只是为了获取一条数据。所以你可以从任何一个磁盘获取。所以实际上你可以改进。
 
 28
 00:03:49,920 --> 00:03:57,640
- or can even double the throughput in this case. And finally, if you remember, when a
+or can even double the throughput in this case. And finally, if you remember, when a
+或者在这种情况下，甚至可以将吞吐量翻倍。最后，如果你还记得，当一个
 
 29
 00:03:57,640 --> 00:04:03,640
- disk fails, what you are going to do, you are going to buy another one and then you
+disk fails, what you are going to do, you are going to buy another one and then you
+将磁盘损坏，你打算怎么办？你打算买一个新的然后...
 
 30
 00:04:03,640 --> 00:04:10,880
- are going to copy all the data from the primary disk to the secondary to the new disk. And
+are going to copy all the data from the primary disk to the secondary to the new disk. And
+你将会将所有数据从主磁盘复制到次要磁盘再到新磁盘。然后
 
 31
 00:04:10,880 --> 00:04:17,520
- now you have again two replicas. Now this assumes that while you're doing these recoveries,
+now you have again two replicas. Now this assumes that while you're doing these recoveries,
+现在你又有了两个复制品。现在假设在你进行这些恢复操作时，
 
 32
 00:04:17,520 --> 00:04:26,240
- the primary disk doesn't fail. And that's something to keep in mind. And actually this
+the primary disk doesn't fail. And that's something to keep in mind. And actually this
+主要磁盘不会出现故障。这是需要记住的一点。实际上，这
 
 33
 00:04:26,240 --> 00:04:37,920
- is a problem in general because if you do this write one and you build a write one and
+is a problem in general because if you do this write one and you build a write one and
+这是一个普遍存在的问题，因为如果你这样做，写一个并且建立一个写一个。
 
 34
 00:04:37,920 --> 00:04:43,680
- your application, presumably what you want, you want this disk to be from different batches
+your application, presumably what you want, you want this disk to be from different batches
+你的申请，我猜你想要的是，你希望这个光盘来自不同的批次。
 
 35
 00:04:43,680 --> 00:04:51,640
- of production. And this you need to be careful, right? Because when you buy this, you buy
+of production. And this you need to be careful, right? Because when you buy this, you buy
+生产的成本。这个你需要小心，对吗？因为当你购买这个时，你购买的是
 
 36
 00:04:51,640 --> 00:04:57,480
- all the disks at the same time to build the system. But then if these are from the same
+all the disks at the same time to build the system. But then if these are from the same
+同时将所有的磁盘用于构建系统。但是如果这些磁盘来自同一个
 
 37
 00:04:57,480 --> 00:05:04,160
- batches, batch of production, they tend to have the same failures and the same kind of
+batches, batch of production, they tend to have the same failures and the same kind of
+批次，生产批次，它们往往会有相同的故障和相同类型的问题。
 
 38
 00:05:04,160 --> 00:05:09,320
- failure pattern. And then when one disk fails, it's pretty likely that other disks also from
+failure pattern. And then when one disk fails, it's pretty likely that other disks also from
+故障模式。当一个磁盘发生故障时，其他磁盘也很有可能会发生故障。
 
 39
 00:05:09,320 --> 00:05:16,160
- the same batch will fail. So you don't want to do that because you want to reduce the
+the same batch will fail. So you don't want to do that because you want to reduce the
+相同批次将会失败。所以你不想这样做，因为你想要减少这种情况的发生。
 
 40
 00:05:16,160 --> 00:05:20,880
- minimum of the disk that during the recovery and other disks will fail. So that's why you
+minimum of the disk that during the recovery and other disks will fail. So that's why you
+磁盘故障恢复期间和其他磁盘将会失败的最小值。这就是为什么
 
 41
 00:05:20,880 --> 00:05:30,400
- use different product batches or use even maybe different disk manufacturers.
+use different product batches or use even maybe different disk manufacturers.
+使用不同的产品批次，甚至可能使用不同的磁盘制造商。
 
 42
 00:05:30,400 --> 00:05:35,560
- Of course, the problem with write one is very expensive and so forth. So high overhead and
+Of course, the problem with write one is very expensive and so forth. So high overhead and
+当然，编写一个的问题非常昂贵，等等。因此，开销很高，而且……
 
 43
 00:05:35,560 --> 00:05:41,720
- we discuss about this write five and more, you stripe the data. So you have a parity
+we discuss about this write five and more, you stripe the data. So you have a parity
+我们讨论这个写作五次以上，你将数据分割。所以你有一个奇偶校验。
 
 44
 00:05:41,720 --> 00:05:57,240
- block. So in this case, you have, you know, you take blocks, you store successively in
+block. So in this case, you have, you know, you take blocks, you store successively in
+块。所以在这种情况下，你有，你知道，你连续地将块存储在中。
 
 45
 00:05:57,240 --> 00:06:03,920
- this case, four blocks on four disks and then on the five disks here, you are going to have
+this case, four blocks on four disks and then on the five disks here, you are going to have
+这个情况下，四个方块放在四个圆盘上，然后再放在这里的五个圆盘上，你会得到什么结果？
 
 46
 00:06:03,920 --> 00:06:15,560
- a computer parity block. And the parity block, one way to compute it is XOR like we discussed
+a computer parity block. And the parity block, one way to compute it is XOR like we discussed
+一个计算机的奇偶校验块。而奇偶校验块，一种计算它的方法是像我们讨论过的那样使用异或运算。
 
 47
 00:06:15,560 --> 00:06:27,320
- last time. So D0 here is D0, XOR D1, XOR D2, XOR D3. Here is an example. If one disk is
+last time. So D0 here is D0, XOR D1, XOR D2, XOR D3. Here is an example. If one disk is
+上次说过了。所以这里的D0是D0，异或D1，异或D2，异或D3。这里有一个例子。如果一个磁盘是
 
 48
 00:06:27,320 --> 00:06:35,960
- destroyed, you can still recover. This is an example. So here is an example. Here, each
+destroyed, you can still recover. This is an example. So here is an example. Here, each
+被摧毁了，你仍然可以恢复。这是一个例子。所以这里有一个例子。在这里，每一个
 
 49
 00:06:35,960 --> 00:06:44,040
- block is one bit. So let's say D0 is 0, then D1 1, D2 0, D3 1. So if you do the XOR here,
+block is one bit. So let's say D0 is 0, then D1 1, D2 0, D3 1. So if you do the XOR here,
+块是一个比特。假设D0为0，D1为1，D2为0，D3为1。所以如果在这里进行异或运算，
 
 50
 00:06:44,040 --> 00:06:52,080
- you are going to get 0. This is the content of the parity block. And now suppose this
+you are going to get 0. This is the content of the parity block. And now suppose this
+你将得到0。这是奇偶校验块的内容。现在假设这个
 
 51
 00:06:52,080 --> 00:07:00,720
- to fail, if you do this to fail, then what you do, you are going to do the XOR or everything
+to fail, if you do this to fail, then what you do, you are going to do the XOR or everything
+失败，如果你这样做会失败，那你要做什么，你将要做的是对所有事情进行异或操作。
 
 52
 00:07:00,720 --> 00:07:07,300
- which remains, which is including the parity block. And then you are going to get the content
+which remains, which is including the parity block. And then you are going to get the content
+剩下的是，其中包括奇偶校验块。然后你将获得内容。
 
 53
 00:07:07,300 --> 00:07:17,800
- of the last block. So in this case, D2 was 0. So you get D0, XOR D1, XOR D3, XOR P0,
+of the last block. So in this case, D2 was 0. So you get D0, XOR D1, XOR D3, XOR P0,
+上一个区块的数据。所以在这种情况下，D2 是 0。所以你得到的结果是 D0、D1、D3、P0 的异或。
 
 54
 00:07:17,800 --> 00:07:32,200
- the parity block, and you get 0. So you recover. It's a great question. Why do we store parity
+the parity block, and you get 0. So you recover. It's a great question. Why do we store parity
+奇偶校验块，你得到了0。所以你恢复了。这是一个很好的问题。为什么我们要存储奇偶校验呢？
 
 55
 00:07:32,200 --> 00:07:43,280
- staggered? Yeah, Gilbert answers that if they are in the same row columns, then we might
+staggered? Yeah, Gilbert answers that if they are in the same row columns, then we might
+be able to stagger them. Staggering means arranging them in a way that they are not directly aligned, but slightly offset from each other. This can create a more visually interesting and dynamic layout.
 
 56
 00:07:43,280 --> 00:07:52,400
- have trouble recovering if that specific row column got lost.
+have trouble recovering if that specific row column got lost.
+如果特定的行列丢失了，恢复会有困难。
 
 57
 00:07:52,400 --> 00:08:00,400
- So basically, it's about load balancing the load when you have failures. For instance,
+So basically, it's about load balancing the load when you have failures. For instance,
+基本上，它是关于在出现故障时平衡负载的问题。例如，
 
 58
 00:08:00,400 --> 00:08:07,740
- if the parity block fails, then both the disk or the parity block fails, at least the reads
+if the parity block fails, then both the disk or the parity block fails, at least the reads
+如果奇偶校验块失败，那么无论是磁盘还是奇偶校验块都会失败，至少读取操作会受到影响。
 
 59
 00:08:07,740 --> 00:08:15,780
- will not be affected because all the blocks are there, the data blocks. And in the background,
+will not be affected because all the blocks are there, the data blocks. And in the background,
+不会受到影响，因为所有的块都在那里，数据块。而且在后台，
 
 60
 00:08:15,780 --> 00:08:23,940
- you are going to reconstruct the parity blocks. So that's one reason. So it's again, it's
+you are going to reconstruct the parity blocks. So that's one reason. So it's again, it's
+你要重建奇偶校验块。这是其中一个原因。所以，又是这样，它是...
 
 61
 00:08:23,940 --> 00:08:34,040
- like if you put all the parity blocks on a disk, then if any other disk goes away, then
+like if you put all the parity blocks on a disk, then if any other disk goes away, then
+如果你把所有的奇偶校验块放在一个磁盘上，那么如果任何其他磁盘消失，那么
 
 62
 00:08:34,040 --> 00:08:42,300
- all the reads have to reconstruct using the parity block. So it's expensive. All the reads
+all the reads have to reconstruct using the parity block. So it's expensive. All the reads
+所有的读取都必须使用奇偶校验块进行重构。所以这是很昂贵的。所有的读取。
 
 63
 00:08:42,300 --> 00:08:49,560
- are for the data from the failed disk. If the parity blocks are staggered, then again,
+are for the data from the failed disk. If the parity blocks are staggered, then again,
+这是关于来自故障磁盘的数据的。如果奇偶校验块是交错的，那么再次，
 
 64
 00:08:49,560 --> 00:08:58,540
- when the disk is a parity, when you access the data whose parity block was on a failed
+when the disk is a parity, when you access the data whose parity block was on a failed
+当磁盘是奇偶校验时，当您访问数据时，其奇偶校验块位于一个失败的位置上。
 
 65
 00:08:58,540 --> 00:09:10,480
- disk, you don't need to do anything because the data is available.
+disk, you don't need to do anything because the data is available.
+磁盘，你不需要做任何事情，因为数据是可用的。
 
 66
 00:09:10,480 --> 00:09:21,620
- Of course, this is the same solution in principle is going to work over also over the internet.
+Of course, this is the same solution in principle is going to work over also over the internet.
+当然，原则上这个解决方案在互联网上同样适用。
 
 67
 00:09:21,620 --> 00:09:32,180
- It doesn't need to be in the same data center or in the same rack. And then it's again,
+It doesn't need to be in the same data center or in the same rack. And then it's again,
+它不需要在同一个数据中心或同一个机架上。然后，再次说一遍，
 
 68
 00:09:32,180 --> 00:09:40,940
- this RAID 5, it provides durability in the presence of a one disk failure. What would
+this RAID 5, it provides durability in the presence of a one disk failure. What would
+这个RAID 5，在一个磁盘故障的情况下提供耐用性。你想知道什么？
 
 69
 00:09:40,940 --> 00:09:46,620
- you have? What if you want to have more disk failures? There are other versions of RAID
+you have? What if you want to have more disk failures? There are other versions of RAID
+你有吗？如果你想要更多的磁盘故障容忍度，还有其他版本的RAID。
 
 70
 00:09:46,620 --> 00:09:52,980
- 5X and instead of parity blocks, they use erasure codes. So for instance, RAID 6 allow
+5X and instead of parity blocks, they use erasure codes. So for instance, RAID 6 allow
+5X和奇偶校验块不同，它们使用纠删码。例如，RAID 6允许
 
 71
 00:09:52,980 --> 00:09:59,780
- two disks in replication to fail. In the replication, it strives to fail. And many of these use read
+two disks in replication to fail. In the replication, it strives to fail. And many of these use read
+两个磁盘在复制过程中失败了。在复制过程中，它努力去失败。而且很多情况下使用读取。
 
 72
 00:09:59,780 --> 00:10:05,540
- Solomon codes or erasure codes. So in this case, you have M data fragments. So you can
+Solomon codes or erasure codes. So in this case, you have M data fragments. So you can
+Solomon codes或者erasure codes。所以在这种情况下，你有M个数据片段。所以你可以
 
 73
 00:10:05,540 --> 00:10:12,760
- think about blocks and you generate N minus M extra fragments. So now to store M blocks
+think about blocks and you generate N minus M extra fragments. So now to store M blocks
+思考块并生成N减M个额外的片段。现在要存储M个块。
 
 74
 00:10:12,760 --> 00:10:18,540
- of M fragments of data or blocks of data, you are going to need N blocks out of which
+of M fragments of data or blocks of data, you are going to need N blocks out of which
+在M个数据片段或数据块中，你将需要其中的N个数据块。
 
 75
 00:10:18,540 --> 00:10:24,760
- N minus M are newly generated blocks. And this can generate N minus M failures. So basically,
+N minus M are newly generated blocks. And this can generate N minus M failures. So basically,
+N减去M是新生成的区块。这可能会导致N减去M个故障。所以基本上，
 
 76
 00:10:24,760 --> 00:10:35,600
- you can, if as long as you have M disks are still up, then you can reconstruct any M disk
+you can, if as long as you have M disks are still up, then you can reconstruct any M disk
+你可以，只要你还有M个磁盘仍然可用，那么你就可以重建任何M个磁盘。
 
 77
 00:10:35,600 --> 00:10:46,140
- out of N are up, you can reconstruct all the pieces of it. It's again, so like for instance,
+out of N are up, you can reconstruct all the pieces of it. It's again, so like for instance,
+N中有M个已经完成，你可以重建所有的部分。再举个例子，
 
 78
 00:10:46,140 --> 00:10:54,940
- if you want really to have extremely something extremely resilient, extremely durable, you
+if you want really to have extremely something extremely resilient, extremely durable, you
+如果你真的想要拥有非常坚韧、非常耐用的东西，你
 
 79
 00:10:54,940 --> 00:11:02,420
- can have like this example, you can have M is four fragments or blocks and N is 16. So
+can have like this example, you can have M is four fragments or blocks and N is 16. So
+可以举个例子，你可以让M等于四个片段或块，N等于16。所以
 
 80
 00:11:02,420 --> 00:11:09,720
- then you are going, the overhead is quite high. And by this system will be extremely
+then you are going, the overhead is quite high. And by this system will be extremely
+那你要走了，开销会相当高。而且通过这个系统会非常
 
 81
 00:11:09,720 --> 00:11:18,860
- durable. And like mentioning, you can have the device, all the disk drives in the same
+durable. And like mentioning, you can have the device, all the disk drives in the same
+耐用。就像提到的那样，你可以拥有设备，所有的磁盘驱动器都在同一个上。
 
 82
 00:11:18,860 --> 00:11:24,060
- room or you can have them across the internet. And obviously when they are across the internet,
+room or you can have them across the internet. And obviously when they are across the internet,
+房间或者你可以通过互联网与他们交流。显然，当他们通过互联网交流时，
 
 83
 00:11:24,060 --> 00:11:32,960
- you are going to have a much more durable system. Because the correlation of failure
+you are going to have a much more durable system. Because the correlation of failure
+你将拥有一个更持久的系统。因为故障的相关性
 
 84
 00:11:32,960 --> 00:11:38,900
- is lower. If all the disk are in the same room, if you have a earthquake or you have
+is lower. If all the disk are in the same room, if you have a earthquake or you have
+地震或者火灾，所有的磁盘都会受到影响。
 
 85
 00:11:38,900 --> 00:11:52,900
- a fire, all the disk may be destroyed. And here it's a very interesting aspect. And at
+a fire, all the disk may be destroyed. And here it's a very interesting aspect. And at
+一场火灾，所有的磁盘可能都会被毁坏。而这里有一个非常有趣的方面。而在这里，有一个非常有趣的方面。
 
 86
 00:11:52,900 --> 00:12:04,180
- a high level, so say you are prepared to pay an overhead here in this example, you say
+a high level, so say you are prepared to pay an overhead here in this example, you say
+一个高水平，所以你准备在这个例子中支付额外费用，你这样说。
 
 87
 00:12:04,180 --> 00:12:16,080
- an overhead of 4x. So for each piece of data, I am going to require four times storage.
+an overhead of 4x. So for each piece of data, I am going to require four times storage.
+一个4倍的开销。所以对于每个数据，我将需要四倍的存储空间。
 
 88
 00:12:16,080 --> 00:12:23,140
- So if I store one gigabyte of data, I am going to use four gigabytes of storage. And one
+So if I store one gigabyte of data, I am going to use four gigabytes of storage. And one
+如果我存储了一千兆字节的数据，我将使用四千兆字节的存储空间。而且一个
 
 89
 00:12:23,140 --> 00:12:29,160
- thing is to have four ways of replication. So each piece of data, I am going to replicate
+thing is to have four ways of replication. So each piece of data, I am going to replicate
+事情是要有四种复制的方式。所以每一份数据，我都要进行复制。
 
 90
 00:12:29,160 --> 00:12:37,380
- on four different disks. And then you compute here, this is fraction block loss per year.
+on four different disks. And then you compute here, this is fraction block loss per year.
+在四个不同的磁盘上。然后你在这里计算，这是每年的分块丢失率。
 
 91
 00:12:37,380 --> 00:12:45,340
- And this is on the y-axis, x-axis is the repair time, I'll tell you more. But then you compute
+And this is on the y-axis, x-axis is the repair time, I'll tell you more. But then you compute
+这是y轴，x轴是修复时间，我会告诉你更多。但是然后你计算
 
 92
 00:12:45,340 --> 00:12:54,240
- the probability that you lose all the data, right? This means all four disks are going
+the probability that you lose all the data, right? This means all four disks are going
+你失去所有数据的概率，对吗？这意味着四个硬盘全部损坏。
 
 93
 00:12:54,240 --> 00:13:03,400
- to fail before you have a chance to repair them. Now, the other way you can do it is
+to fail before you have a chance to repair them. Now, the other way you can do it is
+在你有机会修复它们之前失败。现在，你可以选择另一种方式来做。
 
 94
 00:13:03,400 --> 00:13:08,480
- the following thing. And that's why it's called fragments, I'm saying. I'm taking a block
+the following thing. And that's why it's called fragments, I'm saying. I'm taking a block
+以下是事情的内容。这就是为什么它被称为片段，我是这样说的。我正在拿一个块。
 
 95
 00:13:08,480 --> 00:13:19,800
- and instead of replicating on four disks, I am going to take, assume that I have say
+and instead of replicating on four disks, I am going to take, assume that I have say
+而不是在四个磁盘上复制，我打算采取，假设我有...
 
 96
 00:13:19,800 --> 00:13:29,720
- 64 disks, smaller disks, the total storage is the same. But then I'm taking a block and
+64 disks, smaller disks, the total storage is the same. But then I'm taking a block and
+64个磁盘，较小的磁盘，总存储量相同。但是我要取一个块然后...
 
 97
 00:13:29,720 --> 00:13:36,980
- I'm going to divide it into 16 fragments. And for each fragment, I am going, you know,
+I'm going to divide it into 16 fragments. And for each fragment, I am going, you know,
+我打算将它分成16个片段。对于每个片段，我会，你知道的，
 
 98
 00:13:36,980 --> 00:13:45,740
- and then for the 16 fragments, then I'm going to compute using greater codes, another 64
+and then for the 16 fragments, then I'm going to compute using greater codes, another 64
+然后对于这16个片段，我将使用更大的编码进行计算，另外还有64个。
 
 99
 00:13:45,740 --> 00:13:52,260
- minus 16, 48 fragments, right? So the overhead is the same, but now I have a lot of more
+minus 16, 48 fragments, right? So the overhead is the same, but now I have a lot of more
+减去16，得到48个碎片，对吗？所以开销是一样的，但现在我有更多的了。
 
 100
 00:13:52,260 --> 00:13:59,300
- fewer, a lot of more fragments. And in this particular case, this will be a much more
+fewer, a lot of more fragments. And in this particular case, this will be a much more
+少一些，更多的碎片。在这个特殊情况下，这将会更加多。
 
 101
 00:13:59,300 --> 00:14:06,800
- durable system. Let me say a little bit about this plot now. On the x-axis, you have repair
+durable system. Let me say a little bit about this plot now. On the x-axis, you have repair
+耐用的系统。现在让我稍微介绍一下这个图表。在x轴上，你有修复
 
 102
 00:14:06,800 --> 00:14:17,620
- time and on the y-axis here, you are going to have probability of block failure per year.
+time and on the y-axis here, you are going to have probability of block failure per year.
+在这里，时间在x轴上，你将会有每年块故障的概率。
 
 103
 00:14:17,620 --> 00:14:24,180
- So this basically says that as you expect, and different lines are for the number of
+So this basically says that as you expect, and different lines are for the number of
+这基本上是说，正如你所预期的那样，不同的线条代表数量的不同。
 
 104
 00:14:24,180 --> 00:14:34,520
- fragments, 48, 16, 32, 64. For four fragments is basically you have a replication on, you
+fragments, 48, 16, 32, 64. For four fragments is basically you have a replication on, you
+碎片，48，16，32，64。对于四个碎片，基本上你需要进行复制。
 
 105
 00:14:34,520 --> 00:14:42,180
- know, basically on four, you can see this way, on four of the boxes. And obviously you
+know, basically on four, you can see this way, on four of the boxes. And obviously you
+知道的，基本上是在四个上面，你可以这样看，在四个盒子上。显然你
 
 106
 00:14:42,180 --> 00:14:54,700
- can expect that the repair time increases, then the probability of failure will increase,
+can expect that the repair time increases, then the probability of failure will increase,
+可以预期修理时间增加，那么故障的概率也会增加。
 
 107
 00:14:54,700 --> 00:15:01,100
- right? Right? Because if it takes one day to repair, there is a chance that other disks
+right? Right? Because if it takes one day to repair, there is a chance that other disks
+对吗？对吗？因为如果修理需要一天的时间，那就有可能其他的磁盘也会有问题。
 
 108
 00:15:01,100 --> 00:15:08,120
- will fail within one day is much smaller than if the repair takes six months. And then now
+will fail within one day is much smaller than if the repair takes six months. And then now
+如果修理需要六个月的话，失败的可能性要比一天内失败的可能性小得多。然后现在是什么情况？
 
 109
 00:15:08,120 --> 00:15:17,520
- you have in six months, the probability obviously for the other disk to fail is much higher.
+you have in six months, the probability obviously for the other disk to fail is much higher.
+在六个月内，另一块硬盘发生故障的概率显然要高得多。
 
 110
 00:15:17,520 --> 00:15:27,160
- But this basically, you know, and this again, this is simple probability. And this basically
+But this basically, you know, and this again, this is simple probability. And this basically
+但基本上，你知道的，这又是简单的概率。而这基本上是
 
 111
 00:15:27,160 --> 00:15:40,520
- tells you that the probability to have, say in this case, to have four disks to fail,
+tells you that the probability to have, say in this case, to have four disks to fail,
+告诉你，在这种情况下，有四个磁盘故障的概率是多少。
 
 112
 00:15:40,520 --> 00:15:47,520
- so you lose all the copies, is much higher than the probability to have all four disks
+so you lose all the copies, is much higher than the probability to have all four disks
+所以你丢失所有的副本的概率远远高于拥有所有四个磁盘的概率。
 
 113
 00:15:47,520 --> 00:16:00,520
- to fail, to have, you know, in this case, 49 of disk of 64 disks to fail.
+to fail, to have, you know, in this case, 49 of disk of 64 disks to fail.
+在这种情况下，有49个磁盘中的64个磁盘发生故障。
 
 114
 00:16:00,520 --> 00:16:09,320
- Okay, so Michael asked this question, in practice, are error codes, I mean, you know, all the
+Okay, so Michael asked this question, in practice, are error codes, I mean, you know, all the
+好的，所以迈克尔问了这个问题，在实践中，错误代码是指，我是说，你知道的，所有的
 
 115
 00:16:09,320 --> 00:16:17,480
- parity codes ever used instead of your regular codes? If you have only to tolerate a failure,
+parity codes ever used instead of your regular codes? If you have only to tolerate a failure,
+奇偶校验码有没有被用来替代你们常规的码？如果只需要容忍一个错误的话，
 
 116
 00:16:17,480 --> 00:16:24,640
- I think you are still going to use the parity codes. It's just easier, or you are going
+I think you are still going to use the parity codes. It's just easier, or you are going
+我认为你还是会使用奇偶校验码。这样更简单，或者你是这样做的。
 
 117
 00:16:24,640 --> 00:16:34,640
- to use replication. The other one, but in general, you do use eraser codes. And eraser
+to use replication. The other one, but in general, you do use eraser codes. And eraser
+使用复制。另一个，但通常情况下，你会使用纠删码。而纠删码则是使用。
 
 118
 00:16:34,640 --> 00:16:40,080
- codes actually they are using all these distributed file systems, also like Hadoop distributed
+codes actually they are using all these distributed file systems, also like Hadoop distributed
+代码实际上是使用所有这些分布式文件系统，还有像Hadoop分布式系统一样。
 
 119
 00:16:40,080 --> 00:16:45,640
- file systems, there are versions which are using eraser codes, and eraser exactly to
+file systems, there are versions which are using eraser codes, and eraser exactly to
+文件系统中，有一些版本使用纠删码和擦除码。擦除码的作用是确保数据的安全性。
 
 120
 00:16:45,640 --> 00:16:47,640
- improve reliability.
+improve reliability.
+提高可靠性。
 
 121
 00:16:47,640 --> 00:16:55,660
- Tayo asked the question, what does it mean to repair for six months? Oh, so, so think
+Tayo asked the question, what does it mean to repair for six months? Oh, so, so think
+Tayo问了一个问题，什么意思是修理六个月？哦，这样，这样想。
 
 122
 00:16:55,660 --> 00:17:04,060
- about this is, yeah, depends on how difficult it is to repair, but in the past, you know,
+about this is, yeah, depends on how difficult it is to repair, but in the past, you know,
+关于这个问题，是的，取决于修复的难度，但过去来看，你知道的，
 
 123
 00:17:04,060 --> 00:17:11,680
- you have the disk homes, and you lost some disks, so now you need to order those disks.
+you have the disk homes, and you lost some disks, so now you need to order those disks.
+你有一些硬盘，但是有些硬盘丢失了，所以现在你需要订购这些硬盘。
 
 124
 00:17:11,680 --> 00:17:15,440
- And you know, the delivery, you know, it may take three months, right? Because you need
+And you know, the delivery, you know, it may take three months, right? Because you need
+而且你知道，交货可能需要三个月，对吧？因为你需要
 
 125
 00:17:15,440 --> 00:17:20,920
- to order, you need to order your order to be approved, if you are a company, and all
+to order, you need to order your order to be approved, if you are a company, and all
+要下订单，您需要将您的订单提交以获得批准，如果您是一家公司的话，所有的
 
 126
 00:17:20,920 --> 00:17:29,520
- of these things, right? And then your disk have to be shipped. And maybe you have older
+of these things, right? And then your disk have to be shipped. And maybe you have older
+是这些东西吗？然后你的硬盘需要寄送。也许你有旧的
 
 127
 00:17:29,520 --> 00:17:35,880
- disk and your similar disk, so it just takes time. So the time, the mean repair time is
+disk and your similar disk, so it just takes time. So the time, the mean repair time is
+磁盘和你的磁盘类似，所以只是需要时间。所以，平均修复时间是多少？
 
 128
 00:17:35,880 --> 00:17:44,200
- the time it takes, if you lost some copies, you lost some copies to recover these copies,
+the time it takes, if you lost some copies, you lost some copies to recover these copies,
+需要的时间，如果你丢失了一些副本，你丢失了一些副本来恢复这些副本，
 
 129
 00:17:44,200 --> 00:17:49,000
- and because and for that you may need to buy additional hardware to replace the one which
+and because and for that you may need to buy additional hardware to replace the one which
+并且因为这个原因，你可能需要购买额外的硬件来替换那个。
 
 130
 00:17:49,000 --> 00:17:52,000
- has failed.
+has failed.
+失败了。
 
 131
 00:17:52,000 --> 00:17:55,480
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 132
 00:17:55,480 --> 00:17:57,480
- Make sense?
+Make sense?
+有意义吗？
 
 133
 00:17:57,480 --> 00:18:10,080
- Okay, and here is an example about using and storing the fragments over the internet.
+Okay, and here is an example about using and storing the fragments over the internet.
+好的，这里有一个关于在互联网上使用和存储片段的例子。
 
 134
 00:18:10,080 --> 00:18:11,520
- Right.
+Right.
+对的。
 
 135
 00:18:11,520 --> 00:18:17,680
- Okay. So again, just wanted to make sure here to go back that what we are saying here, when
+Okay. So again, just wanted to make sure here to go back that what we are saying here, when
+好的。所以再次确认一下，我们在这里说的是，当
 
 136
 00:18:17,680 --> 00:18:22,640
- you do the replication, again, you have one block, so say one block is one kilobyte, so
+you do the replication, again, you have one block, so say one block is one kilobyte, so
+你进行复制，再说一次，你有一个块，假设一个块是一千字节，那么
 
 137
 00:18:22,640 --> 00:18:30,840
- you replicate, you have four copies, one kilobyte on different nodes. When you do the fragmentation
+you replicate, you have four copies, one kilobyte on different nodes. When you do the fragmentation
+你复制了，你有四个副本，每个节点上有一千字节。当你进行分片时。
 
 138
 00:18:30,840 --> 00:18:37,680
- here, you take one kilobyte and the divide is out block, you divide in 16 fragments.
+here, you take one kilobyte and the divide is out block, you divide in 16 fragments.
+这里，你拿一个千字节，然后分成块，你将它分成16个片段。
 
 139
 00:18:37,680 --> 00:18:46,800
- So for 16 fragments, you are going to have what? It's two power. Yeah, it's one kilobyte
+So for 16 fragments, you are going to have what? It's two power. Yeah, it's one kilobyte
+那么对于16个片段，你会得到什么？它是2的幂。是的，它是1千字节。
 
 140
 00:18:46,800 --> 00:18:55,360
- divided by 16. And this is, I believe it's what, 128, something like that bytes. So now
+divided by 16. And this is, I believe it's what, 128, something like that bytes. So now
+除以16。我相信这是什么，128，类似于那样的字节。所以现在是多少？
 
 141
 00:18:55,360 --> 00:19:11,840
- you have this kind of, it's not, you have, sorry, you have 64, right? 16 times 64.
+you have this kind of, it's not, you have, sorry, you have 64, right? 16 times 64.
+你有这种类型的，不是，你有，抱歉，你有64，对吗？16乘以64。
 
 142
 00:19:11,840 --> 00:19:13,840
- Yep.
+Yep.
+是的。
 
 143
 00:19:13,840 --> 00:19:26,000
- So divided one kilobyte in 16 fragments, and then you are going to, each fragment now is
+So divided one kilobyte in 16 fragments, and then you are going to, each fragment now is
+将一个千字节分成16个片段，然后你要做的是，现在每个片段都是什么。
 
 144
 00:19:26,000 --> 00:19:32,640
- going to have 64 bytes. And now you are going to generate another 48 fragments, each of
+going to have 64 bytes. And now you are going to generate another 48 fragments, each of
+将有64个字节。现在你要生成另外48个片段，每个片段的大小是多少？
 
 145
 00:19:32,640 --> 00:19:38,200
- them of 64 bytes using great approach.
+them of 64 bytes using great approach.
+使用优秀的方法将它们压缩成64字节。
 
 146
 00:19:38,200 --> 00:19:46,240
- And now in order to read the data, you need to read 16 fragments. Any of these 64, any
+And now in order to read the data, you need to read 16 fragments. Any of these 64, any
+现在为了读取数据，你需要读取16个片段。其中任何一个都可以，总共有64个。
 
 147
 00:19:46,240 --> 00:19:52,640
- 16 fragments out of 64 fragments will do it. And you can construct and construct the original
+16 fragments out of 64 fragments will do it. And you can construct and construct the original
+16个片段中的64个片段就可以了。你可以不断地构建和构建原始的。
 
 148
 00:19:52,640 --> 00:20:00,360
- block. Make sense? Just, I need to make sure. We are on the same page.
+block. Make sense? Just, I need to make sure. We are on the same page.
+阻止。有意义吗？只是，我需要确认一下。我们是否理解一致。
 
 149
 00:20:00,360 --> 00:20:08,200
- Okay. So this is about your ability, but this is not enough. The fact that the disk, the
+Okay. So this is about your ability, but this is not enough. The fact that the disk, the
+好的。所以这是关于你的能力，但这还不够。事实上，这个磁盘，
 
 150
 00:20:08,200 --> 00:20:16,360
- data is still on the disk. It doesn't mean that you can access it. Also, it doesn't mean
+data is still on the disk. It doesn't mean that you can access it. Also, it doesn't mean
+数据仍然存储在磁盘上。这并不意味着您可以访问它。同时，也不意味着
 
 151
 00:20:16,360 --> 00:20:28,300
- that, you know, you are also able to write the data on the disk in the first place. Right?
+that, you know, you are also able to write the data on the disk in the first place. Right?
+对吧，你知道的，你也能够首先将数据写入磁盘。对吗？
 
 152
 00:20:28,300 --> 00:20:33,600
- So that's why we care about reliability. Reliability is looking at the end to end. It is not, doesn't
+So that's why we care about reliability. Reliability is looking at the end to end. It is not, doesn't
+所以这就是为什么我们关注可靠性。可靠性是从头到尾的考虑。它不是，不应该只看某个部分的可靠性。
 
 153
 00:20:33,600 --> 00:20:39,040
- care only whether data is on the disk, but whether you can put the data on the disk and
+care only whether data is on the disk, but whether you can put the data on the disk and
+只关心数据是否在磁盘上，而不关心你是否能将数据放在磁盘上。
 
 154
 00:20:39,040 --> 00:20:43,120
- you can retrieve the data from the disk.
+you can retrieve the data from the disk.
+你可以从磁盘中恢复数据。
 
 155
 00:20:43,120 --> 00:20:49,240
- So next we are going to talk about reliability, but let's see, let's, let's talk about what,
+So next we are going to talk about reliability, but let's see, let's, let's talk about what,
+所以下一步我们要谈论的是可靠性，但是让我们看看，让我们，让我们谈谈什么，
 
 156
 00:20:49,240 --> 00:20:56,560
- what can go wrong, right? And which is orthogonal to durability, right? So say a disk loses
+what can go wrong, right? And which is orthogonal to durability, right? So say a disk loses
+什么能出错呢，对吧？而且这与耐久性无关，对吧？所以说，一个磁盘丢失了
 
 157
 00:20:56,560 --> 00:21:03,120
- power, or you have a software crash. Now you have a read operation or write operation.
+power, or you have a software crash. Now you have a read operation or write operation.
+电源故障或软件崩溃。现在你有一个读操作或写操作。
 
 158
 00:21:03,120 --> 00:21:15,160
- What happens with that write operation, which is in progress? Maybe can be lost, right?
+What happens with that write operation, which is in progress? Maybe can be lost, right?
+进行中的写操作会发生什么？也许会丢失，对吗？
 
 159
 00:21:15,160 --> 00:21:24,580
- Or maybe it's interrupted in the middle. You just wrote half a block, not the entire block.
+Or maybe it's interrupted in the middle. You just wrote half a block, not the entire block.
+或者可能是中途被打断了。你只写了一半的段落，而不是整个段落。
 
 160
 00:21:24,580 --> 00:21:32,240
- Okay. So RAID doesn't do, doesn't protect any of, against any of such failures, right?
+Okay. So RAID doesn't do, doesn't protect any of, against any of such failures, right?
+好的。所以RAID不能防止任何这些故障，对吗？
 
 161
 00:21:32,240 --> 00:21:39,400
- RAID basically says, well, if you are successful to write data and you have so many replicas,
+RAID basically says, well, if you are successful to write data and you have so many replicas,
+RAID基本上是说，如果你成功写入数据并且有很多副本，
 
 162
 00:21:39,400 --> 00:21:44,680
- if you're, once you've done that, I guarantee that you find the data when you come next
+if you're, once you've done that, I guarantee that you find the data when you come next
+如果你愿意，一旦你完成了那个，我保证你下次来的时候能找到数据。
 
 163
 00:21:44,680 --> 00:21:53,800
- time, it still be stored. Right? Right. So yes, you need your ability, but this is not
+time, it still be stored. Right? Right. So yes, you need your ability, but this is not
+时间，它仍然被储存着。对吗？对。所以是的，你需要你的能力，但这不是
 
 164
 00:21:53,800 --> 00:22:04,940
- the entire story. So this is what we are going to talk next. Right? So and why is this, this
+the entire story. So this is what we are going to talk next. Right? So and why is this, this
+整个故事。所以接下来我们要谈论的就是这个。对吗？那么为什么是这样的，这个
 
 165
 00:22:04,940 --> 00:22:11,420
- a bigger problem? This is a bigger problem because when you write data on a disk, when
+a bigger problem? This is a bigger problem because when you write data on a disk, when
+一个更大的问题？这是一个更大的问题，因为当你在磁盘上写入数据时，当
 
 166
 00:22:11,420 --> 00:22:18,800
- you write a block of data in a disk, it's not only that piece of data. You need maybe
+you write a block of data in a disk, it's not only that piece of data. You need maybe
+将一块数据写入磁盘，并不仅仅是那个数据块本身。你可能还需要
 
 167
 00:22:18,800 --> 00:22:27,320
- to update, you need to update the inode data, right? Because you have a new block now. Maybe
+to update, you need to update the inode data, right? Because you have a new block now. Maybe
+更新的话，你需要更新inode数据，对吗？因为你现在有一个新的块。也许
 
 168
 00:22:27,320 --> 00:22:32,000
- it's an indirect block, the pointer to the indirect block, you know, the indirect, interaction
+it's an indirect block, the pointer to the indirect block, you know, the indirect, interaction
+这是一个间接块，指向间接块的指针，你知道的，间接的，互动。
 
 169
 00:22:32,000 --> 00:22:42,000
- pointer. You need to update the bitmap of the, which files are now available, oh, sorry,
+pointer. You need to update the bitmap of the, which files are now available, oh, sorry,
+指针。你需要更新位图，其中显示哪些文件现在可用。哦，抱歉，
 
 170
 00:22:42,000 --> 00:22:48,260
- which blocks are available, availability bitmap, right? If you're writing a block on a block,
+which blocks are available, availability bitmap, right? If you're writing a block on a block,
+哪些块是可用的，可用性位图，对吗？如果你在一个块上写入另一个块，
 
 171
 00:22:48,260 --> 00:22:55,160
- that block is no longer available. So I need to update the bitmap. Right? So for each of
+that block is no longer available. So I need to update the bitmap. Right? So for each of
+那个区块不再可用。所以我需要更新位图。对吗？所以对于每一个
 
 172
 00:22:55,160 --> 00:23:03,000
- these writes, you need actually to touch and multiple, you need to touch multiple pieces
+these writes, you need actually to touch and multiple, you need to touch multiple pieces
+这些写的东西，你实际上需要触摸和多次触摸，你需要触摸多个部分。
 
 173
 00:23:03,000 --> 00:23:11,440
- of information from the disk. And if some of them make to the disk, but some of them
+of information from the disk. And if some of them make to the disk, but some of them
+磁盘上的信息丢失了。如果其中一些信息成功保存到了磁盘上，但其中一些信息没有保存成功。
 
 174
 00:23:11,440 --> 00:23:19,540
- do not make the disk, you are going to leave the disk in an inconsistent state. Right?
+do not make the disk, you are going to leave the disk in an inconsistent state. Right?
+不要制作磁盘，你会让磁盘处于不一致的状态。对吗？
 
 175
 00:23:19,540 --> 00:23:23,700
- So that's a problem, right? How do you do that? Not only when you have this kind of
+So that's a problem, right? How do you do that? Not only when you have this kind of
+是的，这是一个问题，对吧？你怎么做呢？不仅仅是在你有这种情况下，还有其他时候也是这样。
 
 176
 00:23:23,700 --> 00:23:35,980
- multiple operations, which means all to succeed in order for the write to succeed. And, and
+multiple operations, which means all to succeed in order for the write to succeed. And, and
+多个操作，这意味着所有操作都必须按顺序成功才能使写操作成功。而且，还有...
 
 177
 00:23:35,980 --> 00:23:42,300
- by the, you know, so, so that's kind of the problem, right? And of course you also, there
+by the, you know, so, so that's kind of the problem, right? And of course you also, there
+通过这样，你知道的，所以，所以这就是问题所在，对吧？当然，你也，还有
 
 178
 00:23:42,300 --> 00:23:48,660
- are other complication because if you aren't concurrency for improving throughput, so you
+are other complication because if you aren't concurrency for improving throughput, so you
+有其他的复杂性，因为如果你不并发来提高吞吐量，那么会有问题。
 
 179
 00:23:48,660 --> 00:23:58,540
- want to, to perform this operation in parallel and think in sensing like that. Make sure
+want to, to perform this operation in parallel and think in sensing like that. Make sure
+想要并行执行这个操作，并且以这样的方式进行感知。确保
 
 180
 00:23:58,540 --> 00:24:10,860
- it makes sense. Any questions? So what are the stress to threats to reliability? Like
+it makes sense. Any questions? So what are the stress to threats to reliability? Like
+这是有道理的。有什么问题吗？那么对可靠性的威胁有哪些压力呢？比如说
 
 181
 00:24:10,860 --> 00:24:21,420
- we discussed is interrupted operation, crash of software crashes, power failures. And when
+we discussed is interrupted operation, crash of software crashes, power failures. And when
+我们讨论了中断操作、软件崩溃、电源故障等问题。而当...
 
 182
 00:24:21,420 --> 00:24:27,580
- this happens, then you can get into trouble. This is a classical canonical example about
+this happens, then you can get into trouble. This is a classical canonical example about
+这种情况发生时，你可能会陷入麻烦。这是一个经典的典型例子。
 
 183
 00:24:27,580 --> 00:24:33,300
- the bank transfer. You know, you transfer from one bank to another, from one account
+the bank transfer. You know, you transfer from one bank to another, from one account
+银行转账。你知道的，你从一个银行转到另一个银行，从一个账户转到另一个账户。
 
 184
 00:24:33,300 --> 00:24:42,900
- to another. What happens if you have a failures after you withdraw some of money, but before
+to another. What happens if you have a failures after you withdraw some of money, but before
+转到另一个账户。如果您在取出一些钱之后但在转账之前发生了失败，会发生什么？
 
 185
 00:24:42,900 --> 00:24:51,860
- you have a chance to deposit the sum of money in a different account, then you lost that
+you have a chance to deposit the sum of money in a different account, then you lost that
+你有机会将这笔钱存入另一个账户，然后你丢失了它。
 
 186
 00:24:51,860 --> 00:25:04,300
- money if you are not careful. So it's also this one, the failure of non-volatile storage,
+money if you are not careful. So it's also this one, the failure of non-volatile storage,
+如果你不小心的话，会浪费很多钱。所以这也是一个问题，非易失性存储的故障。
 
 187
 00:25:04,300 --> 00:25:13,620
- right? Storage media may cause previous store data to disappear or be corrupted. Like we
+right? Storage media may cause previous store data to disappear or be corrupted. Like we
+是的，存储介质可能会导致之前存储的数据消失或损坏。就像我们所知道的，存储介质包括硬盘驱动器、固态硬盘、光盘和闪存驱动器等。
 
 188
 00:25:13,620 --> 00:25:25,260
- are going to see. So any questions about what problems you are trying to solve here? So
+are going to see. So any questions about what problems you are trying to solve here? So
+你们要去看什么？关于你们在这里尝试解决什么问题的任何问题吗？
 
 189
 00:25:25,260 --> 00:25:33,780
- you are trying to solve here, the biggest problem is that when you are going to write
+you are trying to solve here, the biggest problem is that when you are going to write
+你在这里试图解决的最大问题是当你要写作时。
 
 190
 00:25:33,780 --> 00:25:42,380
- the data on the disk, the biggest problem you do not want in the presence of failures
+the data on the disk, the biggest problem you do not want in the presence of failures
+磁盘上的数据，最大的问题是你不希望在出现故障的情况下。
 
 191
 00:25:42,380 --> 00:25:55,020
- to leave the data on the disk in an inconsistent state. That's what, that's a problem. There
+to leave the data on the disk in an inconsistent state. That's what, that's a problem. There
+将数据保留在磁盘上处于不一致的状态。这就是问题所在。
 
 192
 00:25:55,020 --> 00:26:05,100
- are two ways to do it, two general ways. One, you are just careful, you carefully order
+are two ways to do it, two general ways. One, you are just careful, you carefully order
+有两种方法可以做到，两种常见的方法。第一种，你只是小心，你小心地排序。
 
 193
 00:26:05,100 --> 00:26:17,260
- the operations such that if you have failures, when you restart, you can clean up the mess
+the operations such that if you have failures, when you restart, you can clean up the mess
+这些操作是为了在发生故障时，当你重新启动时能够清理掉混乱的情况。
 
 194
 00:26:17,260 --> 00:26:29,820
- and leave the disk in a consistent state. That's one. The other one is copy on write.
+and leave the disk in a consistent state. That's one. The other one is copy on write.
+并且保持磁盘处于一致状态。这是第一个。另一个是写时复制。
 
 195
 00:26:29,820 --> 00:26:35,260
- The copy on write, you can think about the data you wrote is immutable. And when you
+The copy on write, you can think about the data you wrote is immutable. And when you
+发生写操作时，会创建数据的副本。你可以将其视为写入的数据是不可变的。当发生写操作时，会创建数据的副本。
 
 196
 00:26:35,260 --> 00:26:46,540
- write, when you try to modify some piece of data, you basically create another copy and
+write, when you try to modify some piece of data, you basically create another copy and
+写入时，当你尝试修改某个数据片段时，你基本上创建了另一个副本。
 
 197
 00:26:46,540 --> 00:26:52,620
- you modify the copies. You don't modify the original. So original is always there. And
+you modify the copies. You don't modify the original. So original is always there. And
+你修改副本。你不修改原件。所以原件始终存在。而且
 
 198
 00:26:52,620 --> 00:26:56,660
- when you are done, you are pointing to the modified copy and maybe you can garbage collect
+when you are done, you are pointing to the modified copy and maybe you can garbage collect
+完成后，你指向修改后的副本，然后可以进行垃圾回收。
 
 199
 00:26:56,660 --> 00:27:07,380
- the original. Okay. So this is what it is. So the left hand side, the careful ordering
+the original. Okay. So this is what it is. So the left hand side, the careful ordering
+原文。好的。所以这就是它的意思。左边，仔细排序。
 
 200
 00:27:07,380 --> 00:27:17,180
- of recovery choose by fact and fast file system, the Unix. This is a file check, file system
+of recovery choose by fact and fast file system, the Unix. This is a file check, file system
+恢复选择事实和快速文件系统，Unix。这是一个文件检查，文件系统。
 
 201
 00:27:17,180 --> 00:27:24,100
- check. It's a command you run when you reboot the system. This command runs to clean up
+check. It's a command you run when you reboot the system. This command runs to clean up
+检查。这是在重新启动系统时运行的命令。该命令用于清理。
 
 202
 00:27:24,100 --> 00:27:31,220
- the disk if there are problems in consistent data. And really you are carefully about the
+the disk if there are problems in consistent data. And really you are carefully about the
+磁盘如果存在数据不一致的问题。而且你确实对此非常关注。
 
 203
 00:27:31,220 --> 00:27:36,060
- order in which you are doing these operations. Like for instance, you create a new file,
+order in which you are doing these operations. Like for instance, you create a new file,
+你正在进行这些操作的顺序。例如，你创建了一个新文件，
 
 204
 00:27:36,060 --> 00:27:42,940
- you need to update the directory, you need to update the free bitmap, to update the inode
+you need to update the directory, you need to update the free bitmap, to update the inode
+你需要更新目录，你需要更新空闲位图，以更新索引节点。
 
 205
 00:27:42,940 --> 00:27:53,960
- to update the data book. Okay. So this is a careful ordering approach. So as a high
+to update the data book. Okay. So this is a careful ordering approach. So as a high
+为了更新数据手册。好的。所以这是一种谨慎的订购方法。所以作为一个高级
 
 206
 00:27:53,960 --> 00:28:02,640
- level is again, problem I want to solve, a failure shouldn't result in the data of the
+level is again, problem I want to solve, a failure shouldn't result in the data of the
+级别再次是我想解决的问题，一个失败不应该导致数据的丢失。
 
 207
 00:28:02,640 --> 00:28:14,540
- disk being inconsistent. The solution you need to order carefully all the writes to
+disk being inconsistent. The solution you need to order carefully all the writes to
+磁盘不一致。解决方案是需要仔细排序所有的写入操作。
 
 208
 00:28:14,540 --> 00:28:25,780
- the disk, which are needed to store that the piece of data, such that when you are going
+the disk, which are needed to store that the piece of data, such that when you are going
+磁盘是用来存储数据的，这样当你需要访问这些数据时，就可以使用它们。
 
 209
 00:28:25,780 --> 00:28:33,920
- to restart, you have enough information so you can clean up the disk from any partial
+to restart, you have enough information so you can clean up the disk from any partial
+重新启动，你已经有足够的信息，所以可以清理磁盘上的任何部分。
 
 210
 00:28:33,920 --> 00:28:44,560
- and wrong information. This is also used at the application level by say editors like
+and wrong information. This is also used at the application level by say editors like
+和错误的信息。这也可以在应用层面上使用，比如像编辑这样的人。
 
 211
 00:28:44,560 --> 00:28:53,840
- ORB or Emacs. So let me ask you this question, because this is the core to understand this
+ORB or Emacs. So let me ask you this question, because this is the core to understand this
+ORB或Emacs。那么让我问你这个问题，因为这是理解这个问题的核心。
 
 212
 00:28:53,840 --> 00:29:03,400
- technique. Assume you need to store a piece of data and the directory entry to point to
+technique. Assume you need to store a piece of data and the directory entry to point to
+技术。假设您需要存储一段数据和指向目录条目的指针。
 
 213
 00:29:03,400 --> 00:29:13,920
- that data or a point of the data. And assume that each of these operations is atomic, but
+that data or a point of the data. And assume that each of these operations is atomic, but
+这个数据或者数据的一个点。并且假设每个操作都是原子的，但是
 
 214
 00:29:13,920 --> 00:29:18,800
- there are two different writes, one to update, to put the data on the disk and the other
+there are two different writes, one to update, to put the data on the disk and the other
+有两种不同的写入方式，一种是更新数据，将数据写入磁盘，另一种是
 
 215
 00:29:18,800 --> 00:29:34,400
- one is to update the directory. And tell me now, this question is the following. Which
+one is to update the directory. And tell me now, this question is the following. Which
+一个是更新目录。告诉我现在，这个问题是什么。哪一个？
 
 216
 00:29:34,400 --> 00:29:51,720
- one you should write first, the data or the pointer? Data. Why? That's very good. Why
+one you should write first, the data or the pointer? Data. Why? That's very good. Why
+是的，你应该先写数据还是指针？数据。为什么？那非常好。为什么呢？
 
 217
 00:29:51,720 --> 00:30:06,600
- is the data? It's exact. You don't want the pointer to point to the bogus data. You don't
+is the data? It's exact. You don't want the pointer to point to the bogus data. You don't
+数据是准确的吗？你不希望指针指向虚假的数据。你不希望指针指向虚假的数据。
 
 218
 00:30:06,600 --> 00:30:21,160
- want dangling pointers. Excellent. Right. And then say, so this is correct. First you
+want dangling pointers. Excellent. Right. And then say, so this is correct. First you
+想要悬空指针。太好了。对的。然后说，这样是正确的。首先你
 
 219
 00:30:21,160 --> 00:30:27,880
- write the data and then you write the pointer. Now say you have a failure. You're successful
+write the data and then you write the pointer. Now say you have a failure. You're successful
+将数据写入，然后写入指针。现在假设发生故障。你成功了。
 
 220
 00:30:27,880 --> 00:30:39,520
- to write the data, but not the pointer. What do you do when you restart the system? Because
+to write the data, but not the pointer. What do you do when you restart the system? Because
+当你重新启动系统时，你会怎么做？因为需要写入数据，而不是指针。
 
 221
 00:30:39,520 --> 00:30:51,520
- now you have inconsistent state. Yes, you need to garbage collection. Yeah. Collect
+now you have inconsistent state. Yes, you need to garbage collection. Yeah. Collect
+现在你的状态不一致。是的，你需要进行垃圾回收。是的。收集。
 
 222
 00:30:51,520 --> 00:30:58,280
- somehow. So basically you look at all the data on the disk, all the blocks, and you
+somehow. So basically you look at all the data on the disk, all the blocks, and you
+以某种方式，基本上你会查看磁盘上的所有数据，所有的块，然后你会
 
 223
 00:30:58,280 --> 00:31:04,920
- see whether there is a pointer, there is a directory entry in this case for that. If
+see whether there is a pointer, there is a directory entry in this case for that. If
+查看是否有指针，在这种情况下是否有相应的目录条目。如果有的话。
 
 224
 00:31:04,920 --> 00:31:14,800
- it's not, you are garbage collecting it. So this will appear like the write has failed
+it's not, you are garbage collecting it. So this will appear like the write has failed
+这不是写入失败，而是你正在进行垃圾回收，所以会出现这种情况。
 
 225
 00:31:14,800 --> 00:31:33,120
- in the first place. Didn't happen. Which is okay. Yes. If we write data, but no pointer.
+in the first place. Didn't happen. Which is okay. Yes. If we write data, but no pointer.
+首先，没有发生。这没关系。是的。如果我们写入数据，但没有指针。
 
 226
 00:31:33,120 --> 00:31:37,960
- So Michael is asking if we write data, but no pointer, is that the same as writing nasty
+So Michael is asking if we write data, but no pointer, is that the same as writing nasty
+所以Michael在问，如果我们写入数据，但没有指针，这是否与写入nasty是一样的？
 
 227
 00:31:37,960 --> 00:31:50,680
- at all? Yes, it is. But now that space may be used. So you need to garbage collect. Yeah.
+at all? Yes, it is. But now that space may be used. So you need to garbage collect. Yeah.
+全部吗？是的，是的。但是现在那个空间可能被使用了。所以你需要进行垃圾回收。是的。
 
 228
 00:31:50,680 --> 00:31:55,920
- This assumes that is very good point. It's assumed that you also update the free map.
+This assumes that is very good point. It's assumed that you also update the free map.
+这个假设是非常好的观点。假设你也会更新免费地图。
 
 229
 00:31:55,920 --> 00:32:01,640
- That's why I make, I simplify the example. In general, you need to update the free map.
+That's why I make, I simplify the example. In general, you need to update the free map.
+这就是为什么我做了一个简化的例子。一般来说，你需要更新免费地图。
 
 230
 00:32:01,640 --> 00:32:08,000
- You need to update the inode like we'll see next. But in this case, I assume that when
+You need to update the inode like we'll see next. But in this case, I assume that when
+你需要更新inode，我们接下来会看到。但在这种情况下，我假设当
 
 231
 00:32:08,000 --> 00:32:13,120
- you write a piece of data, that block is already allocated. So therefore you need to garbage
+you write a piece of data, that block is already allocated. So therefore you need to garbage
+你写入的数据块已经被分配了。因此，你需要进行垃圾回收。
 
 232
 00:32:13,120 --> 00:32:21,960
- for it. Okay. So now it's very easy for you to understand. So here are the normal operations
+for it. Okay. So now it's very easy for you to understand. So here are the normal operations
+对于它。好的。所以现在你很容易理解了。所以这里是正常的操作。
 
 233
 00:32:21,960 --> 00:32:29,240
- for Berkeley FAST file system. You allocate a data block, you write a data block, you
+for Berkeley FAST file system. You allocate a data block, you write a data block, you
+为伯克利快速文件系统（Berkeley FAST file system）。你分配一个数据块，你写入一个数据块，你
 
 234
 00:32:29,240 --> 00:32:34,920
- allocate an inode, your IZINode, which is pointing to the data block, you update the
+allocate an inode, your IZINode, which is pointing to the data block, you update the
+分配一个索引节点，你的IZINode，它指向数据块，你更新了它。
 
 235
 00:32:34,920 --> 00:32:41,760
- bitmap of free blocks and inodes and update the directory with a file name pointing to
+bitmap of free blocks and inodes and update the directory with a file name pointing to
+空闲块和索引节点的位图，并用指向文件名的方式更新目录。
 
 236
 00:32:41,760 --> 00:32:49,120
- the inode number. And then you update modified time for directory and you update the modified
+the inode number. And then you update modified time for directory and you update the modified
+inode号码。然后你更新目录的修改时间，并更新修改时间。
 
 237
 00:32:49,120 --> 00:32:56,840
- time for the directory. Right? So you start from the data and you go backwards all the
+time for the directory. Right? So you start from the data and you go backwards all the
+时间到了，需要查找目录了。对吗？所以你从数据开始，然后逆向查找所有的
 
 238
 00:32:56,840 --> 00:33:02,320
- way to the directory. And what do we do on recovery? Like we discussed, you scan the
+way to the directory. And what do we do on recovery? Like we discussed, you scan the
+目录的路径。那么在恢复过程中我们该做什么呢？就像我们讨论过的，你需要扫描该目录。
 
 239
 00:33:02,320 --> 00:33:13,280
- inode table and there is any unlinked files, not in any directory, you delete it. Right?
+inode table and there is any unlinked files, not in any directory, you delete it. Right?
+Yes, if there are any unlinked files in the inode table, which are not associated with any directory, you can delete them.
 
 240
 00:33:13,280 --> 00:33:18,760
- Or maybe you put in lost and found directory if you have one. And then you compare the
+Or maybe you put in lost and found directory if you have one. And then you compare the
+或者如果你有失物招领目录，你可以将其放在那里。然后你可以进行比较。
 
 241
 00:33:18,760 --> 00:33:29,160
- free block bitmap against the inode tree and to see whether they are consistent. Right?
+free block bitmap against the inode tree and to see whether they are consistent. Right?
+免费块位图用于检查与索引节点树是否一致。对吗？
 
 242
 00:33:29,160 --> 00:33:35,120
- It's again, we just scan directory are missing from the bitmap. They are not reflected in
+It's again, we just scan directory are missing from the bitmap. They are not reflected in
+这次又是一样的问题，我们刚才扫描的目录在位图中丢失了。它们没有被反映出来。
 
 243
 00:33:35,120 --> 00:33:43,520
- the free map. You garbage collect. Right? And then you scan directory for missing update
+the free map. You garbage collect. Right? And then you scan directory for missing update
+免费地图。你进行垃圾回收。对吗？然后你扫描目录以查找缺失的更新。
 
 244
 00:33:43,520 --> 00:33:49,600
- and access times. So now you do all of these things. It's again, it's a more involving
+and access times. So now you do all of these things. It's again, it's a more involving
+和访问时间。所以现在你做所有这些事情。再次强调，这是一个更加全面的过程。
 
 245
 00:33:49,600 --> 00:33:55,880
- procedure because you are here, you have to write more pieces of data and which are associated
+procedure because you are here, you have to write more pieces of data and which are associated
+因为你在这里，所以你需要写更多的数据，并且这些数据是相关联的。
 
 246
 00:33:55,880 --> 00:34:01,520
- or linked with a data block when you write a data block. But fundamentally the same idea
+or linked with a data block when you write a data block. But fundamentally the same idea
+或者在写入数据块时与数据块链接。但基本上是相同的想法。
 
 247
 00:34:01,520 --> 00:34:07,240
- like we discussed earlier on. When you have only data block and a pointer to the data
+like we discussed earlier on. When you have only data block and a pointer to the data
+就像我们之前讨论的那样。当你只有数据块和指向数据的指针时。
 
 248
 00:34:07,240 --> 00:34:12,880
- block. Obviously the problem with this one, if you want to do it is the time is proportional
+block. Obviously the problem with this one, if you want to do it is the time is proportional
+阻塞。显然，如果你想要做这件事，问题就在于时间成正比增加。
 
 249
 00:34:12,880 --> 00:34:21,200
- to the disk size because they need to look at all blocks. Any questions? So this was
+to the disk size because they need to look at all blocks. Any questions? So this was
+由于需要查看所有的块，所以对于磁盘大小有要求。有什么问题吗？所以这就是。
 
 250
 00:34:21,200 --> 00:34:38,880
- the first solution. How do you recover a failed recovery? Well, for the fail, that's a great
+the first solution. How do you recover a failed recovery? Well, for the fail, that's a great
+第一个解决方案。如何恢复失败的恢复？嗯，对于失败来说，这是一个很好的
 
 251
 00:34:38,880 --> 00:34:44,440
- question. For a fail recovery, you make sure that when you are going to take the actions,
+question. For a fail recovery, you make sure that when you are going to take the actions,
+问题。为了进行故障恢复，你要确保在采取行动时，
 
 252
 00:34:44,440 --> 00:34:51,400
- you are taking the same actions that when you recover next, you can still clear clean
+you are taking the same actions that when you recover next, you can still clear clean
+你正在采取的行动是为了在下次康复后，你仍然能够清除干净。
 
 253
 00:34:51,400 --> 00:35:08,160
- up everything. Okay. So that's what it is. You apply recursively the same idea. The second
+up everything. Okay. So that's what it is. You apply recursively the same idea. The second
+将一切都提升起来。好的。所以就是这样。你递归地应用相同的思想。第二个
 
 254
 00:35:08,160 --> 00:35:22,880
- one is copy on write. So this is also called cow. And you fundamentally create a new version
+one is copy on write. So this is also called cow. And you fundamentally create a new version
+一个是写时复制。所以这也被称为COW（Copy On Write）。而且你基本上是创建了一个新版本。
 
 255
 00:35:22,880 --> 00:35:31,520
- of the file. This is a simple implementation of this is that if I'm going to update a piece
+of the file. This is a simple implementation of this is that if I'm going to update a piece
+文件的一部分。这是一个简单的实现，如果我要更新一部分的话。
 
 256
 00:35:31,520 --> 00:35:36,720
- of data, if I want to update a piece of data, I don't update in place. I create a copy and
+of data, if I want to update a piece of data, I don't update in place. I create a copy and
+将数据，如果我想要更新一条数据，我不会直接在原地更新。我会创建一个副本并进行更新。
 
 257
 00:35:36,720 --> 00:35:48,160
- I update the copy and later I can delete the original. And it seems expensive, but the
+I update the copy and later I can delete the original. And it seems expensive, but the
+我更新了副本，稍后可以删除原始文件。虽然看起来有点贵，但是
 
 258
 00:35:48,160 --> 00:35:56,120
- updates can be bad. If you have multiple updates, you can do it at the same time. And if you
+updates can be bad. If you have multiple updates, you can do it at the same time. And if you
+更新可能是坏的。如果你有多个更新，你可以同时进行。而且如果你
 
 259
 00:35:56,120 --> 00:36:04,080
- remember, if you send a batch of writes to the disk, the disk can be smart. This controller
+remember, if you send a batch of writes to the disk, the disk can be smart. This controller
+记住，如果你将一批写入操作发送到磁盘，磁盘可以变得智能。这个控制器
 
 260
 00:36:04,080 --> 00:36:12,600
- can be smart to reorder them. So to minimize the seek latency and even the rotation latency.
+can be smart to reorder them. So to minimize the seek latency and even the rotation latency.
+可以聪明地重新排序它们。这样可以最小化寻道延迟，甚至旋转延迟。
 
 261
 00:36:12,600 --> 00:36:21,360
- This is a network. This approach, copy on write, is taken by a few other systems. ZFS
+This is a network. This approach, copy on write, is taken by a few other systems. ZFS
+这是一个网络。这种方法，即写时复制，被其他一些系统采用。ZFS
 
 262
 00:36:21,360 --> 00:36:30,160
- is Oracle now, and there is also an open ZFS and NetAppliance. It has this write anywhere
+is Oracle now, and there is also an open ZFS and NetAppliance. It has this write anywhere
+是的，现在有Oracle，还有开放的ZFS和NetAppliance。它具有写入任何位置的功能。
 
 263
 00:36:30,160 --> 00:36:45,960
- file layout or waffle. They use the same technique. And here how it is. Assume that you have the
+file layout or waffle. They use the same technique. And here how it is. Assume that you have the
+文件布局或华夫饼。它们使用相同的技术。这是它的工作原理。假设你有一个
 
 264
 00:36:45,960 --> 00:36:56,080
- file is represented as a tree of blocks. And you are just updating what is called here
+file is represented as a tree of blocks. And you are just updating what is called here
+文件被表示为一个块树。而你只是在更新这里所谓的内容。
 
 265
 00:36:56,080 --> 00:37:03,520
- as a fringe block, as a block at the end. You start with all and you are adding more
+as a fringe block, as a block at the end. You start with all and you are adding more
+作为一个边缘区块，作为一个末尾的区块。你从全部开始，然后再添加更多。
 
 266
 00:37:03,520 --> 00:37:13,560
- blocks to this file structure. So now assume that you update these blocks on the right
+blocks to this file structure. So now assume that you update these blocks on the right
+这个文件结构的阻塞。所以现在假设你在右边更新这些阻塞。
 
 267
 00:37:13,560 --> 00:37:25,840
- hand side, the one which is half blue. So what you do actually in this particular
+hand side, the one which is half blue. So what you do actually in this particular
+情况下是，选择左手边的那个，它是半蓝色的。所以你实际上在这种特定情况下做什么？
 
 268
 00:37:25,840 --> 00:37:41,120
- case, you write in a new block, a copy. That's all you write. You took this block, you replicate
+case, you write in a new block, a copy. That's all you write. You took this block, you replicate
+情况是这样的，你在一个新的区块中写了一份副本。这就是你写的全部内容。你拿起这个区块，复制了它。
 
 269
 00:37:41,120 --> 00:37:55,160
- it, and you update the replica. The original block remains untouched. So now what you do,
+it, and you update the replica. The original block remains untouched. So now what you do,
+是的，你更新副本。原始块保持不变。那么现在你要做什么？
 
 270
 00:37:55,160 --> 00:38:05,920
- you just basically generate a new bunch of pointers, a sub-tree, and then you are going
+you just basically generate a new bunch of pointers, a sub-tree, and then you are going
+你只是基本上生成了一组新的指针，一个子树，然后你就去了。
 
 271
 00:38:05,920 --> 00:38:18,040
- to connect these new nodes in the new version of the tree to the corresponding existing
+to connect these new nodes in the new version of the tree to the corresponding existing
+将这些新节点连接到现有树的相应节点上的新版本中。
 
 272
 00:38:18,040 --> 00:38:25,240
- tree nodes.
+tree nodes.
+树节点。
 
 273
 00:38:25,240 --> 00:38:36,920
- So now if you are successful in updating all these pointers after you updated the data,
+So now if you are successful in updating all these pointers after you updated the data,
+那么现在，如果您在更新数据后成功更新了所有这些指针，
 
 274
 00:38:36,920 --> 00:38:42,080
- then the old version, the version of the tree and of the file move from the old version
+then the old version, the version of the tree and of the file move from the old version
+然后，旧版本中的树和文件的版本从旧版本中移动。
 
 275
 00:38:42,080 --> 00:38:51,520
- to the new version. And once you do that, you can do garbage collect the rest. You see
+to the new version. And once you do that, you can do garbage collect the rest. You see
+到新版本。一旦你这样做了，你就可以对剩下的进行垃圾回收。你看到了吗？
 
 276
 00:38:51,520 --> 00:39:03,280
- all the blocks, data blocks from the old version of the file, as well as interior nodes in
+all the blocks, data blocks from the old version of the file, as well as interior nodes in
+所有的块，来自旧版本文件的数据块，以及内部节点。
 
 277
 00:39:03,280 --> 00:39:14,440
- the tree, again, which are not pointed by the new version, they've been garbage collected.
+the tree, again, which are not pointed by the new version, they've been garbage collected.
+这棵树，再次强调，新版本没有指向它们，它们已经被垃圾回收了。
 
 278
 00:39:14,440 --> 00:39:23,040
- So any block, any interior node to which there is no black arrow pointing, this can be garbage
+So any block, any interior node to which there is no black arrow pointing, this can be garbage
+所以任何没有黑箭头指向的块，任何没有黑箭头指向的内部节点，都可能是垃圾。
 
 279
 00:39:23,040 --> 00:39:34,400
- collected. And now you have a new version. So this again, it's like you are going to
+collected. And now you have a new version. So this again, it's like you are going to
+收集好了。现在你有一个新版本。所以这次又是一样的，就好像你要重新开始。
 
 280
 00:39:34,400 --> 00:39:39,480
- move from old version to the new version only in the last moment, once you update all the
+move from old version to the new version only in the last moment, once you update all the
+在最后一刻才从旧版本迁移到新版本，一旦你更新了所有的内容。
 
 281
 00:39:39,480 --> 00:39:52,040
- interior nodes of the tree and obviously the data. You updated the block after you copied.
+interior nodes of the tree and obviously the data. You updated the block after you copied.
+树的内部节点和显然是数据。你在复制后更新了块。
 
 282
 00:39:52,040 --> 00:39:55,840
- If you are not successful, if you fail during this process, it's okay. You have the old
+If you are not successful, if you fail during this process, it's okay. You have the old
+如果你不成功，如果你在这个过程中失败了，没关系。你还有老的。
 
 283
 00:39:55,840 --> 00:40:02,480
- version, the old version is still consistent. It don't reflect the new update, but again,
+version, the old version is still consistent. It don't reflect the new update, but again,
+版本，旧版本仍然保持一致。它不反映新的更新，但是再说一遍，
 
 284
 00:40:02,480 --> 00:40:07,080
- that's okay. The main problem when you try to solve here is to not leave the old story
+that's okay. The main problem when you try to solve here is to not leave the old story
+没问题。你在这里尝试解决的主要问题是不要离开旧故事。
 
 285
 00:40:07,080 --> 00:40:30,160
- system in an inconsistent state. Any questions? Oh, is this better or worse on SSD? It seems
+system in an inconsistent state. Any questions? Oh, is this better or worse on SSD? It seems
+系统处于不一致的状态。有什么问题吗？哦，这在SSD上是更好还是更差？看起来
 
 286
 00:40:30,160 --> 00:40:40,320
- like we are writing a lot more, but don't have to erase as often. Well, yeah, it's worse
+like we are writing a lot more, but don't have to erase as often. Well, yeah, it's worse
+就像我们写得更多，但不需要经常擦除一样。嗯，是的，这更糟糕。
 
 287
 00:40:40,320 --> 00:40:50,600
- for SSDs because you are going to wear the SSDs more. But again, we have other solutions
+for SSDs because you are going to wear the SSDs more. But again, we have other solutions
+对于SSD来说，因为你会更频繁地使用SSD，所以会有更多的磨损。但是，我们还有其他解决方案。
 
 288
 00:40:50,600 --> 00:41:02,160
- like you'll see. But in general, this is worse. You still need to erase because you need to
+like you'll see. But in general, this is worse. You still need to erase because you need to
+像你会看到的那样。但总的来说，这更糟糕。你仍然需要擦除，因为你需要
 
 289
 00:41:02,160 --> 00:41:09,940
- garbage collect. Garbage collection means you're a rater. But a great question. Okay.
+garbage collect. Garbage collection means you're a rater. But a great question. Okay.
+垃圾回收。垃圾回收意味着你是一个评分员。但这是一个很好的问题。好的。
 
 290
 00:41:09,940 --> 00:41:19,320
- So this is, like I mentioned to you, ZFS, ZFS has variable size blocks, is a symmetric
+So this is, like I mentioned to you, ZFS, ZFS has variable size blocks, is a symmetric
+所以这个就是，就像我之前跟你提到的一样，ZFS，ZFS具有可变大小的块，是对称的。
 
 291
 00:41:19,320 --> 00:41:25,420
- tree. So basically the tree you are building is symmetric of a certain depth. So basically
+tree. So basically the tree you are building is symmetric of a certain depth. So basically
+树。所以基本上你正在构建的树是某个深度的对称树。所以基本上
 
 292
 00:41:25,420 --> 00:41:34,040
- you know because symmetric is like how large or small is. If you know the depths of the
+you know because symmetric is like how large or small is. If you know the depths of the
+你知道，对称就像大小的程度一样。如果你知道深度的话
 
 293
 00:41:34,040 --> 00:41:38,760
- tree and you know what leaf, the leaf where you are at, you can estimate the size of the
+tree and you know what leaf, the leaf where you are at, you can estimate the size of the
+树和你知道的叶子，就是你所在的那片叶子，你可以估计它的大小。
 
 294
 00:41:38,760 --> 00:41:44,720
- tree pretty accurately. If it's balanced, right? If it's symmetric. If it's not symmetric,
+tree pretty accurately. If it's balanced, right? If it's symmetric. If it's not symmetric,
+树相当准确。如果它是平衡的，对吗？如果它是对称的。如果它不对称，
 
 295
 00:41:44,720 --> 00:41:52,600
- then you cannot do that. You store the version number in the pointers. So you know the pointer
+then you cannot do that. You store the version number in the pointers. So you know the pointer
+那么你无法这样做。你将版本号存储在指针中，所以你知道指针的版本号。
 
 296
 00:41:52,600 --> 00:41:59,520
- to which the version number belongs to. And like we saw before, you can create a new version
+to which the version number belongs to. And like we saw before, you can create a new version
+属于哪个版本号。就像我们之前看到的那样，你可以创建一个新版本。
 
 297
 00:41:59,520 --> 00:42:08,420
- by adding new blocks and new pointers. And as the tree expands, you are going to garbage
+by adding new blocks and new pointers. And as the tree expands, you are going to garbage
+通过添加新的块和新的指针。随着树的扩展，你会产生垃圾。
 
 298
 00:42:08,420 --> 00:42:20,380
- collect the old data, the old pointers to make room for the new data.
+collect the old data, the old pointers to make room for the new data.
+收集旧数据，旧指针为新数据腾出空间。
 
 299
 00:42:20,380 --> 00:42:30,740
- So and in this case, you try to batch everything. You try to batch the writes. You try to batch
+So and in this case, you try to batch everything. You try to batch the writes. You try to batch
+所以在这种情况下，你尝试批量处理所有事情。你尝试批量写入。你尝试批量处理。
 
 300
 00:42:30,740 --> 00:42:50,560
- the updates to the free space and so forth. OK, so now let's talk about more general solutions.
+the updates to the free space and so forth. OK, so now let's talk about more general solutions.
+关于免费空间的更新等等。好的，现在让我们来谈谈更一般的解决方案。
 
 301
 00:42:50,560 --> 00:42:56,120
- So one solution which you are going to talk about also next time, now it's just briefly,
+So one solution which you are going to talk about also next time, now it's just briefly,
+所以你将在下次讨论中提到的一个解决方案，现在只是简单地提一下，
 
 302
 00:42:56,120 --> 00:43:05,500
- this transaction. So fundamentally, what we want here is remember, we want to avoid to
+this transaction. So fundamentally, what we want here is remember, we want to avoid to
+这个交易。所以从根本上说，我们在这里想要的是记住，我们要避免...
 
 303
 00:43:05,500 --> 00:43:12,180
- have to remain in an inconsistent state. And we remain in an inconsistent state because
+have to remain in an inconsistent state. And we remain in an inconsistent state because
+必须保持不一致的状态。我们之所以保持不一致的状态是因为
 
 304
 00:43:12,180 --> 00:43:18,640
- we have multiple related updates. So if only part of the updates happen, then you have
+we have multiple related updates. So if only part of the updates happen, then you have
+我们有多个相关的更新。所以如果只有部分更新发生，那么你会有
 
 305
 00:43:18,640 --> 00:43:27,080
- an inconsistent state. So we had this problem before. And if you remember, and we talk about
+an inconsistent state. So we had this problem before. And if you remember, and we talk about
+一个不一致的状态。所以我们之前遇到过这个问题。如果你记得的话，我们谈论过。
 
 306
 00:43:27,080 --> 00:43:32,480
- critical section, we talk about that when I talk about atomicity. Right? With atomic
+critical section, we talk about that when I talk about atomicity. Right? With atomic
+关键区域，我们在讨论原子性时会提到它。对吗？使用原子操作。
 
 307
 00:43:32,480 --> 00:43:38,600
- operation, we want all of the operation to happen or none or so. The same idea is this
+operation, we want all of the operation to happen or none or so. The same idea is this
+操作，我们希望所有的操作要么全部发生，要么全部不发生。同样的想法是这样的。
 
 308
 00:43:38,600 --> 00:43:44,860
- transaction for the story system. This is called some transactions. They are more than
+transaction for the story system. This is called some transactions. They are more than
+故事系统的交易。这些被称为一些交易。它们超过了。
 
 309
 00:43:44,860 --> 00:43:51,340
- atomic operation because they also require durability and other properties. But the idea
+atomic operation because they also require durability and other properties. But the idea
+原子操作因为它们还需要持久性和其他属性。但这个想法
 
 310
 00:43:51,340 --> 00:44:00,900
- is the same. A transaction contain multiple operations. And the semantics should be either
+is the same. A transaction contain multiple operations. And the semantics should be either
+相同。一个事务包含多个操作。并且语义应该是以下之一
 
 311
 00:44:00,900 --> 00:44:08,100
- all the operation in a transaction are going to happen to be successful or none of them
+all the operation in a transaction are going to happen to be successful or none of them
+所有事务中的操作要么全部成功，要么全部失败。
 
 312
 00:44:08,100 --> 00:44:21,740
- will happen. So if you are failure in the middle of the transaction, then it looks like
+will happen. So if you are failure in the middle of the transaction, then it looks like
+会发生的。所以如果你在交易过程中失败了，那看起来就像是
 
 313
 00:44:21,740 --> 00:44:30,640
- none of the updates in the transaction ever happen. The entire transaction fail. So we
+none of the updates in the transaction ever happen. The entire transaction fail. So we
+交易中的任何更新都没有发生。整个交易失败了。所以
 
 314
 00:44:30,640 --> 00:44:37,880
- discuss about this and it's again closely related to this critical section and with
+discuss about this and it's again closely related to this critical section and with
+讨论这个问题，它再次与这个关键部分密切相关，并且与之相关。
 
 315
 00:44:37,880 --> 00:44:56,840
- the concept of atomic update for memory. So in some sense, the first file system, which
+the concept of atomic update for memory. So in some sense, the first file system, which
+内存的原子更新概念。在某种意义上，第一个文件系统，它
 
 316
 00:44:56,840 --> 00:45:07,160
- approach to carefully ordering the sequence of updates and then recover from inconsistent
+approach to carefully ordering the sequence of updates and then recover from inconsistent
+有序更新的方法和从不一致状态中恢复的方法。
 
 317
 00:45:07,160 --> 00:45:22,680
- state when you restart, it's a primitive form of implementing this idea.
+state when you restart, it's a primitive form of implementing this idea.
+当你重新启动时，这是一种实现这个想法的原始形式。
 
 318
 00:45:22,680 --> 00:45:36,420
- So again, we discussed that just to draw home the point, a transaction is a bunch of operations
+So again, we discussed that just to draw home the point, a transaction is a bunch of operations
+所以再次，我们讨论了一下，为了强调一下，一个事务是一系列的操作。
 
 319
 00:45:36,420 --> 00:45:45,920
- which take a system from a consistent state to another consistent state. And therefore
+which take a system from a consistent state to another consistent state. And therefore
+将系统从一个一致状态转移到另一个一致状态。因此，
 
 320
 00:45:45,920 --> 00:45:51,000
- we want all the operation in the transaction to happen or none of them to happen. If none
+we want all the operation in the transaction to happen or none of them to happen. If none
+我们希望在事务中的所有操作都发生，或者都不发生。如果没有发生任何操作，
 
 321
 00:45:51,000 --> 00:45:54,780
- of them will happen, you remain in the previous state, which is consistent by definition.
+of them will happen, you remain in the previous state, which is consistent by definition.
+其中任何一个都不会发生，你仍然保持在之前的状态，这是根据定义一致的。
 
 322
 00:45:54,780 --> 00:46:06,480
- If all will happen, you are going to move to a new state, which is again will be consistent.
+If all will happen, you are going to move to a new state, which is again will be consistent.
+如果一切都会发生，你将搬到一个新的州，这将再次保持一致。
 
 323
 00:46:06,480 --> 00:46:14,380
- So in one way, transaction extends the concept of atomic updates to multiple data structures
+So in one way, transaction extends the concept of atomic updates to multiple data structures
+所以从某种程度上说，事务将原子更新的概念扩展到了多个数据结构。
 
 324
 00:46:14,380 --> 00:46:24,360
- from memory to persistent storage. So what is the typical structure of the transaction?
+from memory to persistent storage. So what is the typical structure of the transaction?
+从内存到持久存储。那么，交易的典型结构是什么？
 
 325
 00:46:24,360 --> 00:46:30,000
- You have a begin transaction, you have a commit transaction or end of the transaction, and
+You have a begin transaction, you have a commit transaction or end of the transaction, and
+你有一个开始事务，你有一个提交事务或结束事务，以及
 
 326
 00:46:30,000 --> 00:46:36,200
- then you do a bunch of operations. If you fail during these operations, you are going
+then you do a bunch of operations. If you fail during these operations, you are going
+然后你进行一系列的操作。如果在这些操作中失败了，你就会...
 
 327
 00:46:36,200 --> 00:46:45,580
- to roll back to undo the effect of the operation who have succeeded. So this way you are guaranteed
+to roll back to undo the effect of the operation who have succeeded. So this way you are guaranteed
+回滚是为了撤销已成功操作的影响。这样做可以确保您的操作结果。
 
 328
 00:46:45,580 --> 00:46:50,820
- that if you fail during the transaction, then all the operation will be undoed. And from
+that if you fail during the transaction, then all the operation will be undoed. And from
+那么如果您在交易过程中失败，那么所有的操作都将被撤销。并且从
 
 329
 00:46:50,820 --> 00:46:55,480
- an external observer, it appears that the transaction, nothing from the transaction
+an external observer, it appears that the transaction, nothing from the transaction
+作为一个外部观察者，从交易中似乎没有任何事情发生。
 
 330
 00:46:55,480 --> 00:47:01,820
- happened.
+happened.
+发生了。
 
 331
 00:47:01,820 --> 00:47:10,940
- So these are examples in which you are going to transfer $100 from Alice account to Bob
+So these are examples in which you are going to transfer $100 from Alice account to Bob
+这些是你要从爱丽丝的账户转账100美元给鲍勃的例子。
 
 332
 00:47:10,940 --> 00:47:17,980
- account. There are a bunch of operations here to update the account of Alice and Bob and
+account. There are a bunch of operations here to update the account of Alice and Bob and
+账户。这里有一系列操作，用于更新Alice和Bob的账户。
 
 333
 00:47:17,980 --> 00:47:24,980
- to account the branch, how much money is in the branch, assuming that Alice and Bob are
+to account the branch, how much money is in the branch, assuming that Alice and Bob are
+负责分支机构的账目，假设Alice和Bob负责，分支机构中有多少钱？
 
 334
 00:47:24,980 --> 00:47:32,620
- in different, their accounts are in different branches of the same bank. For operations,
+in different, their accounts are in different branches of the same bank. For operations,
+在不同的情况下，他们的账户在同一家银行的不同分支机构。对于操作，
 
 335
 00:47:32,620 --> 00:47:41,740
- all of them should happen in a transaction.
+all of them should happen in a transaction.
+所有这些都应该在一次交易中发生。
 
 336
 00:47:41,740 --> 00:47:46,980
- So this is what you do. You have these operations, you know, here is on the exercise, it is a
+So this is what you do. You have these operations, you know, here is on the exercise, it is a
+这就是你的工作内容。你需要进行这些操作，你知道的，这里是关于练习的，它是一个...
 
 337
 00:47:46,980 --> 00:47:53,700
- time. This is how it appears. And then there are these operations that can be interleaved
+time. This is how it appears. And then there are these operations that can be interleaved
+时间。这是它的外观。然后还有一些可以交错进行的操作。
 
 338
 00:47:53,700 --> 00:47:57,540
- these operations from other transactions. So they are transaction actually, like we
+these operations from other transactions. So they are transaction actually, like we
+这些操作来自其他交易。所以它们实际上是交易，就像我们
 
 339
 00:47:57,540 --> 00:48:11,100
- are going to see next time can overlap. And then you have start transaction and end commit
+are going to see next time can overlap. And then you have start transaction and end commit
+下次我们要看的时间可能会重叠。然后你需要开始事务并结束提交。
 
 340
 00:48:11,100 --> 00:48:23,840
- transaction. So any questions?
+transaction. So any questions?
+交易。有什么问题吗？
 
 341
 00:48:23,840 --> 00:48:30,260
- So let's see how transactions are used for file systems. You can see a little bit about
+So let's see how transactions are used for file systems. You can see a little bit about
+因此，让我们来看看事务是如何用于文件系统的。你可以了解一些相关信息。
 
 342
 00:48:30,260 --> 00:48:39,860
- how they could be used. And basically the changes are treated as transactions. And there
+how they could be used. And basically the changes are treated as transactions. And there
+如何使用它们。基本上，这些变化被视为交易。而且
 
 343
 00:48:39,860 --> 00:48:47,940
- are two kinds of file systems here, two types of file systems, log structure and journal.
+are two kinds of file systems here, two types of file systems, log structure and journal.
+这里有两种文件系统，分别是日志结构和日志。
 
 344
 00:48:47,940 --> 00:48:57,380
- In a log structure, the data stays in the log and logs are updated using transactions.
+In a log structure, the data stays in the log and logs are updated using transactions.
+在日志结构中，数据保留在日志中，并且使用事务来更新日志。
 
 345
 00:48:57,380 --> 00:49:06,500
- In a journal file system, log is used only for recovery. The data is still on, you know,
+In a journal file system, log is used only for recovery. The data is still on, you know,
+在日志文件系统中，日志仅用于恢复。数据仍然存在，你知道的。
 
 346
 00:49:06,500 --> 00:49:15,500
- in the traditional data format on the disk. We are going to look to journal file system
+in the traditional data format on the disk. We are going to look to journal file system
+在磁盘上的传统数据格式中。我们将要研究日志文件系统。
 
 347
 00:49:15,500 --> 00:49:21,220
- in the next couple of slides.
+in the next couple of slides.
+在接下来的几张幻灯片中。
 
 348
 00:49:21,220 --> 00:49:26,380
- So it's the same idea a little bit, always, like is that you don't modify data structure
+So it's the same idea a little bit, always, like is that you don't modify data structure
+所以这个想法有点相同，总是不修改数据结构，对吗？
 
 349
 00:49:26,380 --> 00:49:35,900
- on the disk directly, this idea. You put some of the changes on the log. And only after
+on the disk directly, this idea. You put some of the changes on the log. And only after
+在磁盘上直接存储这个想法。你将一些变化记录在日志中。只有在这之后才能
 
 350
 00:49:35,900 --> 00:49:42,140
- you are done, we so to speak, the transaction with all the changes, you push the changes
+you are done, we so to speak, the transaction with all the changes, you push the changes
+你完成了，我们可以说，交易中的所有变动，你推动这些变动。
 
 351
 00:49:42,140 --> 00:49:49,300
- to the disk. And it turns out that as long as the log is persistent, even if you have
+to the disk. And it turns out that as long as the log is persistent, even if you have
+将日志写入磁盘。结果发现只要日志是持久化的，即使你有
 
 352
 00:49:49,300 --> 00:49:57,820
- failures, you can always recover. We'll see, we'll show some examples.
+failures, you can always recover. We'll see, we'll show some examples.
+失败，你总是可以重新振作起来。我们会看到，我们会展示一些例子。
 
 353
 00:49:57,820 --> 00:50:07,580
- So this is exactly what I said. You write the updates of the transactions, the related
+So this is exactly what I said. You write the updates of the transactions, the related
+所以这就是我说的。你写下交易的更新，相关的
 
 354
 00:50:07,580 --> 00:50:14,180
- updates as a transaction in the log. Once the transaction is committed in the log, you
+updates as a transaction in the log. Once the transaction is committed in the log, you
+将更新作为事务记录在日志中。一旦事务在日志中提交，你
 
 355
 00:50:14,180 --> 00:50:23,620
- can now start applying those operations in the transaction on the storage. If you fail
+can now start applying those operations in the transaction on the storage. If you fail
+现在可以在存储上开始应用这些操作。如果失败了，
 
 356
 00:50:23,620 --> 00:50:30,380
- in between, it's OK, because when you come back, you have enough information to continue
+in between, it's OK, because when you come back, you have enough information to continue
+在中间，没关系，因为当你回来时，你会有足够的信息继续。
 
 357
 00:50:30,380 --> 00:50:38,060
- to update the disk, the data on the disk.
+to update the disk, the data on the disk.
+更新硬盘，硬盘上的数据。
 
 358
 00:50:38,060 --> 00:50:47,020
- Once the log, all the updates in a transaction are successfully applied to the disk, you
+Once the log, all the updates in a transaction are successfully applied to the disk, you
+一旦日志被应用到磁盘上，事务中的所有更新都会成功生效。
 
 359
 00:50:47,020 --> 00:50:58,420
- are going to remove the log. So this is Linux, use Jarnold file system and basically took
+are going to remove the log. So this is Linux, use Jarnold file system and basically took
+你们打算移除这个日志。所以这是Linux，使用Jarnold文件系统，基本上就是这样做的。
 
 360
 00:50:58,420 --> 00:51:07,260
- of FFS like file system and applied Jarnold's. OK, and there are many, many systems using
+of FFS like file system and applied Jarnold's. OK, and there are many, many systems using
+像文件系统和应用Jarnold的FFS。好的，还有很多很多使用的系统。
 
 361
 00:51:07,260 --> 00:51:16,860
- journaling file systems. OK, so let's before to see, you know, to get a sense about how
+journaling file systems. OK, so let's before to see, you know, to get a sense about how
+日志文件系统。好的，那么在我们开始之前，你知道，先了解一下，对于如何...
 
 362
 00:51:16,860 --> 00:51:24,780
- journaling is working, let's look again, what are the typical updates you need to do when
+journaling is working, let's look again, what are the typical updates you need to do when
+日志记录正在运作，让我们再看一遍，你在进行常规更新时需要做什么？
 
 363
 00:51:24,780 --> 00:51:27,640
- you are going to.
+you are going to.
+你要去哪里？
 
 364
 00:51:27,640 --> 00:51:36,220
- Write data on the disk. For now, there is no journaling. So you need to do what you
+Write data on the disk. For now, there is no journaling. So you need to do what you
+将数据写入磁盘。目前还没有日志记录。所以你需要做什么？
 
 365
 00:51:36,220 --> 00:51:41,920
- need to find a free block, the yellow block, there is a free block. Good. You need to find
+need to find a free block, the yellow block, there is a free block. Good. You need to find
+需要找一个空闲的方块，黄色的方块，有一个空闲的方块。很好。你需要找到
 
 366
 00:51:41,920 --> 00:51:53,500
- a free entry, in the inode entry. You need to find where you are going to insert and
+a free entry, in the inode entry. You need to find where you are going to insert and
+一个自由入口，在inode入口中。你需要找到你要插入的位置。
 
 367
 00:51:53,500 --> 00:51:59,860
- in the file directory where you are going to insert the entry which associates the file
+in the file directory where you are going to insert the entry which associates the file
+在文件目录中，您将要插入与文件相关联的条目。
 
 368
 00:51:59,860 --> 00:52:07,700
- with the inode, the file name with the inode. And then once you update, you find all these
+with the inode, the file name with the inode. And then once you update, you find all these
+使用inode，使用inode的文件名。然后一旦你更新，你会发现所有这些。
 
 369
 00:52:07,700 --> 00:52:20,420
- free available spaces, you start to write. You write in the free map space, you say,
+free available spaces, you start to write. You write in the free map space, you say,
+免费可用的空间，你开始写。你在空白的地图空间上写下了你的话，你说，
 
 370
 00:52:20,420 --> 00:52:28,900
- you know, you mark that you allocate the data. You write an inode entry to point to the block,
+you know, you mark that you allocate the data. You write an inode entry to point to the block,
+你知道，你标记了你分配的数据。你写了一个inode条目来指向这个块，
 
 371
 00:52:28,900 --> 00:52:36,500
- you route and you write the directory entry to point to the inode. This is what you do.
+you route and you write the directory entry to point to the inode. This is what you do.
+你将路径路由并将目录项指向索引节点。这就是你要做的。
 
 372
 00:52:36,500 --> 00:52:42,580
- Right? And remember, if something happens, wrong happens, it can leave the disk in the
+Right? And remember, if something happens, wrong happens, it can leave the disk in the
+对吗？记住，如果发生了什么事情，出了问题，它可能会损坏硬盘。
 
 373
 00:52:42,580 --> 00:52:51,220
- inconsistent state. So now let's see how we address this problem in journaling. Journaling
+inconsistent state. So now let's see how we address this problem in journaling. Journaling
+不一致的状态。现在让我们看看在日志记录中如何解决这个问题。日志记录
 
 374
 00:52:51,220 --> 00:53:00,860
- is locked. So instead of writing journaling to the disk, you write to the lock. It's non-volatile,
+is locked. So instead of writing journaling to the disk, you write to the lock. It's non-volatile,
+被锁定了。所以，与其将日志写入磁盘，你将其写入锁定状态。它是非易失性的，
 
 375
 00:53:00,860 --> 00:53:15,340
- it's on flash or on the disk. So what do you do? You find the free data block. Again, like
+it's on flash or on the disk. So what do you do? You find the free data block. Again, like
+它在闪存上还是在磁盘上。那么你会做什么？你会找到空闲的数据块。再次，就像
 
 376
 00:53:15,340 --> 00:53:21,140
- these are the operations, right? Find free data block, find free inode entry, find a
+these are the operations, right? Find free data block, find free inode entry, find a
+这些是操作步骤，对吗？找到空闲数据块，找到空闲inode条目，找到一个
 
 377
 00:53:21,140 --> 00:53:29,860
- directory and insertion point in directory for adding the directory entry to map the
+directory and insertion point in directory for adding the directory entry to map the
+目录和目录中的插入点，用于将目录条目添加到映射中。
 
 378
 00:53:29,860 --> 00:53:39,020
- file name to the inode. This is what you do. You start the transaction and you write this
+file name to the inode. This is what you do. You start the transaction and you write this
+将文件名写入inode。这就是你要做的。你开始事务并写入这个。
 
 379
 00:53:39,020 --> 00:53:48,140
- operation. Okay, so now you don't write directly and to update the free space map. You put
+operation. Okay, so now you don't write directly and to update the free space map. You put
+操作。好的，现在你不直接写入并更新空闲空间映射表。你将其放入...
 
 380
 00:53:48,140 --> 00:53:58,740
- the operation to the updates, that free space map in the lock. You don't update the inode
+the operation to the updates, that free space map in the lock. You don't update the inode
+更新操作会锁定空闲空间映射。您不需要更新inode。
 
 381
 00:53:58,740 --> 00:54:10,460
- table to point to the new block. You write that operation in the lock and the same, the
+table to point to the new block. You write that operation in the lock and the same, the
+将表指向新的块。你在锁中写入该操作，同样，
 
 382
 00:54:10,460 --> 00:54:16,580
- operation to update the directory entry, you are going to write in the lock. And now you
+operation to update the directory entry, you are going to write in the lock. And now you
+要更新目录条目的操作，你将在锁定状态下进行编写。现在你可以开始。
 
 383
 00:54:16,580 --> 00:54:28,980
- commit it. So all updates, all operation to update information on the disks are in the
+commit it. So all updates, all operation to update information on the disks are in the
+提交它。因此，所有更新、所有更新磁盘上的信息的操作都在其中。
 
 384
 00:54:28,980 --> 00:54:43,140
- lock. Nothing happened so far on the disk. And then once you are done, you are going
+lock. Nothing happened so far on the disk. And then once you are done, you are going
+锁定。目前为止，磁盘上没有发生任何事情。然后一旦你完成了，你就可以去了。
 
 385
 00:54:43,140 --> 00:54:49,900
- to go through all the operations in the locks and you are going to update now the data or
+to go through all the operations in the locks and you are going to update now the data or
+要执行所有锁定操作，然后你将要更新数据。
 
 386
 00:54:49,900 --> 00:54:59,620
- the information on the disk. So you copy all the changes and you advance the tail of the
+the information on the disk. So you copy all the changes and you advance the tail of the
+磁盘上的信息。因此，您复制所有的更改并推进尾部。
 
 387
 00:54:59,620 --> 00:55:11,460
- lock. And now when the tail goes over the commit, after you execute all the operations,
+lock. And now when the tail goes over the commit, after you execute all the operations,
+锁定。现在当尾部超过提交时，在执行所有操作之后，
 
 388
 00:55:11,460 --> 00:55:20,220
- modify all the operation from the lock on the file system, you can discard that lock,
+modify all the operation from the lock on the file system, you can discard that lock,
+修改文件系统上的所有操作，您可以放弃该锁定。
 
 389
 00:55:20,220 --> 00:55:43,460
- that transaction in the lock. Okay. So let's say that I was only successful to write to
+that transaction in the lock. Okay. So let's say that I was only successful to write to
+锁定中的那个交易。好的。那么假设我只成功写入了该交易。
 
 390
 00:55:43,460 --> 00:56:04,820
- the locks only the operation to get to the free space to modify the bitmap, free space
+the locks only the operation to get to the free space to modify the bitmap, free space
+锁定仅用于操作以获取可用空间并修改位图，释放空间。
 
 391
 00:56:04,820 --> 00:56:18,580
- bitmap and the pointer to the inode. In this case, if I am coming back and assume that
+bitmap and the pointer to the inode. In this case, if I am coming back and assume that
+位图和指向索引节点的指针。在这种情况下，如果我回来并假设
 
 392
 00:56:18,580 --> 00:56:24,900
- after these two operations are returning the lock, but before the transaction ended, I
+after these two operations are returning the lock, but before the transaction ended, I
+在这两个操作返回锁之后，在事务结束之前，我
 
 393
 00:56:24,900 --> 00:56:38,540
- have a failure. So at the second in this case, if I come back, right? The only thing I need
+have a failure. So at the second in this case, if I come back, right? The only thing I need
+是的，如果我回来的话，我只需要做一件事。
 
 394
 00:56:38,540 --> 00:56:44,540
- to do is to remove this operation to remove from the lock because it is fine. It's fine.
+to do is to remove this operation to remove from the lock because it is fine. It's fine.
+将这个操作从锁上移除是可以的。没问题。
 
 395
 00:56:44,540 --> 00:56:53,820
- Still nothing has been applied on the disk. You apply the changes on the disk only after
+Still nothing has been applied on the disk. You apply the changes on the disk only after
+磁盘上仍然没有应用任何内容。只有在你应用更改到磁盘上之后，更改才会生效。
 
 396
 00:56:53,820 --> 00:57:01,580
- the transaction is succeeded on the lock. So after you, after the commit. Okay. There
+the transaction is succeeded on the lock. So after you, after the commit. Okay. There
+交易在锁上成功了。所以在你之后，在提交之后。好的。
 
 397
 00:57:01,580 --> 00:57:11,940
- are two questions here. Can you have a fail when while writing the lock? Absolutely. But
+are two questions here. Can you have a fail when while writing the lock? Absolutely. But
+这里有两个问题。当你写锁的时候，会不会失败？绝对可能。但是
 
 398
 00:57:11,940 --> 00:57:17,580
- then everything will be cleaned up. Like in this case, you can fail while you're writing
+then everything will be cleaned up. Like in this case, you can fail while you're writing
+然后一切都会被清理干净。就像在这种情况下，你在写作时可能会失败。
 
 399
 00:57:17,580 --> 00:57:23,300
- on the lock. And then when you come back, you look at the incomplete transaction, you
+on the lock. And then when you come back, you look at the incomplete transaction, you
+在锁上。然后当你回来时，你看着那个未完成的交易，你
 
 400
 00:57:23,300 --> 00:57:28,860
- clean them up because you know that nothing from the transaction, which was not finished
+clean them up because you know that nothing from the transaction, which was not finished
+请将它们清理干净，因为你知道交易中未完成的部分没有任何价值。
 
 401
 00:57:28,860 --> 00:57:39,260
- for me, it has been all applied to the disk. What is the big difference between writing
+for me, it has been all applied to the disk. What is the big difference between writing
+对我来说，所有的内容都已经应用到了磁盘上。写入的大区别是什么？
 
 402
 00:57:39,260 --> 00:57:43,420
- directly? The big difference from writing between writing directly and writing in the
+directly? The big difference from writing between writing directly and writing in the
+直接写作和间接写作之间的主要区别是什么？
 
 403
 00:57:43,420 --> 00:57:53,420
- lock is very simple, right? It's basically because I have a lock and I have, you know,
+lock is very simple, right? It's basically because I have a lock and I have, you know,
+锁很简单，对吧？基本上就是因为我有一个锁，你知道的，
 
 404
 00:57:53,420 --> 00:58:02,140
- then I can easy reconstruct the state to make it consistent on the file system. Otherwise
+then I can easy reconstruct the state to make it consistent on the file system. Otherwise
+然后我可以轻松地重建状态，使其在文件系统上保持一致。否则
 
 405
 00:58:02,140 --> 00:58:10,620
- it's more difficult. Remember like with a files check for the fast file system in order
+it's more difficult. Remember like with a files check for the fast file system in order
+这更加困难。记住，像文件检查一样，要为快速文件系统进行检查。
 
 406
 00:58:10,620 --> 00:58:17,100
- to make the state consistent, you need to go and to sequential look over the entire
+to make the state consistent, you need to go and to sequential look over the entire
+为了使状态一致，你需要逐个查看整个过程。
 
 407
 00:58:17,100 --> 00:58:35,580
- disk. This is extremely slow. It's again, here in the log, we assume that we know that
+disk. This is extremely slow. It's again, here in the log, we assume that we know that
+磁盘。这个速度非常慢。再次，这里在日志中，我们假设我们知道
 
 408
 00:58:35,580 --> 00:58:45,980
- a write has been completed. Assume that we know that. The disk eventually will tell you.
+a write has been completed. Assume that we know that. The disk eventually will tell you.
+一篇写作已经完成。假设我们已经知道了。最终，磁盘会告诉你的。
 
 409
 00:58:45,980 --> 00:59:02,060
- If the disk doesn't tell you, then we assume that it doesn't. Yeah. So the question here
+If the disk doesn't tell you, then we assume that it doesn't. Yeah. So the question here
+如果光盘没有告诉你，那么我们就假设它没有。是的。所以这里的问题是什么？
 
 410
 00:59:02,060 --> 00:59:07,940
- is that basically see how do you ensure the sequentiality? Well, you make sure that the
+is that basically see how do you ensure the sequentiality? Well, you make sure that the
+这基本上是看你如何确保顺序性的问题。嗯，你要确保
 
 411
 00:59:07,940 --> 00:59:14,860
- controller for the log is not going to reorder the writes. This is an excellent question.
+controller for the log is not going to reorder the writes. This is an excellent question.
+日志控制器不会重新排序写入。这是一个很好的问题。
 
 412
 00:59:14,860 --> 00:59:24,640
- Very good question. Okay. So you saw how this happened. If you, and now we saw that what
+Very good question. Okay. So you saw how this happened. If you, and now we saw that what
+非常好的问题。好的。所以你看到了这是怎么发生的。如果你，现在我们看到了什么
 
 413
 00:59:24,640 --> 00:59:33,180
- happened if you just a log was partially written. When you come back, you just remove the entries
+happened if you just a log was partially written. When you come back, you just remove the entries
+如果只有一部分日志被写入，当你回来时，你只需要删除这些条目。
 
 414
 00:59:33,180 --> 00:59:46,540
- from the partial logs and you are done. But now let's assume that, let's see what happens.
+from the partial logs and you are done. But now let's assume that, let's see what happens.
+从部分日志中你就完成了。但是现在让我们假设一下，看看会发生什么。
 
 415
 00:59:46,540 --> 00:59:55,280
- But now we committed the log, the transaction. So now we need to apply all the operation
+But now we committed the log, the transaction. So now we need to apply all the operation
+但是现在我们已经提交了日志，即事务。所以现在我们需要应用所有的操作。
 
 416
 00:59:55,280 --> 01:00:07,360
- in the log. We need to apply them to the disk. So what do you do? You start from the matching
+in the log. We need to apply them to the disk. So what do you do? You start from the matching
+在日志中。我们需要将它们应用到磁盘上。那么你会怎么做？你从匹配的地方开始。
 
 417
 01:00:07,360 --> 01:00:22,840
- commit and then you are going to, what you are going to do here is basically is again,
+commit and then you are going to, what you are going to do here is basically is again,
+提交之后，你要做的是，你在这里要做的基本上是再次。
 
 418
 01:00:22,840 --> 01:00:29,840
- every of this operation is idempotent. Meaning that if you apply it multiple times, you are
+every of this operation is idempotent. Meaning that if you apply it multiple times, you are
+每个操作都是幂等的。这意味着如果你多次应用它，结果都是一样的。
 
 419
 01:00:29,840 --> 01:00:33,960
- going to get the same result because it just writes. The writes one write is particularly
+going to get the same result because it just writes. The writes one write is particularly
+得到相同的结果，因为它只是写。写的一个写是特别的。
 
 420
 01:00:33,960 --> 01:00:39,160
- idempotent. If you write the same value at the same location over and over again, you
+idempotent. If you write the same value at the same location over and over again, you
+幂等。如果你一遍又一遍地在同一个位置写入相同的值，你
 
 421
 01:00:39,160 --> 01:00:46,640
- are still going to get the same value no matter how many times you wrote. And here is what
+are still going to get the same value no matter how many times you wrote. And here is what
+你写多少次都会得到相同的价值。这是什么。
 
 422
 01:00:46,640 --> 01:00:53,560
- happens here. It's about, again, if you are going to successfully apply all the operations
+happens here. It's about, again, if you are going to successfully apply all the operations
+这里发生了什么。再次强调，如果你要成功应用所有的操作。
 
 423
 01:00:53,560 --> 01:00:59,960
- to the disk, you are done. You can garbage collect like you've seen. But now assume that
+to the disk, you are done. You can garbage collect like you've seen. But now assume that
+磁盘上，你完成了。你可以像你看到的那样进行垃圾回收。但是现在假设
 
 424
 01:00:59,960 --> 01:01:04,400
- you have a failure in the middle or you're applying the operation from the log to the
+you have a failure in the middle or you're applying the operation from the log to the
+你在中间出现了一个错误，或者你正在将日志中的操作应用到这里。
 
 425
 01:01:04,400 --> 01:01:13,160
- disk. So what do you do? Simple. When you come back again, you'll go from the beginning
+disk. So what do you do? Simple. When you come back again, you'll go from the beginning
+磁盘。那你做什么呢？很简单。当你再次回来时，你将从头开始。
 
 426
 01:01:13,160 --> 01:01:17,140
- and you apply all the operations. And because the operation are idempotent, it doesn't matter
+and you apply all the operations. And because the operation are idempotent, it doesn't matter
+你应用所有的操作。由于这些操作是幂等的，所以无所谓。
 
 427
 01:01:17,140 --> 01:01:23,480
- how many times you apply them. Eventually you are going to finish. Right? And then you
+how many times you apply them. Eventually you are going to finish. Right? And then you
+你使用它们多少次。最终你会完成的。对吗？然后你会
 
 428
 01:01:23,480 --> 01:01:39,800
- are going to garbage collect the transaction. So the question, how does discard the log
+are going to garbage collect the transaction. So the question, how does discard the log
+你将要进行垃圾回收事务。所以问题是，如何丢弃日志？
 
 429
 01:01:39,800 --> 01:01:44,720
- work again? When the machine started writing the logs, the disk, that it's already updated
+work again? When the machine started writing the logs, the disk, that it's already updated
+再次工作？当机器开始写入日志时，磁盘已经更新了。
 
 430
 01:01:44,720 --> 01:01:51,680
- partially. How do we undo the only part that is not permitted? So maybe I was not, it's
+partially. How do we undo the only part that is not permitted? So maybe I was not, it's
+部分地。我们如何撤销唯一不允许的部分？所以也许我不是，这是
 
 431
 01:01:51,680 --> 01:01:57,080
- a great question. Maybe I was not clear. There is nothing you are going to update on the
+a great question. Maybe I was not clear. There is nothing you are going to update on the
+一个很好的问题。也许我没有表达清楚。你没有任何需要更新的内容。
 
 432
 01:01:57,080 --> 01:02:11,080
- disk unless the transaction is being committed. Nothing. You see this operation, let me just
+disk unless the transaction is being committed. Nothing. You see this operation, let me just
+磁盘，除非事务被提交。没有。你看到这个操作，让我只是
 
 433
 01:02:11,080 --> 01:02:26,160
- make that very clear. These green things, they are not modified. I just found these
+make that very clear. These green things, they are not modified. I just found these
+让我非常清楚地说明一下。这些绿色的东西，它们没有经过修改。我只是找到了这些。
 
 434
 01:02:26,160 --> 01:02:35,680
- entries. Right? Nothing has been modified on the disk. You start only modifying once
+entries. Right? Nothing has been modified on the disk. You start only modifying once
+条目。对吗？磁盘上没有进行任何修改。只有在开始修改之后才会进行修改。
 
 435
 01:02:35,680 --> 01:02:41,880
- you route the transaction has committed. Now you can start to go back and you apply all
+you route the transaction has committed. Now you can start to go back and you apply all
+您的交易已经提交。现在您可以开始回溯并应用所有更改。
 
 436
 01:02:41,880 --> 01:02:50,240
- the changes in the transaction on the disk. Only now you update the data on the disk.
+the changes in the transaction on the disk. Only now you update the data on the disk.
+磁盘上的事务变更。只有现在你才更新磁盘上的数据。
 
 437
 01:02:50,240 --> 01:03:13,200
- Not before. Did I answer your question? Another question, can we even tell which portion of
+Not before. Did I answer your question? Another question, can we even tell which portion of
+不是之前。我回答了你的问题吗？还有一个问题，我们能确定哪一部分是...的一部分吗？
 
 438
 01:03:13,200 --> 01:03:21,720
- a committed log is finished? It's again, you don't need to know, right? You don't know
+a committed log is finished? It's again, you don't need to know, right? You don't know
+一个已提交的日志已经完成了吗？又是这样，你不需要知道，对吧？你不知道。
 
 439
 01:03:21,720 --> 01:03:28,240
- which is finished because you are going to repeat from the beginning. Every time, if
+which is finished because you are going to repeat from the beginning. Every time, if
+你要从头开始重复，所以这个已经结束了。每次，如果
 
 440
 01:03:28,240 --> 01:03:35,000
- you didn't, you know, when you go back, when you restart, you are going to redo all the
+you didn't, you know, when you go back, when you restart, you are going to redo all the
+你知道的，当你回去，重新开始时，你将要重新做所有的事情。
 
 441
 01:03:35,000 --> 01:03:43,240
- operation from the log. It doesn't matter whether I already done previously, I've done
+operation from the log. It doesn't matter whether I already done previously, I've done
+从日志中操作。不管我之前是否已经完成，我已经完成了。
 
 442
 01:03:43,240 --> 01:03:51,440
- a few. See, I have three operation in the log to apply one to three. I applied this
+a few. See, I have three operation in the log to apply one to three. I applied this
+几个。你看，我日志里有三个操作，要将其中一个应用到三个上。我已经应用了这个操作。
 
 443
 01:03:51,440 --> 01:03:58,480
- operation one and two, then I failed. When I come back, I'm starting again with one,
+operation one and two, then I failed. When I come back, I'm starting again with one,
+操作一和操作二，然后我失败了。当我回来时，我重新开始从操作一开始。
 
 444
 01:03:58,480 --> 01:04:05,440
- two and three. And then hopefully I'm successful to apply three and then I'm done. And I can
+two and three. And then hopefully I'm successful to apply three and then I'm done. And I can
+申请两个和三个。然后希望我能成功申请三个，然后我就完成了。然后我可以
 
 445
 01:04:05,440 --> 01:04:11,160
- apply one and two again because one and two are writes and they are immutable. They are
+apply one and two again because one and two are writes and they are immutable. They are
+重新应用一和二，因为一和二是写入的，而且它们是不可变的。它们是不可变的。
 
 446
 01:04:11,160 --> 01:04:35,920
- going to write the same value. So it's okay. Okay. So, you know, why goes through all this
+going to write the same value. So it's okay. Okay. So, you know, why goes through all this
+去写相同的值。所以没问题。好的。那么，你知道，为什么要经历这一切呢？
 
 447
 01:04:35,920 --> 01:04:45,400
- because it makes it easy to reason and be quite efficient to make sure that the state
+because it makes it easy to reason and be quite efficient to make sure that the state
+因为这样做可以方便推理，并且非常高效，以确保状态的正确性。
 
 448
 01:04:45,400 --> 01:04:53,360
- on the disk is persistent, it's consistent in the presence of failure. Isn't this expensive?
+on the disk is persistent, it's consistent in the presence of failure. Isn't this expensive?
+磁盘上的数据是持久的，即使在发生故障的情况下也是一致的。这难道不会很昂贵吗？
 
 449
 01:04:53,360 --> 01:05:02,320
- Yes, from one perspective it's expensive because you are going to write twice. You may write
+Yes, from one perspective it's expensive because you are going to write twice. You may write
+是的，从某种角度来看，这是昂贵的，因为你需要写两次。你可能会写
 
 450
 01:05:02,320 --> 01:05:09,120
- the data, you know, you are going to write on the log and then you are going to write
+the data, you know, you are going to write on the log and then you are going to write
+这些数据，你知道的，你要写在日志上，然后你要写下去。
 
 451
 01:05:09,120 --> 01:05:21,400
- data on the disk. However, you know, the modern file system is, I forgot to mention, they
+data on the disk. However, you know, the modern file system is, I forgot to mention, they
+磁盘上的数据。然而，你知道，现代文件系统是，我忘了提到，它们
 
 452
 01:05:21,400 --> 01:05:32,480
- have different optimizations. So to do it, you can have different optimization. Like
+have different optimizations. So to do it, you can have different optimization. Like
+有不同的优化方法。所以要做到这一点，你可以采用不同的优化方法。比如
 
 453
 01:05:32,480 --> 01:05:37,780
- for instance, eventually the data, you can write it directly and if you fail, then you
+for instance, eventually the data, you can write it directly and if you fail, then you
+例如，最终数据，你可以直接写入，如果失败了，那么你可以
 
 454
 01:05:37,780 --> 01:05:44,720
- eventually recover at a later time. But there is one actually I want to ask you, can you
+eventually recover at a later time. But there is one actually I want to ask you, can you
+最终会在以后的时间恢复。但是实际上有一个问题我想问你，你能够
 
 455
 01:05:44,720 --> 01:05:51,780
- see one reason actually journaling file systems can be also, can journaling can be good for
+see one reason actually journaling file systems can be also, can journaling can be good for
+看到一个原因，实际上，日志文件系统也可以是好的，日志记录对于...可以是有益的。
 
 456
 01:05:51,780 --> 01:06:09,040
- performance? If I tell you that journaling can also help with the performance, why do
+performance? If I tell you that journaling can also help with the performance, why do
+性能？如果我告诉你写日记也可以提高性能，你为什么会这样想呢？
 
 457
 01:06:09,040 --> 01:06:28,520
- you think that will be the case? How is the log organized?
+you think that will be the case? How is the log organized?
+你认为会是这样吗？日志是如何组织的？
 
 458
 01:06:28,520 --> 01:06:53,240
- the sequential rise are fast. So all the rise in the log are sequential, so they are
+the sequential rise are fast. So all the rise in the log are sequential, so they are
+连续上升速度很快。因此，所有的上升都是连续的，所以它们是连贯的。
 
 459
 01:06:53,240 --> 01:07:04,360
- very fast. And then later you can actually batch the updates from the logs to the disk.
+very fast. And then later you can actually batch the updates from the logs to the disk.
+非常快。然后稍后你可以将日志中的更新批量写入磁盘。
 
 460
 01:07:04,360 --> 01:07:16,200
- So you can do them as efficiently as you can. That's the reason. So it's not all bad when
+So you can do them as efficiently as you can. That's the reason. So it's not all bad when
+你可以尽可能高效地完成它们。这就是原因。所以并不全是坏事，当
 
 461
 01:07:16,200 --> 01:07:24,040
- it comes to performance. Okay. Announcements, projects three, design review this week. This
+it comes to performance. Okay. Announcements, projects three, design review this week. This
+是关于性能的。好的。公告，项目三，本周进行设计审查。
 
 462
 01:07:24,040 --> 01:07:30,280
- is the last round of design reviews. We are close to the end of the class. Homework five
+is the last round of design reviews. We are close to the end of the class. Homework five
+是最后一轮设计评审。我们离课程结束很近了。作业五。
 
 463
 01:07:30,280 --> 01:07:47,820
- is due Monday, next Monday. And as you know, we have the midterm grades were released.
+is due Monday, next Monday. And as you know, we have the midterm grades were released.
+是下周一到期。正如你所知，我们的期中成绩已经发布了。
 
 464
 01:07:47,820 --> 01:07:54,760
- I think you did congratulations. You did very well. The first exams, I mean, was around
+I think you did congratulations. You did very well. The first exams, I mean, was around
+我认为你做得很棒。你做得非常好。我指的是第一次考试。
 
 465
 01:07:54,760 --> 01:08:07,560
- 50 percentile, 50 percent. Now it's almost 60 percent. So great job. Okay. Now we have
+50 percentile, 50 percent. Now it's almost 60 percent. So great job. Okay. Now we have
+50百分位数，50百分比。现在已经接近60百分比了。做得很好。好的。现在我们有了。
 
 466
 01:08:07,560 --> 01:08:17,360
- another a little bit more than 12 minutes and we are going to switch the gears. So we
+another a little bit more than 12 minutes and we are going to switch the gears. So we
+另外再过12分钟，我们就要换挡了。所以我们
 
 467
 01:08:17,360 --> 01:08:22,960
- are done with file system reliability and with file system in general. And we are going
+are done with file system reliability and with file system in general. And we are going
+完成了文件系统的可靠性和文件系统的一般性。我们还需要进行下一步。
 
 468
 01:08:22,960 --> 01:08:31,920
- to start talking about distributed systems. So why are talking about distributed systems?
+to start talking about distributed systems. So why are talking about distributed systems?
+开始谈论分布式系统。那么为什么要谈论分布式系统呢？
 
 469
 01:08:31,920 --> 01:08:43,040
- Because they are everywhere. Because we need to scale all these workloads. And they require
+Because they are everywhere. Because we need to scale all these workloads. And they require
+因为它们无处不在。因为我们需要扩展所有这些工作负载。而且它们需要
 
 470
 01:08:43,040 --> 01:08:50,800
- a lot of machines, a lot of resources. Which means distributed systems. Because any application
+a lot of machines, a lot of resources. Which means distributed systems. Because any application
+很多机器，很多资源。这意味着分布式系统。因为任何应用程序
 
 471
 01:08:50,800 --> 01:09:01,040
- today you are using almost, it has a backend, which is somewhere in the cloud. Connecting
+today you are using almost, it has a backend, which is somewhere in the cloud. Connecting
+今天你使用的几乎是云端的服务，它有一个后端，位于云端的某个地方。连接
 
 472
 01:09:01,040 --> 01:09:06,160
- your app, the front end of your application, which runs on your device with a backend,
+your app, the front end of your application, which runs on your device with a backend,
+你的应用程序，前端部分运行在你的设备上，与后端部分配合使用。
 
 473
 01:09:06,160 --> 01:09:15,320
- is another distributed system. Okay. So you have everywhere in your car, there are 50,
+is another distributed system. Okay. So you have everywhere in your car, there are 50,
+是另一个分布式系统。好的。所以你的车里到处都有，有50个，
 
 474
 01:09:15,320 --> 01:09:24,000
- 100 microprocessors. They are connected by a bus. That's also a distributed system. There
+100 microprocessors. They are connected by a bus. That's also a distributed system. There
+are various types of distributed systems, and a bus-based architecture is one of them. In this case, the 100 microprocessors are connected to each other through a bus, which allows them to communicate and share resources.
 
 475
 01:09:24,000 --> 01:09:34,560
- are two kinds of distributed systems. One is centralized and in which you have a coordinator,
+are two kinds of distributed systems. One is centralized and in which you have a coordinator,
+有两种分布式系统。一种是集中式的，其中你有一个协调者，
 
 476
 01:09:34,560 --> 01:09:42,360
- a server, for instance, all the machines are connected to one particular server. It's called
+a server, for instance, all the machines are connected to one particular server. It's called
+一个服务器，例如，所有的机器都连接到一个特定的服务器。它被称为
 
 477
 01:09:42,360 --> 01:09:46,760
- also client server model, this one is on the left hand side. The right hand side is peer
+also client server model, this one is on the left hand side. The right hand side is peer
+还有客户端服务器模型，这个在左边。右边是对等模型。
 
 478
 01:09:46,760 --> 01:09:53,240
- to peer model. The peer to peer model, it's more, every other node can communicate with
+to peer model. The peer to peer model, it's more, every other node can communicate with
+对等模型。对等模型，更多的是，每个其他节点都可以与其通信。
 
 479
 01:09:53,240 --> 01:10:01,520
- every other node. The communication is less structured, it's more general. The kind of
+every other node. The communication is less structured, it's more general. The kind of
+每个其他节点。通信不太结构化，更加普遍。这种类型的
 
 480
 01:10:01,520 --> 01:10:07,820
- client server, it's also implemented by some of the distributed systems like frameworks,
+client server, it's also implemented by some of the distributed systems like frameworks,
+客户端服务器，也被一些分布式系统如框架所实现。
 
 481
 01:10:07,820 --> 01:10:24,480
- like Hadoop, Spark. Okay. And this is, yeah. Okay. So, and like I mentioned, distributed
+like Hadoop, Spark. Okay. And this is, yeah. Okay. So, and like I mentioned, distributed
+喜欢Hadoop，Spark。好的。这个是，是的。好的。所以，就像我提到的，分布式的。
 
 482
 01:10:24,480 --> 01:10:37,640
- systems can be on the same car in the same, you can have, the context can be widely different.
+systems can be on the same car in the same, you can have, the context can be widely different.
+同一辆车上可以有不同的系统，它们可以存在，但上下文可能会有很大的差异。
 
 483
 01:10:37,640 --> 01:10:46,620
- You can have a distributed system in your car, in a room, in your home, in your building,
+You can have a distributed system in your car, in a room, in your home, in your building,
+你可以在你的车里、房间里、家里、建筑物里拥有一个分布式系统。
 
 484
 01:10:46,620 --> 01:10:58,320
- data center, or across the globe. So there are many reasons again for being distributed
+data center, or across the globe. So there are many reasons again for being distributed
+数据中心，或者遍布全球。所以有很多原因可以再次分布。
 
 485
 01:10:58,320 --> 01:11:04,820
- systems. Some of them, because the applications, the users, you want to connect the users and
+systems. Some of them, because the applications, the users, you want to connect the users and
+系统。其中一些，因为应用程序，用户，您想要连接用户和
 
 486
 01:11:04,820 --> 01:11:12,460
- the users at different locations. Some of them, because like I mentioned, one server
+the users at different locations. Some of them, because like I mentioned, one server
+不同地点的用户。其中一些用户，因为我之前提到过，有一个服务器。
 
 487
 01:11:12,460 --> 01:11:22,140
- cannot do, is not powerful enough to support all the workload, to perform all the workload.
+cannot do, is not powerful enough to support all the workload, to perform all the workload.
+无法完成，不够强大以支持所有的工作负荷，执行所有的工作负荷。
 
 488
 01:11:22,140 --> 01:11:32,540
- Okay. But there are also other reasons. Sometimes it's cheaper and this was the truth, like
+Okay. But there are also other reasons. Sometimes it's cheaper and this was the truth, like
+好的。但还有其他原因。有时候这样做更便宜，这是事实，就像
 
 489
 01:11:32,540 --> 01:11:38,100
- it used to be that if you want very powerful computers, you build supercomputers, you can
+it used to be that if you want very powerful computers, you build supercomputers, you can
+过去，如果你想要非常强大的计算机，你会建造超级计算机，你可以
 
 490
 01:11:38,100 --> 01:11:44,140
- still build two great supercomputers. These are very expensive, takes a year to build,
+still build two great supercomputers. These are very expensive, takes a year to build,
+仍然在建造两台强大的超级计算机。这些计算机非常昂贵，需要一年的时间来建造。
 
 491
 01:11:44,140 --> 01:11:52,820
- to deliver. And then with the rise of the internet, and in particular, Google drove
+to deliver. And then with the rise of the internet, and in particular, Google drove
+交付。然后随着互联网的兴起，特别是谷歌的推动
 
 492
 01:11:52,820 --> 01:11:58,340
- the charge and that was based on some research which was done at Periclei, network of work
+the charge and that was based on some research which was done at Periclei, network of work
+这个费用是基于在Periclei进行的一些研究的。
 
 493
 01:11:58,340 --> 01:12:08,100
- people started to replace supercomputers with a bunch of servers, commodity servers, servers
+people started to replace supercomputers with a bunch of servers, commodity servers, servers
+人们开始用一堆服务器来替代超级计算机，廉价的服务器，服务器。
 
 494
 01:12:08,100 --> 01:12:16,740
- you can buy online or whatever. And then you connect the servers and now you have a much
+you can buy online or whatever. And then you connect the servers and now you have a much
+更好的选择。
 
 495
 01:12:16,740 --> 01:12:22,540
- more powerful intelligent software on top that on the aggregate, they can provide you
+more powerful intelligent software on top that on the aggregate, they can provide you
+更强大的智能软件在其之上，它们整体上可以为您提供。
 
 496
 01:12:22,540 --> 01:12:32,780
- a lot of power, computation power and storage space. Okay. So what is the promise of these
+a lot of power, computation power and storage space. Okay. So what is the promise of these
+很多的能量、计算能力和存储空间。好的。那么这些的承诺是什么呢？
 
 497
 01:12:32,780 --> 01:12:41,620
- security systems? One promise is higher availability. If one machine goes down, use another one.
+security systems? One promise is higher availability. If one machine goes down, use another one.
+安全系统？一个承诺是更高的可用性。如果一台机器出现故障，使用另一台。
 
 498
 01:12:41,620 --> 01:12:47,940
- Right? Despite some failures, actually all the services in the cloud are pretty reliable.
+Right? Despite some failures, actually all the services in the cloud are pretty reliable.
+对吗？尽管有些失败，但实际上云服务都非常可靠。
 
 499
 01:12:47,940 --> 01:12:54,380
- Your Facebook, Google and so forth, they are pretty reliable, more reliable than your laptop.
+Your Facebook, Google and so forth, they are pretty reliable, more reliable than your laptop.
+你的Facebook、Google等等，它们非常可靠，比你的笔记本电脑更可靠。
 
 500
 01:12:54,380 --> 01:12:59,380
- Better durability. You can store like we saw the data in multiple locations across the
+Better durability. You can store like we saw the data in multiple locations across the
+更好的耐用性。您可以像我们在多个位置上看到的数据一样存储。
 
 501
 01:12:59,380 --> 01:13:09,380
- globe. And also in principle, more security because you have multiple pieces, you split
+globe. And also in principle, more security because you have multiple pieces, you split
+球体。而且原则上，更安全，因为你有多个部分，你分开了。
 
 502
 01:13:09,380 --> 01:13:19,660
- your application in multiple pieces and now you need to protect only one piece at a time
+your application in multiple pieces and now you need to protect only one piece at a time
+您的应用程序被分成多个部分，现在您需要一次只保护一个部分。
 
 503
 01:13:19,660 --> 01:13:30,500
- and securing one piece presumably it's easier than securing the entire system. However,
+and securing one piece presumably it's easier than securing the entire system. However,
+保护一个部分应该比保护整个系统容易。然而，
 
 504
 01:13:30,500 --> 01:13:38,500
- you need to be very careful and it's not easy to deliver on that promise. And in general,
+you need to be very careful and it's not easy to deliver on that promise. And in general,
+你需要非常小心，兑现这个承诺并不容易。总的来说，
 
 505
 01:13:38,500 --> 01:13:44,260
- there have been many systems, real distributed systems, which provides worth of everything.
+there have been many systems, real distributed systems, which provides worth of everything.
+有很多系统，真正的分布式系统，提供了一切的价值。
 
 506
 01:13:44,260 --> 01:13:49,660
- Worth availability, worth reliability, worth security, worth availability. This is Leslie
+Worth availability, worth reliability, worth security, worth availability. This is Leslie
+价值可用性，价值可靠性，价值安全性，价值可用性。这是莱斯利。
 
 507
 01:13:49,660 --> 01:13:57,420
- Lamport during our winner. You'll hear more about him before the class ends. But he was
+Lamport during our winner. You'll hear more about him before the class ends. But he was
+兰波特是我们的获胜者。在课程结束之前，你会听到更多关于他的信息。但他是一个
 
 508
 01:13:57,420 --> 01:14:05,020
- having this quote. It's like a funny quote. "A distributed system is one in which the
+having this quote. It's like a funny quote. "A distributed system is one in which the
+具有这个引语。它是一个有趣的引语。“分布式系统是指一个系统，其中各个部分通过网络连接并协同工作。”
 
 509
 01:14:05,020 --> 01:14:13,580
- failure of a computer you didn't even know existed can render your own computer unusable."
+failure of a computer you didn't even know existed can render your own computer unusable."
+你甚至都不知道存在的一台电脑的故障可能会导致你自己的电脑无法使用。
 
 510
 01:14:13,580 --> 01:14:23,900
- Okay. You know, you can think about, you know, if you have your email and email server, right?
+Okay. You know, you can think about, you know, if you have your email and email server, right?
+好的。你知道，你可以考虑一下，你知道，如果你有你自己的电子邮件和电子邮件服务器，对吧？
 
 511
 01:14:23,900 --> 01:14:29,740
- If your email client works on your computer, but the email server is down, you know, your
+If your email client works on your computer, but the email server is down, you know, your
+如果你的电子邮件客户端在你的电脑上工作正常，但是邮件服务器宕机了，你知道的，你的...
 
 512
 01:14:29,740 --> 01:14:38,940
- computer is pretty useless for email. Worth reliability. If the data, you are not careful
+computer is pretty useless for email. Worth reliability. If the data, you are not careful
+电脑对于电子邮件来说相当无用。值得信赖。如果数据不小心的话。
 
 513
 01:14:38,940 --> 01:14:45,820
- of the data and you don't know where the data is. If the computer crashes or storing the
+of the data and you don't know where the data is. If the computer crashes or storing the
+数据的位置。如果计算机崩溃或存储数据的设备损坏，你将无法访问数据。
 
 514
 01:14:45,820 --> 01:14:52,380
- data crashes, then you lose the data. And worth security because, you know, if you compromise
+data crashes, then you lose the data. And worth security because, you know, if you compromise
+数据崩溃，然后你就会丢失数据。而且安全性也很重要，因为你知道，如果你泄露了数据的话，
 
 515
 01:14:52,380 --> 01:15:00,700
- a component, maybe you can compromise the entire system. Also, coordination is more difficult.
+a component, maybe you can compromise the entire system. Also, coordination is more difficult.
+一个组件，也许会影响整个系统。此外，协调也更加困难。
 
 516
 01:15:00,700 --> 01:15:04,380
- Remember, we have all these challenges to coordinate on the same machine between
+Remember, we have all these challenges to coordinate on the same machine between
+记住，我们需要在同一台机器上协调解决所有这些挑战。
 
 517
 01:15:04,380 --> 01:15:10,700
- different threads, critical section, deadlocks. Remember that? Now, this is much more complicated
+different threads, critical section, deadlocks. Remember that? Now, this is much more complicated
+不同的线程，临界区，死锁。还记得吗？现在，这更加复杂了。
 
 518
 01:15:10,700 --> 01:15:18,460
- because not even on a single machine. It's across the network. And you remember to address
+because not even on a single machine. It's across the network. And you remember to address
+因为不仅仅是在一台机器上，而是跨网络的。而且你要记得解决这个问题。
 
 519
 01:15:18,460 --> 01:15:27,500
- these challenges, we have this kind of very convenient primitives like test and set or PNB.
+these challenges, we have this kind of very convenient primitives like test and set or PNB.
+这些挑战，我们有这种非常方便的原语，比如测试和设置或者PNB。
 
 520
 01:15:27,500 --> 01:15:35,500
- Well, these are atomic operations, you know, based on atomic operations implemented in hardware.
+Well, these are atomic operations, you know, based on atomic operations implemented in hardware.
+好的，这些是原子操作，你知道的，基于硬件实现的原子操作。
 
 521
 01:15:35,500 --> 01:15:41,580
- Well, how you are going to implement this in a distributed system? When machines can be
+Well, how you are going to implement this in a distributed system? When machines can be
+嗯，你打算如何在分布式系统中实现这个？当机器可以
 
 522
 01:15:41,580 --> 01:15:51,900
- thousands of miles away. And fundamentally, the security, the trust, it's more difficult
+thousands of miles away. And fundamentally, the security, the trust, it's more difficult
+数千英里之遥。而且从根本上说，安全和信任更加困难。
 
 523
 01:15:51,900 --> 01:15:56,060
- because you need to be careful that even if a component of the system is compromised,
+because you need to be careful that even if a component of the system is compromised,
+因为你需要小心，即使系统的一个组件被攻击，
 
 524
 01:15:56,060 --> 01:16:04,780
- then other parts of the system are not compromised. And this is corollary to Lamport quote.
+then other parts of the system are not compromised. And this is corollary to Lamport quote.
+那么系统的其他部分就不会受到威胁。这是拉姆波特引言的必然结果。
 
 525
 01:16:04,780 --> 01:16:09,500
- A distributed system is one where you can't do work because some computer you didn't even
+A distributed system is one where you can't do work because some computer you didn't even
+分布式系统是一种你无法工作的系统，因为有一台你甚至不知道的计算机出了问题。
 
 526
 01:16:09,500 --> 01:16:16,140
- know existed is successfully coordinating an attack on my system. So it's again,
+know existed is successfully coordinating an attack on my system. So it's again,
+我知道有人成功地协调了对我的系统的攻击。所以，又是这样了，
 
 527
 01:16:16,140 --> 01:16:20,140
- a compromised part of the system. You can bring that down the entire system if you are not
+a compromised part of the system. You can bring that down the entire system if you are not
+系统的一个受损部分。如果你不小心，可能会导致整个系统崩溃。
 
 528
 01:16:20,140 --> 01:16:29,100
- careful in designing these systems. So now when you design a distributed system,
+careful in designing these systems. So now when you design a distributed system,
+在设计这些系统时要小心。所以现在当你设计一个分布式系统时，
 
 529
 01:16:29,100 --> 01:16:37,500
- what are your goals? What are the requirements? And simply the requirements you want to have
+what are your goals? What are the requirements? And simply the requirements you want to have
+我的目标是成为一个高效的翻译助手，能够准确地将中文翻译成英文，并且能够理解并回答你的问题。对于我来说，最重要的要求是具备良好的语言能力和翻译技巧，以及对不同领域的知识有一定的了解。此外，我还需要有快速学习和适应新信息的能力，以便能够及时更新和提升我的翻译能力。希望这些要求能够满足你的需求。
 
 530
 01:16:37,500 --> 01:16:45,180
- is to be as transparent as possible. It's to be almost maybe like your laptop, more or less.
+is to be as transparent as possible. It's to be almost maybe like your laptop, more or less.
+是尽可能透明的。就像你的笔记本电脑一样，或多或少。
 
 531
 01:16:45,180 --> 01:16:50,300
- Right? You don't want to be aware about there are so many machines. When you get this transparency,
+Right? You don't want to be aware about there are so many machines. When you get this transparency,
+对吗？你不想意识到有这么多机器存在。当你获得这种透明度时，
 
 532
 01:16:50,300 --> 01:16:55,740
- like for instance, when you use your Facebook application, do you know how many machines are
+like for instance, when you use your Facebook application, do you know how many machines are
+例如，当你使用Facebook应用程序时，你知道有多少台机器在运行吗？
 
 533
 01:16:55,740 --> 01:17:04,780
- involved in answering some of your requests, in sending the news feed or, you know,
+involved in answering some of your requests, in sending the news feed or, you know,
+参与回答您的请求，发送新闻动态或者，你知道的，
 
 534
 01:17:04,780 --> 01:17:11,740
- messages, chat, videos, you know? No, you don't. That's transparency, good transparency.
+messages, chat, videos, you know? No, you don't. That's transparency, good transparency.
+信息，聊天，视频，你知道吗？不，你不知道。这就是透明度，良好的透明度。
 
 535
 01:17:11,740 --> 01:17:16,620
- And the transparency as you can imagine has multiple dimensions, location.
+And the transparency as you can imagine has multiple dimensions, location.
+透明度，正如你所能想象的那样，有多个方面，其中之一是地点。
 
 536
 01:17:16,620 --> 01:17:25,500
- You don't know where your servers, the servers handling your Facebook account are located.
+You don't know where your servers, the servers handling your Facebook account are located.
+你不知道你的服务器，处理你的Facebook账户的服务器的位置。
 
 537
 01:17:25,500 --> 01:17:31,500
- Migration. Sometimes you need to move the data from one place to another to scale up the system.
+Migration. Sometimes you need to move the data from one place to another to scale up the system.
+迁移。有时候你需要将数据从一个地方移动到另一个地方来扩展系统。
 
 538
 01:17:31,500 --> 01:17:36,220
- That should be also transparent. You are not aware about replication. You don't know in how
+That should be also transparent. You are not aware about replication. You don't know in how
+这也应该是透明的。你不知道复制的情况。你不知道如何
 
 539
 01:17:36,220 --> 01:17:45,180
- many places your data is replicated. Concurrency. You yourself, you cannot say, cannot tell how many
+many places your data is replicated. Concurrency. You yourself, you cannot say, cannot tell how many
+很多地方都有你的数据的副本。并发性。你自己，你无法说，无法告诉有多少。
 
 540
 01:17:45,180 --> 01:17:50,860
- other Facebook users are at the same time on the system. Still your experience is the same,
+other Facebook users are at the same time on the system. Still your experience is the same,
+其他Facebook用户同时也在系统上。但是你的体验是一样的，
 
 541
 01:17:50,860 --> 01:18:05,180
- whether there are 1000 or 5000 or 5,000, right? That means transparency. And you also want to be
+whether there are 1000 or 5000 or 5,000, right? That means transparency. And you also want to be
+无论是1000还是5000还是5,000，对吧？这意味着透明度。而且你也希望是这样。
 
 542
 01:18:05,180 --> 01:18:12,300
- parallelized. I mean, if you want to have a big job, you want the system to somehow transparently
+parallelized. I mean, if you want to have a big job, you want the system to somehow transparently
+并行化。我的意思是，如果你想要完成一个大任务，你希望系统能够以某种方式透明地进行并行处理。
 
 543
 01:18:12,300 --> 01:18:19,100
- split it ideally, and then execute multiple pieces as possible in parallel on different machines,
+split it ideally, and then execute multiple pieces as possible in parallel on different machines,
+将其理想地分割，并尽可能在不同的机器上并行执行多个部分。
 
 544
 01:18:19,100 --> 01:18:26,540
- so it is running fast. And fault tolerance for sure, like we discussed. If there are failures,
+so it is running fast. And fault tolerance for sure, like we discussed. If there are failures,
+所以它运行得很快。而且故障容忍性当然也是有的，就像我们讨论过的那样。如果出现故障，
 
 545
 01:18:26,540 --> 01:18:31,260
- you absolutely do not want those to see these failures.
+you absolutely do not want those to see these failures.
+你绝对不希望他们看到这些失败。
 
 546
 01:18:31,260 --> 01:18:45,020
- So any of these things requires the nodes to some computers to communicate between themselves.
+So any of these things requires the nodes to some computers to communicate between themselves.
 
 547
 01:18:46,700 --> 01:18:56,860

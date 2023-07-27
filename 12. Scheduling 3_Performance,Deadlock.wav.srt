@@ -1,4596 +1,5747 @@
 1
 00:00:00,000 --> 00:00:24,480
- So, hello, everyone.
+So, hello, everyone.
+所以，大家好。
 
 2
 00:00:24,480 --> 00:00:31,200
- So today we are going to finish the discussion on scheduling.
+So today we are going to finish the discussion on scheduling.
+今天我们要完成关于日程安排的讨论。
 
 3
 00:00:31,200 --> 00:00:39,960
- And then we are going to start the discussion on deadlocks.
+And then we are going to start the discussion on deadlocks.
+然后我们将开始讨论死锁问题。
 
 4
 00:00:39,960 --> 00:00:46,880
- So last time we discussed quite a bit about a few scheduling disciplines.
+So last time we discussed quite a bit about a few scheduling disciplines.
+上次我们讨论了一些调度策略。
 
 5
 00:00:46,880 --> 00:00:53,920
- And if you remember one scheduling disciplines, which has been very popular and is still popular,
+And if you remember one scheduling disciplines, which has been very popular and is still popular,
+如果你还记得一个调度策略，它曾经非常流行，而且现在仍然很受欢迎，
 
 6
 00:00:53,920 --> 00:00:57,880
- it's priority scheduling.
+it's priority scheduling.
+这是优先级调度。
 
 7
 00:00:57,880 --> 00:01:03,160
- And one of the reason it's popular, it's very simple.
+And one of the reason it's popular, it's very simple.
+而且它受欢迎的原因之一是非常简单。
 
 8
 00:01:03,160 --> 00:01:09,000
- The pure priority scheduling, if you remember, you have different levels of priorities and
+The pure priority scheduling, if you remember, you have different levels of priorities and
+纯优先级调度，如果你记得的话，你有不同级别的优先级和
 
 9
 00:01:09,000 --> 00:01:19,080
- you always start from the highest priority and then you run the jobs at the highest priority.
+you always start from the highest priority and then you run the jobs at the highest priority.
+你总是从最高优先级开始，然后按最高优先级运行任务。
 
 10
 00:01:19,080 --> 00:01:27,480
- And only after you are done with those jobs, you can go to the lower priority.
+And only after you are done with those jobs, you can go to the lower priority.
+完成这些工作之后，你才能去做优先级较低的工作。
 
 11
 00:01:27,480 --> 00:01:37,760
- And one obvious question is does prioritizing some jobs necessarily starve those that aren't
+And one obvious question is does prioritizing some jobs necessarily starve those that aren't
+而一个明显的问题是，优先考虑某些工作是否必然会使其他工作陷入困境？
 
 12
 00:01:37,760 --> 00:01:38,960
- prioritized?
+prioritized?
+优先考虑的？
 
 13
 00:01:38,960 --> 00:01:47,960
- So do higher priority jobs necessarily starve lower priority jobs?
+So do higher priority jobs necessarily starve lower priority jobs?
+高优先级的工作是否一定会使低优先级的工作得不到满足？
 
 14
 00:01:47,960 --> 00:01:58,160
- And this is what we are going to talk a little bit about here and what kind of tweaks you
+And this is what we are going to talk a little bit about here and what kind of tweaks you
+而这就是我们将在这里稍微谈一下的内容，以及你想要进行哪些微调。
 
 15
 00:01:58,160 --> 00:02:06,000
- can do to priority scheduling to avoid starvation.
+can do to priority scheduling to avoid starvation.
+可以采取优先调度来避免饥饿现象。
 
 16
 00:02:06,000 --> 00:02:17,540
- Because if you remember, if you have always high priority jobs, then you'll never serve
+Because if you remember, if you have always high priority jobs, then you'll never serve
+因为如果你记得的话，如果你总是有高优先级的工作，那么你就永远无法服务。
 
 17
 00:02:17,540 --> 00:02:19,460
- the low priority jobs.
+the low priority jobs.
+低优先级的工作。
 
 18
 00:02:19,460 --> 00:02:29,600
- So therefore, you are going to starve the low priority jobs.
+So therefore, you are going to starve the low priority jobs.
+所以，你打算让低优先级的工作饿肚子。
 
 19
 00:02:29,600 --> 00:02:34,160
- So let's look through some of these mechanisms.
+So let's look through some of these mechanisms.
+那么让我们来看一下这些机制。
 
 20
 00:02:34,160 --> 00:02:43,880
- So one mechanism, it's an API which is provided by early Unix systems, which is called Nice.
+So one mechanism, it's an API which is provided by early Unix systems, which is called Nice.
+所以有一个机制，它是早期Unix系统提供的一个API，被称为Nice。
 
 21
 00:02:43,880 --> 00:02:52,040
- And this, as the name implies, it allows you as a user to be nice to others.
+And this, as the name implies, it allows you as a user to be nice to others.
+而且，正如其名称所示，它允许你作为用户对他人友善。
 
 22
 00:02:52,040 --> 00:03:00,340
- And the way you are going to be nice to others is by lowering the priority of your job, of
+And the way you are going to be nice to others is by lowering the priority of your job, of
+而你要对他人友善的方式是降低你工作的优先级，以及
 
 23
 00:03:00,340 --> 00:03:04,080
- your application.
+your application.
+你的申请。
 
 24
 00:03:04,080 --> 00:03:12,360
- So in this case, in the case of Unix, lower values of priorities mean high priority.
+So in this case, in the case of Unix, lower values of priorities mean high priority.
+所以在这种情况下，对于Unix来说，优先级较低的值意味着较高的优先级。
 
 25
 00:03:12,360 --> 00:03:17,760
- And the nice value ranges from minus 20 to 19.
+And the nice value ranges from minus 20 to 19.
+并且优先级的取值范围从负20到19。
 
 26
 00:03:17,760 --> 00:03:21,520
- So negative values are not nice.
+So negative values are not nice.
+所以负值不好。
 
 27
 00:03:21,520 --> 00:03:33,280
- And in order to be nice, you can increase this value, which means lower priority.
+And in order to be nice, you can increase this value, which means lower priority.
+为了友好起见，你可以增加这个值，这意味着降低优先级。
 
 28
 00:03:33,280 --> 00:03:41,800
- So that's very interesting.
+So that's very interesting.
+那真是非常有趣。
 
 29
 00:03:41,800 --> 00:03:44,140
- So now a few words about Linux.
+So now a few words about Linux.
+关于Linux，现在说几句话。
 
 30
 00:03:44,140 --> 00:03:51,420
- Let's see how Linux, the basic scheduler, it's organized and it's implemented.
+Let's see how Linux, the basic scheduler, it's organized and it's implemented.
+让我们来看看Linux的基本调度器是如何组织和实现的。
 
 31
 00:03:51,420 --> 00:03:54,920
- So you have 140 priorities.
+So you have 140 priorities.
+所以你有140个优先事项。
 
 32
 00:03:54,920 --> 00:03:59,680
- And the first 100 are for the kernel and the real time tasks.
+And the first 100 are for the kernel and the real time tasks.
+前100个是用于内核和实时任务。
 
 33
 00:03:59,680 --> 00:04:07,160
- Again, the real time tasks are the ones who are predictable, you want to be predictable.
+Again, the real time tasks are the ones who are predictable, you want to be predictable.
+再次强调，实时任务是那些可预测的任务，你希望能够做到可预测。
 
 34
 00:04:07,160 --> 00:04:20,600
- And then the last 40 are for the user tasks.
+And then the last 40 are for the user tasks.
+然后最后的40个是用于用户任务。
 
 35
 00:04:20,600 --> 00:04:27,320
- And again, lower priority values, it means higher priority.
+And again, lower priority values, it means higher priority.
+再次，较低的优先级值意味着较高的优先级。
 
 36
 00:04:27,320 --> 00:04:29,320
- And the algorithm is O(1).
+And the algorithm is O(1).
+并且该算法的时间复杂度是O(1)。
 
 37
 00:04:29,320 --> 00:04:41,320
- O(1) complexity meaning that it takes constant time to select the next process to run.
+O(1) complexity meaning that it takes constant time to select the next process to run.
+O(1)复杂度意味着选择下一个要运行的进程所需的时间是恒定的。
 
 38
 00:04:41,320 --> 00:04:48,400
- And you also have time slices, so it's preemptive scheduler.
+And you also have time slices, so it's preemptive scheduler.
+你也有时间片，所以这是一个抢占式调度器。
 
 39
 00:04:48,400 --> 00:04:53,840
- So a job or a process doesn't run to completion is going to be interrupted when its time slice
+So a job or a process doesn't run to completion is going to be interrupted when its time slice
+所以，当一个工作或一个进程没有运行到完成时，当它的时间片到期时会被中断。
 
 40
 00:04:53,840 --> 00:04:54,840
- expires.
+expires.
+过期。
 
 41
 00:04:54,840 --> 00:05:02,400
- There is also 140 bit mask, which indicates the presence or absence of a job at the given
+There is also 140 bit mask, which indicates the presence or absence of a job at the given
+还有一个140位的掩码，用于指示给定位置是否存在或缺失一个工作。
 
 42
 00:05:02,400 --> 00:05:04,180
- priority level.
+priority level.
+优先级水平。
 
 43
 00:05:04,180 --> 00:05:13,000
- So why do you have that bit mask?
+So why do you have that bit mask?
+那么你为什么要使用那个位掩码？
 
 44
 00:05:13,000 --> 00:05:21,880
- So the reason you have that bit mask is that, think about you want to be very quick and
+So the reason you have that bit mask is that, think about you want to be very quick and
+所以你有那个位掩码的原因是，想想你想要非常快速和
 
 45
 00:05:21,880 --> 00:05:25,820
- you select the next job or next process to run.
+you select the next job or next process to run.
+你选择下一个工作或下一个流程来运行。
 
 46
 00:05:25,820 --> 00:05:33,000
- And now assume that you have two processes in the system, one process at priority zero
+And now assume that you have two processes in the system, one process at priority zero
+然后假设系统中有两个进程，一个进程的优先级为零。
 
 47
 00:05:33,000 --> 00:05:39,720
- and one process at priority 139.
+and one process at priority 139.
+和一个优先级为139的进程。
 
 48
 00:05:39,720 --> 00:05:45,560
- So once you're finished to run the process at priority zero, you need to run the process
+So once you're finished to run the process at priority zero, you need to run the process
+所以一旦你完成以优先级零运行该进程，你需要运行该进程。
 
 49
 00:05:45,560 --> 00:05:49,160
- at priority 139.
+at priority 139.
+在优先级139。
 
 50
 00:05:49,160 --> 00:05:55,320
- But you need to find that process.
+But you need to find that process.
+但是你需要找到那个过程。
 
 51
 00:05:55,320 --> 00:06:03,120
- And the simple implementation is to have a list of priorities and each head of that,
+And the simple implementation is to have a list of priorities and each head of that,
+而简单的实现方法是拥有一个优先级列表，每个列表都有一个头部，
 
 52
 00:06:03,120 --> 00:06:11,000
- for each item in this priority list, it's a list of processes at that priority.
+for each item in this priority list, it's a list of processes at that priority.
+对于这个优先级列表中的每个项目，它是该优先级下的一系列进程。
 
 53
 00:06:11,000 --> 00:06:16,080
- So now you start from zero and you are done with the process.
+So now you start from zero and you are done with the process.
+所以现在你从零开始，你已经完成了整个过程。
 
 54
 00:06:16,080 --> 00:06:20,880
- And now you have to go to next one, which is the next level and the next level and the
+And now you have to go to next one, which is the next level and the next level and the
+现在你需要去下一个，也就是下一级别和下一级别和下一级别。
 
 55
 00:06:20,880 --> 00:06:26,560
- next level until you get to 139 in order to find the next process to run.
+next level until you get to 139 in order to find the next process to run.
+一直升级直到达到139级，以找到下一个要运行的进程。
 
 56
 00:06:26,560 --> 00:06:31,760
- If you have a bit mask, then basically the bit mask, I'm just going to look at the bit
+If you have a bit mask, then basically the bit mask, I'm just going to look at the bit
+如果你有一个位掩码，那么基本上位掩码，我只会看位。
 
 57
 00:06:31,760 --> 00:06:34,560
- mask, which is 140 bits.
+mask, which is 140 bits.
+口罩，有140个位。
 
 58
 00:06:34,560 --> 00:06:41,360
- And the bit mask will say that the next automatic will say that only there are processes active
+And the bit mask will say that the next automatic will say that only there are processes active
+并且位掩码将指示下一个自动将指示只有活动的进程。
 
 59
 00:06:41,360 --> 00:06:45,800
- at level priority level 139.
+at level priority level 139.
+在优先级为139的级别上。
 
 60
 00:06:45,800 --> 00:06:48,100
- In between, there is no process active.
+In between, there is no process active.
+中间没有进行中的过程。
 
 61
 00:06:48,100 --> 00:06:51,580
- So the bits in the bit mask are not set.
+So the bits in the bit mask are not set.
+所以位掩码中的位没有被设置。
 
 62
 00:06:51,580 --> 00:06:54,120
- So it's very easy to do.
+So it's very easy to do.
+所以这很容易做到。
 
 63
 00:06:54,120 --> 00:07:07,240
- The other thing which is doing is that you have two priority queues in terms of for active
+The other thing which is doing is that you have two priority queues in terms of for active
+另一件事情是，你有两个优先队列，用于处理活跃的事务。
 
 64
 00:07:07,240 --> 00:07:16,760
- processes, the processes which you have to, they are still to run and then expired processes.
+processes, the processes which you have to, they are still to run and then expired processes.
+进程，你必须处理的进程，它们仍然需要运行，然后是已过期的进程。
 
 65
 00:07:16,760 --> 00:07:22,760
- Expired means after you are going to run a process, you are going to put it in the expired
+Expired means after you are going to run a process, you are going to put it in the expired
+过期的意思是在你要运行一个进程之后，你要将其放入过期状态。
 
 66
 00:07:22,760 --> 00:07:26,160
- queue.
+queue.
+排队。
 
 67
 00:07:26,160 --> 00:07:34,960
- And then once you are done with all the processes in the active queue, so the active queue is
+And then once you are done with all the processes in the active queue, so the active queue is
+然后一旦你完成了活动队列中的所有流程，那么活动队列就是
 
 68
 00:07:34,960 --> 00:07:40,100
- empty, you just switch to expired.
+empty, you just switch to expired.
+空的，你只是切换到了过期的状态。
 
 69
 00:07:40,100 --> 00:07:45,120
- So active become expired queue and expired becomes the active queue.
+So active become expired queue and expired becomes the active queue.
+所以活跃队列变成了过期队列，过期队列变成了活跃队列。
 
 70
 00:07:45,120 --> 00:07:46,680
- You swap them.
+You swap them.
+你互换它们。
 
 71
 00:07:46,680 --> 00:07:51,480
- Okay, so this is what an example.
+Okay, so this is what an example.
+好的，这是一个例子。
 
 72
 00:07:51,480 --> 00:07:57,200
- You go through the active queues, you have here all these priorities, each task with
+You go through the active queues, you have here all these priorities, each task with
+你浏览活动队列，这里有所有这些优先级，每个任务都有。
 
 73
 00:07:57,200 --> 00:08:02,160
- its own priorities.
+its own priorities.
+它自己的优先事项。
 
 74
 00:08:02,160 --> 00:08:10,840
- And once you are done with all the tasks from the active queue, you are going to put them
+And once you are done with all the tasks from the active queue, you are going to put them
+而一旦你完成了所有来自活动队列的任务，你将把它们放置在哪里？
 
 75
 00:08:10,840 --> 00:08:14,280
- all in the expired queue.
+all in the expired queue.
+所有在过期队列中。
 
 76
 00:08:14,280 --> 00:08:22,080
- And then you are just going to swap the expired queue with the run queue.
+And then you are just going to swap the expired queue with the run queue.
+然后你只需要将过期队列与运行队列进行交换。
 
 77
 00:08:22,080 --> 00:08:31,120
- Any questions?
+Any questions?
+有任何问题吗？
 
 78
 00:08:31,120 --> 00:08:36,560
- And then in order to avoid kind of starvation, like we discussed last time, there are many
+And then in order to avoid kind of starvation, like we discussed last time, there are many
+然后为了避免像我们上次讨论的那种饥饿，有很多方法。
 
 79
 00:08:36,560 --> 00:08:38,180
- heuristics.
+heuristics.
+启发式算法。
 
 80
 00:08:38,180 --> 00:08:46,040
- Like if a task is IO bound, you try to boost this priority, to increase this priority.
+Like if a task is IO bound, you try to boost this priority, to increase this priority.
+如果一个任务是IO绑定的，你会尝试提高它的优先级，增加这个优先级。
 
 81
 00:08:46,040 --> 00:08:58,200
- If a task running for too long, you are going to lower like his priority.
+If a task running for too long, you are going to lower like his priority.
+如果一个任务运行时间太长，你会降低它的优先级。
 
 82
 00:08:58,200 --> 00:09:01,320
- More precisely, here is a list of heuristics.
+More precisely, here is a list of heuristics.
+更准确地说，这是一份启发式规则的列表。
 
 83
 00:09:01,320 --> 00:09:14,440
- The user task priority is adjusted in plus minus five increments.
+The user task priority is adjusted in plus minus five increments.
+用户任务优先级在加减五个增量内进行调整。
 
 84
 00:09:14,440 --> 00:09:23,960
- It's again, you have the user task priority is between 100 and 139.
+It's again, you have the user task priority is between 100 and 139.
+再次提醒，您的用户任务优先级应在100至139之间。
 
 85
 00:09:23,960 --> 00:09:33,320
- And basically you are going to update it like for instance, if the sleep time minus run
+And basically you are going to update it like for instance, if the sleep time minus run
+然后基本上你要更新它，比如，如果睡眠时间减去跑步时间。
 
 86
 00:09:33,320 --> 00:09:43,080
- time, if the process sleeps much longer than it runs, you increase its priority.
+time, if the process sleeps much longer than it runs, you increase its priority.
+如果进程休眠的时间比运行时间长得多，你可以提高它的优先级。
 
 87
 00:09:43,080 --> 00:09:46,720
- This is probably because it's an IO bound task.
+This is probably because it's an IO bound task.
+这可能是因为它是一个IO绑定的任务。
 
 88
 00:09:46,720 --> 00:09:49,840
- If it's running for a long time, you are going to decrease its priority.
+If it's running for a long time, you are going to decrease its priority.
+如果它运行了很长时间，你要降低它的优先级。
 
 89
 00:09:49,840 --> 00:09:56,680
- And if it doesn't sleep at all.
+And if it doesn't sleep at all.
+而且如果它根本不睡觉。
 
 90
 00:09:56,680 --> 00:10:02,720
- So yeah, again, if your task sleep for a long time, you are going to accrue credit, you
+So yeah, again, if your task sleep for a long time, you are going to accrue credit, you
+所以，是的，如果你的任务长时间休眠，你将会积累信用。
 
 91
 00:10:02,720 --> 00:10:05,120
- are going to increase the priority.
+are going to increase the priority.
+我们将提高优先级。
 
 92
 00:10:05,120 --> 00:10:08,200
- When it's going to run, you are going to spend this credit, you're going to decrease this
+When it's going to run, you are going to spend this credit, you're going to decrease this
+当它开始运行时，你将会使用这个信用，你将会减少它。
 
 93
 00:10:08,200 --> 00:10:16,960
- priority if it's running for too long.
+priority if it's running for too long.
+如果运行时间过长，优先级会降低。
 
 94
 00:10:16,960 --> 00:10:26,080
- And for interactive tasks, you give them special treatment because you want to always have
+And for interactive tasks, you give them special treatment because you want to always have
+而对于互动任务，你给予它们特殊对待，因为你希望始终拥有
 
 95
 00:10:26,080 --> 00:10:27,080
- high priority.
+high priority.
+高优先级。
 
 96
 00:10:27,080 --> 00:10:33,900
- Although in general, many of the interactive tasks are IO bound because they are waiting
+Although in general, many of the interactive tasks are IO bound because they are waiting
+尽管一般来说，许多交互任务是受IO限制的，因为它们需要等待。
 
 97
 00:10:33,900 --> 00:10:37,920
- for the user input, many of them.
+for the user input, many of them.
+对于用户输入，有很多种。
 
 98
 00:10:37,920 --> 00:10:43,080
- So then they can go automatically higher priority because they are going to sleep more than
+So then they can go automatically higher priority because they are going to sleep more than
+所以他们可以自动提高优先级，因为他们要比其他人睡得更多。
 
 99
 00:10:43,080 --> 00:10:45,980
- they are.
+they are.
+他们是。
 
 100
 00:10:45,980 --> 00:10:50,040
- So let's see, there are two questions here.
+So let's see, there are two questions here.
+那么让我们来看看，这里有两个问题。
 
 101
 00:10:50,040 --> 00:10:55,560
- That's a very good question.
+That's a very good question.
+这是一个非常好的问题。
 
 102
 00:10:55,560 --> 00:11:02,160
- So the question is, does this mean getting a new process scheduled takes a long time
+So the question is, does this mean getting a new process scheduled takes a long time
+所以问题是，这是否意味着安排一个新的流程需要很长时间？
 
 103
 00:11:02,160 --> 00:11:07,400
- since the existing queue needs to be exhausted before new things can be added?
+since the existing queue needs to be exhausted before new things can be added?
+因为现有的队列需要被处理完毕才能添加新的事物？
 
 104
 00:11:07,400 --> 00:11:10,080
- Yeah, you are right.
+Yeah, you are right.
+是的，你说得对。
 
 105
 00:11:10,080 --> 00:11:15,040
- It's a strategy in the process is getting scheduled, not the process itself.
+It's a strategy in the process is getting scheduled, not the process itself.
+这是一个正在进行调度的策略，而不是过程本身。
 
 106
 00:11:15,040 --> 00:11:24,340
- So you are again, when you have one process, one thread, we are going to use interchangeable.
+So you are again, when you have one process, one thread, we are going to use interchangeable.
+所以你又来了
 
 107
 00:11:24,340 --> 00:11:31,880
- So this very much depends on the scheduler.
+So this very much depends on the scheduler.
+这非常取决于调度程序。
 
 108
 00:11:31,880 --> 00:11:37,720
- But when you are going to run a new process, typically you put the process as the highest
+But when you are going to run a new process, typically you put the process as the highest
+但是当你要运行一个新的进程时，通常你会将该进程设置为最高优先级。
 
 109
 00:11:37,720 --> 00:11:40,040
- priority.
+priority.
+优先级。
 
 110
 00:11:40,040 --> 00:11:45,680
- So this means that you are going to start executing that process or thread quickly,
+So this means that you are going to start executing that process or thread quickly,
+所以这意味着你将快速开始执行该进程或线程，
 
 111
 00:11:45,680 --> 00:11:50,180
- which is the highest priority.
+which is the highest priority.
+哪个是最高优先级。
 
 112
 00:11:50,180 --> 00:11:57,120
- You can start executing that thread as soon as you finish executing the current thread,
+You can start executing that thread as soon as you finish executing the current thread,
+你可以在当前线程执行完毕后立即开始执行那个线程。
 
 113
 00:11:57,120 --> 00:12:06,720
- when the time slice of the current thread you are executing is expiring.
+when the time slice of the current thread you are executing is expiring.
+当你正在执行的当前线程的时间片即将过期时。
 
 114
 00:12:06,720 --> 00:12:11,920
- It's also here, you see the word of hysteresis.
+It's also here, you see the word of hysteresis.
+这里也有，你看到了滞后的这个词。
 
 115
 00:12:11,920 --> 00:12:18,720
- You use hysteresis to avoid changing interactivity from temporarily changing changes in behavior.
+You use hysteresis to avoid changing interactivity from temporarily changing changes in behavior.
+您使用滞后效应来避免由于行为的暂时变化而导致交互性的变化。
 
 116
 00:12:18,720 --> 00:12:20,720
- What is hysteresis?
+What is hysteresis?
+滞后是指系统在受到外部影响后，其响应速度比外部影响的变化速度慢的现象。
 
 117
 00:12:20,720 --> 00:12:23,360
- Do you know?
+Do you know?
+你知道吗？
 
 118
 00:12:23,360 --> 00:12:31,960
- Anyone you can say on the chat?
+Anyone you can say on the chat?
+你可以在聊天中说任何人吗？
 
 119
 00:12:31,960 --> 00:12:45,040
- Okay, we are not going to go into a lot of details here, but hysteresis means that when
+Okay, we are not going to go into a lot of details here, but hysteresis means that when
+好的，我们这里不会详细讨论，但滞后效应意味着当...
 
 120
 00:12:45,040 --> 00:12:52,360
- you have a process, a control system in general, and you have a threshold, and when that exceeds
+you have a process, a control system in general, and you have a threshold, and when that exceeds
+你有一个流程，一个通常的控制系统，还有一个阈值，当超过这个阈值时
 
 121
 00:12:52,360 --> 00:12:58,680
- that threshold, you change the output and you decrease the threshold, you reduce the
+that threshold, you change the output and you decrease the threshold, you reduce the
+那个阈值，你改变输出并降低阈值，你减少了
 
 122
 00:12:58,680 --> 00:13:01,520
- gain change output.
+gain change output.
+增益变化输出。
 
 123
 00:13:01,520 --> 00:13:08,400
- So if you have a system which is just around that threshold, the system changes its behavior
+So if you have a system which is just around that threshold, the system changes its behavior
+所以如果你有一个接近这个阈值的系统，系统会改变其行为。
 
 124
 00:13:08,400 --> 00:13:09,400
- quite frequently.
+quite frequently.
+相当频繁。
 
 125
 00:13:09,400 --> 00:13:13,660
- So you get one, two, and even if you have noise, if you have to imagine that you have
+So you get one, two, and even if you have noise, if you have to imagine that you have
+所以你得到一个，两个，甚至如果有噪音，如果你不得不想象你有
 
 126
 00:13:13,660 --> 00:13:16,600
- noise around that threshold.
+noise around that threshold.
+噪音超过了那个阈值。
 
 127
 00:13:16,600 --> 00:13:18,360
- So you want to avoid that.
+So you want to avoid that.
+所以你想要避免那个。
 
 128
 00:13:18,360 --> 00:13:22,480
- So in order to avoid that, you have actually in general two thresholds.
+So in order to avoid that, you have actually in general two thresholds.
+所以为了避免这种情况，你实际上一般有两个阈值。
 
 129
 00:13:22,480 --> 00:13:27,040
- You have one threshold, low threshold and high thresholds.
+You have one threshold, low threshold and high thresholds.
+你有一个门槛，低门槛和高门槛。
 
 130
 00:13:27,040 --> 00:13:33,360
- And you change the behavior when you exceed a high threshold or when you go under the
+And you change the behavior when you exceed a high threshold or when you go under the
+并且当您超过一个高阈值或者当您低于一个阈值时，您会改变行为。
 
 131
 00:13:33,360 --> 00:13:35,160
- low threshold.
+low threshold.
+低门槛。
 
 132
 00:13:35,160 --> 00:13:39,120
- So in that sense, you have a range in which the system behavior doesn't change it.
+So in that sense, you have a range in which the system behavior doesn't change it.
+那么从这个意义上说，你有一个范围，在这个范围内系统的行为不会改变。
 
 133
 00:13:39,120 --> 00:13:45,180
- So if there is a noise and we are within that range, the system will become constant.
+So if there is a noise and we are within that range, the system will become constant.
+所以如果有噪音并且我们在那个范围内，系统将保持稳定。
 
 134
 00:13:45,180 --> 00:13:49,880
- So for instance, in this particular case, you don't want to change the behavior.
+So for instance, in this particular case, you don't want to change the behavior.
+所以例如，在这种特定情况下，你不想改变行为。
 
 135
 00:13:49,880 --> 00:13:56,080
- Like for instance, imagine that you have an editor.
+Like for instance, imagine that you have an editor.
+比如说，想象一下你有一个编辑器。
 
 136
 00:13:56,080 --> 00:14:01,480
- And with an editor, not editor, maybe, I don't know whether you use LaTeX or something like
+And with an editor, not editor, maybe, I don't know whether you use LaTeX or something like
+而且使用一个编辑器，不是编辑者，也许不是，我不知道你是否使用LaTeX或类似的东西。
 
 137
 00:14:01,480 --> 00:14:02,480
- that.
+that.
+那个。
 
 138
 00:14:02,480 --> 00:14:04,920
- So you have an editor.
+So you have an editor.
+所以你有一个编辑器。
 
 139
 00:14:04,920 --> 00:14:07,640
- Okay, let's take an editor.
+Okay, let's take an editor.
+好的，让我们来找一个编辑。
 
 140
 00:14:07,640 --> 00:14:10,880
- So you take an editor and there are two different regimes.
+So you take an editor and there are two different regimes.
+所以你需要一个编辑器，有两种不同的制度。
 
 141
 00:14:10,880 --> 00:14:14,900
- One you are entering the text, editing the text.
+One you are entering the text, editing the text.
+一旦你输入了文本，就可以编辑文本了。
 
 142
 00:14:14,900 --> 00:14:20,280
- And another one is for instance, you save or load.
+And another one is for instance, you save or load.
+另一个例子是，比如说，你可以保存或加载。
 
 143
 00:14:20,280 --> 00:14:26,200
- So you don't want, say save or load or even worse, the editor doing some rendering and
+So you don't want, say save or load or even worse, the editor doing some rendering and
+所以你不想要，比如保存或加载，甚至更糟的是，编辑器进行一些渲染和处理。
 
 144
 00:14:26,200 --> 00:14:30,600
- doing some compute heavy, say maybe operations.
+doing some compute heavy, say maybe operations.
+进行一些计算密集型的工作，比如可能是一些操作。
 
 145
 00:14:30,600 --> 00:14:36,880
- You don't want that just because you do a little bit of computation, that to make the
+You don't want that just because you do a little bit of computation, that to make the
+你不想要那个只是因为你做了一点点计算，就认为可以实现。
 
 146
 00:14:36,880 --> 00:14:39,200
- editor less responsive.
+editor less responsive.
+编辑反应较慢。
 
 147
 00:14:39,200 --> 00:14:44,160
- You want to be more robust and only if it's for a long, long time, the editor is just
+You want to be more robust and only if it's for a long, long time, the editor is just
+你想要更加强大，只有在很长很长的时间里才能实现，编辑只是一个工具。
 
 148
 00:14:44,160 --> 00:14:49,240
- doing a lot of rendering, maybe you are going to deprioritize it.
+doing a lot of rendering, maybe you are going to deprioritize it.
+做了很多渲染，也许你要将其降低优先级。
 
 149
 00:14:49,240 --> 00:14:53,040
- That's what hysteresis means.
+That's what hysteresis means.
+这就是滞后效应的意思。
 
 150
 00:14:53,040 --> 00:15:01,280
- Real-time tasks, they have lower than 100 priority.
+Real-time tasks, they have lower than 100 priority.
+实时任务，它们的优先级低于100。
 
 151
 00:15:01,280 --> 00:15:06,500
- They also preempt the non-RTH task.
+They also preempt the non-RTH task.
+他们还抢占了非RTH任务。
 
 152
 00:15:06,500 --> 00:15:10,900
- For each queue at each level, there are two kinds of schemes.
+For each queue at each level, there are two kinds of schemes.
+对于每个级别的每个队列，有两种方案。
 
 153
 00:15:10,900 --> 00:15:15,380
- So at each priority level, again, you have multiple, at each priority level, you have
+So at each priority level, again, you have multiple, at each priority level, you have
+所以在每个优先级别上，再次，你有多个，在每个优先级别上，你有
 
 154
 00:15:15,380 --> 00:15:20,200
- a queue which contains multiple processes or threads.
+a queue which contains multiple processes or threads.
+一个包含多个进程或线程的队列。
 
 155
 00:15:20,200 --> 00:15:27,160
- And you can use all the FIFO without no time slice or round-robin, in which there is a
+And you can use all the FIFO without no time slice or round-robin, in which there is a
+而且你可以使用所有的先进先出（FIFO）算法，无需时间片或轮转，其中包含一个
 
 156
 00:15:27,160 --> 00:15:29,660
- time slice.
+time slice.
+时间片。
 
 157
 00:15:29,660 --> 00:15:30,660
- Here is a real-time task.
+Here is a real-time task.
+这是一个实时任务。
 
 158
 00:15:30,660 --> 00:15:37,960
- They are not scheduled using the early deadline first, which we learned last time, the last
+They are not scheduled using the early deadline first, which we learned last time, the last
+他们没有按照我们上次学到的先使用早期截止日期的方式进行安排，而是按照最后期限进行安排。
 
 159
 00:15:37,960 --> 00:15:38,960
- lecture.
+lecture.
+讲座。
 
 160
 00:15:38,960 --> 00:15:40,800
- They are assigned priorities.
+They are assigned priorities.
+它们被分配了优先级。
 
 161
 00:15:40,800 --> 00:15:46,720
- There are other scheduling algorithms, real-time scheduling algorithms, which can use priorities
+There are other scheduling algorithms, real-time scheduling algorithms, which can use priorities
+有其他调度算法，实时调度算法，可以使用优先级。
 
 162
 00:15:46,720 --> 00:15:55,140
- to schedule these tasks and still guarantees you can meet the deadlines.
+to schedule these tasks and still guarantees you can meet the deadlines.
+安排这些任务并确保你能按时完成。
 
 163
 00:15:55,140 --> 00:16:01,940
- Another thing, like if you remember, we can do and to be more robust and avoid starvation,
+Another thing, like if you remember, we can do and to be more robust and avoid starvation,
+另外一件事，就像你记得的那样，我们可以做一些改进，使系统更加稳健，避免饥饿现象。
 
 164
 00:16:01,940 --> 00:16:06,380
- is basically using proportional share scheduling.
+is basically using proportional share scheduling.
+基本上使用的是比例共享调度。
 
 165
 00:16:06,380 --> 00:16:09,060
- And this is related with lottery scheduling.
+And this is related with lottery scheduling.
+这与抽奖调度有关。
 
 166
 00:16:09,060 --> 00:16:18,060
- lottery scheduling is an implementation of proportional share scheduling.
+lottery scheduling is an implementation of proportional share scheduling.
+抽奖调度是比例份额调度的一种实现方式。
 
 167
 00:16:18,060 --> 00:16:27,360
- And basically here, it's again, if you remember, you allocate these tickets and you have say
+And basically here, it's again, if you remember, you allocate these tickets and you have say
+而基本上，在这里，如果你还记得的话，你分配这些票，然后你有说
 
 168
 00:16:27,360 --> 00:16:33,280
- 100 tickets, and maybe you are going to give to one thread, you are going to give 10 tickets
+100 tickets, and maybe you are going to give to one thread, you are going to give 10 tickets
+100张票，也许你会给一个帖子，你会给10张票。
 
 169
 00:16:33,280 --> 00:16:37,040
- and the other 190 tickets.
+and the other 190 tickets.
+和其他190张票。
 
 170
 00:16:37,040 --> 00:16:42,780
- And now you are going to do the lottery so every time you select a winning ticket.
+And now you are going to do the lottery so every time you select a winning ticket.
+现在你要进行彩票抽奖，每次都会选出一张中奖票。
 
 171
 00:16:42,780 --> 00:16:51,460
- Now obviously, the probability of selecting the second thread, which has 90 tickets, is
+Now obviously, the probability of selecting the second thread, which has 90 tickets, is
+现在显然，选择第二个线程的概率是90张票。
 
 172
 00:16:51,460 --> 00:16:59,020
- nine times higher than probably to select the first thread, which has only 10 tickets.
+nine times higher than probably to select the first thread, which has only 10 tickets.
+比起只有10张票的第一条线程，选择可能性高出九倍。
 
 173
 00:16:59,020 --> 00:17:07,980
- So this means that you give to the second thread 90% of the CPU on the average, and
+So this means that you give to the second thread 90% of the CPU on the average, and
+这意味着你平均给第二个线程90%的CPU使用率，而且
 
 174
 00:17:07,980 --> 00:17:11,700
- the first thread only 10%.
+the first thread only 10%.
+第一个线程只有10%。
 
 175
 00:17:11,700 --> 00:17:18,320
- So you can see that you can use this kind of weights, these different number of tickets,
+So you can see that you can use this kind of weights, these different number of tickets,
+所以你可以看到，你可以使用这种类型的权重，这些不同数量的票。
 
 176
 00:17:18,320 --> 00:17:25,380
- you are giving to each thread to approximate priorities.
+you are giving to each thread to approximate priorities.
+你正在为每个线程分配近似的优先级。
 
 177
 00:17:25,380 --> 00:17:31,620
- Because clearly, you can see that the thread with 90 tickets has a higher priority than
+Because clearly, you can see that the thread with 90 tickets has a higher priority than
+因为显然，你可以看到拥有90张票的帖子比拥有10张票的帖子优先级更高。
 
 178
 00:17:31,620 --> 00:17:36,020
- the task with 10 tickets.
+the task with 10 tickets.
+任务有10张票。
 
 179
 00:17:36,020 --> 00:17:43,920
- And the nice thing about this kind of scheme is that it avoids starvation.
+And the nice thing about this kind of scheme is that it avoids starvation.
+而这种方案的好处是它避免了饥饿。
 
 180
 00:17:43,920 --> 00:17:55,020
- So even if you give a task, a thread 99 tickets and another thread only one, still out on
+So even if you give a task, a thread 99 tickets and another thread only one, still out on
+所以即使你给一个线程99个任务，而另一个线程只有一个任务，结果还是会超时。
 
 181
 00:17:55,020 --> 00:18:05,940
- the average, out of 100 time slices or quanta, the thread which has only one ticket is going
+the average, out of 100 time slices or quanta, the thread which has only one ticket is going
+平均而言，在100个时间片或量子中，只有一张票的线程正在进行。
 
 182
 00:18:05,940 --> 00:18:08,060
- to get a chance to run.
+to get a chance to run.
+获得一个机会去奔跑。
 
 183
 00:18:08,060 --> 00:18:11,720
- So it's not stopped.
+So it's not stopped.
+所以它没有停止。
 
 184
 00:18:11,720 --> 00:18:15,700
- And this is basically tells you a little bit more, giving you a little bit more math on
+And this is basically tells you a little bit more, giving you a little bit more math on
+这基本上告诉你更多一点，给你更多的数学上的东西。
 
 185
 00:18:15,700 --> 00:18:16,700
- that.
+that.
+那个。
 
 186
 00:18:16,700 --> 00:18:23,180
- Now, you may ask, well, then why we don't do only this lottery scheduling or this proportional
+Now, you may ask, well, then why we don't do only this lottery scheduling or this proportional
+现在，你可能会问，那么为什么我们不只做这个抽奖调度或这个比例调度呢？
 
 187
 00:18:23,180 --> 00:18:25,020
- sharing?
+sharing?
+分享？
 
 188
 00:18:25,020 --> 00:18:27,300
- The answer is that it's harder to implement.
+The answer is that it's harder to implement.
+答案是实施起来更困难。
 
 189
 00:18:27,300 --> 00:18:29,300
- It's more complex to implement.
+It's more complex to implement.
+这个实施起来更加复杂。
 
 190
 00:18:29,300 --> 00:18:31,620
- It's slower than the priority.
+It's slower than the priority.
+比优先级慢。
 
 191
 00:18:31,620 --> 00:18:37,680
- The priority or so is so on of one super simple to implement.
+The priority or so is so on of one super simple to implement.
+优先级或者说是如此如此的一个超级简单的实现。
 
 192
 00:18:37,680 --> 00:18:42,260
- So that's the answer.
+So that's the answer.
+这就是答案。
 
 193
 00:18:42,260 --> 00:18:47,140
- So look, let's again, Unix has a lot of schedulers, actually.
+So look, let's again, Unix has a lot of schedulers, actually.
+所以看，让我们再说一遍，Unix实际上有很多调度器。
 
 194
 00:18:47,140 --> 00:18:49,220
- The first one was a basic scheduler.
+The first one was a basic scheduler.
+第一个是一个基本的调度程序。
 
 195
 00:18:49,220 --> 00:18:55,060
- You have this kind of two queues, active and expired.
+You have this kind of two queues, active and expired.
+你有这样两个队列，一个是活动队列，一个是过期队列。
 
 196
 00:18:55,060 --> 00:18:58,380
- And it's all fun, very simple.
+And it's all fun, very simple.
+而且这一切都很有趣，非常简单。
 
 197
 00:18:58,380 --> 00:19:01,900
- But it has also a more sophisticated scheduler.
+But it has also a more sophisticated scheduler.
+但它还有一个更复杂的调度程序。
 
 198
 00:19:01,900 --> 00:19:05,900
- And one of that, this is completely fair scheduler.
+And one of that, this is completely fair scheduler.
+其中之一，这是一个完全公平的调度器。
 
 199
 00:19:05,900 --> 00:19:12,420
- And the idea here is to track the CPU time per thread and schedule threads to match up
+And the idea here is to track the CPU time per thread and schedule threads to match up
+这里的想法是跟踪每个线程的CPU时间，并安排线程以匹配。
 
 200
 00:19:12,420 --> 00:19:15,720
- on average rate of execution.
+on average rate of execution.
+平均执行速度。
 
 201
 00:19:15,720 --> 00:19:20,500
- So basically, in other words, you want different threads.
+So basically, in other words, you want different threads.
+所以基本上，换句话说，你想要不同的线程。
 
 202
 00:19:20,500 --> 00:19:24,840
- If you don't have different threads, more than one thread, you want all of them to make
+If you don't have different threads, more than one thread, you want all of them to make
+如果你没有不同的线程，只有一个线程，你希望它们都执行。
 
 203
 00:19:24,840 --> 00:19:29,300
- kind of progress at the same rate.
+kind of progress at the same rate.
+进展的速度有点相同。
 
 204
 00:19:29,300 --> 00:19:30,300
- That's it.
+That's it.
+就这样。
 
 205
 00:19:30,300 --> 00:19:33,460
- That's a high level.
+That's a high level.
+这是一个高水平。
 
 206
 00:19:33,460 --> 00:19:39,820
- So this is if the CPU time, like this is CPU time and this is one over n, you have three
+So this is if the CPU time, like this is CPU time and this is one over n, you have three
+这是CPU时间，这是一个除以n的数，你有三个。
 
 207
 00:19:39,820 --> 00:19:40,820
- threads.
+threads.
+线程。
 
 208
 00:19:40,820 --> 00:19:42,020
- So in this case, n is three.
+So in this case, n is three.
+所以在这种情况下，n是三。
 
 209
 00:19:42,020 --> 00:19:46,120
- So this is each of them, you get one third of the CPU.
+So this is each of them, you get one third of the CPU.
+所以这是每个人，你得到CPU的三分之一。
 
 210
 00:19:46,120 --> 00:19:52,360
- Then you look at how long each of them they run, starting for a given time.
+Then you look at how long each of them they run, starting for a given time.
+然后你看看它们每个人跑了多久，从给定的时间开始。
 
 211
 00:19:52,360 --> 00:19:57,920
- And in this case, the one that are longer than T2 and T3.
+And in this case, the one that are longer than T2 and T3.
+在这种情况下，指的是比T2和T3更长的那些。
 
 212
 00:19:57,920 --> 00:20:04,440
- And therefore, here you are going to give the next time when you are going to schedule,
+And therefore, here you are going to give the next time when you are going to schedule,
+所以，你打算在下次安排时给出时间。
 
 213
 00:20:04,440 --> 00:20:05,560
- you are going to schedule.
+you are going to schedule.
+你要安排日程。
 
 214
 00:20:05,570 --> 00:20:09,450
- select probability two, because you want to catch up with,
+select probability two, because you want to catch up with,
+选择概率二，因为你想迎头赶上。
 
 215
 00:20:09,450 --> 00:20:11,470
- T2 to catch up with T1 and T3.
+T2 to catch up with T1 and T3.
+T2需要赶上T1和T3。
 
 216
 00:20:11,470 --> 00:20:16,110
- Of course, it's again, this is a simple one,
+Of course, it's again, this is a simple one,
+当然，这又是一个简单的。
 
 217
 00:20:16,110 --> 00:20:19,130
- a simple case, but it's sort of complicated, right?
+a simple case, but it's sort of complicated, right?
+一个简单的案例，但是有点复杂，对吗？
 
 218
 00:20:19,130 --> 00:20:22,930
- Because threads do not start at the same time.
+Because threads do not start at the same time.
+因为线程不会同时开始。
 
 219
 00:20:22,930 --> 00:20:27,930
- Threads, excuse me, threads are IO bounded, right?
+Threads, excuse me, threads are IO bounded, right?
+是的，线程，对不起，线程是受IO限制的，对吗？
 
 220
 00:20:27,930 --> 00:20:31,010
- They instead of, you know,
+They instead of, you know,
+他们代替，你知道的，
 
 221
 00:20:31,010 --> 00:20:34,010
- they don't use their entire full quanta, okay?
+they don't use their entire full quanta, okay?
+他们没有使用他们全部的量子，好吗？
 
 222
 00:20:34,010 --> 00:20:36,490
- So there are many things and that's why these schedulers
+So there are many things and that's why these schedulers
+所以有很多事情，这就是为什么这些调度程序。
 
 223
 00:20:36,490 --> 00:20:37,810
- are much more complicated.
+are much more complicated.
+非常复杂。
 
 224
 00:20:37,810 --> 00:20:40,610
- There are a lot of papers, research papers,
+There are a lot of papers, research papers,
+有很多论文，研究论文，
 
 225
 00:20:40,610 --> 00:20:42,190
- written about the schedulers.
+written about the schedulers.
+关于调度程序的写作。
 
 226
 00:20:42,190 --> 00:20:44,530
- This is discussion is to give you a sense,
+This is discussion is to give you a sense,
+这次讨论是为了让你有一个感觉，
 
 227
 00:20:44,530 --> 00:20:47,250
- some intuition about what are the problems
+some intuition about what are the problems
+一些关于问题是什么的直觉
 
 228
 00:20:47,250 --> 00:20:50,570
- and how these schedulers are working, okay?
+and how these schedulers are working, okay?
+这些调度器是如何工作的，好吗？
 
 229
 00:20:50,570 --> 00:20:53,810
- So this is, it's again, this is a goal here
+So this is, it's again, this is a goal here
+这是一个目标。
 
 230
 00:20:53,810 --> 00:20:57,050
- is to provide this illusion of complete, of fairness.
+is to provide this illusion of complete, of fairness.
+是为了提供这种完整、公平的幻觉。
 
 231
 00:20:57,050 --> 00:21:00,010
- Each of the tasks thread gets the same kind of,
+Each of the tasks thread gets the same kind of,
+每个任务线程都得到相同类型的。
 
 232
 00:21:00,010 --> 00:21:02,970
- makes progress at the same rate, gets CPU at the same rate.
+makes progress at the same rate, gets CPU at the same rate.
+以相同的速度取得进展，以相同的速度获取CPU。
 
 233
 00:21:03,970 --> 00:21:07,350
- And it's closely related to its fair queuing, okay?
+And it's closely related to its fair queuing, okay?
+而且它与公平排队密切相关，好吗？
 
 234
 00:21:07,350 --> 00:21:09,850
- How do you implement it?
+How do you implement it?
+你如何实施它？
 
 235
 00:21:09,850 --> 00:21:12,770
- You can use a heap scheduler, but it's hard.
+You can use a heap scheduler, but it's hard.
+你可以使用堆调度器，但是很难。
 
 236
 00:21:12,770 --> 00:21:14,810
- A heap scheduler is log N, right?
+A heap scheduler is log N, right?
+堆调度器的时间复杂度是log N，对吗？
 
 237
 00:21:14,810 --> 00:21:16,290
- Or N is a number of threads.
+Or N is a number of threads.
+或者N是线程的数量。
 
 238
 00:21:16,290 --> 00:21:19,850
- And if you look about the number of threads on your Mac
+And if you look about the number of threads on your Mac
+并且如果你查看你的Mac上的线程数量
 
 239
 00:21:19,850 --> 00:21:23,570
- or on your probably PC, you'll see that you can have
+or on your probably PC, you'll see that you can have
+或者在你的电脑上，你会发现你可以拥有
 
 240
 00:21:23,570 --> 00:21:26,770
- on your machine, you can have like tens of thousands
+on your machine, you can have like tens of thousands
+在你的机器上，你可以拥有成千上万个。
 
 241
 00:21:26,770 --> 00:21:29,430
- of threads at a given time, tens of thousands.
+of threads at a given time, tens of thousands.
+同时有成千上万个线程。
 
 242
 00:21:29,430 --> 00:21:32,310
- So this is, can be quite slow, the log N.
+So this is, can be quite slow, the log N.
+这是一个相对较慢的算法，时间复杂度为O(log N)。
 
 243
 00:21:32,310 --> 00:21:34,370
- Hard to remove threads, right?
+Hard to remove threads, right?
+很难去除线程，对吗？
 
 244
 00:21:34,370 --> 00:21:37,850
- Right, but this is a very easy, you know,
+Right, but this is a very easy, you know,
+没错，但这很简单，你知道的。
 
 245
 00:21:37,850 --> 00:21:41,870
- using a heap like scheduling, it's easy because you are,
+using a heap like scheduling, it's easy because you are,
+使用堆调度算法很容易，因为你是的。
 
 246
 00:21:41,870 --> 00:21:44,650
- you can always from a heap, you are going to get,
+you can always from a heap, you are going to get,
+你可以随时从一堆中得到你想要的东西。
 
 247
 00:21:44,650 --> 00:21:49,030
- select the task, which has a lowest CPU time,
+select the task, which has a lowest CPU time,
+选择具有最低CPU时间的任务。
 
 248
 00:21:49,030 --> 00:21:52,450
- which use a CPU as a list, okay?
+which use a CPU as a list, okay?
+使用一个CPU作为列表，可以吗？
 
 249
 00:21:52,450 --> 00:21:55,110
- Now, we said that these things are more complicated.
+Now, we said that these things are more complicated.
+现在，我们说这些事情更加复杂。
 
 250
 00:21:55,110 --> 00:21:57,430
- You can have a sleeping, you know, threads.
+You can have a sleeping, you know, threads.
+你可以睡觉，知道吗，线程。
 
 251
 00:21:57,430 --> 00:21:59,550
- What do you do if a thread is slipping?
+What do you do if a thread is slipping?
+如果线头滑动，你会怎么做？
 
 252
 00:21:59,550 --> 00:22:03,010
- Because, you know, waits for some event to happen,
+Because, you know, waits for some event to happen,
+因为，你知道的，等待某个事件发生，
 
 253
 00:22:03,010 --> 00:22:07,230
- or, you know, it's like, think about the thread is slipping,
+or, you know, it's like, think about the thread is slipping,
+或者，你知道的，就像是，想象一下线程滑动的感觉，
 
 254
 00:22:07,230 --> 00:22:12,230
- which as a process, when forks, another process
+which as a process, when forks, another process
+其中一个进程在分叉时，会生成另一个进程。
 
 255
 00:22:12,230 --> 00:22:17,290
- is going to slip and to wait for the other process
+is going to slip and to wait for the other process
+将要滑倒并等待其他过程。
 
 256
 00:22:17,290 --> 00:22:20,550
- to finish and to join back.
+to finish and to join back.
+完成并重新加入。
 
 257
 00:22:20,550 --> 00:22:26,970
- So basically one thing to hear is like when you,
+So basically one thing to hear is like when you,
+所以基本上一个要听的事情就是当你，
 
 258
 00:22:27,050 --> 00:22:31,910
- when a thread slips, you don't add basic CPU types.
+when a thread slips, you don't add basic CPU types.
+当线程滑动时，您不需要添加基本的CPU类型。
 
 259
 00:22:31,910 --> 00:22:36,670
- If you don't advance your CPU time, then when it wakes up,
+If you don't advance your CPU time, then when it wakes up,
+如果您不提前设置CPU时间，那么当它唤醒时，
 
 260
 00:22:36,670 --> 00:22:38,630
- it's going to have low CPU time,
+it's going to have low CPU time,
+它将具有较低的CPU时间。
 
 261
 00:22:38,630 --> 00:22:40,710
- so it's going to have priority,
+so it's going to have priority,
+所以它将具有优先权，
 
 262
 00:22:40,710 --> 00:22:43,030
- it's going to be scheduled, right?
+it's going to be scheduled, right?
+会安排的，对吗？
 
 263
 00:22:43,030 --> 00:22:46,750
- But now the problem is that you cannot do that unbounded.
+But now the problem is that you cannot do that unbounded.
+但是现在的问题是你不能无限制地这样做。
 
 264
 00:22:46,750 --> 00:22:49,230
- Like what happens if I have a thread,
+Like what happens if I have a thread,
+如果我有一个线程，会发生什么？
 
 265
 00:22:49,230 --> 00:22:53,270
- which is slips from here since yesterday, right?
+which is slips from here since yesterday, right?
+你是说从昨天开始滑倒的那个吗？
 
 266
 00:22:53,270 --> 00:22:56,750
- That will have a higher than, a lower CPU times
+That will have a higher than, a lower CPU times
+那将会有比较高的CPU时间，比较低的CPU时间
 
 267
 00:22:56,750 --> 00:22:58,390
- than anything in the system.
+than anything in the system.
+比系统中的任何东西都重要。
 
 268
 00:22:58,390 --> 00:22:59,910
- And basically, you know,
+And basically, you know,
+基本上，你知道的，
 
 269
 00:22:59,910 --> 00:23:02,490
- it's going to have priority over all of them.
+it's going to have priority over all of them.
+它将优先于所有其他事物。
 
 270
 00:23:02,490 --> 00:23:04,390
- So you need to adjust for that as well.
+So you need to adjust for that as well.
+所以你也需要进行调整。
 
 271
 00:23:04,390 --> 00:23:09,490
- It's again, we are not going to go into all the details.
+It's again, we are not going to go into all the details.
+再说一次，我们不打算深入讨论所有的细节。
 
 272
 00:23:09,490 --> 00:23:16,770
- So, but at the high level, one trade off with the schedulers,
+So, but at the high level, one trade off with the schedulers,
+所以，但在高层次上，调度器的一个权衡是，
 
 273
 00:23:16,770 --> 00:23:19,610
- like we also discussed last lecture,
+like we also discussed last lecture,
+就像我们在上一堂课上讨论的那样，
 
 274
 00:23:19,610 --> 00:23:22,110
- it's about between being very responsive
+it's about between being very responsive
+这是关于非常响应的问题。
 
 275
 00:23:22,110 --> 00:23:26,370
- and between, within responsibility and fairness.
+and between, within responsibility and fairness.
+以及责任和公平之间。
 
 276
 00:23:27,290 --> 00:23:31,050
- Right? You remember, it's like an algorithm,
+Right? You remember, it's like an algorithm,
+对吧？你记得，就像一个算法，
 
 277
 00:23:31,050 --> 00:23:33,210
- which is fair, it's round robin, right?
+which is fair, it's round robin, right?
+是的，这是公平的，这是循环赛制，对吗？
 
 278
 00:23:33,210 --> 00:23:36,130
- Each of them, you know, you go over, you know,
+Each of them, you know, you go over, you know,
+他们每个人，你知道的，你过去，你知道的。
 
 279
 00:23:36,130 --> 00:23:40,930
- around the threads and every round you are going to schedule
+around the threads and every round you are going to schedule
+在每一轮中，你都要安排好各个线程。
 
 280
 00:23:40,930 --> 00:23:45,050
- to give a time quanta to each thread, right?
+to give a time quanta to each thread, right?
+给每个线程分配一个时间量子，对吗？
 
 281
 00:23:45,050 --> 00:23:46,370
- So that's very fair.
+So that's very fair.
+这样很公平。
 
 282
 00:23:46,370 --> 00:23:48,530
- However, maybe don't be very responsive
+However, maybe don't be very responsive
+然而，也许不要太积极回应。
 
 283
 00:23:48,530 --> 00:23:50,010
- because you have any threads,
+because you have any threads,
+因为你有任何线程，
 
 284
 00:23:50,010 --> 00:23:54,570
- you need to wait for N minus up to N minus one times quanta.
+you need to wait for N minus up to N minus one times quanta.
+你需要等待N减去一直到N减去一次的量子时间。
 
 285
 00:23:54,570 --> 00:23:59,570
- To get a time quanta to a thread, right?
+To get a time quanta to a thread, right?
+获取一个时间片给线程，对吗？
 
 286
 00:23:59,570 --> 00:24:03,030
- So thread, particular thread can wait
+So thread, particular thread can wait
+所以线程，特定的线程可以等待。
 
 287
 00:24:03,030 --> 00:24:04,830
- for N minus one times quanta.
+for N minus one times quanta.
+对于N减一次量子。
 
 288
 00:24:04,830 --> 00:24:10,590
- On the other hand, the priority, it's very effective
+On the other hand, the priority, it's very effective
+另一方面，优先级很高，非常有效。
 
 289
 00:24:10,590 --> 00:24:14,310
- and provide you low response time,
+and provide you low response time,
+并且能够提供您低延迟的响应时间，
 
 290
 00:24:14,310 --> 00:24:17,390
- at least for the threads with a high priority, right?
+at least for the threads with a high priority, right?
+至少对于优先级较高的线程，是吗？
 
 291
 00:24:17,390 --> 00:24:20,190
- If you have, say 10 threads
+If you have, say 10 threads
+如果你有10个线程的话
 
 292
 00:24:20,190 --> 00:24:22,510
- and the interactive thread is priority,
+and the interactive thread is priority,
+而且交互式线程是优先的。
 
 293
 00:24:22,510 --> 00:24:25,930
- the highest priority, that is going to serve very fast,
+the highest priority, that is going to serve very fast,
+最高优先级，即将提供非常快速的服务。
 
 294
 00:24:25,930 --> 00:24:27,410
- but it's not going to be fair, right?
+but it's not going to be fair, right?
+但这不会公平，对吧？
 
 295
 00:24:27,410 --> 00:24:30,030
- Because the high priority threads are going to get
+Because the high priority threads are going to get
+因为高优先级的线程将会得到
 
 296
 00:24:30,030 --> 00:24:34,030
- all the CPU at the expense of low priority threads.
+all the CPU at the expense of low priority threads.
+牺牲低优先级线程的情况下，占用所有的CPU资源。
 
 297
 00:24:34,030 --> 00:24:37,750
- Right? So that's a fundamental trade-off.
+Right? So that's a fundamental trade-off.
+对吗？所以这是一个基本的权衡。
 
 298
 00:24:37,750 --> 00:24:41,170
- And what Linux is doing, it has this kind of,
+And what Linux is doing, it has this kind of,
+而Linux正在做的是，它具有这种类型的功能，
 
 299
 00:24:41,170 --> 00:24:44,690
- you have put this constraint about target latency.
+you have put this constraint about target latency.
+你对目标延迟设置了这个限制。
 
 300
 00:24:44,690 --> 00:24:46,270
- So it's a period of time over which
+So it's a period of time over which
+所以这是一个时间段，持续一段时间。
 
 301
 00:24:46,270 --> 00:24:48,050
- every process gets serviced, right?
+every process gets serviced, right?
+每个过程都会得到服务，对吗？
 
 302
 00:24:48,050 --> 00:24:50,730
- I am guaranteed that, you know, target latency.
+I am guaranteed that, you know, target latency.
+我保证，你知道目标延迟。
 
 303
 00:24:50,730 --> 00:24:52,910
- So say it is 100 milliseconds,
+So say it is 100 milliseconds,
+所以说它是100毫秒。
 
 304
 00:24:52,910 --> 00:24:56,130
- I am guaranteed that I'm going to get access to the CPU
+I am guaranteed that I'm going to get access to the CPU
+我保证我将获得访问CPU的权限。
 
 305
 00:24:56,130 --> 00:24:59,810
- within every 100 milliseconds.
+within every 100 milliseconds.
+每100毫秒内。
 
 306
 00:24:59,810 --> 00:25:00,890
- Okay?
+Okay?
+好的。
 
 307
 00:25:00,890 --> 00:25:03,690
- And this defines a time quanta,
+And this defines a time quanta,
+这定义了一个时间量子。
 
 308
 00:25:03,690 --> 00:25:08,250
- because if you have N number is a number of processes
+because if you have N number is a number of processes
+因为如果你有N个数字，那就是一组进程的数量。
 
 309
 00:25:08,250 --> 00:25:10,290
- or thread, then the time quanta
+or thread, then the time quanta
+或者线程，然后是时间量子。
 
 310
 00:25:10,290 --> 00:25:12,730
- is a target latency over N, right?
+is a target latency over N, right?
+是指超过N的目标延迟，对吗？
 
 311
 00:25:12,730 --> 00:25:15,170
- So for instance, if you have the target latency,
+So for instance, if you have the target latency,
+那么举个例子，如果你有目标延迟时间，
 
 312
 00:25:15,170 --> 00:25:17,570
- 20 milliseconds, and you have four processes,
+20 milliseconds, and you have four processes,
+20毫秒，你有四个进程。
 
 313
 00:25:17,570 --> 00:25:20,550
- but it's a time quanta, it has to be five, right?
+but it's a time quanta, it has to be five, right?
+但这是一个时间量子，它必须是五，对吗？
 
 314
 00:25:20,550 --> 00:25:22,530
- Because if it's longer, you cannot guarantee
+Because if it's longer, you cannot guarantee
+因为如果时间更长，你无法保证
 
 315
 00:25:22,530 --> 00:25:25,690
- that each process is going to get access to the CPU
+that each process is going to get access to the CPU
+每个进程都将获得对CPU的访问权限。
 
 316
 00:25:25,690 --> 00:25:26,890
- within 20 milliseconds.
+within 20 milliseconds.
+20毫秒内。
 
 317
 00:25:26,890 --> 00:25:28,970
- Right?
+Right?
+对吗？
 
 318
 00:25:28,970 --> 00:25:31,850
- But now if you have 20 milliseconds,
+But now if you have 20 milliseconds,
+但是现在如果你有20毫秒的时间，
 
 319
 00:25:31,850 --> 00:25:33,650
- and you have 200 processes,
+and you have 200 processes,
+你有200个进程。
 
 320
 00:25:33,650 --> 00:25:36,450
- the time quanta can be 0.1 milliseconds,
+the time quanta can be 0.1 milliseconds,
+时间量子可以是0.1毫秒。
 
 321
 00:25:36,450 --> 00:25:38,310
- which is too little, right?
+which is too little, right?
+这太少了，对吗？
 
 322
 00:25:38,310 --> 00:25:40,330
- You remember, if it's a time slice
+You remember, if it's a time slice
+你记得，如果是时间片段的话
 
 323
 00:25:40,330 --> 00:25:42,330
- or time quanta is too small,
+or time quanta is too small,
+或者时间量子太小，
 
 324
 00:25:42,330 --> 00:25:46,450
- then the overhead of context switching can dominate.
+then the overhead of context switching can dominate.
+那么上下文切换的开销可能会占主导地位。
 
 325
 00:25:46,450 --> 00:25:48,510
- So you are doing more context switches
+So you are doing more context switches
+所以你正在进行更多的上下文切换。
 
 326
 00:25:48,510 --> 00:25:50,450
- between these kinds of processes
+between these kinds of processes
+这些过程之间
 
 327
 00:25:50,450 --> 00:25:54,670
- than really running these processes.
+than really running these processes.
+比起真正运行这些进程。
 
 328
 00:25:54,670 --> 00:25:55,510
- Right?
+Right?
+对吗？
 
 329
 00:25:55,510 --> 00:25:59,030
- So this is one thing.
+So this is one thing.
+这是一件事情。
 
 330
 00:25:59,030 --> 00:26:00,750
- The other thing is about,
+The other thing is about,
+另外一件事是关于...
 
 331
 00:26:00,750 --> 00:26:08,650
- obviously, the reason you want to avoid
+obviously, the reason you want to avoid
+显然，你想要避免的原因是什么？
 
 332
 00:26:08,650 --> 00:26:10,450
- a lot of overhead in context switching
+a lot of overhead in context switching
+上下文切换中有很多开销。
 
 333
 00:26:10,450 --> 00:26:13,530
- is to preserve the throughput, right?
+is to preserve the throughput, right?
+是为了保持吞吐量，对吗？
 
 334
 00:26:13,530 --> 00:26:17,770
- The throughput is defined as a useful work done by a system.
+The throughput is defined as a useful work done by a system.
+吞吐量被定义为系统所完成的有用工作量。
 
 335
 00:26:17,770 --> 00:26:20,930
- Context switching is not useful work, okay?
+Context switching is not useful work, okay?
+上下文切换并不是有用的工作，好吗？
 
 336
 00:26:20,930 --> 00:26:24,490
- And therefore, in order to make sure
+And therefore, in order to make sure
+因此，为了确保
 
 337
 00:26:24,490 --> 00:26:26,410
- that the throughput is not going to plummet,
+that the throughput is not going to plummet,
+吞吐量不会暴跌，
 
 338
 00:26:26,410 --> 00:26:28,090
- it's not going to be too low,
+it's not going to be too low,
+这不会太低，
 
 339
 00:26:28,090 --> 00:26:31,470
- you are going to, we are going to say,
+you are going to, we are going to say,
+你要说的话是什么？
 
 340
 00:26:31,470 --> 00:26:34,330
- what is the minimum length of any time slice?
+what is the minimum length of any time slice?
+任何时间片的最小长度是多少？
 
 341
 00:26:34,330 --> 00:26:36,730
- So it's a minimum granularity constraints.
+So it's a minimum granularity constraints.
+所以这是一个最小粒度的约束。
 
 342
 00:26:36,730 --> 00:26:39,890
- So you have a target latency and minimum granularity,
+So you have a target latency and minimum granularity,
+所以你有一个目标延迟和最小粒度，
 
 343
 00:26:39,890 --> 00:26:41,970
- which in general can be at odds, right?
+which in general can be at odds, right?
+一般来说，它们可能存在分歧，对吗？
 
 344
 00:26:41,970 --> 00:26:44,210
- So,
+So,
+所以，
 
 345
 00:26:45,850 --> 00:26:49,370
- so, but, and because they are at odds in,
+so, but, and because they are at odds in,
+所以，但是，而且因为他们在不同的立场上。
 
 346
 00:26:49,370 --> 00:26:52,730
- sometimes you have to violate one.
+sometimes you have to violate one.
+有时候你必须违背一个。
 
 347
 00:26:52,730 --> 00:26:54,890
- Like for instance, if you have target latency
+Like for instance, if you have target latency
+比如，如果你有目标延迟时间
 
 348
 00:26:54,890 --> 00:26:57,010
- of 20 milliseconds and minimum granularity
+of 20 milliseconds and minimum granularity
+20毫秒的延迟和最小粒度
 
 349
 00:26:57,010 --> 00:26:58,050
- of one millisecond,
+of one millisecond,
+一毫秒的时间，
 
 350
 00:26:58,050 --> 00:27:03,210
- then in this case, you can,
+then in this case, you can,
+那么在这种情况下，你可以，
 
 351
 00:27:03,210 --> 00:27:06,930
- minimum granularity is going to prevail and is going,
+minimum granularity is going to prevail and is going,
+最小粒度将会占主导地位并且正在发展。
 
 352
 00:27:06,930 --> 00:27:09,450
- you know, you cannot reduce the time slice
+you know, you cannot reduce the time slice
+你知道，你不能减少时间片。
 
 353
 00:27:09,450 --> 00:27:11,250
- to less than one milliseconds.
+to less than one milliseconds.
+小于一毫秒。
 
 354
 00:27:11,250 --> 00:27:14,930
- And, you know, the target latency, you cannot do it
+And, you know, the target latency, you cannot do it
+而且，你知道的，目标延迟是无法实现的。
 
 355
 00:27:14,930 --> 00:27:19,450
- if you just do round robin, right?
+if you just do round robin, right?
+如果你只是做轮询，对吗？
 
 356
 00:27:19,450 --> 00:27:20,970
- Because if you do round robin,
+Because if you do round robin,
+因为如果你使用循环赛制，
 
 357
 00:27:20,970 --> 00:27:25,490
- it's going to take 100 milliseconds
+it's going to take 100 milliseconds
+需要100毫秒。
 
 358
 00:27:25,490 --> 00:27:27,330
- to a process to get it's turn.
+to a process to get it's turn.
+等待一个过程获得它的轮次。
 
 359
 00:27:27,330 --> 00:27:30,570
- So you need to wait for 99 milliseconds to get your turn.
+So you need to wait for 99 milliseconds to get your turn.
+所以你需要等待99毫秒才能轮到你。
 
 360
 00:27:30,570 --> 00:27:32,890
- So of course, we are going to violate
+So of course, we are going to violate
+当然，我们会违反。
 
 361
 00:27:32,890 --> 00:27:34,250
- the target latency here.
+the target latency here.
+这里的目标延迟是什么？
 
 362
 00:27:34,250 --> 00:27:37,330
- Okay?
+Okay?
+好的？
 
 363
 00:27:37,330 --> 00:27:39,170
- Okay, it's a question here.
+Okay, it's a question here.
+好的，这是一个问题。
 
 364
 00:27:39,170 --> 00:27:40,890
- Oh, what is granularity?
+Oh, what is granularity?
+哦，granularity是什么意思？
 
 365
 00:27:40,890 --> 00:27:43,370
- Oh,
+Oh,
+哦，
 
 366
 00:27:43,370 --> 00:27:44,210
- yeah.
+yeah.
+是的。
 
 367
 00:27:44,210 --> 00:27:57,770
- Okay, so these are very good questions.
+Okay, so these are very good questions.
+好的，这些是非常好的问题。
 
 368
 00:27:57,770 --> 00:27:59,290
- So what is granularity?
+So what is granularity?
+什么是粒度？
 
 369
 00:27:59,290 --> 00:28:02,970
- Granularity is how granular you are going to,
+Granularity is how granular you are going to,
+细粒度是指你要达到的粒度大小。
 
 370
 00:28:02,970 --> 00:28:04,730
- what is the granularity at which you are going
+what is the granularity at which you are going
+你打算以什么粒度进行？
 
 371
 00:28:04,730 --> 00:28:05,730
- to provide the service?
+to provide the service?
+提供这项服务？
 
 372
 00:28:05,730 --> 00:28:09,410
- I mean, it's, this is what we mean.
+I mean, it's, this is what we mean.
+我的意思是，这就是我们的意思。
 
 373
 00:28:09,410 --> 00:28:11,370
- It's like, what we mean is about
+It's like, what we mean is about
+这个，我们的意思是关于什么的
 
 374
 00:28:11,370 --> 00:28:14,610
- what is the minimum length of the time slice in this case?
+what is the minimum length of the time slice in this case?
+在这种情况下，时间片的最小长度是多少？
 
 375
 00:28:14,610 --> 00:28:18,650
- This is what I mean by granularity.
+This is what I mean by granularity.
+这就是我所说的"粒度"的意思。
 
 376
 00:28:18,650 --> 00:28:20,210
- What is the time slice size?
+What is the time slice size?
+时间片大小是多少？
 
 377
 00:28:20,210 --> 00:28:21,970
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 378
 00:28:21,970 --> 00:28:24,930
- Why would we have both?
+Why would we have both?
+为什么我们需要两者都有？
 
 379
 00:28:24,930 --> 00:28:27,210
- It seems like minimum length is the only real
+It seems like minimum length is the only real
+似乎最小长度是唯一真实的。
 
 380
 00:28:27,210 --> 00:28:29,130
- powerful constraint.
+powerful constraint.
+强大的限制。
 
 381
 00:28:29,130 --> 00:28:30,050
- Yes, you are correct.
+Yes, you are correct.
+是的，你是正确的。
 
 382
 00:28:30,050 --> 00:28:32,570
- And this is, in this example, we illustrated that.
+And this is, in this example, we illustrated that.
+而在这个例子中，我们展示了这一点。
 
 383
 00:28:32,570 --> 00:28:37,570
- That minimum granularity is a stronger constraint
+That minimum granularity is a stronger constraint
+最小粒度是一个更强的约束条件。
 
 384
 00:28:37,570 --> 00:28:40,250
- if you want, because if you go too low,
+if you want, because if you go too low,
+如果你愿意的话，因为如果你降得太低，
 
 385
 00:28:40,250 --> 00:28:42,690
- then the system doesn't, may not do any work, right?
+then the system doesn't, may not do any work, right?
+那么系统就不会做任何工作，对吗？
 
 386
 00:28:42,690 --> 00:28:46,450
- It's, again, spend all the time doing context switching.
+It's, again, spend all the time doing context switching.
+又要花费所有的时间来进行上下文切换。
 
 387
 00:28:46,450 --> 00:28:50,010
- But target latency, it's also a constraint if you want,
+But target latency, it's also a constraint if you want,
+但是目标延迟也是一个限制，如果你愿意的话。
 
 388
 00:28:50,010 --> 00:28:55,010
- you know, if you want to support interactive workloads.
+you know, if you want to support interactive workloads.
+你知道的，如果你想要支持交互式工作负载。
 
 389
 00:28:55,010 --> 00:28:56,370
- Right?
+Right?
+对吗？
 
 390
 00:28:56,370 --> 00:28:58,810
- How we are going to, you know, it's,
+How we are going to, you know, it's,
+我们要怎么做，你知道的，这个，
 
 391
 00:28:58,810 --> 00:29:01,970
- there is, there has to be, there are limits
+there is, there has to be, there are limits
+有限制，必须有限制，存在限制。
 
 392
 00:29:01,970 --> 00:29:06,370
- in terms of how responsive your editor
+in terms of how responsive your editor
+就您的编辑器的响应性而言
 
 393
 00:29:06,370 --> 00:29:07,850
- or your computer should be,
+or your computer should be,
+或者你的电脑应该是的。
 
 394
 00:29:07,850 --> 00:29:09,530
- different applications should be,
+different applications should be,
+不同的应用程序应该是，
 
 395
 00:29:09,530 --> 00:29:11,730
- to provide you a good experience.
+to provide you a good experience.
+为了给您提供良好的体验。
 
 396
 00:29:11,730 --> 00:29:12,570
- Okay?
+Okay?
+好的。
 
 397
 00:29:12,570 --> 00:29:16,330
- So you should strive to provide that kind of level
+So you should strive to provide that kind of level
+所以你应该努力提供那种水平。
 
 398
 00:29:16,330 --> 00:29:18,370
- of interactivity and the level of interactivity,
+of interactivity and the level of interactivity,
+互动性的程度和水平
 
 399
 00:29:18,370 --> 00:29:23,370
- it's obviously related with this target latency.
+it's obviously related with this target latency.
+这显然与目标延迟有关。
 
 400
 00:29:23,370 --> 00:29:25,650
- Right?
+Right?
+对吗？
 
 401
 00:29:25,650 --> 00:29:28,970
- Because if you, if you are going, if the target latency,
+Because if you, if you are going, if the target latency,
+因为如果你，如果你要去，如果目标延迟，
 
 402
 00:29:28,970 --> 00:29:31,970
- you know, like if you cannot get your turn,
+you know, like if you cannot get your turn,
+你知道的，就像如果你不能轮到你。
 
 403
 00:29:31,970 --> 00:29:35,890
- say in 500 milliseconds, this means that your application,
+say in 500 milliseconds, this means that your application,
+在500毫秒内，这意味着您的应用程序，
 
 404
 00:29:35,890 --> 00:29:38,370
- you know, you may wait, you may have to wait
+you know, you may wait, you may have to wait
+你知道，你可能需要等待，你可能不得不等待。
 
 405
 00:29:38,370 --> 00:29:40,650
- for half a second for your application to respond,
+for half a second for your application to respond,
+等待半秒钟以使您的应用程序响应，
 
 406
 00:29:40,650 --> 00:29:43,850
- your text application, editor, whatever.
+your text application, editor, whatever.
+你的文本应用程序，编辑器，或者其他什么。
 
 407
 00:29:43,850 --> 00:29:52,730
- So in summary, yes, the minimum granularity,
+So in summary, yes, the minimum granularity,
+所以总结一下，是的，最小粒度，
 
 408
 00:29:52,730 --> 00:29:55,610
- it's a stronger constraint,
+it's a stronger constraint,
+这是一个更严格的限制。
 
 409
 00:29:55,610 --> 00:29:58,010
- but target latency captures the demands
+but target latency captures the demands
+但目标延迟捕捉了需求。
 
 410
 00:29:58,010 --> 00:29:59,690
- of the interactive applications.
+of the interactive applications.
+交互式应用程序。
 
 411
 00:29:59,690 --> 00:30:02,010
- So it's also important.
+So it's also important.
+所以这也很重要。
 
 412
 00:30:06,610 --> 00:30:10,690
- The other question here is about priority,
+The other question here is about priority,
+这里的另一个问题是关于优先级的。
 
 413
 00:30:10,690 --> 00:30:13,050
- like this kind of a little bit prioritization.
+like this kind of a little bit prioritization.
+喜欢这种稍微有点优先级排序。
 
 414
 00:30:13,050 --> 00:30:15,250
- What if we want to give more CPU to some,
+What if we want to give more CPU to some,
+如果我们想要给某些人更多的CPU资源，该怎么办？
 
 415
 00:30:15,250 --> 00:30:19,330
- to some threads or less to another,
+to some threads or less to another,
+对于一些帖子，或者对于另一些帖子来说，可能会更少。
 
 416
 00:30:19,330 --> 00:30:23,330
- so allowed for different rate of execution,
+so allowed for different rate of execution,
+因此允许不同的执行速率，
 
 417
 00:30:23,330 --> 00:30:24,250
- is very similar.
+is very similar.
+非常相似。
 
 418
 00:30:24,250 --> 00:30:26,730
- It's like, it's a weight, it's like you give,
+It's like, it's a weight, it's like you give,
+这就像是一个负担，就像是你付出了。
 
 419
 00:30:26,730 --> 00:30:31,090
- you give a weight in some sense, you see that is W.
+you give a weight in some sense, you see that is W.
+你在某种意义上给了一个权重，你看到的是W。
 
 420
 00:30:31,090 --> 00:30:34,770
- So basically you have the equal share is basically the,
+So basically you have the equal share is basically the,
+所以基本上你有平等的份额基本上是这样的，
 
 421
 00:30:34,770 --> 00:30:38,050
- the equal share here, it's about how much of the CPU
+the equal share here, it's about how much of the CPU
+这里的"equal share"是指CPU的使用量。
 
 422
 00:30:38,050 --> 00:30:40,730
- you are going to give and its target latency over there,
+you are going to give and its target latency over there,
+你将提供它的目标延迟。
 
 423
 00:30:40,730 --> 00:30:44,490
- right, like we discussed earlier on.
+right, like we discussed earlier on.
+没错，就像我们之前讨论过的那样。
 
 424
 00:30:44,490 --> 00:30:48,010
- And here is a way to sharing, you are going to basically,
+And here is a way to sharing, you are going to basically,
+而这是一种分享的方式，你基本上要做的是，
 
 425
 00:30:48,010 --> 00:30:52,250
- you are going to give within one of these target shares,
+you are going to give within one of these target shares,
+你将在这些目标股份中选择一个。
 
 426
 00:30:52,250 --> 00:30:57,250
- you are going to run one thread more times, multiple times.
+you are going to run one thread more times, multiple times.
+你将要多次运行一个线程。
 
 427
 00:30:57,250 --> 00:31:01,930
- Okay, so this is very, very similar,
+Okay, so this is very, very similar,
+好的，所以这非常非常相似，
 
 428
 00:31:01,930 --> 00:31:03,610
- but it's using different notation,
+but it's using different notation,
+但它使用了不同的符号表示法，
 
 429
 00:31:03,610 --> 00:31:08,610
- but the outcome is basically identical.
+but the outcome is basically identical.
+但结果基本上是相同的。
 
 430
 00:31:08,610 --> 00:31:14,050
- It's another implementation to having different number
+It's another implementation to having different number
+这是另一种实现不同数字的方法。
 
 431
 00:31:14,050 --> 00:31:17,170
- of tickets, to giving different number of tickets
+of tickets, to giving different number of tickets
+票的数量，给予不同数量的票
 
 432
 00:31:17,170 --> 00:31:21,930
- to different threads or processes, right?
+to different threads or processes, right?
+对，是指不同的线程或进程，对吗？
 
 433
 00:31:21,930 --> 00:31:26,970
- So that's basically what it is, right?
+So that's basically what it is, right?
+那基本上就是这样，对吗？
 
 434
 00:31:26,970 --> 00:31:30,810
- So this is basic equal share, it's one over N.
+So this is basic equal share, it's one over N.
+所以这是基本的平均分配，即每个人分到的份额是总数的倒数。
 
 435
 00:31:30,810 --> 00:31:34,570
- And if you want weighted share, you do W,
+And if you want weighted share, you do W,
+如果你想要加权份额，你需要使用W。
 
 436
 00:31:34,570 --> 00:31:37,250
- you give up higher weight to one process.
+you give up higher weight to one process.
+你将更高的权重放在一个过程上。
 
 437
 00:31:37,250 --> 00:31:40,810
- And this, so then you get the fraction
+And this, so then you get the fraction
+这样，你就得到了分数。
 
 438
 00:31:40,810 --> 00:31:42,810
- you are going to get from the CPU.
+you are going to get from the CPU.
+你将从CPU获取。
 
 439
 00:31:42,810 --> 00:31:47,370
- It's your weight divided by the sum of the weights
+It's your weight divided by the sum of the weights
+这是你的体重除以所有体重之和。
 
 440
 00:31:47,370 --> 00:31:52,130
- of all the other threads or processes.
+of all the other threads or processes.
+所有其他的线程或进程中。
 
 441
 00:31:58,730 --> 00:32:01,290
- And they use a value nice,
+And they use a value nice,
+他们使用了一个很好的价值观。
 
 442
 00:32:01,290 --> 00:32:04,010
- value to reflect shares rather than priority.
+value to reflect shares rather than priority.
+将价值反映为股份而不是优先权。
 
 443
 00:32:04,010 --> 00:32:10,370
- And this is over using an API, an existing API,
+And this is over using an API, an existing API,
+而且这是通过使用一个API来完成的，一个已经存在的API。
 
 444
 00:32:10,370 --> 00:32:16,010
- and this is how you use it.
+and this is how you use it.
+这是你如何使用它。
 
 445
 00:32:16,010 --> 00:32:20,890
- You have the nice is becoming the exponent.
+You have the nice is becoming the exponent.
+你有很好的潜力。
 
 446
 00:32:20,890 --> 00:32:23,370
- This is how you are basically think about that.
+This is how you are basically think about that.
+这就是你基本上对此的想法。
 
 447
 00:32:23,370 --> 00:32:26,810
- When you are going to use nice, what will happen?
+When you are going to use nice, what will happen?
+当你要使用"nice"时，会发生什么？
 
 448
 00:32:26,810 --> 00:32:29,290
- You are going to change the weight
+You are going to change the weight
+你要改变重量。
 
 449
 00:32:29,290 --> 00:32:32,410
- as provided by this formula, right?
+as provided by this formula, right?
+是的，按照这个公式提供的。
 
 450
 00:32:32,410 --> 00:32:37,410
- So your weight by default is 1024 over 125, it's 1024.
+So your weight by default is 1024 over 125, it's 1024.
+所以你的默认体重是1024除以125，等于1024。
 
 451
 00:32:37,410 --> 00:32:41,330
- If you are going to increase your nice,
+If you are going to increase your nice,
+如果你打算提升你的友善程度，
 
 452
 00:32:41,330 --> 00:32:44,130
- so you have to basically being nice,
+so you have to basically being nice,
+所以你基本上要友善一点，
 
 453
 00:32:44,130 --> 00:32:48,170
- it means that you get less access to the CPU.
+it means that you get less access to the CPU.
+这意味着你对CPU的访问权限减少了。
 
 454
 00:32:48,170 --> 00:32:52,210
- So you let others use a CPU for longer, right?
+So you let others use a CPU for longer, right?
+所以你让别人使用CPU的时间更长，对吗？
 
 455
 00:32:52,210 --> 00:32:54,370
- That means to be nice.
+That means to be nice.
+这意味着要友善。
 
 456
 00:32:54,370 --> 00:32:57,610
- And this is reflected in getting a lower weight.
+And this is reflected in getting a lower weight.
+这反映在获得更低的重量上
 
 457
 00:32:57,610 --> 00:33:01,090
- And the way you, again, the particular weight
+And the way you, again, the particular weight
+而且你，再一次，特定的重量方式
 
 458
 00:33:01,090 --> 00:33:03,490
- you are going to get by using nice
+you are going to get by using nice
+你会通过友善获得成功。
 
 459
 00:33:03,490 --> 00:33:08,490
- is given by this formula 1024 over 1.25 at power nice.
+is given by this formula 1024 over 1.25 at power nice.
+这个公式给出的结果是1024除以1.25的乘方9。
 
 460
 00:33:08,490 --> 00:33:12,050
- And it's here just to give you a sense,
+And it's here just to give you a sense,
+而它只是在这里给你一个感觉，
 
 461
 00:33:12,050 --> 00:33:16,450
- if it's nice, it's incremented of in terms of incremented.
+if it's nice, it's incremented of in terms of incremented.
+如果它很好，它会按增量递增。
 
 462
 00:33:16,450 --> 00:33:19,690
- If you remember, it's that you can increment
+If you remember, it's that you can increment
+如果你记得的话，就是可以递增的。
 
 463
 00:33:22,450 --> 00:33:27,450
- units of five, 1.25 power five is three, right?
+units of five, 1.25 power five is three, right?
+五的幂次是1.25的五次方是三，对吗？
 
 464
 00:33:27,450 --> 00:33:31,330
- So if you increase your nice by five,
+So if you increase your nice by five,
+那么如果你将你的好感度增加五分，
 
 465
 00:33:31,330 --> 00:33:33,930
- this means that your weight will decrease by three.
+this means that your weight will decrease by three.
+这意味着你的体重会减少三个单位。
 
 466
 00:33:33,930 --> 00:33:38,930
- Okay, yeah, there is a concept of virtual time.
+Okay, yeah, there is a concept of virtual time.
+好的，是的，有一个虚拟时间的概念。
 
 467
 00:33:38,930 --> 00:33:40,770
- We are not going to discuss it here,
+We are not going to discuss it here,
+我们不打算在这里讨论它。
 
 468
 00:33:40,770 --> 00:33:44,090
- but if you have questions,
+but if you have questions,
+但是如果你有问题，
 
 469
 00:33:44,090 --> 00:33:46,730
- I'll be more than happy to talk about this virtual time.
+I'll be more than happy to talk about this virtual time.
+我非常乐意讨论这个虚拟时间。
 
 470
 00:33:46,730 --> 00:33:49,530
- I did a lot of research during my PhD
+I did a lot of research during my PhD
+我在博士期间进行了很多研究。
 
 471
 00:33:49,530 --> 00:33:51,050
- many years back on this one.
+many years back on this one.
+很多年前的这个问题。
 
 472
 00:33:51,050 --> 00:33:56,050
- So really, really again, scheduling is a complex problem.
+So really, really again, scheduling is a complex problem.
+所以，真的，真的再次强调，排班是一个复杂的问题。
 
 473
 00:33:56,050 --> 00:34:03,850
- There are many hundreds of scheduling algorithms,
+There are many hundreds of scheduling algorithms,
+有很多数百种调度算法，
 
 474
 00:34:03,850 --> 00:34:06,250
- hundreds, thousands of research papers
+hundreds, thousands of research papers
+数百篇、数千篇研究论文
 
 475
 00:34:06,250 --> 00:34:09,450
- that are probably only about,
+that are probably only about,
+大概只有，
 
 476
 00:34:09,450 --> 00:34:11,970
- you know, just talking about fair queuing
+you know, just talking about fair queuing
+你知道，只是在谈论公平排队。
 
 477
 00:34:11,970 --> 00:34:14,530
- or proportional sharing is the same name
+or proportional sharing is the same name
+或者比例分享是同一个名称。
 
 478
 00:34:14,530 --> 00:34:15,930
- for the kind of the same scheduler,
+for the kind of the same scheduler,
+对于相同类型的调度程序，
 
 479
 00:34:15,930 --> 00:34:18,690
- but in different domains like CPU or networking.
+but in different domains like CPU or networking.
+但在不同的领域，比如CPU或网络。
 
 480
 00:34:18,690 --> 00:34:20,810
- There are probably hundreds or thousands of papers
+There are probably hundreds or thousands of papers
+可能有数百或数千篇论文。
 
 481
 00:34:20,810 --> 00:34:24,130
- only for this particular discipline, okay?
+only for this particular discipline, okay?
+只针对这个特定的学科，好吗？
 
 482
 00:34:24,130 --> 00:34:25,250
- So it's huge.
+So it's huge.
+这么大。
 
 483
 00:34:25,250 --> 00:34:26,890
- And why is that?
+And why is that?
+为什么这样呢？
 
 484
 00:34:26,890 --> 00:34:30,730
- Is because, you know, the scheduler is hard
+Is because, you know, the scheduler is hard
+因为，你知道的，调度器很难。
 
 485
 00:34:30,730 --> 00:34:33,250
- because you want to do it extremely fast.
+because you want to do it extremely fast.
+因为你想要做得非常快。
 
 486
 00:34:33,250 --> 00:34:37,010
- And then there are different competing priorities,
+And then there are different competing priorities,
+然后有不同的竞争优先事项，
 
 487
 00:34:37,010 --> 00:34:40,650
- competing demands from the applications, right?
+competing demands from the applications, right?
+是的，来自各个应用程序的竞争需求。
 
 488
 00:34:40,650 --> 00:34:44,010
- You want to be fair, you want to be interactive,
+You want to be fair, you want to be interactive,
+你想要公平，你想要互动，
 
 489
 00:34:44,010 --> 00:34:47,210
- you want to have high throughput and so forth.
+you want to have high throughput and so forth.
+你想要高吞吐量等等。
 
 490
 00:34:48,290 --> 00:34:53,290
- And therefore, that's why for different demands
+And therefore, that's why for different demands
+因此，这就是为什么有不同的需求。
 
 491
 00:34:53,290 --> 00:34:54,890
- from the applications,
+from the applications,
+从应用程序中，
 
 492
 00:34:54,890 --> 00:34:57,810
- you can come up with different schedulers,
+you can come up with different schedulers,
+你可以提出不同的调度器，
 
 493
 00:34:57,810 --> 00:35:00,850
- which are best fit to satisfy those demands.
+which are best fit to satisfy those demands.
+哪些是最适合满足这些需求的选择。
 
 494
 00:35:00,850 --> 00:35:03,250
- So for instance, if you want CPU throughput,
+So for instance, if you want CPU throughput,
+那么例如，如果你想要CPU的吞吐量，
 
 495
 00:35:03,250 --> 00:35:04,690
- it's first come first serve
+it's first come first serve
+先到先得
 
 496
 00:35:04,690 --> 00:35:07,130
- because what you want to minimize,
+because what you want to minimize,
+因为你想要最小化的东西，
 
 497
 00:35:07,130 --> 00:35:10,130
- you want to minimize the overhead for the scheduler.
+you want to minimize the overhead for the scheduler.
+你想要减少调度器的开销。
 
 498
 00:35:10,130 --> 00:35:13,730
- First come first serve, picking a new job,
+First come first serve, picking a new job,
+先到先得，选择一份新工作，
 
 499
 00:35:13,730 --> 00:35:15,770
- it's super easy, it's all fun, right?
+it's super easy, it's all fun, right?
+这很简单，都是有趣的，对吧？
 
 500
 00:35:15,770 --> 00:35:17,010
- It's ahead of the queue.
+It's ahead of the queue.
+它在队列的前面。
 
 501
 00:35:17,010 --> 00:35:18,850
- And then there is no context switching.
+And then there is no context switching.
+然后就没有上下文切换了。
 
 502
 00:35:18,850 --> 00:35:23,850
- And you are going to continue to run that job to completion.
+And you are going to continue to run that job to completion.
+你将继续运行该任务直至完成。
 
 503
 00:35:23,850 --> 00:35:25,810
- Okay?
+Okay?
+好的？
 
 504
 00:35:25,810 --> 00:35:27,570
- So minimizing the operation to select,
+So minimizing the operation to select,
+因此，将选择操作最小化，
 
 505
 00:35:27,570 --> 00:35:29,810
- you know, the overhead to select the next job,
+you know, the overhead to select the next job,
+你知道，选择下一个工作的开销，
 
 506
 00:35:29,810 --> 00:35:33,530
- minimizes the overhead, the number of context switches.
+minimizes the overhead, the number of context switches.
+减少开销，减少上下文切换的次数。
 
 507
 00:35:33,530 --> 00:35:38,490
- Average response time is shortest time first, right?
+Average response time is shortest time first, right?
+平均响应时间是最短时间优先，对吗？
 
 508
 00:35:38,490 --> 00:35:40,290
- This is provable optimal
+This is provable optimal
+这是可以证明的最优解。
 
 509
 00:35:40,290 --> 00:35:43,570
- to minimize average response time.
+to minimize average response time.
+为了最小化平均响应时间。
 
 510
 00:35:45,450 --> 00:35:47,690
- And so forth, you know, fairness here,
+And so forth, you know, fairness here,
+等等，你知道的，这里要公平，
 
 511
 00:35:47,690 --> 00:35:51,330
- you have Linux CFS, you can lay lottery scheduling.
+you have Linux CFS, you can lay lottery scheduling.
+你有Linux CFS，你可以使用抽签调度。
 
 512
 00:35:51,330 --> 00:35:55,130
- This is for CPU time.
+This is for CPU time.
+这是用于CPU时间的。
 
 513
 00:35:55,130 --> 00:35:57,890
- Also fairness, and fairness,
+Also fairness, and fairness,
+公平性，还有公平性，
 
 514
 00:35:57,890 --> 00:36:01,010
- if you want to be very predictable
+if you want to be very predictable
+如果你想要变得非常可预测的话
 
 515
 00:36:01,010 --> 00:36:04,490
- or however long to wait until to get the CPU,
+or however long to wait until to get the CPU,
+或者等待多长时间才能获得CPU，
 
 516
 00:36:04,490 --> 00:36:06,570
- just do the round robin.
+just do the round robin.
+请执行轮流制。
 
 517
 00:36:06,570 --> 00:36:08,730
- This is related to target latency,
+This is related to target latency,
+这与目标延迟有关。
 
 518
 00:36:08,730 --> 00:36:11,290
- meeting the early deadline first.
+meeting the early deadline first.
+首先满足提前截止日期。
 
 519
 00:36:12,330 --> 00:36:15,810
- If you want to have some very few important tasks,
+If you want to have some very few important tasks,
+如果你想要有一些非常少但重要的任务，
 
 520
 00:36:15,810 --> 00:36:19,210
- which they cannot be delayed, you can use priority.
+which they cannot be delayed, you can use priority.
+如果有些事情不能延迟，你可以使用优先权。
 
 521
 00:36:19,210 --> 00:36:24,210
- And for IO support is SRDP approximation.
+And for IO support is SRDP approximation.
+而对于IO支持，是SRDP近似。
 
 522
 00:36:24,210 --> 00:36:27,650
- Again, we discuss about that, I think two lectures ago,
+Again, we discuss about that, I think two lectures ago,
+再次，我们讨论那个问题，我记得是在两节课之前。
 
 523
 00:36:27,650 --> 00:36:29,770
- where we have these examples of two tasks,
+where we have these examples of two tasks,
+我们有这两个任务的例子在哪里？
 
 524
 00:36:29,770 --> 00:36:32,170
- which each of them takes one week,
+which each of them takes one week,
+每个人都需要一周的时间。
 
 525
 00:36:32,170 --> 00:36:35,530
- and then you have this other task, which is IO bounded,
+and then you have this other task, which is IO bounded,
+然后你还有另一个任务，这个任务是I/O受限的。
 
 526
 00:36:35,530 --> 00:36:37,770
- takes, runs for one millisecond
+takes, runs for one millisecond
+需要，运行一毫秒
 
 527
 00:36:37,770 --> 00:36:40,770
- and waits for nine milliseconds, if I remember correctly.
+and waits for nine milliseconds, if I remember correctly.
+并且等待九毫秒，如果我没记错的话。
 
 528
 00:36:41,050 --> 00:36:44,890
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 529
 00:36:44,890 --> 00:36:48,930
- Now how to evaluate this scheduling algorithms, right?
+Now how to evaluate this scheduling algorithms, right?
+现在要评估这些调度算法，对吗？
 
 530
 00:36:48,930 --> 00:36:51,330
- You have all of those different properties,
+You have all of those different properties,
+你拥有所有这些不同的特性，
 
 531
 00:36:51,330 --> 00:36:53,010
- how, and you are going to design them,
+how, and you are going to design them,
+你打算如何设计它们？
 
 532
 00:36:53,010 --> 00:36:54,890
- how you are going to evaluate it.
+how you are going to evaluate it.
+你打算如何评估它。
 
 533
 00:36:54,890 --> 00:36:56,170
- There are several ways.
+There are several ways.
+有几种方法。
 
 534
 00:36:56,170 --> 00:36:58,930
- First of all, deterministic.
+First of all, deterministic.
+首先，确定性的。
 
 535
 00:36:58,930 --> 00:37:01,490
- You basically, you get a workload
+You basically, you get a workload
+你基本上会得到一份工作量。
 
 536
 00:37:01,490 --> 00:37:03,370
- and given this workload,
+and given this workload,
+鉴于这个工作量，
 
 537
 00:37:03,370 --> 00:37:06,130
- you compute the performance of the algorithms
+you compute the performance of the algorithms
+你计算算法的性能。
 
 538
 00:37:06,130 --> 00:37:07,570
- in the face of that workload.
+in the face of that workload.
+面对那么多的工作量。
 
 539
 00:37:07,570 --> 00:37:11,770
- Performance meaning, response times, throughput,
+Performance meaning, response times, throughput,
+性能意义，响应时间，吞吐量。
 
 540
 00:37:11,770 --> 00:37:14,730
- latency, whatever metrics you care about
+latency, whatever metrics you care about
+延迟，无论你关心的指标是什么。
 
 541
 00:37:14,730 --> 00:37:18,370
- for your application, right?
+for your application, right?
+是为了你的申请，对吗？
 
 542
 00:37:18,370 --> 00:37:20,850
- And a deterministic preterm workload,
+And a deterministic preterm workload,
+以及一个确定性的早产工作负载，
 
 543
 00:37:20,850 --> 00:37:22,810
- you say, okay, you are going to have,
+you say, okay, you are going to have,
+你说，好的，你要去做什么？
 
 544
 00:37:22,810 --> 00:37:29,810
- each processes continue,
+each processes continue,
+每个进程都在继续进行。
 
 545
 00:37:29,810 --> 00:37:32,970
- one process, you have one process arriving
+one process, you have one process arriving
+一个进程，你有一个进程到达。
 
 546
 00:37:32,970 --> 00:37:35,730
- every one seconds,
+every one seconds,
+每一秒钟，
 
 547
 00:37:35,730 --> 00:37:38,170
- and each process is going to have,
+and each process is going to have,
+每个过程都会有，
 
 548
 00:37:38,170 --> 00:37:42,610
- 10 seconds or so of compute, right?
+10 seconds or so of compute, right?
+大约需要10秒钟的计算时间，对吗？
 
 549
 00:37:42,610 --> 00:37:44,890
- Or things like that, okay?
+Or things like that, okay?
+还有类似的事情，好吗？
 
 550
 00:37:44,890 --> 00:37:45,970
- Queuing models.
+Queuing models.
+排队模型。
 
 551
 00:37:45,970 --> 00:37:49,250
- This is a mathematical approach for stochastic workloads.
+This is a mathematical approach for stochastic workloads.
+这是一种针对随机工作负载的数学方法。
 
 552
 00:37:49,250 --> 00:37:51,010
- So in this particular case,
+So in this particular case,
+因此在这个特定情况下，
 
 553
 00:37:51,010 --> 00:37:53,450
- basically you are saying that
+basically you are saying that
+基本上你是在说
 
 554
 00:37:53,450 --> 00:37:57,970
- the load is non-deterministic, right?
+the load is non-deterministic, right?
+负载是非确定性的，对吗？
 
 555
 00:37:57,970 --> 00:38:01,450
- You give the load in statistical terms,
+You give the load in statistical terms,
+你以统计术语给出了负载。
 
 556
 00:38:01,450 --> 00:38:03,970
- is all you say on the average,
+is all you say on the average,
+你说的都是平均值吗？
 
 557
 00:38:03,970 --> 00:38:08,290
- you have one process arriving every seconds.
+you have one process arriving every seconds.
+你每秒钟有一个进程到达。
 
 558
 00:38:08,290 --> 00:38:12,810
- And this process on the average has,
+And this process on the average has,
+而这个过程平均来说，
 
 559
 00:38:12,810 --> 00:38:16,730
- it takes, running time is 10 seconds.
+it takes, running time is 10 seconds.
+需要，运行时间为10秒。
 
 560
 00:38:16,730 --> 00:38:21,530
- And those numbers are drawn from a particular distribution.
+And those numbers are drawn from a particular distribution.
+这些数字是从特定的分布中抽取的。
 
 561
 00:38:21,530 --> 00:38:25,210
- Like for instance, the length of that process
+Like for instance, the length of that process
+比如说，那个过程的长度。
 
 562
 00:38:25,210 --> 00:38:28,170
- is exponentially distributed, right?
+is exponentially distributed, right?
+是指数分布，对吗？
 
 563
 00:38:28,170 --> 00:38:30,770
- The average, the mean is 10 seconds.
+The average, the mean is 10 seconds.
+平均值为10秒。
 
 564
 00:38:30,770 --> 00:38:32,730
- And the arrival time is like say,
+And the arrival time is like say,
+而到达时间就像是说，
 
 565
 00:38:32,730 --> 00:38:33,770
- Poisson distributed.
+Poisson distributed.
+泊松分布。
 
 566
 00:38:33,770 --> 00:38:38,090
- Poisson means that the inter arrival between processes
+Poisson means that the inter arrival between processes
+泊松意味着进程之间的到达间隔
 
 567
 00:38:38,090 --> 00:38:40,610
- is drawn from an exponential distribution.
+is drawn from an exponential distribution.
+服从指数分布。
 
 568
 00:38:40,610 --> 00:38:41,570
- This is just an example.
+This is just an example.
+这只是一个例子。
 
 569
 00:38:41,570 --> 00:38:45,010
- And for that, you are going to get statistic,
+And for that, you are going to get statistic,
+而为此，你将获得统计数据。
 
 570
 00:38:45,010 --> 00:38:49,330
- you are going to be able to compute statistically,
+you are going to be able to compute statistically,
+你将能够进行统计计算。
 
 571
 00:38:49,330 --> 00:38:51,690
- what are the performance of the scheduler,
+what are the performance of the scheduler,
+调度器的性能如何？
 
 572
 00:38:51,690 --> 00:38:54,290
- like for instance, again, mean response time,
+like for instance, again, mean response time,
+例如，再举一个例子，平均响应时间，
 
 573
 00:38:54,290 --> 00:38:56,410
- or anything like that.
+or anything like that.
+或者类似的东西。
 
 574
 00:38:56,410 --> 00:39:00,130
- And the other one, you just implement it,
+And the other one, you just implement it,
+而另一个，你只需要实施它。
 
 575
 00:39:00,130 --> 00:39:02,490
- you just text, Python,
+you just text, Python,
+你刚刚发了一条短信，内容是Python。
 
 576
 00:39:02,490 --> 00:39:07,490
- you implement a simple simulator and run it,
+you implement a simple simulator and run it,
+您实现了一个简单的模拟器并运行它。
 
 577
 00:39:07,490 --> 00:39:09,330
- and see what results you get.
+and see what results you get.
+然后看看你得到什么结果。
 
 578
 00:39:09,330 --> 00:39:13,290
- This is general flexible,
+This is general flexible,
+这是一般灵活的。
 
 579
 00:39:13,290 --> 00:39:17,610
- as long as you don't have bugs in your simulator.
+as long as you don't have bugs in your simulator.
+只要你的模拟器没有bug。
 
 580
 00:39:17,610 --> 00:39:20,410
- So,
+So,
+所以，
 
 581
 00:39:20,410 --> 00:39:25,250
- a final word on scheduling.
+a final word on scheduling.
+关于日程安排的最后一句话。
 
 582
 00:39:25,250 --> 00:39:31,250
- The scheduling matters
+The scheduling matters
+日程安排事项
 
 583
 00:39:31,250 --> 00:39:34,210
- when there are not enough resources.
+when there are not enough resources.
+当资源不足时。
 
 584
 00:39:34,210 --> 00:39:38,810
- And many of the things we learn in this class,
+And many of the things we learn in this class,
+而我们在这门课上学到的许多东西，
 
 585
 00:39:38,810 --> 00:39:42,290
- many of the algorithms and many of the problem we solve,
+many of the algorithms and many of the problem we solve,
+我们解决的许多算法和问题
 
 586
 00:39:42,290 --> 00:39:46,090
- these problems occur
+these problems occur
+这些问题发生了。
 
 587
 00:39:46,090 --> 00:39:52,410
- because there are not enough resources.
+because there are not enough resources.
+因为资源不足。
 
 588
 00:39:52,410 --> 00:39:53,690
- We'll see virtual memory.
+We'll see virtual memory.
+我们将看到虚拟内存。
 
 589
 00:39:53,690 --> 00:39:55,650
- Why do we have virtual memory that I'm that?
+Why do we have virtual memory that I'm that?
+为什么我们需要虚拟内存？它是用来做什么的？
 
 590
 00:39:55,650 --> 00:39:58,170
- Oh, because there is not enough physical memory.
+Oh, because there is not enough physical memory.
+哦，因为物理内存不足。
 
 591
 00:39:58,170 --> 00:39:59,570
- It's one of the reasons.
+It's one of the reasons.
+这是其中一个原因。
 
 592
 00:39:59,570 --> 00:40:01,330
- No, right?
+No, right?
+不是吗？
 
 593
 00:40:01,330 --> 00:40:02,170
- Scheduling.
+Scheduling.
+排程。
 
 594
 00:40:02,170 --> 00:40:04,130
- Why do we need to have a scheduling,
+Why do we need to have a scheduling,
+为什么我们需要有一个日程安排？
 
 595
 00:40:04,130 --> 00:40:05,170
- a sophisticated scheduling?
+a sophisticated scheduling?
+一个复杂的日程安排？
 
 596
 00:40:05,170 --> 00:40:06,810
- Because there are not enough CPUs.
+Because there are not enough CPUs.
+因为CPU数量不足。
 
 597
 00:40:06,810 --> 00:40:08,850
- If you have one CPU per thread,
+If you have one CPU per thread,
+如果每个线程都有一个CPU，
 
 598
 00:40:08,850 --> 00:40:10,850
- there is no scheduling, right?
+there is no scheduling, right?
+没有安排计划，对吗？
 
 599
 00:40:11,140 --> 00:40:16,100
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like me to translate.
 
 600
 00:40:16,100 --> 00:40:22,660
- Why should you simply buy a faster computer or highways?
+Why should you simply buy a faster computer or highways?
+为什么你应该简单地购买一台更快的电脑或高速公路呢？
 
 601
 00:40:22,660 --> 00:40:28,580
- Well, look, you can buy it if you can afford it.
+Well, look, you can buy it if you can afford it.
+好吧，看吧，如果你买得起的话就买吧。
 
 602
 00:40:28,580 --> 00:40:32,760
- But remember, the more slow is ending.
+But remember, the more slow is ending.
+但请记住，结束得越慢。
 
 603
 00:40:32,760 --> 00:40:38,420
- So now if you buy a new computer, you could buy your Mac or your PC, it's not a lot of
+So now if you buy a new computer, you could buy your Mac or your PC, it's not a lot of
+所以现在如果你买一台新电脑，你可以买Mac或PC，选择并不多。
 
 604
 00:40:38,420 --> 00:40:45,860
- more powerful than the one you have from three years back.
+more powerful than the one you have from three years back.
+比你三年前的那个更强大。
 
 605
 00:40:45,860 --> 00:40:49,140
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 606
 00:40:49,140 --> 00:40:56,020
- And of course, you need to be careful about not...
+And of course, you need to be careful about not...
+当然，你需要小心不要...
 
 607
 00:40:56,020 --> 00:40:59,140
- You don't want to spend too much money.
+You don't want to spend too much money.
+你不想花太多钱。
 
 608
 00:40:59,140 --> 00:41:06,140
- The other thing what you need to understand, and this is a curve on this right hand side,
+The other thing what you need to understand, and this is a curve on this right hand side,
+你需要理解的另一件事是，这是右侧的一个曲线。
 
 609
 00:41:06,140 --> 00:41:11,260
- maybe you should do a lecture on it because it's extremely important.
+maybe you should do a lecture on it because it's extremely important.
+也许你应该做一个关于这个话题的讲座，因为它非常重要。
 
 610
 00:41:11,260 --> 00:41:13,900
- It's an extremely important curve.
+It's an extremely important curve.
+这是一个非常重要的曲线。
 
 611
 00:41:13,900 --> 00:41:16,780
- And this is what I say this curve.
+And this is what I say this curve.
+这是我对这条曲线的看法。
 
 612
 00:41:16,780 --> 00:41:23,320
- Say your system has a certain capacity.
+Say your system has a certain capacity.
+你的系统有一定的容量。
 
 613
 00:41:23,320 --> 00:41:30,900
- When you are approaching the capacity of the system, the response time is growing super
+When you are approaching the capacity of the system, the response time is growing super
+当系统接近容量时，响应时间会变得非常长。
 
 614
 00:41:30,900 --> 00:41:33,820
- linearly.
+linearly.
+线性地。
 
 615
 00:41:33,820 --> 00:41:42,300
- This almost goes to infinity if you go to 100%.
+This almost goes to infinity if you go to 100%.
+这几乎无限接近于百分之百，如果你达到100%。
 
 616
 00:41:42,300 --> 00:41:44,700
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 617
 00:41:44,700 --> 00:41:54,220
- And again, we don't have time here to say why, but intuitively think about the highway
+And again, we don't have time here to say why, but intuitively think about the highway
+再说一遍，我们没有时间在这里解释为什么，但直观地想一想高速公路。
 
 618
 00:41:54,220 --> 00:41:55,680
- and the rush hour.
+and the rush hour.
+和高峰时间。
 
 619
 00:41:55,680 --> 00:42:05,160
- So it's like the difference where you start to be to approach the capacity of the highway.
+So it's like the difference where you start to be to approach the capacity of the highway.
+所以这就像是你开始接近高速公路容量的差异。
 
 620
 00:42:05,160 --> 00:42:15,160
- And if you just inject a few cars, a few more cars, then the delay is going to shut up.
+And if you just inject a few cars, a few more cars, then the delay is going to shut up.
+如果你只是增加几辆车，再增加几辆车，那么延误就会减少。
 
 621
 00:42:15,160 --> 00:42:22,080
- For instance, if there are on the highway, now there are 100 cars per hour and the capacity
+For instance, if there are on the highway, now there are 100 cars per hour and the capacity
+例如，如果在高速公路上，现在每小时有100辆车，而道路的容量是200辆车。
 
 622
 00:42:22,080 --> 00:42:25,740
- of the system is 120.
+of the system is 120.
+系统的总和是120。
 
 623
 00:42:25,740 --> 00:42:31,700
- And now you have a speed and the latency is 50 miles per hour.
+And now you have a speed and the latency is 50 miles per hour.
+现在你有了速度，延迟是每小时50英里。
 
 624
 00:42:31,700 --> 00:42:36,860
- Now if you add 10 more cars, so it's still a less than capacity.
+Now if you add 10 more cars, so it's still a less than capacity.
+现在如果再增加10辆车，那么仍然不会达到容量。
 
 625
 00:42:36,860 --> 00:42:42,860
- Instead of going 50 miles per hour, you are going to go suddenly 20 miles per hour.
+Instead of going 50 miles per hour, you are going to go suddenly 20 miles per hour.
+不再以每小时50英里的速度前进，而是突然以每小时20英里的速度前进。
 
 626
 00:42:42,860 --> 00:42:44,700
- And again, think about your experience.
+And again, think about your experience.
+再次思考一下你的经验。
 
 627
 00:42:44,700 --> 00:42:51,540
- Just a few more cars, everything can bring everything to a crawl.
+Just a few more cars, everything can bring everything to a crawl.
+只要再多几辆车，就会导致一切都陷入瘫痪。
 
 628
 00:42:51,540 --> 00:42:56,360
- So again, let me see where I can have a lecture on that.
+So again, let me see where I can have a lecture on that.
+所以，让我再看看我可以在哪里听到关于那个的讲座。
 
 629
 00:42:56,360 --> 00:43:07,560
- So now, let me see.
+So now, let me see.
+那么现在，让我看看。
 
 630
 00:43:07,560 --> 00:43:11,120
- What if all the cars are managed by computer and all of them move simultaneously?
+What if all the cars are managed by computer and all of them move simultaneously?
+如果所有的汽车都由计算机管理，并且它们同时移动，会怎样呢？
 
 631
 00:43:11,120 --> 00:43:14,840
- Yeah, in that case, you can achieve the capacity.
+Yeah, in that case, you can achieve the capacity.
+是的，在那种情况下，你可以达到这个能力。
 
 632
 00:43:14,840 --> 00:43:16,880
- But the point is that that's not the case.
+But the point is that that's not the case.
+但问题是，事实并非如此。
 
 633
 00:43:16,880 --> 00:43:21,480
- And the car leaves gap between them and these gaps, you cannot recover them.
+And the car leaves gap between them and these gaps, you cannot recover them.
+车辆之间留下了间隙，这些间隙是无法弥补的。
 
 634
 00:43:21,480 --> 00:43:23,840
- So these gaps take from the capacity of the system.
+So these gaps take from the capacity of the system.
+所以这些间隙会占用系统的容量。
 
 635
 00:43:23,840 --> 00:43:26,700
- That's kind of the intuition.
+That's kind of the intuition.
+这有点直觉。
 
 636
 00:43:26,700 --> 00:43:27,700
- So announcements.
+So announcements.
+所以，公告。
 
 637
 00:43:27,700 --> 00:43:30,320
- I know that everyone waits for that.
+I know that everyone waits for that.
+我知道每个人都在等待那个。
 
 638
 00:43:30,320 --> 00:43:35,100
- Mittermon, we are planning to release the grades by next Monday.
+Mittermon, we are planning to release the grades by next Monday.
+Mittermon，我们计划在下周一发布成绩。
 
 639
 00:43:35,100 --> 00:43:39,200
- So we are grading your Mittermon.
+So we are grading your Mittermon.
+我们正在给你的Mittermon评分。
 
 640
 00:43:39,200 --> 00:43:42,080
- Project due is due this Wednesday.
+Project due is due this Wednesday.
+项目截止日期是本周三。
 
 641
 00:43:42,080 --> 00:43:47,280
- Code, final report, peer evaluation, everything.
+Code, final report, peer evaluation, everything.
+代码，最终报告，同行评估，全部都有。
 
 642
 00:43:47,280 --> 00:43:51,440
- If any of them is late, you are going to incur sleep days.
+If any of them is late, you are going to incur sleep days.
+如果其中任何一个人迟到，你将会承担睡眠日的损失。
 
 643
 00:43:51,440 --> 00:43:53,600
- Okay, remember that.
+Okay, remember that.
+好的，记住了。
 
 644
 00:43:53,600 --> 00:43:57,160
- Group evaluation coming for Project ON, right?
+Group evaluation coming for Project ON, right?
+是的，项目ON要进行小组评估，对吗？
 
 645
 00:43:57,160 --> 00:44:02,820
- Every person, I believe you get 20 points per partner, which, you know, so everyone,
+Every person, I believe you get 20 points per partner, which, you know, so everyone,
+每个人，我相信你们每个人都会得到20分，这样每个人都会得到。
 
 646
 00:44:02,820 --> 00:44:05,160
- every person get 20 points.
+every person get 20 points.
+每个人得到20分
 
 647
 00:44:05,160 --> 00:44:13,880
- And you are going to hand out these points to other members in your group, not to yourself.
+And you are going to hand out these points to other members in your group, not to yourself.
+你将把这些积分分发给你们小组的其他成员，而不是给自己。
 
 648
 00:44:13,880 --> 00:44:14,880
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 649
 00:44:14,880 --> 00:44:22,480
- So this is a way to measure what is the contribution of other members in your team.
+So this is a way to measure what is the contribution of other members in your team.
+这是一种衡量团队其他成员贡献的方法。
 
 650
 00:44:22,480 --> 00:44:24,480
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 651
 00:44:24,480 --> 00:44:25,480
- Office hours.
+Office hours.
+办公时间。
 
 652
 00:44:25,480 --> 00:44:31,920
- You know, there are a lot of students, and we all want to, again, to answer all your
+You know, there are a lot of students, and we all want to, again, to answer all your
+你知道，有很多学生，我们都想要再次回答你的问题。
 
 653
 00:44:31,920 --> 00:44:33,960
- questions.
+questions.
+问题。
 
 654
 00:44:33,960 --> 00:44:40,560
- But like you say, like you see in this lecture, you know, when the resources are scared, we
+But like you say, like you see in this lecture, you know, when the resources are scared, we
+但就像你所说的，就像你在这个讲座中所看到的那样，当资源稀缺时，我们
 
 655
 00:44:40,560 --> 00:44:46,200
- need to put some conditions, some policies in place, right, to try to provide some level
+need to put some conditions, some policies in place, right, to try to provide some level
+需要制定一些条件和政策，对吧，以试图提供一定程度的
 
 656
 00:44:46,200 --> 00:44:49,120
- of fairness to you guys.
+of fairness to you guys.
+为了对你们公平起见。
 
 657
 00:44:49,120 --> 00:44:55,120
- And so, TAs are spent, in general, are bound to spend 15 minutes per student.
+And so, TAs are spent, in general, are bound to spend 15 minutes per student.
+因此，助教通常需要花费15分钟来处理一个学生的问题。
 
 658
 00:44:55,120 --> 00:45:00,240
- It's again to give, to not starve other students from their attention.
+It's again to give, to not starve other students from their attention.
+这句话的意思是“再次给予，不让其他学生因为注意力不集中而挨饿。”
 
 659
 00:45:00,240 --> 00:45:06,700
- And you need to have a detailed ticket filled out and the GDP pulled up, right?
+And you need to have a detailed ticket filled out and the GDP pulled up, right?
+是的，您需要填写一张详细的票据并提供GDP的数据，对吗？
 
 660
 00:45:06,700 --> 00:45:08,640
- So to be absolutely ready.
+So to be absolutely ready.
+所以要绝对准备好。
 
 661
 00:45:08,640 --> 00:45:13,040
- So the context switching is minimal, right, between students.
+So the context switching is minimal, right, between students.
+所以学生之间的上下文切换是最小的，对吗？
 
 662
 00:45:13,040 --> 00:45:14,040
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 663
 00:45:14,040 --> 00:45:18,200
- And from these 15 minutes, you get the full value for these 15 minutes.
+And from these 15 minutes, you get the full value for these 15 minutes.
+从这15分钟中，你会得到这15分钟的全部价值。
 
 664
 00:45:18,200 --> 00:45:25,460
- You don't have to wait for five minutes to set up your GDP and provide the ticket detail
+You don't have to wait for five minutes to set up your GDP and provide the ticket detail
+你不需要等五分钟来设置你的GDP并提供票务详情。
 
 665
 00:45:25,460 --> 00:45:30,720
- explaining to the TA and thing like that.
+explaining to the TA and thing like that.
+向助教解释之类的事情。
 
 666
 00:45:30,720 --> 00:45:31,720
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 667
 00:45:31,720 --> 00:45:32,720
- Great.
+Great.
+太好了。
 
 668
 00:45:32,720 --> 00:45:39,960
- So now we are going to switch gears and we are going to talk about deadlocks.
+So now we are going to switch gears and we are going to talk about deadlocks.
+所以现在我们要转换话题，我们要谈论死锁。
 
 669
 00:45:39,960 --> 00:45:45,000
- And deadlock is a particular type of starvation.
+And deadlock is a particular type of starvation.
+死锁是一种特殊类型的饥饿现象。
 
 670
 00:45:45,000 --> 00:45:47,160
- Yes.
+Yes.
+是的。
 
 671
 00:45:47,160 --> 00:45:49,120
- Yes.
+Yes.
+是的。
 
 672
 00:45:49,120 --> 00:45:58,960
- Thank you for, of course, this is, my date is wrong.
+Thank you for, of course, this is, my date is wrong.
+谢谢你，当然，这是我的错。
 
 673
 00:45:58,960 --> 00:46:01,960
- The Wednesday, it was Wednesday.
+The Wednesday, it was Wednesday.
+星期三，那天是星期三。
 
 674
 00:46:01,960 --> 00:46:02,960
- Thanks.
+Thanks.
+谢谢。
 
 675
 00:46:02,960 --> 00:46:13,160
- So deadlock is a deadly type of starvation.
+So deadlock is a deadly type of starvation.
+死锁是一种致命的饥饿类型。
 
 676
 00:46:13,160 --> 00:46:14,160
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 677
 00:46:14,160 --> 00:46:18,040
- Starvation, the stress may wait indefinitely, right?
+Starvation, the stress may wait indefinitely, right?
+饥饿，压力可能会无限期地等待，对吗？
 
 678
 00:46:18,040 --> 00:46:22,440
- Allow priorities, try waiting for resources, because there are many other high priority
+Allow priorities, try waiting for resources, because there are many other high priority
+请允许优先级，尝试等待资源，因为还有许多其他高优先级的任务。
 
 679
 00:46:22,440 --> 00:46:23,440
- threats.
+threats.
+威胁。
 
 680
 00:46:23,440 --> 00:46:28,560
- The deadlock, it's a circular waiting for resources.
+The deadlock, it's a circular waiting for resources.
+死锁是指循环等待资源的情况。
 
 681
 00:46:28,560 --> 00:46:34,200
- And this is a very simple example.
+And this is a very simple example.
+这是一个非常简单的例子。
 
 682
 00:46:34,200 --> 00:46:44,960
- Say you have two threats and both threats in order to make progress, require to get
+Say you have two threats and both threats in order to make progress, require to get
+说你面临两个威胁，而为了取得进展，这两个威胁都需要得到...
 
 683
 00:46:44,960 --> 00:46:50,520
- access to two resources, resource one and resource two.
+access to two resources, resource one and resource two.
+可以访问两个资源，资源一和资源二。
 
 684
 00:46:50,520 --> 00:46:57,580
- And now one threat gets access to resource one and the other said, get access to resource
+And now one threat gets access to resource one and the other said, get access to resource
+现在一个威胁获得了资源一的访问权限，另一个威胁则获得了访问资源的权限。
 
 685
 00:46:57,580 --> 00:47:00,200
- two.
+two.
+两个。
 
 686
 00:47:00,200 --> 00:47:03,720
- And both of them, they hold these resources.
+And both of them, they hold these resources.
+而且他们两个都掌握着这些资源。
 
 687
 00:47:03,720 --> 00:47:05,880
- So none of them can get the other resource.
+So none of them can get the other resource.
+所以他们都无法获得对方的资源。
 
 688
 00:47:05,880 --> 00:47:07,220
- So they are deadlocked.
+So they are deadlocked.
+所以他们陷入了僵局。
 
 689
 00:47:07,220 --> 00:47:08,920
- They cannot make progress.
+They cannot make progress.
+他们无法取得进展。
 
 690
 00:47:08,920 --> 00:47:09,920
- Okay.
+Okay.
+Sure, I will translate your Chinese into English and any non-Chinese into Chinese. Please provide me with the text you would like to be translated.
 
 691
 00:47:09,920 --> 00:47:12,900
- This is what it is.
+This is what it is.
+这就是它的样子。
 
 692
 00:47:12,900 --> 00:47:16,720
- So deadlock implies starvation.
+So deadlock implies starvation.
+所以死锁意味着饥饿。
 
 693
 00:47:16,720 --> 00:47:25,080
- Because starvation, because you are guaranteed that in a deadlock, now one will make progress.
+Because starvation, because you are guaranteed that in a deadlock, now one will make progress.
+因为饥饿，因为你保证在僵局中，现在没有人会取得进展。
 
 694
 00:47:25,080 --> 00:47:29,340
- Starvation doesn't imply deadlock because starvation can end.
+Starvation doesn't imply deadlock because starvation can end.
+饥饿并不意味着死锁，因为饥饿是可以结束的。
 
 695
 00:47:29,340 --> 00:47:38,900
- Eventually, if the high priority task finish, the low priority tasks can be executed.
+Eventually, if the high priority task finish, the low priority tasks can be executed.
+最终，如果高优先级任务完成，低优先级任务可以被执行。
 
 696
 00:47:38,900 --> 00:47:44,100
- Deadlock cannot finish without some external intervention.
+Deadlock cannot finish without some external intervention.
+死锁无法在没有外部干预的情况下结束。
 
 697
 00:47:44,100 --> 00:47:45,100
- Here is example.
+Here is example.
+这是一个例子。
 
 698
 00:47:45,100 --> 00:47:49,700
- It's a real example.
+It's a real example.
+这是一个真实的例子。
 
 699
 00:47:49,700 --> 00:47:55,360
- It's a one line bridge.
+It's a one line bridge.
+这是一座单行桥。
 
 700
 00:47:55,360 --> 00:48:04,240
- And as you probably know it, if you went to Yosemite on California on 140.
+And as you probably know it, if you went to Yosemite on California on 140.
+而且你可能知道，如果你去加利福尼亚的优胜美地，需要走140号公路。
 
 701
 00:48:04,240 --> 00:48:08,700
- And so the point here is, again, there are two directions.
+And so the point here is, again, there are two directions.
+所以这里的重点是，再次强调有两个方向。
 
 702
 00:48:08,700 --> 00:48:12,920
- Now typically you have a traffic light for these ones.
+Now typically you have a traffic light for these ones.
+现在通常情况下，这些地方都会有一个交通信号灯。
 
 703
 00:48:12,920 --> 00:48:14,680
- But assume that you don't have a traffic light.
+But assume that you don't have a traffic light.
+但是假设你没有交通信号灯。
 
 704
 00:48:14,680 --> 00:48:19,320
- So if you don't have a traffic light, what happens?
+So if you don't have a traffic light, what happens?
+如果你没有交通信号灯，会发生什么情况？
 
 705
 00:48:19,320 --> 00:48:20,820
- What can happen intuitively?
+What can happen intuitively?
+直觉上会发生什么？
 
 706
 00:48:20,820 --> 00:48:21,820
- What is the problem?
+What is the problem?
+什么问题？(What is the problem?)
 
 707
 00:48:21,820 --> 00:48:26,380
- The problem is that two cars come from both ends.
+The problem is that two cars come from both ends.
+问题是两辆车从两端驶来。
 
 708
 00:48:26,380 --> 00:48:30,460
- And because there is no line, they are stuck.
+And because there is no line, they are stuck.
+而且因为没有排队
 
 709
 00:48:30,460 --> 00:48:32,820
- They are deadlocked.
+They are deadlocked.
+他们陷入了僵局。
 
 710
 00:48:32,820 --> 00:48:41,820
- And the way you can model this is basically thinking that you have two halves to the entrance,
+And the way you can model this is basically thinking that you have two halves to the entrance,
+而你可以建模的方式基本上是将入口分为两半，
 
 711
 00:48:41,820 --> 00:48:44,340
- two halves of the bridge.
+two halves of the bridge.
+桥的两半。
 
 712
 00:48:44,340 --> 00:48:49,300
- And each car acquire one half.
+And each car acquire one half.
+每辆车都获得一半。
 
 713
 00:48:49,300 --> 00:48:52,660
- But in order to cross the bridge, you need two both halves.
+But in order to cross the bridge, you need two both halves.
+但是为了过桥，你需要两个完整的半部分。
 
 714
 00:48:52,660 --> 00:48:57,140
- So it's exactly like the previous example.
+So it's exactly like the previous example.
+所以它和之前的例子完全一样。
 
 715
 00:48:57,140 --> 00:48:58,980
- Each car has one half.
+Each car has one half.
+每辆车都有一半。
 
 716
 00:48:58,980 --> 00:49:01,060
- Each car require both halves.
+Each car require both halves.
+每辆车都需要两个半部分。
 
 717
 00:49:01,060 --> 00:49:06,460
- They are stuck.
+They are stuck.
+他们被困住了。
 
 718
 00:49:06,460 --> 00:49:14,300
- So in order, how you solve this, the only way to solve this deadlock is for one car
+So in order, how you solve this, the only way to solve this deadlock is for one car
+所以按顺序，你解决这个问题的唯一方法是让一辆车解决这个僵局。
 
 719
 00:49:14,300 --> 00:49:15,300
- to back up.
+to back up.
+备份。
 
 720
 00:49:15,300 --> 00:49:25,900
- And this is equivalent with the other car who didn't back up to preempt the resource
+And this is equivalent with the other car who didn't back up to preempt the resource
+这与另一辆没有倒车以预防资源的车辆相等。
 
 721
 00:49:25,900 --> 00:49:28,920
- which is hauled by the car who backed up.
+which is hauled by the car who backed up.
+由倒车的汽车拖拉的是什么？
 
 722
 00:49:28,920 --> 00:49:37,700
- Because now the car which didn't back up is going to acquire the second half of the bridge.
+Because now the car which didn't back up is going to acquire the second half of the bridge.
+因为现在那辆没有倒车的车要通过桥的后半段了。
 
 723
 00:49:37,700 --> 00:49:53,380
- Now it has the first half, second half, and then it's going to cross the bridge.
+Now it has the first half, second half, and then it's going to cross the bridge.
+现在它有上半场，下半场，然后它要过桥了。
 
 724
 00:49:53,380 --> 00:50:03,860
- Now the equivalent of starvation here is basically saying you have a lot of cars from one side
+Now the equivalent of starvation here is basically saying you have a lot of cars from one side
+现在，"饥饿"在这里的等效说法基本上是指一边有很多车辆。
 
 725
 00:50:03,860 --> 00:50:09,620
- east and you have cars after car after car and the car which comes from the other direction
+east and you have cars after car after car and the car which comes from the other direction
+东边有一辆又一辆的车，还有一辆从另一个方向来的车。
 
 726
 00:50:09,620 --> 00:50:13,580
- will not get an opportunity even to get on the bridge.
+will not get an opportunity even to get on the bridge.
+连上桥的机会都没有。
 
 727
 00:50:13,580 --> 00:50:14,740
- Just starvation.
+Just starvation.
+只是饥饿。
 
 728
 00:50:14,740 --> 00:50:20,860
- Again, starvation eventually can end when there are no longer cars coming in this case
+Again, starvation eventually can end when there are no longer cars coming in this case
+再次，当没有车辆进来的时候，饥饿最终会结束。
 
 729
 00:50:20,860 --> 00:50:27,260
- from the west or from the east.
+from the west or from the east.
+从西方还是从东方来。
 
 730
 00:50:27,260 --> 00:50:30,820
- Now let's look about what does it seem from the point of view of the program.
+Now let's look about what does it seem from the point of view of the program.
+现在让我们从程序的角度来看看它看起来是什么样子。
 
 731
 00:50:30,820 --> 00:50:36,200
- You have two threads here and let's go to, you know, it's like locks, right?
+You have two threads here and let's go to, you know, it's like locks, right?
+你这里有两个线程，我们来说说，就像锁一样，对吧？
 
 732
 00:50:36,200 --> 00:50:37,700
- These resources are like locks.
+These resources are like locks.
+这些资源就像锁一样。
 
 733
 00:50:37,700 --> 00:50:40,780
- Locks are resources.
+Locks are resources.
+锁是资源。
 
 734
 00:50:40,780 --> 00:50:50,100
- And this figure and the examples we consider so far can be expressed the following way.
+And this figure and the examples we consider so far can be expressed the following way.
+这个数字和我们目前考虑的例子可以用以下方式表示。
 
 735
 00:50:50,100 --> 00:50:53,940
- Thread A, you have two locks, X and Y.
+Thread A, you have two locks, X and Y.
+线程A，你有两个锁，X和Y。
 
 736
 00:50:53,940 --> 00:50:59,400
- Acquires lock X and Y and then releases Y and X.
+Acquires lock X and Y and then releases Y and X.
+获取锁X和Y，然后释放Y和X。
 
 737
 00:50:59,400 --> 00:51:13,420
- And B, acquires the locks in the different order and releases them in the different order.
+And B, acquires the locks in the different order and releases them in the different order.
+并且B以不同的顺序获取锁，并以不同的顺序释放锁。
 
 738
 00:51:13,420 --> 00:51:17,860
- So in this case, you can get that lock, right?
+So in this case, you can get that lock, right?
+那么在这种情况下，你可以得到那个锁，对吗？
 
 739
 00:51:17,860 --> 00:51:19,820
- When does this happen?
+When does this happen?
+这是什么时候发生的？
 
 740
 00:51:19,820 --> 00:51:33,380
- Well, when this kind of order, you know, the CPU interleaves execution of instruction from
+Well, when this kind of order, you know, the CPU interleaves execution of instruction from
+好的，当这种指令执行时，你知道，CPU会交错执行指令。
 
 741
 00:51:33,380 --> 00:51:35,020
- different threads.
+different threads.
+不同的线程。
 
 742
 00:51:35,020 --> 00:51:42,200
- So for instance, when this happens on thread A acquire X, then thread B acquire Y, now
+So for instance, when this happens on thread A acquire X, then thread B acquire Y, now
+所以例如，当这在线程A上发生时获取X，然后线程B获取Y，现在
 
 743
 00:51:42,200 --> 00:51:54,140
- thread A is stalled because thread B owns Y and thread B cannot progress further either
+thread A is stalled because thread B owns Y and thread B cannot progress further either
+线程A被阻塞了，因为线程B拥有Y，而且线程B也无法继续进行。
 
 744
 00:51:54,140 --> 00:52:07,400
- because it wants to acquire X, which is owned by A. So this is that lock, right?
+because it wants to acquire X, which is owned by A. So this is that lock, right?
+因为它想要收购A所拥有的X。所以这就是那个锁，对吗？
 
 745
 00:52:07,400 --> 00:52:14,740
- Start to debug because this happens, now doesn't happen all the time.
+Start to debug because this happens, now doesn't happen all the time.
+开始调试，因为出现了这个问题，但现在并不是每次都会发生。
 
 746
 00:52:14,740 --> 00:52:21,820
- And again, you want to avoid it.
+And again, you want to avoid it.
+再次，你想要避免它。
 
 747
 00:52:21,820 --> 00:52:26,180
- Because it's again, like for instance, if this happens, you don't have that lock, right?
+Because it's again, like for instance, if this happens, you don't have that lock, right?
+因为这又是一个例子，比如说，如果发生这种情况，你就没有那个锁，对吧？
 
 748
 00:52:26,180 --> 00:52:29,660
- So this is non-terministic.
+So this is non-terministic.
+所以这是非确定性的。
 
 749
 00:52:29,660 --> 00:52:33,280
- It will be a non-terministic bug, right?
+It will be a non-terministic bug, right?
+这将是一个非确定性的错误，对吗？
 
 750
 00:52:33,280 --> 00:52:39,460
- And you always need to be afraid of non-terministic bugs because you cannot reproduce them.
+And you always need to be afraid of non-terministic bugs because you cannot reproduce them.
+而且你总是需要担心非确定性错误，因为你无法复现它们。
 
 751
 00:52:39,460 --> 00:52:44,820
- If you can reproduce a bug, it's relatively easy to fix it.
+If you can reproduce a bug, it's relatively easy to fix it.
+如果你能够复现一个bug，修复它相对来说是比较容易的。
 
 752
 00:52:44,820 --> 00:52:51,860
- If you cannot reproduce it, how you are going to fix it?
+If you cannot reproduce it, how you are going to fix it?
+如果你无法复现它，你将如何修复它？
 
 753
 00:52:51,860 --> 00:52:54,860
- Here is another classic example.
+Here is another classic example.
+这是另一个经典的例子。
 
 754
 00:52:54,860 --> 00:53:00,340
- Here are four trains and in this configuration, none of them can make progress.
+Here are four trains and in this configuration, none of them can make progress.
+这里有四列火车，按照这个配置，它们都无法前进。
 
 755
 00:53:00,340 --> 00:53:02,460
- You have a deadlock.
+You have a deadlock.
+你遇到了死锁。
 
 756
 00:53:02,460 --> 00:53:06,360
- So you have here a deadlock just basically to illustrate the point.
+So you have here a deadlock just basically to illustrate the point.
+所以你这里有一个死锁，基本上只是为了说明这一点。
 
 757
 00:53:06,360 --> 00:53:12,180
- So far, the examples we had, you have two entities which are in deadlock, two cars or
+So far, the examples we had, you have two entities which are in deadlock, two cars or
+到目前为止，我们所举的例子中，你有两个处于僵局的实体，两辆车或者...
 
 758
 00:53:12,180 --> 00:53:13,420
- two threads.
+two threads.
+两个线程。
 
 759
 00:53:13,420 --> 00:53:17,900
- But obviously, deadlock can happen between multiple, more than two entities.
+But obviously, deadlock can happen between multiple, more than two entities.
+但显然，死锁可能发生在多个、超过两个实体之间。
 
 760
 00:53:17,900 --> 00:53:22,900
- And here is an example for four.
+And here is an example for four.
+这里是一个关于四的例子。
 
 761
 00:53:22,900 --> 00:53:27,420
- So here each train wants to turn to right.
+So here each train wants to turn to right.
+所以这里每一辆火车都想要向右转。
 
 762
 00:53:27,420 --> 00:53:33,820
- This is real.
+This is real.
+这是真的。
 
 763
 00:53:33,820 --> 00:53:42,820
- This is a real problem which are in different systems, encountering different systems.
+This is a real problem which are in different systems, encountering different systems.
+这是一个真正的问题，涉及到不同的系统，遇到不同的系统。
 
 764
 00:53:42,820 --> 00:53:43,820
- Yeah.
+Yeah.
+是的。
 
 765
 00:53:43,820 --> 00:53:47,900
- Yes, it's exactly San Francisco traffic.
+Yes, it's exactly San Francisco traffic.
+是的，这正是旧金山的交通情况。
 
 766
 00:53:47,900 --> 00:53:54,340
- Yeah, that's a good one.
+Yeah, that's a good one.
+是的，那个不错。
 
 767
 00:53:54,340 --> 00:53:56,860
- So how you fix it?
+So how you fix it?
+那么你是如何修复它的呢？
 
 768
 00:53:56,860 --> 00:54:00,380
- So one way to fix it, it's actually for some ordering.
+So one way to fix it, it's actually for some ordering.
+所以解决的一种方法，实际上是进行一些排序。
 
 769
 00:54:00,380 --> 00:54:03,500
- You'll see this as a recurrent theme.
+You'll see this as a recurrent theme.
+你会看到这是一个反复出现的主题。
 
 770
 00:54:03,500 --> 00:54:11,540
- One way to fix deadlock is to have an order.
+One way to fix deadlock is to have an order.
+解决死锁的一种方法是确定一个顺序。
 
 771
 00:54:11,540 --> 00:54:18,660
- So for instance, in this case, always go east, west first and north, south, then back first.
+So for instance, in this case, always go east, west first and north, south, then back first.
+所以例如，在这种情况下，始终先向东，然后向西，再向北，最后向南，然后再返回。
 
 772
 00:54:18,660 --> 00:54:22,180
- Don't go north, south and east, west.
+Don't go north, south and east, west.
+不要往北、南、东、西走。
 
 773
 00:54:22,180 --> 00:54:26,100
- Only east, west and north, south.
+Only east, west and north, south.
+只有东、西、南、北。
 
 774
 00:54:26,100 --> 00:54:27,360
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 775
 00:54:27,360 --> 00:54:32,400
- And as you'll see, like for our previous example, okay, so this is a lot.
+And as you'll see, like for our previous example, okay, so this is a lot.
+而且你会看到，就像我们之前的例子一样，好的，所以这是很多的。
 
 776
 00:54:32,400 --> 00:54:38,060
- So as you see in our previous examples, when you have this kind of deadlock, and we'll
+So as you see in our previous examples, when you have this kind of deadlock, and we'll
+因此，正如你在我们之前的例子中所看到的那样，当你遇到这种死锁情况时，我们将...
 
 777
 00:54:38,060 --> 00:54:44,980
- say it a few more times, but it's good to remember, that one way you can avoid the deadlock
+say it a few more times, but it's good to remember, that one way you can avoid the deadlock
+再说几遍，但要记住，你可以避免僵局的一种方法是
 
 778
 00:54:44,980 --> 00:54:53,300
- in the previous case is to enforce that both threads are going to acquire the locks in
+in the previous case is to enforce that both threads are going to acquire the locks in
+在前一个案例中，目的是确保两个线程都会获取锁。
 
 779
 00:54:53,300 --> 00:54:57,820
- the same order.
+the same order.
+相同的顺序。
 
 780
 00:54:57,820 --> 00:55:04,540
- So again, if I go back here, if you enforce that both A and B acquire threads in the same
+So again, if I go back here, if you enforce that both A and B acquire threads in the same
+所以，如果我再回到这里，如果你强制要求A和B同时获取线程，那么
 
 781
 00:55:04,540 --> 00:55:17,300
- order, first X and then Y, you are going to solve this problem.
+order, first X and then Y, you are going to solve this problem.
+请先解决X问题，然后再解决Y问题。
 
 782
 00:55:17,300 --> 00:55:25,860
- And again, we have the deadlock here because we do not have enough resources.
+And again, we have the deadlock here because we do not have enough resources.
+我们又陷入了僵局，因为我们没有足够的资源。
 
 783
 00:55:25,860 --> 00:55:30,980
- If we have enough resources, it's not a problem.
+If we have enough resources, it's not a problem.
+如果我们有足够的资源，这不是个问题。
 
 784
 00:55:30,980 --> 00:55:36,420
- You wait for a resource that multiple threads compete to.
+You wait for a resource that multiple threads compete to.
+你等待一个被多个线程竞争的资源。
 
 785
 00:55:36,420 --> 00:55:47,900
- There are also threads that are blocking waiting for other threads like pipe or sockets or
+There are also threads that are blocking waiting for other threads like pipe or sockets or
+还有一些线程正在等待其他线程，比如管道或套接字。
 
 786
 00:55:47,900 --> 00:55:53,780
- wait like for instance, I am blocked to wait for a get to get a message.
+wait like for instance, I am blocked to wait for a get to get a message.
+等一下，比如说，我被阻止等待一个获取消息的请求。
 
 787
 00:55:53,780 --> 00:56:04,420
- What I am waiting for, if I am remember about bounded queues, I am waiting for queue to
+What I am waiting for, if I am remember about bounded queues, I am waiting for queue to
+如果我记得正确的话，我正在等待有界队列。我正在等待队列。
 
 788
 00:56:04,420 --> 00:56:10,300
- become to get a free slot in order if I am a producer, I can wait if the queue is full,
+become to get a free slot in order if I am a producer, I can wait if the queue is full,
+如果我是制片人，我可以等待，即使队列已满，也能获得一个免费的时间段。
 
 789
 00:56:10,300 --> 00:56:20,740
- I am waiting until the queue is drained so I can put more and more items in the queue.
+I am waiting until the queue is drained so I can put more and more items in the queue.
+我正在等待队列被清空，这样我就可以不断地向队列中添加更多的项目。
 
 790
 00:56:20,740 --> 00:56:26,160
- So it's again, deadlock with space is an example like here.
+So it's again, deadlock with space is an example like here.
+所以又是一次，僵局与空间是一个例子，就像这里一样。
 
 791
 00:56:26,160 --> 00:56:33,440
- If you don't have enough resources, you have two threads, each threads want to allocate
+If you don't have enough resources, you have two threads, each threads want to allocate
+如果你没有足够的资源，你有两个线程，每个线程都想分配资源。
 
 792
 00:56:33,440 --> 00:56:40,400
- two megabytes, but they want to allocate that in two different calls.
+two megabytes, but they want to allocate that in two different calls.
+两兆字节，但他们想要分两次分配。
 
 793
 00:56:40,400 --> 00:56:44,140
- And now assume that you have two megabytes of space.
+And now assume that you have two megabytes of space.
+现在假设你有两兆字节的空间。
 
 794
 00:56:44,140 --> 00:56:49,340
- So each thread allocates two megabytes, three two megabytes, but it's doing that one megabyte
+So each thread allocates two megabytes, three two megabytes, but it's doing that one megabyte
+所以每个线程分配两兆字节，三个两兆字节，但它只使用了一兆字节。
 
 795
 00:56:49,340 --> 00:56:51,300
- at a time.
+at a time.
+一次。
 
 796
 00:56:51,300 --> 00:57:01,340
- So you can get here a deadlock situation because if one thread gets one megabyte and one thread
+So you can get here a deadlock situation because if one thread gets one megabyte and one thread
+所以你可能会遇到死锁的情况，因为如果一个线程获取了一个兆字节，而另一个线程获取了一个
 
 797
 00:57:01,340 --> 00:57:09,120
- gets another one megabyte, they are deadlocked because none of the thread can get an extra
+gets another one megabyte, they are deadlocked because none of the thread can get an extra
+得到另外一个兆字节，它们陷入了僵局，因为没有一个线程能够获得额外的。
 
 798
 00:57:09,120 --> 00:57:12,840
- megabyte in order to finish.
+megabyte in order to finish.
+兆字节以完成。
 
 799
 00:57:12,840 --> 00:57:27,740
- Okay, so here is another very famous problem to illustrate the deadlock.
+Okay, so here is another very famous problem to illustrate the deadlock.
+好的，这里有另一个非常著名的问题来说明死锁。
 
 800
 00:57:27,740 --> 00:57:31,380
- I think it was called philosopher problem.
+I think it was called philosopher problem.
+我认为它被称为哲学家问题。
 
 801
 00:57:31,380 --> 00:57:35,780
- This is a little bit of a joke with the lawyers.
+This is a little bit of a joke with the lawyers.
+这是一个关于律师的小笑话。
 
 802
 00:57:35,780 --> 00:57:46,500
- But think about this, you have five people and there are only five chopsticks.
+But think about this, you have five people and there are only five chopsticks.
+但是想想看，你有五个人，只有五根筷子。
 
 803
 00:57:46,500 --> 00:57:53,920
- Now in order to eat, you need two chopsticks.
+Now in order to eat, you need two chopsticks.
+现在为了吃饭，你需要两根筷子。
 
 804
 00:57:53,920 --> 00:58:06,520
- So if everyone grabs one chopstick, it's deadlock because no one can eat.
+So if everyone grabs one chopstick, it's deadlock because no one can eat.
+所以如果每个人都拿一根筷子，就会陷入僵局，因为没有人能吃饭。
 
 805
 00:58:06,520 --> 00:58:09,080
- So how do you do that?
+So how do you do that?
+那么你是如何做到的呢？
 
 806
 00:58:09,080 --> 00:58:17,180
- Well, in order to break this deadlock, you need to give someone two chopsticks.
+Well, in order to break this deadlock, you need to give someone two chopsticks.
+好的，为了打破这个僵局，你需要给某人两根筷子。
 
 807
 00:58:17,180 --> 00:58:24,780
- So if everyone has one chopstick, we need to get someone to give up her chopstick to
+So if everyone has one chopstick, we need to get someone to give up her chopstick to
+another person so that everyone has a pair of chopsticks.
 
 808
 00:58:24,780 --> 00:58:26,100
- her neighbor.
+her neighbor.
+她的邻居。
 
 809
 00:58:26,100 --> 00:58:30,100
- So now the neighbor has two chopsticks.
+So now the neighbor has two chopsticks.
+所以现在邻居有两根筷子。
 
 810
 00:58:30,100 --> 00:58:38,960
- She can eat, she can finish, and now she can give the chopsticks to her neighbors.
+She can eat, she can finish, and now she can give the chopsticks to her neighbors.
+她可以吃，她可以吃完，现在她可以把筷子给她的邻居。
 
 811
 00:58:38,960 --> 00:58:53,440
- And now her neighbors can finish.
+And now her neighbors can finish.
+现在她的邻居们可以完成了。
 
 812
 00:58:53,440 --> 00:58:58,280
- So this was solving the deadlock after it occurred.
+So this was solving the deadlock after it occurred.
+这样就解决了死锁发生后的问题。
 
 813
 00:58:58,280 --> 00:59:02,320
- But of course, ideally, you even want to prevent that lock.
+But of course, ideally, you even want to prevent that lock.
+当然，理想情况下，你甚至希望避免那种锁定的情况发生。
 
 814
 00:59:02,320 --> 00:59:07,240
- So you have to have an algorithm if you want to prevent the deadlock, you don't get in
+So you have to have an algorithm if you want to prevent the deadlock, you don't get in
+所以如果你想要防止死锁，你必须要有一个算法，你就不会陷入其中。
 
 815
 00:59:07,240 --> 00:59:11,680
- the deadlock situation in the first case.
+the deadlock situation in the first case.
+第一个案例中的僵局局势。
 
 816
 00:59:11,680 --> 00:59:17,500
- We'll talk about those, but keep that in mind.
+We'll talk about those, but keep that in mind.
+我们会谈论那些事情，但请记住这一点。
 
 817
 00:59:17,500 --> 00:59:23,080
- Now if you remember, when you have these kind of situations, you have some concurrency,
+Now if you remember, when you have these kind of situations, you have some concurrency,
+现在如果你记得的话，当你遇到这种情况时，你会有一些并发。
 
 818
 00:59:23,080 --> 00:59:29,600
- this is also an example of concurrent access to the resources.
+this is also an example of concurrent access to the resources.
+这也是对资源的并发访问的一个例子。
 
 819
 00:59:29,600 --> 00:59:34,480
- We saw something similar with this when we talk about critical section.
+We saw something similar with this when we talk about critical section.
+我们在谈论临界区时，发现了类似的情况。
 
 820
 00:59:34,480 --> 00:59:40,280
- We really want to have some to formalize the problem.
+We really want to have some to formalize the problem.
+我们真的希望有人能够将问题形式化。
 
 821
 00:59:40,280 --> 00:59:45,520
- And if we formalize a problem and say, what are the conditions a solution should meet,
+And if we formalize a problem and say, what are the conditions a solution should meet,
+如果我们将一个问题形式化，并且问，解决方案应该满足什么条件，
 
 822
 00:59:45,520 --> 00:59:50,280
- then we should focus on, we can only focus when developing a solution to meeting these
+then we should focus on, we can only focus when developing a solution to meeting these
+然后我们应该专注于，只有在开发解决方案以满足这些需求时，我们才能集中精力。
 
 823
 00:59:50,280 --> 00:59:55,280
- conditions.
+conditions.
+条件。
 
 824
 00:59:55,280 --> 00:59:58,960
- So what are the requirements?
+So what are the requirements?
+那么，有哪些要求呢？
 
 825
 00:59:58,960 --> 01:00:05,580
- First of all, let's think about when does a deadlock occurs.
+First of all, let's think about when does a deadlock occurs.
+首先，让我们思考一下死锁是在什么时候发生的。
 
 826
 01:00:05,580 --> 01:00:11,820
- Because if we know the requirements on the deadlock occurs, then if we basically break
+Because if we know the requirements on the deadlock occurs, then if we basically break
+因为如果我们知道死锁发生的要求，那么如果我们基本上打破了这些要求，死锁就不会发生。
 
 827
 01:00:11,820 --> 01:00:15,920
- one of these requirements, then we can break the deadlock.
+one of these requirements, then we can break the deadlock.
+如果满足这些要求之一，我们就可以打破僵局。
 
 828
 01:00:16,720 --> 01:00:20,260
- So there are four requirements for a deadlock docker.
+So there are four requirements for a deadlock docker.
+所以一个死锁的docker有四个要求。
 
 829
 01:00:20,260 --> 01:00:22,920
- Mutual exclusion.
+Mutual exclusion.
+互斥。
 
 830
 01:00:22,920 --> 01:00:26,480
- Only once at a time can use a resource.
+Only once at a time can use a resource.
+每次只能同时使用一个资源。
 
 831
 01:00:26,480 --> 01:00:29,440
- Hold and wait.
+Hold and wait.
+请稍等。
 
 832
 01:00:29,440 --> 01:00:32,280
- A threat holding at least one resource
+A threat holding at least one resource
+一个威胁至少掌握一种资源
 
 833
 01:00:32,280 --> 01:00:34,760
- is waiting to acquire additional resources
+is waiting to acquire additional resources
+正在等待获取额外资源
 
 834
 01:00:34,760 --> 01:00:36,680
- held by other threats.
+held by other threats.
+受到其他威胁的困扰。
 
 835
 01:00:36,680 --> 01:00:38,640
- Because if you don't wait, you can proceed,
+Because if you don't wait, you can proceed,
+因为如果你不等待，你可以继续进行。
 
 836
 01:00:38,640 --> 01:00:39,800
- you can finish it.
+you can finish it.
+你可以完成它。
 
 837
 01:00:39,800 --> 01:00:41,200
- You can release a resource
+You can release a resource
+你可以释放一个资源。
 
 838
 01:00:41,200 --> 01:00:43,440
- and now there are no resources in the system.
+and now there are no resources in the system.
+现在系统中没有资源了。
 
 839
 01:00:43,440 --> 01:00:46,120
- So maybe other threats can finish
+So maybe other threats can finish
+所以也许其他威胁可以结束
 
 840
 01:00:46,120 --> 01:00:49,240
- which you're waiting for the resources you are holding.
+which you're waiting for the resources you are holding.
+你正在等待你所持有的资源。
 
 841
 01:00:49,240 --> 01:00:50,320
- No preemption.
+No preemption.
+不可抢占。
 
 842
 01:00:50,320 --> 01:00:54,720
- If a threat holds a resource,
+If a threat holds a resource,
+如果威胁掌握了一项资源，
 
 843
 01:00:54,720 --> 01:00:59,300
- that threat is not going to release a resource voluntarily.
+that threat is not going to release a resource voluntarily.
+那个威胁不会自愿释放资源
 
 844
 01:00:59,300 --> 01:01:02,320
- Okay?
+Okay?
+好的。
 
 845
 01:01:02,320 --> 01:01:04,040
- Before it finishes with it.
+Before it finishes with it.
+在它完成之前。
 
 846
 01:01:04,040 --> 01:01:07,000
- And then it is circular wait.
+And then it is circular wait.
+然后就是循环等待。
 
 847
 01:01:07,000 --> 01:01:10,400
- There exists a set of threats
+There exists a set of threats
+存在一系列的威胁。
 
 848
 01:01:10,400 --> 01:01:12,480
- such that T1 is waiting for a resource
+such that T1 is waiting for a resource
+这样T1就在等待一个资源。
 
 849
 01:01:12,480 --> 01:01:13,320
- that is held by T2,
+that is held by T2,
+这是由T2持有的。
 
 850
 01:01:13,320 --> 01:01:14,800
- T2 is waiting for a resource
+T2 is waiting for a resource
+T2正在等待一个资源。
 
 851
 01:01:14,800 --> 01:01:16,640
- that is held by T3 and so forth.
+that is held by T3 and so forth.
+这是由T3等人持有的。
 
 852
 01:01:16,640 --> 01:01:23,720
- So this means the last,
+So this means the last,
+这意味着最后一个，
 
 853
 01:01:23,720 --> 01:01:26,320
- the last actually requirement
+the last actually requirement
+最后的实际要求
 
 854
 01:01:26,320 --> 01:01:34,360
- give us a way to detect deadlocks.
+give us a way to detect deadlocks.
+给我们一种检测死锁的方法。
 
 855
 01:01:34,360 --> 01:01:36,760
- Okay?
+Okay?
+好的。
 
 856
 01:01:36,760 --> 01:01:38,600
- So how is that?
+So how is that?
+那样怎么样？
 
 857
 01:01:41,360 --> 01:01:44,720
- So basically you want to detect that cycle.
+So basically you want to detect that cycle.
+所以基本上你想要检测出那个循环。
 
 858
 01:01:44,720 --> 01:01:48,360
- So let's use the same symbols.
+So let's use the same symbols.
+那么让我们使用相同的符号。
 
 859
 01:01:48,360 --> 01:01:49,680
- You already use them, but.
+You already use them, but.
+你已经在使用它们了，但是。
 
 860
 01:01:49,680 --> 01:01:53,460
- The threats are circles.
+The threats are circles.
+威胁是圆圈。
 
 861
 01:01:53,460 --> 01:01:58,840
- The resources are rectangles
+The resources are rectangles
+资源是矩形。
 
 862
 01:01:58,840 --> 01:02:01,260
- and you have multiple dots.
+and you have multiple dots.
+你有多个点。
 
 863
 01:02:01,260 --> 01:02:03,240
- So this resource,
+So this resource,
+这个资源，
 
 864
 01:02:03,240 --> 01:02:08,240
- each dot represent an instance of a particular resource.
+each dot represent an instance of a particular resource.
+每个点代表一个特定资源的实例。
 
 865
 01:02:09,400 --> 01:02:14,400
- So for instance, you have a CPU is four cores.
+So for instance, you have a CPU is four cores.
+所以例如，你有一个四核的CPU。
 
 866
 01:02:14,400 --> 01:02:19,120
- You are going to have four dots,
+You are going to have four dots,
+你将会有四个点，
 
 867
 01:02:19,120 --> 01:02:20,720
- each representing one core.
+each representing one core.
+每个代表一个核心。
 
 868
 01:02:20,720 --> 01:02:24,740
- Okay?
+Okay?
+好的。
 
 869
 01:02:24,740 --> 01:02:32,320
- And the pattern of manipulating a resource is very simple.
+And the pattern of manipulating a resource is very simple.
+而且操纵资源的模式非常简单。
 
 870
 01:02:32,320 --> 01:02:35,080
- You request the resource, you use the resource,
+You request the resource, you use the resource,
+您请求资源，您使用资源，
 
 871
 01:02:35,080 --> 01:02:37,240
- you release the resource after you are done.
+you release the resource after you are done.
+你在完成后释放资源。
 
 872
 01:02:38,360 --> 01:02:40,960
- And now we can have a resource allocation graph.
+And now we can have a resource allocation graph.
+现在我们可以有一个资源分配图。
 
 873
 01:02:40,960 --> 01:02:42,900
- And there are two types of,
+And there are two types of,
+而且有两种类型的，
 
 874
 01:02:42,900 --> 01:02:46,200
- we have two types of vertices,
+we have two types of vertices,
+我们有两种类型的顶点。
 
 875
 01:02:46,200 --> 01:02:49,920
- threads and resources, resource types,
+threads and resources, resource types,
+线程和资源，资源类型。
 
 876
 01:02:49,920 --> 01:02:54,880
- and two types of vertices or edges.
+and two types of vertices or edges.
+和两种类型的顶点或边。
 
 877
 01:02:54,880 --> 01:02:56,440
- Sorry, and two types of edges.
+Sorry, and two types of edges.
+抱歉，还有两种类型的边缘。
 
 878
 01:02:56,440 --> 01:03:00,460
- These are directed edge.
+These are directed edge.
+这些是有向边。
 
 879
 01:03:00,460 --> 01:03:06,520
- If a thread, you have a edge from a thread TI
+If a thread, you have a edge from a thread TI
+如果是线程，你有一个来自线程TI的边缘。
 
 880
 01:03:07,800 --> 01:03:09,680
- to a resource RJ,
+to a resource RJ,
+给一个资源 RJ，
 
 881
 01:03:09,680 --> 01:03:15,360
- if thread TI request the resource J.
+if thread TI request the resource J.
+如果线程TI请求资源J。
 
 882
 01:03:15,360 --> 01:03:19,680
- And then you have assignment edge,
+And then you have assignment edge,
+然后你有作业边缘。
 
 883
 01:03:19,680 --> 01:03:24,240
- which it's a direct edge from RJ
+which it's a direct edge from RJ
+这是一个直接从RJ边缘开始的边缘。
 
 884
 01:03:24,240 --> 01:03:28,160
- to thread TI,
+to thread TI,
+将TI线程化
 
 885
 01:03:28,160 --> 01:03:32,640
- when thread TI allocates
+when thread TI allocates
+当线程TI分配时
 
 886
 01:03:32,640 --> 01:03:36,160
- or has allocated resource RJ.
+or has allocated resource RJ.
+或者已分配资源RJ。
 
 887
 01:03:36,160 --> 01:03:40,080
- Okay?
+Okay?
+好的。
 
 888
 01:03:40,080 --> 01:03:42,420
- So basically here in this example,
+So basically here in this example,
+所以基本上在这个例子中，
 
 889
 01:03:42,420 --> 01:03:48,520
- this edge from R1 to T2 basically says that T2 own R1.
+this edge from R1 to T2 basically says that T2 own R1.
+这条从R1到T2的边基本上表示T2拥有R1。
 
 890
 01:03:48,520 --> 01:03:57,720
- The edge from T1 to R1 says that T1 request resource R1.
+The edge from T1 to R1 says that T1 request resource R1.
+从T1到R1的边表示T1请求资源R1。
 
 891
 01:03:57,720 --> 01:04:03,440
- Okay?
+Okay?
+好的。
 
 892
 01:04:05,920 --> 01:04:08,160
- So this is some examples.
+So this is some examples.
+这是一些例子。
 
 893
 01:04:08,160 --> 01:04:10,080
- Okay?
+Okay?
+好的。
 
 894
 01:04:10,080 --> 01:04:20,640
- So you see here,
+So you see here,
+所以你看到这里，
 
 895
 01:04:20,640 --> 01:04:25,000
- let's see which are,
+let's see which are,
+让我们看看有哪些。
 
 896
 01:04:25,000 --> 01:04:31,360
- it turns out and we are going to learn more about that,
+it turns out and we are going to learn more about that,
+原来如此，我们将会进一步了解这个。
 
 897
 01:04:31,360 --> 01:04:35,040
- but it turns out that this middle examples,
+but it turns out that this middle examples,
+但事实证明，这些中间的例子，
 
 898
 01:04:35,040 --> 01:04:36,200
- it seems that that look.
+it seems that that look.
+看起来好像是那个样子。
 
 899
 01:04:36,200 --> 01:04:38,320
- Why?
+Why?
+为什么？
 
 900
 01:04:38,320 --> 01:04:43,160
- Because two reasons.
+Because two reasons.
+因为两个原因。
 
 901
 01:04:43,160 --> 01:04:44,760
- First of all, you have a cycle.
+First of all, you have a cycle.
+首先，你有一个循环。
 
 902
 01:04:44,760 --> 01:04:46,920
- You see here,
+You see here,
+你看到这里，
 
 903
 01:04:46,920 --> 01:04:50,680
- T1 was for R1,
+T1 was for R1,
+T1是为了R1而设的。
 
 904
 01:04:50,680 --> 01:04:53,360
- which is own R1 is owned by T2.
+which is own R1 is owned by T2.
+R1是由T2拥有的。
 
 905
 01:04:53,360 --> 01:04:56,680
- And T2 ways are for R...
+And T2 ways are for R...
+而T2方式是为了R...
 
 906
 01:04:56,680 --> 01:04:59,800
- Oh, I'm sorry.
+Oh, I'm sorry.
+哦，对不起。
 
 907
 01:04:59,800 --> 01:05:00,960
- I am sorry.
+I am sorry.
+对不起。
 
 908
 01:05:00,960 --> 01:05:03,600
- The cycle is this one.
+The cycle is this one.
+这个周期是这样的。
 
 909
 01:05:03,600 --> 01:05:07,080
- R3, T2, R2, T3.
+R3, T2, R2, T3.
+R3, T2, R2, T3. (Translated from Chinese)
+
+R3, T2, R2, T3. (Translated from English)
 
 910
 01:05:07,080 --> 01:05:10,000
- So T2 owns R3,
+So T2 owns R3,
+所以T2拥有R3。
 
 911
 01:05:10,000 --> 01:05:11,880
- request R2,
+request R2,
+请求R2。
 
 912
 01:05:11,880 --> 01:05:13,440
- which is owned by T3.
+which is owned by T3.
+这是由T3拥有的。
 
 913
 01:05:13,440 --> 01:05:17,840
- And finally, T3 request for R3,
+And finally, T3 request for R3,
+最后，T3向R3发出请求。
 
 914
 01:05:17,840 --> 01:05:20,760
- which is owned by T2.
+which is owned by T2.
+这个是由T2拥有的。
 
 915
 01:05:20,760 --> 01:05:25,880
- So this is a deadlock because you have the cycle
+So this is a deadlock because you have the cycle
+这是一个死锁，因为你有一个循环。
 
 916
 01:05:25,880 --> 01:05:29,280
- and the other condition, if you remember here,
+and the other condition, if you remember here,
+另外一个条件，如果你还记得的话，
 
 917
 01:05:29,280 --> 01:05:31,800
- another requirement is hold on wait.
+another requirement is hold on wait.
+另一个要求是等一下。
 
 918
 01:05:31,800 --> 01:05:33,880
- Threat holding at least one resource is waiting
+Threat holding at least one resource is waiting
+威胁持有至少一项资源正在等待。
 
 919
 01:05:33,880 --> 01:05:37,160
- to acquire additional resource held by other threats.
+to acquire additional resource held by other threats.
+获取其他威胁持有的额外资源。
 
 920
 01:05:37,160 --> 01:05:40,640
- So every threat here in this example,
+So every threat here in this example,
+所以在这个例子中，每一个威胁，
 
 921
 01:05:40,640 --> 01:05:43,040
- it's in this situation, right?
+it's in this situation, right?
+是在这种情况下，对吗？
 
 922
 01:05:43,040 --> 01:05:50,040
- It's waiting for a resource handled by another threat.
+It's waiting for a resource handled by another threat.
+它正在等待由另一个线程处理的资源。
 
 923
 01:05:50,040 --> 01:05:54,320
- Here is an example,
+Here is an example,
+这是一个例子，
 
 924
 01:05:54,320 --> 01:05:57,800
- which is, there is a cycle,
+which is, there is a cycle,
+这是一个循环。
 
 925
 01:05:57,800 --> 01:06:01,400
- T1, R1, T3, R2.
+T1, R1, T3, R2.
+T1, R1, T3, R2. (No translation needed)
 
 926
 01:06:01,400 --> 01:06:02,760
- But this is not deadlock
+But this is not deadlock
+但这不是死锁。
 
 927
 01:06:02,760 --> 01:06:09,000
- because T2 and T4 own a resource,
+because T2 and T4 own a resource,
+因为T2和T4拥有一项资源，
 
 928
 01:06:09,000 --> 01:06:11,800
- but they don't do it for any other resource.
+but they don't do it for any other resource.
+但是他们不会为任何其他资源这样做。
 
 929
 01:06:11,800 --> 01:06:15,400
- Okay?
+Okay?
+好的。
 
 930
 01:06:15,400 --> 01:06:19,440
- And the reason this is not a deadlock,
+And the reason this is not a deadlock,
+而这不是一个死锁的原因是，
 
 931
 01:06:19,440 --> 01:06:21,000
- again, we'll learn more in the next,
+again, we'll learn more in the next,
+再次，我们将在接下来的课程中学到更多。
 
 932
 01:06:21,000 --> 01:06:26,000
- in the remaining of this lecture and the next lecture,
+in the remaining of this lecture and the next lecture,
+在接下来的这节课和下一节课中，
 
 933
 01:06:26,000 --> 01:06:30,120
- is that T2 and T4 can proceed.
+is that T2 and T4 can proceed.
+是的，T2和T4可以继续进行。
 
 934
 01:06:31,120 --> 01:06:32,680
- Can run to completion.
+Can run to completion.
+可以运行到完成。
 
 935
 01:06:32,680 --> 01:06:34,720
- And once they run to completion,
+And once they run to completion,
+一旦它们运行完毕，
 
 936
 01:06:34,720 --> 01:06:39,360
- they free an instance of R1 and R2 respectively.
+they free an instance of R1 and R2 respectively.
+他们分别释放了R1和R2的实例。
 
 937
 01:06:39,360 --> 01:06:48,520
- I see, yeah.
+I see, yeah.
+我明白了，是的。
 
 938
 01:06:48,520 --> 01:06:52,000
- How does R3 have two assignment edges?
+How does R3 have two assignment edges?
+R3是如何有两条分配边的？
 
 939
 01:06:52,000 --> 01:06:54,400
- Assignment, good answer.
+Assignment, good answer.
+作业，好答案。
 
 940
 01:06:54,400 --> 01:06:55,960
- There are two instances.
+There are two instances.
+有两个实例。
 
 941
 01:06:55,960 --> 01:06:59,920
- Yes, like I said, so you can look about this R3 and R4.
+Yes, like I said, so you can look about this R3 and R4.
+是的，就像我说的那样，你可以查看一下R3和R4。
 
 942
 01:06:59,920 --> 01:07:02,160
- As type of resources.
+As type of resources.
+作为资源类型。
 
 943
 01:07:02,160 --> 01:07:07,120
- And the dots within these rectangles
+And the dots within these rectangles
+这些矩形内的点
 
 944
 01:07:07,120 --> 01:07:10,720
- are the number of instances of that particular type.
+are the number of instances of that particular type.
+这是那种特定类型的实例数量。
 
 945
 01:07:10,720 --> 01:07:15,760
- And typically one thread here
+And typically one thread here
+通常这里只有一个帖子。
 
 946
 01:07:15,760 --> 01:07:20,560
- will require one instance of a particular resource type.
+will require one instance of a particular resource type.
+需要一个特定资源类型的实例。
 
 947
 01:07:20,560 --> 01:07:26,640
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 948
 01:07:27,560 --> 01:07:31,600
- So we do have also a deadlock detection algorithms.
+So we do have also a deadlock detection algorithms.
+所以我们也有死锁检测算法。
 
 949
 01:07:31,600 --> 01:07:32,720
- You want an algorithm.
+You want an algorithm.
+你想要一个算法。
 
 950
 01:07:32,720 --> 01:07:38,400
- And the deadlock detection algorithms is very simple.
+And the deadlock detection algorithms is very simple.
+而且死锁检测算法非常简单。
 
 951
 01:07:38,400 --> 01:07:40,320
- Okay?
+Okay?
+好的？
 
 952
 01:07:40,320 --> 01:07:47,120
- So you keep an array of free resources.
+So you keep an array of free resources.
+所以你保留了一个空闲资源的数组。
 
 953
 01:07:47,120 --> 01:07:51,400
- Then you have an array of requests,
+Then you have an array of requests,
+然后你有一个请求的数组，
 
 954
 01:07:51,400 --> 01:07:55,960
- threads of the current, you know,
+threads of the current, you know,
+电流的线程，你知道的，
 
 955
 01:07:55,960 --> 01:07:58,160
- current request from thread X.
+current request from thread X.
+当前来自线程X的请求。
 
 956
 01:07:58,160 --> 01:08:02,600
- And you have also, so for each thread X,
+And you have also, so for each thread X,
+而且你也有，所以对于每个线程X，
 
 957
 01:08:02,600 --> 01:08:06,000
- you have the current request of that thread
+you have the current request of that thread
+你有该线程的当前请求。
 
 958
 01:08:06,000 --> 01:08:09,040
- and the current resources are located by that thread.
+and the current resources are located by that thread.
+并且当前的资源由该线程定位。
 
 959
 01:08:09,040 --> 01:08:12,600
- Okay?
+Okay?
+好的。
 
 960
 01:08:12,600 --> 01:08:20,680
- So you initialize the available resources
+So you initialize the available resources
+所以你初始化可用资源
 
 961
 01:08:20,680 --> 01:08:23,720
- to the free resources, right?
+to the free resources, right?
+对于免费的资源，对吗？
 
 962
 01:08:23,720 --> 01:08:26,360
- The free resources are the one which are available.
+The free resources are the one which are available.
+免费资源是那些可用的资源。
 
 963
 01:08:26,360 --> 01:08:31,280
- Then you look at all the nodes which are unfinished.
+Then you look at all the nodes which are unfinished.
+然后你看看所有未完成的节点。
 
 964
 01:08:31,280 --> 01:08:34,320
- You keep all the nodes, which are all threads.
+You keep all the nodes, which are all threads.
+你保留了所有的节点，这些节点都是线程。
 
 965
 01:08:34,320 --> 01:08:38,000
- This represents all threads, which are not finished.
+This represents all threads, which are not finished.
+这代表着所有未完成的线程。
 
 966
 01:08:38,000 --> 01:08:42,880
- And you take one by one,
+And you take one by one,
+然后你一个一个地拿。
 
 967
 01:08:42,880 --> 01:08:48,560
- and you look whether you have enough available resources
+and you look whether you have enough available resources
+你看看你是否有足够的可用资源。
 
 968
 01:08:48,560 --> 01:08:50,680
- for that thread to finish.
+for that thread to finish.
+等待那个线程完成。
 
 969
 01:08:50,680 --> 01:08:55,680
- In other words, if the requested resources
+In other words, if the requested resources
+换句话说，如果请求的资源
 
 970
 01:08:55,680 --> 01:09:02,240
- by that thread can be satisfied
+by that thread can be satisfied
+通过那个线程可以满足。
 
 971
 01:09:02,240 --> 01:09:04,760
- by the existing available resources.
+by the existing available resources.
+根据现有的可用资源。
 
 972
 01:09:04,760 --> 01:09:11,320
- And if yes, you are going to run the thread,
+And if yes, you are going to run the thread,
+如果是的话，你将会运行这个线程。
 
 973
 01:09:11,320 --> 01:09:16,680
- and then now all the resources, once the thread finishes
+and then now all the resources, once the thread finishes
+然后现在所有的资源，一旦线程完成
 
 974
 01:09:16,680 --> 01:09:20,160
- are going to be added to the availability.
+are going to be added to the availability.
+将会添加到可用性中。
 
 975
 01:09:21,160 --> 01:09:23,320
- Set, because they are available now.
+Set, because they are available now.
+集合，因为它们现在可用。
 
 976
 01:09:23,320 --> 01:09:26,520
- Okay?
+Okay?
+好的。
 
 977
 01:09:26,520 --> 01:09:27,600
- So you do that.
+So you do that.
+那么你就这样做吧。
 
 978
 01:09:27,600 --> 01:09:33,720
- And if there are no longer unfinished resources,
+And if there are no longer unfinished resources,
+如果没有未完成的资源了，
 
 979
 01:09:33,720 --> 01:09:37,800
- when, if there are no longer items in,
+when, if there are no longer items in,
+当，如果没有物品在的话，
 
 980
 01:09:37,800 --> 01:09:44,320
- or threads in the finished list, you are done.
+or threads in the finished list, you are done.
+或者在已完成列表中的线程，你完成了。
 
 981
 01:09:44,320 --> 01:09:46,960
- There is not a deadlock.
+There is not a deadlock.
+没有僵局。
 
 982
 01:09:46,960 --> 01:09:49,800
- Otherwise, there is a deadlock.
+Otherwise, there is a deadlock.
+否则，就会陷入僵局。
 
 983
 01:09:49,800 --> 01:09:51,960
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体文本。
 
 984
 01:09:51,960 --> 01:10:00,680
- So not left in unfinished are deadlocked.
+So not left in unfinished are deadlocked.
+所以不要让未完成的事情陷入僵局。
 
 985
 01:10:00,680 --> 01:10:01,520
- Okay?
+Okay?
+好的。
 
 986
 01:10:01,520 --> 01:10:03,280
- So let me, there is a question here,
+So let me, there is a question here,
+所以让我来，这里有一个问题，
 
 987
 01:10:03,280 --> 01:10:06,520
- but T1 and T2, T3 is still in deadlock.
+but T1 and T2, T3 is still in deadlock.
+但是T1和T2，T3仍然处于僵局。
 
 988
 01:10:06,520 --> 01:10:15,000
- Oh, okay.
+Oh, okay.
+哦，好的。
 
 989
 01:10:15,000 --> 01:10:17,560
- So I can say, so, okay.
+So I can say, so, okay.
+所以我可以说，那么，好的。
 
 990
 01:10:17,560 --> 01:10:19,640
- So let me say here.
+So let me say here.
+那么让我在这里说一下。
 
 991
 01:10:20,560 --> 01:10:21,880
- So this is a question.
+So this is a question.
+这是一个问题。
 
 992
 01:10:21,880 --> 01:10:23,840
- It's a great timing for that question.
+It's a great timing for that question.
+这个时机很好，问得正好。
 
 993
 01:10:23,840 --> 01:10:28,000
- So,
+So,
+所以，
 
 994
 01:10:28,000 --> 01:10:36,280
- so the question here, yes, you know, T2 and T4 finishes,
+so the question here, yes, you know, T2 and T4 finishes,
+所以问题在这里，是的，你知道，T2和T4的完成情况。
 
 995
 01:10:36,280 --> 01:10:38,480
- but T1 and T3 are still in deadlock.
+but T1 and T3 are still in deadlock.
+但是T1和T3仍然陷入僵局。
 
 996
 01:10:38,480 --> 01:10:41,320
- So here is a thing.
+So here is a thing.
+所以这里有一件事情。
 
 997
 01:10:41,320 --> 01:10:43,560
- If you run this algorithm, what will happen?
+If you run this algorithm, what will happen?
+如果你运行这个算法，会发生什么？
 
 998
 01:10:44,880 --> 01:10:49,880
- You see, T2 actually will finish execution.
+You see, T2 actually will finish execution.
+你知道，T2实际上会完成执行。
 
 999
 01:10:49,880 --> 01:10:53,960
- And once T2 finishes execution,
+And once T2 finishes execution,
+一旦T2执行完成，
 
 1000
 01:10:53,960 --> 01:10:57,320
- it releases the instance of R1.
+it releases the instance of R1.
+它释放了R1的实例。
 
 1001
 01:10:57,320 --> 01:11:04,760
- Now there is one available R1 instance.
+Now there is one available R1 instance.
+现在有一个可用的R1实例。
 
 1002
 01:11:04,760 --> 01:11:07,720
- So T1 can acquire that instance.
+So T1 can acquire that instance.
+所以T1可以获取那个实例。
 
 1003
 01:11:07,720 --> 01:11:13,560
- And now T1 has both instance of R2 and R1.
+And now T1 has both instance of R2 and R1.
+现在T1同时拥有R2和R1的实例。
 
 1004
 01:11:13,560 --> 01:11:16,120
- So it can run and complete.
+So it can run and complete.
+所以它可以运行并完成。
 
 1005
 01:11:16,120 --> 01:11:18,600
- Okay?
+Okay?
+好的。
 
 1006
 01:11:18,600 --> 01:11:22,840
- So that's a trick because the T2,
+So that's a trick because the T2,
+这是一个技巧，因为T2，
 
 1007
 01:11:22,840 --> 01:11:27,240
- whenever you have a threat, which can complete,
+whenever you have a threat, which can complete,
+无论何时你面临威胁，只要能够完成，
 
 1008
 01:11:27,240 --> 01:11:32,560
- think that is going to release, you know,
+think that is going to release, you know,
+我认为它即将发布，你知道的。
 
 1009
 01:11:32,560 --> 01:11:36,560
- once it finishes, the number of free resources,
+once it finishes, the number of free resources,
+一旦完成，免费资源的数量将会
 
 1010
 01:11:36,560 --> 01:11:39,000
- available resources is going to increase,
+available resources is going to increase,
+可用资源将会增加。
 
 1011
 01:11:39,000 --> 01:11:41,760
- which will give an opportunity to other threat,
+which will give an opportunity to other threat,
+这将给其他威胁提供机会。
 
 1012
 01:11:41,760 --> 01:11:46,240
- which are blocked until then, to acquire the newly,
+which are blocked until then, to acquire the newly,
+这些在那之前被封锁的，以获取最新的，
 
 1013
 01:11:46,240 --> 01:11:51,000
- the new release resources and to finish themself.
+the new release resources and to finish themself.
+新发布的资源需要自己完成。
 
 1014
 01:11:51,000 --> 01:11:52,480
- And then they're going to finish,
+And then they're going to finish,
+然后他们就要完成了。
 
 1015
 01:11:52,480 --> 01:11:54,520
- even more resources are going to be available
+even more resources are going to be available
+将会有更多的资源可用。
 
 1016
 01:11:54,520 --> 01:11:58,000
- for the, in the system for the other threats to finish.
+for the, in the system for the other threats to finish.
+为了，在系统中为了其他威胁的结束。
 
 1017
 01:11:58,000 --> 01:12:03,720
- So how should we deal with a deadlock?
+So how should we deal with a deadlock?
+那么我们应该如何处理僵局呢？
 
 1018
 01:12:03,720 --> 01:12:06,720
- There are four different approaches.
+There are four different approaches.
+有四种不同的方法
 
 1019
 01:12:06,720 --> 01:12:09,720
- Deadlock prevention,
+Deadlock prevention,
+死锁预防。
 
 1020
 01:12:09,720 --> 01:12:14,720
- so you write your code in a way that is not,
+so you write your code in a way that is not,
+所以你的代码是以一种不
 
 1021
 01:12:14,720 --> 01:12:18,680
- deadlock cannot happen.
+deadlock cannot happen.
+死锁不会发生。
 
 1022
 01:12:18,680 --> 01:12:19,520
- It can't happen.
+It can't happen.
+这是不可能的。
 
 1023
 01:12:19,520 --> 01:12:22,400
- Deadlock recovery, you let the deadlock happen
+Deadlock recovery, you let the deadlock happen
+死锁恢复，你让死锁发生了。
 
 1024
 01:12:22,400 --> 01:12:25,480
- and then figure out how to recover from it.
+and then figure out how to recover from it.
+然后找出如何从中恢复过来。
 
 1025
 01:12:25,480 --> 01:12:28,360
- Remember it's those like, you know,
+Remember it's those like, you know,
+记住，就是那些，你知道的，
 
 1026
 01:12:28,360 --> 01:12:30,920
- on the bridge, a car which can back up.
+on the bridge, a car which can back up.
+在桥上，有一辆可以倒车的汽车。
 
 1027
 01:12:30,920 --> 01:12:34,320
- You can preempt the resource or things like that.
+You can preempt the resource or things like that.
+你可以预先占用资源或类似的东西。
 
 1028
 01:12:34,320 --> 01:12:38,920
- Deadlock avoidance, with deadlock avoidance,
+Deadlock avoidance, with deadlock avoidance,
+死锁避免，使用死锁避免方法，
 
 1029
 01:12:38,920 --> 01:12:41,080
- you can dynamically delay resource requests
+you can dynamically delay resource requests
+你可以动态延迟资源请求。
 
 1030
 01:12:41,080 --> 01:12:42,560
- so deadlock doesn't happen.
+so deadlock doesn't happen.
+所以死锁不会发生。
 
 1031
 01:12:42,560 --> 01:12:47,560
- You can order and impose the order and the time
+You can order and impose the order and the time
+您可以下订单并确定订单和送货时间。
 
 1032
 01:12:47,560 --> 01:12:51,120
- when different threats, they request resources.
+when different threats, they request resources.
+当面临不同的威胁时，他们会请求资源。
 
 1033
 01:12:51,120 --> 01:12:56,200
- Right, so now a very simple example from the beginning,
+Right, so now a very simple example from the beginning,
+好的，现在给你一个非常简单的例子，从头开始，
 
 1034
 01:12:56,200 --> 01:12:59,440
- if you remember, you just say, well, you know,
+if you remember, you just say, well, you know,
+如果你记得的话，你只需要说，嗯，你知道的。
 
 1035
 01:12:59,440 --> 01:13:04,640
- first you let duty one acquire the resources
+first you let duty one acquire the resources
+首先，你让责任一获取资源。
 
 1036
 01:13:04,640 --> 01:13:07,840
- and then duty two, and then there is no deadlock.
+and then duty two, and then there is no deadlock.
+然后是第二个任务，然后就没有僵局了。
 
 1037
 01:13:07,840 --> 01:13:12,200
- Well, the last one, you know,
+Well, the last one, you know,
+最后一个，你知道的，
 
 1038
 01:13:12,200 --> 01:13:14,440
- it's obviously not a solution.
+it's obviously not a solution.
+这显然不是一个解决方案。
 
 1039
 01:13:14,440 --> 01:13:19,440
- It's, you can deny the deadlock and see what happens.
+It's, you can deny the deadlock and see what happens.
+可以的，你可以否认僵局，看看会发生什么。
 
 1040
 01:13:19,440 --> 01:13:21,640
- Maybe you are lucky.
+Maybe you are lucky.
+也许你很幸运。
 
 1041
 01:13:21,640 --> 01:13:30,720
- What is the difference between deadlock avoidance
+What is the difference between deadlock avoidance
+死锁避免和死锁检测的区别是什么？
 
 1042
 01:13:30,720 --> 01:13:32,520
- and deadlock prevention?
+and deadlock prevention?
+死锁预防？
 
 1043
 01:13:32,520 --> 01:13:33,560
- That's a very good question.
+That's a very good question.
+这是一个非常好的问题。
 
 1044
 01:13:33,560 --> 01:13:38,560
- Deadlock avoidance is that you can write your code,
+Deadlock avoidance is that you can write your code,
+死锁避免是指你可以编写你的代码，
 
 1045
 01:13:38,560 --> 01:13:41,160
- for instance, deadlock prevention, meaning that,
+for instance, deadlock prevention, meaning that,
+例如，死锁预防，意思是，
 
 1046
 01:13:41,160 --> 01:13:46,400
- for instance, you make sure that you never had
+for instance, you make sure that you never had
+例如，你确保你从来没有拥有过。
 
 1047
 01:13:46,400 --> 01:13:48,320
- more threats than the resources.
+more threats than the resources.
+比资源更多的威胁。
 
 1048
 01:13:48,320 --> 01:13:52,000
- Right, you have plenty of resources.
+Right, you have plenty of resources.
+没错，你有很多资源。
 
 1049
 01:13:52,000 --> 01:13:54,080
- Then you prevent the deadlock.
+Then you prevent the deadlock.
+那么你可以防止死锁。
 
 1050
 01:13:54,080 --> 01:13:56,480
- Deadlock avoidance is that deadlock can happen,
+Deadlock avoidance is that deadlock can happen,
+死锁避免是指死锁可能发生，
 
 1051
 01:13:56,480 --> 01:14:02,440
- but you can make sure and you write your,
+but you can make sure and you write your,
+但你可以确保并且你自己写。
 
 1052
 01:14:02,440 --> 01:14:07,440
- you know, your code and you are trying to schedule
+you know, your code and you are trying to schedule
+你知道，你的代码和你正在尝试安排日程。
 
 1053
 01:14:07,440 --> 01:14:16,120
- your threats and you are trying to order
+your threats and you are trying to order
+你的威胁和你试图命令
 
 1054
 01:14:16,120 --> 01:14:18,840
- as a resource request so that all doesn't happen.
+as a resource request so that all doesn't happen.
+作为一个资源请求，以便避免发生这种情况。
 
 1055
 01:14:18,840 --> 01:14:25,520
- So like in our examples of, you know, trains,
+So like in our examples of, you know, trains,
+那么就像我们之前举的例子，你知道的，火车，
 
 1056
 01:14:29,360 --> 01:14:34,360
- when you go south, east, west, and then north, south,
+when you go south, east, west, and then north, south,
+当你向南、东、西、然后北、南走时，
 
 1057
 01:14:34,360 --> 01:14:37,160
- then you don't go first north, south,
+then you don't go first north, south,
+然后你不先往北走，南走，
 
 1058
 01:14:37,160 --> 01:14:40,120
- and then east, west.
+and then east, west.
+然后向东，向西。
 
 1059
 01:14:40,120 --> 01:14:45,560
- But they are related and yeah.
+But they are related and yeah.
+但是他们是有关系的，是的。
 
 1060
 01:14:45,560 --> 01:14:52,240
- Okay, so many operating systems avoid the deadlock.
+Okay, so many operating systems avoid the deadlock.
+好的，所以很多操作系统避免死锁。
 
 1061
 01:14:52,240 --> 01:14:56,800
- You know, they don't, you know, ignore the deadlock.
+You know, they don't, you know, ignore the deadlock.
+你知道，他们不会，你知道，忽视僵局。
 
 1062
 01:14:56,800 --> 01:14:59,120
- When can you ignore the deadlock?
+When can you ignore the deadlock?
+当可以忽略死锁时？
 
 1063
 01:14:59,120 --> 01:15:01,920
- To let me, you know, here we are making a little bit of fun
+To let me, you know, here we are making a little bit of fun
+让我告诉你，我们这里正在开一点小玩笑。
 
 1064
 01:15:01,920 --> 01:15:04,840
- that, you know, denial in this Oistrich algorithm.
+that, you know, denial in this Oistrich algorithm.
+那个，你知道的，在这个鸵鸟算法中的否认。
 
 1065
 01:15:04,840 --> 01:15:08,240
- So, you know, you pretend the problem is not,
+So, you know, you pretend the problem is not,
+所以，你知道，你假装问题不存在，
 
 1066
 01:15:08,240 --> 01:15:11,960
- doesn't happen, is not happening.
+doesn't happen, is not happening.
+不会发生，没有发生。
 
 1067
 01:15:11,960 --> 01:15:16,120
- But when actually deadlock denial, it's okay.
+But when actually deadlock denial, it's okay.
+但当实际上陷入僵局时，也没关系。
 
 1068
 01:15:16,120 --> 01:15:27,760
- When crashing, freezing isn't that big of a problem, yes.
+When crashing, freezing isn't that big of a problem, yes.
+当崩溃时，冻结并不是一个很大的问题，是的。
 
 1069
 01:15:27,760 --> 01:15:31,760
- And when they are very, very, happen very rarely.
+And when they are very, very, happen very rarely.
+而且当它们发生时，非常非常罕见。
 
 1070
 01:15:31,760 --> 01:15:38,120
- When it happens very rarely, okay.
+When it happens very rarely, okay.
+当它发生得非常罕见时，好的。
 
 1071
 01:15:38,120 --> 01:15:42,520
- That's what, when it's okay.
+That's what, when it's okay.
+那是什么，什么时候可以。
 
 1072
 01:15:42,520 --> 01:15:46,400
- And if you were to push a deadlock, you know,
+And if you were to push a deadlock, you know,
+如果你要推动僵局，你知道的，
 
 1073
 01:15:46,400 --> 01:15:51,320
- to do deadlock prevention or avoidance,
+to do deadlock prevention or avoidance,
+为了避免死锁，可以采取以下措施：
 
 1074
 01:15:51,320 --> 01:15:53,440
- will require very expensive algorithms,
+will require very expensive algorithms,
+需要非常昂贵的算法，
 
 1075
 01:15:53,440 --> 01:15:56,420
- will dramatically increase the complexity of the system.
+will dramatically increase the complexity of the system.
+这将极大地增加系统的复杂性。
 
 1076
 01:15:56,420 --> 01:15:57,260
- Right?
+Right?
+对吗？
 
 1077
 01:15:57,260 --> 01:16:04,740
- So preventing deadlocks, like I mentioned,
+So preventing deadlocks, like I mentioned,
+所以，像我之前提到的那样，预防死锁，
 
 1078
 01:16:04,740 --> 01:16:05,940
- you have enough resources
+you have enough resources
+你有足够的资源
 
 1079
 01:16:05,940 --> 01:16:10,580
- so that no one ever runs out of resources, right?
+so that no one ever runs out of resources, right?
+所以没有人会耗尽资源，对吗？
 
 1080
 01:16:10,580 --> 01:16:15,580
- But other things, every source can be shared,
+But other things, every source can be shared,
+但是其他的事情，每一个资源都可以被分享，
 
 1081
 01:16:15,580 --> 01:16:17,900
- like the CPU.
+like the CPU.
+喜欢中央处理器。
 
 1082
 01:16:17,900 --> 01:16:24,180
- You have 100, you have one thread, fine.
+You have 100, you have one thread, fine.
+你有100个，你有一个线程，好的。
 
 1083
 01:16:24,180 --> 01:16:25,900
- You have 10 threads, fine.
+You have 10 threads, fine.
+你有10个线程，好的。
 
 1084
 01:16:25,900 --> 01:16:27,620
- You have 1000 threads, fine.
+You have 1000 threads, fine.
+你有1000个线程，好的。
 
 1085
 01:16:27,620 --> 01:16:28,940
- Everyone will be slower,
+Everyone will be slower,
+每个人都会变得更慢，
 
 1086
 01:16:28,940 --> 01:16:32,140
- but still you are going to get your share of the CPU.
+but still you are going to get your share of the CPU.
+但是你仍然会得到你应得的CPU份额。
 
 1087
 01:16:32,140 --> 01:16:39,980
- And finally, like you don't allow waiting, right?
+And finally, like you don't allow waiting, right?
+最后，你不喜欢等待，对吗？
 
 1088
 01:16:39,980 --> 01:16:44,980
- And this is what happens in many cases, right?
+And this is what happens in many cases, right?
+是的，这在许多情况下都会发生，对吗？
 
 1089
 01:16:44,980 --> 01:16:50,100
- When you call and the other part is not available
+When you call and the other part is not available
+当你打电话时，对方不可用。
 
 1090
 01:16:50,100 --> 01:16:52,860
- or when the system is overloaded,
+or when the system is overloaded,
+或者当系统负载过重时，
 
 1091
 01:16:52,860 --> 01:16:56,420
- you get a busy signal, right?
+you get a busy signal, right?
+你会听到忙音，对吗？
 
 1092
 01:16:56,420 --> 01:16:57,260
- Failure.
+Failure.
+失败。
 
 1093
 01:16:57,260 --> 01:16:58,900
- Try again.
+Try again.
+再试一次。
 
 1094
 01:16:58,900 --> 01:17:02,420
- The same in ethernet, in the networking.
+The same in ethernet, in the networking.
+在以太网中，网络中也是一样的。
 
 1095
 01:17:02,420 --> 01:17:04,460
- There are a collision between the packets.
+There are a collision between the packets.
+数据包之间发生了碰撞。
 
 1096
 01:17:04,460 --> 01:17:05,980
- Try again.
+Try again.
+再试一次。
 
 1097
 01:17:05,980 --> 01:17:07,140
- Okay?
+Okay?
+好的。
 
 1098
 01:17:07,140 --> 01:17:09,860
- So it's again, it's inefficient.
+So it's again, it's inefficient.
+所以，又是这样，效率低下。
 
 1099
 01:17:09,860 --> 01:17:11,500
- And in some cases you cannot do it,
+And in some cases you cannot do it,
+有些情况下你无法做到，
 
 1100
 01:17:11,500 --> 01:17:17,500
- but it can be inefficient in some cases,
+but it can be inefficient in some cases,
+但在某些情况下可能效率低下，
 
 1101
 01:17:17,500 --> 01:17:19,020
- but it's a very simple method.
+but it's a very simple method.
+但这是一个非常简单的方法。
 
 1102
 01:17:22,300 --> 01:17:23,140
- So this is an example,
+So this is an example,
+所以这是一个例子，
 
 1103
 01:17:23,140 --> 01:17:25,140
- if you have infinite resources in our case
+if you have infinite resources in our case
+如果在我们的情况下你拥有无限的资源
 
 1104
 01:17:25,140 --> 01:17:26,780
- in which the deadlock happened
+in which the deadlock happened
+发生僵局的情况下
 
 1105
 01:17:26,780 --> 01:17:29,900
- because limited resources, no longer a problem.
+because limited resources, no longer a problem.
+由于资源有限，不再是一个问题。
 
 1106
 01:17:29,900 --> 01:17:43,460
- Another way to, yeah.
+Another way to, yeah.
+另一种方式，是的。
 
 1107
 01:17:43,460 --> 01:17:46,860
- Another way to do it is to prevent the deadlock
+Another way to do it is to prevent the deadlock
+另一种方法是防止死锁发生。
 
 1108
 01:17:49,900 --> 01:17:53,220
- is to require everything at the beginning.
+is to require everything at the beginning.
+是要求一切都在开始时完成。
 
 1109
 01:17:53,220 --> 01:17:57,980
- Everyone requires everything at the beginning.
+Everyone requires everything at the beginning.
+每个人在开始时都需要一切。
 
 1110
 01:17:57,980 --> 01:18:00,500
- And therefore, you know,
+And therefore, you know,
+所以，你知道的，
 
 1111
 01:18:00,500 --> 01:18:05,500
- and you know exactly what everyone is using.
+and you know exactly what everyone is using.
+而且你清楚每个人都在使用什么。
 
 1112
 01:18:05,500 --> 01:18:12,060
- So you can allocate from, at the beginning,
+So you can allocate from, at the beginning,
+所以你可以从一开始就分配。
 
 1113
 01:18:12,060 --> 01:18:14,420
- resources to everyone so that you make sure
+resources to everyone so that you make sure
+给每个人提供资源，以确保你们都能使用。
 
 1114
 01:18:14,420 --> 01:18:18,900
- there is no prevention, there is no deadlock.
+there is no prevention, there is no deadlock.
+没有预防措施，也没有僵局。
 
 1115
 01:18:18,900 --> 01:18:23,900
- And then force all stress to request resources
+And then force all stress to request resources
+然后强制所有压力请求资源
 
 1116
 01:18:23,900 --> 01:18:27,180
- in particular order, like we discussed.
+in particular order, like we discussed.
+按照特定的顺序，就像我们讨论过的那样。
 
 1117
 01:18:27,180 --> 01:18:33,340
- But here, you know, it's a very, very important thing
+But here, you know, it's a very, very important thing
+但是在这里，你知道，这是一件非常非常重要的事情。
 
 1118
 01:18:33,340 --> 01:18:37,380
- is that one thing this happens
+is that one thing this happens
+这是一件事情发生了吗？
 
 1119
 01:18:37,380 --> 01:18:41,940
- when you acquire the locks X and Y and Y and X
+when you acquire the locks X and Y and Y and X
+当你获得锁X和Y以及Y和X时
 
 1120
 01:18:41,940 --> 01:18:46,940
- is because these two operations of acquiring the two locks,
+is because these two operations of acquiring the two locks,
+是因为获取这两个锁的两个操作，
 
 1121
 01:18:48,420 --> 01:18:51,980
- they are not atomic.
+they are not atomic.
+它们不是原子的。
 
 1122
 01:18:51,980 --> 01:18:58,300
- But what if the operation of acquiring these locks is atomic?
+But what if the operation of acquiring these locks is atomic?
+但是如果获取这些锁的操作是原子的呢？
 
 1123
 01:18:58,300 --> 01:19:02,780
- Then everything will work, right?
+Then everything will work, right?
+那么一切都会正常工作，对吗？
 
 1124
 01:19:02,780 --> 01:19:06,060
- Because only one of the threads will be successful.
+Because only one of the threads will be successful.
+因为只有一个线程会成功。
 
 1125
 01:19:06,060 --> 01:19:07,500
- And the thread which is successful
+And the thread which is successful
+和成功的线程
 
 1126
 01:19:07,500 --> 01:19:09,500
- is going to run to completion,
+is going to run to completion,
+将会运行到完成。
 
 1127
 01:19:09,500 --> 01:19:12,860
- is going to release the two resources, two locks,
+is going to release the two resources, two locks,
+将要发布两个资源，两个锁。
 
 1128
 01:19:12,860 --> 01:19:15,300
- and the other strand is going to come up and run.
+and the other strand is going to come up and run.
+另一根链条将会升起并运行。
 
 1129
 01:19:15,300 --> 01:19:18,260
- And how do you do that?
+And how do you do that?
+你是如何做到的呢？
 
 1130
 01:19:18,260 --> 01:19:19,740
- In practice?
+In practice?
+实际上呢？
 
 1131
 01:19:19,740 --> 01:19:22,620
- Well, use another lock to make sure
+Well, use another lock to make sure
+好的，使用另一个锁来确保
 
 1132
 01:19:22,620 --> 01:19:25,900
- that acquiring the locks X and Y are atomic.
+that acquiring the locks X and Y are atomic.
+获取锁X和Y是原子操作的。
 
 1133
 01:19:25,900 --> 01:19:29,620
- Okay?
+Okay?
+好的。
 
 1134
 01:19:29,620 --> 01:19:30,860
- So that's why I do it.
+So that's why I do it.
+所以这就是我为什么这么做。
 
 1135
 01:19:30,860 --> 01:19:36,220
- You can also do it, like I said earlier on,
+You can also do it, like I said earlier on,
+你也可以做，就像我之前说的那样，
 
 1136
 01:19:36,220 --> 01:19:37,700
- that by enforcing the order.
+that by enforcing the order.
+通过执行命令。
 
 1137
 01:19:37,700 --> 01:19:40,940
- So in this case, if you both threads A and B
+So in this case, if you both threads A and B
+在这种情况下，如果你同时有A线程和B线程
 
 1138
 01:19:40,940 --> 01:19:44,700
- acquire the same order, again, you are fine.
+acquire the same order, again, you are fine.
+再次获得相同的订单，你没问题。
 
 1139
 01:19:47,420 --> 01:19:50,020
- Does it matter in which order the locks are released?
+Does it matter in which order the locks are released?
+释放锁的顺序是否重要？
 
 1140
 01:19:50,020 --> 01:19:54,300
- No, because the release is not awaiting operation.
+No, because the release is not awaiting operation.
+不，因为发布不需要等待操作。
 
 1141
 01:19:54,300 --> 01:19:57,620
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 1142
 01:19:57,620 --> 01:20:00,140
- So we are going to stop here
+So we are going to stop here
+所以我们要停在这里。
 
 1143
 01:20:00,140 --> 01:20:04,100
- and we are going to continue talking about deadlocks
+and we are going to continue talking about deadlocks
+我们将继续讨论死锁问题。
 
 1144
 01:20:04,100 --> 01:20:04,980
- next lecture.
+next lecture.
+下一堂课。
 
 1145
 01:20:04,980 --> 01:20:10,140
- Good luck with project one
+Good luck with project one
+祝你在项目一中好运。
 
 1146
 01:20:10,140 --> 01:20:14,780
- and see you all virtually on a Saturday.
+and see you all virtually on a Saturday.
+并在周六通过虚拟方式见到你们所有人。
 
 1147
 01:20:14,780 --> 01:20:15,620
- Thank you.
+Thank you.
+谢谢你。
 
 1148
 01:20:15,620 --> 01:20:18,220
- (upbeat music)
+(upbeat music)
+（欢快的音乐）
 
 1149
 01:20:18,220 --> 01:20:46,220
- [ Silence ]
+[ Silence ]
+[沉默]
 

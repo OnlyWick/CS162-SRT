@@ -1,0 +1,6248 @@
+﻿1
+00:01:55,070 --> 00:01:56,300
+Hello, everyone.
+
+2
+00:01:59,340 --> 00:02:02,870
+Today we are going to talk about one of the main concepts
+
+3
+00:02:02,880 --> 00:02:06,030
+of the operating system that is threats. 
+
+4
+00:02:10,030 --> 00:02:11,040
+As you remember, 
+
+5
+00:02:11,050 --> 00:02:12,440
+from last time, 
+
+6
+00:02:12,450 --> 00:02:14,440
+we went over three. 
+
+7
+00:02:15,150 --> 00:02:18,150
+That's the 4th fundamental operating system concept. 
+
+8
+00:02:18,680 --> 00:02:19,060
+Thread, 
+
+9
+00:02:19,580 --> 00:02:21,380
+which is a unit of execution, 
+
+10
+00:02:21,790 --> 00:02:23,960
+which encapsulates execution state, 
+
+11
+00:02:24,320 --> 00:02:26,360
+program counter, register,
+
+12
+00:02:27,020 --> 00:02:28,580
+stack, execution flag.
+
+13
+00:02:29,470 --> 00:02:37,090
+Then we have the outer space which represent this the set of addresses
+
+14
+00:02:38,570 --> 00:02:39,410
+in the memory, 
+
+15
+00:02:40,340 --> 00:02:44,520
+in which is the program executes the process, 
+
+16
+00:02:44,970 --> 00:02:48,320
+which is an instance of the execution program. 
+
+17
+00:02:48,330 --> 00:02:49,240
+So therefore, 
+
+18
+00:02:49,250 --> 00:02:54,480
+has consist of one more and more of more threads and the other space
+
+19
+00:02:56,150 --> 00:02:59,160
+where these threads are executing. 
+
+20
+00:02:59,800 --> 00:03:00,870
+And finally, 
+
+21
+00:03:01,660 --> 00:03:06,050
+we talk briefly about this dual mode operation and protections, 
+
+22
+00:03:06,740 --> 00:03:12,510
+which enables a system to access certain resources and manage the processes. 
+
+23
+00:03:12,820 --> 00:03:17,630
+While the same time being protected from the user processes, 
+
+24
+00:03:17,880 --> 00:03:20,720
+changing the operating system. 
+
+25
+00:03:25,780 --> 00:03:26,470
+Today, 
+
+26
+00:03:28,700 --> 00:03:32,050
+we are going to start to finish as the discussion
+
+27
+00:03:32,060 --> 00:03:36,290
+about this dual mode operation and protection from the last lecture. 
+
+28
+00:03:36,490 --> 00:03:43,990
+And then we are going to continue to focus on the main topics of this lecture, 
+
+29
+00:03:44,760 --> 00:03:46,270
+which are the threads. 
+
+30
+00:03:49,380 --> 00:03:49,940
+Okay? 
+
+31
+00:03:51,330 --> 00:03:52,940
+Again, like always,
+
+32
+00:03:53,210 --> 00:04:00,670
+please ask your questions on the q and a I will stop periodically and answer
+
+33
+00:04:00,680 --> 00:04:06,830
+these questions. 
+
+34
+00:04:06,840 --> 00:04:08,260
+So again, 
+
+35
+00:04:08,270 --> 00:04:09,420
+about protection, 
+
+36
+00:04:09,430 --> 00:04:13,980
+what we want is to protect the operating system and the harder by being
+
+37
+00:04:13,990 --> 00:04:16,900
+out from being accessed by the user programs. 
+
+38
+00:04:17,370 --> 00:04:20,060
+User programs changing the state of the operating system
+
+39
+00:04:20,070 --> 00:04:23,380
+and even eventually crashing the system, 
+
+40
+00:04:23,690 --> 00:04:28,790
+or getting and having the system leaking private information
+
+41
+00:04:28,800 --> 00:04:33,400
+about the other users and application sharing the same thing. 
+
+42
+00:04:37,350 --> 00:04:38,780
+If we think about the protection, 
+
+43
+00:04:38,790 --> 00:04:43,200
+you think about what are the resources which are shared
+
+44
+00:04:43,210 --> 00:04:45,910
+between these application and processes? 
+
+45
+00:04:46,270 --> 00:04:48,820
+And how do we need to protect these resources? 
+
+46
+00:04:49,840 --> 00:04:51,190
+One of the key resources, 
+
+47
+00:04:51,200 --> 00:04:53,470
+it obviously is a memory, the other space,
+
+48
+00:04:54,490 --> 00:04:54,920
+right? 
+
+49
+00:04:54,930 --> 00:05:00,220
+Which is shared by the threading the same processes in the same process, 
+
+50
+00:05:00,230 --> 00:05:02,860
+but it's not necessarily shared by different processes. 
+
+51
+00:05:04,070 --> 00:05:07,270
+This is a unit of protection at the same time, the address space.
+
+52
+00:05:12,910 --> 00:05:18,570
+Also remember that what we want here is that we want to decouple
+
+53
+00:05:18,890 --> 00:05:20,320
+the physical memory, 
+
+54
+00:05:20,590 --> 00:05:24,060
+then from what the virtual memory, 
+
+55
+00:05:24,070 --> 00:05:27,220
+which is what the process sees. 
+
+56
+00:05:28,320 --> 00:05:28,750
+Okay? 
+
+57
+00:05:29,620 --> 00:05:35,540
+And the virtual memory is supposed to provide the process, 
+
+58
+00:05:35,550 --> 00:05:40,960
+the illusion that the process owns the entire address space. 
+
+59
+00:05:42,940 --> 00:05:44,140
+On the physical machine, 
+
+60
+00:05:44,150 --> 00:05:45,700
+you have multiple processes. 
+
+61
+00:05:46,140 --> 00:05:50,570
+You have to multiplex the physical memory across different processes. 
+
+62
+00:05:50,880 --> 00:05:54,790
+How you are going to make sure that while you are multiplexing the memory, 
+
+63
+00:05:55,680 --> 00:05:59,990
+you provide boss protection and you provide the illusion to each process
+
+64
+00:06:00,000 --> 00:06:04,150
+that has access to the entire machine to the entire others. 
+
+65
+00:06:05,190 --> 00:06:05,620
+Okay? 
+
+66
+00:06:09,060 --> 00:06:13,810
+One simple solution is to have this base and bound. 
+
+67
+00:06:14,320 --> 00:06:16,530
+On the left hand side, here,
+
+68
+00:06:16,540 --> 00:06:23,230
+you have the layout in the virtual memory of the
+
+69
+00:06:24,950 --> 00:06:28,520
+code and the data of a particular, 
+
+70
+00:06:29,890 --> 00:06:35,150
+basically a thread and process. 
+
+71
+00:06:36,180 --> 00:06:36,640
+Okay. 
+
+72
+00:06:37,570 --> 00:06:39,210
+On the right hand side, 
+
+73
+00:06:39,220 --> 00:06:43,270
+you have how this virtual memory, 
+
+74
+00:06:44,390 --> 00:06:48,640
+this region in the virtual memory are mapped to the physical memory. 
+
+75
+00:06:51,360 --> 00:06:51,790
+Now, 
+
+76
+00:06:52,560 --> 00:06:53,790
+if you think a little bit, 
+
+77
+00:06:54,050 --> 00:06:56,400
+if you have multiple processes and each process, 
+
+78
+00:06:56,730 --> 00:07:01,860
+it has its own view and independent view of its own virtual memory. 
+
+79
+00:07:02,270 --> 00:07:04,990
+Both all of them, they are going to see the same addresses.
+
+80
+00:07:05,510 --> 00:07:05,770
+Right? 
+
+81
+00:07:05,780 --> 00:07:07,210
+They started from zero. 
+
+82
+00:07:07,710 --> 00:07:09,890
+The code will start from other zero. 
+
+83
+00:07:09,900 --> 00:07:10,250
+Right? 
+
+84
+00:07:10,790 --> 00:07:13,650
+Now, when you are going to bring the physical memory,
+
+85
+00:07:13,910 --> 00:07:17,550
+go to map all to map to the physical memory. 
+
+86
+00:07:17,560 --> 00:07:18,090
+Obviously not. 
+
+87
+00:07:18,100 --> 00:07:19,980
+Both processes can start from other zero. 
+
+88
+00:07:20,750 --> 00:07:24,390
+You need to map and to translate the addresses
+
+89
+00:07:24,700 --> 00:07:28,140
+from the virtual memory addresses to the physical memory
+
+90
+00:07:28,150 --> 00:07:29,490
+of different processes. 
+
+91
+00:07:30,290 --> 00:07:32,080
+This is exactly what happens here. 
+
+92
+00:07:32,570 --> 00:07:40,210
+A base a is by how much you are going to translate the virtual the
+
+93
+00:07:40,220 --> 00:07:44,390
+regions in the virtual memory seen by the process to the physical memory. 
+
+94
+00:07:44,670 --> 00:07:45,470
+In this case, 
+
+95
+00:07:46,560 --> 00:07:48,710
+it's like 1000 is based. 
+
+96
+00:07:49,140 --> 00:07:52,760
+So this means that what you are going to do, 
+
+97
+00:07:52,770 --> 00:07:58,030
+you are going to add to each others in the virtual memory of the process, 
+
+98
+00:07:58,270 --> 00:07:59,240
+these base, others,
+
+99
+00:07:59,770 --> 00:08:00,110
+right? 
+
+100
+00:08:00,620 --> 00:08:09,560
+And then the base and the bound represent the region of the physical memory, 
+
+101
+00:08:09,570 --> 00:08:11,040
+which is owned by the process. 
+
+102
+00:08:16,190 --> 00:08:18,090
+So that's kind of the main idea. 
+
+103
+00:08:18,490 --> 00:08:20,650
+Now, when you are going to execute,
+
+104
+00:08:20,940 --> 00:08:25,630
+when the process is going to execute this code, 
+
+105
+00:08:25,870 --> 00:08:28,450
+or is going to access its data, 
+
+106
+00:08:28,690 --> 00:08:33,070
+the address is a process is going to see are the virtual addresses, 
+
+107
+00:08:33,590 --> 00:08:33,990
+right? 
+
+108
+00:08:35,660 --> 00:08:37,210
+But now, obviously,
+
+109
+00:08:37,220 --> 00:08:40,570
+the day towers instructions are in the physical address. 
+
+110
+00:08:41,630 --> 00:08:43,260
+That's what they are actually stopped. 
+
+111
+00:08:44,260 --> 00:08:46,030
+So in order to access those, 
+
+112
+00:08:46,510 --> 00:08:49,660
+they just need to translate all these addresses, 
+
+113
+00:08:49,670 --> 00:08:54,270
+which are accessed from the virtual memory by adding that address to the base. 
+
+114
+00:08:54,280 --> 00:08:57,790
+And now you are going to obtain the corresponding physical memory. 
+
+115
+00:08:58,150 --> 00:09:02,390
+Where is a code or the data it's are stored? 
+
+116
+00:09:04,340 --> 00:09:05,830
+This is exactly what happens here. 
+
+117
+00:09:05,840 --> 00:09:07,680
+You take the virtual address, 
+
+118
+00:09:07,690 --> 00:09:08,920
+you are the base. 
+
+119
+00:09:09,240 --> 00:09:14,000
+And then you are also going to compare with the bound. 
+
+120
+00:09:14,010 --> 00:09:16,040
+So why you are going to compare with the bound now? 
+
+121
+00:09:16,050 --> 00:09:17,240
+Because remember, 
+
+122
+00:09:17,950 --> 00:09:21,260
+this process, which is the memory,
+
+123
+00:09:21,270 --> 00:09:23,380
+mutual memory of this process are yellow, 
+
+124
+00:09:23,560 --> 00:09:28,510
+is mapped in this region in the physical memory between 1 and 1000, 
+
+125
+00:09:28,520 --> 00:09:30,710
+and 11000. 
+
+126
+00:09:31,390 --> 00:09:31,700
+Therefore, 
+
+127
+00:09:31,710 --> 00:09:37,290
+you are going to compare the bound to make sure that the address and it's
+
+128
+00:09:37,300 --> 00:09:39,350
+within this the basin. 
+
+129
+00:09:39,360 --> 00:09:41,330
+The bound falls in this region. 
+
+130
+00:09:42,580 --> 00:09:43,860
+And if you do so, 
+
+131
+00:09:44,170 --> 00:09:51,390
+you also make sure that this process cannot access a any memory
+
+132
+00:09:51,400 --> 00:09:54,250
+locations outside the base and the bound. 
+
+133
+00:09:56,090 --> 00:09:56,480
+Okay? 
+
+134
+00:09:58,810 --> 00:09:59,970
+So outside this region, 
+
+135
+00:10:02,250 --> 00:10:03,920
+and that's basically what it is. 
+
+136
+00:10:04,320 --> 00:10:06,710
+This is what also is called, obviously,
+
+137
+00:10:06,720 --> 00:10:08,030
+address translation, 
+
+138
+00:10:08,590 --> 00:10:11,860
+because you are going to translate an address from the physical memory, 
+
+139
+00:10:11,870 --> 00:10:14,100
+from the official memory to the physical memory. 
+
+140
+00:10:17,950 --> 00:10:20,420
+The question is that now it's very clear, right?
+
+141
+00:10:20,430 --> 00:10:23,420
+I am going to split the physical memory in different regions. 
+
+142
+00:10:23,430 --> 00:10:26,060
+Each region has going to have a basin bound, 
+
+143
+00:10:26,370 --> 00:10:30,160
+which says, what is the minimum and the maximum address of the region?
+
+144
+00:10:30,170 --> 00:10:34,910
+And then you are going to make sure that each you are going to translate
+
+145
+00:10:35,660 --> 00:10:38,060
+the virtual memory of every
+
+146
+00:10:38,070 --> 00:10:46,010
+process within to one of these virtual one of these regions in the physical
+
+147
+00:10:46,020 --> 00:10:46,330
+memory. 
+
+148
+00:10:46,690 --> 00:10:52,210
+And then you make sure that you translate whenever you are going to access
+
+149
+00:10:52,220 --> 00:10:53,650
+any or on a process, 
+
+150
+00:10:53,660 --> 00:10:55,890
+access any man, any.
+
+151
+00:10:57,150 --> 00:10:58,190
+It's virtual memory. 
+
+152
+00:10:58,200 --> 00:11:00,990
+You translate that address to the physical memory. 
+
+153
+00:11:01,000 --> 00:11:08,690
+And you also make sure that the process cannot address a location of the memory
+
+154
+00:11:08,700 --> 00:11:11,810
+in or of the physical memory outside this region. 
+
+155
+00:11:14,090 --> 00:11:14,880
+How do you do that? 
+
+156
+00:11:15,660 --> 00:11:21,130
+One way to do it is to do it when you load the program, 
+
+157
+00:11:23,270 --> 00:11:24,460
+you compile the program. 
+
+158
+00:11:24,470 --> 00:11:28,000
+So everything in the program is the code of the program refers
+
+159
+00:11:28,010 --> 00:11:30,000
+to the virtual memory addresses. 
+
+160
+00:11:30,210 --> 00:11:33,010
+But then when the operating system loads, 
+
+161
+00:11:33,020 --> 00:11:37,460
+the program in the physical memory is doing translation. 
+
+162
+00:11:37,470 --> 00:11:39,580
+At the low time it's overwrite, 
+
+163
+00:11:39,590 --> 00:11:44,230
+the address is in the code with the translated values. 
+
+164
+00:11:46,620 --> 00:11:48,330
+This is one way to do it, right?
+
+165
+00:11:48,910 --> 00:11:55,020
+It's still going to protect the operating system and isolate the program. 
+
+166
+00:11:55,030 --> 00:11:59,530
+And there is requires no support from the operator, 
+
+167
+00:11:59,540 --> 00:12:01,710
+no support from the hardware, 
+
+168
+00:12:01,720 --> 00:12:05,550
+and even the support from the operator or the operating system. 
+
+169
+00:12:09,130 --> 00:12:11,280
+Because these are enforced on your loads of program. 
+
+170
+00:12:11,290 --> 00:12:15,400
+You make sure that all the address is folded a in a particular range. 
+
+171
+00:12:15,880 --> 00:12:19,240
+And that's it. 
+
+172
+00:12:23,490 --> 00:12:25,400
+So is there a question, 
+
+173
+00:12:25,770 --> 00:12:28,200
+if you have 100 physical address space? 
+
+174
+00:12:28,210 --> 00:12:31,040
+Is it possible to get 1,000 virtual address spaces? 
+
+175
+00:12:31,670 --> 00:12:34,290
+If so, could you go over how that works again?
+
+176
+00:12:34,300 --> 00:12:36,360
+This is a great question. 
+
+177
+00:12:36,620 --> 00:12:38,290
+I'm going to give a quick answer. 
+
+178
+00:12:38,300 --> 00:12:38,850
+Now. 
+
+179
+00:12:38,900 --> 00:12:43,290
+We are going to have an entire lecture about our even more than our lecture
+
+180
+00:12:43,300 --> 00:12:44,440
+about how to do this. 
+
+181
+00:12:44,830 --> 00:12:51,030
+The answer is you can have virtual address space can be, 
+
+182
+00:12:51,040 --> 00:12:54,670
+and it is much higher than the other can be
+
+183
+00:12:54,680 --> 00:12:56,590
+much higher than the physical address space. 
+
+184
+00:12:57,140 --> 00:12:57,650
+For instance, 
+
+185
+00:12:58,740 --> 00:13:00,890
+if you have a 64 bits computer, 
+
+186
+00:13:01,370 --> 00:13:02,640
+the address space, 
+
+187
+00:13:04,120 --> 00:13:06,360
+it's two power, 64,
+
+188
+00:13:07,180 --> 00:13:07,540
+right? 
+
+189
+00:13:07,900 --> 00:13:12,420
+And you are not going to have a machine with so much memory. 
+
+190
+00:13:13,930 --> 00:13:14,290
+Right? 
+
+191
+00:13:15,330 --> 00:13:17,360
+In this, because what other mean?
+
+192
+00:13:17,370 --> 00:13:20,840
+I think it's four gigabytes is probably 16 terabyte or something
+
+193
+00:13:20,850 --> 00:13:24,530
+like that or more of them of memory. 
+
+194
+00:13:25,480 --> 00:13:30,150
+And then you need to figure out how you are going to do it. 
+
+195
+00:13:30,510 --> 00:13:35,120
+The way is that you do it is that you are going to have, 
+
+196
+00:13:36,260 --> 00:13:37,450
+first of all, the application,
+
+197
+00:13:37,460 --> 00:13:40,770
+i'm not going to use the entire other space logically are going to have
+
+198
+00:13:40,780 --> 00:13:44,690
+these 2.2.2 to power 64 address strain in space. 
+
+199
+00:13:45,020 --> 00:13:46,230
+But you are not going to use it. 
+
+200
+00:13:46,870 --> 00:13:48,820
+And then what you are going to have, 
+
+201
+00:13:49,090 --> 00:13:50,480
+you are going to have pages, 
+
+202
+00:13:51,080 --> 00:13:55,980
+and you are going to instantiate in the physical memory, 
+
+203
+00:13:55,990 --> 00:13:59,500
+only the pages which are corresponding to the virtual memory, 
+
+204
+00:13:59,770 --> 00:14:01,050
+which are used by the program. 
+
+205
+00:14:03,020 --> 00:14:07,010
+If you exceed the capacity of the physical memories, 
+
+206
+00:14:07,020 --> 00:14:09,290
+and you are going to take some pages which are not used, 
+
+207
+00:14:09,300 --> 00:14:10,730
+and you are going to put them on the disk. 
+
+208
+00:14:16,410 --> 00:14:18,750
+That's kind of in and pages it. 
+
+209
+00:14:18,760 --> 00:14:21,410
+Again, it's a chunk of physical memory,
+
+210
+00:14:21,700 --> 00:14:28,450
+and also a chunk of the challenge like for kilobytes or 16 kilobytes. 
+
+211
+00:14:29,710 --> 00:14:31,590
+So a question here is, 
+
+212
+00:14:31,600 --> 00:14:34,620
+what do we need to relocate as a louder? 
+
+213
+00:14:39,580 --> 00:14:39,970
+It's again, 
+
+214
+00:14:40,260 --> 00:14:45,800
+I what I mean by this is that when you start an application in this case, 
+
+215
+00:14:45,810 --> 00:14:47,800
+and this is a more theoretical, 
+
+216
+00:14:47,810 --> 00:14:49,520
+not many systems are doing this today, 
+
+217
+00:14:50,080 --> 00:14:50,700
+you're facing, right?
+
+218
+00:14:50,940 --> 00:14:53,000
+It's in theory of how you can do it. 
+
+219
+00:14:54,720 --> 00:14:57,800
+So if you think about here, 
+
+220
+00:14:58,160 --> 00:15:01,780
+again, it's like when I the code,
+
+221
+00:15:01,790 --> 00:15:03,860
+when it's generated by the compiler, 
+
+222
+00:15:04,370 --> 00:15:05,340
+has a virtual address. 
+
+223
+00:15:06,190 --> 00:15:06,470
+Right? 
+
+224
+00:15:06,720 --> 00:15:07,940
+It's using the virtual addresses, 
+
+225
+00:15:08,690 --> 00:15:11,490
+because the code, when the compiler generates a code,
+
+226
+00:15:11,500 --> 00:15:13,450
+doesn't know anything about the physical memory. 
+
+227
+00:15:15,260 --> 00:15:15,900
+And he shouldn't. 
+
+228
+00:15:17,180 --> 00:15:21,300
+But now, when you are going to allow to load that code in the memory,
+
+229
+00:15:21,610 --> 00:15:25,270
+you need to make sure that code and the data associated
+
+230
+00:15:25,280 --> 00:15:29,080
+with the application are only going to be constrained
+
+231
+00:15:29,090 --> 00:15:30,360
+in a particular region, 
+
+232
+00:15:30,370 --> 00:15:31,400
+in the physical memory, 
+
+233
+00:15:34,430 --> 00:15:37,460
+because you want to protect other processes and the operating system
+
+234
+00:15:37,470 --> 00:15:38,940
+from the application, 
+
+235
+00:15:38,950 --> 00:15:41,830
+or we are just starting to run. 
+
+236
+00:15:42,560 --> 00:15:42,870
+Right? 
+
+237
+00:15:43,290 --> 00:15:43,940
+So now, 
+
+238
+00:15:44,620 --> 00:15:45,130
+basically, 
+
+239
+00:15:45,140 --> 00:15:52,110
+when the louder is that the code and everything and in the physical memory, 
+
+240
+00:15:52,580 --> 00:15:57,060
+so you make sure that the code and everything, 
+
+241
+00:15:57,310 --> 00:15:59,380
+which is going to be accessed by the application, 
+
+242
+00:15:59,590 --> 00:16:01,420
+which is in this region, 
+
+243
+00:16:01,820 --> 00:16:03,290
+defined by the basin bound. 
+
+244
+00:16:03,660 --> 00:16:05,960
+And the operating system will decide which region is that. 
+
+245
+00:16:07,720 --> 00:16:08,120
+Right? 
+
+246
+00:16:08,740 --> 00:16:10,250
+But now, for instance,
+
+247
+00:16:10,260 --> 00:16:16,590
+if the program say it was jumped to 00 to a particular virtual address. 
+
+248
+00:16:16,830 --> 00:16:18,760
+Now, when I load it in the physical memory,
+
+249
+00:16:18,770 --> 00:16:20,140
+that address has to be changed. 
+
+250
+00:16:21,420 --> 00:16:21,780
+Right? 
+
+251
+00:16:22,980 --> 00:16:24,050
+Like in this case, right?
+
+252
+00:16:24,060 --> 00:16:25,920
+Because the address, 
+
+253
+00:16:26,290 --> 00:16:28,080
+for instance, 000here,
+
+254
+00:16:28,410 --> 00:16:33,240
+I when one is going to be loaded in the memory of the physical memory, 
+
+255
+00:16:33,250 --> 00:16:34,260
+should be issues. 
+
+256
+00:16:34,270 --> 00:16:36,640
+It should become 1000. 
+
+257
+00:16:37,700 --> 00:16:38,570
+That's what means. 
+
+258
+00:16:39,010 --> 00:16:44,870
+It means that you want to have to override the addresses in the code, 
+
+259
+00:16:44,880 --> 00:16:46,430
+the program executable, 
+
+260
+00:16:46,690 --> 00:16:51,920
+so that you make sure that these addresses are going to be
+
+261
+00:16:51,930 --> 00:16:56,620
+within this region allocated by the operating system to the application. 
+
+262
+00:17:07,070 --> 00:17:09,220
+How if can you constrain low stores? 
+
+263
+00:17:09,230 --> 00:17:12,300
+What if a program asked too much to a pointer at run time? 
+
+264
+00:17:12,840 --> 00:17:14,030
+That's a great point. 
+
+265
+00:17:14,040 --> 00:17:18,790
+So basically saying what if the program being something at the run time, 
+
+266
+00:17:19,040 --> 00:17:21,620
+which I cannot predict, because it's happening as a run time.
+
+267
+00:17:22,070 --> 00:17:23,530
+So that's how you do exactly this. 
+
+268
+00:17:23,860 --> 00:17:25,290
+It's the way you do it. 
+
+269
+00:17:25,300 --> 00:17:29,080
+It's like when the program is going to, 
+
+270
+00:17:30,480 --> 00:17:33,270
+you add something to your pointer, to your address,
+
+271
+00:17:33,800 --> 00:17:38,790
+you are going to have to look to have an address here. 
+
+272
+00:17:39,060 --> 00:17:44,820
+If the others is bigger than this, the bound,
+
+273
+00:17:45,190 --> 00:17:51,390
+then you are going to preclude that instruction from executing. 
+
+274
+00:17:51,400 --> 00:17:54,910
+You can be, depending on the operating system, this can be a segment.
+
+275
+00:17:55,480 --> 00:17:57,390
+You can get a segmentation for there. 
+
+276
+00:18:02,120 --> 00:18:02,280
+Right? 
+
+277
+00:18:03,760 --> 00:18:05,650
+Again, these checks may be written.
+
+278
+00:18:06,010 --> 00:18:07,990
+It's again, you can have like cuisines and future.
+
+279
+00:18:08,000 --> 00:18:10,240
+You can be harder support to make this check. 
+
+280
+00:18:10,690 --> 00:18:15,620
+But if not, the actually program the loader,
+
+281
+00:18:15,630 --> 00:18:16,660
+when you load the program, 
+
+282
+00:18:16,670 --> 00:18:21,360
+you can add these instructions when you have an address which is computed
+
+283
+00:18:21,370 --> 00:18:22,320
+at the run time. 
+
+284
+00:18:22,750 --> 00:18:22,990
+To check, 
+
+285
+00:18:23,000 --> 00:18:26,630
+you can have additional code to check whether the address is going to be
+
+286
+00:18:26,640 --> 00:18:27,670
+greater than the bound. 
+
+287
+00:18:32,000 --> 00:18:33,500
+Hopefully answer your question. 
+
+288
+00:18:37,260 --> 00:18:38,220
+Yeah, so is the law.
+
+289
+00:18:38,230 --> 00:18:40,740
+There is a one checking that the address reference is followed
+
+290
+00:18:40,750 --> 00:18:42,500
+in the base and bound. 
+
+291
+00:18:42,990 --> 00:18:44,780
+If you have no harder support. 
+
+292
+00:18:45,000 --> 00:18:46,270
+The loader, like I said,
+
+293
+00:18:46,280 --> 00:18:50,230
+is going to add a canada additional code to check for that. 
+
+294
+00:18:53,460 --> 00:18:55,530
+But if you have harder support or the operating, 
+
+295
+00:18:55,980 --> 00:18:57,970
+then that like we say, 
+
+296
+00:18:58,100 --> 00:18:59,310
+we'll see in the next Slide, 
+
+297
+00:18:59,320 --> 00:19:01,150
+it can work in the next few slides. 
+
+298
+00:19:01,160 --> 00:19:03,780
+I think it will be handled by the harder. 
+
+299
+00:19:05,440 --> 00:19:06,400
+This is a very simple. 
+
+300
+00:19:06,410 --> 00:19:07,450
+This is a baseline, right?
+
+301
+00:19:07,460 --> 00:19:12,170
+So I think we should move on because this is something for you to know
+
+302
+00:19:12,180 --> 00:19:12,860
+that it's possible, 
+
+303
+00:19:12,870 --> 00:19:17,050
+but it's not really how it's implemented today in the operating system. 
+
+304
+00:19:17,700 --> 00:19:20,250
+What do you have in the operating system? 
+
+305
+00:19:20,260 --> 00:19:23,770
+Is that you have what translation happened as a run time. 
+
+306
+00:19:25,770 --> 00:19:27,520
+You have a virtual address, you have like,
+
+307
+00:19:27,530 --> 00:19:29,520
+if you think about the processor has a built, 
+
+308
+00:19:29,770 --> 00:19:31,160
+you are going to run on the processor, 
+
+309
+00:19:31,170 --> 00:19:32,920
+you got going to give a virtual address. 
+
+310
+00:19:33,220 --> 00:19:34,200
+And then magically, 
+
+311
+00:19:34,210 --> 00:19:38,980
+the translation will happen between when before you access a memoir. 
+
+312
+00:19:40,520 --> 00:19:40,890
+Right? 
+
+313
+00:19:44,310 --> 00:19:47,540
+But this is so the address is translating on the fly. 
+
+314
+00:19:47,550 --> 00:19:49,300
+And in this particular case, 
+
+315
+00:19:49,510 --> 00:19:51,820
+typically, you have to have harder support.
+
+316
+00:19:53,080 --> 00:19:54,990
+So now think about that in law, 
+
+317
+00:19:55,000 --> 00:19:56,230
+in instead of doing that, 
+
+318
+00:19:56,240 --> 00:19:57,510
+the law that is doing it, 
+
+319
+00:19:57,710 --> 00:19:59,660
+when you are going, it's allowed that is not doing anything.
+
+320
+00:20:00,270 --> 00:20:01,660
+You're still loud. 
+
+321
+00:20:01,930 --> 00:20:06,370
+The data in the memory is the code and the data in the memory. 
+
+322
+00:20:06,680 --> 00:20:07,340
+But now, 
+
+323
+00:20:08,390 --> 00:20:10,850
+when the code is still contains a virtual address, 
+
+324
+00:20:11,620 --> 00:20:15,840
+but now when the code start to execute the ability to refer to a virtual address, 
+
+325
+00:20:16,070 --> 00:20:19,930
+the virtual address is automatically it's on the flight translated
+
+326
+00:20:20,170 --> 00:20:22,760
+by the harder to a virtual address, 
+
+327
+00:20:23,330 --> 00:20:23,520
+to, 
+
+328
+00:20:24,730 --> 00:20:25,810
+sorry, the physical address.
+
+329
+00:20:26,260 --> 00:20:27,170
+So base address, 
+
+330
+00:20:27,180 --> 00:20:31,140
+it's every time when you are going to refer to the physical memory
+
+331
+00:20:31,150 --> 00:20:32,300
+from the processor, 
+
+332
+00:20:32,310 --> 00:20:33,620
+you get the virtual memory, 
+
+333
+00:20:33,630 --> 00:20:35,460
+because this is what is in the code. 
+
+334
+00:20:36,170 --> 00:20:39,670
+But before you asked the physical memory, 
+
+335
+00:20:39,910 --> 00:20:44,110
+then you are going the harder is going to add to the mutual address, 
+
+336
+00:20:44,460 --> 00:20:46,860
+the base address this. 
+
+337
+00:20:47,190 --> 00:20:51,630
+And now you are going to access the correct physical address instead of memory. 
+
+338
+00:20:52,440 --> 00:20:55,160
+And also the harder can also check for the bound. 
+
+339
+00:21:01,500 --> 00:21:03,650
+I'm looking again on the question. 
+
+340
+00:21:03,850 --> 00:21:05,380
+So he's allowed us on to, 
+
+341
+00:21:05,660 --> 00:21:07,000
+no, this is how does.
+
+342
+00:21:09,950 --> 00:21:13,200
+So he's allowed us on checking that the address references followed in. 
+
+343
+00:21:13,440 --> 00:21:15,110
+Yeah, ii think I asked the question.
+
+344
+00:21:15,120 --> 00:21:18,110
+The answer is, how does a lottery sizes are based on the boundary,
+
+345
+00:21:18,120 --> 00:21:23,430
+particularly or in whatever scheme we used to keep the protection between processes? 
+
+346
+00:21:24,070 --> 00:21:27,030
+How do we size up the expected size of physical memory? 
+
+347
+00:21:27,040 --> 00:21:28,380
+A process should be allocated? 
+
+348
+00:21:28,710 --> 00:21:36,590
+These are great questions to ensure the operating system should provide you
+
+349
+00:21:36,600 --> 00:21:37,940
+what it is a basin, 
+
+350
+00:21:37,950 --> 00:21:39,290
+the bound for each process. 
+
+351
+00:21:40,970 --> 00:21:43,070
+How much you are going to allocate? 
+
+352
+00:21:43,380 --> 00:21:44,680
+This can be, 
+
+353
+00:21:46,120 --> 00:21:47,750
+it's a typical, it's a default.
+
+354
+00:21:47,760 --> 00:21:49,990
+You can actually ask also configure it. 
+
+355
+00:21:52,280 --> 00:21:53,390
+For the operating system, 
+
+356
+00:21:53,400 --> 00:21:54,790
+you are going to say, 
+
+357
+00:21:54,800 --> 00:21:56,190
+you can say how much. 
+
+358
+00:21:56,960 --> 00:22:00,080
+But today, 
+
+359
+00:22:00,090 --> 00:22:03,520
+these hard questions are addressed by visualizing the memory. 
+
+360
+00:22:03,530 --> 00:22:05,640
+We are going to learn about that more. 
+
+361
+00:22:06,510 --> 00:22:07,140
+But these are, 
+
+362
+00:22:08,350 --> 00:22:11,420
+if you don't have that flexibility of the real digital memory, 
+
+363
+00:22:11,790 --> 00:22:12,710
+these are the hard questions. 
+
+364
+00:22:12,720 --> 00:22:16,440
+And you need to pick some numbers like each, 
+
+365
+00:22:17,240 --> 00:22:18,870
+say, share process.
+
+366
+00:22:18,880 --> 00:22:21,310
+You're going to get exactly a regional for gigabytes. 
+
+367
+00:22:24,050 --> 00:22:27,480
+So it is the os that relocates the louder. 
+
+368
+00:22:27,490 --> 00:22:30,910
+So though the os in this particular case, again,
+
+369
+00:22:30,920 --> 00:22:35,400
+you are going to provide the base and the bound. 
+
+370
+00:22:36,200 --> 00:22:45,340
+And the louder it is a utility which comes with the operating system. 
+
+371
+00:22:45,610 --> 00:22:47,380
+And then once of loaders you give, 
+
+372
+00:22:47,390 --> 00:22:48,540
+the loaders are based, 
+
+373
+00:22:48,550 --> 00:22:52,330
+and the loader cells are based on the bound. 
+
+374
+00:22:52,640 --> 00:22:55,210
+Like I discussed, it's going to override.
+
+375
+00:22:55,430 --> 00:22:58,180
+The address is in the code before it loads it, 
+
+376
+00:22:59,400 --> 00:23:00,150
+physical memory. 
+
+377
+00:23:00,160 --> 00:23:04,870
+But ii really want to emphasize and re emphasize that what actually things
+
+378
+00:23:04,880 --> 00:23:09,000
+happen today is that it's not the louder relocating the code. 
+
+379
+00:23:09,210 --> 00:23:11,800
+Is what happens today is like in this slide, 
+
+380
+00:23:12,030 --> 00:23:16,380
+where their visualization and the translation of the address is happens
+
+381
+00:23:16,390 --> 00:23:18,590
+at run time any harder. 
+
+382
+00:23:23,160 --> 00:23:24,470
+Let's move on. 
+
+383
+00:23:24,480 --> 00:23:27,650
+We have a lot of to cover. 
+
+384
+00:23:28,070 --> 00:23:28,550
+Okay. 
+
+385
+00:23:30,210 --> 00:23:32,430
+It's, again, can the program, in this case,
+
+386
+00:23:32,720 --> 00:23:35,220
+touch os can you touch other programs? 
+
+387
+00:23:37,370 --> 00:23:38,810
+Why don't you start to? 
+
+388
+00:23:43,270 --> 00:23:43,900
+What do you think? 
+
+389
+00:23:44,710 --> 00:23:50,020
+You can maybe give your answers on on chat or the q and a
+
+390
+00:23:58,380 --> 00:24:00,280
+add on very good now. 
+
+391
+00:24:00,290 --> 00:24:03,620
+And I see a lot of notes. 
+
+392
+00:24:03,630 --> 00:24:07,950
+It's absolutely correct because if you cannot fundamentally, 
+
+393
+00:24:07,960 --> 00:24:10,110
+if you look at these schemes, 
+
+394
+00:24:11,190 --> 00:24:14,560
+the program cannot access a physical address
+
+395
+00:24:14,790 --> 00:24:18,760
+between outside the base address and the bounds. 
+
+396
+00:24:19,430 --> 00:24:20,570
+As simple as that you cannot. 
+
+397
+00:24:21,750 --> 00:24:22,130
+Right? 
+
+398
+00:24:22,390 --> 00:24:24,030
+Because the address, by definition,
+
+399
+00:24:24,040 --> 00:24:25,830
+is higher than the base, 
+
+400
+00:24:25,840 --> 00:24:27,990
+because you are the current address, 
+
+401
+00:24:28,130 --> 00:24:31,820
+the virtual address, which is greater or equal to zero, right?
+
+402
+00:24:31,830 --> 00:24:32,700
+To obey the address, 
+
+403
+00:24:32,930 --> 00:24:35,120
+you have to get something greater than the base address. 
+
+404
+00:24:35,330 --> 00:24:39,680
+And before you are going to refer the physical memory, 
+
+405
+00:24:39,690 --> 00:24:44,190
+you also compare this address with a bound. 
+
+406
+00:24:44,200 --> 00:24:45,880
+And if it's larger, 
+
+407
+00:24:45,890 --> 00:24:50,300
+you are not going to let the program add as a physical memory. 
+
+408
+00:24:51,740 --> 00:24:53,070
+So by construction, 
+
+409
+00:24:53,310 --> 00:24:57,400
+you cannot access the memory outside the base address in the bound. 
+
+410
+00:24:58,210 --> 00:24:58,760
+Very good. 
+
+411
+00:24:59,300 --> 00:25:00,680
+You cannot touch other programs, 
+
+412
+00:25:00,690 --> 00:25:03,550
+you cannot touch the operating system. 
+
+413
+00:25:03,560 --> 00:25:03,750
+Okay? 
+
+414
+00:25:05,230 --> 00:25:05,900
+Now, 
+
+415
+00:25:05,910 --> 00:25:09,900
+let's see about how things happen here when you have in a little bit more detail. 
+
+416
+00:25:11,570 --> 00:25:12,680
+In this particular case. 
+
+417
+00:25:13,510 --> 00:25:16,940
+Remember that for the protection and the dual mode operation, 
+
+418
+00:25:16,950 --> 00:25:18,140
+you have this kind of bit. 
+
+419
+00:25:18,150 --> 00:25:23,420
+You mentioned that is say it's a one when you system mode and one is zero, 
+
+420
+00:25:23,430 --> 00:25:24,920
+and it's a user mode. 
+
+421
+00:25:25,350 --> 00:25:28,090
+And this beat this girl when you are in the system, 
+
+422
+00:25:28,100 --> 00:25:32,370
+or you are going to be able to add to have to access more resources
+
+423
+00:25:32,380 --> 00:25:34,680
+and also access even
+
+424
+00:25:37,340 --> 00:25:40,540
+the data and of the processes. 
+
+425
+00:25:41,420 --> 00:25:44,610
+Here you have like n processes and you have the operating system. 
+
+426
+00:25:44,940 --> 00:25:47,170
+On the left hand side, on the right hand side,
+
+427
+00:25:47,180 --> 00:25:49,930
+here is the layout in the physical memory. 
+
+428
+00:25:50,190 --> 00:25:52,690
+With gray is the operating system. 
+
+429
+00:25:53,130 --> 00:25:54,690
+So it's at the top. 
+
+430
+00:25:55,470 --> 00:26:01,390
+And then with yellow and green, 
+
+431
+00:26:01,400 --> 00:26:05,150
+you have the physical memory, 
+
+432
+00:26:05,310 --> 00:26:10,300
+which is allocated to these two for us to put the process one and process
+
+433
+00:26:10,310 --> 00:26:10,780
+to respect. 
+
+434
+00:26:11,510 --> 00:26:11,870
+Right? 
+
+435
+00:26:12,470 --> 00:26:16,780
+Initially, let's assume that the physical the operating system executes.
+
+436
+00:26:18,060 --> 00:26:19,210
+You can see here, 
+
+437
+00:26:20,620 --> 00:26:21,450
+these are registers. 
+
+438
+00:26:21,460 --> 00:26:23,450
+You have the cis mode is set one. 
+
+439
+00:26:24,230 --> 00:26:27,630
+You have a base and a bound for the operating system. 
+
+440
+00:26:28,490 --> 00:26:32,860
+You have the this is a user program counter. 
+
+441
+00:26:32,870 --> 00:26:35,110
+We are going to see how this is used, 
+
+442
+00:26:35,120 --> 00:26:36,610
+and you have the program counter. 
+
+443
+00:26:36,810 --> 00:26:39,640
+This is a counter of the current instruction, 
+
+444
+00:26:39,650 --> 00:26:41,960
+which is now run by the operator, 
+
+445
+00:26:41,970 --> 00:26:43,280
+executed by the operating system, 
+
+446
+00:26:43,290 --> 00:26:44,680
+and you have a bunch of registers. 
+
+447
+00:26:45,380 --> 00:26:45,620
+Right? 
+
+448
+00:26:48,390 --> 00:26:49,100
+Now, 
+
+449
+00:26:50,510 --> 00:26:53,170
+what we want is basically say, 
+
+450
+00:26:53,760 --> 00:26:57,110
+we are going to move to, 
+
+451
+00:26:59,000 --> 00:27:07,330
+we are going to to give the control to, 
+
+452
+00:27:07,340 --> 00:27:15,450
+and we are going to give us a control to to a process, 
+
+453
+00:27:18,060 --> 00:27:20,310
+in this case, to the yellow process.
+
+454
+00:27:21,560 --> 00:27:23,210
+So how we are going to give the contract? 
+
+455
+00:27:23,710 --> 00:27:24,100
+Well, 
+
+456
+00:27:24,720 --> 00:27:27,080
+to give the control to this process, 
+
+457
+00:27:27,420 --> 00:27:34,480
+first of all, we are going to set up in the upc the user program counter.
+
+458
+00:27:34,490 --> 00:27:38,240
+You are going to say the current program counter for the yellow process, 
+
+459
+00:27:38,250 --> 00:27:43,760
+a process to we are going to set up all the registers for the processor. 
+
+460
+00:27:44,030 --> 00:27:45,390
+What are these registers? 
+
+461
+00:27:45,400 --> 00:27:47,340
+All this information is contained? 
+
+462
+00:27:47,610 --> 00:27:50,710
+This information is contained in the thread control block. 
+
+463
+00:27:51,340 --> 00:27:51,720
+Right? 
+
+464
+00:27:51,980 --> 00:27:55,020
+It each process has at least one threat, remember,
+
+465
+00:27:55,700 --> 00:27:58,650
+and or were, 
+
+466
+00:27:59,740 --> 00:28:01,170
+in particular, this data,
+
+467
+00:28:01,180 --> 00:28:02,970
+it's the threat control block, 
+
+468
+00:28:02,980 --> 00:28:07,200
+which associated with the thread is it's managed and it's maintained
+
+469
+00:28:07,210 --> 00:28:08,920
+by the operating system itself. 
+
+470
+00:28:08,930 --> 00:28:09,520
+Okay? 
+
+471
+00:28:09,940 --> 00:28:14,430
+The operating system wants to run the process to, in this case,
+
+472
+00:28:14,440 --> 00:28:18,010
+is going to the threat control block of process, too,
+
+473
+00:28:18,020 --> 00:28:20,770
+and take the information and popularize the registers. 
+
+474
+00:28:21,260 --> 00:28:21,590
+Right? 
+
+475
+00:28:23,150 --> 00:28:24,700
+So now, 
+
+476
+00:28:26,330 --> 00:28:29,440
+you is a privilege instruction, privilege, instruction, or instruction,
+
+477
+00:28:29,450 --> 00:28:32,400
+which can be executed only by the operating system. 
+
+478
+00:28:34,140 --> 00:28:40,090
+Then you return by return here in this rtu is the return to user. 
+
+479
+00:28:40,390 --> 00:28:44,620
+It's a special instruction which basically now gives once you populate
+
+480
+00:28:44,630 --> 00:28:48,010
+the registers with all the
+
+481
+00:28:48,020 --> 00:28:54,110
+information relevant state information of the corresponding process, 
+
+482
+00:28:54,450 --> 00:28:56,880
+then you are going to give control to the process. 
+
+483
+00:28:57,310 --> 00:28:59,410
+And as you can see, 
+
+484
+00:28:59,830 --> 00:29:02,350
+then what happens in the return instruction? 
+
+485
+00:29:02,590 --> 00:29:05,670
+You copy the in the program counter, 
+
+486
+00:29:05,680 --> 00:29:07,030
+user program counter. 
+
+487
+00:29:07,040 --> 00:29:09,150
+Now it becomes the main program counter, 
+
+488
+00:29:09,160 --> 00:29:13,170
+because now you have to start executing the code of the process to. 
+
+489
+00:29:13,530 --> 00:29:17,860
+And now you execute the code of the process to which will only everything
+
+490
+00:29:17,870 --> 00:29:22,320
+will be constrained between the base and about that. 
+
+491
+00:29:24,580 --> 00:29:33,780
+So this is how you switch between in between the operating system and the process. 
+
+492
+00:29:33,980 --> 00:29:34,350
+Right? 
+
+493
+00:29:35,660 --> 00:29:39,130
+Kernel a is a core part of the operating system, 
+
+494
+00:29:39,140 --> 00:29:42,090
+which always resides in a memory, always.
+
+495
+00:29:44,480 --> 00:29:46,360
+It's always so to speak around. 
+
+496
+00:29:47,500 --> 00:29:47,760
+Right? 
+
+497
+00:29:48,160 --> 00:29:52,750
+So how do you now switch between one process to another process? 
+
+498
+00:29:52,880 --> 00:29:55,070
+How do you switch from process two to process one? 
+
+499
+00:29:56,340 --> 00:30:01,480
+The way you do it is that who is going to do the switch operating system. 
+
+500
+00:30:02,220 --> 00:30:03,070
+So therefore, 
+
+501
+00:30:03,080 --> 00:30:07,320
+you first need to switch from process to to promote the operating system
+
+502
+00:30:07,330 --> 00:30:11,040
+in front or the kernel and from that kernel to the processor. 
+
+503
+00:30:14,010 --> 00:30:14,950
+What do you need to do? 
+
+504
+00:30:16,780 --> 00:30:19,800
+First of all, you need to say,
+
+505
+00:30:20,500 --> 00:30:23,680
+when you switch from a process like index this process to, 
+
+506
+00:30:23,690 --> 00:30:30,120
+you need to save the entire running state in that control blocks, 
+
+507
+00:30:32,450 --> 00:30:35,190
+which means the current program counter, 
+
+508
+00:30:36,510 --> 00:30:38,400
+the point of the stack, 
+
+509
+00:30:38,790 --> 00:30:41,820
+point of the hip and everything. 
+
+510
+00:30:44,010 --> 00:30:44,770
+So, 
+
+511
+00:30:47,890 --> 00:30:49,700
+and then basically, 
+
+512
+00:30:49,710 --> 00:30:51,580
+you are going to return to the system. 
+
+513
+00:30:51,590 --> 00:30:53,100
+The system is going to decide, 
+
+514
+00:30:54,700 --> 00:30:56,530
+which is the next process to run. 
+
+515
+00:30:57,150 --> 00:31:03,830
+And then is going to restore the state for the process it wants to run
+
+516
+00:31:03,840 --> 00:31:05,630
+by populating the registers, 
+
+517
+00:31:05,640 --> 00:31:11,270
+and then is going to give control to the next process like process one. 
+
+518
+00:31:11,990 --> 00:31:13,490
+Right now, 
+
+519
+00:31:13,780 --> 00:31:15,040
+there are many ways to, 
+
+520
+00:31:15,050 --> 00:31:18,630
+there are a few ways to return to the actually, 
+
+521
+00:31:18,640 --> 00:31:22,160
+to return the control to the kernel. 
+
+522
+00:31:24,000 --> 00:31:24,310
+Right? 
+
+523
+00:31:24,320 --> 00:31:26,230
+One, it's about a system called,
+
+524
+00:31:27,890 --> 00:31:28,340
+okay, 
+
+525
+00:31:28,860 --> 00:31:29,990
+a system call. 
+
+526
+00:31:30,380 --> 00:31:32,270
+There are many system calls. 
+
+527
+00:31:35,570 --> 00:31:39,480
+Every service which is provided by the operating system to the application. 
+
+528
+00:31:39,490 --> 00:31:42,310
+You remember about this kind of glue, right?
+
+529
+00:31:42,320 --> 00:31:44,310
+The operating system can be seen as a glue, 
+
+530
+00:31:44,320 --> 00:31:48,310
+providing common services to the applications and also providing services
+
+531
+00:31:48,320 --> 00:31:49,720
+for the application, 
+
+532
+00:31:49,940 --> 00:31:51,910
+trying to communicate with each other. 
+
+533
+00:31:53,400 --> 00:31:57,580
+But for invoking any of these setting of services provided
+
+534
+00:31:57,590 --> 00:31:58,940
+by the operating system, 
+
+535
+00:31:58,950 --> 00:32:00,640
+you are going to have, 
+
+536
+00:32:00,650 --> 00:32:03,530
+typically you have a system call, right?
+
+537
+00:32:04,400 --> 00:32:07,270
+And again, the services can be file systems,
+
+538
+00:32:07,830 --> 00:32:10,310
+meta communications and much more. 
+
+539
+00:32:11,270 --> 00:32:11,680
+Okay. 
+
+540
+00:32:12,150 --> 00:32:15,100
+This is invoking is like a function invoking, 
+
+541
+00:32:15,110 --> 00:32:17,690
+a functionality provided by the operating system, 
+
+542
+00:32:18,390 --> 00:32:19,200
+open a file. 
+
+543
+00:32:21,890 --> 00:32:27,240
+The way you do it, each distant call has aa particular identifier.
+
+544
+00:32:27,800 --> 00:32:31,310
+Therefore, what you do as an application,
+
+545
+00:32:31,320 --> 00:32:34,790
+the application code is set is putting in some register. 
+
+546
+00:32:35,040 --> 00:32:39,420
+This I can identify and some other registered the argument of the system call. 
+
+547
+00:32:39,670 --> 00:32:41,310
+And from there on, 
+
+548
+00:32:41,320 --> 00:32:43,950
+it lets the operating system greed, 
+
+549
+00:32:43,960 --> 00:32:45,790
+this identifier of the system call. 
+
+550
+00:32:45,800 --> 00:32:49,990
+So in our system quality to execute its argument from the other registers, 
+
+551
+00:32:50,080 --> 00:32:52,430
+and then goes to executive system call. 
+
+552
+00:32:53,760 --> 00:32:56,190
+Another way you're the operating system, 
+
+553
+00:32:56,200 --> 00:32:59,870
+the kernel get control is basically through interacts. 
+
+554
+00:33:01,330 --> 00:33:03,170
+These typically are external interrupts. 
+
+555
+00:33:04,440 --> 00:33:05,790
+This can be our devices. 
+
+556
+00:33:05,800 --> 00:33:11,380
+Stripe is like when you move the mouse that same in interrupt
+
+557
+00:33:11,390 --> 00:33:14,300
+because the system is to respond to your action. 
+
+558
+00:33:15,010 --> 00:33:17,780
+It can be when you get a packet, right?
+
+559
+00:33:17,790 --> 00:33:19,660
+Just another interrupt, you need to get the packet, right?
+
+560
+00:33:19,670 --> 00:33:21,900
+You need to start the packet as if the packet is lost, right?
+
+561
+00:33:22,510 --> 00:33:23,700
+It can be a timer. 
+
+562
+00:33:24,500 --> 00:33:24,890
+Right? 
+
+563
+00:33:27,550 --> 00:33:28,070
+Others. 
+
+564
+00:33:28,080 --> 00:33:29,130
+In general, 
+
+565
+00:33:29,140 --> 00:33:34,980
+there are io the interrupts are generated by the io devices. 
+
+566
+00:33:35,300 --> 00:33:35,690
+All right. 
+
+567
+00:33:36,200 --> 00:33:39,380
+This can be independent again from the user process of user, 
+
+568
+00:33:39,390 --> 00:33:41,120
+the process which is actually running, 
+
+569
+00:33:41,450 --> 00:33:42,770
+but it may not refrigerate. 
+
+570
+00:33:43,990 --> 00:33:47,580
+The final one is strap or exception. 
+
+571
+00:33:48,980 --> 00:33:51,000
+This is happening when something bad happens. 
+
+572
+00:33:51,010 --> 00:33:55,950
+So I just like think about divided division by zero, 
+
+573
+00:33:55,960 --> 00:33:58,390
+by zero or protection violation. 
+
+574
+00:33:58,400 --> 00:34:00,370
+It's like we discussed early on. 
+
+575
+00:34:00,380 --> 00:34:03,800
+It's like a process somehow asked to address. 
+
+576
+00:34:04,340 --> 00:34:09,480
+It's going to be outside the base and the bound other addresses
+
+577
+00:34:09,490 --> 00:34:10,480
+in the physical memory. 
+
+578
+00:34:11,490 --> 00:34:11,890
+Right? 
+
+579
+00:34:12,370 --> 00:34:13,370
+The system will have, 
+
+580
+00:34:14,020 --> 00:34:16,710
+you are going to get a violation. 
+
+581
+00:34:16,720 --> 00:34:17,950
+In most of these cases. 
+
+582
+00:34:18,170 --> 00:34:26,250
+The program is terminated that these are kind of what are called kind of un
+
+583
+00:34:26,260 --> 00:34:28,010
+programmed control transfers. 
+
+584
+00:34:34,170 --> 00:34:35,850
+Because in many of these, 
+
+585
+00:34:35,860 --> 00:34:38,370
+they are not programmed by the user. 
+
+586
+00:34:38,380 --> 00:34:40,040
+This is what we mean by that. 
+
+587
+00:34:40,790 --> 00:34:41,210
+Now, 
+
+588
+00:34:42,550 --> 00:34:46,030
+how do you get the system target address of the young program control? 
+
+589
+00:34:52,690 --> 00:34:56,270
+So basically, the question here is like I alluded earlier on,
+
+590
+00:34:56,790 --> 00:35:02,540
+is how does the system know what code to execute when some of these events happen? 
+
+591
+00:35:03,760 --> 00:35:04,110
+Right? 
+
+592
+00:35:04,390 --> 00:35:05,010
+That's what it is. 
+
+593
+00:35:06,250 --> 00:35:10,040
+I already alluded, and I told you how this is happening for the ccc call.
+
+594
+00:35:10,050 --> 00:35:11,000
+This is a little bit. 
+
+595
+00:35:11,400 --> 00:35:14,120
+Now this is how you do it for the internet. 
+
+596
+00:35:15,060 --> 00:35:15,360
+Right? 
+
+597
+00:35:15,800 --> 00:35:16,840
+For the interact, 
+
+598
+00:35:16,850 --> 00:35:19,600
+you can have internet number. 
+
+599
+00:35:19,980 --> 00:35:22,440
+Like for instance, when you,
+
+600
+00:35:22,920 --> 00:35:26,790
+for instance, when you click a key on your keyboard,
+
+601
+00:35:26,800 --> 00:35:30,620
+it can be interrupt like interrupt one. 
+
+602
+00:35:31,260 --> 00:35:33,300
+When you except from the mouse, they interrupt two.
+
+603
+00:35:33,310 --> 00:35:35,380
+When you get from the network interrupts three. 
+
+604
+00:35:36,250 --> 00:35:36,710
+Okay? 
+
+605
+00:35:37,690 --> 00:35:40,480
+For each a kind of input devices, 
+
+606
+00:35:40,490 --> 00:35:42,230
+you have an interrupt number. 
+
+607
+00:35:45,180 --> 00:35:50,400
+And this is qualified and configured in hardware. 
+
+608
+00:35:50,800 --> 00:35:53,240
+So automatically, when you get an interrupt from a keyboard,
+
+609
+00:35:53,770 --> 00:35:55,840
+they interrupt one and then an interrupt one. 
+
+610
+00:35:56,090 --> 00:36:02,140
+Basically, you are going to point to a particular address,
+
+611
+00:36:03,020 --> 00:36:05,970
+which is put in the physical memory. 
+
+612
+00:36:05,980 --> 00:36:07,050
+And that address, 
+
+613
+00:36:07,060 --> 00:36:10,940
+you have the address of the handle of that interact of the code, 
+
+614
+00:36:10,950 --> 00:36:12,660
+which runs when that interrupt have. 
+
+615
+00:36:14,120 --> 00:36:15,550
+This is what you do. 
+
+616
+00:36:19,790 --> 00:36:21,780
+Where do you see this kind of dispatch patterns? 
+
+617
+00:36:21,790 --> 00:36:23,060
+This is a dispatch pattern, right?
+
+618
+00:36:23,070 --> 00:36:23,940
+You have the internet, 
+
+619
+00:36:24,680 --> 00:36:27,420
+you have a in summary, the memory,
+
+620
+00:36:27,790 --> 00:36:31,140
+a physical memory, which is actually managed by the operating system.
+
+621
+00:36:31,150 --> 00:36:35,860
+You are going to have set of addresses each other's corresponds
+
+622
+00:36:35,870 --> 00:36:39,080
+to different interrupt and each other's points you
+
+623
+00:36:39,370 --> 00:36:41,950
+to the handler corresponding to that interrupt. 
+
+624
+00:36:46,170 --> 00:36:47,560
+Any answer on this one? 
+
+625
+00:36:48,410 --> 00:36:50,640
+What else do you see this dispatch pattern? 
+
+626
+00:36:50,650 --> 00:36:53,510
+And then I will answer the questions. 
+
+627
+00:36:56,830 --> 00:37:00,630
+Yeah, try and catch a that's a very good one.
+
+628
+00:37:01,500 --> 00:37:01,700
+Right? 
+
+629
+00:37:01,710 --> 00:37:02,500
+So in that case, 
+
+630
+00:37:02,510 --> 00:37:06,600
+you are going to have for when the general you have different exceptions, 
+
+631
+00:37:06,920 --> 00:37:10,700
+you are going to want to invoke different code past. 
+
+632
+00:37:12,410 --> 00:37:14,000
+There are many even in cisco, 
+
+633
+00:37:14,330 --> 00:37:19,510
+when you do the cisco is very similar as I explained a little bit earlier. 
+
+634
+00:37:21,430 --> 00:37:23,950
+Let me see a lot of fashions. 
+
+635
+00:37:28,380 --> 00:37:29,460
+Let's see. 
+
+636
+00:37:33,620 --> 00:37:38,920
+It is the os that it locates the louder. 
+
+637
+00:37:40,960 --> 00:37:45,630
+I think I answer that it's any of its set, 
+
+638
+00:37:45,640 --> 00:37:51,340
+a particular piece of hard harbor that hard that handle translation. 
+
+639
+00:37:53,000 --> 00:37:58,510
+There is aa particular piece of hand harder that which handles
+
+640
+00:37:58,520 --> 00:38:00,160
+a translation and not only
+
+641
+00:38:01,660 --> 00:38:05,090
+it is typically called memory management unit. 
+
+642
+00:38:06,790 --> 00:38:09,630
+Dubai tables contain the base and the bound, 
+
+643
+00:38:12,310 --> 00:38:20,090
+not really because the page address the page has an implicit base, 
+
+644
+00:38:20,460 --> 00:38:22,340
+but it doesn't need to contain the bound, 
+
+645
+00:38:22,350 --> 00:38:25,040
+because all the pages are fixed size. 
+
+646
+00:38:26,200 --> 00:38:27,630
+So that is implicit. 
+
+647
+00:38:28,010 --> 00:38:28,510
+The bound. 
+
+648
+00:38:29,040 --> 00:38:31,070
+If all the addresses are four kilobytes, 
+
+649
+00:38:32,580 --> 00:38:34,810
+all these babies have four kilobytes, 
+
+650
+00:38:35,150 --> 00:38:37,710
+you need only to know the starting address. 
+
+651
+00:38:38,050 --> 00:38:39,420
+Once the starting address, 
+
+652
+00:38:39,710 --> 00:38:41,260
+also the bound others. 
+
+653
+00:38:42,190 --> 00:38:42,760
+So basically, 
+
+654
+00:38:44,290 --> 00:38:45,920
+under permission, 
+
+655
+00:38:45,930 --> 00:38:50,620
+can this be a when touching operating system or other programs like malawi
+
+656
+00:38:50,630 --> 00:38:52,860
+or other remote control application? 
+
+657
+00:38:52,870 --> 00:38:55,450
+Or is as harder to be unknown? 
+
+658
+00:38:55,460 --> 00:38:58,380
+No hardware to be no. 
+
+659
+00:38:58,920 --> 00:38:59,300
+Under permission. 
+
+660
+00:38:59,310 --> 00:39:01,280
+Can this be a when
+
+661
+00:39:09,350 --> 00:39:14,340
+i'm afraid I don't know what it's can this be a maybe you can add
+
+662
+00:39:14,950 --> 00:39:17,100
+the some clarifications that I don't know
+
+663
+00:39:17,110 --> 00:39:19,580
+what can this be a yes. 
+
+664
+00:39:20,410 --> 00:39:21,920
+I don't know what history first, 
+
+665
+00:39:21,930 --> 00:39:24,520
+or maybe you want to reformulate that address. 
+
+666
+00:39:24,530 --> 00:39:25,560
+Is that question? 
+
+667
+00:39:26,100 --> 00:39:27,410
+As a very beginning, 
+
+668
+00:39:27,420 --> 00:39:29,150
+why is a bound? 
+
+669
+00:39:29,160 --> 00:39:30,230
+Not 100? 
+
+670
+00:39:30,240 --> 00:39:31,040
+Why is it? 
+
+671
+00:39:31,520 --> 00:39:33,190
+Fff
+
+672
+00:39:39,750 --> 00:39:42,150
+I think I am. 
+
+673
+00:39:42,520 --> 00:39:45,490
+So you shouldn't take, 
+
+674
+00:39:45,500 --> 00:39:49,250
+I don't remember exactly what was in the slide and what are the values. 
+
+675
+00:39:49,610 --> 00:39:50,770
+But you shouldn't take this, 
+
+676
+00:39:51,620 --> 00:39:53,290
+the base and the bound number. 
+
+677
+00:39:53,300 --> 00:39:54,410
+These are just examples. 
+
+678
+00:39:54,880 --> 00:39:57,030
+The base and the bound can be any numbers. 
+
+679
+00:39:58,800 --> 00:40:01,590
+Again, these are decided by the operating system.
+
+680
+00:40:02,730 --> 00:40:04,680
+Rpo return to users. 
+
+681
+00:40:04,690 --> 00:40:08,360
+This stands for the question on what is rto stands for? 
+
+682
+00:40:11,150 --> 00:40:13,200
+How many control blocks that exist? 
+
+683
+00:40:14,770 --> 00:40:17,860
+So each process, 
+
+684
+00:40:17,870 --> 00:40:19,900
+and we are going to learn more about that. 
+
+685
+00:40:20,700 --> 00:40:21,730
+In the next lecture, 
+
+686
+00:40:21,740 --> 00:40:23,490
+has a process control block. 
+
+687
+00:40:23,500 --> 00:40:26,130
+We have all the information pertaining to the process. 
+
+688
+00:40:26,590 --> 00:40:29,670
+Then each thread is in the process has a thread control block, 
+
+689
+00:40:30,100 --> 00:40:34,740
+which is the state pertaining to the thread, 
+
+690
+00:40:35,050 --> 00:40:37,210
+which is basically the running state. 
+
+691
+00:40:39,080 --> 00:40:42,640
+Is there thread control block the same thing that cannot stack? 
+
+692
+00:40:43,300 --> 00:40:51,210
+Now, the state control block is basically refers to the state
+
+693
+00:40:51,220 --> 00:40:55,530
+execution state to running state of a particular threat. 
+
+694
+00:40:58,140 --> 00:41:00,080
+Typically, it's a user set.
+
+695
+00:41:01,080 --> 00:41:04,100
+The kernel stack is a stack of the operating system, 
+
+696
+00:41:04,700 --> 00:41:05,100
+but obviously, 
+
+697
+00:41:05,110 --> 00:41:09,180
+operating systems you can think about it has also its own threats, 
+
+698
+00:41:09,830 --> 00:41:10,170
+right? 
+
+699
+00:41:10,970 --> 00:41:13,620
+And if you have operating systems, 
+
+700
+00:41:13,630 --> 00:41:15,370
+say it's only one thread, 
+
+701
+00:41:15,880 --> 00:41:22,840
+then the kernel stack will be the stack of that kernel thread. 
+
+702
+00:41:25,350 --> 00:41:26,460
+Hopefully, it will be more clear.
+
+703
+00:41:26,470 --> 00:41:30,060
+We are going to have some examples later in this lecture. 
+
+704
+00:41:32,580 --> 00:41:36,920
+Does the existence of interrupt imply that there are context switching
+
+705
+00:41:36,930 --> 00:41:38,320
+back to the system to run? 
+
+706
+00:41:38,880 --> 00:41:39,950
+Absolutely to checks? 
+
+707
+00:41:40,330 --> 00:41:40,710
+Yes? 
+
+708
+00:41:41,090 --> 00:41:42,640
+When this is what I was saying, 
+
+709
+00:41:42,970 --> 00:41:44,050
+this is one way, 
+
+710
+00:41:44,360 --> 00:41:48,350
+one in which the operating system gets a control. 
+
+711
+00:41:48,640 --> 00:41:49,240
+Three interrupts. 
+
+712
+00:41:49,490 --> 00:41:50,760
+When interrupts a curse, 
+
+713
+00:41:51,010 --> 00:41:55,660
+you switch from the user process to the kernel for the kernel to treat
+
+714
+00:41:55,670 --> 00:41:56,320
+that interrupt, 
+
+715
+00:41:56,330 --> 00:41:57,640
+to handle that interrupt. 
+
+716
+00:41:59,020 --> 00:42:00,850
+How is the interpret eyes handled? 
+
+717
+00:42:01,270 --> 00:42:02,580
+That's a great question. 
+
+718
+00:42:03,770 --> 00:42:06,090
+This is a complex answer here. 
+
+719
+00:42:06,500 --> 00:42:06,820
+Actually, 
+
+720
+00:42:10,600 --> 00:42:12,360
+some of them are cured, 
+
+721
+00:42:12,760 --> 00:42:16,330
+but in a simpler instantiation, 
+
+722
+00:42:16,620 --> 00:42:19,120
+in different interrupts have different priorities. 
+
+723
+00:42:23,720 --> 00:42:28,030
+Like some of it like maybe in interrupt from the printer, 
+
+724
+00:42:28,040 --> 00:42:30,630
+it's not as important as they interrupt from the keyboard. 
+
+725
+00:42:32,180 --> 00:42:33,580
+What happens here? 
+
+726
+00:42:33,920 --> 00:42:35,480
+If it's a less priority, 
+
+727
+00:42:35,490 --> 00:42:41,390
+it's a lower priority interrupt happens while a higher priority interrupt
+
+728
+00:42:41,400 --> 00:42:42,150
+is executed, 
+
+729
+00:42:42,420 --> 00:42:44,230
+the lower priority interrupt weights. 
+
+730
+00:42:45,220 --> 00:42:48,460
+If it's the other way around and you have higher priority interrupt, 
+
+731
+00:42:48,730 --> 00:42:50,970
+when a lower priority interrupt is executed, 
+
+732
+00:42:51,230 --> 00:42:54,660
+the higher priority interrupt can interrupt the lower priority interrupt. 
+
+733
+00:42:57,190 --> 00:42:59,620
+I execute a so I interrupt from the printer. 
+
+734
+00:42:59,920 --> 00:43:02,940
+Now I have an internet which is higher probability come from the keyboard. 
+
+735
+00:43:03,210 --> 00:43:09,140
+I'm going to stop executing the lower priority internet from the printer. 
+
+736
+00:43:09,150 --> 00:43:13,630
+I'm going to start in gripping the interrupt from the keyboard. 
+
+737
+00:43:13,890 --> 00:43:14,920
+Once i'm finishing, 
+
+738
+00:43:14,930 --> 00:43:16,560
+I am returning to finish, 
+
+739
+00:43:18,970 --> 00:43:23,150
+treating or handling the lower interrupt from the lower level. 
+
+740
+00:43:23,520 --> 00:43:25,450
+Lower probably interrupt from the printer. 
+
+741
+00:43:35,390 --> 00:43:39,980
+Why do we tend to have a full vector with instruction inside the vector
+
+742
+00:43:39,990 --> 00:43:41,900
+rather than just a jump table? 
+
+743
+00:43:43,500 --> 00:43:49,110
+I think this is actually very similar with a jump table, 
+
+744
+00:43:50,890 --> 00:43:52,210
+because it's a jump table. 
+
+745
+00:43:52,860 --> 00:43:58,250
+You still need to have when you, 
+
+746
+00:44:00,440 --> 00:44:00,840
+sorry, 
+
+747
+00:44:01,950 --> 00:44:05,030
+so just to make sure I this is a number, 
+
+748
+00:44:05,760 --> 00:44:06,240
+okay? 
+
+749
+00:44:06,730 --> 00:44:08,130
+Because it is this number, right?
+
+750
+00:44:08,420 --> 00:44:10,650
+We can have intervals 1234. 
+
+751
+00:44:13,690 --> 00:44:22,510
+Then say this vector of interrupt hand within that handlers, 
+
+752
+00:44:23,090 --> 00:44:26,050
+then it can start, for instance, from other zero.
+
+753
+00:44:26,620 --> 00:44:28,770
+Then the way you are going to happen, 
+
+754
+00:44:28,780 --> 00:44:33,340
+you automatically when you have this is a 4 byte computer, 
+
+755
+00:44:33,980 --> 00:44:35,330
+70 bits computer, 
+
+756
+00:44:36,690 --> 00:44:37,720
+then basically, 
+
+757
+00:44:37,730 --> 00:44:40,680
+you are going to have the first interrupt or the interrupt zero. 
+
+758
+00:44:40,690 --> 00:44:42,640
+If you have, it depends how you index it.
+
+759
+00:44:42,880 --> 00:44:44,150
+If you start from zero, 
+
+760
+00:44:44,160 --> 00:44:49,580
+then you from the first 4 bytes in the memory that are handled
+
+761
+00:44:49,590 --> 00:44:50,540
+for the first interrupt, 
+
+762
+00:44:50,550 --> 00:44:52,820
+the next four buys for the second interrupt, and so forth.
+
+763
+00:44:52,830 --> 00:44:53,900
+So when you get an interrupt, 
+
+764
+00:44:53,910 --> 00:44:56,670
+say I then you multiply I by four, 
+
+765
+00:44:56,680 --> 00:45:00,150
+and then you are going to get to the address which contains
+
+766
+00:45:00,550 --> 00:45:02,330
+the interrupt handle for that interrupt. 
+
+767
+00:45:02,940 --> 00:45:05,930
+This is what exactly happens here. 
+
+768
+00:45:06,850 --> 00:45:09,350
+So hopefully that indirectly answer your question, 
+
+769
+00:45:11,780 --> 00:45:15,460
+i'm having trouble distinguishing between operating system and kernel. 
+
+770
+00:45:15,470 --> 00:45:16,260
+What is the difference? 
+
+771
+00:45:16,920 --> 00:45:17,720
+Great question. 
+
+772
+00:45:19,250 --> 00:45:23,080
+The operating the canon is part of the operating system, 
+
+773
+00:45:23,090 --> 00:45:25,320
+which is always resident in the memory. 
+
+774
+00:45:26,210 --> 00:45:27,970
+The operating system has many things. 
+
+775
+00:45:28,630 --> 00:45:30,470
+It can have a file system. 
+
+776
+00:45:32,120 --> 00:45:36,190
+It can have a part which is window system, 
+
+777
+00:45:36,630 --> 00:45:44,360
+which controls the screen and some of these
+
+778
+00:45:46,670 --> 00:45:51,420
+not all of these functionality which are provided by the operatives, 
+
+779
+00:45:51,600 --> 00:45:54,100
+them need to be loaded in memory at all times. 
+
+780
+00:45:56,440 --> 00:46:00,800
+Like, for instance, if you run an application in the background,
+
+781
+00:46:00,810 --> 00:46:07,920
+which doesn't require the window system for you to interact with the computer. 
+
+782
+00:46:08,250 --> 00:46:12,330
+That window system doesn't need to be in the memory. 
+
+783
+00:46:13,000 --> 00:46:13,080
+Right? 
+
+784
+00:46:13,450 --> 00:46:14,880
+You don't want to, 
+
+785
+00:46:16,090 --> 00:46:18,600
+in order to use a physical memory more efficiently. 
+
+786
+00:46:18,610 --> 00:46:21,840
+You do not want to allowed every single operating. 
+
+787
+00:46:21,850 --> 00:46:27,830
+All the function is operating system can do in the memory. 
+
+788
+00:46:28,940 --> 00:46:30,130
+But at the same time, 
+
+789
+00:46:30,140 --> 00:46:31,730
+you do want to have a kernel, 
+
+790
+00:46:31,740 --> 00:46:35,520
+you want to have a minimalist set of the functionality implemented
+
+791
+00:46:35,530 --> 00:46:36,640
+by the operating system, 
+
+792
+00:46:36,650 --> 00:46:38,040
+like handling the interrupts, 
+
+793
+00:46:38,450 --> 00:46:46,070
+or can't handling the contact switching between the user processes and the kernel
+
+794
+00:46:46,490 --> 00:46:48,640
+being a resident at all times in the morning. 
+
+795
+00:46:50,910 --> 00:46:55,370
+Could you give you an example of what an interrupt handle function could do? 
+
+796
+00:46:57,440 --> 00:47:00,010
+Say, for a keyboard input?
+
+797
+00:47:01,410 --> 00:47:02,200
+I can do it. 
+
+798
+00:47:02,660 --> 00:47:03,650
+We are very late, 
+
+799
+00:47:04,180 --> 00:47:07,750
+but I can do it. 
+
+800
+00:47:07,760 --> 00:47:11,310
+So for instance, when you are going to have the handler for a keyboard,
+
+801
+00:47:11,890 --> 00:47:15,380
+then the keyboard that handler is going to read. 
+
+802
+00:47:17,520 --> 00:47:26,360
+And this depends of how it depends on the hardware and the operating system. 
+
+803
+00:47:26,710 --> 00:47:28,800
+But for instance, it can read,
+
+804
+00:47:29,010 --> 00:47:34,500
+you can associate a special address in the memory as representing
+
+805
+00:47:34,690 --> 00:47:37,200
+the content of the key we just clicked. 
+
+806
+00:47:38,590 --> 00:47:39,740
+And therefore, 
+
+807
+00:47:40,050 --> 00:47:44,890
+that when that handle for the keyboard is going to look
+
+808
+00:47:44,900 --> 00:47:48,430
+at the special address and read the key, 
+
+809
+00:47:49,410 --> 00:47:55,380
+the code of the queue which was clicked by the user, 
+
+810
+00:47:55,680 --> 00:48:03,630
+and is going to take that one and is going to give it to display it on the screen, 
+
+811
+00:48:04,830 --> 00:48:07,410
+or give it to an application which can display it on the screen. 
+
+812
+00:48:10,380 --> 00:48:10,920
+Okay? 
+
+813
+00:48:15,140 --> 00:48:18,460
+Or the question above under permission refers cancel program, 
+
+814
+00:48:18,470 --> 00:48:21,030
+touched os can you touch other programs? 
+
+815
+00:48:21,660 --> 00:48:22,430
+Now it's, again,
+
+816
+00:48:22,440 --> 00:48:26,280
+the main idea here about the protection is that the process
+
+817
+00:48:26,630 --> 00:48:29,080
+for an application cannot touch
+
+818
+00:48:31,950 --> 00:48:34,320
+other processes or the operating system, 
+
+819
+00:48:34,640 --> 00:48:41,650
+because the protection ensures that whatever the process is doing, 
+
+820
+00:48:41,660 --> 00:48:45,270
+its remaining between the its the bounds, 
+
+821
+00:48:46,190 --> 00:48:50,540
+but the base and the bound in that region of the physical memory, 
+
+822
+00:48:50,550 --> 00:48:52,420
+which is allocated to that process. 
+
+823
+00:48:52,730 --> 00:48:55,390
+By the operating system, you cannot get out of that.
+
+824
+00:48:56,030 --> 00:48:57,980
+So therefore, because you cannot get out of that,
+
+825
+00:48:57,990 --> 00:49:02,750
+you cannot access the memory of other processes or of the operating system. 
+
+826
+00:49:04,220 --> 00:49:04,930
+Let's move on. 
+
+827
+00:49:04,940 --> 00:49:05,690
+We are there. 
+
+828
+00:49:14,920 --> 00:49:15,370
+Now, 
+
+829
+00:49:15,610 --> 00:49:18,060
+let's see how the context switching start happens
+
+830
+00:49:18,070 --> 00:49:19,900
+between process two and process one. 
+
+831
+00:49:22,010 --> 00:49:24,200
+Like I mentioned now, 
+
+832
+00:49:24,410 --> 00:49:28,250
+you want to switch from process two to process one. 
+
+833
+00:49:29,440 --> 00:49:31,130
+You are going, 
+
+834
+00:49:32,780 --> 00:49:36,870
+sorry, so in this particular,
+
+835
+00:49:37,650 --> 00:49:38,160
+no, sorry.
+
+836
+00:49:38,170 --> 00:49:42,210
+This is an example in which it shows what happens when you get an interrupt. 
+
+837
+00:49:42,590 --> 00:49:43,040
+Okay. 
+
+838
+00:49:43,410 --> 00:49:46,480
+Here you are running the code of process one, process two,
+
+839
+00:49:46,490 --> 00:49:47,320
+the yellow process. 
+
+840
+00:49:49,210 --> 00:49:53,600
+Now you are going to get an interrupt when you are going to get an interrupt, 
+
+841
+00:49:53,880 --> 00:49:55,990
+you are going to put in the program counter, 
+
+842
+00:49:56,000 --> 00:50:00,150
+the handler of that particular interaction interrupt the vector of I
+
+843
+00:50:00,520 --> 00:50:02,860
+and you are going to save, 
+
+844
+00:50:03,350 --> 00:50:04,540
+you are going to say, 
+
+845
+00:50:04,550 --> 00:50:08,460
+you have to put the program counter of the process tool in the user program
+
+846
+00:50:08,470 --> 00:50:09,060
+counter. 
+
+847
+00:50:10,570 --> 00:50:15,980
+Now you need to save the registers of associated with the state
+
+848
+00:50:15,990 --> 00:50:17,100
+of the process tool. 
+
+849
+00:50:17,710 --> 00:50:19,460
+But I still need to now this state, 
+
+850
+00:50:19,470 --> 00:50:23,460
+because you need to know for the next time when you are going to run the process, 
+
+851
+00:50:23,470 --> 00:50:23,780
+too. 
+
+852
+00:50:24,260 --> 00:50:31,920
+Here you see how you are going to save the state of
+
+853
+00:50:33,810 --> 00:50:34,950
+all the state, 
+
+854
+00:50:34,960 --> 00:50:38,000
+all the register of process on. 
+
+855
+00:50:38,400 --> 00:50:39,380
+And now, 
+
+856
+00:50:40,830 --> 00:50:41,890
+which charity is green. 
+
+857
+00:50:44,180 --> 00:50:45,010
+Now, 
+
+858
+00:50:46,110 --> 00:50:48,240
+in that particular interrupt, 
+
+859
+00:50:48,810 --> 00:50:50,760
+let me be in a more clear error. 
+
+860
+00:50:51,270 --> 00:50:52,540
+What in this example is, 
+
+861
+00:50:52,550 --> 00:50:54,400
+I interrupt is a timer interrupt. 
+
+862
+00:50:56,470 --> 00:50:58,750
+And the timer interrupt, 
+
+863
+00:50:58,760 --> 00:51:00,310
+in this particular case, 
+
+864
+00:51:00,870 --> 00:51:05,370
+three girls, the switch between process two and process one.
+
+865
+00:51:05,380 --> 00:51:11,860
+If you remember how the different processes, 
+
+866
+00:51:13,440 --> 00:51:14,700
+how different processes, 
+
+867
+00:51:15,310 --> 00:51:17,620
+how do you visualize one process? 
+
+868
+00:51:18,210 --> 00:51:18,660
+Right? 
+
+869
+00:51:19,230 --> 00:51:20,290
+To multiple processes? 
+
+870
+00:51:20,570 --> 00:51:24,090
+We visualize it by dividing the time in time slices. 
+
+871
+00:51:25,010 --> 00:51:30,490
+We give each time slice for to one process to a different process. 
+
+872
+00:51:31,550 --> 00:51:34,080
+Now, how do we know how to do the switch?
+
+873
+00:51:34,470 --> 00:51:39,250
+The way we know how to do the switch is that we have a timer for to tell us
+
+874
+00:51:39,600 --> 00:51:41,840
+when a time slice is done. 
+
+875
+00:51:42,450 --> 00:51:43,640
+So every 10 millisecond, 
+
+876
+00:51:43,650 --> 00:51:46,720
+you have a timer triggering and say this life size is done. 
+
+877
+00:51:47,110 --> 00:51:50,690
+This is what we are describing here that causes an interrupt. 
+
+878
+00:51:51,450 --> 00:51:53,130
+And now that interrupt, 
+
+879
+00:51:53,140 --> 00:51:54,530
+in this particular case, 
+
+880
+00:51:54,800 --> 00:52:00,190
+is going to cause a handler is going to switch from process to the processor. 
+
+881
+00:52:03,200 --> 00:52:04,150
+This is what happens. 
+
+882
+00:52:06,730 --> 00:52:11,200
+Now, you want to switch it to switch.
+
+883
+00:52:11,970 --> 00:52:13,120
+You're safe again. 
+
+884
+00:52:14,290 --> 00:52:14,690
+Sorry. 
+
+885
+00:52:15,010 --> 00:52:17,230
+You save all this information, 
+
+886
+00:52:17,640 --> 00:52:19,600
+the operating system, save it.
+
+887
+00:52:19,610 --> 00:52:22,480
+And this is done by the handler of the time I interrupt. 
+
+888
+00:52:24,120 --> 00:52:31,400
+And now you load the registers for process one from the thread block
+
+889
+00:52:31,410 --> 00:52:32,760
+corresponding to process one. 
+
+890
+00:52:34,350 --> 00:52:35,070
+Now, 
+
+891
+00:52:37,310 --> 00:52:42,240
+with that is a program counter for the operating system for the kernel, 
+
+892
+00:52:42,510 --> 00:52:45,170
+while still executing the handler of the timer. 
+
+893
+00:52:45,180 --> 00:52:51,460
+And now you are going to give control, 
+
+894
+00:52:51,710 --> 00:52:53,770
+do the process. 
+
+895
+00:52:54,150 --> 00:52:56,380
+But before you give the control to process one, 
+
+896
+00:52:56,390 --> 00:52:58,740
+you are going to put the address, 
+
+897
+00:52:58,950 --> 00:53:01,340
+the program counter of the process one. 
+
+898
+00:53:01,610 --> 00:53:03,480
+From the upc from the user process, 
+
+899
+00:53:03,490 --> 00:53:06,600
+come from the upc registered to the program counter. 
+
+900
+00:53:07,090 --> 00:53:08,880
+Now you can start run, 
+
+901
+00:53:09,250 --> 00:53:11,400
+we can start executing process one. 
+
+902
+00:53:16,720 --> 00:53:17,100
+Let's see. 
+
+903
+00:53:17,110 --> 00:53:18,140
+What are the more question? 
+
+904
+00:53:22,630 --> 00:53:23,130
+Let's see. 
+
+905
+00:53:25,050 --> 00:53:28,360
+How does the os now which process was waiting for an interrupt? 
+
+906
+00:53:28,410 --> 00:53:29,240
+For example, 
+
+907
+00:53:31,490 --> 00:53:32,720
+in this particular case, 
+
+908
+00:53:36,150 --> 00:53:37,260
+which knows? 
+
+909
+00:53:41,040 --> 00:53:41,710
+The question is, 
+
+910
+00:53:41,720 --> 00:53:45,310
+how does the operating system now switch process was waiting for an interrupt? 
+
+911
+00:53:45,320 --> 00:53:48,190
+For example, if process one is waiting on keyboard input,
+
+912
+00:53:48,440 --> 00:53:54,840
+how does the operating system know to give control to process one
+
+913
+00:53:55,390 --> 00:53:57,530
+instead of process? 
+
+914
+00:53:57,540 --> 00:54:02,400
+So this is going to happen from the system through the system calls, 
+
+915
+00:54:02,650 --> 00:54:07,600
+because the process one is going to tell the operating system that I
+
+916
+00:54:07,610 --> 00:54:10,380
+am waiting for the keyboard inputs. 
+
+917
+00:54:10,660 --> 00:54:12,680
+This is what is going to happen. 
+
+918
+00:54:14,020 --> 00:54:15,980
+Again, we'll talk more about that in the future.
+
+919
+00:54:20,170 --> 00:54:21,400
+At a given time, 
+
+920
+00:54:21,410 --> 00:54:24,810
+only the process which is in the so to speak foreground, 
+
+921
+00:54:25,050 --> 00:54:27,140
+can get to the keyboard inputs. 
+
+922
+00:54:27,410 --> 00:54:28,730
+If there are multiple processes, 
+
+923
+00:54:28,740 --> 00:54:30,230
+the choice for the keyboard, 
+
+924
+00:54:30,450 --> 00:54:32,460
+only one is going to get the input, 
+
+925
+00:54:32,730 --> 00:54:36,930
+and the one which is kind of in foreground. 
+
+926
+00:54:38,860 --> 00:54:40,830
+Let's hurry up. 
+
+927
+00:54:40,840 --> 00:54:46,540
+It's a lot of so now this is done is the ground give you a sense about the production. 
+
+928
+00:54:46,750 --> 00:54:47,900
+What we've done so far, 
+
+929
+00:54:47,910 --> 00:54:53,730
+we've shown how the operating system or the
+
+930
+00:54:55,680 --> 00:54:58,240
+louder can protect, 
+
+931
+00:54:58,760 --> 00:55:00,360
+can provide memory protection. 
+
+932
+00:55:02,430 --> 00:55:08,500
+And then we also shown how the operating system can manage
+
+933
+00:55:08,510 --> 00:55:10,330
+different processes to switch
+
+934
+00:55:10,340 --> 00:55:15,690
+between processes or how it manages to switch between the
+
+935
+00:55:18,130 --> 00:55:22,270
+running a user program to running the operating system code. 
+
+936
+00:55:23,550 --> 00:55:26,140
+Now, next, we are going to focus on threat.
+
+937
+00:55:27,630 --> 00:55:29,780
+The motivation for thread is very simple. 
+
+938
+00:55:29,790 --> 00:55:31,300
+Why do we have multiple threads? 
+
+939
+00:55:32,090 --> 00:55:33,130
+Because in many cases, 
+
+940
+00:55:33,140 --> 00:55:36,970
+there are multiple things happen at the same place at the same time. 
+
+941
+00:55:37,580 --> 00:55:38,020
+Right? 
+
+942
+00:55:38,030 --> 00:55:40,210
+It's a acronym here. 
+
+943
+00:55:40,220 --> 00:55:47,580
+We use mplmpal and you run the code. 
+
+944
+00:55:48,810 --> 00:55:50,040
+You're on your application, 
+
+945
+00:55:50,050 --> 00:55:51,080
+but like we discussed, 
+
+946
+00:55:51,090 --> 00:55:54,240
+you can have some interrupts from the keyboard, from the network.
+
+947
+00:55:54,250 --> 00:55:57,500
+So you need to handle all of these at the same time. 
+
+948
+00:56:01,850 --> 00:56:04,480
+Then you can also have multiple, 
+
+949
+00:56:04,690 --> 00:56:12,020
+you can have parallel programs in order to better you to use the resources
+
+950
+00:56:12,350 --> 00:56:14,140
+of a single machine, 
+
+951
+00:56:15,670 --> 00:56:18,260
+many processors now have multiple course. 
+
+952
+00:56:18,720 --> 00:56:21,770
+You can have a parallel program which runs different. 
+
+953
+00:56:22,500 --> 00:56:23,490
+You choose this, 
+
+954
+00:56:23,990 --> 00:56:25,660
+which has multiple threads, 
+
+955
+00:56:25,960 --> 00:56:28,540
+which is thread can run on its own core. 
+
+956
+00:56:29,460 --> 00:56:34,270
+And then this communicated each other of, obviously, one of the menu.
+
+957
+00:56:34,280 --> 00:56:39,890
+This is the user to have a computer which is responsive to the user actions. 
+
+958
+00:56:45,170 --> 00:56:47,560
+One of the other things is very important. 
+
+959
+00:56:47,890 --> 00:56:53,450
+We have multiple threads is to increase the efficiency
+
+960
+00:56:53,710 --> 00:56:55,810
+of the increasing utilization by
+
+961
+00:56:55,820 --> 00:56:59,890
+hiding the latency of the io operations, 
+
+962
+00:56:59,900 --> 00:57:01,330
+where there is network and risk. 
+
+963
+00:57:01,630 --> 00:57:03,420
+We'll do that will show you up in a bit. 
+
+964
+00:57:06,960 --> 00:57:12,090
+Now there are two things you need to differentiate. 
+
+965
+00:57:12,100 --> 00:57:15,380
+The is that the concurrency and parallelism. 
+
+966
+00:57:15,990 --> 00:57:18,960
+So the thread that you need of concurrency, right?
+
+967
+00:57:19,390 --> 00:57:24,500
+What is concurrency means is that when you have different things which are running, 
+
+968
+00:57:24,880 --> 00:57:26,700
+not necessarily at the same time, 
+
+969
+00:57:29,430 --> 00:57:33,340
+but which access the same resource, 
+
+970
+00:57:34,600 --> 00:57:35,050
+right? 
+
+971
+00:57:35,530 --> 00:57:38,640
+To have a concurrent access to the same resources. 
+
+972
+00:57:38,900 --> 00:57:42,170
+So then it's a problem you need to solve, 
+
+973
+00:57:42,180 --> 00:57:43,810
+because you don't run different. 
+
+974
+00:57:43,820 --> 00:57:45,050
+So to speak entities, 
+
+975
+00:57:45,060 --> 00:57:49,450
+which have asked the same resource where entity here is a thread, 
+
+976
+00:57:49,460 --> 00:57:51,640
+a step on each other, those.
+
+977
+00:57:55,310 --> 00:58:02,180
+And the concurrency and the parallel is they are related also is multi process, 
+
+978
+00:58:02,190 --> 00:58:04,500
+the concept of multiprocessing. 
+
+979
+00:58:04,940 --> 00:58:06,020
+And multi programming. 
+
+980
+00:58:07,010 --> 00:58:07,340
+Right? 
+
+981
+00:58:07,690 --> 00:58:08,000
+Let's see. 
+
+982
+00:58:08,010 --> 00:58:09,440
+What is the difference between that? 
+
+983
+00:58:10,280 --> 00:58:11,600
+By multiprocessing, 
+
+984
+00:58:11,830 --> 00:58:16,550
+we mean that we have things running at the same time, 
+
+985
+00:58:17,090 --> 00:58:17,570
+right? 
+
+986
+00:58:17,790 --> 00:58:18,700
+On the harder. 
+
+987
+00:58:20,390 --> 00:58:21,470
+And one example, 
+
+988
+00:58:21,900 --> 00:58:23,600
+like I mentioned earlier, 
+
+989
+00:58:23,610 --> 00:58:28,670
+you can have multiple as you can have multiple cores. 
+
+990
+00:58:31,050 --> 00:58:32,670
+And on each core, 
+
+991
+00:58:32,680 --> 00:58:34,950
+you are going to run a different, 
+
+992
+00:58:36,570 --> 00:58:37,570
+a different application. 
+
+993
+00:58:39,380 --> 00:58:41,430
+Multiprogramming is related, 
+
+994
+00:58:41,440 --> 00:58:46,470
+but it's different from the user perspective. 
+
+995
+00:58:48,480 --> 00:58:51,030
+They are similar multiprogramming and multiprocessing. 
+
+996
+00:58:51,390 --> 00:58:53,100
+Because at the same time, 
+
+997
+00:58:53,110 --> 00:58:54,820
+you are going to see visually. 
+
+998
+00:58:56,110 --> 00:58:58,420
+It can be similar, because at the same time,
+
+999
+00:58:58,700 --> 00:59:04,740
+you can see is the illusion is that application can run at the same time. 
+
+1000
+00:59:06,840 --> 00:59:10,030
+You can see here in this example for multi programming, 
+
+1001
+00:59:10,250 --> 00:59:12,720
+that now you have one core, 
+
+1002
+00:59:12,730 --> 00:59:16,610
+so you cannot fundamentally run all applications at the same time. 
+
+1003
+00:59:17,300 --> 00:59:20,470
+But you are going to divide this core, 
+
+1004
+00:59:21,220 --> 00:59:22,460
+the time in time slices. 
+
+1005
+00:59:22,470 --> 00:59:24,980
+And you are going to alternate between the, 
+
+1006
+00:59:25,840 --> 00:59:31,910
+in this case, between this thread abc that is going to happen fast enough.
+
+1007
+00:59:31,920 --> 00:59:37,040
+So the illusion you provide the user is that everything happens
+
+1008
+00:59:37,050 --> 00:59:38,280
+at the same time. 
+
+1009
+00:59:38,530 --> 00:59:40,590
+All the processes of all the threats, 
+
+1010
+00:59:40,600 --> 00:59:42,030
+abc run at the same time. 
+
+1011
+00:59:43,580 --> 00:59:44,820
+So from that perspective, 
+
+1012
+00:59:44,830 --> 00:59:46,860
+and from the user perspective, 
+
+1013
+00:59:46,870 --> 00:59:51,880
+multiprocessing and multiprogramming can be indistinguishable. 
+
+1014
+00:59:52,970 --> 00:59:53,370
+Now, 
+
+1015
+00:59:55,260 --> 00:59:56,650
+the more multi programming. 
+
+1016
+00:59:56,660 --> 00:59:58,690
+It's a more general notion, though,
+
+1017
+00:59:58,700 --> 01:00:00,530
+even from the user perspective, 
+
+1018
+01:00:00,760 --> 01:00:06,490
+because also includes a case in which you have applications running one
+
+1019
+01:00:06,500 --> 01:00:07,370
+at a time, 
+
+1020
+01:00:07,380 --> 01:00:13,530
+and you still have multiple applications and running on the same computer, 
+
+1021
+01:00:13,540 --> 01:00:15,370
+but they are not running at the same time. 
+
+1022
+01:00:15,380 --> 01:00:19,930
+One application starts only after the previous one finishes. 
+
+1023
+01:00:20,460 --> 01:00:24,610
+This is shown by the first example in the multi programming example, 
+
+1024
+01:00:25,000 --> 01:00:26,270
+where a goes to go, 
+
+1025
+01:00:26,900 --> 01:00:30,270
+runs a you run a up to its end, 
+
+1026
+01:00:30,520 --> 01:00:31,760
+add up, and it finishes,
+
+1027
+01:00:31,770 --> 01:00:36,610
+then you run b and up to when it finishes and run c right? 
+
+1028
+01:00:39,030 --> 01:00:41,500
+That ldr here for a multi programming, 
+
+1029
+01:00:41,510 --> 01:00:43,580
+think about you have multiple activities, 
+
+1030
+01:00:43,590 --> 01:00:44,620
+multiple threads, 
+
+1031
+01:00:44,910 --> 01:00:46,660
+which shares the same course. 
+
+1032
+01:00:46,670 --> 01:00:51,770
+So you cannot fundamentally around physically around each thread. 
+
+1033
+01:00:53,550 --> 01:00:55,140
+Multiple threads at the same time. 
+
+1034
+01:00:55,150 --> 01:00:56,420
+While multiprocessing, 
+
+1035
+01:00:56,430 --> 01:00:57,660
+you think about, 
+
+1036
+01:00:57,670 --> 01:00:58,940
+you have multiple cores, 
+
+1037
+01:00:58,950 --> 01:01:01,500
+you can run multiple threads at the same time. 
+
+1038
+01:01:02,680 --> 01:01:03,200
+Physical. 
+
+1039
+01:01:04,750 --> 01:01:08,320
+So the concurrency is about hardening multiple things at the same time. 
+
+1040
+01:01:08,590 --> 01:01:12,260
+And parallelism is about doing multiple things simultaneous. 
+
+1041
+01:01:13,160 --> 01:01:13,910
+This is what it is. 
+
+1042
+01:01:14,700 --> 01:01:16,770
+The concurrency you have. 
+
+1043
+01:01:17,070 --> 01:01:18,160
+In the case, 
+
+1044
+01:01:18,170 --> 01:01:19,420
+going back here, 
+
+1045
+01:01:19,430 --> 01:01:21,520
+the concurrency is more associated. 
+
+1046
+01:01:21,530 --> 01:01:22,360
+It's associated. 
+
+1047
+01:01:23,410 --> 01:01:27,060
+You can have concurrency both in the case of multiprogramming and
+
+1048
+01:01:27,070 --> 01:01:31,100
+also in the case of multiprocessing while multi processing while parallel
+
+1049
+01:01:31,110 --> 01:01:38,910
+is imply multi processing ok so to stretch on a
+
+1050
+01:01:38,920 --> 01:01:40,830
+single core execute concurrently, 
+
+1051
+01:01:41,770 --> 01:01:42,210
+right? 
+
+1052
+01:01:42,740 --> 01:01:44,060
+Because you still need to protect, 
+
+1053
+01:01:44,070 --> 01:01:46,900
+they can still share the same resources. 
+
+1054
+01:01:46,910 --> 01:01:48,420
+When each of them runs. 
+
+1055
+01:01:49,370 --> 01:01:50,860
+We need to be careful there, 
+
+1056
+01:01:50,870 --> 01:01:52,610
+but they are not running in parallel. 
+
+1057
+01:02:02,810 --> 01:02:05,840
+Another way to think about each thread handles or manages
+
+1058
+01:02:05,850 --> 01:02:07,720
+as separate things or tasks. 
+
+1059
+01:02:08,190 --> 01:02:11,870
+But those tasks are not necessarily executing simultaneously on the hard. 
+
+1060
+01:02:12,080 --> 01:02:14,030
+Although, again, from the user perspective,
+
+1061
+01:02:14,270 --> 01:02:16,900
+because they can switch so fast on. 
+
+1062
+01:02:16,910 --> 01:02:19,420
+And this is what happens today. 
+
+1063
+01:02:19,910 --> 01:02:21,540
+They can switch so fast. 
+
+1064
+01:02:24,240 --> 01:02:25,270
+The cpu can switch, 
+
+1065
+01:02:25,280 --> 01:02:28,150
+the kennel can switch from between them so fast. 
+
+1066
+01:02:28,390 --> 01:02:30,290
+Then the illusion from the user is that really, 
+
+1067
+01:02:30,300 --> 01:02:32,130
+they are also running at the same time. 
+
+1068
+01:02:33,490 --> 01:02:35,600
+So to drive home, 
+
+1069
+01:02:35,610 --> 01:02:39,480
+as an example here is one a simple example. 
+
+1070
+01:02:42,990 --> 01:02:43,980
+It's about threats. 
+
+1071
+01:02:44,670 --> 01:02:46,580
+So imagine the following program. 
+
+1072
+01:02:47,070 --> 01:02:54,320
+You have a compute pie and you write the value of pie and pie dot text. 
+
+1073
+01:02:54,820 --> 01:02:57,610
+Then you want to do bring class list. 
+
+1074
+01:02:59,290 --> 01:03:00,400
+What is the behavior here? 
+
+1075
+01:03:02,510 --> 01:03:03,860
+You shouldn't look at the slides. 
+
+1076
+01:03:03,870 --> 01:03:05,540
+So why don't you tell me? 
+
+1077
+01:03:05,980 --> 01:03:08,490
+And why do you think of the behavior here? 
+
+1078
+01:03:09,950 --> 01:03:10,420
+Yes. 
+
+1079
+01:03:10,810 --> 01:03:10,920
+Simon, 
+
+1080
+01:03:12,880 --> 01:03:14,040
+you are correct. 
+
+1081
+01:03:14,330 --> 01:03:16,160
+You'll never get to print the class list. 
+
+1082
+01:03:16,170 --> 01:03:16,800
+Why is that? 
+
+1083
+01:03:22,940 --> 01:03:26,180
+Because compute pi will take forever and it will take forever, 
+
+1084
+01:03:26,190 --> 01:03:28,580
+because it has an infinite number of decimals. 
+
+1085
+01:03:30,550 --> 01:03:30,890
+Right? 
+
+1086
+01:03:32,030 --> 01:03:32,740
+Great answer. 
+
+1087
+01:03:48,870 --> 01:03:49,570
+So now, 
+
+1088
+01:03:50,250 --> 01:03:51,530
+how you can solve this problem, 
+
+1089
+01:03:51,940 --> 01:03:54,310
+you can solve it by we thread. 
+
+1090
+01:03:54,970 --> 01:03:58,170
+Now we have two activities compute by and print class list. 
+
+1091
+01:04:00,110 --> 01:04:01,810
+They are going to happen. 
+
+1092
+01:04:01,820 --> 01:04:02,970
+So to speak at the same time, 
+
+1093
+01:04:02,980 --> 01:04:06,200
+even if you're going to have a core, 
+
+1094
+01:04:06,530 --> 01:04:09,250
+you are going the kernel switch between them, 
+
+1095
+01:04:09,260 --> 01:04:10,360
+largely between them, 
+
+1096
+01:04:10,730 --> 01:04:12,450
+and each of them will make progress. 
+
+1097
+01:04:13,650 --> 01:04:13,950
+Right? 
+
+1098
+01:04:16,260 --> 01:04:16,900
+That's what it is. 
+
+1099
+01:04:16,910 --> 01:04:18,580
+So from the user perspective, 
+
+1100
+01:04:18,950 --> 01:04:22,960
+this is behaved like two things running at the same time. 
+
+1101
+01:04:23,760 --> 01:04:27,110
+Each of these things like compute pie and print plus list, 
+
+1102
+01:04:27,560 --> 01:04:28,780
+like having its own. 
+
+1103
+01:04:32,830 --> 01:04:35,170
+Let me chase some announcements. 
+
+1104
+01:04:36,170 --> 01:04:43,820
+And you should be starting working on homework zero already is because
+
+1105
+01:04:46,890 --> 01:04:48,890
+it's due tomorrow. 
+
+1106
+01:04:50,100 --> 01:04:53,990
+And I hope that everything you have yet have account, 
+
+1107
+01:04:54,000 --> 01:04:55,790
+everything is taken care of. 
+
+1108
+01:04:56,530 --> 01:04:59,200
+You are already familiar with the cs on seafood tools, 
+
+1109
+01:05:00,120 --> 01:05:03,800
+like submit out a greater we are given and see like that. 
+
+1110
+01:05:04,620 --> 01:05:05,280
+If not, 
+
+1111
+01:05:05,960 --> 01:05:09,140
+you please do that as soon as possible. 
+
+1112
+01:05:10,390 --> 01:05:12,920
+Also, it should be working on project zero already,
+
+1113
+01:05:13,230 --> 01:05:16,180
+because it's going is due next saturday. 
+
+1114
+01:05:17,960 --> 01:05:20,270
+And this is the first project, 
+
+1115
+01:05:20,890 --> 01:05:24,850
+which this is the only project you need to do on your own. 
+
+1116
+01:05:24,860 --> 01:05:25,890
+It's like a homework. 
+
+1117
+01:05:26,520 --> 01:05:31,030
+All the other projects are going to be done in a timor for sleep days. 
+
+1118
+01:05:32,660 --> 01:05:34,130
+So we have, 
+
+1119
+01:05:34,700 --> 01:05:37,340
+you have plenty of sleep days. 
+
+1120
+01:05:37,350 --> 01:05:41,190
+So I think it's like we have seven sleep days for homeworks. 
+
+1121
+01:05:41,550 --> 01:05:42,880
+Seven sleep day spot project. 
+
+1122
+01:05:43,360 --> 01:05:45,920
+Seal is still try to manage them. 
+
+1123
+01:05:45,930 --> 01:05:48,110
+I wouldn't spend them at the beginning, 
+
+1124
+01:05:48,940 --> 01:05:52,170
+actually facing towards the end of the class. 
+
+1125
+01:05:52,600 --> 01:05:56,940
+Things are going to get harder because you have projects not only for this class, 
+
+1126
+01:05:56,950 --> 01:05:58,970
+but also project you for other classes. 
+
+1127
+01:06:01,930 --> 01:06:02,900
+Try to manage them. 
+
+1128
+01:06:03,200 --> 01:06:08,200
+You are going to not get no credit when late after your line of sleep base. 
+
+1129
+01:06:08,880 --> 01:06:13,230
+One thing to keep in mind about the projects the days. 
+
+1130
+01:06:13,570 --> 01:06:17,330
+They don't apply to design reviews and to project zero, the first one.
+
+1131
+01:06:19,490 --> 01:06:22,000
+And finally, 
+
+1132
+01:06:22,010 --> 01:06:26,920
+please remember that friday is a drop early drop day. 
+
+1133
+01:06:27,420 --> 01:06:33,040
+Please, if you are not serious about making the class drop it,
+
+1134
+01:06:33,050 --> 01:06:39,160
+so then other people can get into the class from the waiting list. 
+
+1135
+01:06:41,790 --> 01:06:45,520
+And the group creation forum is due sunday, 
+
+1136
+01:06:46,400 --> 01:06:47,030
+this sunday. 
+
+1137
+01:06:50,800 --> 01:06:56,990
+So let's go back to threats. 
+
+1138
+01:06:57,400 --> 01:07:02,300
+One of the use cases of threads is to mask the aisle agency. 
+
+1139
+01:07:03,910 --> 01:07:04,750
+So what does it mean? 
+
+1140
+01:07:05,950 --> 01:07:10,040
+So it is something very simple, right?
+
+1141
+01:07:12,490 --> 01:07:13,800
+We also need, 
+
+1142
+01:07:13,810 --> 01:07:18,080
+now we are introducing the state just that can be. 
+
+1143
+01:07:19,130 --> 01:07:20,460
+So a threat can be running, 
+
+1144
+01:07:21,980 --> 01:07:25,880
+can be ready to run or blocked. 
+
+1145
+01:07:30,110 --> 01:07:31,780
+As you can imagine, in general,
+
+1146
+01:07:31,790 --> 01:07:36,260
+you have a list of thread. 
+
+1147
+01:07:36,270 --> 01:07:37,900
+You while you are running a thread, 
+
+1148
+01:07:37,910 --> 01:07:40,260
+you have a list of other thread charity to run, 
+
+1149
+01:07:40,270 --> 01:07:42,340
+then you may have a list of study chart blocks. 
+
+1150
+01:07:43,070 --> 01:07:44,590
+When you switch to another thread, 
+
+1151
+01:07:44,600 --> 01:07:47,190
+you always speak a thread which is ready to run. 
+
+1152
+01:07:50,080 --> 01:07:52,470
+So the point is that if you have a thread, 
+
+1153
+01:07:53,150 --> 01:07:58,240
+you wait for an input output operation to finish, 
+
+1154
+01:07:58,250 --> 01:08:00,050
+that thread is going to be blocked, 
+
+1155
+01:08:00,390 --> 01:08:02,720
+because it's waiting for that operation to finish. 
+
+1156
+01:08:04,020 --> 01:08:07,390
+And that operation may be executed by the operating system. 
+
+1157
+01:08:08,110 --> 01:08:09,800
+So the thread, right,
+
+1158
+01:08:09,810 --> 01:08:11,280
+has nothing to do. 
+
+1159
+01:08:13,150 --> 01:08:13,990
+What is an example? 
+
+1160
+01:08:15,100 --> 01:08:17,990
+The thread is going to wait, 
+
+1161
+01:08:18,470 --> 01:08:19,470
+for instance, 
+
+1162
+01:08:19,760 --> 01:08:21,250
+for an even from the keyboard, 
+
+1163
+01:08:21,260 --> 01:08:26,810
+a thread is going to wait to receive some data from the network. 
+
+1164
+01:08:29,170 --> 01:08:34,610
+What I said will wait for some or some, for instance,
+
+1165
+01:08:35,790 --> 01:08:39,110
+to open a file or to write some data to the disk. 
+
+1166
+01:08:43,500 --> 01:08:47,650
+The.and once is of these events happen, 
+
+1167
+01:08:47,660 --> 01:08:53,980
+the far the data has been written to the disk. 
+
+1168
+01:08:54,690 --> 01:08:56,760
+You got a network event, 
+
+1169
+01:08:56,770 --> 01:08:58,770
+you some network data on the network. 
+
+1170
+01:08:58,780 --> 01:09:01,370
+You get a keyboard event if you're waiting for it. 
+
+1171
+01:09:01,750 --> 01:09:04,170
+Now the thread becomes ready. 
+
+1172
+01:09:05,060 --> 01:09:05,700
+Right now. 
+
+1173
+01:09:06,830 --> 01:09:09,430
+If you don't have any ioe events, 
+
+1174
+01:09:10,390 --> 01:09:12,700
+you have something like that like we discussed, right?
+
+1175
+01:09:12,710 --> 01:09:16,120
+Your ultimate between both as in this case, 
+
+1176
+01:09:16,130 --> 01:09:19,540
+boss saying you have two threads. 
+
+1177
+01:09:19,550 --> 01:09:21,780
+Each of them has its own virtual superiors, 
+
+1178
+01:09:22,130 --> 01:09:24,350
+and both of them are always ready. 
+
+1179
+01:09:24,630 --> 01:09:26,320
+Like, and then you execute,
+
+1180
+01:09:26,950 --> 01:09:28,180
+you alternate between them. 
+
+1181
+01:09:28,400 --> 01:09:28,650
+Right? 
+
+1182
+01:09:29,770 --> 01:09:30,180
+Now, 
+
+1183
+01:09:30,740 --> 01:09:35,090
+let's see what will happen if you have an eye operation. 
+
+1184
+01:09:35,630 --> 01:09:37,000
+If you have an eye operation, 
+
+1185
+01:09:37,010 --> 01:09:41,580
+say the thread one corresponding to vcp one has an eye operation. 
+
+1186
+01:09:41,830 --> 01:09:43,190
+Say, right to the disk,
+
+1187
+01:09:43,630 --> 01:09:44,850
+and tell to the operating system, 
+
+1188
+01:09:44,860 --> 01:09:46,350
+write these data to the disk. 
+
+1189
+01:09:46,980 --> 01:09:49,850
+And then it waits until the data is written to the disk. 
+
+1190
+01:09:50,810 --> 01:09:52,400
+They're doing during this time. 
+
+1191
+01:09:52,670 --> 01:09:56,190
+The operator, the thread one is going to be blocked,
+
+1192
+01:09:57,180 --> 01:09:57,540
+right? 
+
+1193
+01:09:58,410 --> 01:10:06,660
+When he's blocked, it has no reason to hold the cpu right?
+
+1194
+01:10:07,430 --> 01:10:11,100
+It's ineligible to run and the operating system. 
+
+1195
+01:10:11,370 --> 01:10:17,730
+While the thread one waits for the opio operation to complete it can run. 
+
+1196
+01:10:18,690 --> 01:10:22,730
+I do when the operation of the first, 
+
+1197
+01:10:22,740 --> 01:10:25,210
+if you order of the first step ends, 
+
+1198
+01:10:25,580 --> 01:10:30,310
+then you are going to the thread one becomes eligible, 
+
+1199
+01:10:30,320 --> 01:10:34,500
+and the operating system is going to schedule it to that. 
+
+1200
+01:10:36,290 --> 01:10:36,630
+Right? 
+
+1201
+01:10:41,230 --> 01:10:46,260
+Let's go example again to the previous example when you have two threads. 
+
+1202
+01:10:46,510 --> 01:10:48,960
+Now, for our example,
+
+1203
+01:10:48,970 --> 01:10:58,050
+to write pie and sorry, in this example,
+
+1204
+01:10:58,060 --> 01:11:00,210
+and it is similar with what we have, 
+
+1205
+01:11:00,220 --> 01:11:01,410
+but it's more realistic. 
+
+1206
+01:11:01,810 --> 01:11:03,040
+At the second thread, 
+
+1207
+01:11:03,050 --> 01:11:05,450
+it's in the first. 
+
+1208
+01:11:06,100 --> 01:11:07,580
+So here we have two threads. 
+
+1209
+01:11:07,840 --> 01:11:10,210
+The first one is reading a large file, 
+
+1210
+01:11:10,220 --> 01:11:14,190
+and the second one is waiting, is rendering.
+
+1211
+01:11:14,200 --> 01:11:15,550
+They use the interface, right?
+
+1212
+01:11:15,880 --> 01:11:22,820
+It's going to say to show you what happens and on the screen, 
+
+1213
+01:11:25,320 --> 01:11:25,560
+okay? 
+
+1214
+01:11:26,620 --> 01:11:27,750
+To your actions. 
+
+1215
+01:11:28,240 --> 01:11:28,510
+Right? 
+
+1216
+01:11:29,140 --> 01:11:32,930
+And this is happens all over all in many cases. 
+
+1217
+01:11:33,140 --> 01:11:33,500
+Right? 
+
+1218
+01:11:34,100 --> 01:11:37,050
+Then you say you have a background, 
+
+1219
+01:11:37,060 --> 01:11:39,650
+you have a task which is doing something expensive. 
+
+1220
+01:11:40,140 --> 01:11:41,170
+Like in this case again, 
+
+1221
+01:11:42,670 --> 01:11:44,050
+reading from a large file. 
+
+1222
+01:11:44,060 --> 01:11:45,600
+And obviously, during this time,
+
+1223
+01:11:45,610 --> 01:11:48,700
+you do not want your computer to be a responsive, 
+
+1224
+01:11:50,330 --> 01:11:50,720
+right? 
+
+1225
+01:11:51,460 --> 01:11:55,090
+You want your computer to still respond to the user, 
+
+1226
+01:11:55,100 --> 01:11:56,130
+you to the user input. 
+
+1227
+01:11:58,690 --> 01:12:00,800
+This is how this is, 
+
+1228
+01:12:00,810 --> 01:12:02,900
+where threads are going to help you. 
+
+1229
+01:12:04,470 --> 01:12:04,660
+Right? 
+
+1230
+01:12:04,670 --> 01:12:05,260
+Okay? 
+
+1231
+01:12:05,750 --> 01:12:07,470
+Because in this particular case, 
+
+1232
+01:12:07,480 --> 01:12:13,410
+when an event occurs right on the keyboard mouse and things like that, 
+
+1233
+01:12:13,730 --> 01:12:19,480
+then grander user interface thread will be scheduled, 
+
+1234
+01:12:21,360 --> 01:12:24,310
+then is going to handle your input. 
+
+1235
+01:12:24,790 --> 01:12:25,960
+And therefore, 
+
+1236
+01:12:25,970 --> 01:12:28,760
+from your users perspective, 
+
+1237
+01:12:29,230 --> 01:12:32,710
+is going in the computer is going to be responsive despite the fact
+
+1238
+01:12:32,720 --> 01:12:35,430
+that in the background is processing this large file. 
+
+1239
+01:12:45,660 --> 01:12:47,680
+So when you compile ac program, 
+
+1240
+01:12:49,070 --> 01:12:50,660
+you run the executable. 
+
+1241
+01:12:51,390 --> 01:12:52,640
+A process is created. 
+
+1242
+01:12:53,640 --> 01:12:55,940
+And each process has at least one thread. 
+
+1243
+01:12:57,670 --> 01:12:59,210
+But this is not visible to you. 
+
+1244
+01:13:01,700 --> 01:13:03,520
+You wrote probably many c programs. 
+
+1245
+01:13:03,970 --> 01:13:05,140
+You never said, 
+
+1246
+01:13:06,010 --> 01:13:08,290
+have an api who say, 
+
+1247
+01:13:08,870 --> 01:13:09,780
+to manage the threats. 
+
+1248
+01:13:13,690 --> 01:13:15,520
+But this is the particular case. 
+
+1249
+01:13:16,940 --> 01:13:20,940
+In general, you can have, in the same process, multiple threads,
+
+1250
+01:13:21,380 --> 01:13:23,670
+but you have multiple thread, you have to manage them,
+
+1251
+01:13:25,660 --> 01:13:26,140
+and to manage them, 
+
+1252
+01:13:26,150 --> 01:13:29,710
+you need to have an api and we are going to learn a little bit
+
+1253
+01:13:29,720 --> 01:13:31,700
+about that api right? 
+
+1254
+01:13:35,460 --> 01:13:37,170
+What that api has to do, 
+
+1255
+01:13:37,180 --> 01:13:39,210
+it is to allow you to create threats. 
+
+1256
+01:13:40,540 --> 01:13:41,730
+It's a system call, 
+
+1257
+01:13:41,740 --> 01:13:43,970
+the system call is to the operating system. 
+
+1258
+01:13:43,980 --> 01:13:48,590
+Remember that we discuss about how the operating system exposes a function
+
+1259
+01:13:48,600 --> 01:13:49,700
+into the application. 
+
+1260
+01:13:52,140 --> 01:13:55,010
+One of the function it is to create and manage this thread. 
+
+1261
+01:13:58,710 --> 01:14:00,100
+Here is a soft stack, 
+
+1262
+01:14:00,110 --> 01:14:08,240
+and all the system call interface is between the operating system and the libraries. 
+
+1263
+01:14:08,750 --> 01:14:09,070
+Right? 
+
+1264
+01:14:09,770 --> 01:14:13,920
+Because and the libraries are the portable operating system libraries. 
+
+1265
+01:14:15,690 --> 01:14:23,530
+These are the libraries that when you include different libraries in
+
+1266
+01:14:23,540 --> 01:14:25,890
+your c program, 
+
+1267
+01:14:26,210 --> 01:14:27,130
+the system libraries, 
+
+1268
+01:14:27,730 --> 01:14:32,090
+they are giving you access to the function of the operating system
+
+1269
+01:14:32,100 --> 01:14:33,080
+and these libraries. 
+
+1270
+01:14:34,100 --> 01:14:35,130
+At the lower level, 
+
+1271
+01:14:35,140 --> 01:14:38,990
+there is a system called interface to call in the operating system. 
+
+1272
+01:14:45,030 --> 01:14:45,540
+So far, 
+
+1273
+01:14:45,550 --> 01:14:50,290
+we used so left the top left picture to show you multiple processes running
+
+1274
+01:14:50,300 --> 01:14:51,650
+on the operating system. 
+
+1275
+01:14:52,060 --> 01:14:55,970
+On the right hand side, is that a little bit more accurate description?
+
+1276
+01:14:56,350 --> 01:14:58,010
+And in this description, 
+
+1277
+01:14:58,020 --> 01:15:00,110
+you are going to see that actually, 
+
+1278
+01:15:00,120 --> 01:15:05,400
+these processes use the functionally provided the operating system
+
+1279
+01:15:05,670 --> 01:15:07,310
+through these os libraries. 
+
+1280
+01:15:07,580 --> 01:15:08,750
+And for instance, 
+
+1281
+01:15:08,760 --> 01:15:16,170
+lipsea ok so what are the ipi what are the ap is of this libraries? 
+
+1282
+01:15:16,180 --> 01:15:19,400
+In this case, you for be thread,
+
+1283
+01:15:19,410 --> 01:15:21,040
+you have a library for be thread. 
+
+1284
+01:15:22,310 --> 01:15:29,680
+This library for ap thread offers you this kind of functions. 
+
+1285
+01:15:30,290 --> 01:15:31,810
+One is to create a function. 
+
+1286
+01:15:33,950 --> 01:15:35,140
+This is to create a function. 
+
+1287
+01:15:35,870 --> 01:15:39,340
+You give what is important here. 
+
+1288
+01:15:39,350 --> 01:15:40,360
+You start routine. 
+
+1289
+01:15:40,370 --> 01:15:41,720
+This is a function. 
+
+1290
+01:15:42,310 --> 01:15:44,190
+You want the federal execute. 
+
+1291
+01:15:45,690 --> 01:15:47,360
+This is the last argument. 
+
+1292
+01:15:47,860 --> 01:15:50,240
+Is this call is the argument of the function. 
+
+1293
+01:15:51,260 --> 01:15:53,790
+The attributes typically is now. 
+
+1294
+01:15:54,280 --> 01:15:55,770
+But one example to attribute, 
+
+1295
+01:15:55,780 --> 01:16:02,130
+you can set up the stack size and peace thread is the returning parameter. 
+
+1296
+01:16:02,400 --> 01:16:02,650
+Here. 
+
+1297
+01:16:02,660 --> 01:16:06,030
+You are going to get so to speak the identifier to the thread. 
+
+1298
+01:16:07,050 --> 01:16:13,190
+And you use this identifier to the thread to call other functions on this thread. 
+
+1299
+01:16:13,750 --> 01:16:14,890
+What are the other functions? 
+
+1300
+01:16:15,800 --> 01:16:18,500
+One other function is exit. 
+
+1301
+01:16:19,310 --> 01:16:19,470
+Right? 
+
+1302
+01:16:19,480 --> 01:16:20,910
+When the thread finishes, 
+
+1303
+01:16:21,240 --> 01:16:25,100
+you are going to exit from the thread and join. 
+
+1304
+01:16:26,890 --> 01:16:27,260
+Right? 
+
+1305
+01:16:27,670 --> 01:16:31,690
+This piece that exit you are going to call from the current thread. 
+
+1306
+01:16:32,010 --> 01:16:34,350
+Piece that join is called from another thread. 
+
+1307
+01:16:34,810 --> 01:16:35,170
+Therefore, 
+
+1308
+01:16:36,480 --> 01:16:40,600
+you can need to pass the threat you are referring was piece that joins. 
+
+1309
+01:16:41,360 --> 01:16:44,540
+It's waiting for the thread. 
+
+1310
+01:16:46,760 --> 01:16:50,520
+Past here is the first argument to finish. 
+
+1311
+01:16:51,490 --> 01:16:51,880
+Right? 
+
+1312
+01:16:52,450 --> 01:16:55,840
+Nbp thread is not the pp thread join is not the best name, 
+
+1313
+01:16:55,850 --> 01:16:58,400
+may be p thread to wait or have been a better name. 
+
+1314
+01:16:58,850 --> 01:16:59,820
+But this is what happens. 
+
+1315
+01:17:05,930 --> 01:17:06,480
+Let's look. 
+
+1316
+01:17:06,490 --> 01:17:08,080
+And we will have more examples. 
+
+1317
+01:17:08,090 --> 01:17:13,880
+Then hopefully this will be more clear and clear over the next 5 minutes. 
+
+1318
+01:17:14,390 --> 01:17:18,690
+But this is what happens under the hood and help be threat is implemented, 
+
+1319
+01:17:18,700 --> 01:17:19,590
+be threat, create.
+
+1320
+01:17:20,550 --> 01:17:24,470
+It do some work to get the argument process, the argument.
+
+1321
+01:17:24,880 --> 01:17:27,910
+Then it's running, it's calling the operating system,
+
+1322
+01:17:27,920 --> 01:17:30,430
+how it's calling the operating system using the cisco. 
+
+1323
+01:17:31,800 --> 01:17:32,260
+Okay? 
+
+1324
+01:17:32,670 --> 01:17:33,550
+How you do it? 
+
+1325
+01:17:33,770 --> 01:17:37,900
+You put in a sum is eixebx is a registers. 
+
+1326
+01:17:39,240 --> 01:17:41,820
+These are registers for intel processor. 
+
+1327
+01:17:42,830 --> 01:17:46,160
+You put the cisco code, 
+
+1328
+01:17:46,730 --> 01:17:48,510
+which is create thread, 
+
+1329
+01:17:49,400 --> 01:17:51,620
+which is one code, which is known by the library.
+
+1330
+01:17:51,630 --> 01:17:53,120
+And it's by the operating system. 
+
+1331
+01:17:53,130 --> 01:17:56,050
+You put in this register, 
+
+1332
+01:17:56,060 --> 01:18:03,980
+and then you put the arguments to all the arguments of the p thread call
+
+1333
+01:18:04,170 --> 01:18:05,120
+in other registers. 
+
+1334
+01:18:05,810 --> 01:18:10,120
+And then you a special graph function, 
+
+1335
+01:18:10,350 --> 01:18:13,350
+which go and gives control to the operating system. 
+
+1336
+01:18:13,670 --> 01:18:14,970
+The or the kernel, 
+
+1337
+01:18:15,210 --> 01:18:18,240
+the kernel, when you get this graph function,
+
+1338
+01:18:18,490 --> 01:18:24,340
+what is going to do is going to read the argument from ex the from argument
+
+1339
+01:18:24,350 --> 01:18:28,450
+from ex is basically telling it what cisco is called. 
+
+1340
+01:18:29,630 --> 01:18:34,370
+It's going to invoke the handler for that cisco, 
+
+1341
+01:18:35,220 --> 01:18:37,230
+and that handler is going, 
+
+1342
+01:18:37,590 --> 01:18:39,530
+which is dispatched the system function. 
+
+1343
+01:18:39,860 --> 01:18:45,120
+And that hander is going to read the arguments of the cisco from the other registers, 
+
+1344
+01:18:45,130 --> 01:18:46,680
+ebx and so forth. 
+
+1345
+01:18:50,130 --> 01:18:56,300
+You return the value also in the x and then you passed the control
+
+1346
+01:18:56,310 --> 01:18:58,900
+now to the user code, 
+
+1347
+01:18:59,370 --> 01:19:03,160
+which executes this piece that create the line in the library. 
+
+1348
+01:19:03,500 --> 01:19:04,810
+And this, 
+
+1349
+01:19:05,060 --> 01:19:06,010
+you use that code, 
+
+1350
+01:19:06,020 --> 01:19:09,640
+but it is a return of value from the x is doing some kind
+
+1351
+01:19:09,650 --> 01:19:14,780
+of more bookkeeping and then return the value to the problem. 
+
+1352
+01:19:16,620 --> 01:19:17,020
+Right? 
+
+1353
+01:19:19,790 --> 01:19:21,340
+It's again here with blue. 
+
+1354
+01:19:21,350 --> 01:19:25,320
+There are things it executed in the user mode. 
+
+1355
+01:19:25,680 --> 01:19:27,940
+By the piece read library, we said,
+
+1356
+01:19:27,950 --> 01:19:30,460
+are the instruction executed by the kernel? 
+
+1357
+01:19:32,390 --> 01:19:36,040
+I'm going to ask to answer all the questions after we are done. 
+
+1358
+01:19:37,070 --> 01:19:39,300
+Stay for a few more minutes to answer these questions. 
+
+1359
+01:19:41,140 --> 01:19:41,790
+Now, 
+
+1360
+01:19:43,290 --> 01:19:44,370
+fork and joint pattern, 
+
+1361
+01:19:44,380 --> 01:19:45,850
+this is a fork and joint pattern. 
+
+1362
+01:19:46,350 --> 01:19:48,790
+The fork is like create basically, 
+
+1363
+01:19:48,800 --> 01:19:52,190
+the red here is the main thread of the process. 
+
+1364
+01:19:52,900 --> 01:19:55,330
+And then you can create a bunch of threads, 
+
+1365
+01:19:55,750 --> 01:19:56,860
+and then typically, 
+
+1366
+01:19:56,870 --> 01:19:58,340
+thread is going to exit. 
+
+1367
+01:19:58,760 --> 01:20:00,670
+When it's done, you say, exit.
+
+1368
+01:20:01,130 --> 01:20:04,040
+And then the main thread is going to join to. 
+
+1369
+01:20:04,050 --> 01:20:06,880
+This thread is going to wait for all threads to finish. 
+
+1370
+01:20:07,590 --> 01:20:09,260
+After itself finishes. 
+
+1371
+01:20:11,720 --> 01:20:13,430
+This is a very simple example. 
+
+1372
+01:20:19,170 --> 01:20:20,360
+Here, you have,
+
+1373
+01:20:20,690 --> 01:20:21,720
+what do we have here? 
+
+1374
+01:20:23,620 --> 01:20:27,700
+So we have here this thread functions at the top, 
+
+1375
+01:20:28,830 --> 01:20:34,590
+which is basically takes a thread identifier and write something about the thread, 
+
+1376
+01:20:35,300 --> 01:20:36,330
+about the stack. 
+
+1377
+01:20:36,340 --> 01:20:40,090
+And also it's increment in a common variable. 
+
+1378
+01:20:40,100 --> 01:20:43,600
+It's a common, it's a global variable, which is implemented.
+
+1379
+01:20:43,860 --> 01:20:44,290
+Right? 
+
+1380
+01:20:44,530 --> 01:20:48,380
+Remember that all the threads in the same process have access
+
+1381
+01:20:48,730 --> 01:20:51,550
+to all the data of that process. 
+
+1382
+01:20:52,010 --> 01:20:54,720
+All of the threads are going to have access to the common variable. 
+
+1383
+01:20:56,180 --> 01:20:57,190
+In the main, 
+
+1384
+01:20:57,200 --> 01:21:01,320
+you are going to create a bunch of threads here. 
+
+1385
+01:21:02,260 --> 01:21:06,440
+And then you are going to join to the threats you are going to create, 
+
+1386
+01:21:06,630 --> 01:21:07,900
+let the idea left, 
+
+1387
+01:21:07,910 --> 01:21:10,280
+let the join the separate execute, 
+
+1388
+01:21:10,530 --> 01:21:12,960
+and then wait for them to finish. 
+
+1389
+01:21:14,050 --> 01:21:14,390
+Okay? 
+
+1390
+01:21:14,850 --> 01:21:16,170
+How many threads you create? 
+
+1391
+01:21:16,650 --> 01:21:19,470
+The number of threads here is, by default, two.
+
+1392
+01:21:21,810 --> 01:21:26,590
+And you create two threads. 
+
+1393
+01:21:26,960 --> 01:21:28,280
+And then, 
+
+1394
+01:21:28,290 --> 01:21:30,640
+but if you passed the argument, 
+
+1395
+01:21:31,370 --> 01:21:33,880
+then you can create a different number of sets. 
+
+1396
+01:21:34,930 --> 01:21:35,680
+This I did. 
+
+1397
+01:21:35,690 --> 01:21:37,720
+And by the way, notice a straight function.
+
+1398
+01:21:39,840 --> 01:21:41,930
+It's end with peace, thread,
+
+1399
+01:21:43,870 --> 01:21:44,070
+exit. 
+
+1400
+01:21:44,080 --> 01:21:45,120
+So how many threads are? 
+
+1401
+01:21:45,130 --> 01:21:45,540
+I'm going? 
+
+1402
+01:21:47,780 --> 01:21:50,470
+We are going to talk more about this next lecture. 
+
+1403
+01:21:50,950 --> 01:21:53,240
+But how many threads are here in this program? 
+
+1404
+01:21:53,570 --> 01:21:55,080
+Obviously, is a number of threads.
+
+1405
+01:21:55,330 --> 01:21:56,430
+It's an thread there. 
+
+1406
+01:21:57,010 --> 01:22:02,570
+And and does the main thread join with a thread in the same order that they
+
+1407
+01:22:02,580 --> 01:22:03,090
+are created? 
+
+1408
+01:22:06,650 --> 01:22:06,900
+Right? 
+
+1409
+01:22:06,910 --> 01:22:11,120
+They are created in the same the same order. 
+
+1410
+01:22:11,130 --> 01:22:14,860
+And do the thread exit is the same order they were created? 
+
+1411
+01:22:18,280 --> 01:22:19,070
+Probably now, 
+
+1412
+01:22:19,850 --> 01:22:21,760
+because they can take different amounts of time. 
+
+1413
+01:22:23,340 --> 01:22:24,770
+If we run the program again, 
+
+1414
+01:22:24,780 --> 01:22:27,090
+there is a change is a very important question, 
+
+1415
+01:22:27,100 --> 01:22:28,770
+and we are not going to get out to it. 
+
+1416
+01:22:29,280 --> 01:22:31,030
+But it's, again, like,
+
+1417
+01:22:31,040 --> 01:22:32,310
+let's again, 
+
+1418
+01:22:32,320 --> 01:22:33,950
+summarize what happens in this code. 
+
+1419
+01:22:34,270 --> 01:22:36,010
+Here where the thread is created. 
+
+1420
+01:22:36,660 --> 01:22:40,350
+You allocate a space for all the threads. 
+
+1421
+01:22:41,200 --> 01:22:42,980
+And here are you create the threads? 
+
+1422
+01:22:43,690 --> 01:22:43,970
+Right? 
+
+1423
+01:22:43,980 --> 01:22:45,210
+You create any threads, 
+
+1424
+01:22:46,300 --> 01:22:46,620
+right? 
+
+1425
+01:22:47,470 --> 01:22:50,100
+And then once the thread is created, 
+
+1426
+01:22:50,110 --> 01:22:51,780
+you start executing the thread. 
+
+1427
+01:22:52,270 --> 01:22:54,400
+When the thread finishes, 
+
+1428
+01:22:54,410 --> 01:22:55,880
+you call pizza bed exit. 
+
+1429
+01:22:56,810 --> 01:22:58,210
+And this is what you are going to get. 
+
+1430
+01:22:59,330 --> 01:22:59,750
+Okay? 
+
+1431
+01:23:00,230 --> 01:23:04,150
+What you see here, I call it be thread with argument four,
+
+1432
+01:23:04,160 --> 01:23:05,630
+so there will be four threads. 
+
+1433
+01:23:05,940 --> 01:23:08,210
+It's and then different threads. 
+
+1434
+01:23:08,720 --> 01:23:10,510
+And they finish a different time. 
+
+1435
+01:23:10,520 --> 01:23:14,950
+So there is not that time and not in the order they were created. 
+
+1436
+01:23:15,550 --> 01:23:16,830
+Thread zero finishes last, 
+
+1437
+01:23:16,840 --> 01:23:18,000
+although skated first. 
+
+1438
+01:23:19,060 --> 01:23:22,020
+And then, as you can see, also,
+
+1439
+01:23:22,030 --> 01:23:27,540
+is thread is basically increment in the common value. 
+
+1440
+01:23:27,910 --> 01:23:29,540
+And therefore, this common value,
+
+1441
+01:23:29,550 --> 01:23:32,210
+it changes. 
+
+1442
+01:23:33,060 --> 01:23:35,400
+You see that the order in which is as increment, 
+
+1443
+01:23:35,410 --> 01:23:42,170
+it is the same as the order in which these threads were created. 
+
+1444
+01:23:43,180 --> 01:23:43,420
+Right? 
+
+1445
+01:23:43,430 --> 01:23:51,020
+The last the thread we just created first said zero is going
+
+1446
+01:23:51,030 --> 01:23:53,650
+to increment come on. 
+
+1447
+01:23:54,750 --> 01:23:56,660
+That is going to be the second thread, 
+
+1448
+01:23:56,670 --> 01:23:58,890
+not the first thread to increment karma. 
+
+1449
+01:23:59,350 --> 01:23:59,760
+Okay? 
+
+1450
+01:24:00,220 --> 01:24:02,520
+This gives you a sense about this kind of concurrency. 
+
+1451
+01:24:02,530 --> 01:24:07,130
+And this are going to talk a lot about it as we go on, 
+
+1452
+01:24:07,140 --> 01:24:08,930
+because the thread introduced non determinism. 
+
+1453
+01:24:08,940 --> 01:24:12,180
+And this will be a challenge we will need to address. 
+
+1454
+01:24:13,220 --> 01:24:15,310
+I'm going to stop here. 
+
+1455
+01:24:15,530 --> 01:24:16,240
+And instead, 
+
+1456
+01:24:16,250 --> 01:24:19,980
+i'm going to spend few more minutes to answer all the questions. 
+
+1457
+01:24:19,990 --> 01:24:24,430
+So people who are interested to hear the answer to the question can stick
+
+1458
+01:24:24,440 --> 01:24:25,630
+around for a few minutes. 
+
+1459
+01:24:25,960 --> 01:24:29,280
+And then we'll conclude the lecture. 
+
+1460
+01:24:37,340 --> 01:24:38,050
+So, 
+
+1461
+01:24:44,010 --> 01:24:46,870
+so the question this library is, 
+
+1462
+01:24:47,380 --> 01:24:54,940
+does os typically only provide c libraries for unix is written in
+
+1463
+01:24:54,950 --> 01:24:57,720
+c or lenos. 
+
+1464
+01:24:58,160 --> 01:25:04,080
+Actually, these libraries tend to be written in c so the answer here,
+
+1465
+01:25:04,770 --> 01:25:07,760
+typically, the operating system you are working with,
+
+1466
+01:25:08,160 --> 01:25:09,870
+also including marcos, 
+
+1467
+01:25:10,230 --> 01:25:14,680
+provide the system libraries are written in c and provide ac interface, 
+
+1468
+01:25:14,690 --> 01:25:18,600
+although you can easily write a schiller on top of that to provide
+
+1469
+01:25:18,610 --> 01:25:22,640
+other interfaces for the sea libraries. 
+
+1470
+01:25:22,980 --> 01:25:24,060
+Like, and you do it,
+
+1471
+01:25:24,070 --> 01:25:27,580
+you every language is actually providing its own libraries, 
+
+1472
+01:25:27,840 --> 01:25:29,670
+which are on top of the sea library. 
+
+1473
+01:25:29,680 --> 01:25:29,950
+System. 
+
+1474
+01:25:29,960 --> 01:25:32,800
+Library is provided by operating system. 
+
+1475
+01:25:32,810 --> 01:25:34,600
+Like, for instance, if you do python,
+
+1476
+01:25:34,610 --> 01:25:36,840
+you can still write data from the input. 
+
+1477
+01:25:37,350 --> 01:25:38,480
+Under the hood. 
+
+1478
+01:25:38,490 --> 01:25:42,880
+This is going to call a system call. 
+
+1479
+01:25:43,210 --> 01:25:47,840
+And that probably is going to happen from one of the sea library. 
+
+1480
+01:25:50,290 --> 01:25:52,210
+So these libraries are very specific. 
+
+1481
+01:25:52,580 --> 01:25:53,770
+They are always specific. 
+
+1482
+01:25:54,910 --> 01:25:57,180
+How does the sequel talk to the registers? 
+
+1483
+01:25:57,800 --> 01:25:58,510
+The sea code. 
+
+1484
+01:25:58,520 --> 01:26:00,110
+How does it talk to the registers? 
+
+1485
+01:26:00,120 --> 01:26:03,670
+Actually, you can inline assembly language in the sea code.
+
+1486
+01:26:04,030 --> 01:26:05,710
+That's why the signal is so powerful. 
+
+1487
+01:26:06,120 --> 01:26:07,130
+So you are going to have, 
+
+1488
+01:26:07,780 --> 01:26:12,360
+you can accommodate special instructions in which you can operate on the registers. 
+
+1489
+01:26:13,680 --> 01:26:14,960
+What is the trap instruction? 
+
+1490
+01:26:14,970 --> 01:26:16,480
+The trap instruction here, 
+
+1491
+01:26:16,490 --> 01:26:20,500
+it's voluntarily assist aaa user, 
+
+1492
+01:26:20,510 --> 01:26:21,600
+a process, 
+
+1493
+01:26:21,980 --> 01:26:26,360
+relinquishing the control to the operating system, basically, say,
+
+1494
+01:26:26,570 --> 01:26:29,310
+trap now is an operating system. 
+
+1495
+01:26:30,740 --> 01:26:38,950
+The operating system should run and to to execute the system. 
+
+1496
+01:26:39,390 --> 01:26:39,750
+Call, right?
+
+1497
+01:26:40,530 --> 01:26:43,450
+It's again, I want to call that let me take a step back.
+
+1498
+01:26:43,820 --> 01:26:47,660
+The goal here is that I want to call a system call, 
+
+1499
+01:26:47,670 --> 01:26:49,420
+like to execute a system call. 
+
+1500
+01:26:49,670 --> 01:26:51,260
+I'm going to put the album, 
+
+1501
+01:26:51,850 --> 01:26:56,990
+the identifier of system call in one register, 
+
+1502
+01:26:57,000 --> 01:27:00,230
+and I'm going to use other registers to put the argument of the system. 
+
+1503
+01:27:00,920 --> 01:27:03,070
+Now I want the operating system, 
+
+1504
+01:27:03,580 --> 01:27:04,590
+execute the system call. 
+
+1505
+01:27:04,950 --> 01:27:05,810
+How do I do that? 
+
+1506
+01:27:06,430 --> 01:27:07,180
+I do that, 
+
+1507
+01:27:07,190 --> 01:27:11,460
+invoking this strap instruction and the strap special instruction, 
+
+1508
+01:27:11,650 --> 01:27:13,720
+now is giving the control to the kernel, 
+
+1509
+01:27:13,730 --> 01:27:19,440
+which is and look at these registers and execute corresponding system call. 
+
+1510
+01:27:24,800 --> 01:27:29,690
+Could you go over again why we passed thread fund into the pastry create? 
+
+1511
+01:27:30,270 --> 01:27:30,840
+Well, 
+
+1512
+01:27:31,520 --> 01:27:37,910
+it's, again, like the threads are about executing,
+
+1513
+01:27:39,650 --> 01:27:41,210
+executing some piece of code. 
+
+1514
+01:27:42,460 --> 01:27:44,330
+You need to specify to the thread, 
+
+1515
+01:27:44,340 --> 01:27:45,650
+what piece of code to execute. 
+
+1516
+01:27:46,240 --> 01:27:51,450
+The way you do that is by defining the function with the thread you
+
+1517
+01:27:51,460 --> 01:27:52,320
+want to execute. 
+
+1518
+01:27:54,060 --> 01:27:54,490
+Okay? 
+
+1519
+01:27:54,990 --> 01:27:56,110
+That's basically the answer. 
+
+1520
+01:27:58,210 --> 01:27:59,700
+So you need, 
+
+1521
+01:27:59,970 --> 01:28:01,060
+that's how you call a thread, 
+
+1522
+01:28:01,070 --> 01:28:02,860
+your call you you create a thread. 
+
+1523
+01:28:03,320 --> 01:28:05,240
+Sorry, that's where you create a thread, you create a thread,
+
+1524
+01:28:05,250 --> 01:28:06,040
+bring the crystal code, 
+
+1525
+01:28:06,850 --> 01:28:09,380
+how you are going to save our code. 
+
+1526
+01:28:09,390 --> 01:28:09,780
+It is. 
+
+1527
+01:28:10,140 --> 01:28:14,370
+When we very easy to do a natural way to do it, it's like a function,
+
+1528
+01:28:15,760 --> 01:28:15,870
+right? 
+
+1529
+01:28:15,880 --> 01:28:17,190
+To put that out in the function, 
+
+1530
+01:28:17,720 --> 01:28:22,290
+then you are going to pass the pointer of that function to the thread. 
+
+1531
+01:28:22,620 --> 01:28:24,770
+The thread can create when you create the thread. 
+
+1532
+01:28:25,020 --> 01:28:27,870
+The thread is going to create to run that function. 
+
+1533
+01:28:35,630 --> 01:28:38,830
+Are we supposed to freeze this restructure? 
+
+1534
+01:28:41,370 --> 01:28:44,880
+So let's see if you are talking about these peace threats, 
+
+1535
+01:28:44,890 --> 01:28:46,560
+such as if you are going to. 
+
+1536
+01:28:47,140 --> 01:28:49,010
+Yeah, you are locating the program,
+
+1537
+01:28:50,020 --> 01:28:51,930
+you can be allocate, sorry.
+
+1538
+01:28:52,390 --> 01:28:53,510
+In this particular case, 
+
+1539
+01:28:53,520 --> 01:28:58,030
+we don't read because the entire program ends. 
+
+1540
+01:28:58,300 --> 01:29:00,790
+And when the program ends, the process ends,
+
+1541
+01:29:01,320 --> 01:29:05,030
+the operating system is going to de allocate all of the resources, 
+
+1542
+01:29:05,040 --> 01:29:07,070
+including the memory allocated to the process. 
+
+1543
+01:29:07,080 --> 01:29:08,780
+So there is no need to Free. 
+
+1544
+01:29:08,790 --> 01:29:09,890
+But in general, 
+
+1545
+01:29:09,900 --> 01:29:18,110
+if you want to say the pattern is to allocate to start ten threads, 
+
+1546
+01:29:18,520 --> 01:29:21,670
+and then I start another thing, independent threads.
+
+1547
+01:29:22,760 --> 01:29:29,740
+You want to Free the once the first and threads are finished, 
+
+1548
+01:29:29,750 --> 01:29:33,910
+and because you join on the first and threads, all of them finished,
+
+1549
+01:29:34,230 --> 01:29:38,110
+you may want to Free that thread a data structure. 
+
+1550
+01:29:40,260 --> 01:29:41,090
+In general, the answer,
+
+1551
+01:29:42,170 --> 01:29:43,300
+in this particular case, 
+
+1552
+01:29:43,310 --> 01:29:46,180
+you don't need to because the problem terminates. 
+
+1553
+01:29:46,190 --> 01:29:50,320
+And the operating system is going to clear all the resources allocated
+
+1554
+01:29:50,330 --> 01:29:51,640
+to the operating system, 
+
+1555
+01:29:51,650 --> 01:29:52,630
+including the memory. 
+
+1556
+01:29:59,530 --> 01:30:05,230
+This is the piece thread struct you allocate is not freed
+
+1557
+01:30:05,880 --> 01:30:08,410
+by the peaceful exit necessary. 
+
+1558
+01:30:14,250 --> 01:30:16,400
+So there is some point chat. 
+
+1559
+01:30:19,960 --> 01:30:20,390
+Okay. 
+
+1560
+01:30:21,550 --> 01:30:22,780
+Thank you, everyone.
+
+1561
+01:30:22,790 --> 01:30:29,360
+And i'll see you next Tuesday until then have a great Labor Day weekend. 
+
+1562
+01:30:30,740 --> 01:30:31,400
+Bye, everyone.
+

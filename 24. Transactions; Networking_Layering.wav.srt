@@ -1,2554 +1,3192 @@
 1
 00:00:00,000 --> 00:00:14,480
- Hello everyone. So today we are going to talk about a few things, I think all very interesting
+Hello everyone. So today we are going to talk about a few things, I think all very interesting
+大家好。今天我们要谈论一些事情，我认为都非常有趣。
 
 2
 00:00:14,480 --> 00:00:22,920
- topics. In particular, we are going to talk about transactions, how in general, how do
+topics. In particular, we are going to talk about transactions, how in general, how do
+交易。具体而言，我们将讨论交易的一般情况，以及如何进行交易。
 
 3
 00:00:22,920 --> 00:00:28,360
- different computers can agree with each other. And then we are going to talk quite a bit
+different computers can agree with each other. And then we are going to talk quite a bit
+不同的计算机可以相互协调。然后我们会聊很多。
 
 4
 00:00:28,360 --> 00:00:38,420
- about networking. So let's start. So if you remember from last time, we discussed about
+about networking. So let's start. So if you remember from last time, we discussed about
+关于网络。那么我们开始吧。如果你还记得上次的内容，我们讨论了关于网络的一些问题。
 
 5
 00:00:38,420 --> 00:00:46,920
- retouching the protocols. And protocol is a fundamental concept when two parties are
+retouching the protocols. And protocol is a fundamental concept when two parties are
+修改协议。协议是当两方进行交流时的基本概念。
 
 6
 00:00:46,920 --> 00:00:54,020
- communicating. Because you need a protocol to see how everyone is going to perform the
+communicating. Because you need a protocol to see how everyone is going to perform the
+沟通。因为你需要一个协议来看每个人的表现如何。
 
 7
 00:00:54,020 --> 00:00:59,800
- communication and how it's going to interpret the communication. And like we discussed last
+communication and how it's going to interpret the communication. And like we discussed last
+沟通以及如何解读沟通的方式。就像我们上次讨论的那样。
 
 8
 00:00:59,800 --> 00:01:08,040
- time, there are two parts of a protocol. It's a syntax, and the syntax is basically described
+time, there are two parts of a protocol. It's a syntax, and the syntax is basically described
+时间，协议有两个部分。一个是语法，语法基本上是描述了协议的结构和格式。
 
 9
 00:01:08,040 --> 00:01:16,200
- as a structure, the commands of the communication protocol. And then there is a semantics which
+as a structure, the commands of the communication protocol. And then there is a semantics which
+作为一个结构，通信协议的命令。然后还有一个语义。
 
 10
 00:01:16,200 --> 00:01:27,160
- describes the meaning of the messages, the meaning of the commands. And these are typically
+describes the meaning of the messages, the meaning of the commands. And these are typically
+描述了消息的含义，命令的含义。而这些通常是
 
 11
 00:01:27,160 --> 00:01:34,320
- implemented by state machines. So you send a message, what is a state machine means here
+implemented by state machines. So you send a message, what is a state machine means here
+"implemented by state machines" 这里的 "state machines" 是什么意思？
 
 12
 00:01:34,320 --> 00:01:40,000
- is that you are going in initial state and from initial state, you are going to send
+is that you are going in initial state and from initial state, you are going to send
+你是指你现在处于初始状态，并且从初始状态开始发送吗？
 
 13
 00:01:40,000 --> 00:01:45,440
- a message and then you may transition in a state in which you are waiting for a reply.
+a message and then you may transition in a state in which you are waiting for a reply.
+一条消息，然后你可以进入等待回复的状态。
 
 14
 00:01:45,440 --> 00:01:51,120
- That's the difference. If you wait for a reply, the reply doesn't come, then you may have
+That's the difference. If you wait for a reply, the reply doesn't come, then you may have
+这就是区别。如果你等待回复，但回复没有到来，那么你可能遇到了
 
 15
 00:01:51,120 --> 00:01:55,200
- experienced a timeout and you are going to go into another state and you are maybe you
+experienced a timeout and you are going to go into another state and you are maybe you
+经历了超时，你将进入另一个状态，也许你会
 
 16
 00:01:55,200 --> 00:02:04,200
- are going to resend the original message. Just to give you a sense. And also if you
+are going to resend the original message. Just to give you a sense. And also if you
+要重新发送原始消息。只是为了让你有个概念。还有，如果你
 
 17
 00:02:04,200 --> 00:02:14,600
- want the protocol to be fault tolerant, one way to do it is to store its state, the current
+want the protocol to be fault tolerant, one way to do it is to store its state, the current
+希望协议具备容错性，其中一种方法是存储其状态，即当前状态。
 
 18
 00:02:14,600 --> 00:02:21,860
- state of the protocol, so that when you are going, when you come back up after the failures,
+state of the protocol, so that when you are going, when you come back up after the failures,
+协议的状态，这样当你离开时，当你在故障后重新启动时，
 
 19
 00:02:21,860 --> 00:02:33,440
- you know where you left. And here it's a very simple classic example. So this is about,
+you know where you left. And here it's a very simple classic example. So this is about,
+你知道你把东西放在哪里了。这是一个非常简单的经典例子。所以这是关于...
 
 20
 00:02:33,440 --> 00:02:39,920
- for instance, when you talk with someone who is by telephone, by phone, you pick up the
+for instance, when you talk with someone who is by telephone, by phone, you pick up the
+例如，当你与一个通过电话进行交谈的人交谈时，你会拿起电话。
 
 21
 00:02:39,920 --> 00:02:47,320
- phone, you open it and listen for dial tone. Today on the cell phones, there are no longer
+phone, you open it and listen for dial tone. Today on the cell phones, there are no longer
+电话，你打开它并听取拨号音。如今在手机上，不再有
 
 22
 00:02:47,320 --> 00:02:53,720
- dial phones, but if you used one of these older phones, you know that it's a dial phone,
+dial phones, but if you used one of these older phones, you know that it's a dial phone,
+拨号电话，但如果你使用过其中一种旧电话，你就知道它是一个拨号电话。
 
 23
 00:02:53,720 --> 00:03:02,400
- dial tone. And dial tone, meaning that the phone is available, you can dial in the number.
+dial tone. And dial tone, meaning that the phone is available, you can dial in the number.
+拨号音。拨号音表示电话可用，您可以拨入号码。
 
 24
 00:03:02,400 --> 00:03:07,720
- If it's busy signals, then you cannot. Well, you can, but nothing will happen. So you dial
+If it's busy signals, then you cannot. Well, you can, but nothing will happen. So you dial
+如果是忙音，那么你不能拨通。嗯，你可以拨，但是没有任何反应。所以你拨号
 
 25
 00:03:07,720 --> 00:03:15,680
- a phone number and then you hear the ringing. This means that the other person, the phone
+a phone number and then you hear the ringing. This means that the other person, the phone
+一个电话号码，然后你听到了铃声。这意味着另一个人，电话的
 
 26
 00:03:15,680 --> 00:03:24,400
- rings to the other person and then colleagues is going to answer hello. And then you are
+rings to the other person and then colleagues is going to answer hello. And then you are
+对方的电话响了，然后同事会接听并说“你好”。然后你就可以开始了。
 
 27
 00:03:24,400 --> 00:03:34,440
- going to start the conversation. And then typically there is some kind of protocol.
+going to start the conversation. And then typically there is some kind of protocol.
+要开始对话了。然后通常会有某种协议。
 
 28
 00:03:34,440 --> 00:03:40,440
- This is again, describe the protocol. Then typically when you wait for an answer, what
+This is again, describe the protocol. Then typically when you wait for an answer, what
+这是再次描述协议。通常当你等待回答时，会发生什么？
 
 29
 00:03:40,440 --> 00:03:46,640
- do you do? You pause, you don't continue speaking. You ask a question and then you are pausing
+do you do? You pause, you don't continue speaking. You ask a question and then you are pausing
+你好吗？你停下来了，没有继续说话。你问了一个问题然后停顿了。
 
 30
 00:03:46,640 --> 00:03:55,440
- or when you want to give the other part of the chance to talk. And then when the conversation
+or when you want to give the other part of the chance to talk. And then when the conversation
+或者当你想给对方一个发言的机会。然后当对话
 
 31
 00:03:55,440 --> 00:04:04,400
- ends, you say something like bye or see you soon and then you hang up. So this is an example
+ends, you say something like bye or see you soon and then you hang up. So this is an example
+结束时，你可以说再见或者很快见到你，然后挂断电话。这是一个例子。
 
 32
 00:04:04,400 --> 00:04:11,840
- of protocol. And we are going to talk about some of the most important protocols in networking.
+of protocol. And we are going to talk about some of the most important protocols in networking.
+协议是网络中的一种通信规则。我们将要讨论一些网络中最重要的协议。
 
 33
 00:04:11,840 --> 00:04:20,320
- Next lecture in particular, we are going to talk about TCP transfer control protocol.
+Next lecture in particular, we are going to talk about TCP transfer control protocol.
+下一堂课，我们将特别讨论TCP传输控制协议。
 
 34
 00:04:20,320 --> 00:04:32,600
- Any questions? Okay. So again, these are red lines represent basically the communication
+Any questions? Okay. So again, these are red lines represent basically the communication
+有任何问题吗？好的。所以再次强调，这些红线基本上代表着沟通。
 
 35
 00:04:32,600 --> 00:04:45,560
- exchange of the information between the two parties. The first group of arrows exchange
+exchange of the information between the two parties. The first group of arrows exchange
+双方之间的信息交流。第一组箭头进行交换。
 
 36
 00:04:45,560 --> 00:04:54,320
- represents setting up the connection, setting up the call. You ring and then the other party
+represents setting up the connection, setting up the call. You ring and then the other party
+表示建立连接，建立通话。你拨号，然后对方接听。
 
 37
 00:04:54,320 --> 00:05:00,600
- answers. But from that point you can start communicating. Then the second group of arrows
+answers. But from that point you can start communicating. Then the second group of arrows
+回答。但从那一点开始，你可以开始交流。然后是第二组箭头。
 
 38
 00:05:00,600 --> 00:05:08,040
- represents the communication after the connection has been established. And the last group,
+represents the communication after the connection has been established. And the last group,
+表示连接建立后的通信。而最后一组，
 
 39
 00:05:08,040 --> 00:05:16,080
- it's obviously closing the connection. Last two arrows.
+it's obviously closing the connection. Last two arrows.
+这显然是在关闭连接。最后两个箭头。
 
 40
 00:05:16,080 --> 00:05:24,040
- So now, so fundamentally now we are having an network and we are having different machines.
+So now, so fundamentally now we are having an network and we are having different machines.
+所以现在，基本上我们有一个网络，我们有不同的机器。
 
 41
 00:05:24,040 --> 00:05:31,120
- And like we discussed last time, many of the applications are running on different machines.
+And like we discussed last time, many of the applications are running on different machines.
+和我们上次讨论的一样，许多应用程序都在不同的机器上运行。
 
 42
 00:05:31,120 --> 00:05:40,680
- All these, your client, Facebook client and backend of Facebook is the same application.
+All these, your client, Facebook client and backend of Facebook is the same application.
+所有这些，你的客户端，Facebook的客户端和Facebook的后端都是同一个应用程序。
 
 43
 00:05:40,680 --> 00:05:48,240
- The backend of Facebook or Google consists of many machines. On Serana queries, there
+The backend of Facebook or Google consists of many machines. On Serana queries, there
+Facebook或Google的后端由许多机器组成。在Serana查询中，
 
 44
 00:05:48,240 --> 00:05:56,720
- are a large number of machines which are going to contribute to provide you with the answer.
+are a large number of machines which are going to contribute to provide you with the answer.
+有很多机器将会为您提供答案。
 
 45
 00:05:56,720 --> 00:06:04,880
- So these machines somehow needs to communicate, needs to synchronize among themselves. And
+So these machines somehow needs to communicate, needs to synchronize among themselves. And
+所以这些机器需要以某种方式进行通信，彼此需要同步。而且
 
 46
 00:06:04,880 --> 00:06:14,440
- the biggest challenge here is that it's again, it's like you need to, on a single machine,
+the biggest challenge here is that it's again, it's like you need to, on a single machine,
+这里最大的挑战是，又一次，就像你需要在一台机器上完成。
 
 47
 00:06:14,440 --> 00:06:23,640
- we have the same problem to synchronize multiple threads. But in the case of a single machine,
+we have the same problem to synchronize multiple threads. But in the case of a single machine,
+我们有同样的问题，需要同步多个线程。但在单台机器的情况下，
 
 48
 00:06:23,640 --> 00:06:29,400
- we've done that at the end of the day by using this kind of hardware primitives like test
+we've done that at the end of the day by using this kind of hardware primitives like test
+我们最终通过使用这种硬件原语（如测试）来完成了这个任务。
 
 49
 00:06:29,400 --> 00:06:34,320
- and set, which are atomics, right? Checking a value and setting a value and that operation
+and set, which are atomics, right? Checking a value and setting a value and that operation
+和设置，它们是原子操作，对吗？检查一个值并设置一个值，这个操作
 
 50
 00:06:34,320 --> 00:06:41,720
- is atomic. So if you remember, it's all very, very helpful to build also the higher level
+is atomic. So if you remember, it's all very, very helpful to build also the higher level
+是原子的。所以如果你记得，对于构建更高级别的东西也非常非常有帮助。
 
 51
 00:06:41,720 --> 00:06:47,640
- of communication, synchronization primitives like PNB and things like that, or locks and
+of communication, synchronization primitives like PNB and things like that, or locks and
+通信的方式，同步原语如PNB等，或者锁和其他类似的东西。
 
 52
 00:06:47,640 --> 00:07:01,240
- semaphores. The problem in a distributed system, that's the only way to application processes
+semaphores. The problem in a distributed system, that's the only way to application processes
+信号量。在分布式系统中，这是应用程序进程之间唯一的通信方式。
 
 53
 00:07:01,240 --> 00:07:06,880
- running on different machines can communicate is through sending a receiving message. That's
+running on different machines can communicate is through sending a receiving message. That's
+通过发送和接收消息，不同机器之间可以进行通信。
 
 54
 00:07:06,880 --> 00:07:18,400
- the only thing you have. And sending and receiving a message is atomic in the sense that typically
+the only thing you have. And sending and receiving a message is atomic in the sense that typically
+你所拥有的唯一东西。发送和接收消息在某种意义上是原子的，通常情况下。
 
 55
 00:07:18,400 --> 00:07:30,360
- the receiver gets the entire message you send by the sender, you don't get half a message.
+the receiver gets the entire message you send by the sender, you don't get half a message.
+接收者会收到发送者发送的完整信息，不会只收到一半的信息。
 
 56
 00:07:30,360 --> 00:07:40,960
- But you don't have more than that. Anyway, if you can think about this, about what the
+But you don't have more than that. Anyway, if you can think about this, about what the
+但你没有更多的了。不管怎样，如果你能考虑一下，关于什么
 
 57
 00:07:40,960 --> 00:07:47,400
- abstraction looks like to exchange information between two processes running on different
+abstraction looks like to exchange information between two processes running on different
+抽象化看起来像是在不同运行的两个进程之间交换信息
 
 58
 00:07:47,400 --> 00:07:54,480
- machines, sending and receiving message abstraction is like a mailbox, right? You put a letter,
+machines, sending and receiving message abstraction is like a mailbox, right? You put a letter,
+机器之间发送和接收消息的抽象就像一个邮箱，对吗？你把一封信放进去，
 
 59
 00:07:54,480 --> 00:08:02,000
- you send a letter, the recipient gets a letter and sends you back, right? So you have a send
+you send a letter, the recipient gets a letter and sends you back, right? So you have a send
+您发送一封信，收件人收到信后会回信给您，对吗？所以您有一个发送的动作。
 
 60
 00:08:02,000 --> 00:08:11,120
- primitive and a receive primitive. That's pretty much what you have. So now let's think
+primitive and a receive primitive. That's pretty much what you have. So now let's think
+原语和接收原语。这基本上就是你所拥有的。现在让我们思考一下。
 
 61
 00:08:11,120 --> 00:08:18,240
- about how we are going to use these primitives to build higher level primitives. And one
+about how we are going to use these primitives to build higher level primitives. And one
+关于我们如何使用这些基本元素来构建更高级的元素。还有一个问题。
 
 62
 00:08:18,240 --> 00:08:24,440
- of the most basic primitives is about consensus. So basically what consensus is about is that
+of the most basic primitives is about consensus. So basically what consensus is about is that
+最基本的原语之一是关于共识的。所以基本上共识是关于什么的呢，就是
 
 63
 00:08:24,440 --> 00:08:38,520
- you want multiple nodes, multiple parties to agree on a value, right? So this is what
+you want multiple nodes, multiple parties to agree on a value, right? So this is what
+你想要多个节点、多个参与方对一个值达成一致，对吗？那么这就是你想要的。
 
 64
 00:08:38,520 --> 00:08:48,480
- consensus means, to agree on something, right? To pick one choice from multiple choices.
+consensus means, to agree on something, right? To pick one choice from multiple choices.
+共识意味着在某件事上达成一致，对于多个选择中选择一个选项，对吗？
 
 65
 00:08:48,480 --> 00:09:00,160
- So you need to do this in an environment in which different nodes may fail, stop responding
+So you need to do this in an environment in which different nodes may fail, stop responding
+所以你需要在一个可能出现不同节点故障、停止响应的环境中进行这个操作。
 
 66
 00:09:00,160 --> 00:09:08,100
- and messages can be lost. And also the message, how long it takes a message to be delivered
+and messages can be lost. And also the message, how long it takes a message to be delivered
+并且消息可能会丢失。还有一条消息，需要多长时间才能被送达？
 
 67
 00:09:08,100 --> 00:09:24,180
- can be unbounded. Okay. So this is a problem, right? And just to simplify the problem, actually,
+can be unbounded. Okay. So this is a problem, right? And just to simplify the problem, actually,
+可以是无界的。好的。所以这是一个问题，对吗？为了简化问题，实际上，
 
 68
 00:09:24,180 --> 00:09:31,060
- you just think about there are two parties which wants to choose between true and false,
+you just think about there are two parties which wants to choose between true and false,
+你只需要考虑有两个派别想在真与假之间做出选择。
 
 69
 00:09:31,060 --> 00:09:41,040
- right? And if they choose the same, have the same choice, they commit, otherwise they abort.
+right? And if they choose the same, have the same choice, they commit, otherwise they abort.
+对吗？如果他们选择相同，做出了相同的选择，他们就会执行，否则他们会中止。
 
 70
 00:09:41,040 --> 00:09:48,520
- Okay. And again, you need to do that in a globally scalable system and the decision
+Okay. And again, you need to do that in a globally scalable system and the decision
+好的。再次强调，你需要在一个全球可扩展的系统中完成这个任务，并且需要做出决策。
 
 71
 00:09:48,520 --> 00:09:54,500
- shouldn't be forgotten, especially when there is a failure, right? So you need to have some
+shouldn't be forgotten, especially when there is a failure, right? So you need to have some
+不应该被遗忘，尤其是在失败的时候，对吧？所以你需要有一些
 
 72
 00:09:54,500 --> 00:10:00,240
- sort of durability. So here is the example. The example is this general paradox. This
+sort of durability. So here is the example. The example is this general paradox. This
+是一种耐久性。所以这里有一个例子。这个例子是一个普遍的悖论。这
 
 73
 00:10:00,240 --> 00:10:03,040
- This is the one formulation of the problem.
+This is the one formulation of the problem.
+这是问题的一个表述。
 
 74
 00:10:03,170 --> 00:10:06,730
- To just illustrate the point.
+To just illustrate the point.
+只是为了说明这一点。
 
 75
 00:10:06,730 --> 00:10:09,530
- So here's assume that you have two generals
+So here's assume that you have two generals
+所以假设你有两个将军
 
 76
 00:10:09,530 --> 00:10:14,530
- who want to attack, who must attack the enemy.
+who want to attack, who must attack the enemy.
+谁想要进攻，谁必须进攻敌人。
 
 77
 00:10:14,530 --> 00:10:17,610
- In this case, the red enemy,
+In this case, the red enemy,
+在这种情况下，红色的敌人，
 
 78
 00:10:17,610 --> 00:10:19,050
- the red castle in the middle.
+the red castle in the middle.
+中间的红色城堡。
 
 79
 00:10:19,050 --> 00:10:24,650
- Now, if both of these armies on each side
+Now, if both of these armies on each side
+现在，如果双方的军队都在各自的一侧
 
 80
 00:10:24,650 --> 00:10:28,810
- attack at the same time, they are going to win.
+attack at the same time, they are going to win.
+同时发动攻击，他们将会获胜。
 
 81
 00:10:31,730 --> 00:10:34,970
- If they attack at different times,
+If they attack at different times,
+如果他们在不同的时间攻击，
 
 82
 00:10:34,970 --> 00:10:37,570
- they are going to lose.
+they are going to lose.
+他们将会失败。
 
 83
 00:10:37,570 --> 00:10:43,450
- Because the enemy is more powerful than a single army,
+Because the enemy is more powerful than a single army,
+因为敌人比单一的军队更强大，
 
 84
 00:10:43,450 --> 00:10:47,890
- but it's less powerful than two army put together.
+but it's less powerful than two army put together.
+但它的力量比两支军队加在一起还要弱。
 
 85
 00:10:47,890 --> 00:10:53,570
- So as such, in this case, the two armies need,
+So as such, in this case, the two armies need,
+因此，在这种情况下，两支军队需要...
 
 86
 00:10:53,570 --> 00:11:00,450
- and the generals of the two armies need to agree
+and the generals of the two armies need to agree
+并且两军的将领需要达成一致意见。
 
 87
 00:11:01,450 --> 00:11:02,330
- when to attack.
+when to attack.
+什么时候进攻。
 
 88
 00:11:02,330 --> 00:11:06,370
- Now the biggest problem, and obviously here,
+Now the biggest problem, and obviously here,
+现在最大的问题，显然在这里，
 
 89
 00:11:06,370 --> 00:11:10,330
- think about all times, you need to send messengers.
+think about all times, you need to send messengers.
+想想所有的时候，你需要派遣信使。
 
 90
 00:11:10,330 --> 00:11:13,210
- But the messenger can be intercepted by the enemy
+But the messenger can be intercepted by the enemy
+但是信使可能会被敌人拦截。
 
 91
 00:11:13,210 --> 00:11:15,210
- because the enemy is in the valley,
+because the enemy is in the valley,
+因为敌人在山谷中，
 
 92
 00:11:15,210 --> 00:11:18,410
- so say in this case, between the two armies.
+so say in this case, between the two armies.
+所以在这种情况下，指的是两支军队之间。
 
 93
 00:11:18,410 --> 00:11:22,170
- Okay?
+Okay?
+好的。
 
 94
 00:11:22,170 --> 00:11:29,210
- And, you know, this is, it was a real similar situation
+And, you know, this is, it was a real similar situation
+而且，你知道的，这个情况真的很相似。
 
 95
 00:11:29,850 --> 00:11:34,850
- like this caster in the history of United States,
+like this caster in the history of United States,
+就像美国历史上的这位播音员一样，
 
 96
 00:11:34,850 --> 00:11:42,770
- that was a battle, little big horn when he arrived earlier,
+that was a battle, little big horn when he arrived earlier,
+那是一场战斗，小大角山，当他早早到达时，
 
 97
 00:11:42,770 --> 00:11:47,170
- and he engaged earlier, and I believe he died.
+and he engaged earlier, and I believe he died.
+他之前参与了，我相信他已经去世了。
 
 98
 00:11:47,170 --> 00:11:49,650
- But it's a problem.
+But it's a problem.
+但这是个问题。
 
 99
 00:11:49,650 --> 00:11:53,090
- So the power, you know, what we need to do here
+So the power, you know, what we need to do here
+所以，你知道，我们在这里需要做什么。
 
 100
 00:11:53,090 --> 00:11:58,090
- is to develop a solution in which, you know,
+is to develop a solution in which, you know,
+是要开发一个解决方案，你知道的，
 
 101
 00:11:58,090 --> 00:12:03,090
- the two generals are going to agree on the time
+the two generals are going to agree on the time
+两位将军将就时间达成一致。
 
 102
 00:12:03,090 --> 00:12:04,130
- when to attack.
+when to attack.
+什么时候进攻。
 
 103
 00:12:04,130 --> 00:12:06,570
- Okay? That's a problem.
+Okay? That's a problem.
+好吗？那是个问题。
 
 104
 00:12:06,570 --> 00:12:17,850
- So can you develop such a protocol in an environment
+So can you develop such a protocol in an environment
+所以你能在一个环境中开发这样的协议吗？
 
 105
 00:12:17,850 --> 00:12:23,530
- in which the messages can be lost, can be arbitrarily late?
+in which the messages can be lost, can be arbitrarily late?
+在这种情况下，信息可能会丢失，可能会任意延迟。
 
 106
 00:12:26,930 --> 00:12:29,810
- It turns out that the answer is no.
+It turns out that the answer is no.
+原来答案是否定的。
 
 107
 00:12:29,810 --> 00:12:36,970
- And fundamentally it's, again, say one general say,
+And fundamentally it's, again, say one general say,
+而根本上，再次说一句普遍的话，
 
 108
 00:12:36,970 --> 00:12:41,170
- you know, I want to attack at 11 AM.
+you know, I want to attack at 11 AM.
+你知道吗，我想在上午11点发起攻击。
 
 109
 00:12:41,170 --> 00:12:44,810
- The other one say, okay, yes, 11 AM works.
+The other one say, okay, yes, 11 AM works.
+另一个人说，好的，是的，上午11点可以。
 
 110
 00:12:44,810 --> 00:12:48,370
- But then the second one who says that,
+But then the second one who says that,
+但是接着第二个人说道，
 
 111
 00:12:48,370 --> 00:12:51,890
- how he knows that the first general got his message,
+how he knows that the first general got his message,
+他如何知道第一位将军收到了他的消息？
 
 112
 00:12:51,890 --> 00:12:56,850
- the confirmation, because if he didn't, right,
+the confirmation, because if he didn't, right,
+确认一下，因为如果他没有的话，对吧，
 
 113
 00:12:56,850 --> 00:12:59,010
- if he didn't get the confirmation,
+if he didn't get the confirmation,
+如果他没有收到确认信息，
 
 114
 00:12:59,010 --> 00:13:02,370
- then he's not going to attack, right?
+then he's not going to attack, right?
+那么他不会发动攻击，对吗？
 
 115
 00:13:02,370 --> 00:13:06,530
- And the second general will attack alone, right?
+And the second general will attack alone, right?
+第二位将军会独自发动攻击，对吗？
 
 116
 00:13:06,530 --> 00:13:07,370
- And so forth.
+And so forth.
+等等。
 
 117
 00:13:07,370 --> 00:13:13,970
- So I told you that there is already no solution.
+So I told you that there is already no solution.
+所以我告诉你，已经没有解决办法了。
 
 118
 00:13:13,970 --> 00:13:18,490
- Now I just want you to think a little bit,
+Now I just want you to think a little bit,
+现在我只是希望你稍微思考一下，
 
 119
 00:13:18,490 --> 00:13:21,490
- and here is an example about an instance, right?
+and here is an example about an instance, right?
+这是一个关于实例的例子，对吗？
 
 120
 00:13:25,570 --> 00:13:30,570
- But can you think about, and can you argue convincingly,
+But can you think about, and can you argue convincingly,
+但你能思考吗，你能有说服力地辩论吗？
 
 121
 00:13:30,570 --> 00:13:38,210
- there is no protocol such that under these conditions,
+there is no protocol such that under these conditions,
+没有这样的协议，在这些条件下，
 
 122
 00:13:38,210 --> 00:13:41,210
- in which the messages can be lost
+in which the messages can be lost
+在其中消息可能会丢失的情况下
 
 123
 00:13:41,210 --> 00:13:43,090
- and can be arbitrarily delayed,
+and can be arbitrarily delayed,
+并且可以任意延迟。
 
 124
 00:13:43,090 --> 00:13:48,290
- the two generals can agree on the time to attack.
+the two generals can agree on the time to attack.
+两位将军可以就进攻的时间达成一致。
 
 125
 00:13:48,290 --> 00:13:52,850
- Why don't you take, you know, a few seconds,
+Why don't you take, you know, a few seconds,
+为什么不花几秒钟呢，你知道的，
 
 126
 00:13:52,850 --> 00:13:54,770
- maybe half a minute?
+maybe half a minute?
+可能半分钟吧？
 
 127
 00:13:55,770 --> 00:13:59,210
- To think about this problem.
+To think about this problem.
+思考这个问题。
 
 128
 00:13:59,210 --> 00:14:03,050
- And during this time, I'll get some other.
+And during this time, I'll get some other.
+在这段时间里，我会找一些其他的事情做。
 
 129
 00:14:03,050 --> 00:14:05,290
- (clicking)
+(clicking)
+Sorry, I am unable to understand or translate clicking sounds. Please provide the text you would like me to translate.
 
 130
 00:14:05,290 --> 00:14:07,530
- (clicking)
+(clicking)
+I'm sorry, but I am unable to translate non-Chinese text into Chinese. Could you please provide the text in Chinese that you would like me to translate into English?
 
 131
 00:14:34,650 --> 00:14:36,130
- Okay, any idea?
+Okay, any idea?
+好的，有什么想法吗？
 
 132
 00:14:36,130 --> 00:14:51,770
- Yes, there is always a final message required, Allison,
+Yes, there is always a final message required, Allison,
+是的，艾莉森，总是需要一条最后的信息。
 
 133
 00:14:51,770 --> 00:14:54,650
- answer, there is always a final message required
+answer, there is always a final message required
+回答，总是需要一个最终的信息。
 
 134
 00:14:54,650 --> 00:14:55,810
- to terminate the protocol,
+to terminate the protocol,
+终止协议。
 
 135
 00:14:55,810 --> 00:14:58,170
- and if that message is delayed or does not arrive,
+and if that message is delayed or does not arrive,
+如果那条消息延迟或者没有送达，
 
 136
 00:14:58,170 --> 00:14:59,690
- the protocol cannot terminate.
+the protocol cannot terminate.
+协议无法终止。
 
 137
 00:14:59,690 --> 00:15:01,930
- (clicking)
+(clicking)
+Sorry, I am unable to process clicks or any non-textual input. Please provide your text in written form so that I can assist you with the translation.
 
 138
 00:15:01,930 --> 00:15:10,930
- Okay, yeah, this is a pretty good answer.
+Okay, yeah, this is a pretty good answer.
+好的，是的，这是一个相当不错的回答。
 
 139
 00:15:10,930 --> 00:15:15,370
- Anyone wants to chime in?
+Anyone wants to chime in?
+有人想要加入讨论吗？
 
 140
 00:15:15,370 --> 00:15:28,610
- So the more formal proof is the following.
+So the more formal proof is the following.
+所以更正式的证明如下。
 
 141
 00:15:29,610 --> 00:15:34,610
- Assume that the protocol, a protocol exists,
+Assume that the protocol, a protocol exists,
+假设存在一个协议。
 
 142
 00:15:34,610 --> 00:15:43,610
- and assume that the protocol has m messages, right?
+and assume that the protocol has m messages, right?
+并且假设该协议有m条消息，对吗？
 
 143
 00:15:43,610 --> 00:15:48,570
- Any protocol has to terminate, right?
+Any protocol has to terminate, right?
+任何协议都必须终止，对吗？
 
 144
 00:15:48,570 --> 00:15:52,930
- So it must have a finite number of messages, right?
+So it must have a finite number of messages, right?
+所以它一定有有限数量的消息，对吗？
 
 145
 00:15:52,930 --> 00:15:54,930
- Otherwise, if it never terminates,
+Otherwise, if it never terminates,
+否则，如果它永远不会终止，
 
 146
 00:15:54,930 --> 00:15:57,090
- the general by definition will never agree.
+the general by definition will never agree.
+将军从定义上来说永远不会同意。
 
 147
 00:15:57,090 --> 00:16:01,650
- But now think about the last message.
+But now think about the last message.
+但是现在想想最后一条消息。
 
 148
 00:16:01,650 --> 00:16:09,410
- I am sending the last message to you, so you want to agree.
+I am sending the last message to you, so you want to agree.
+我正在给你发送最后一条消息，所以你想要同意。
 
 149
 00:16:09,410 --> 00:16:14,490
- So I send the message, but that's the last message.
+So I send the message, but that's the last message.
+所以我发送了消息，但那是最后一条消息。
 
 150
 00:16:14,490 --> 00:16:18,130
- And I have no idea whether that message
+And I have no idea whether that message
+而且我不知道那条信息是什么意思。
 
 151
 00:16:18,130 --> 00:16:22,970
- was received by you or it wasn't received by you.
+was received by you or it wasn't received by you.
+被你收到了还是没有被你收到。
 
 152
 00:16:25,130 --> 00:16:29,410
- So from my perspective, that message, it's useless.
+So from my perspective, that message, it's useless.
+所以从我的角度来看，那条消息是无用的。
 
 153
 00:16:29,410 --> 00:16:33,810
- Okay?
+Okay?
+好的。
 
 154
 00:16:33,810 --> 00:16:36,810
- And it shouldn't be needed for the agreement.
+And it shouldn't be needed for the agreement.
+并且这不应该是协议所必需的。
 
 155
 00:16:36,810 --> 00:16:39,410
- Okay?
+Okay?
+好的？
 
 156
 00:16:39,410 --> 00:16:42,090
- So then this means that the protocol
+So then this means that the protocol
+所以这意味着协议
 
 157
 00:16:42,090 --> 00:16:44,250
- doesn't have a messages.
+doesn't have a messages.
+没有留言。
 
 158
 00:16:44,250 --> 00:16:47,930
- It's, you know, it's a protocol with m minus 1 messages
+It's, you know, it's a protocol with m minus 1 messages
+这是一个协议，需要发送m-1条消息。
 
 159
 00:16:47,930 --> 00:16:49,290
- is going to be good enough.
+is going to be good enough.
+会足够好。
 
 160
 00:16:49,290 --> 00:16:52,810
- Okay?
+Okay?
+好的。
 
 161
 00:16:54,010 --> 00:16:56,650
- But then you go, so now the protocol
+But then you go, so now the protocol
+但是然后你走了，所以现在协议是什么？
 
 162
 00:16:56,650 --> 00:16:59,330
- has m minus 1 messages, right?
+has m minus 1 messages, right?
+有m-1条消息，对吗？
 
 163
 00:16:59,330 --> 00:17:03,090
- And you kind of go recursively because now m minus 1,
+And you kind of go recursively because now m minus 1,
+然后你会递归地进行，因为现在是m减1，
 
 164
 00:17:03,090 --> 00:17:06,330
- the last message doesn't have any value for you.
+the last message doesn't have any value for you.
+最后一条消息对你来说没有任何价值。
 
 165
 00:17:06,330 --> 00:17:08,210
- So it should be m minus 2 messages.
+So it should be m minus 2 messages.
+所以应该是m减去2个消息。
 
 166
 00:17:08,210 --> 00:17:10,050
- Okay?
+Okay?
+好的。
 
 167
 00:17:10,050 --> 00:17:16,610
- So that's kind of the way to think about it.
+So that's kind of the way to think about it.
+这就是思考的方式。
 
 168
 00:17:16,610 --> 00:17:21,170
- But yes, it's, Allison, it's correct.
+But yes, it's, Allison, it's correct.
+但是是的，Allison，是正确的。
 
 169
 00:17:21,170 --> 00:17:23,290
- It's about thinking about the last message.
+It's about thinking about the last message.
+这是关于思考上一条信息的事情。
 
 170
 00:17:23,890 --> 00:17:24,730
- Right?
+Right?
+对吗？
 
 171
 00:17:24,730 --> 00:17:28,650
- So there always the last message for the person
+So there always the last message for the person
+所以，对于这个人来说，总是有最后的消息。
 
 172
 00:17:28,650 --> 00:17:30,650
- who is going to send it, it's useless
+who is going to send it, it's useless
+谁会发送它，这没用的。
 
 173
 00:17:30,650 --> 00:17:33,370
- because they don't know whether it was received or not
+because they don't know whether it was received or not
+因为他们不知道是否已经收到了。
 
 174
 00:17:33,370 --> 00:17:34,410
- by the other party.
+by the other party.
+由另一方提供。
 
 175
 00:17:34,410 --> 00:17:39,330
- So now this is a hard problem, right?
+So now this is a hard problem, right?
+所以现在这是一个难题，对吗？
 
 176
 00:17:39,330 --> 00:17:41,690
- It's really hard problem.
+It's really hard problem.
+这是一个非常困难的问题。
 
 177
 00:17:41,690 --> 00:17:48,010
- And of course, in real life, you can use other things,
+And of course, in real life, you can use other things,
+当然，在现实生活中，你可以使用其他东西，
 
 178
 00:17:48,010 --> 00:17:50,250
- but how do we get out of it?
+but how do we get out of it?
+但是我们怎么才能摆脱这个困境呢？
 
 179
 00:17:50,250 --> 00:17:51,090
- Right?
+Right?
+对吗？
 
 180
 00:17:51,090 --> 00:17:56,090
- Because we still need different parties to agree
+Because we still need different parties to agree
+因为我们仍然需要不同的各方达成一致。
 
 181
 00:17:56,090 --> 00:18:02,730
- to build any useful applications, right?
+to build any useful applications, right?
+构建任何有用的应用程序，对吗？
 
 182
 00:18:02,730 --> 00:18:07,530
- And this is where it comes,
+And this is where it comes,
+这就是它的来源，
 
 183
 00:18:07,530 --> 00:18:12,530
- the two-phase commit protocol.
+the two-phase commit protocol.
+两阶段提交协议。
 
 184
 00:18:12,530 --> 00:18:18,930
- Because we cannot solve this general problem
+Because we cannot solve this general problem
+因为我们无法解决这个普遍问题。
 
 185
 00:18:18,930 --> 00:18:23,930
- or general paradox, we solve a related problem.
+or general paradox, we solve a related problem.
+或者说一般的悖论，我们解决一个相关的问题。
 
 186
 00:18:23,930 --> 00:18:28,290
- Before going here, any questions so far
+Before going here, any questions so far
+在来这之前，有什么问题吗？
 
 187
 00:18:28,290 --> 00:18:31,330
- about the general paradox, the general problem?
+about the general paradox, the general problem?
+关于“general paradox”，“general problem”的问题？
 
 188
 00:18:31,330 --> 00:18:36,610
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 189
 00:18:36,610 --> 00:18:46,970
- So the way to do so is that,
+So the way to do so is that,
+所以做到这一点的方法是，
 
 190
 00:18:48,530 --> 00:18:50,890
- to get around the problem is that,
+to get around the problem is that,
+解决这个问题的方法是，
 
 191
 00:18:50,890 --> 00:18:53,730
- and now the challenges of the general paradox,
+and now the challenges of the general paradox,
+现在是普遍悖论的挑战。
 
 192
 00:18:53,730 --> 00:18:57,530
- is that you still have the same problem,
+is that you still have the same problem,
+你还是有同样的问题吗？
 
 193
 00:18:57,530 --> 00:19:03,890
- which you have more than one parties agree on something,
+which you have more than one parties agree on something,
+当你有多个方面都同意某件事时，
 
 194
 00:19:03,890 --> 00:19:12,410
- but you remove that time during which they must agree.
+but you remove that time during which they must agree.
+但是你删除了他们必须同意的时间。
 
 195
 00:19:16,450 --> 00:19:19,690
- So you basically say there are no constraints on time,
+So you basically say there are no constraints on time,
+所以你的意思是时间没有限制，
 
 196
 00:19:19,690 --> 00:19:23,090
- they just eventually will happen, eventually will agree.
+they just eventually will happen, eventually will agree.
+它们最终会发生，最终会达成一致。
 
 197
 00:19:23,090 --> 00:19:26,970
- Right?
+Right?
+对吗？
 
 198
 00:19:26,970 --> 00:19:29,250
- So that's kind of the big deal.
+So that's kind of the big deal.
+这就是重要的事情。
 
 199
 00:19:29,250 --> 00:19:32,530
- And this is a two-phase commit protocol.
+And this is a two-phase commit protocol.
+这是一个两阶段提交协议。
 
 200
 00:19:32,530 --> 00:19:37,490
- It was developed by Jim Gray, who has huge influences.
+It was developed by Jim Gray, who has huge influences.
+它是由具有巨大影响力的吉姆·格雷开发的。
 
 201
 00:19:37,490 --> 00:19:41,170
- He was the first Berkeley PhD student,
+He was the first Berkeley PhD student,
+他是伯克利大学的第一位博士生。
 
 202
 00:19:41,170 --> 00:19:44,130
- computer science PhD in '69,
+computer science PhD in '69,
+计算机科学博士，于1969年获得。
 
 203
 00:19:44,130 --> 00:19:49,130
- and has a huge impact on databases.
+and has a huge impact on databases.
+并且对数据库产生了巨大的影响。
 
 204
 00:19:49,130 --> 00:19:54,410
- And many important database breakthroughs
+And many important database breakthroughs
+和许多重要的数据库突破
 
 205
 00:19:54,410 --> 00:19:56,930
- are going back to Jim.
+are going back to Jim.
+我们要回到吉姆那里。
 
 206
 00:19:56,930 --> 00:20:00,170
- Unfortunately, he disappeared several years back
+Unfortunately, he disappeared several years back
+很不幸，他几年前就消失了。
 
 207
 00:20:00,170 --> 00:20:01,170
- while sailing.
+while sailing.
+在航行时。
 
 208
 00:20:01,170 --> 00:20:07,170
- So what is a two-phase commit protocol?
+So what is a two-phase commit protocol?
+两阶段提交协议是什么？
 
 209
 00:20:07,170 --> 00:20:08,340
- commit protocol is very simple.
+commit protocol is very simple.
+提交协议非常简单。
 
 210
 00:20:08,340 --> 00:20:12,300
- First of all, you do have a persistent storage,
+First of all, you do have a persistent storage,
+首先，你确实有一个持久存储。
 
 211
 00:20:12,300 --> 00:20:14,000
- so you can save the state.
+so you can save the state.
+所以你可以保存状态。
 
 212
 00:20:14,000 --> 00:20:18,820
- And then you have two phases,
+And then you have two phases,
+然后你有两个阶段，
 
 213
 00:20:18,820 --> 00:20:21,040
- prepare phase and commit phase.
+prepare phase and commit phase.
+准备阶段和提交阶段。
 
 214
 00:20:21,040 --> 00:20:27,000
- Also, not all members are equal.
+Also, not all members are equal.
+此外，并非所有成员都平等无差。
 
 215
 00:20:27,000 --> 00:20:31,580
- You have a coordinator and you have a bunch of workers.
+You have a coordinator and you have a bunch of workers.
+你有一个协调员和一群工人。
 
 216
 00:20:31,580 --> 00:20:34,540
- And the coordinator executes a protocol.
+And the coordinator executes a protocol.
+并且协调员执行一个协议。
 
 217
 00:20:34,540 --> 00:20:39,540
- It basically sends to every worker a message,
+It basically sends to every worker a message,
+它基本上向每个工人发送一条消息，
 
 218
 00:20:39,540 --> 00:20:45,060
- basically asking to agree with something
+basically asking to agree with something
+基本上是在询问是否同意某件事情。
 
 219
 00:20:45,060 --> 00:20:49,260
- or not agree.
+or not agree.
+同意或不同意。
 
 220
 00:20:49,260 --> 00:20:55,460
- If every worker responds that they agreed,
+If every worker responds that they agreed,
+如果每个工人都回答说他们同意，
 
 221
 00:20:55,460 --> 00:21:02,340
- the coordinator is going to tell in the commit phase,
+the coordinator is going to tell in the commit phase,
+协调员将在提交阶段进行说明。
 
 222
 00:21:04,300 --> 00:21:05,700
- all the workers to commit.
+all the workers to commit.
+所有的工人都要承诺。
 
 223
 00:21:05,700 --> 00:21:12,060
- If at least one worker says abort,
+If at least one worker says abort,
+如果至少有一个工人说中止，
 
 224
 00:21:12,060 --> 00:21:16,180
- then all the workers will abort
+then all the workers will abort
+然后所有的工人都会中止。
 
 225
 00:21:16,180 --> 00:21:20,660
- and that entire operation is aborted.
+and that entire operation is aborted.
+并且整个操作被中止。
 
 226
 00:21:20,660 --> 00:21:25,100
- So again, to take a step back here,
+So again, to take a step back here,
+所以，再回到之前的话题，
 
 227
 00:21:25,100 --> 00:21:29,300
- we want here that another way to think about
+we want here that another way to think about
+我们希望这里有另一种思考方式。
 
 228
 00:21:29,300 --> 00:21:33,920
- it's all workers, they must execute an operation.
+it's all workers, they must execute an operation.
+这是所有的工人，他们必须执行一个操作。
 
 229
 00:21:34,920 --> 00:21:37,320
- Is that all of them execute the operation
+Is that all of them execute the operation
+这些都执行操作吗？
 
 230
 00:21:37,320 --> 00:21:39,360
- or none of them execute the operation?
+or none of them execute the operation?
+还是它们都不执行这个操作？
 
 231
 00:21:39,360 --> 00:21:43,840
- In the case of databases, that operation is a transaction.
+In the case of databases, that operation is a transaction.
+在数据库的情况下，该操作是一个事务。
 
 232
 00:21:43,840 --> 00:21:50,100
- So is that all of them execute transaction
+So is that all of them execute transaction
+所以他们都执行交易吗？
 
 233
 00:21:50,100 --> 00:21:51,040
- or none of them?
+or none of them?
+还是一个都不要？
 
 234
 00:21:51,040 --> 00:21:55,440
- So if all of them are ready,
+So if all of them are ready,
+那么如果他们都准备好了，
 
 235
 00:21:55,440 --> 00:21:57,320
- are they going to execute the transaction,
+are they going to execute the transaction,
+他们打算执行这笔交易吗？
 
 236
 00:21:57,320 --> 00:22:00,280
- say we are ready,
+say we are ready,
+我们准备好了。
 
 237
 00:22:00,280 --> 00:22:05,280
- we then coordinate, they sent that to coordinator,
+we then coordinate, they sent that to coordinator,
+我们然后协调，他们把那个发送给协调员。
 
 238
 00:22:05,280 --> 00:22:07,360
- the coordinator will send back commit.
+the coordinator will send back commit.
+协调员将会回复提交。
 
 239
 00:22:07,360 --> 00:22:11,540
- So everyone will commit the transaction.
+So everyone will commit the transaction.
+所以每个人都会执行这个交易。
 
 240
 00:22:11,540 --> 00:22:16,900
- Otherwise, the coordinator will send abort
+Otherwise, the coordinator will send abort
+否则，协调员将发送中止指令。
 
 241
 00:22:16,900 --> 00:22:18,900
- and everyone will abort the transaction.
+and everyone will abort the transaction.
+并且每个人都会中止交易。
 
 242
 00:22:18,900 --> 00:22:22,480
- Make sense?
+Make sense?
+有意义吗？
 
 243
 00:22:22,480 --> 00:22:27,080
- And like you'll see,
+And like you'll see,
+而且你会看到，
 
 244
 00:22:27,080 --> 00:22:30,640
- the logs will be fundamental to guarantee
+the logs will be fundamental to guarantee
+这些日志将是确保的基础。
 
 245
 00:22:30,640 --> 00:22:32,960
- that this protocol is going to work correctly,
+that this protocol is going to work correctly,
+这个协议将会正常工作，
 
 246
 00:22:32,960 --> 00:22:36,840
- which means that either all workers commit
+which means that either all workers commit
+这意味着要么所有的工人都承诺
 
 247
 00:22:36,840 --> 00:22:38,200
- or abort the transaction.
+or abort the transaction.
+或者中止交易。
 
 248
 00:22:38,200 --> 00:22:47,400
- So again, you have one coordinator in summary,
+So again, you have one coordinator in summary,
+所以，总结一下，你有一个协调员。
 
 249
 00:22:47,400 --> 00:22:49,480
- you have N workers,
+you have N workers,
+你有N名工人。
 
 250
 00:22:49,480 --> 00:22:51,360
- the high level algorithms is the following,
+the high level algorithms is the following,
+高级算法如下：
 
 251
 00:22:51,360 --> 00:22:55,200
- the coordinator asks all workers if they can commit.
+the coordinator asks all workers if they can commit.
+协调员询问所有工人是否能够承诺。
 
 252
 00:22:55,200 --> 00:22:59,560
- If all workers reply, yes, we can commit,
+If all workers reply, yes, we can commit,
+如果所有的工人都回答是的，我们可以承诺。
 
 253
 00:22:59,560 --> 00:23:03,040
- then the coordinator broke us to everyone commit.
+then the coordinator broke us to everyone commit.
+然后协调员让我们每个人都承诺。
 
 254
 00:23:03,040 --> 00:23:06,960
- Otherwise, the coordinator broke us abort
+Otherwise, the coordinator broke us abort
+否则，协调员中断了我们的任务。
 
 255
 00:23:06,960 --> 00:23:11,320
- because there is at least one worker you cannot commit.
+because there is at least one worker you cannot commit.
+因为至少有一名工人你无法承诺。
 
 256
 00:23:11,320 --> 00:23:15,000
- And the worker just obey these global messages
+And the worker just obey these global messages
+而工人只是遵守这些全球信息。
 
 257
 00:23:15,000 --> 00:23:16,600
- where there is commit and abort.
+where there is commit and abort.
+在这里有提交和中止。
 
 258
 00:23:16,600 --> 00:23:18,840
- That's it.
+That's it.
+就这样。
 
 259
 00:23:18,840 --> 00:23:22,320
- And we use persistent log in order to make sure
+And we use persistent log in order to make sure
+我们使用持久性日志来确保
 
 260
 00:23:22,320 --> 00:23:24,680
- that the protocol will work correctly
+that the protocol will work correctly
+协议将正常工作。
 
 261
 00:23:24,680 --> 00:23:26,220
- when machines fail.
+when machines fail.
+当机器出现故障时。
 
 262
 00:23:26,220 --> 00:23:30,640
- Now, here we assume that the machine fails
+Now, here we assume that the machine fails
+现在，我们假设机器发生故障。
 
 263
 00:23:30,640 --> 00:23:32,960
- is going to eventually come up,
+is going to eventually come up,
+最终会出现，
 
 264
 00:23:32,960 --> 00:23:35,120
- look at the log and continue the protocol.
+look at the log and continue the protocol.
+请查看日志并继续执行协议。
 
 265
 00:23:35,120 --> 00:23:42,320
- But again, we don't put any bound
+But again, we don't put any bound
+但是，我们不再设定任何限制。
 
 266
 00:23:42,320 --> 00:23:47,320
- in terms of the time that this protocol it takes to finish.
+in terms of the time that this protocol it takes to finish.
+就这个协议完成所需的时间而言。
 
 267
 00:23:51,600 --> 00:23:56,600
- So it's again, there are only two possible votes
+So it's again, there are only two possible votes
+所以又是这样，只有两种可能的投票结果。
 
 268
 00:23:56,600 --> 00:24:02,040
- a worker can make and can do, commit and abort.
+a worker can make and can do, commit and abort.
+一个工人可以制造和完成，也可以放弃和中止。
 
 269
 00:24:02,040 --> 00:24:07,560
- And commit, it only happens if anonymously
+And commit, it only happens if anonymously
+并且承诺，只有在匿名的情况下才会发生。
 
 270
 00:24:07,560 --> 00:24:09,000
- everyone says commit.
+everyone says commit.
+大家都说commit。
 
 271
 00:24:09,000 --> 00:24:18,480
- So in the previous slide,
+So in the previous slide,
+在之前的幻灯片中，
 
 272
 00:24:18,480 --> 00:24:23,480
- in the preparing phase, you remember the preparing phase
+in the preparing phase, you remember the preparing phase
+在准备阶段，你记得准备阶段。
 
 273
 00:24:23,480 --> 00:24:29,680
- is a phase in which the coordinator asks every worker
+is a phase in which the coordinator asks every worker
+是一个阶段，在这个阶段协调员会询问每个工人。
 
 274
 00:24:29,680 --> 00:24:34,440
- whether they can commit or they are going to,
+whether they can commit or they are going to,
+无论他们是否能够承诺或者他们是否打算这样做，
 
 275
 00:24:34,440 --> 00:24:35,280
- they can commit.
+they can commit.
+他们可以承诺。
 
 276
 00:24:35,280 --> 00:24:43,280
- If a worker says that it can commit,
+If a worker says that it can commit,
+如果一个工人说它可以承诺，
 
 277
 00:24:43,280 --> 00:24:48,280
- then it can do that only if it should commit.
+then it can do that only if it should commit.
+那么只有在必要时才能执行该操作。
 
 278
 00:24:48,320 --> 00:24:52,320
- And it's also to ensure that can accept the transaction.
+And it's also to ensure that can accept the transaction.
+并且这也是为了确保能够接受交易。
 
 279
 00:24:52,320 --> 00:24:58,560
- And this assurance, this vote must be recorded
+And this assurance, this vote must be recorded
+这个保证，这个投票必须被记录下来。
 
 280
 00:24:58,560 --> 00:25:00,360
- in the stable log.
+in the stable log.
+在稳定的日志中。
 
 281
 00:25:00,360 --> 00:25:08,120
- If the worker votes abort, it must guarantee
+If the worker votes abort, it must guarantee
+如果工人投票中止，必须保证
 
 282
 00:25:08,120 --> 00:25:12,680
- that it will never accept the transaction.
+that it will never accept the transaction.
+它将永远不会接受这笔交易。
 
 283
 00:25:12,680 --> 00:25:16,520
- And this is also going to be recorded in the log.
+And this is also going to be recorded in the log.
+这也将被记录在日志中。
 
 284
 00:25:17,520 --> 00:25:22,520
- And finishing, it's all the machines have agreed to commit.
+And finishing, it's all the machines have agreed to commit.
+最后，所有的机器都同意执行。
 
 285
 00:25:22,520 --> 00:25:26,920
- Then if all the machines have agreed to commit,
+Then if all the machines have agreed to commit,
+那么如果所有的机器都同意执行，
 
 286
 00:25:26,920 --> 00:25:33,360
- you record the decisions to commit in the local log.
+you record the decisions to commit in the local log.
+你将决策记录在本地日志中。
 
 287
 00:25:33,360 --> 00:25:35,720
- And this is for the coordinator.
+And this is for the coordinator.
+这是给协调员的。
 
 288
 00:25:35,720 --> 00:25:39,360
- And then the coordinator inform every voter to commit.
+And then the coordinator inform every voter to commit.
+然后协调员通知每个选民去投票。
 
 289
 00:25:39,360 --> 00:25:44,360
- Otherwise the coordinator logs the decision
+Otherwise the coordinator logs the decision
+否则，协调员会记录决定。
 
 290
 00:25:45,880 --> 00:25:50,080
- to abort and send the rest abort to every worker.
+to abort and send the rest abort to every worker.
+中文翻译成英文：to abort and send the rest abort to every worker.
+英文翻译成中文：中止并将剩余的中止发送给每个工作人员。
 
 291
 00:25:50,080 --> 00:25:56,960
- The machines remember the workers from the previous slide,
+The machines remember the workers from the previous slide,
+机器记得上一张幻灯片中的工人们。
 
 292
 00:25:56,960 --> 00:25:59,200
- they cannot take back its decision.
+they cannot take back its decision.
+他们无法撤回他们的决定。
 
 293
 00:25:59,200 --> 00:26:05,080
- So we are guaranteed that exactly one of this will happen.
+So we are guaranteed that exactly one of this will happen.
+所以我们可以确保这两种情况中只会发生一种。
 
 294
 00:26:05,080 --> 00:26:09,480
- So basically if a worker says,
+So basically if a worker says,
+那么基本上，如果一个工人说，
 
 295
 00:26:09,480 --> 00:26:11,080
- I can commit this transaction,
+I can commit this transaction,
+我可以执行这个交易。
 
 296
 00:26:11,080 --> 00:26:15,080
- it cannot let later say I cannot accept the transaction.
+it cannot let later say I cannot accept the transaction.
+它不能让后来的人说我不能接受这笔交易。
 
 297
 00:26:16,080 --> 00:26:19,080
- And the other way, if the worker says,
+And the other way, if the worker says,
+而另一种情况是，如果工人说，
 
 298
 00:26:19,080 --> 00:26:22,040
- I abort this transaction, it cannot later say,
+I abort this transaction, it cannot later say,
+我取消这笔交易，以后不能再说。
 
 299
 00:26:22,040 --> 00:26:24,880
- oh, I changed my mind, I am committing this transaction.
+oh, I changed my mind, I am committing this transaction.
+哦，我改变主意了，我决定进行这笔交易。
 
 300
 00:26:24,880 --> 00:26:30,640
- Here is another way to look at the algorithms.
+Here is another way to look at the algorithms.
+这是另一种看待算法的方式。
 
 301
 00:26:30,640 --> 00:26:35,480
- You have coordinator on the left, worker on the right.
+You have coordinator on the left, worker on the right.
+你左边有协调员，右边有工人。
 
 302
 00:26:35,480 --> 00:26:38,720
- The coordinator sends vote request to all the workers.
+The coordinator sends vote request to all the workers.
+协调员向所有工人发送投票请求。
 
 303
 00:26:40,200 --> 00:26:45,080
- The workers are waiting for this vote request message.
+The workers are waiting for this vote request message.
+工人们正在等待这个投票请求消息。
 
 304
 00:26:45,080 --> 00:26:47,600
- If they are ready,
+If they are ready,
+如果他们准备好了，
 
 305
 00:26:47,600 --> 00:26:50,760
- they are going to send to vote commit to coordinator.
+they are going to send to vote commit to coordinator.
+他们打算将投票承诺发送给协调员。
 
 306
 00:26:50,760 --> 00:26:52,680
- So this means that they can commit.
+So this means that they can commit.
+这意味着他们可以承诺。
 
 307
 00:26:52,680 --> 00:26:57,680
- Otherwise they send vote abort and are going to abort.
+Otherwise they send vote abort and are going to abort.
+否则他们会发送投票中止并准备中止。
 
 308
 00:26:57,680 --> 00:27:04,880
- The coordinator collects all the votes.
+The coordinator collects all the votes.
+协调员收集所有的投票。
 
 309
 00:27:04,880 --> 00:27:07,160
- If all the votes are commit,
+If all the votes are commit,
+如果所有的选票都被提交，
 
 310
 00:27:07,160 --> 00:27:09,000
- they send the global commit.
+they send the global commit.
+他们发送了全球提交。
 
 311
 00:27:09,880 --> 00:27:12,720
- If at least the vote is abort,
+If at least the vote is abort,
+如果至少投票被中止，
 
 312
 00:27:12,720 --> 00:27:19,040
- then the coordinator sends abort to every other worker.
+then the coordinator sends abort to every other worker.
+然后协调员向其他所有工作人员发送中止指令。
 
 313
 00:27:19,040 --> 00:27:29,040
- And if the worker then receives global commits
+And if the worker then receives global commits
+然后，如果工人接收到全球提交
 
 314
 00:27:29,040 --> 00:27:31,520
- and commits, otherwise they abort.
+and commits, otherwise they abort.
+并且提交，否则它们会中止。
 
 315
 00:27:31,520 --> 00:27:33,720
- Any questions here?
+Any questions here?
+这里有什么问题吗？
 
 316
 00:27:33,720 --> 00:27:36,240
- Pretty simple problem, right?
+Pretty simple problem, right?
+相当简单的问题，对吧？
 
 317
 00:27:36,240 --> 00:27:38,400
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体文本。
 
 318
 00:27:38,400 --> 00:27:48,120
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 319
 00:27:48,120 --> 00:27:51,440
- So now, although despite the fact
+So now, although despite the fact
+所以现在，尽管尽管事实是
 
 320
 00:27:51,440 --> 00:27:55,280
- that this protocol is simple, it's yeah.
+that this protocol is simple, it's yeah.
+这个协议很简单，是的。
 
 321
 00:27:55,280 --> 00:27:56,840
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 322
 00:27:56,840 --> 00:27:57,840
- Two questions.
+Two questions.
+两个问题。
 
 323
 00:27:57,840 --> 00:28:03,240
- Allison question is that,
+Allison question is that,
+艾莉森的问题是什么？
 
 324
 00:28:03,240 --> 00:28:05,840
- so it's okay if the algorithm stands forever.
+so it's okay if the algorithm stands forever.
+所以如果算法永远存在也没关系。
 
 325
 00:28:06,840 --> 00:28:10,560
- In theory, theoretically it can hang.
+In theory, theoretically it can hang.
+理论上，理论上它是可以悬挂的。
 
 326
 00:28:10,560 --> 00:28:12,360
- It can take forever.
+It can take forever.
+这可能需要很长时间。
 
 327
 00:28:12,360 --> 00:28:15,880
- I'll show you how later.
+I'll show you how later.
+我稍后会向你展示如何做。
 
 328
 00:28:15,880 --> 00:28:19,760
- Actually, let me give you an example.
+Actually, let me give you an example.
+实际上，让我给你举个例子。
 
 329
 00:28:19,760 --> 00:28:22,440
- One example in which you can hang forever
+One example in which you can hang forever
+一个例子是你可以永远挂着的。
 
 330
 00:28:22,440 --> 00:28:27,440
- is that a machine fails before getting the global commit.
+is that a machine fails before getting the global commit.
+这是一个在全局提交之前失败的机器吗？
 
 331
 00:28:27,440 --> 00:28:35,040
- It says commit everything,
+It says commit everything,
+它说要提交所有内容。
 
 332
 00:28:35,040 --> 00:28:37,240
- everyone votes for commit.
+everyone votes for commit.
+大家都投票支持该提案。
 
 333
 00:28:37,240 --> 00:28:39,760
- And the coordinator is going to send everyone commit.
+And the coordinator is going to send everyone commit.
+并且协调员将会发送给每个人提交。
 
 334
 00:28:39,760 --> 00:28:43,960
- But that machine or the coordinator,
+But that machine or the coordinator,
+但是那台机器或者协调员，
 
 335
 00:28:43,960 --> 00:28:47,960
- the coordinator gets, let's do this example.
+the coordinator gets, let's do this example.
+协调员说，让我们来做这个例子。
 
 336
 00:28:47,960 --> 00:28:50,320
- The coordinator collects all the votes.
+The coordinator collects all the votes.
+协调员收集所有的投票。
 
 337
 00:28:50,320 --> 00:28:56,240
- But before, and write the result of the vote.
+But before, and write the result of the vote.
+但在此之前，请先写下投票结果。
 
 338
 00:28:56,240 --> 00:28:59,520
- But before going,
+But before going,
+但在离开之前，
 
 339
 00:29:00,640 --> 00:29:05,200
- replying with a global message
+replying with a global message
+回复一个全球性的信息
 
 340
 00:29:05,200 --> 00:29:08,840
- or sending a global message to every worker, it fails.
+or sending a global message to every worker, it fails.
+或者向每个工人发送全球信息，它失败了。
 
 341
 00:29:08,840 --> 00:29:12,560
- Now we come back,
+Now we come back,
+现在我们回来了，
 
 342
 00:29:12,560 --> 00:29:15,360
- we're looking at the global storage,
+we're looking at the global storage,
+我们正在查看全球存储情况。
 
 343
 00:29:15,360 --> 00:29:18,640
- is a log that it has,
+is a log that it has,
+是一段记录它拥有的。
 
 344
 00:29:18,640 --> 00:29:21,520
- as a result of the vote, says commit.
+as a result of the vote, says commit.
+由于投票结果，委员会表示。
 
 345
 00:29:21,520 --> 00:29:23,240
- But before again,
+But before again,
+但是在此之前，
 
 346
 00:29:23,240 --> 00:29:27,120
- can has a chance to send a global commit, fails again.
+can has a chance to send a global commit, fails again.
+可以有机会发送一个全球提交，但又失败了。
 
 347
 00:29:28,080 --> 00:29:31,280
- So this can happen indefinitely, right?
+So this can happen indefinitely, right?
+这个可以无限期地发生，对吗？
 
 348
 00:29:31,280 --> 00:29:33,120
- For the coordinator.
+For the coordinator.
+给协调员。
 
 349
 00:29:33,120 --> 00:29:35,480
- Come up, see the results of the vote.
+Come up, see the results of the vote.
+请上来，看一下投票结果。
 
 350
 00:29:35,480 --> 00:29:39,080
- But before has a chance to broadcast
+But before has a chance to broadcast
+但在之前有机会播放之前
 
 351
 00:29:39,080 --> 00:29:41,760
- the global message to everyone, fails again.
+the global message to everyone, fails again.
+全球向每个人传递的信息再次失败了。
 
 352
 00:29:41,760 --> 00:29:46,320
- Now, this is unlikely to happen.
+Now, this is unlikely to happen.
+现在，这种情况不太可能发生。
 
 353
 00:29:46,320 --> 00:29:49,680
- So in life, everything is probabilistic, right?
+So in life, everything is probabilistic, right?
+所以在生活中，一切都是有概率的，对吗？
 
 354
 00:29:49,680 --> 00:29:52,880
- So the probability for this to happen every time
+So the probability for this to happen every time
+每次发生的概率是多少。
 
 355
 00:29:52,880 --> 00:29:53,960
- is extremely low,
+is extremely low,
+非常低，
 
 356
 00:29:53,960 --> 00:29:58,960
- unless there is some persistent bug in the program.
+unless there is some persistent bug in the program.
+除非程序中存在某些持久性的错误。
 
 357
 00:29:58,960 --> 00:30:02,680
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 358
 00:30:02,680 --> 00:30:09,760
- Since messages are unreliable, does the worker...
+Since messages are unreliable, does the worker...
+由于消息不可靠，工人是否...
 
 359
 00:30:09,760 --> 00:30:13,830
- is the next question from Michael.
+is the next question from Michael.
+下一个问题是来自Michael的。
 
 360
 00:30:13,830 --> 00:30:15,910
- Since messages are unreliable,
+Since messages are unreliable,
+由于消息不可靠，
 
 361
 00:30:15,910 --> 00:30:17,910
- does a worker keep sending his vote
+does a worker keep sending his vote
+工人是否持续投票？
 
 362
 00:30:17,910 --> 00:30:20,030
- until it gets a global procedure?
+until it gets a global procedure?
+直到它获得全球程序？
 
 363
 00:30:20,030 --> 00:30:28,270
- Yes, the workers can do that,
+Yes, the workers can do that,
+是的，工人们可以做到。
 
 364
 00:30:28,270 --> 00:30:33,270
- but if the messages are unreliable,
+but if the messages are unreliable,
+但是如果这些消息不可靠，
 
 365
 00:30:33,270 --> 00:30:37,230
- the coordinator, like we will see next,
+the coordinator, like we will see next,
+协调员，就像我们接下来会看到的那样，
 
 366
 00:30:37,230 --> 00:30:42,230
- if the coordinator didn't hear from the worker
+if the coordinator didn't hear from the worker
+如果协调员没有收到工人的消息
 
 367
 00:30:42,230 --> 00:30:47,110
- for some time, the timeout,
+for some time, the timeout,
+有一段时间，超时了。
 
 368
 00:30:47,110 --> 00:30:52,110
- then he can declare that the worker
+then he can declare that the worker
+然后他可以宣布工人
 
 369
 00:30:52,110 --> 00:30:55,990
- who is not able to accept the transaction
+who is not able to accept the transaction
+谁无法接受这笔交易？
 
 370
 00:30:55,990 --> 00:31:01,110
- and is going to log the result of the vote as being abort
+and is going to log the result of the vote as being abort
+并且将记录投票结果为中止。
 
 371
 00:31:01,110 --> 00:31:02,830
- and ask everyone else to abort.
+and ask everyone else to abort.
+并请其他人中止。
 
 372
 00:31:02,830 --> 00:31:06,550
- That protocol is still caught.
+That protocol is still caught.
+那个协议仍然被卡住了。
 
 373
 00:31:06,550 --> 00:31:11,550
- What about when the worker doesn't hear from the coordinator?
+What about when the worker doesn't hear from the coordinator?
+当工人没有收到协调员的消息时怎么办？
 
 374
 00:31:11,550 --> 00:31:23,390
- So, in that particular case,
+So, in that particular case,
+那么，在那个特定的情况下，
 
 375
 00:31:23,390 --> 00:31:28,390
- the worker has to wait for the protocol to be correct
+the worker has to wait for the protocol to be correct
+工人必须等待协议正确。
 
 376
 00:31:28,390 --> 00:31:33,750
- because the worker doesn't know whether,
+because the worker doesn't know whether,
+因为工人不知道是否，
 
 377
 00:31:33,750 --> 00:31:35,150
- especially for a worker,
+especially for a worker,
+尤其是对于一名工人来说，
 
 378
 00:31:35,150 --> 00:31:37,510
- I hear you are talking about a worker
+I hear you are talking about a worker
+我听说你在谈论一个工人。
 
 379
 00:31:37,510 --> 00:31:39,270
- who said that it can commit.
+who said that it can commit.
+谁说它可以承诺呢？
 
 380
 00:31:39,270 --> 00:31:44,510
- We cannot finish the protocol
+We cannot finish the protocol
+我们无法完成这个协议。
 
 381
 00:31:44,510 --> 00:31:48,990
- until it gets a message from the coordinator
+until it gets a message from the coordinator
+直到它收到协调员的消息。
 
 382
 00:31:48,990 --> 00:31:52,430
- because it doesn't know what to do.
+because it doesn't know what to do.
+因为它不知道该怎么做。
 
 383
 00:31:52,430 --> 00:31:55,030
- It doesn't know whether the vote is commit or abort.
+It doesn't know whether the vote is commit or abort.
+它不知道投票是提交还是中止。
 
 384
 00:31:55,030 --> 00:32:02,390
- Yeah, so in this case, you have to ask to retransmit.
+Yeah, so in this case, you have to ask to retransmit.
+是的，在这种情况下，你需要请求重新传输。
 
 385
 00:32:04,310 --> 00:32:08,110
- The coordinator for to retransmit is a global commit
+The coordinator for to retransmit is a global commit
+转发的协调员是一个全球性的委员会。
 
 386
 00:32:08,110 --> 00:32:08,950
- or global abort.
+or global abort.
+或全球中止。
 
 387
 00:32:08,950 --> 00:32:17,910
- But it's again, the probability this to happen is very low.
+But it's again, the probability this to happen is very low.
+但是，再次发生的概率非常低。
 
 388
 00:32:17,910 --> 00:32:22,910
- And in practice, it's working.
+And in practice, it's working.
+而在实践中，它是有效的。
 
 389
 00:32:22,910 --> 00:32:24,430
- It's a very good protocol.
+It's a very good protocol.
+这是一个非常好的协议。
 
 390
 00:32:24,430 --> 00:32:32,190
- We'll go through a little bit of these questions next.
+We'll go through a little bit of these questions next.
+我们接下来会简要讨论这些问题。
 
 391
 00:32:32,190 --> 00:32:34,710
- So, here is a failure-free example.
+So, here is a failure-free example.
+所以，这是一个无失败的例子。
 
 392
 00:32:34,710 --> 00:32:37,110
- This is a timeline on the horizontal axis.
+This is a timeline on the horizontal axis.
+这是一个水平轴上的时间线。
 
 393
 00:32:37,110 --> 00:32:39,350
- You have one coordinator, three workers.
+You have one coordinator, three workers.
+你有一个协调员，三个工人。
 
 394
 00:32:39,350 --> 00:32:41,790
- The coordinator sends vote requests.
+The coordinator sends vote requests.
+协调员发送投票请求。
 
 395
 00:32:41,790 --> 00:32:44,990
- Then, say every worker sends vote commit,
+Then, say every worker sends vote commit,
+然后，每个工人都发送投票提交。
 
 396
 00:32:44,990 --> 00:32:48,150
- and then the coordinator sends global commit.
+and then the coordinator sends global commit.
+然后协调者发送全局提交。
 
 397
 00:32:48,150 --> 00:32:50,590
- Very simple, no failures.
+Very simple, no failures.
+非常简单，没有失败。
 
 398
 00:32:50,590 --> 00:32:51,430
- Easy.
+Easy.
+容易。
 
 399
 00:32:51,430 --> 00:32:54,830
- Remember, you are discussing in these protocols,
+Remember, you are discussing in these protocols,
+记住，在这些协议中你正在讨论。
 
 400
 00:32:54,830 --> 00:32:56,910
- you have a state machine.
+you have a state machine.
+你有一个状态机。
 
 401
 00:32:56,910 --> 00:32:59,310
- This is a coordinator state machine.
+This is a coordinator state machine.
+这是一个协调器状态机。
 
 402
 00:32:59,310 --> 00:33:02,670
- You are in a unique state, you receive start.
+You are in a unique state, you receive start.
+你处于一个独特的状态，你收到了开始。
 
 403
 00:33:02,670 --> 00:33:04,030
- When you receive start, the next thing
+When you receive start, the next thing
+当你收到开始信号时，接下来的事情是什么？
 
 404
 00:33:04,030 --> 00:33:06,750
- what you are going to do, a coordinator, what it is.
+what you are going to do, a coordinator, what it is.
+你打算做什么，一个协调员，它是什么。
 
 405
 00:33:06,750 --> 00:33:08,190
- You send the vote request.
+You send the vote request.
+你发送了投票请求。
 
 406
 00:33:08,190 --> 00:33:09,910
- When you send the vote request,
+When you send the vote request,
+当你发送投票请求时，
 
 407
 00:33:09,910 --> 00:33:12,670
- you go to a different state because you need to wait
+you go to a different state because you need to wait
+你去了另一个州是因为你需要等待。
 
 408
 00:33:12,670 --> 00:33:15,190
- for the votes from the workers.
+for the votes from the workers.
+为了工人的选票。
 
 409
 00:33:15,190 --> 00:33:17,790
- Okay?
+Okay?
+好的。
 
 410
 00:33:17,790 --> 00:33:20,870
- So, you receive all vote commits, right?
+So, you receive all vote commits, right?
+是的，我收到所有的投票提交。
 
 411
 00:33:20,870 --> 00:33:22,830
- And if you receive all votes commits,
+And if you receive all votes commits,
+如果你获得所有的选票承诺，
 
 412
 00:33:22,830 --> 00:33:25,670
- now you are going to go into different,
+now you are going to go into different,
+现在你要进入不同的领域，
 
 413
 00:33:25,670 --> 00:33:27,110
- you are going to record.
+you are going to record.
+你要录音。
 
 414
 00:33:27,110 --> 00:33:30,270
- Now, this is the result of the vote is commit.
+Now, this is the result of the vote is commit.
+现在，这是投票结果的提交。
 
 415
 00:33:30,270 --> 00:33:32,270
- And you send the global commit,
+And you send the global commit,
+然后你提交全局的更改，
 
 416
 00:33:32,270 --> 00:33:35,310
- and now you go to the commit, the commit state.
+and now you go to the commit, the commit state.
+现在你要进行提交，提交状态。
 
 417
 00:33:35,310 --> 00:33:38,830
- Right?
+Right?
+对吗？
 
 418
 00:33:38,830 --> 00:33:43,830
- Otherwise, you log the results of the vote as being abort,
+Otherwise, you log the results of the vote as being abort,
+否则，你将投票结果记录为“中止”。
 
 419
 00:33:43,830 --> 00:33:49,190
- and go send a global abort and go into the abort state.
+and go send a global abort and go into the abort state.
+并发送全局中止信号并进入中止状态。
 
 420
 00:33:49,190 --> 00:33:52,830
- So, while you are in this state,
+So, while you are in this state,
+那么，在你处于这种状态的时候，
 
 421
 00:33:52,830 --> 00:33:56,750
- if the worker blows a message,
+if the worker blows a message,
+如果工人吹响了一声口哨，
 
 422
 00:33:56,750 --> 00:33:58,790
- like we discussed earlier,
+like we discussed earlier,
+就像我们之前讨论的那样，
 
 423
 00:33:58,790 --> 00:34:02,950
- and wants to get,
+and wants to get,
+并且想要得到，
 
 424
 00:34:02,950 --> 00:34:07,950
- sends a request for the coordinator
+sends a request for the coordinator
+发送一个协调员的请求
 
 425
 00:34:07,950 --> 00:34:10,270
- to resend the decision,
+to resend the decision,
+重新发送决定。
 
 426
 00:34:10,270 --> 00:34:12,510
- the coordinator knows exactly what to send
+the coordinator knows exactly what to send
+协调员清楚知道要发送什么。
 
 427
 00:34:12,510 --> 00:34:16,190
- because based on what state it is, it's commit or abort.
+because based on what state it is, it's commit or abort.
+因为根据所处的状态，它要么执行，要么中止。
 
 428
 00:34:16,190 --> 00:34:20,390
- The workers is similar.
+The workers is similar.
+工人们是相似的。
 
 429
 00:34:20,390 --> 00:34:23,870
- State diagram, state machine.
+State diagram, state machine.
+状态图，状态机。
 
 430
 00:34:23,870 --> 00:34:27,390
- It's again, it says, "init," I am in it,
+It's again, it says, "init," I am in it,
+又是这样，它显示着“init”，我在其中。
 
 431
 00:34:27,390 --> 00:34:29,190
- and I'm starting.
+and I'm starting.
+我开始了。
 
 432
 00:34:29,190 --> 00:34:32,190
- In the init,
+In the init,
+在初始化中，
 
 433
 00:34:32,190 --> 00:34:35,990
- I am waiting for receiving the vote request.
+I am waiting for receiving the vote request.
+我正在等待收到投票请求。
 
 434
 00:34:35,990 --> 00:34:37,870
- And from here, from the vote request,
+And from here, from the vote request,
+从这里开始，从投票请求开始，
 
 435
 00:34:37,870 --> 00:34:39,430
- I can do two things.
+I can do two things.
+我可以做两件事。
 
 436
 00:34:39,430 --> 00:34:42,230
- I can say, I want to abort,
+I can say, I want to abort,
+我可以说，我想要终止。
 
 437
 00:34:42,230 --> 00:34:45,830
- case in which I am going directly into the abort state
+case in which I am going directly into the abort state
+我直接进入中止状态的情况。
 
 438
 00:34:45,830 --> 00:34:48,990
- and I'm sending vote abort,
+and I'm sending vote abort,
+我正在发送投票中止请求，
 
 439
 00:34:48,990 --> 00:34:51,350
- or I'm going to go to commit.
+or I'm going to go to commit.
+或者我要去自杀。
 
 440
 00:34:53,390 --> 00:34:55,950
- And then I'm going to vote to commit.
+And then I'm going to vote to commit.
+然后我打算投票支持。
 
 441
 00:34:55,950 --> 00:35:01,190
- Then I'm going to go to the, in the ready state,
+Then I'm going to go to the, in the ready state,
+然后我要去准备状态下的地方。
 
 442
 00:35:01,190 --> 00:35:02,310
- I'm ready to commit.
+I'm ready to commit.
+我准备好了。
 
 443
 00:35:02,310 --> 00:35:05,510
- And here I'm going to wait for what?
+And here I'm going to wait for what?
+我在这里等待什么呢？
 
 444
 00:35:05,510 --> 00:35:08,110
- To receive either global abort or global commit.
+To receive either global abort or global commit.
+接收全局中止或全局提交。
 
 445
 00:35:08,110 --> 00:35:09,670
- I'm going to receive global abort.
+I'm going to receive global abort.
+我将要接收全球中止。
 
 446
 00:35:09,670 --> 00:35:11,630
- I'm going to go to abort state.
+I'm going to go to abort state.
+我要去中止状态。
 
 447
 00:35:11,630 --> 00:35:13,190
- I'm going to receive a global commit.
+I'm going to receive a global commit.
+我将要接收一个全球性的承诺。
 
 448
 00:35:13,190 --> 00:35:15,110
- I'm going to go to the commit state.
+I'm going to go to the commit state.
+我要去提交状态。
 
 449
 00:35:20,550 --> 00:35:24,950
- So, let's see dealing first with worker failures.
+So, let's see dealing first with worker failures.
+所以，让我们首先来看处理工人的失败。
 
 450
 00:35:24,950 --> 00:35:29,390
- So when I can be affected, if I am the coordinator,
+So when I can be affected, if I am the coordinator,
+那么，如果我是协调员，我会在什么时候受到影响？
 
 451
 00:35:29,390 --> 00:35:32,230
- when can I be affected about a failure?
+when can I be affected about a failure?
+你何时会受到失败的影响？
 
 452
 00:35:32,230 --> 00:35:37,310
- It's really only when I am waiting for something
+It's really only when I am waiting for something
+只有当我在等待某件事情时，我才会感到真正的焦虑。
 
 453
 00:35:37,310 --> 00:35:38,750
- with the wait state,
+with the wait state,
+带有等待状态，
 
 454
 00:35:38,750 --> 00:35:42,990
- because for init, I'm just sending a vote request.
+because for init, I'm just sending a vote request.
+因为初始阶段，我只是发送一个投票请求。
 
 455
 00:35:42,990 --> 00:35:46,590
- And for commit and abort,
+And for commit and abort,
+对于commit和abort，
 
 456
 00:35:46,590 --> 00:35:51,590
- I just send the transition to go to the states
+I just send the transition to go to the states
+我刚刚发送了去美国的过渡。
 
 457
 00:35:51,590 --> 00:35:53,510
- by sending a message.
+by sending a message.
+通过发送一条消息。
 
 458
 00:35:53,510 --> 00:35:55,950
- So here I am, when as a coordinator,
+So here I am, when as a coordinator,
+所以在这里，作为一个协调员，
 
 459
 00:35:55,950 --> 00:35:58,710
- I'm going to be impacted when I'm in the wait state.
+I'm going to be impacted when I'm in the wait state.
+当我处于等待状态时，我会受到影响。
 
 460
 00:35:58,710 --> 00:36:00,870
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 461
 00:36:00,870 --> 00:36:06,590
- So in wait, if it doesn't receive N votes,
+So in wait, if it doesn't receive N votes,
+那么，如果它没有获得N票，就会等待。
 
 462
 00:36:06,590 --> 00:36:08,910
- like I mentioned, you can timeout,
+like I mentioned, you can timeout,
+就像我之前提到的，你可以超时。
 
 463
 00:36:08,910 --> 00:36:11,350
- the coordinator will timeout and send global abort.
+the coordinator will timeout and send global abort.
+协调员将超时并发送全局中止。
 
 464
 00:36:11,350 --> 00:36:13,310
- This will work perfectly fine.
+This will work perfectly fine.
+这将完美地运行。
 
 465
 00:36:13,310 --> 00:36:14,230
- It will be correct.
+It will be correct.
+这是正确的。
 
 466
 00:36:14,230 --> 00:36:16,270
- Right?
+Right?
+对吗？
 
 467
 00:36:17,270 --> 00:36:20,350
- So here is what the examples.
+So here is what the examples.
+这里是例子。
 
 468
 00:36:20,350 --> 00:36:23,350
- Coordinator send vote requests,
+Coordinator send vote requests,
+协调员发送投票请求。
 
 469
 00:36:23,350 --> 00:36:27,670
- but somehow worker three didn't send vote commit.
+but somehow worker three didn't send vote commit.
+但是不知怎么回事，第三个工人没有发送投票确认。
 
 470
 00:36:27,670 --> 00:36:29,310
- What is the message of the most?
+What is the message of the most?
+最重要的信息是什么？
 
 471
 00:36:29,310 --> 00:36:36,110
- So coordinator waits for some time
+So coordinator waits for some time
+所以协调员等待一段时间。
 
 472
 00:36:36,110 --> 00:36:40,830
- to get the commit, the vote from worker three.
+to get the commit, the vote from worker three.
+获取来自工人三的提交和投票。
 
 473
 00:36:40,830 --> 00:36:45,590
- But if he doesn't get it, when the timeout expires,
+But if he doesn't get it, when the timeout expires,
+但是如果他不明白，当暂停时间结束时，
 
 474
 00:36:45,590 --> 00:36:50,590
- he sends global abort to all workers.
+he sends global abort to all workers.
+他向所有工人发送全局中止指令。
 
 475
 00:36:50,590 --> 00:36:52,150
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 476
 00:36:52,150 --> 00:36:53,310
- And that's ended.
+And that's ended.
+这就结束了。
 
 477
 00:36:53,310 --> 00:37:00,950
- Now let's look at the coordinator failures.
+Now let's look at the coordinator failures.
+现在让我们来看一下协调器的故障。
 
 478
 00:37:00,950 --> 00:37:06,270
- When you can be impacted as a worker,
+When you can be impacted as a worker,
+当你作为一名工人时可能受到影响时，
 
 479
 00:37:06,270 --> 00:37:08,830
- it's again, you are impacted by the failures
+it's again, you are impacted by the failures
+这又是你受到失败的影响了。
 
 480
 00:37:08,830 --> 00:37:12,870
- when you are waiting for something from the party,
+when you are waiting for something from the party,
+当你在等待来自派对的东西时，
 
 481
 00:37:12,870 --> 00:37:14,430
- which can fail.
+which can fail.
+可能会失败。
 
 482
 00:37:14,430 --> 00:37:17,750
- And you are waiting as a worker from coordinators
+And you are waiting as a worker from coordinators
+你是作为协调员的工作人员在等待。
 
 483
 00:37:17,750 --> 00:37:22,030
- for two messages, vote request, this is in any state,
+for two messages, vote request, this is in any state,
+对于两条消息，投票请求，这适用于任何状态。
 
 484
 00:37:22,030 --> 00:37:25,070
- and global commit or global abort.
+and global commit or global abort.
+全局提交或全局中止。
 
 485
 00:37:25,070 --> 00:37:27,590
- So here where you can be affected.
+So here where you can be affected.
+所以这里是你可能受到影响的地方。
 
 486
 00:37:27,590 --> 00:37:30,190
- So here you need to look at, right?
+So here you need to look at, right?
+所以你需要看这里，对吗？
 
 487
 00:37:30,190 --> 00:37:35,990
- And now this is the answer I gave to the question
+And now this is the answer I gave to the question
+现在这是我对这个问题的回答。
 
 488
 00:37:35,990 --> 00:37:37,950
- of what happens on coordinator fails.
+of what happens on coordinator fails.
+当协调者失败时会发生什么。
 
 489
 00:37:37,950 --> 00:37:42,870
- So if coordinator fails, worker must block waiting
+So if coordinator fails, worker must block waiting
+所以如果协调者失败，工作人员必须阻塞等待。
 
 490
 00:37:42,870 --> 00:37:47,150
- for the coordinator to recover and send the global message.
+for the coordinator to recover and send the global message.
+协调员恢复并发送全球消息。
 
 491
 00:37:47,150 --> 00:37:49,510
- Right?
+Right?
+对吗？
 
 492
 00:37:49,510 --> 00:37:54,310
- Like we discussed before, the worker has no choice
+Like we discussed before, the worker has no choice
+像我们之前讨论的那样，工人没有选择。
 
 493
 00:37:54,310 --> 00:37:56,590
- but to wait for coordinator.
+but to wait for coordinator.
+但是要等待协调员。
 
 494
 00:37:56,590 --> 00:38:03,030
- Anyway, so let's see as a failure happening in it,
+Anyway, so let's see as a failure happening in it,
+无论如何，让我们看看其中发生的失败。
 
 495
 00:38:03,030 --> 00:38:08,030
- the coordinators somehow doesn't send the vote requests
+the coordinators somehow doesn't send the vote requests
+协调员不知何故没有发送投票请求。
 
 496
 00:38:08,030 --> 00:38:11,910
- because it fails before the vote request is sent out.
+because it fails before the vote request is sent out.
+因为它在投票请求发送之前失败了。
 
 497
 00:38:11,910 --> 00:38:16,190
- The workers will timeout and they can now send vote abort.
+The workers will timeout and they can now send vote abort.
+工人们将会超时，他们现在可以发送投票中止。
 
 498
 00:38:16,190 --> 00:38:18,110
- They can timeout and send vote abort.
+They can timeout and send vote abort.
+他们可以超时并发送投票中止。
 
 499
 00:38:18,110 --> 00:38:22,190
- Now you are in the ready state.
+Now you are in the ready state.
+现在你处于就绪状态。
 
 500
 00:38:22,190 --> 00:38:25,790
- In the ready state a worker waits for the global messages.
+In the ready state a worker waits for the global messages.
+在就绪状态下，工作人员等待全局消息。
 
 501
 00:38:25,790 --> 00:38:33,430
- Okay, so vote request, and somehow you have vote request,
+Okay, so vote request, and somehow you have vote request,
+好的，所以投票请求，而且你不知怎么地也有投票请求。
 
 502
 00:38:33,430 --> 00:38:37,870
- vote commit, but now the coordinator failed.
+vote commit, but now the coordinator failed.
+投票提交，但是现在协调者失败了。
 
 503
 00:38:39,710 --> 00:38:43,030
- So now the worker in this case have to wait
+So now the worker in this case have to wait
+所以现在这个案例中的工人必须等待。
 
 504
 00:38:43,030 --> 00:38:45,390
- for the coordinator to restart
+for the coordinator to restart
+协调员重新启动。
 
 505
 00:38:45,390 --> 00:38:49,870
- and to send the global abort in this case.
+and to send the global abort in this case.
+并在这种情况下发送全局中止。
 
 506
 00:38:49,870 --> 00:38:54,870
- And in this example, and only then they can finish.
+And in this example, and only then they can finish.
+在这个例子中，只有这样他们才能完成。
 
 507
 00:38:54,870 --> 00:38:58,790
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and translate any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 508
 00:38:58,790 --> 00:39:07,150
- But it's again, the reason for the worker,
+But it's again, the reason for the worker,
+但这又是工人的原因，
 
 509
 00:39:07,150 --> 00:39:10,550
- why the worker needs to wait for the coordinator,
+why the worker needs to wait for the coordinator,
+为什么工人需要等待协调员？
 
 510
 00:39:10,550 --> 00:39:11,750
- it's again, it's very simple
+it's again, it's very simple
+这又是，这非常简单。
 
 511
 00:39:11,750 --> 00:39:14,830
- because if the worker decides, he says, I can commit,
+because if the worker decides, he says, I can commit,
+因为如果工人决定了，他会说，我可以承诺。
 
 512
 00:39:14,830 --> 00:39:20,270
- he doesn't know what to do
+he doesn't know what to do
+他不知道该怎么办。
 
 513
 00:39:20,270 --> 00:39:22,470
- because the both choices are valid.
+because the both choices are valid.
+因为这两个选择都是有效的。
 
 514
 00:39:22,470 --> 00:39:27,230
- He either has to abort or he has to commit.
+He either has to abort or he has to commit.
+他要么放弃，要么坚持。
 
 515
 00:39:27,230 --> 00:39:31,110
- And he must know exactly what has to be done, has to do
+And he must know exactly what has to be done, has to do
+他必须清楚知道需要做什么，必须去做。
 
 516
 00:39:31,110 --> 00:39:34,110
- because he has to be consistent.
+because he has to be consistent.
+因为他必须保持一致。
 
 517
 00:39:34,110 --> 00:39:36,110
- The decision has to be the same decision
+The decision has to be the same decision
+决定必须是相同的决定。
 
 518
 00:39:36,110 --> 00:39:37,670
- as all the other workers.
+as all the other workers.
+和其他所有的工人一样。
 
 519
 00:39:37,670 --> 00:39:48,630
- So obviously you need to keep the lock in a stable storage.
+So obviously you need to keep the lock in a stable storage.
+所以显然你需要将锁放在一个稳定的存储位置。
 
 520
 00:39:48,630 --> 00:39:49,990
- You need to provide your ability
+You need to provide your ability
+你需要提供你的能力。
 
 521
 00:39:49,990 --> 00:39:54,990
- so when the coordinator or say he's going to restart,
+so when the coordinator or say he's going to restart,
+那么当协调员或者说他要重新开始时，
 
 522
 00:39:54,990 --> 00:39:59,630
- he's going to find the state,
+he's going to find the state,
+他要去找那个州，
 
 523
 00:39:59,630 --> 00:40:02,830
- the accurate state in the stable storage.
+the accurate state in the stable storage.
+稳定存储中的准确状态。
 
 524
 00:40:02,830 --> 00:40:05,550
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide the text you would like me to translate.
 
 525
 00:40:05,550 --> 00:40:08,830
- So that's basically what it is.
+So that's basically what it is.
+那基本上就是这样。
 
 526
 00:40:08,830 --> 00:40:12,070
- And open recovery, you have the set of rules.
+And open recovery, you have the set of rules.
+并且在恢复过程中，你需要遵守一套规则。
 
 527
 00:40:12,680 --> 00:40:14,720
- if the coordinator recovers a board,
+if the coordinator recovers a board,
+如果协调员恢复了一块板子，
 
 528
 00:40:14,720 --> 00:40:18,160
- if it's in the init, wait or abort state,
+if it's in the init, wait or abort state,
+如果处于初始化、等待或中止状态，
 
 529
 00:40:18,160 --> 00:40:19,400
- the coordinator commits,
+the coordinator commits,
+协调员承诺，
 
 530
 00:40:19,400 --> 00:40:21,560
- he sees the commit state, right?
+he sees the commit state, right?
+他看到了提交的状态，对吗？
 
 531
 00:40:21,560 --> 00:40:23,200
- So if they have, right?
+So if they have, right?
+所以如果他们有的话，对吗？
 
 532
 00:40:23,200 --> 00:40:27,440
- The worker aborts, if it's in init and abort state,
+The worker aborts, if it's in init and abort state,
+工人在初始化和中止状态下中止。
 
 533
 00:40:27,440 --> 00:40:29,080
- and commits in the commit state.
+and commits in the commit state.
+并且在提交状态下进行提交。
 
 534
 00:40:29,080 --> 00:40:31,680
- And if it's a coordinator,
+And if it's a coordinator,
+而且如果它是一个协调员，
 
 535
 00:40:31,680 --> 00:40:33,080
- if the worker is in ready,
+if the worker is in ready,
+如果工人准备好了，
 
 536
 00:40:33,080 --> 00:40:35,080
- so he's asking for,
+so he's asking for,
+所以他在问，
 
 537
 00:40:35,080 --> 00:40:38,120
- which is exactly the question we had before,
+which is exactly the question we had before,
+这正是我们之前提出的问题。
 
 538
 00:40:38,120 --> 00:40:41,320
- if the worker is in the ready state,
+if the worker is in the ready state,
+如果工人处于就绪状态，
 
 539
 00:40:41,320 --> 00:40:43,040
- when it fails and it comes back
+when it fails and it comes back
+当它失败时，它会回来
 
 540
 00:40:43,040 --> 00:40:45,440
- and you see how it was in the ready state,
+and you see how it was in the ready state,
+你看到它是如何处于就绪状态的，
 
 541
 00:40:45,440 --> 00:40:48,320
- it has to ask again,
+it has to ask again,
+需要再次询问，
 
 542
 00:40:48,320 --> 00:40:51,120
- the coordinator whether to commit or to abort.
+the coordinator whether to commit or to abort.
+协调员是否决定提交还是中止。
 
 543
 00:40:51,120 --> 00:40:54,960
- Any questions?
+Any questions?
+有任何问题吗？
 
 544
 00:41:09,040 --> 00:41:13,600
- Okay, so Miles asks the following question,
+Okay, so Miles asks the following question,
+好的，所以Miles问了以下问题，
 
 545
 00:41:13,600 --> 00:41:17,040
- if only one global commit message
+if only one global commit message
+如果只有一个全局提交消息
 
 546
 00:41:17,040 --> 00:41:20,080
- from the coordinator to worker fails,
+from the coordinator to worker fails,
+从协调员到工人的传输失败。
 
 547
 00:41:20,080 --> 00:41:21,280
- we'd be in trouble.
+we'd be in trouble.
+我们会有麻烦的。
 
 548
 00:41:21,280 --> 00:41:25,760
- Yeah, so let's see what happens.
+Yeah, so let's see what happens.
+是的，让我们看看会发生什么。
 
 549
 00:41:25,760 --> 00:41:30,760
- So assume that the worker,
+So assume that the worker,
+所以假设这个工人，
 
 550
 00:41:30,760 --> 00:41:34,040
- so the coordinator said again,
+so the coordinator said again,
+所以协调员又说了一遍，
 
 551
 00:41:34,040 --> 00:41:35,480
- in the previous example,
+in the previous example,
+在之前的例子中，
 
 552
 00:41:35,480 --> 00:41:37,240
- we had three workers.
+we had three workers.
+我们有三名工人。
 
 553
 00:41:37,240 --> 00:41:39,960
- So assume that two messages gets through,
+So assume that two messages gets through,
+所以假设有两条消息传递成功，
 
 554
 00:41:39,960 --> 00:41:41,720
- but one global message,
+but one global message,
+但有一个全球的信息，
 
 555
 00:41:41,720 --> 00:41:43,880
- global commit message doesn't get through.
+global commit message doesn't get through.
+全局提交消息无法传递。
 
 556
 00:41:43,880 --> 00:41:48,040
- Say third worker didn't get it.
+Say third worker didn't get it.
+第三个工人没明白。
 
 557
 00:41:48,040 --> 00:41:49,560
- What will happen in that case?
+What will happen in that case?
+那种情况下会发生什么？
 
 558
 00:41:49,560 --> 00:41:55,720
- What do you think it should happen?
+What do you think it should happen?
+你认为应该发生什么？
 
 559
 00:41:55,720 --> 00:41:57,000
- If you design the protocol,
+If you design the protocol,
+如果你设计这个协议，
 
 560
 00:41:57,000 --> 00:41:58,080
- implement the protocol,
+implement the protocol,
+实施该协议。
 
 561
 00:41:58,080 --> 00:41:58,920
- what do you do?
+what do you do?
+你做什么工作？
 
 562
 00:41:58,920 --> 00:42:02,000
- What do you think we should do?
+What do you think we should do?
+你认为我们应该做什么？
 
 563
 00:42:06,160 --> 00:42:08,320
- Third worker blocks for how long?
+Third worker blocks for how long?
+第三个工人会被阻塞多久？
 
 564
 00:42:08,320 --> 00:42:21,240
- A certain amount of time,
+A certain amount of time,
+一定的时间，
 
 565
 00:42:21,240 --> 00:42:22,920
- or that amount of time expires,
+or that amount of time expires,
+或者时间到期，
 
 566
 00:42:22,920 --> 00:42:24,120
- what you are going to do.
+what you are going to do.
+你打算做什么。
 
 567
 00:42:24,120 --> 00:42:32,240
- If you are to implement it.
+If you are to implement it.
+如果你要实施它的话。
 
 568
 00:42:32,240 --> 00:42:37,240
- So what is the natural thing to do?
+So what is the natural thing to do?
+那么，自然而然的事情是什么呢？
 
 569
 00:42:37,240 --> 00:42:43,600
- Maybe it wasn't in the previous diagrams,
+Maybe it wasn't in the previous diagrams,
+也许在之前的图表中没有显示出来。
 
 570
 00:42:43,600 --> 00:42:45,400
- but that is the natural thing to do.
+but that is the natural thing to do.
+但那是自然而然的事情。
 
 571
 00:42:45,400 --> 00:42:49,560
- I don't know as a coordinator,
+I don't know as a coordinator,
+我不知道作为一个协调员，
 
 572
 00:42:49,560 --> 00:42:52,640
- decide it, what I'm going to do.
+decide it, what I'm going to do.
+决定吧，我要做什么。
 
 573
 00:42:52,640 --> 00:43:00,720
- Don't do anything, you are blocked.
+Don't do anything, you are blocked.
+不要做任何事，你被屏蔽了。
 
 574
 00:43:01,720 --> 00:43:03,440
- But what else can you do?
+But what else can you do?
+但是你还能做什么呢？
 
 575
 00:43:03,440 --> 00:43:05,040
- That's something you can do that.
+That's something you can do that.
+那是你可以做的事情。
 
 576
 00:43:05,040 --> 00:43:06,360
- No, don't ask it.
+No, don't ask it.
+不，不要问它。
 
 577
 00:43:06,360 --> 00:43:09,440
- It's a valid option.
+It's a valid option.
+这是一个有效的选择。
 
 578
 00:43:09,440 --> 00:43:16,120
- Another thing you can do
+Another thing you can do
+另外一件你可以做的事情是什么？
 
 579
 00:43:16,120 --> 00:43:18,160
- is ask against the coordinator.
+is ask against the coordinator.
+请问您是反对协调员吗？
 
 580
 00:43:18,160 --> 00:43:19,880
- That's good action, yes.
+That's good action, yes.
+这是很好的行动，是的。
 
 581
 00:43:19,880 --> 00:43:21,600
- You can ask against the coordinator
+You can ask against the coordinator
+你可以向协调员提问。
 
 582
 00:43:21,600 --> 00:43:23,920
- what you decide, that's correct.
+what you decide, that's correct.
+你决定的，是正确的。
 
 583
 00:43:23,920 --> 00:43:25,040
- That's what you'll do
+That's what you'll do
+这就是你要做的
 
 584
 00:43:25,040 --> 00:43:27,680
- if you implement this protocol.
+if you implement this protocol.
+如果你实施这个协议。
 
 585
 00:43:27,680 --> 00:43:32,680
- Okay, so let's go for,
+Okay, so let's go for,
+好的，那么我们开始吧，
 
 586
 00:43:32,680 --> 00:43:36,280
- have this short discussion.
+have this short discussion.
+进行这个简短的讨论。
 
 587
 00:43:36,280 --> 00:43:42,280
- So why do you need DCBC decision-making?
+So why do you need DCBC decision-making?
+所以为什么你需要DCBC决策？
 
 588
 00:43:42,280 --> 00:43:48,160
- Well, you need it because you want
+Well, you need it because you want
+好的，你需要它是因为你想要它。
 
 589
 00:43:48,160 --> 00:43:50,560
- in four different programs,
+in four different programs,
+在四个不同的程序中，
 
 590
 00:43:50,560 --> 00:43:52,720
- you want different parts of the program
+you want different parts of the program
+你想要程序的不同部分。
 
 591
 00:43:52,720 --> 00:43:55,280
- which run on different machines to agree.
+which run on different machines to agree.
+不同机器上运行以达成一致。
 
 592
 00:43:55,280 --> 00:43:58,880
- A very simple example is that you want
+A very simple example is that you want
+一个非常简单的例子是你想要的。
 
 593
 00:43:58,880 --> 00:44:02,160
- to replicate the state for durability
+to replicate the state for durability
+复制状态以提高耐久性
 
 594
 00:44:02,160 --> 00:44:04,560
- on different machines, right?
+on different machines, right?
+在不同的机器上，对吗？
 
 595
 00:44:04,560 --> 00:44:09,560
- So you need, for instance, that's one example.
+So you need, for instance, that's one example.
+所以你需要，例如，这是一个例子。
 
 596
 00:44:22,880 --> 00:44:25,880
- And by the way, a group of machines can come to a decision
+And by the way, a group of machines can come to a decision
+顺便说一下，一组机器可以做出决策。
 
 597
 00:44:25,880 --> 00:44:28,760
- if any one or more of them fail during the process, right?
+if any one or more of them fail during the process, right?
+如果其中任何一个或多个在过程中失败，对吗？
 
 598
 00:44:28,760 --> 00:44:32,320
- In that particular case, if some process fails,
+In that particular case, if some process fails,
+在那种特殊情况下，如果某个过程失败了，
 
 599
 00:44:32,320 --> 00:44:36,200
- the other can still come to a decision, right?
+the other can still come to a decision, right?
+另一个人仍然可以做出决定，对吗？
 
 600
 00:44:36,200 --> 00:44:39,280
- Because they are okay to record,
+Because they are okay to record,
+因为它们可以被记录下来，
 
 601
 00:44:39,280 --> 00:44:41,080
- say to commit the transaction.
+say to commit the transaction.
+请确认提交交易。
 
 602
 00:44:41,080 --> 00:44:44,000
- So if the third worker fails,
+So if the third worker fails,
+那么如果第三个工人失败了，
 
 603
 00:44:44,000 --> 00:44:47,960
- two can still commit the transaction.
+two can still commit the transaction.
+两个人仍然可以进行交易。
 
 604
 00:44:47,960 --> 00:44:51,400
- And maybe the other one, the third worker,
+And maybe the other one, the third worker,
+还有可能是另外一个，第三个工人，
 
 605
 00:44:51,400 --> 00:44:55,400
- when it fails, it comes back and as a coordinator
+when it fails, it comes back and as a coordinator
+当它失败时，它会回来并成为一个协调员。
 
 606
 00:44:55,400 --> 00:44:56,920
- and the coordinator says to commit
+and the coordinator says to commit
+协调员说要承诺。
 
 607
 00:44:56,920 --> 00:44:59,760
- and it's going eventually also to commit the transaction.
+and it's going eventually also to commit the transaction.
+并且它最终也会执行该交易。
 
 608
 00:44:59,760 --> 00:45:04,720
- So, and we said, we discussed that just to reemphasize
+So, and we said, we discussed that just to reemphasize
+所以，我们说，我们讨论这个只是为了再次强调
 
 609
 00:45:04,720 --> 00:45:07,760
- why 2PC is working and Generals Paradox doesn't,
+why 2PC is working and Generals Paradox doesn't,
+为什么两阶段提交（2PC）能够工作，而将军悖论却不能？
 
 610
 00:45:07,760 --> 00:45:14,000
- is because 2PC relaxes the problem
+is because 2PC relaxes the problem
+是因为2PC放松了问题。
 
 611
 00:45:14,000 --> 00:45:20,880
- in that it doesn't require the nodes to commit the transaction
+in that it doesn't require the nodes to commit the transaction
+因为它不需要节点提交交易。
 
 612
 00:45:20,880 --> 00:45:23,360
- and the nodes to agree by a certain time.
+and the nodes to agree by a certain time.
+并且节点需要在一定时间内达成一致。
 
 613
 00:45:23,360 --> 00:45:28,640
- They only say that eventually there will be agreement.
+They only say that eventually there will be agreement.
+他们只是说最终会达成协议。
 
 614
 00:45:28,640 --> 00:45:35,160
- And it also allows us, that's why, to reboot and continue.
+And it also allows us, that's why, to reboot and continue.
+而且这也使我们能够重新启动并继续。
 
 615
 00:45:35,160 --> 00:45:37,640
- Okay?
+Okay?
+好的。
 
 616
 00:45:37,640 --> 00:45:45,080
- Announcements, homework five is due on Monday.
+Announcements, homework five is due on Monday.
+公告，第五次作业要在星期一之前交。
 
 617
 00:45:45,080 --> 00:45:48,480
- Midterm pre-grades will close on Sunday
+Midterm pre-grades will close on Sunday
+期中预分数将于星期日截止。
 
 618
 00:45:49,880 --> 00:45:51,040
- by the end of the day.
+by the end of the day.
+一天结束时。
 
 619
 00:45:51,040 --> 00:45:53,400
- Okay.
+Okay.
+Sure, I will do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 620
 00:45:53,400 --> 00:45:57,080
- Any more questions about consensus,
+Any more questions about consensus,
+有关共识的更多问题吗？
 
 621
 00:45:57,080 --> 00:46:01,080
- General Paradox and the 2PC protocol?
+General Paradox and the 2PC protocol?
+将“General Paradox and the 2PC protocol?”翻译成中文。
 
 622
 00:46:01,080 --> 00:46:10,800
- Okay.
+Okay.
+Sure. Please go ahead and provide me with the text you would like me to translate.
 
 623
 00:46:10,800 --> 00:46:14,120
- If not, we are really going to switch gears now.
+If not, we are really going to switch gears now.
+如果不是的话，我们现在真的要改变方向了。
 
 624
 00:46:14,120 --> 00:46:16,240
- And we are going to talk about networking.
+And we are going to talk about networking.
+我们要谈论的是网络。
 
 625
 00:46:16,240 --> 00:46:18,840
- Networking is obviously a fundamental part
+Networking is obviously a fundamental part
+网络是显然是一个基本的部分。
 
 626
 00:46:18,840 --> 00:46:20,400
- of the operating system,
+of the operating system,
+操作系统的
 
 627
 00:46:20,400 --> 00:46:23,400
- especially today where everything is connected.
+especially today where everything is connected.
+尤其是在今天，一切都相互连接。
 
 628
 00:46:23,400 --> 00:46:26,600
- Like we discussed so many times.
+Like we discussed so many times.
+就像我们讨论过很多次的那样。
 
 629
 00:46:26,600 --> 00:46:32,800
- So here are the main concepts you need to keep in mind.
+So here are the main concepts you need to keep in mind.
+所以这里是你需要记住的主要概念。
 
 630
 00:46:32,800 --> 00:46:36,960
- First is the network interfaces.
+First is the network interfaces.
+首先是网络接口。
 
 631
 00:46:36,960 --> 00:46:40,200
- Each of your machines, the machines you are watching now
+Each of your machines, the machines you are watching now
+你现在正在观看的每一台机器
 
 632
 00:46:40,200 --> 00:46:45,520
- has a network card, some network or a network chip, right?
+has a network card, some network or a network chip, right?
+有一个网络卡，一些网络或者一个网络芯片，对吗？
 
 633
 00:46:47,840 --> 00:46:51,640
- And that's a chip which communicates with the outside world,
+And that's a chip which communicates with the outside world,
+这是一个与外界通信的芯片。
 
 634
 00:46:51,640 --> 00:46:56,640
- sending physical signals, radio signals and so forth,
+sending physical signals, radio signals and so forth,
+发送物理信号、无线电信号等等，
 
 635
 00:46:56,640 --> 00:46:59,760
- or signals through the wire.
+or signals through the wire.
+或者通过电线传输的信号。
 
 636
 00:46:59,760 --> 00:47:02,920
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 637
 00:47:02,920 --> 00:47:04,400
- These are the physical, you know,
+These are the physical, you know,
+这些是物理的，你知道的，
 
 638
 00:47:04,400 --> 00:47:05,840
- these are the network cards.
+these are the network cards.
 
 639
 00:47:05,840 --> 00:47:10,080

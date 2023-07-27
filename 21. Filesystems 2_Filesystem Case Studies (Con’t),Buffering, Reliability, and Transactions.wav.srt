@@ -1,3452 +1,4315 @@
 1
 00:00:00,000 --> 00:00:25,620
- Hello everyone.
+Hello everyone.
+大家好。
 
 2
 00:00:25,620 --> 00:00:31,400
- So today we are going to continue our discussion about file systems.
+So today we are going to continue our discussion about file systems.
+所以今天我们将继续讨论文件系统。
 
 3
 00:00:31,400 --> 00:00:39,000
- And in particular, we are going to go through a few examples to see how some of the most
+And in particular, we are going to go through a few examples to see how some of the most
+而且特别是，我们将通过几个例子来看看一些最常见的情况。
 
 4
 00:00:39,000 --> 00:00:46,600
- popular file systems in the past have been implemented.
+popular file systems in the past have been implemented.
+过去实施过许多流行的文件系统。
 
 5
 00:00:46,600 --> 00:00:59,440
- Just to recall, these are the main data structures which are maintained by a file system.
+Just to recall, these are the main data structures which are maintained by a file system.
+只是为了回顾一下，这些是文件系统维护的主要数据结构。
 
 6
 00:00:59,440 --> 00:01:06,760
- First of all, we are going to have directory structures, which is, as you know, it's a
+First of all, we are going to have directory structures, which is, as you know, it's a
+首先，我们将拥有目录结构，就像你知道的那样，它是一个
 
 7
 00:01:06,760 --> 00:01:08,880
- radical.
+radical.
+激进的。
 
 8
 00:01:08,880 --> 00:01:14,320
- And here you are going to use a file path to locate a particular file in this directory
+And here you are going to use a file path to locate a particular file in this directory
+在这里，你将使用文件路径来定位该目录中的特定文件。
 
 9
 00:01:14,320 --> 00:01:23,320
- structure and an entering the directory structures associate the file with an inumber.
+structure and an entering the directory structures associate the file with an inumber.
+结构和进入目录结构将文件与i节点相关联。
 
 10
 00:01:23,320 --> 00:01:31,840
- An inumber is an index in an index structure called file header structure.
+An inumber is an index in an index structure called file header structure.
+一个inumber是一个称为文件头结构的索引结构中的索引。
 
 11
 00:01:31,840 --> 00:01:37,400
- And this index points to what is called an inode.
+And this index points to what is called an inode.
+这个索引指向的是一个被称为inode的东西。
 
 12
 00:01:37,400 --> 00:01:45,000
- And the inode contains all the information which is relevant to the file and which helps
+And the inode contains all the information which is relevant to the file and which helps
+to locate and access the file on the file system. The inode stores metadata such as the file's permissions, owner, size, timestamps, and pointers to the actual data blocks on the disk.
 
 13
 00:01:45,000 --> 00:01:55,080
- the operating system to locate the data for that file on the disk.
+the operating system to locate the data for that file on the disk.
+操作系统会在磁盘上定位该文件的数据。
 
 14
 00:01:55,080 --> 00:02:00,280
- So the first case we are going to go over, it's FAT.
+So the first case we are going to go over, it's FAT.
+所以我们要讨论的第一个案例是FAT。
 
 15
 00:02:00,280 --> 00:02:04,520
- FAT stands for file allocation table.
+FAT stands for file allocation table.
+FAT代表文件分配表。
 
 16
 00:02:04,520 --> 00:02:18,220
- And this was the first file system employed by Microsoft Disk Operating System, which
+And this was the first file system employed by Microsoft Disk Operating System, which
+并且这是微软磁盘操作系统所采用的第一个文件系统，它
 
 17
 00:02:18,220 --> 00:02:24,880
- is the first operating system released by Microsoft all the way in 1977.
+is the first operating system released by Microsoft all the way in 1977.
+是的，微软在1977年发布了他们的第一个操作系统。
 
 18
 00:02:24,880 --> 00:02:38,240
- And it's still quite used today, despite after what, after 50, 44 years.
+And it's still quite used today, despite after what, after 50, 44 years.
+尽管已经过去了50年，但它至今仍然被广泛使用。
 
 19
 00:02:38,240 --> 00:02:46,360
- And the FAT file system is quite simple.
+And the FAT file system is quite simple.
+而FAT文件系统非常简单。
 
 20
 00:02:46,360 --> 00:02:56,200
- So first of all, what you have here on the right, it's blocks on the disk and the disk
+So first of all, what you have here on the right, it's blocks on the disk and the disk
+首先，你在右边看到的是磁盘上的块和磁盘。
 
 21
 00:02:56,200 --> 00:02:57,200
- blocks.
+blocks.
+块。
 
 22
 00:02:57,200 --> 00:03:02,680
- And you have a file for each file you have where the block is located.
+And you have a file for each file you have where the block is located.
+你每个文件都有一个文件，其中记录了块的位置。
 
 23
 00:03:02,680 --> 00:03:05,880
- Each file has a bunch of blocks.
+Each file has a bunch of blocks.
+每个文件都有一堆块。
 
 24
 00:03:05,880 --> 00:03:17,480
- And like you say, for file system 31, this is where the disks are located.
+And like you say, for file system 31, this is where the disks are located.
+就像你所说的，对于文件系统31，这是磁盘所在的地方。
 
 25
 00:03:17,480 --> 00:03:27,280
- And then you need to maintain in the FAT table a pointer or the identity of where the disks,
+And then you need to maintain in the FAT table a pointer or the identity of where the disks,
+然后你需要在FAT表中维护一个指针或者标识符，指示磁盘的位置。
 
 26
 00:03:27,280 --> 00:03:38,880
- the blocks are located, therefore to the index of that block.
+the blocks are located, therefore to the index of that block.
+这些块的位置，因此是该块的索引。
 
 27
 00:03:38,880 --> 00:03:43,960
- So the disk block, you can think about of an array of blocks.
+So the disk block, you can think about of an array of blocks.
+所以磁盘块，你可以把它想象成一个块的数组。
 
 28
 00:03:43,960 --> 00:03:47,240
- Each block has an identifier.
+Each block has an identifier.
+每个区块都有一个标识符。
 
 29
 00:03:47,240 --> 00:03:52,360
- Typically it's a logical identifier, which is mapped then on a physical identifier to
+Typically it's a logical identifier, which is mapped then on a physical identifier to
+通常它是一个逻辑标识符，然后映射到一个物理标识符上。
 
 30
 00:03:52,360 --> 00:03:53,360
- the disk.
+the disk.
+磁盘。
 
 31
 00:03:53,360 --> 00:04:02,680
- And the FAT maintains a mapping between the files and the list of blocks identifiers,
+And the FAT maintains a mapping between the files and the list of blocks identifiers,
+并且FAT维护着文件与块标识符列表之间的映射关系。
 
 32
 00:04:02,680 --> 00:04:05,960
- logical identifiers.
+logical identifiers.
+逻辑标识符。
 
 33
 00:04:05,960 --> 00:04:10,360
- So how does FAT maintain that?
+So how does FAT maintain that?
+那么FAT是如何维护这一点的呢？
 
 34
 00:04:10,360 --> 00:04:14,960
- It's again, this is maintained in the inode.
+It's again, this is maintained in the inode.
+这是再次提到的，这是在inode中维护的。
 
 35
 00:04:14,960 --> 00:04:19,840
- The inode is indexed by the inumber.
+The inode is indexed by the inumber.
+inode是由inumber索引的。
 
 36
 00:04:19,840 --> 00:04:24,200
- Let's assume that the file number here is 31.
+Let's assume that the file number here is 31.
+让我们假设这里的文件编号是31。
 
 37
 00:04:24,200 --> 00:04:28,480
- And the FAT is just basically a linked list.
+And the FAT is just basically a linked list.
+而FAT基本上就是一个链表。
 
 38
 00:04:28,480 --> 00:04:32,960
- Each entry in the linked list corresponds to a block of a file.
+Each entry in the linked list corresponds to a block of a file.
+链表中的每个条目对应文件的一个块。
 
 39
 00:04:32,960 --> 00:04:42,400
- And each entry will maintain the index of a block and then a pointer to the next entry,
+And each entry will maintain the index of a block and then a pointer to the next entry,
+每个条目将保持一个块的索引，然后指向下一个条目的指针。
 
 40
 00:04:42,400 --> 00:04:46,360
- which points to the next block.
+which points to the next block.
+指向下一个块的指针。
 
 41
 00:04:46,360 --> 00:04:53,800
- So here, assume that you are going to have in three blocks in this file, 0, 1, and 2,
+So here, assume that you are going to have in three blocks in this file, 0, 1, and 2,
+所以在这里，假设你将在这个文件中有三个块，0、1和2。
 
 42
 00:04:53,800 --> 00:04:58,560
- you have three corresponding entries in the FAT table.
+you have three corresponding entries in the FAT table.
+你在FAT表中有三个对应的条目。
 
 43
 00:04:58,560 --> 00:05:07,200
- And each entry will have an index to a corresponding block and then a pointer to the next entry,
+And each entry will have an index to a corresponding block and then a pointer to the next entry,
+每个条目都会有一个指向相应块的索引，然后是指向下一个条目的指针。
 
 44
 00:05:07,200 --> 00:05:24,360
- to the next entry corresponding to the next block in the file.
+to the next entry corresponding to the next block in the file.
+到文件中对应下一个块的下一个条目。
 
 45
 00:05:24,360 --> 00:05:32,280
- Also as you know, when I am opening a file, another important data I need is basically
+Also as you know, when I am opening a file, another important data I need is basically
+另外，正如你所知，当我打开一个文件时，我基本上需要的另一项重要数据是什么？
 
 46
 00:05:32,280 --> 00:05:33,680
- the offset.
+the offset.
+偏移量。
 
 47
 00:05:33,680 --> 00:05:37,300
- So what is the current position in the file?
+So what is the current position in the file?
+那么文件当前的位置是什么？
 
 48
 00:05:37,300 --> 00:05:42,120
- The current position in the file here is given by a tuple.
+The current position in the file here is given by a tuple.
+当前文件中的位置由一个元组给出。
 
 49
 00:05:42,120 --> 00:05:46,680
- The first tuple is a block in the file.
+The first tuple is a block in the file.
+第一个元组是文件中的一个块。
 
 50
 00:05:46,680 --> 00:05:57,040
- And the second part of the tuple, it's basically the offset within that block.
+And the second part of the tuple, it's basically the offset within that block.
+第二部分元组，基本上是该块内的偏移量。
 
 51
 00:05:57,040 --> 00:06:00,140
- Yeah.
+Yeah.
+是的。
 
 52
 00:06:00,140 --> 00:06:06,900
- So the question is, where does x, the second element of the 2x tuple, comes into the place?
+So the question is, where does x, the second element of the 2x tuple, comes into the place?
+所以问题是，x，即2x元组的第二个元素，放在哪个位置？
 
 53
 00:06:06,900 --> 00:06:16,400
- Again, x, it's offset within the block 2 in this case.
+Again, x, it's offset within the block 2 in this case.
+再次，x，在这种情况下，它在块2内偏移。
 
 54
 00:06:16,400 --> 00:06:25,100
- So that's why in order to access the data here from block 2, you start from block 0,
+So that's why in order to access the data here from block 2, you start from block 0,
+所以为了从块2访问这里的数据，你需要从块0开始。
 
 55
 00:06:25,100 --> 00:06:29,840
- then you have to follow the linked list to block 1, then to block 2, and now block 2,
+then you have to follow the linked list to block 1, then to block 2, and now block 2,
+然后你需要按照链表的顺序访问块1，然后是块2，现在是块2。
 
 56
 00:06:29,840 --> 00:06:31,640
- this is a block I care about.
+this is a block I care about.
+这是我关心的一个区块。
 
 57
 00:06:31,640 --> 00:06:42,040
- Now I can retrieve block 2, and then I'm going to the offset x within the block 2.
+Now I can retrieve block 2, and then I'm going to the offset x within the block 2.
+现在我可以检索块2，然后我要在块2中的偏移量x处进行操作。
 
 58
 00:06:42,040 --> 00:06:45,460
- So it's a very simple technique.
+So it's a very simple technique.
+所以这是一个非常简单的技巧。
 
 59
 00:06:45,460 --> 00:06:54,800
- So now you read the block 2 in the memory and then you access offset x within that block.
+So now you read the block 2 in the memory and then you access offset x within that block.
+所以现在你读取内存中的块2，然后访问该块内的偏移量x。
 
 60
 00:06:54,800 --> 00:07:06,880
- So again, it's a collection of blocks, and each entry in this linked list, in the fat
+So again, it's a collection of blocks, and each entry in this linked list, in the fat
+所以，再次说，它是一个块的集合，这个链表中的每个条目，在FAT中。
 
 61
 00:07:06,880 --> 00:07:12,040
- linked list, corresponds to a block.
+linked list, corresponds to a block.
+链表，对应一个块。
 
 62
 00:07:12,040 --> 00:07:25,380
- And the file number, it's basically the file number for simplicity in the case of fat,
+And the file number, it's basically the file number for simplicity in the case of fat,
+文件号，基本上是为了方便起见，在FAT案例中的文件号。
 
 63
 00:07:25,380 --> 00:07:32,000
- it's exactly the index of the root block in the file.
+it's exactly the index of the root block in the file.
+这是文件中根块的索引位置。
 
 64
 00:07:32,000 --> 00:07:39,880
- So in this case, 31, it's also the index of the root block on the disk.
+So in this case, 31, it's also the index of the root block on the disk.
+所以在这种情况下，31也是磁盘上根块的索引。
 
 65
 00:07:39,880 --> 00:07:51,640
- Okay, so what about, obviously, what about free blocks?
+Okay, so what about, obviously, what about free blocks?
+好的，那么，显然，那么空闲块呢？
 
 66
 00:07:51,640 --> 00:07:56,680
- So you need free blocks in order, obviously, to extend the file.
+So you need free blocks in order, obviously, to extend the file.
+所以你需要有连续的空闲块，显然，才能扩展文件。
 
 67
 00:07:56,680 --> 00:08:02,320
- Remember that the file expands as you write more in the file.
+Remember that the file expands as you write more in the file.
+请记住，随着您在文件中写入更多内容，文件会扩大。
 
 68
 00:08:02,320 --> 00:08:05,360
- So there are four new files you need to follow.
+So there are four new files you need to follow.
+所以有四个新文件你需要跟进。
 
 69
 00:08:05,360 --> 00:08:12,760
- If you want to write a new file, you need to look at, to find these free blocks.
+If you want to write a new file, you need to look at, to find these free blocks.
+如果你想要写一个新文件，你需要查找这些空闲块。
 
 70
 00:08:12,760 --> 00:08:18,280
- The free blocks, typically there are two ways to manage these free blocks.
+The free blocks, typically there are two ways to manage these free blocks.
+这些空闲块，通常有两种管理方法。
 
 71
 00:08:18,280 --> 00:08:21,440
- One is to have a list of free blocks.
+One is to have a list of free blocks.
+一个方法是拥有一个免费区块的列表。
 
 72
 00:08:21,440 --> 00:08:26,520
- The other one, you can have a bitmap of free blocks.
+The other one, you can have a bitmap of free blocks.
+另外一个，你可以有一个空闲块的位图。
 
 73
 00:08:26,520 --> 00:08:32,840
- So basically, in this bitmap case, you have for each block, you have a bit, one or zero,
+So basically, in this bitmap case, you have for each block, you have a bit, one or zero,
+所以基本上，在这个位图案例中，对于每个块，你有一个位，要么是1，要么是0。
 
 74
 00:08:32,840 --> 00:08:39,400
- one if it's, that block is not free, it's used by a file, zero if it's free.
+one if it's, that block is not free, it's used by a file, zero if it's free.
+如果是被使用的话，返回1，表示该块不可用，如果是空闲的话，返回0。
 
 75
 00:08:39,400 --> 00:08:42,480
- Okay, so this is how you find it.
+Okay, so this is how you find it.
+好的，这是你找到它的方法。
 
 76
 00:08:42,480 --> 00:08:46,680
- In this particular case, for instance, if you are going to write, if the file for now
+In this particular case, for instance, if you are going to write, if the file for now
+在这个特定的情况下，例如，如果你要写的话，暂时的文件是什么。
 
 77
 00:08:46,680 --> 00:08:55,240
- has only three blocks, and you want to write more data, like in this case, I want to write
+has only three blocks, and you want to write more data, like in this case, I want to write
+只有三个块，而你想写更多的数据，就像在这个例子中，我想写入
 
 78
 00:08:55,240 --> 00:09:02,160
- in file 71 in block C, so this means the fourth block, then what happens again, the file,
+in file 71 in block C, so this means the fourth block, then what happens again, the file,
+在第71个文件的C块中，这意味着第四个块，然后会发生什么，文件。
 
 79
 00:09:02,160 --> 00:09:09,480
- the operating system, the file system expands the file and finds them by finding a new block
+the operating system, the file system expands the file and finds them by finding a new block
+操作系统中的文件系统会扩展文件并通过查找新的数据块来找到它们。
 
 80
 00:09:09,480 --> 00:09:15,120
- in the empty list and then allocating that block and now that block is part of the file
+in the empty list and then allocating that block and now that block is part of the file
+在空列表中分配该块，现在该块是文件的一部分。
 
 81
 00:09:15,120 --> 00:09:26,880
- and it's also part of the linked list of all the blocks which belong to that file.
+and it's also part of the linked list of all the blocks which belong to that file.
+并且它也是属于该文件的所有块的链表的一部分。
 
 82
 00:09:26,880 --> 00:09:31,160
- So now, what is fast thought?
+So now, what is fast thought?
+那么，现在，什么是快速思考？
 
 83
 00:09:31,160 --> 00:09:38,560
- So it's again, this is persistent storage, all these modifications needs to persist after
+So it's again, this is persistent storage, all these modifications needs to persist after
+所以，这是持久存储，所有这些修改都需要在之后持久保存。
 
 84
 00:09:38,560 --> 00:09:44,400
- I am going, I write a file, for instance, I modify the file, and then I close the application
+I am going, I write a file, for instance, I modify the file, and then I close the application
+我要走了，我写了一个文件，比如说，我修改了这个文件，然后关闭了应用程序。
 
 85
 00:09:44,400 --> 00:09:48,880
- because next time when I open the application and I want to read the files, I want my changes
+because next time when I open the application and I want to read the files, I want my changes
+因为下次我打开应用程序并且想要阅读文件时，我希望我的更改能够保留。
 
 86
 00:09:48,880 --> 00:09:49,880
- to be reflected.
+to be reflected.
+被反映。
 
 87
 00:09:49,880 --> 00:09:56,080
- So therefore, by default, this, all this information is a fact, not only the data, but also the
+So therefore, by default, this, all this information is a fact, not only the data, but also the
+所以，因此，默认情况下，这些所有的信息都是事实，不仅仅是数据，还包括其他的内容。
 
 88
 00:09:56,080 --> 00:10:02,680
- metadata, it has to be on persistent restored in this and the obvious place to restore it
+metadata, it has to be on persistent restored in this and the obvious place to restore it
+元数据，它必须在此处进行持久性恢复，并且恢复它的明显位置。
 
 89
 00:10:02,680 --> 00:10:08,080
- is on the disk.
+is on the disk.
+在磁盘上。
 
 90
 00:10:08,080 --> 00:10:10,600
- How do you format a disk?
+How do you format a disk?
+你如何格式化磁盘？
 
 91
 00:10:10,600 --> 00:10:21,320
- Do you know what formatting a disk means for people?
+Do you know what formatting a disk means for people?
+你知道对于人们来说，格式化磁盘是什么意思吗？
 
 92
 00:10:21,320 --> 00:10:33,120
- So, formatting meaning, you know, I want to make the disk as new, right?
+So, formatting meaning, you know, I want to make the disk as new, right?
+所以，格式化的意思是，你知道的，我想要将磁盘恢复成新的状态，对吗？
 
 93
 00:10:33,120 --> 00:10:41,480
- I want to basically erase everything and the way you do it is basically you zero the blocks
+I want to basically erase everything and the way you do it is basically you zero the blocks
+我想基本上抹掉所有东西，而你要做的就是基本上将块清零。
 
 94
 00:10:41,480 --> 00:10:47,760
- and in the fact table, you mark everything being free.
+and in the fact table, you mark everything being free.
+在事实表中，你将所有东西都标记为免费。
 
 95
 00:10:47,760 --> 00:10:52,240
- There is a question here from Gilbert.
+There is a question here from Gilbert.
+这里有一个来自Gilbert的问题。
 
 96
 00:10:52,240 --> 00:10:58,400
- Do the blocks not have to be in order in the linked list?
+Do the blocks not have to be in order in the linked list?
+链表中的块是否不需要按顺序排列？
 
 97
 00:10:58,400 --> 00:11:04,280
- So I'm afraid I don't understand that question.
+So I'm afraid I don't understand that question.
+所以，我恐怕不明白那个问题。
 
 98
 00:11:04,280 --> 00:11:09,280
- Can you be more precise Gilbert about this question?
+Can you be more precise Gilbert about this question?
+你能更准确地解释一下这个问题吗，Gilbert？
 
 99
 00:11:09,280 --> 00:11:14,480
- So are you asking that because the linked list is fundamentally ordered.
+So are you asking that because the linked list is fundamentally ordered.
+所以你是在问这个问题是因为链表在本质上是有序的。
 
 100
 00:11:14,480 --> 00:11:19,720
- Ah, like block three is before the block two.
+Ah, like block three is before the block two.
+啊，就像第三个块在第二个块之前一样。
 
 101
 00:11:19,720 --> 00:11:24,640
- That's exactly why we have a linked list because when you are going to read from a block, we
+That's exactly why we have a linked list because when you are going to read from a block, we
+这就是为什么我们使用链表的原因，因为当你要从一个块中读取数据时，我们可以通过链表快速找到该块。
 
 102
 00:11:24,640 --> 00:11:27,400
- are going to go along the linked list.
+are going to go along the linked list.
+你将要沿着链表进行遍历。
 
 103
 00:11:27,400 --> 00:11:28,400
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like to have translated.
 
 104
 00:11:28,400 --> 00:11:30,680
- So that's the main point, right?
+So that's the main point, right?
+那就是主要的观点，对吗？
 
 105
 00:11:30,680 --> 00:11:36,680
- So in this particular case, we are going, again, if you follow the linked list, the
+So in this particular case, we are going, again, if you follow the linked list, the
+所以在这个特定的情况下，我们会再次按照链表的顺序进行，如果你跟着链表的话，那么...
 
 106
 00:11:36,680 --> 00:11:41,120
- linked list will link the blocks in the order, you know, it's all written.
+linked list will link the blocks in the order, you know, it's all written.
+链表将按顺序链接这些块，你知道的，它都已经写好了。
 
 107
 00:11:41,120 --> 00:11:42,120
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like me to translate.
 
 108
 00:11:42,120 --> 00:11:43,680
- They are appended to the file.
+They are appended to the file.
+它们被追加到文件中。
 
 109
 00:11:43,680 --> 00:11:47,520
- That's exactly why I need a linked list.
+That's exactly why I need a linked list.
+这正是我需要链表的原因。
 
 110
 00:11:47,520 --> 00:11:54,320
- To preserve that, to store that order.
+To preserve that, to store that order.
+为了保护那个，保存那个秩序。
 
 111
 00:11:54,320 --> 00:12:01,360
- What happens if we try to insert something in the middle of a file for FAT?
+What happens if we try to insert something in the middle of a file for FAT?
+如果我们尝试在FAT文件中间插入内容会发生什么？
 
 112
 00:12:01,360 --> 00:12:05,520
- Do we insert a new block into the linked list or is there something more clever?
+Do we insert a new block into the linked list or is there something more clever?
+我们是将一个新的块插入到链表中，还是有更巧妙的方法？
 
 113
 00:12:05,520 --> 00:12:13,360
- Well, if you insert, you see in any file system and most file systems actually, you cannot
+Well, if you insert, you see in any file system and most file systems actually, you cannot
+嗯，如果你插入，你会在任何文件系统中看到，实际上大多数文件系统都是如此，你无法
 
 114
 00:12:13,360 --> 00:12:16,200
- insert a block in the middle, right?
+insert a block in the middle, right?
+在中间插入一个块，对吗？
 
 115
 00:12:16,200 --> 00:12:21,160
- Because from the file system, think about what is the interface.
+Because from the file system, think about what is the interface.
+因为从文件系统的角度来看，我们需要思考接口是什么。
 
 116
 00:12:21,160 --> 00:12:23,680
- You can just write to the block.
+You can just write to the block.
+你可以直接写到这个区块。
 
 117
 00:12:23,680 --> 00:12:28,640
- So or read from the, sorry, you write through the file and read from the file.
+So or read from the, sorry, you write through the file and read from the file.
+所以，或者从中读取，抱歉，你通过文件写入并从文件中读取。
 
 118
 00:12:28,640 --> 00:12:36,520
- If you write from the file, if you write in a place where already contains data, you override
+If you write from the file, if you write in a place where already contains data, you override
+如果你从文件中写入，如果你在已经包含数据的位置写入，你会覆盖掉原有的数据。
 
 119
 00:12:36,520 --> 00:12:38,240
- that data, right?
+that data, right?
+那个数据，对吗？
 
 120
 00:12:38,240 --> 00:12:42,160
- So you write in an already existing block, right?
+So you write in an already existing block, right?
+所以你是在一个已经存在的区块中写作，对吗？
 
 121
 00:12:42,160 --> 00:12:53,240
- And if you write at the end of the file, then if you run out of existing, the block at the
+And if you write at the end of the file, then if you run out of existing, the block at the
+末尾写入文件时，如果已经用完现有的块，则会在文件末尾添加一个新的块。
 
 122
 00:12:53,240 --> 00:12:56,040
- end of the file, you are going to add a new block.
+end of the file, you are going to add a new block.
+文件末尾，你将要添加一个新的块。
 
 123
 00:12:56,040 --> 00:13:00,840
- So you are going to expand the file.
+So you are going to expand the file.
+所以你打算扩展这个文件。
 
 124
 00:13:00,840 --> 00:13:07,640
- Good question.
+Good question.
+好问题。
 
 125
 00:13:07,640 --> 00:13:11,600
- How to quick format a disk?
+How to quick format a disk?
+如何快速格式化磁盘？
 
 126
 00:13:11,600 --> 00:13:17,240
- You can mark all the FAT entries to free.
+You can mark all the FAT entries to free.
+你可以将所有的FAT条目标记为可用。
 
 127
 00:13:17,240 --> 00:13:19,400
- And this can be easily implemented.
+And this can be easily implemented.
+这可以很容易地实现。
 
 128
 00:13:19,400 --> 00:13:24,000
- The main point here, it's again, it's like you can actually, and there are two ways to
+The main point here, it's again, it's like you can actually, and there are two ways to
+这里的主要观点是，再次强调，实际上你可以，而且有两种方法可以。
 
 129
 00:13:24,000 --> 00:13:25,000
- format it.
+format it.
+格式化它。
 
 130
 00:13:25,000 --> 00:13:32,800
- And again, format meanings in, it just, you want to have the disk as new.
+And again, format meanings in, it just, you want to have the disk as new.
+再次，格式化的意思是将其恢复为新的状态，就像你想要将硬盘变成新的一样。
 
 131
 00:13:32,800 --> 00:13:38,840
- Now if you just remove all the information in the FAT without doing anything with the
+Now if you just remove all the information in the FAT without doing anything with the
+现在，如果你只是删除FAT中的所有信息而不对其进行任何操作，
 
 132
 00:13:38,840 --> 00:13:45,200
- disk blocks, the disk block still remains, you know, you don't zero them.
+disk blocks, the disk block still remains, you know, you don't zero them.
+磁盘块，磁盘块仍然存在，你知道的，你不会将它们清零。
 
 133
 00:13:45,200 --> 00:13:50,600
- Then from the point of view of the operating of the file system, the disk is free.
+Then from the point of view of the operating of the file system, the disk is free.
+那么从文件系统的角度来看，磁盘是空闲的。
 
 134
 00:13:50,600 --> 00:14:00,880
- You can allocate everything because you removed, you just mark all the FAT entries being free,
+You can allocate everything because you removed, you just mark all the FAT entries being free,
+你可以分配所有的空间，因为你已经删除了它们，只需将所有的FAT条目标记为可用。
 
 135
 00:14:00,880 --> 00:14:01,880
- right?
+right?
+对吗？
 
 136
 00:14:01,880 --> 00:14:06,280
- So you are going to allocate from the previous blocks, which you'll return for a different
+So you are going to allocate from the previous blocks, which you'll return for a different
+所以你打算从之前的块中分配，然后将其返回给不同的地方。
 
 137
 00:14:06,280 --> 00:14:07,960
- file, so just override them.
+file, so just override them.
+文件，所以只需覆盖它们。
 
 138
 00:14:07,960 --> 00:14:08,960
- No problem.
+No problem.
+没问题。
 
 139
 00:14:08,960 --> 00:14:15,800
- Now, obviously this is not a hard format because it maintains the information from the previous
+Now, obviously this is not a hard format because it maintains the information from the previous
+现在，显然这不是一个固定的格式，因为它保留了之前的信息。
 
 140
 00:14:15,800 --> 00:14:17,600
- files.
+files.
+文件。
 
 141
 00:14:17,600 --> 00:14:22,040
- And typically when people format, they also want to erase this information for security
+And typically when people format, they also want to erase this information for security
+通常，当人们进行格式化时，他们也希望出于安全考虑擦除这些信息。
 
 142
 00:14:22,040 --> 00:14:23,040
- reasons.
+reasons.
+原因。
 
 143
 00:14:23,040 --> 00:14:27,600
- So you need to be careful about what kind of format is going to happen on your formatted
+So you need to be careful about what kind of format is going to happen on your formatted
+所以你需要注意你的格式化会发生什么样的格式。
 
 144
 00:14:27,600 --> 00:14:28,600
- disk.
+disk.
+磁盘。
 
 145
 00:14:28,600 --> 00:14:33,000
- If you care about the information from your previous files to not be visible.
+If you care about the information from your previous files to not be visible.
+如果您关心之前文件中的信息不可见。
 
 146
 00:14:33,000 --> 00:14:40,600
- Again, for instance, you hand down, you hand back your computer to your employee or something
+Again, for instance, you hand down, you hand back your computer to your employee or something
+再举个例子，比如你把你的电脑交给你的员工，或者其他类似的情况。
 
 147
 00:14:40,600 --> 00:14:43,080
- like that.
+like that.
+那样。
 
 148
 00:14:43,080 --> 00:14:50,560
- The FAT directory is again, it's like, you know, directory you have to remember, you
+The FAT directory is again, it's like, you know, directory you have to remember, you
+FAT目录又来了，就像你知道的那样，这是一个你必须记住的目录。
 
 149
 00:14:50,560 --> 00:14:54,400
- have this and it topples.
+have this and it topples.
+这个东西会倒下来。
 
 150
 00:14:54,400 --> 00:14:55,960
- One is a file name.
+One is a file name.
+一个是文件名。
 
 151
 00:14:55,960 --> 00:14:57,320
- The first part is a file name.
+The first part is a file name.
+第一部分是一个文件名。
 
 152
 00:14:57,320 --> 00:15:01,280
- The second one is a file number.
+The second one is a file number.
+第二个是文件编号。
 
 153
 00:15:01,280 --> 00:15:06,920
- And here is a FAT we also have, it's a linked list, right?
+And here is a FAT we also have, it's a linked list, right?
+这里还有一个FAT，它是一个链表，对吗？
 
 154
 00:15:06,920 --> 00:15:09,000
- It's like we know.
+It's like we know.
+就像我们知道的那样。
 
 155
 00:15:09,000 --> 00:15:13,800
- And all the directory, you know, what you see in a directory, which is basically a list
+And all the directory, you know, what you see in a directory, which is basically a list
+和所有的目录，你知道，在一个目录中所看到的，基本上就是一个列表。
 
 156
 00:15:13,800 --> 00:15:21,400
- of names, what happens here, you are going to have each of these, what you see entering
+of names, what happens here, you are going to have each of these, what you see entering
+名字，这里发生了什么，你将会拥有每一个这些，你所看到的进入的东西。
 
 157
 00:15:21,400 --> 00:15:28,020
- this directory is going to be linked, all of them, you know, in a linked list.
+this directory is going to be linked, all of them, you know, in a linked list.
+这个目录将会被链接，所有的目录，你知道的，都会以链表的形式链接起来。
 
 158
 00:15:28,020 --> 00:15:35,820
- If you remove a file, then you are going to update the pointers so that you are going
+If you remove a file, then you are going to update the pointers so that you are going
+如果你删除一个文件，那么你将会更新指针，以便你可以
 
 159
 00:15:35,820 --> 00:15:43,300
- to step over that file, which was over that entry, which was deleted.
+to step over that file, which was over that entry, which was deleted.
+跨过那个被删除的入口上方的文件。
 
 160
 00:15:43,300 --> 00:15:45,280
- So that's how you have here.
+So that's how you have here.
+这就是你在这里的方式。
 
 161
 00:15:45,280 --> 00:15:49,540
- So it's very simple.
+So it's very simple.
+所以很简单。
 
 162
 00:15:49,540 --> 00:15:56,960
- So one, there are a few things about the FAT directory, which is worth mention.
+So one, there are a few things about the FAT directory, which is worth mention.
+首先，关于FAT目录有几个值得一提的事情。
 
 163
 00:15:56,960 --> 00:15:59,860
- It's where do you have the attributes, the attributes for a file?
+It's where do you have the attributes, the attributes for a file?
+你在哪里拥有文件的属性？
 
 164
 00:15:59,860 --> 00:16:03,340
- The attributes for a file is like protection and permission attributes.
+The attributes for a file is like protection and permission attributes.
+文件的属性包括保护和权限属性。
 
 165
 00:16:03,340 --> 00:16:09,500
- You know, who has access to the file to read it, to write it, to execute that file, if
+You know, who has access to the file to read it, to write it, to execute that file, if
+你知道，谁有权访问该文件以阅读、写入、执行该文件，如果
 
 166
 00:16:09,500 --> 00:16:11,420
- it's a binary file.
+it's a binary file.
+这是一个二进制文件。
 
 167
 00:16:11,420 --> 00:16:16,960
- And in the FAT, these attributes are maintained here in the directory.
+And in the FAT, these attributes are maintained here in the directory.
+在FAT中，这些属性在目录中被保留。
 
 168
 00:16:16,960 --> 00:16:26,060
- Like we'll see in other file systems, these attributes are associated with the file itself.
+Like we'll see in other file systems, these attributes are associated with the file itself.
+就像我们在其他文件系统中看到的那样，这些属性与文件本身相关联。
 
 169
 00:16:26,060 --> 00:16:33,500
- The other question, which in general is, it's an important question for all the file systems.
+The other question, which in general is, it's an important question for all the file systems.
+另一个问题，总的来说，对于所有的文件系统来说都是一个重要的问题。
 
 170
 00:16:33,500 --> 00:16:34,500
- Where do you find the root?
+Where do you find the root?
+你在哪里找到这个根？
 
 171
 00:16:34,500 --> 00:16:36,500
- Where do you start from?
+Where do you start from?
+你从哪里开始？
 
 172
 00:16:36,500 --> 00:16:37,500
- Right?
+Right?
+对吗？
 
 173
 00:16:37,500 --> 00:16:38,940
- To get the root.
+To get the root.
+获取根目录。
 
 174
 00:16:38,940 --> 00:16:44,140
- If I give you a file name, you need to go and get the root directory and then go through
+If I give you a file name, you need to go and get the root directory and then go through
+如果我给你一个文件名，你需要去获取根目录，然后遍历。
 
 175
 00:16:44,140 --> 00:16:50,560
- the path names in that directory to find the particular file name and then the I number
+the path names in that directory to find the particular file name and then the I number
+在那个目录中查找特定文件名的路径名称，然后找到I号码。
 
 176
 00:16:50,560 --> 00:16:53,200
- for the file.
+for the file.
+文件。
 
 177
 00:16:53,200 --> 00:17:02,520
- And typically this root, it's a well defined place on the disk.
+And typically this root, it's a well defined place on the disk.
+通常情况下，这个根目录是磁盘上一个明确定义的位置。
 
 178
 00:17:02,520 --> 00:17:05,960
- For instance, in the case of FAT, it's block two.
+For instance, in the case of FAT, it's block two.
+例如，在FAT的情况下，它是第二个块。
 
 179
 00:17:05,960 --> 00:17:07,420
- So what else here?
+So what else here?
+这里还有什么别的？
 
 180
 00:17:07,420 --> 00:17:12,240
- Obviously, because this is maintaining a link list, then in order to read a directory and
+Obviously, because this is maintaining a link list, then in order to read a directory and
+显然，因为这是在维护一个链表，所以为了读取一个目录并且
 
 181
 00:17:12,240 --> 00:17:17,080
- to display the content of the directory, you need to go over this link list.
+to display the content of the directory, you need to go over this link list.
+要显示目录的内容，你需要遍历这个链接列表。
 
 182
 00:17:17,080 --> 00:17:21,480
- You need also to go over, which is called "conf" defined because when you do a display,
+You need also to go over, which is called "conf" defined because when you do a display,
+你还需要查看一下，这被称为“conf”定义，因为当你执行显示操作时，
 
 183
 00:17:21,480 --> 00:17:27,980
- like all the entries in a directory, you want to display all the files in the directory.
+like all the entries in a directory, you want to display all the files in the directory.
+像目录中的所有条目一样，您想要显示目录中的所有文件。
 
 184
 00:17:27,980 --> 00:17:33,880
- But when you want to find a file in a directory, you still need to have to go over this link
+But when you want to find a file in a directory, you still need to have to go over this link
+但是当你想在一个目录中找到一个文件时，你仍然需要点击这个链接。
 
 185
 00:17:33,880 --> 00:17:37,500
- list, which can be expensive.
+list, which can be expensive.
+清单，可能会很昂贵。
 
 186
 00:17:37,500 --> 00:17:40,500
- Any questions?
+Any questions?
+有任何问题吗？
 
 187
 00:17:40,500 --> 00:17:48,880
- Okay, so here are a few questions.
+Okay, so here are a few questions.
+好的，下面是几个问题。
 
 188
 00:17:48,880 --> 00:17:54,420
- So suppose you start with a file number, the file number is everyone, like in our previous
+So suppose you start with a file number, the file number is everyone, like in our previous
+所以假设你从一个文件号开始，文件号是每个人的，就像我们之前的一样。
 
 189
 00:17:54,420 --> 00:17:56,000
- example.
+example.
+例子。
 
 190
 00:17:56,000 --> 00:18:02,760
- And here you see also yellow is you have a file too.
+And here you see also yellow is you have a file too.
+这里你也可以看到黄色，你也有一个文件。
 
 191
 00:18:02,760 --> 00:18:09,000
- Let's see, what is the time to find a block?
+Let's see, what is the time to find a block?
+让我们看看，找到一个区块需要多长时间？
 
 192
 00:18:09,000 --> 00:18:14,000
- What do you need to find a block?
+What do you need to find a block?
+你需要找到一个区块的条件是什么？
 
 193
 00:18:14,000 --> 00:18:30,480
- Yes, you take this, it's O(n) where n is the number of blocks.
+Yes, you take this, it's O(n) where n is the number of blocks.
+是的，你拿着这个，它的时间复杂度是O(n)，其中n是块的数量。
 
 194
 00:18:30,480 --> 00:18:37,400
- Actually, in this case, you say root then traverse to the desired number.
+Actually, in this case, you say root then traverse to the desired number.
+实际上，在这种情况下，你需要先找到根节点，然后遍历到所需的数字。
 
 195
 00:18:37,400 --> 00:18:40,400
- Here you already have the file number, the 31.
+Here you already have the file number, the 31.
+这里已经有了文件号，是31号。
 
 196
 00:18:40,400 --> 00:18:47,800
- So you don't need to do the directory traversal.
+So you don't need to do the directory traversal.
+所以你不需要进行目录遍历。
 
 197
 00:18:47,800 --> 00:18:50,440
- But yes, this is correct and Gilbert.
+But yes, this is correct and Gilbert.
+但是，是的，这是正确的，而且是Gilbert。
 
 198
 00:18:50,440 --> 00:18:55,760
- So basically in this particular case, you need, it's a linear search, right?
+So basically in this particular case, you need, it's a linear search, right?
+所以基本上在这个特定的情况下，你需要的是线性搜索，对吗？
 
 199
 00:18:55,760 --> 00:18:58,960
- You need to find a particular block.
+You need to find a particular block.
+你需要找到一个特定的区块。
 
 200
 00:18:58,960 --> 00:19:03,080
- You need to follow the pointers in the link list.
+You need to follow the pointers in the link list.
+你需要按照链表中的指针进行操作。
 
 201
 00:19:03,080 --> 00:19:08,280
- And everyone knows that link list to find something in a link list is linear search
+And everyone knows that link list to find something in a link list is linear search
+而且每个人都知道，在链表中查找某个元素是线性搜索。
 
 202
 00:19:08,280 --> 00:19:13,880
- in the ER file.
+in the ER file.
+在ER文件中。
 
 203
 00:19:13,880 --> 00:19:20,520
- So what is a block layout for files?
+So what is a block layout for files?
+文件的块布局是什么意思？
 
 204
 00:19:20,520 --> 00:19:24,080
- It was a previous question, do they need to be contiguous?
+It was a previous question, do they need to be contiguous?
+这是之前的问题，它们需要连续吗？
 
 205
 00:19:24,080 --> 00:19:25,080
- Not...
+Not...
+不...
 
 206
 00:19:25,080 --> 00:19:30,080
- Yes, it's correct.
+Yes, it's correct.
+是的，没错。
 
 207
 00:19:30,080 --> 00:19:44,640
- Actually, they don't need to be contiguous, they can be random because then we are going
+Actually, they don't need to be contiguous, they can be random because then we are going
+实际上，它们不需要连续，它们可以是随机的，因为这样我们就可以
 
 208
 00:19:44,640 --> 00:19:50,760
- to have our link list in the fat table to maintain the order, the logical order of the
+to have our link list in the fat table to maintain the order, the logical order of the
+为了保持顺序，我们需要将我们的链接列表放在FAT表中，以维护逻辑顺序。
 
 209
 00:19:50,760 --> 00:19:59,000
- blocks, which provides you a lot of flexibility about where to allocate the blocks and which
+blocks, which provides you a lot of flexibility about where to allocate the blocks and which
+块，这为您提供了很大的灵活性，可以自由选择在哪里分配块以及使用哪些块。
 
 210
 00:19:59,000 --> 00:20:00,400
- is good.
+is good.
+是好的。
 
 211
 00:20:00,400 --> 00:20:04,400
- Sequential access.
+Sequential access.
+顺序访问。
 
 212
 00:20:04,400 --> 00:20:05,960
- What do you think about sequential access?
+What do you think about sequential access?
+你对顺序访问有什么看法？
 
 213
 00:20:05,960 --> 00:20:15,880
- Is that fast, slow?
+Is that fast, slow?
+那是快的，还是慢的？
 
 214
 00:20:15,880 --> 00:20:23,560
- Yes.
+Yes.
+是的。
 
 215
 00:20:23,560 --> 00:20:31,080
- The directories are linked lists also are presented in the fat in the...
+The directories are linked lists also are presented in the fat in the...
+目录也是以链表的形式在FAT中表示的...
 
 216
 00:20:31,080 --> 00:20:39,040
- And yes, they are also linked lists, but with directories is a linked list between the entries
+And yes, they are also linked lists, but with directories is a linked list between the entries
+是的，它们也是链表，但是在目录中，条目之间是通过链表连接的。
 
 217
 00:20:39,040 --> 00:20:41,880
- in the directories.
+in the directories.
+在目录中。
 
 218
 00:20:41,880 --> 00:20:50,040
- Here for the files themselves, you have the linked list basically between the blocks of
+Here for the files themselves, you have the linked list basically between the blocks of
+这里是关于文件本身的内容，你可以在块之间使用链表来实现。
 
 219
 00:20:50,040 --> 00:20:53,600
- that file.
+that file.
+那个文件。
 
 220
 00:20:53,600 --> 00:21:01,480
- Now the answer to the question sequential access can be somewhat slow because we need
+Now the answer to the question sequential access can be somewhat slow because we need
+现在问题的答案是，顺序访问可能会有些慢，因为我们需要
 
 221
 00:21:01,480 --> 00:21:09,600
- to linearly scan for every access because we do not have a guaranteed order.
+to linearly scan for every access because we do not have a guaranteed order.
+因为我们没有保证的顺序，所以需要线性扫描每个访问。
 
 222
 00:21:09,600 --> 00:21:11,260
- It's correct.
+It's correct.
+没错。
 
 223
 00:21:11,260 --> 00:21:21,420
- So the sequential access can be slow because if you look at how block 0, 1 and 3 are located
+So the sequential access can be slow because if you look at how block 0, 1 and 3 are located
+所以顺序访问可能会很慢，因为如果你看一下块0、1和3的位置
 
 224
 00:21:21,420 --> 00:21:26,940
- here, block 0 and 1 are consecutive.
+here, block 0 and 1 are consecutive.
+这里，块0和1是连续的。
 
 225
 00:21:26,940 --> 00:21:34,380
- And because they are consecutive, you do not need to incur a seek latency or rotation latency
+And because they are consecutive, you do not need to incur a seek latency or rotation latency
+因为它们是连续的，所以您不需要承担寻道延迟或旋转延迟。
 
 226
 00:21:34,380 --> 00:21:39,320
- if to go from block 0 to block 1.
+if to go from block 0 to block 1.
+如果要从区块0前往区块1。
 
 227
 00:21:39,320 --> 00:21:45,360
- But now to go from block 1 to block 2, you have to incur a seek latency or rotation latency.
+But now to go from block 1 to block 2, you have to incur a seek latency or rotation latency.
+但是现在要从块1跳转到块2，你必须承受寻道延迟或旋转延迟。
 
 228
 00:21:45,360 --> 00:21:49,460
- As you know, this is huge.
+As you know, this is huge.
+正如你所知，这是巨大的。
 
 229
 00:21:49,460 --> 00:21:54,360
- So yes, you have a lot of flexibility where to put the blocks on the disk, but if you
+So yes, you have a lot of flexibility where to put the blocks on the disk, but if you
+所以是的，你在磁盘上放置块的位置有很大的灵活性，但是如果你
 
 230
 00:21:54,360 --> 00:22:03,440
- are not careful and you put them randomly, then it's going to hurt your access time.
+are not careful and you put them randomly, then it's going to hurt your access time.
+如果你不小心并且随意放置它们，那么它会影响你的访问时间。
 
 231
 00:22:03,440 --> 00:22:04,440
- Random access.
+Random access.
+随机访问。
 
 232
 00:22:04,440 --> 00:22:09,840
- How is random access?
+How is random access?
+随机访问如何？
 
 233
 00:22:09,840 --> 00:22:28,760
- Yes, it's even slower since you have to incur, you need to sequentially search for the block
+Yes, it's even slower since you have to incur, you need to sequentially search for the block
+是的，由于需要承担额外的开销，所以速度会更慢，你需要按顺序搜索块。
 
 234
 00:22:28,760 --> 00:22:33,580
- which contains the data you want to read or write.
+which contains the data you want to read or write.
+其中包含您想要读取或写入的数据。
 
 235
 00:22:33,580 --> 00:22:37,220
- So it's quite slow.
+So it's quite slow.
+所以它相当慢。
 
 236
 00:22:37,220 --> 00:22:39,220
- Fragmentation.
+Fragmentation.
+碎片化。
 
 237
 00:22:39,220 --> 00:22:45,180
- How is fragmentation?
+How is fragmentation?
+碎片化的情况如何？
 
 238
 00:22:45,180 --> 00:22:58,940
- Yes, fragmentation is pretty good.
+Yes, fragmentation is pretty good.
+是的，碎片化很好。
 
 239
 00:22:58,940 --> 00:23:03,940
- It's not much fragmentation because remember you can put the blocks anywhere.
+It's not much fragmentation because remember you can put the blocks anywhere.
+这并不会造成太多的碎片化，因为请记住，你可以将这些块放在任何地方。
 
 240
 00:23:03,940 --> 00:23:07,860
- So if you have just some free blocks, you are going to get it.
+So if you have just some free blocks, you are going to get it.
+所以如果你只有一些空闲时间，你就会去做它。
 
 241
 00:23:07,860 --> 00:23:09,500
- No problem.
+No problem.
+没问题。
 
 242
 00:23:09,500 --> 00:23:11,220
- It's okay.
+It's okay.
+没关系。
 
 243
 00:23:11,220 --> 00:23:16,260
- It's going to hurt your performance, but you can have very, you know, your fragmentation
+It's going to hurt your performance, but you can have very, you know, your fragmentation
+这会影响你的表现，但你可以有很多，你知道的，你的碎片化。
 
 244
 00:23:16,260 --> 00:23:18,540
- will be very low.
+will be very low.
+将会非常低。
 
 245
 00:23:18,540 --> 00:23:19,540
- Small files.
+Small files.
+小文件。
 
 246
 00:23:19,540 --> 00:23:23,940
- Is this a vision for small files?
+Is this a vision for small files?
+这是一个针对小文件的设想吗？
 
 247
 00:23:23,940 --> 00:23:49,300
- Remember, what if you know, if the file fits in one block is very efficient.
+Remember, what if you know, if the file fits in one block is very efficient.
+记住，如果你知道文件适合一个块的话，效率会很高。
 
 248
 00:23:49,300 --> 00:23:50,300
- It's very good.
+It's very good.
+非常好。
 
 249
 00:23:50,300 --> 00:23:52,980
- If a file fits only in one block.
+If a file fits only in one block.
+如果一个文件只能放在一个块中。
 
 250
 00:23:52,980 --> 00:23:54,140
- Why?
+Why?
+为什么？
 
 251
 00:23:54,140 --> 00:24:02,380
- Because you already, the file number, it's indexed into the block, the first block.
+Because you already, the file number, it's indexed into the block, the first block.
+因为你已经有了文件号，它已经被索引到了第一个块中。
 
 252
 00:24:02,380 --> 00:24:06,540
- So you find it immediately.
+So you find it immediately.
+所以你立刻找到了。
 
 253
 00:24:06,540 --> 00:24:08,260
- Right?
+Right?
+对吗？
 
 254
 00:24:08,260 --> 00:24:15,980
- As you have, you know, more blocks in the file, then it becomes more efficient for the
+As you have, you know, more blocks in the file, then it becomes more efficient for the
+随着文件中的块数增加，它变得更加高效。
 
 255
 00:24:15,980 --> 00:24:17,300
- reason I mentioned.
+reason I mentioned.
+我提到的原因。
 
 256
 00:24:17,300 --> 00:24:18,300
- Right?
+Right?
+对吗？
 
 257
 00:24:18,300 --> 00:24:19,300
- We mentioned.
+We mentioned.
+我们提到了。
 
 258
 00:24:19,300 --> 00:24:26,140
- Yes, it's even more inefficient is again, because the blocks can be layout, their layout
+Yes, it's even more inefficient is again, because the blocks can be layout, their layout
+是的，这样做甚至更加低效，因为块可以进行布局，它们的布局
 
 259
 00:24:26,140 --> 00:24:29,580
- on the disk can end up being random.
+on the disk can end up being random.
+在磁盘上的位置可能是随机的。
 
 260
 00:24:29,580 --> 00:24:35,620
- And then you pay a lot of sick time, rotation, latency to read and write from the file.
+And then you pay a lot of sick time, rotation, latency to read and write from the file.
+然后你需要支付很多病假时间、轮班和读写文件的延迟。
 
 261
 00:24:35,620 --> 00:24:36,620
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 262
 00:24:36,620 --> 00:24:38,860
- So this is fat, right?
+So this is fat, right?
+这是脂肪，对吗？
 
 263
 00:24:38,860 --> 00:24:43,140
- Very simple and very influential.
+Very simple and very influential.
+非常简单而且非常有影响力。
 
 264
 00:24:43,140 --> 00:24:44,140
- Right?
+Right?
+对吗？
 
 265
 00:24:44,140 --> 00:24:53,660
- This was for many, many years, for decades, this was a file system for personal computers.
+This was for many, many years, for decades, this was a file system for personal computers.
+这个是很多年来，几十年来，个人电脑的文件系统。
 
 266
 00:24:53,660 --> 00:25:00,100
- Because obviously 90% of the personal computers were running Microsoft operating system.
+Because obviously 90% of the personal computers were running Microsoft operating system.
+因为显然90%的个人电脑都在运行微软操作系统。
 
 267
 00:25:00,100 --> 00:25:01,420
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 268
 00:25:01,420 --> 00:25:08,380
- Now, let's switch gears and talk about Unix file system.
+Now, let's switch gears and talk about Unix file system.
+现在，让我们转换话题，谈谈Unix文件系统。
 
 269
 00:25:08,380 --> 00:25:16,740
- And the Unix file system, this is Berkeley standard distribution, 4.1 is what we are
+And the Unix file system, this is Berkeley standard distribution, 4.1 is what we are
+而Unix文件系统，这是伯克利标准发行版，4.1是我们所使用的。
 
 270
 00:25:16,740 --> 00:25:18,780
- looking to now.
+looking to now.
+我现在正在寻找。
 
 271
 00:25:18,780 --> 00:25:22,420
- And yes, this is a part of your heritage.
+And yes, this is a part of your heritage.
+是的，这是你遗产的一部分。
 
 272
 00:25:22,420 --> 00:25:28,300
- And the similar Linux today has very similar file structure.
+And the similar Linux today has very similar file structure.
+而今天的类似Linux也有非常相似的文件结构。
 
 273
 00:25:28,300 --> 00:25:33,980
- So it's again, a hugely influential file system.
+So it's again, a hugely influential file system.
+所以它又是一个极具影响力的文件系统。
 
 274
 00:25:33,980 --> 00:25:41,620
- The file number or I number is again, it's an index into an array of inodes.
+The file number or I number is again, it's an index into an array of inodes.
+文件号或I号再次是指向inode数组的索引。
 
 275
 00:25:41,620 --> 00:25:46,220
- And the inodes corresponds to a file, right?
+And the inodes corresponds to a file, right?
+是的，inode对应一个文件。
 
 276
 00:25:46,220 --> 00:25:52,580
- Inodes contains the indexes to the blocks on the disk.
+Inodes contains the indexes to the blocks on the disk.
+索引节点（Inodes）包含了磁盘上块的索引。
 
 277
 00:25:52,580 --> 00:26:03,380
- And in this case, it also contains other metadata associated with a file.
+And in this case, it also contains other metadata associated with a file.
+而在这种情况下，它还包含与文件相关的其他元数据。
 
 278
 00:26:03,380 --> 00:26:08,100
- It's pretty good for both little and large files.
+It's pretty good for both little and large files.
+这对于小文件和大文件都非常好。
 
 279
 00:26:08,100 --> 00:26:16,740
- And all the assumes that still all the blocks have the same, are the same size.
+And all the assumes that still all the blocks have the same, are the same size.
+并且所有的假设都是基于所有的区块仍然具有相同的大小。
 
 280
 00:26:16,740 --> 00:26:19,800
- And the trees, what you are going to see is asymmetrical.
+And the trees, what you are going to see is asymmetrical.
+而且树木，你将会看到的是不对称的。
 
 281
 00:26:19,800 --> 00:26:22,380
- So here is how it looks like.
+So here is how it looks like.
+这是它的外观。
 
 282
 00:26:22,380 --> 00:26:30,700
- So you have an inode array, the file number, it's an index in this array.
+So you have an inode array, the file number, it's an index in this array.
+所以你有一个inode数组，文件号是它在这个数组中的索引。
 
 283
 00:26:30,700 --> 00:26:41,120
- The inode in this array is basically, this is the inode data structure.
+The inode in this array is basically, this is the inode data structure.
+这个数组中的inode基本上就是inode数据结构。
 
 284
 00:26:41,120 --> 00:26:45,020
- The first part, there are a bunch of attributes.
+The first part, there are a bunch of attributes.
+第一部分，有很多属性。
 
 285
 00:26:45,020 --> 00:26:50,540
- Like for instance, nine basic control bits you have here.
+Like for instance, nine basic control bits you have here.
+例如，这里有九个基本控制位。
 
 286
 00:26:50,540 --> 00:27:01,340
- You have typically owner or user, group and others.
+You have typically owner or user, group and others.
+你通常有拥有者或用户、组和其他人。
 
 287
 00:27:01,340 --> 00:27:08,220
- So it's basically whether the owner of the file, and for each of them, you have three
+So it's basically whether the owner of the file, and for each of them, you have three
+所以基本上是关于文件的所有者，对于每个文件，你有三个选项。
 
 288
 00:27:08,220 --> 00:27:12,040
- bits, read, write, execute.
+bits, read, write, execute.
+位，读取，写入，执行。
 
 289
 00:27:12,040 --> 00:27:19,660
- So for owner of the file, for the group and for others, right?
+So for owner of the file, for the group and for others, right?
+是的，对于文件的所有者、组和其他人，对吗？
 
 290
 00:27:19,660 --> 00:27:22,060
- Basically for everyone else.
+Basically for everyone else.
+基本上是为了其他所有人。
 
 291
 00:27:22,060 --> 00:27:30,180
- And typically, obviously the owner has the most rights than the group and then everyone
+And typically, obviously the owner has the most rights than the group and then everyone
+通常情况下，显然业主拥有比群体更多的权利，然后是每个人。
 
 292
 00:27:30,180 --> 00:27:35,980
- else.
+else.
+其他。
 
 293
 00:27:35,980 --> 00:27:43,780
- And also you have a few other bits, which basically you can execute only at the owner
+And also you have a few other bits, which basically you can execute only at the owner
+而且你还有一些其他的东西，基本上只能在所有者处执行。
 
 294
 00:27:43,780 --> 00:27:50,300
- permission rather than users and to execute at the group's permission.
+permission rather than users and to execute at the group's permission.
+权限而不是用户，并且在组的权限下执行。
 
 295
 00:27:50,300 --> 00:27:57,940
- So it's again, it's pretty classic.
+So it's again, it's pretty classic.
+所以，这又是一个非常经典的例子。
 
 296
 00:27:57,940 --> 00:28:00,260
- And the more interesting part is after this.
+And the more interesting part is after this.
+而更有趣的部分在此之后。
 
 297
 00:28:00,260 --> 00:28:01,260
- Okay.
+Okay.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 298
 00:28:01,260 --> 00:28:08,740
- But remember this permission bits and information is associated with the inode, with a file
+But remember this permission bits and information is associated with the inode, with a file
+但请记住，这些权限位和信息与inode（索引节点）和文件相关联。
 
 299
 00:28:08,740 --> 00:28:09,740
- in this case.
+in this case.
+在这种情况下。
 
 300
 00:28:09,740 --> 00:28:17,420
- In the case of FAD, it was this information was maintained in the directory.
+In the case of FAD, it was this information was maintained in the directory.
+在FAD的情况下，这些信息是保存在目录中的。
 
 301
 00:28:17,420 --> 00:28:28,540
- And then you have 13 other entries in this inode structure.
+And then you have 13 other entries in this inode structure.
+然后在这个inode结构中，你还有其他13个条目。
 
 302
 00:28:28,540 --> 00:28:31,360
- Each entry points to a block.
+Each entry points to a block.
+每个条目指向一个块。
 
 303
 00:28:31,360 --> 00:28:42,240
- The first 10 entries are called, each of them, they are pointing to one block.
+The first 10 entries are called, each of them, they are pointing to one block.
+前10个条目分别被称为，它们每个都指向一个块。
 
 304
 00:28:42,240 --> 00:28:54,480
- The 11th entry points is called indirect pointer and points to a block, which each element
+The 11th entry points is called indirect pointer and points to a block, which each element
+第11个入口点被称为间接指针，它指向一个块，该块包含每个元素。
 
 305
 00:28:54,480 --> 00:28:56,860
- is a block.
+is a block.
+是一个块。
 
 306
 00:28:56,860 --> 00:29:01,240
- It's a pointer to a real block.
+It's a pointer to a real block.
+这是一个指向真实块的指针。
 
 307
 00:29:01,240 --> 00:29:08,020
- And you have double indirection pointers where this points to a block, which is full of pointers
+And you have double indirection pointers where this points to a block, which is full of pointers
+而且你还有双重间接指针，其中这个指针指向一个充满指针的块。
 
 308
 00:29:08,020 --> 00:29:14,980
- or each pointer points to another block, which is full of pointers to finally two blocks.
+or each pointer points to another block, which is full of pointers to finally two blocks.
+每个指针指向另一个块，该块中充满了指向最终两个块的指针。
 
 309
 00:29:14,980 --> 00:29:23,220
- And then you have triple indirection pointers, which is again going three levels.
+And then you have triple indirection pointers, which is again going three levels.
+然后你有三级间接指针，再次进行三级引用。
 
 310
 00:29:23,220 --> 00:29:33,800
- So in this case, you have, if you have four kilobytes blocks, it's efficient.
+So in this case, you have, if you have four kilobytes blocks, it's efficient.
+所以在这种情况下，如果你有四千八百字节的块，效率会更高。
 
 311
 00:29:33,800 --> 00:29:43,820
- You have, here you have, yeah, sorry.
+You have, here you have, yeah, sorry.
+你有，这里有，是的，抱歉。
 
 312
 00:29:43,820 --> 00:29:49,020
- I said the first, the direct number of direct pointers was 10.
+I said the first, the direct number of direct pointers was 10.
+我说的是第一个，直接指针的直接数量是10。
 
 313
 00:29:49,020 --> 00:29:52,520
- It's actually, sorry, it's 12.
+It's actually, sorry, it's 12.
+实际上，抱歉，是12点。
 
 314
 00:29:52,520 --> 00:30:00,480
- And then you have three other ones, one for indirect, double indirect and triple indirect.
+And then you have three other ones, one for indirect, double indirect and triple indirect.
+然后你还有另外三个，一个用于间接引用，一个用于双重间接引用，还有一个用于三重间接引用。
 
 315
 00:30:00,480 --> 00:30:03,000
- Okay, so you have 12.
+Okay, so you have 12.
+好的，所以你有12个。
 
 316
 00:30:03,000 --> 00:30:09,540
- And if you have 12 pointers, this means that if you have 4k blocks, you can have, you can
+And if you have 12 pointers, this means that if you have 4k blocks, you can have, you can
+而且如果你有12个指针，这意味着如果你有4k个块，你可以有，你可以...
 
 317
 00:30:09,540 --> 00:30:16,780
- store using only direct pointers, you can store 48 kilobytes.
+store using only direct pointers, you can store 48 kilobytes.
+仅使用直接指针存储，您可以存储48千字节。
 
 318
 00:30:16,780 --> 00:30:21,580
- And if you remember from last time, when you're looking at these results from this paper,
+And if you remember from last time, when you're looking at these results from this paper,
+如果你还记得上次的话
 
 319
 00:30:21,580 --> 00:30:28,440
- which are looking at the statistics of the length of the file system or the size of the
+which are looking at the statistics of the length of the file system or the size of the
+哪些是在查看文件系统的长度统计或大小的？
 
 320
 00:30:28,440 --> 00:30:37,520
- file systems, in that paper, in the plots we presented last time, we are seeing that
+file systems, in that paper, in the plots we presented last time, we are seeing that
+文件系统，在那篇论文中，在我们上次展示的图表中，我们正在看到...
 
 321
 00:30:37,520 --> 00:30:40,400
- most of the files are small files.
+most of the files are small files.
+大部分文件都是小文件。
 
 322
 00:30:40,400 --> 00:30:49,200
- So therefore, for most of the files, you are using only the direct pointers.
+So therefore, for most of the files, you are using only the direct pointers.
+所以，对于大多数文件，你只使用直接指针。
 
 323
 00:30:49,200 --> 00:30:58,340
- And then for the bigger files, you are going to use the indirect pointers, double indirect
+And then for the bigger files, you are going to use the indirect pointers, double indirect
+然后对于较大的文件，你将使用间接指针、双重间接指针。
 
 324
 00:30:58,340 --> 00:31:01,660
- pointers and triple indirect pointers.
+pointers and triple indirect pointers.
+指针和三级间接指针。
 
 325
 00:31:01,660 --> 00:31:08,380
- So just to give you a sense, you can get, for double indirect pointers, you can get
+So just to give you a sense, you can get, for double indirect pointers, you can get
+所以只是为了让你有个概念，对于双重间接指针，你可以获得的是
 
 326
 00:31:08,380 --> 00:31:10,000
- to four megabytes.
+to four megabytes.
+四兆字节。
 
 327
 00:31:10,000 --> 00:31:11,000
- Why?
+Why?
+为什么？
 
 328
 00:31:11,000 --> 00:31:20,560
- Because in this particular case, it's again, this pointer here is a certain pointer.
+Because in this particular case, it's again, this pointer here is a certain pointer.
+因为在这个特定的情况下，这里的this指针是一个特定的指针。
 
 329
 00:31:20,560 --> 00:31:23,160
- It points you to one block.
+It points you to one block.
+它指向了一个区块。
 
 330
 00:31:23,160 --> 00:31:25,560
- A block has four kilobytes.
+A block has four kilobytes.
+一个块有四千字节。
 
 331
 00:31:25,560 --> 00:31:29,020
- Each pointer in this case is four bytes.
+Each pointer in this case is four bytes.
+每个指针在这种情况下是四个字节。
 
 332
 00:31:29,020 --> 00:31:35,400
- So therefore, in a block you have 1024 pointers.
+So therefore, in a block you have 1024 pointers.
+所以，在一个块中你有1024个指针。
 
 333
 00:31:35,400 --> 00:31:40,360
- Each of these pointers points to a block.
+Each of these pointers points to a block.
+每个指针都指向一个块。
 
 334
 00:31:40,360 --> 00:31:42,200
- A block has four kilobytes.
+A block has four kilobytes.
+一个块有四千字节。
 
 335
 00:31:42,200 --> 00:31:49,200
- So now you have 1024 times four, you have four kilobytes, you have four megabytes.
+So now you have 1024 times four, you have four kilobytes, you have four megabytes.
+所以现在你有1024乘以四，你有四千字节，你有四兆字节。
 
 336
 00:31:49,200 --> 00:31:51,040
- This is level two.
+This is level two.
+这是第二级。
 
 337
 00:31:51,040 --> 00:31:54,040
- It's one indirect.
+It's one indirect.
+这是一个间接的。
 
 338
 00:31:54,040 --> 00:32:03,640
- Then double indirect is going to add another layer and it's basically you have four gigabytes.
+Then double indirect is going to add another layer and it's basically you have four gigabytes.
+然后双重间接将增加另一层，基本上你会有四个千兆字节。
 
 339
 00:32:03,640 --> 00:32:14,280
- And then for if you have triple indirect pointers, you have four terabytes.
+And then for if you have triple indirect pointers, you have four terabytes.
+然后，如果你有三级间接指针，你会有四个太字节。
 
 340
 00:32:14,280 --> 00:32:17,760
- So it's a lot of storage.
+So it's a lot of storage.
+所以这是很大的存储空间。
 
 341
 00:32:17,760 --> 00:32:25,360
- Now the disadvantage for this one, what is the disadvantage with going with indirect,
+Now the disadvantage for this one, what is the disadvantage with going with indirect,
+现在谈谈这个方案的缺点，选择间接方式有什么不利之处？
 
 342
 00:32:25,360 --> 00:32:28,120
- double indirect and triple indirect blocks?
+double indirect and triple indirect blocks?
+双间接块和三间接块？
 
 343
 00:32:28,120 --> 00:32:34,480
- What is the disadvantage here?
+What is the disadvantage here?
+这里有什么缺点？
 
 344
 00:32:34,480 --> 00:32:45,880
- Yes, longer access times.
+Yes, longer access times.
+是的，访问时间更长。
 
 345
 00:32:45,880 --> 00:32:52,400
- Because right now, if I'm going to have, if I'm going to go to this, you know, the first
+Because right now, if I'm going to have, if I'm going to go to this, you know, the first
+因为现在，如果我要去参加这个，你知道的，第一个...
 
 346
 00:32:52,400 --> 00:32:59,920
- level pointers, I'm going to get the inode and then from inode I get the pointers, all
+level pointers, I'm going to get the inode and then from inode I get the pointers, all
+级别指针，我要获取inode，然后从inode获取指针，全部获取。
 
 347
 00:32:59,920 --> 00:33:01,120
- the pointers to the block.
+the pointers to the block.
+指向该块的指针。
 
 348
 00:33:01,120 --> 00:33:05,980
- So I have another access to get to the data, one extra access.
+So I have another access to get to the data, one extra access.
+所以我有另一种方式来获取数据，额外的一种方式。
 
 349
 00:33:05,980 --> 00:33:11,360
- If I'm going to have triple indirect in order to get to these data blocks, I have to get
+If I'm going to have triple indirect in order to get to these data blocks, I have to get
+如果我要通过三级间接才能访问这些数据块，我必须先获取
 
 350
 00:33:11,360 --> 00:33:18,480
- one other access to get the first level block, which contains pointers at the first level.
+one other access to get the first level block, which contains pointers at the first level.
+另一种获取第一级块的方法是，该块包含第一级的指针。
 
 351
 00:33:18,480 --> 00:33:23,680
- Then another pointer, another, I need to access another, they get another block at the second
+Then another pointer, another, I need to access another, they get another block at the second
+然后又一个指针，再一个，我需要访问另一个，它们在第二个位置获取另一个块。
 
 352
 00:33:23,680 --> 00:33:29,680
- level to contain against pointers and another block at the third level contains again pointers.
+level to contain against pointers and another block at the third level contains again pointers.
+第一层级包含指针和另一个块，第三层级的另一个块再次包含指针。
 
 353
 00:33:29,680 --> 00:33:35,840
- And finally, I'm going to get to the data block, to the real block.
+And finally, I'm going to get to the data block, to the real block.
+最后，我要进入数据块，到达真正的块。
 
 354
 00:33:35,840 --> 00:33:43,960
- So here I have for each of these levels, I have an extra access.
+So here I have for each of these levels, I have an extra access.
+所以对于每个级别，我都有额外的访问权限。
 
 355
 00:33:43,960 --> 00:33:46,280
- On the other hand, it's pretty cool design, right?
+On the other hand, it's pretty cool design, right?
+另一方面，这个设计非常酷，对吧？
 
 356
 00:33:46,280 --> 00:33:51,000
- Because for the small blocks, you know, it's pretty efficient.
+Because for the small blocks, you know, it's pretty efficient.
+因为对于小块来说，你知道的，它非常高效。
 
 357
 00:33:51,000 --> 00:33:53,920
- Small block less than 48 kilobytes.
+Small block less than 48 kilobytes.
+小块小于48千字节。
 
 358
 00:33:53,920 --> 00:33:59,400
- All these pointers here are to data blocks.
+All these pointers here are to data blocks.
+这里的所有指针都指向数据块。
 
 359
 00:33:59,400 --> 00:34:11,480
- At the same time, you can store huge files, like up to four terabytes in this design.
+At the same time, you can store huge files, like up to four terabytes in this design.
+同时，您可以在这个设计中存储大型文件，比如高达四个TB的文件。
 
 360
 00:34:11,480 --> 00:34:20,320
- Yeah, it's a question here.
+Yeah, it's a question here.
+是的，这里有一个问题。
 
 361
 00:34:20,320 --> 00:34:23,500
- This seems really similar to page tables.
+This seems really similar to page tables.
+这似乎与页表非常相似。
 
 362
 00:34:23,500 --> 00:34:30,480
- Do file systems have the equivalent of super pages or huge pages?
+Do file systems have the equivalent of super pages or huge pages?
+文件系统是否有超级页面或大页面的等效物？
 
 363
 00:34:30,480 --> 00:34:36,440
- It's very similar to the files, you know, it's similar to the page table in some respects,
+It's very similar to the files, you know, it's similar to the page table in some respects,
+这与文件非常相似，你知道，在某些方面与页面表相似，
 
 364
 00:34:36,440 --> 00:34:37,440
- right?
+right?
+对吗？
 
 365
 00:34:37,440 --> 00:34:48,040
- One is that the unit of allocation, it's a block, it's a page.
+One is that the unit of allocation, it's a block, it's a page.
+其中一个是分配的单位，它是一个块，是一个页面。
 
 366
 00:34:48,040 --> 00:34:50,520
- It's also they are connected, right?
+It's also they are connected, right?
+是的，它们也是相互连接的，对吗？
 
 367
 00:34:50,520 --> 00:34:59,760
- Because the reason for which you have pages when we do demand paging is why?
+Because the reason for which you have pages when we do demand paging is why?
+因为我们进行需求分页时，你有页面的原因是什么？
 
 368
 00:34:59,760 --> 00:35:06,080
- Because these pages need to be stored eventually on the disk when they are evicted, right?
+Because these pages need to be stored eventually on the disk when they are evicted, right?
+因为当这些页面被驱逐时，它们最终需要存储在磁盘上，对吗？
 
 369
 00:35:06,080 --> 00:35:08,160
- And they need to be read from the disk.
+And they need to be read from the disk.
+并且它们需要从磁盘上读取。
 
 370
 00:35:08,160 --> 00:35:12,340
- And the unit, again, it has to be the same unit, it's a block, right?
+And the unit, again, it has to be the same unit, it's a block, right?
+而且单位，再次强调，必须是相同的单位，是一个块，对吗？
 
 371
 00:35:12,340 --> 00:35:15,640
- So block and the pages are basically the same unit.
+So block and the pages are basically the same unit.
+所以“block”和“页面”基本上是同一个单位。
 
 372
 00:35:15,640 --> 00:35:19,520
- Otherwise, it makes things much more complicated.
+Otherwise, it makes things much more complicated.
+否则，事情会变得更加复杂。
 
 373
 00:35:19,520 --> 00:35:23,680
- And you'll see towards the end of the lecture, hopefully we can get there, where you'll see
+And you'll see towards the end of the lecture, hopefully we can get there, where you'll see
+在讲座的最后部分，希望我们能够到达那里，你会看到...
 
 374
 00:35:23,680 --> 00:35:28,080
- the similarity even more because we are going to talk about memory map files.
+the similarity even more because we are going to talk about memory map files.
+相似性更加明显，因为我们将要讨论内存映射文件。
 
 375
 00:35:28,080 --> 00:35:33,280
- So then you are going to map the files into memory, and then you'll see even more of the
+So then you are going to map the files into memory, and then you'll see even more of the
+所以你打算将文件映射到内存中，然后你会看到更多的内容。
 
 376
 00:35:33,280 --> 00:35:34,280
- similarity.
+similarity.
+相似性。
 
 377
 00:35:34,280 --> 00:35:44,800
- So in terms of file system having the equivalent of super pages of huge pages, you do have
+So in terms of file system having the equivalent of super pages of huge pages, you do have
+所以在文件系统中，是否有类似于超级页面或大页面的等效物？
 
 378
 00:35:44,800 --> 00:35:57,000
- that not in Unix, but you do have that in the Windows, the more modern Windows file
+that not in Unix, but you do have that in the Windows, the more modern Windows file
+那在Unix中没有，但在Windows中有，更现代的Windows文件中有。
 
 379
 00:35:57,000 --> 00:35:59,640
- system, Microsoft file system.
+system, Microsoft file system.
+系统，微软文件系统。
 
 380
 00:35:59,640 --> 00:36:04,040
- And in that case, you have what is called extents, what we are going to learn later
+And in that case, you have what is called extents, what we are going to learn later
+在这种情况下，你所说的是“范围”，我们稍后会学到。
 
 381
 00:36:04,040 --> 00:36:11,120
- in this lecture in which the blocks can have variable size.
+in this lecture in which the blocks can have variable size.
+在这个讲座中，这些块可以具有可变大小。
 
 382
 00:36:11,120 --> 00:36:15,120
- Great questions.
+Great questions.
+很棒的问题。
 
 383
 00:36:15,120 --> 00:36:17,840
- So let's take an example here.
+So let's take an example here.
+那么让我们来举个例子。
 
 384
 00:36:17,840 --> 00:36:27,640
- So right now, and that's why I was a little, you know, in this particular, it's a different
+So right now, and that's why I was a little, you know, in this particular, it's a different
+所以现在，这就是为什么我有点，在这个特定的情况下，它是不同的。
 
 385
 00:36:27,640 --> 00:36:35,160
- example and we here assume that each block is one kilobyte.
+example and we here assume that each block is one kilobyte.
+例子中我们假设每个块是一千字节。
 
 386
 00:36:35,160 --> 00:36:49,040
- And we assume that there are 10 direct pointers and in indirect block, so these 10 direct
+And we assume that there are 10 direct pointers and in indirect block, so these 10 direct
+指针和间接块中有10个直接指针。
 
 387
 00:36:49,040 --> 00:37:00,480
- pointers, so directly you can access only one kilobyte, 10 times, 10 kilobytes files.
+pointers, so directly you can access only one kilobyte, 10 times, 10 kilobytes files.
+指针，所以直接你只能访问一个千字节，10次，10千字节的文件。
 
 388
 00:37:00,480 --> 00:37:06,320
- And then because you have only one kilobyte, if each entry, each point there is four bytes,
+And then because you have only one kilobyte, if each entry, each point there is four bytes,
+然后因为你只有一个千字节，如果每个条目，每个点都占据四个字节，
 
 389
 00:37:06,320 --> 00:37:11,760
- then you have only 25, six indirect blocks at the first level.
+then you have only 25, six indirect blocks at the first level.
+那么你只有25个一级间接块。
 
 390
 00:37:11,760 --> 00:37:20,720
- And then you have 256 power 2 double indirect blocks and 256 power 3 triple indirect blocks.
+And then you have 256 power 2 double indirect blocks and 256 power 3 triple indirect blocks.
+然后你有256的2次方个双间接块和256的3次方个三间接块。
 
 391
 00:37:20,720 --> 00:37:23,320
- So that's kind of the layout in this case.
+So that's kind of the layout in this case.
+所以这种情况下就是这种布局。
 
 392
 00:37:23,320 --> 00:37:30,320
- And now the question is that how many accesses you need, how many accesses to get to the
+And now the question is that how many accesses you need, how many accesses to get to the
+现在的问题是你需要多少个访问权限，需要多少个访问权限才能到达目标。
 
 393
 00:37:30,320 --> 00:37:31,840
- block 20 string?
+block 20 string?
+你是指"block 20 string"吗？
 
 394
 00:37:31,840 --> 00:37:35,760
- Assume the file is everything is open.
+Assume the file is everything is open.
+假设文件是完全开放的。
 
 395
 00:37:35,760 --> 00:37:39,640
- Now I'm just one process block 20 string.
+Now I'm just one process block 20 string.
+现在我只是一个进程块20个字符串。
 
 396
 00:37:39,640 --> 00:37:49,220
- How many accesses?
+How many accesses?
+多少次访问？
 
 397
 00:37:49,220 --> 00:37:56,440
- So is this 23 in a direct pointers part?
+So is this 23 in a direct pointers part?
+这个是直接指针部分的第23个吗？
 
 398
 00:37:56,440 --> 00:38:03,000
- It's not right because I have only 10.
+It's not right because I have only 10.
+这不对，因为我只有10个。
 
 399
 00:38:03,000 --> 00:38:14,920
- Is 23 in a, yeah, yes, 23 will be in the single indirect block.
+Is 23 in a, yeah, yes, 23 will be in the single indirect block.
+23将位于单个间接块中。
 
 400
 00:38:14,920 --> 00:38:18,000
- So you need two accesses, right?
+So you need two accesses, right?
+所以你需要两个访问权限，对吗？
 
 401
 00:38:18,000 --> 00:38:27,160
- You need the first access to get to the root of the first level indirect blocks.
+You need the first access to get to the root of the first level indirect blocks.
+你需要首次访问才能到达第一级间接块的根。
 
 402
 00:38:27,160 --> 00:38:38,080
- And then from here, once you get there, you are going to read the data block.
+And then from here, once you get there, you are going to read the data block.
+然后从这里开始，一旦你到达那里，你将读取数据块。
 
 403
 00:38:38,080 --> 00:38:44,160
- What about block five?
+What about block five?
+第五个区块怎么样？
 
 404
 00:38:44,160 --> 00:38:47,180
- Block five is in the first 10.
+Block five is in the first 10.
+第五个区块在前十个位置。
 
 405
 00:38:47,180 --> 00:38:54,000
- So you are going to have only one access to read the data block number five.
+So you are going to have only one access to read the data block number five.
+所以你只能有一个访问权限来读取数据块编号为五的数据。
 
 406
 00:38:54,000 --> 00:38:57,440
- Blocks are 340.
+Blocks are 340.
+区块数为340。
 
 407
 00:38:57,440 --> 00:39:06,000
- That's 340 fits in the first level indirect blocks.
+That's 340 fits in the first level indirect blocks.
+这在一级间接块中可以容纳340个。
 
 408
 00:39:06,000 --> 00:39:07,840
- Does it fit?
+Does it fit?
+适合吗？
 
 409
 00:39:07,840 --> 00:39:08,840
- How many you have there?
+How many you have there?
+你那里有多少个？
 
 410
 00:39:08,840 --> 00:39:13,720
- You have 2556 plus 10, which are direct.
+You have 2556 plus 10, which are direct.
+你有2556加上10，这些是直接的。
 
 411
 00:39:13,720 --> 00:39:21,600
- It's only 266 indirect blocks or direct blocks.
+It's only 266 indirect blocks or direct blocks.
+只有266个间接块或直接块。
 
 412
 00:39:21,600 --> 00:39:28,620
- So therefore, it has to be in double indirect.
+So therefore, it has to be in double indirect.
+所以，它必须是双重间接的。
 
 413
 00:39:28,620 --> 00:39:31,440
- So then you are going to have how many accesses?
+So then you are going to have how many accesses?
+那么你将会有多少个访问权限？
 
 414
 00:39:31,440 --> 00:39:35,480
- Again, one access per level, each level.
+Again, one access per level, each level.
+每个层级只有一次访问机会，每个层级都是如此。
 
 415
 00:39:35,480 --> 00:39:38,580
- So you need, you have double.
+So you need, you have double.
+所以你需要，你有两倍。
 
 416
 00:39:38,580 --> 00:39:49,680
- So for each level, you need one access or two and the third one for access to the data.
+So for each level, you need one access or two and the third one for access to the data.
+所以每个级别，你需要一个或两个访问权限，第三个用于访问数据。
 
 417
 00:39:49,680 --> 00:39:51,720
- Okay, some announcements again.
+Okay, some announcements again.
+好的，再次进行一些公告。
 
 418
 00:39:51,720 --> 00:39:55,880
- Many congrats for finishing the second midterm.
+Many congrats for finishing the second midterm.
+非常祝贺你完成了第二次期中考试。
 
 419
 00:39:55,880 --> 00:39:58,240
- We are making progress here.
+We are making progress here.
+我们这里正在取得进展。
 
 420
 00:39:58,240 --> 00:40:00,480
- Block five has been released.
+Block five has been released.
+第五个区块已发布。
 
 421
 00:40:00,480 --> 00:40:06,920
- It will be due on Monday, November 22nd.
+It will be due on Monday, November 22nd.
+它将于11月22日星期一到期。
 
 422
 00:40:06,920 --> 00:40:12,280
- And the project two, obviously now is due on Sunday.
+And the project two, obviously now is due on Sunday.
+而且，项目二显然是在星期日截止。
 
 423
 00:40:12,280 --> 00:40:19,600
- So hopefully everyone here is in a good state with that project.
+So hopefully everyone here is in a good state with that project.
+希望大家对这个项目都处于良好的状态。
 
 424
 00:40:19,600 --> 00:40:22,520
- If not, please feel free to ask any questions.
+If not, please feel free to ask any questions.
+如果有任何问题，请随时提问。
 
 425
 00:40:22,520 --> 00:40:26,960
- We are here to help you.
+We are here to help you.
+我们在这里帮助你。
 
 426
 00:40:26,960 --> 00:40:36,080
- Okay, so that was the initial file system in Unix 4.1.
+Okay, so that was the initial file system in Unix 4.1.
+好的，那么这就是Unix 4.1中的初始文件系统。
 
 427
 00:40:36,080 --> 00:40:44,240
- Now people, obviously after they use it for a while, they figure out there are some limitations
+Now people, obviously after they use it for a while, they figure out there are some limitations
+现在人们，显然在使用一段时间后，他们会发现一些限制。
 
 428
 00:40:44,240 --> 00:40:47,840
- and they try to address these limitations.
+and they try to address these limitations.
+他们试图解决这些限制。
 
 429
 00:40:47,840 --> 00:40:55,080
- And the address is limitation in what is called Berkeley FAST file system, FFS, which is BSD
+And the address is limitation in what is called Berkeley FAST file system, FFS, which is BSD
+地址限制在所谓的伯克利快速文件系统（FFS）中，该系统是BSD的一部分。
 
 430
 00:40:55,080 --> 00:40:56,080
- 0.4.2.
+0.4.2.
+0.4.2.
 
 431
 00:40:56,080 --> 00:40:57,080
- Right?
+Right?
+对吗？
 
 432
 00:40:57,080 --> 00:41:04,080
- This was released in '84, so still a long time ago.
+This was released in '84, so still a long time ago.
+这是在84年发布的，所以还是很久以前的事情。
 
 433
 00:41:04,080 --> 00:41:06,660
- And it's very similar with 4.1.
+And it's very similar with 4.1.
+它与4.1非常相似。
 
 434
 00:41:06,660 --> 00:41:14,560
- The differences are that while in 4.1, typically the block size of one kilobyte, in 4.2, one
+The differences are that while in 4.1, typically the block size of one kilobyte, in 4.2, one
+差异在于，在4.1中，通常块大小为1千字节，而在4.2中，一个块的大小为
 
 435
 00:41:14,560 --> 00:41:16,200
- to four kilobytes.
+to four kilobytes.
+四千字节。
 
 436
 00:41:16,200 --> 00:41:17,240
- Why?
+Why?
+为什么？
 
 437
 00:41:17,240 --> 00:41:22,240
- Because obviously the discovery has increased in size.
+Because obviously the discovery has increased in size.
+因为显然这个发现的规模增加了。
 
 438
 00:41:22,240 --> 00:41:23,640
- And it's a very good paper.
+And it's a very good paper.
+这是一篇非常好的论文。
 
 439
 00:41:23,640 --> 00:41:26,480
- I recommend you to read it in the reading material.
+I recommend you to read it in the reading material.
+我建议你在阅读材料中阅读它。
 
 440
 00:41:26,480 --> 00:41:32,600
- If not, you can search on the web and you can get it, but it's very interesting.
+If not, you can search on the web and you can get it, but it's very interesting.
+如果没有的话，你可以在网上搜索，你可以找到，但是这非常有趣。
 
 441
 00:41:32,600 --> 00:41:39,160
- And there are a bunch of optimization and we are going to go briefly through these optimizations
+And there are a bunch of optimization and we are going to go briefly through these optimizations
+还有一系列的优化措施，我们将简要介绍这些优化措施。
 
 442
 00:41:39,160 --> 00:41:45,440
- and compare with 4.1.
+and compare with 4.1.
+并与4.1版本进行比较。
 
 443
 00:41:45,440 --> 00:41:52,640
- And so let me go through, I'm not going to go now through this list.
+And so let me go through, I'm not going to go now through this list.
+所以让我来看一下，我现在不会逐个列举这个清单。
 
 444
 00:41:52,640 --> 00:41:59,360
- I'm going while I am going to explain this optimization, but the middle things about,
+I'm going while I am going to explain this optimization, but the middle things about,
+我在进行这个优化的同时，会解释一下其中的中间过程。
 
 445
 00:41:59,360 --> 00:42:03,960
- first of all, let's talk about what are the motivation?
+first of all, let's talk about what are the motivation?
+首先，让我们谈谈什么是动机？
 
 446
 00:42:03,960 --> 00:42:13,040
- What are the problems with the file systems in Unix BSD 4.1?
+What are the problems with the file systems in Unix BSD 4.1?
+Unix BSD 4.1的文件系统存在哪些问题？
 
 447
 00:42:13,040 --> 00:42:14,360
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 448
 00:42:14,360 --> 00:42:30,480
- So, the one thing is that the file system, the FAD table and all of these inode data
+So, the one thing is that the file system, the FAD table and all of these inode data
+所以，一个重要的事情是文件系统、FAD表和所有这些inode数据。
 
 449
 00:42:30,480 --> 00:42:33,440
- structures, right?
+structures, right?
+结构，对吗？
 
 450
 00:42:33,440 --> 00:42:39,800
- They were in a fixed disk, in the fixed place on the disk.
+They were in a fixed disk, in the fixed place on the disk.
+它们被存储在固定的磁盘上，位于磁盘上的固定位置。
 
 451
 00:42:39,800 --> 00:42:41,880
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 452
 00:42:41,880 --> 00:42:53,000
- So, and the problem with that, if you have all these inodes on the disk in one place,
+So, and the problem with that, if you have all these inodes on the disk in one place,
+所以，如果你把所有这些索引节点都放在磁盘的一个地方，那么问题就来了，
 
 453
 00:42:53,000 --> 00:43:06,120
- then it's very likely that they are going to be far from most of the data blocks, right?
+then it's very likely that they are going to be far from most of the data blocks, right?
+那么很有可能它们会远离大部分数据块，对吗？
 
 454
 00:43:06,120 --> 00:43:13,680
- The data blocks are all over, obviously, and the inodes are only at the edge.
+The data blocks are all over, obviously, and the inodes are only at the edge.
+数据块分散在各处，而索引节点只存在于边缘。
 
 455
 00:43:13,680 --> 00:43:18,240
- In order to access the data blocks, you need the information from the inode of that particular
+In order to access the data blocks, you need the information from the inode of that particular
+为了访问数据块，你需要从该特定inode中获取信息。
 
 456
 00:43:18,240 --> 00:43:19,240
- file, right?
+file, right?
+是的，文件，对吗？
 
 457
 00:43:19,240 --> 00:43:24,240
- So, you need to read an inode and you are almost guaranteed that the place where the
+So, you need to read an inode and you are almost guaranteed that the place where the
+所以，你需要读取一个inode，并且几乎可以保证inode所在的位置
 
 458
 00:43:24,240 --> 00:43:30,400
- inode was stored on the disk is far away from where the data is located on the disk.
+inode was stored on the disk is far away from where the data is located on the disk.
+inode被存储在磁盘上，与数据在磁盘上的位置相距很远。
 
 459
 00:43:30,400 --> 00:43:34,800
- So it's seek time, you are going to pay for the seek time.
+So it's seek time, you are going to pay for the seek time.
+所以这是寻道时间，你将支付寻道时间的费用。
 
 460
 00:43:34,800 --> 00:43:37,120
- The other thing is reliability.
+The other thing is reliability.
+另一个问题是可靠性。
 
 461
 00:43:37,120 --> 00:43:46,480
- If somehow the outer edges, tracks of the disk are destroyed because sometimes when
+If somehow the outer edges, tracks of the disk are destroyed because sometimes when
+如果不知何故，磁盘的外缘和磁道被损坏了，因为有时当
 
 462
 00:43:46,480 --> 00:43:53,620
- some of the failures happen is that when you have a power outage and the disk was rotating
+some of the failures happen is that when you have a power outage and the disk was rotating
+一些故障发生的原因是当你遇到停电时，磁盘仍在旋转。
 
 463
 00:43:53,620 --> 00:44:02,480
- and sometimes the heads were kind of scratching the disk in that particular case.
+and sometimes the heads were kind of scratching the disk in that particular case.
+有时候头部在那种情况下会有点刮到磁盘。
 
 464
 00:44:02,480 --> 00:44:16,160
- Then if you lose this kind of the inode information, you lost everything.
+Then if you lose this kind of the inode information, you lost everything.
+那么如果你丢失了这种inode信息，你就会失去一切。
 
 465
 00:44:16,160 --> 00:44:20,200
- So that's a problem.
+So that's a problem.
+那是一个问题。
 
 466
 00:44:20,200 --> 00:44:30,280
- The other thing, it's hard to allocate for performance, right?
+The other thing, it's hard to allocate for performance, right?
+另外一件事，很难为性能分配，对吧？
 
 467
 00:44:30,280 --> 00:44:33,960
- Because in Unix, most writes, in many writes are by appending.
+Because in Unix, most writes, in many writes are by appending.
+因为在Unix中，大多数写操作，很多都是追加写入。
 
 468
 00:44:33,960 --> 00:44:38,800
- It's again, when you write, either you write to existing block because what the existing
+It's again, when you write, either you write to existing block because what the existing
+这是再次发生的情况，当你写作时，要么你写给已经存在的区块，因为已经存在的区块是什么。
 
 469
 00:44:38,800 --> 00:44:41,240
- data is, so you override the data.
+data is, so you override the data.
+数据是如此重要，所以你要覆盖这些数据。
 
 470
 00:44:41,240 --> 00:44:46,520
- But if you append, in many cases, you just append to a file, then you are going to add
+But if you append, in many cases, you just append to a file, then you are going to add
+但是如果你追加，很多情况下，你只是追加到一个文件中，然后你将会添加什么。
 
 471
 00:44:46,520 --> 00:44:50,080
- new blocks.
+new blocks.
+新的方块。
 
 472
 00:44:50,080 --> 00:45:02,040
- And the problem here is that you want to allocate in some sense, obviously you want to allocate
+And the problem here is that you want to allocate in some sense, obviously you want to allocate
+这里的问题是你想要在某种程度上进行分配，显然你想要分配。
 
 473
 00:45:02,040 --> 00:45:05,160
- blocks which are contiguous, right?
+blocks which are contiguous, right?
+连续的块，对吗？
 
 474
 00:45:05,160 --> 00:45:07,400
- But that's kind of what's difficult.
+But that's kind of what's difficult.
+但这就是困难所在。
 
 475
 00:45:07,400 --> 00:45:14,800
- In the case of 4.1, you need to be able to do 4.1, you have a link list for the free
+In the case of 4.1, you need to be able to do 4.1, you have a link list for the free
+在4.1的情况下，你需要能够做4.1，你有一个用于空闲的链表。
 
 476
 00:45:14,800 --> 00:45:17,760
- blocks like in the FAT table.
+blocks like in the FAT table.
+块，就像在FAT表中一样。
 
 477
 00:45:17,760 --> 00:45:23,240
- And then the way you allocate, you go through this list and well, you allocate always the
+And then the way you allocate, you go through this list and well, you allocate always the
+然后你分配的方式是，你遍历这个列表，然后，嗯，你总是分配
 
 478
 00:45:23,240 --> 00:45:25,440
- first block which is available.
+first block which is available.
+第一个可用的区块。
 
 479
 00:45:25,440 --> 00:45:32,520
- But going through the list of the free blocks, all these blocks can be all over the place.
+But going through the list of the free blocks, all these blocks can be all over the place.
+但是浏览免费区块的列表时，所有这些区块可能散落在各个地方。
 
 480
 00:45:32,520 --> 00:45:34,080
- So what have they done?
+So what have they done?
+那么他们做了什么呢？
 
 481
 00:45:34,080 --> 00:45:36,440
- So here what have they done?
+So here what have they done?
+那么他们做了什么呢？
 
 482
 00:45:36,440 --> 00:45:40,840
- Basically, they define this kind of block groups.
+Basically, they define this kind of block groups.
+基本上，他们定义了这种类型的区块组。
 
 483
 00:45:40,840 --> 00:45:50,400
- So the tracks which are nearby are in the same block and correspondingly also they define
+So the tracks which are nearby are in the same block and correspondingly also they define
+因此，附近的轨道位于同一个区块中，相应地它们也定义了
 
 484
 00:45:50,400 --> 00:45:53,480
- the cylinder group.
+the cylinder group.
+圆柱体组。
 
 485
 00:45:53,480 --> 00:46:10,400
- All the blocks which fall under block groups, which are falling under the head, the drive
+All the blocks which fall under block groups, which are falling under the head, the drive
+所有属于区块组的区块，都是属于头部的驱动下掉的。
 
 486
 00:46:10,400 --> 00:46:15,120
- heads on all the platters are in the same cylinder.
+heads on all the platters are in the same cylinder.
+所有盘子上的头都在同一个圆筒中。
 
 487
 00:46:15,120 --> 00:46:21,360
- You imagine a cylinder which are going to contain all these data blocks which are overlay
+You imagine a cylinder which are going to contain all these data blocks which are overlay
+你可以想象一个圆柱体，它将包含所有这些覆盖的数据块。
 
 488
 00:46:21,360 --> 00:46:27,440
- one over another.
+one over another.
+一个在另一个之上。
 
 489
 00:46:27,440 --> 00:46:40,080
- So right now, then instead of having these inodes and only at the edge, stored at the
+So right now, then instead of having these inodes and only at the edge, stored at the
+所以现在，不再只有这些inode存储在边缘位置，而是存储在整个系统中。
 
 490
 00:46:40,080 --> 00:46:50,240
- edge of the disk, you are associating these inodes to the files, the inodes which for
+edge of the disk, you are associating these inodes to the files, the inodes which for
+磁盘的边缘，你正在将这些索引节点与文件关联起来，这些索引节点是用来描述文件的。
 
 491
 00:46:50,240 --> 00:46:57,440
- the files whose data is stored in the same block are also in the same block.
+the files whose data is stored in the same block are also in the same block.
+数据存储在同一块中的文件也在同一块中。
 
 492
 00:46:57,440 --> 00:47:05,680
- So you see, this is the inodes information for the files which are stored in block group
+So you see, this is the inodes information for the files which are stored in block group
+所以你看，这是存储在块组中的文件的i节点信息。
 
 493
 00:47:05,680 --> 00:47:07,400
- one.
+one.
+一。
 
 494
 00:47:07,400 --> 00:47:20,080
- And these are the inodes information for the files with data, it's in block group two.
+And these are the inodes information for the files with data, it's in block group two.
+这些是具有数据的文件的i节点信息，它们位于块组二。
 
 495
 00:47:20,080 --> 00:47:30,880
- Furthermore, instead of maintaining the available free blocks in a list, you have a bitmap.
+Furthermore, instead of maintaining the available free blocks in a list, you have a bitmap.
+此外，你可以使用位图来代替维护一个可用空闲块的列表。
 
 496
 00:47:30,880 --> 00:47:34,320
- And I'll tell you, I'll show you next what you can do if you have a bitmap.
+And I'll tell you, I'll show you next what you can do if you have a bitmap.
+我会告诉你，接下来我会展示如果你有一个位图可以做什么。
 
 497
 00:47:34,320 --> 00:47:35,320
- Right?
+Right?
+对吗？
 
 498
 00:47:35,320 --> 00:47:36,320
- But this is what it is.
+But this is what it is.
+但这就是现实。
 
 499
 00:47:36,320 --> 00:47:45,160
- Now, in terms of performance, if you have this kind of layout now because the inodes
+Now, in terms of performance, if you have this kind of layout now because the inodes
+现在，就性能而言，如果您现在有这种布局，是因为i节点的原因。
 
 500
 00:47:45,160 --> 00:47:55,520
- are in the same block groups with the files, with the corresponding files, what do I gain
+are in the same block groups with the files, with the corresponding files, what do I gain
+与文件在同一块组中的是什么，有哪些对应的文件，我能得到什么？
 
 501
 00:47:55,520 --> 00:47:56,520
- here?
+here?
+这里吗？
 
 502
 00:47:56,520 --> 00:48:04,200
- What do I save here in terms of performance?
+What do I save here in terms of performance?
+在性能方面，我在这里能节省什么？
 
 503
 00:48:04,200 --> 00:48:10,120
- What is the big deal about this?
+What is the big deal about this?
+这有什么大不了的？
 
 504
 00:48:10,120 --> 00:48:20,240
- Again, for a file to access a file, I need to get its inode and then I need to access
+Again, for a file to access a file, I need to get its inode and then I need to access
+再次，要访问一个文件，我需要获取它的inode，然后才能访问。
 
 505
 00:48:20,240 --> 00:48:23,240
- its data.
+its data.
+它的数据。
 
 506
 00:48:23,240 --> 00:48:28,520
- Because once I get the inode, I have the information or the blocks of the file are located, I'm
+Because once I get the inode, I have the information or the blocks of the file are located, I'm
+因为一旦我获取到inode，我就能知道文件的信息或者文件块的位置。
 
 507
 00:48:28,520 --> 00:48:30,960
- going to read or write.
+going to read or write.
+要读或写。
 
 508
 00:48:30,960 --> 00:48:36,920
- So that is a big deal about this layout.
+So that is a big deal about this layout.
+这个布局有什么了不起的地方。
 
 509
 00:48:36,920 --> 00:48:58,080
- If the inode is near the file blocks, then it will be much faster to read, especially
+If the inode is near the file blocks, then it will be much faster to read, especially
+如果inode靠近文件块，那么读取速度会更快，尤其是
 
 510
 00:48:58,080 --> 00:48:59,080
- for small files.
+for small files.
+对于小文件。
 
 511
 00:48:59,080 --> 00:49:00,080
- This is good.
+This is good.
+这很好。
 
 512
 00:49:00,080 --> 00:49:02,080
- It's a sick time.
+It's a sick time.
+这是一个糟糕的时期。
 
 513
 00:49:02,080 --> 00:49:06,320
- It's exactly, Alison.
+It's exactly, Alison.
+没错，Alison。
 
 514
 00:49:06,320 --> 00:49:15,240
- And it's basically the sick time will be smaller, will be much lower.
+And it's basically the sick time will be smaller, will be much lower.
+而且基本上病假时间会更短，会大大降低。
 
 515
 00:49:15,240 --> 00:49:20,040
- Because the sick time, it's about how far the two tracks are from each other.
+Because the sick time, it's about how far the two tracks are from each other.
+因为病假时间，这是关于两条轨道之间有多远的问题。
 
 516
 00:49:20,040 --> 00:49:22,760
- This is a sick time, it is given by.
+This is a sick time, it is given by.
+这是一个糟糕的时期，它是由外界给予的。
 
 517
 00:49:22,760 --> 00:49:30,880
- And now the blocks are on tracks which are closer together.
+And now the blocks are on tracks which are closer together.
+现在积木放在距离更近的轨道上。
 
 518
 00:49:30,880 --> 00:49:31,880
- So this is what it is.
+So this is what it is.
+这就是它的样子。
 
 519
 00:49:31,880 --> 00:49:38,760
- It's not only that I read the inode and I'm going to read these files, but also all the
+It's not only that I read the inode and I'm going to read these files, but also all the
+不仅仅是我读取了inode并将要读取这些文件，而且还有所有的
 
 520
 00:49:38,760 --> 00:49:44,520
- blocks of the file are in a block group.
+blocks of the file are in a block group.
+文件的块位于一个块组中。
 
 521
 00:49:44,520 --> 00:49:49,520
- If they're in a block group, then going from one block to another, even if they are not
+If they're in a block group, then going from one block to another, even if they are not
+如果他们在一个街区组里，那么即使他们不在同一个街区，也可以从一个街区走到另一个街区。
 
 522
 00:49:49,520 --> 00:49:55,840
- contiguous, the sick time is going to be low.
+contiguous, the sick time is going to be low.
+连续的，病假时间会很少。
 
 523
 00:49:55,840 --> 00:50:13,200
- Also, here, one thing which I didn't mention is that the inode for files and the entire
+Also, here, one thing which I didn't mention is that the inode for files and the entire
+此外，这里还有一件我没有提到的事情，那就是文件和整个目录的inode。
 
 524
 00:50:13,200 --> 00:50:24,360
- directories with the files, the file system tries to put them on the same cylinder.
+directories with the files, the file system tries to put them on the same cylinder.
+当文件系统将文件与目录放在一起时，它会尝试将它们放在同一个柱面上。
 
 525
 00:50:24,360 --> 00:50:30,200
- So on different corresponding blocks on different platter of the disk.
+So on different corresponding blocks on different platter of the disk.
+因此，在磁盘的不同盘片上的不同对应块上。
 
 526
 00:50:30,200 --> 00:50:32,240
- So it's again to minimize the sick time.
+So it's again to minimize the sick time.
+所以这又是为了减少病假时间。
 
 527
 00:50:32,240 --> 00:50:42,680
- In this case, going to do an alias from directory, all the information is within the same cylinder.
+In this case, going to do an alias from directory, all the information is within the same cylinder.
+在这种情况下，将从目录中创建一个别名，所有的信息都在同一个柱面内。
 
 528
 00:50:42,680 --> 00:50:53,680
- OK, we discussed about this data block metadata and free space are within each block.
+OK, we discussed about this data block metadata and free space are within each block.
+好的，我们讨论了这个数据块的元数据和空闲空间都在每个块内部。
 
 529
 00:50:53,680 --> 00:50:59,480
- A voice huge sick time between user data and system structures.
+A voice huge sick time between user data and system structures.
+用户数据和系统结构之间存在一个巨大的病态时间。
 
 530
 00:50:59,480 --> 00:51:06,520
- And you also put the directory, like I mentioned, and these files in the common block group.
+And you also put the directory, like I mentioned, and these files in the common block group.
+你还要将目录，就像我之前提到的那样，以及这些文件放在公共块组中。
 
 531
 00:51:06,520 --> 00:51:11,600
- So basically, you try to preserve some locality between the metadata of the files and the
+So basically, you try to preserve some locality between the metadata of the files and the
+所以基本上，你试图在文件的元数据和
 
 532
 00:51:11,600 --> 00:51:19,560
- data blocks of the files by being careful how you store them on the disk.
+data blocks of the files by being careful how you store them on the disk.
+通过谨慎地存储文件的数据块在磁盘上，可以提高效率。
 
 533
 00:51:19,560 --> 00:51:24,440
- But I try to be close to each other.
+But I try to be close to each other.
+但是我努力亲近彼此。
 
 534
 00:51:24,440 --> 00:51:35,080
- Like I mentioned, the list of free block allocation, here we use Bitmap.
+Like I mentioned, the list of free block allocation, here we use Bitmap.
+就像我之前提到的，这里我们使用位图来表示免费块分配的列表。
 
 535
 00:51:35,080 --> 00:51:39,960
- Before, we used List.
+Before, we used List.
+以前，我们使用的是列表。
 
 536
 00:51:39,960 --> 00:51:45,360
- And by using Bitmap, you can actually avoid some fragmentation.
+And by using Bitmap, you can actually avoid some fragmentation.
+通过使用位图，你实际上可以避免一些碎片化。
 
 537
 00:51:45,360 --> 00:51:59,160
- One important thing which is true both for the Unix file systems in Unix DSD 4.1 and
+One important thing which is true both for the Unix file systems in Unix DSD 4.1 and
+在Unix DSD 4.1中，对于Unix文件系统来说，有一件重要的事情是真实的。
 
 538
 00:51:59,160 --> 00:52:08,560
- 4.2 is that you need to keep some 10%, 20% of free space always.
+4.2 is that you need to keep some 10%, 20% of free space always.
+4.2 是指你需要始终保留10%到20%的可用空间。
 
 539
 00:52:08,560 --> 00:52:13,880
- Because if you don't have any kind of free space, really, really you have no freedom
+Because if you don't have any kind of free space, really, really you have no freedom
+因为如果你没有任何形式的自由空间，真的，真的你就没有自由了。
 
 540
 00:52:13,880 --> 00:52:18,000
- about where to allocate the new blocks.
+about where to allocate the new blocks.
+关于在哪里分配新的数据块。
 
 541
 00:52:18,000 --> 00:52:20,200
- And they are going to become pretty very random.
+And they are going to become pretty very random.
+他们将变得非常随机。
 
 542
 00:52:20,200 --> 00:52:27,600
- So the performance of the disk will slow down to a crawl.
+So the performance of the disk will slow down to a crawl.
+所以磁盘的性能会变得非常缓慢。
 
 543
 00:52:27,600 --> 00:52:30,600
- But I'll say a few more words about that.
+But I'll say a few more words about that.
+但是我会再多说几句关于那个的话。
 
 544
 00:52:30,600 --> 00:52:36,160
- But now let's see what is the big difference and what is the advantage of maintaining a
+But now let's see what is the big difference and what is the advantage of maintaining a
+但是现在让我们看看维护的重大区别和优势是什么。
 
 545
 00:52:36,160 --> 00:52:44,200
- Bitmap for the free blocks instead of linked lists.
+Bitmap for the free blocks instead of linked lists.
+位图用于表示空闲块，而不是链表。
 
 546
 00:52:44,200 --> 00:52:49,960
- So here is the difference.
+So here is the difference.
+这里是不同之处。
 
 547
 00:52:49,960 --> 00:52:52,240
- So and we'll go over the summary here.
+So and we'll go over the summary here.
+好的，我们将在这里概述一下。
 
 548
 00:52:52,240 --> 00:52:54,520
- So here is the difference.
+So here is the difference.
+所以这里有一个区别。
 
 549
 00:52:54,520 --> 00:52:57,400
- So here is a Bitmap.
+So here is a Bitmap.
+这是一个位图。
 
 550
 00:52:57,400 --> 00:53:04,120
- And the dark shades, each rectangle, it's a corresponds to a block, each square corresponds
+And the dark shades, each rectangle, it's a corresponds to a block, each square corresponds
+而那些深色的阴影，每个矩形都对应一个区块，每个方块都对应一个
 
 551
 00:53:04,120 --> 00:53:05,800
- to a block.
+to a block.
+到一个街区。
 
 552
 00:53:05,800 --> 00:53:11,520
- And the shaded one represents blocks which are in use.
+And the shaded one represents blocks which are in use.
+而阴影部分代表正在使用的区块。
 
 553
 00:53:11,520 --> 00:53:17,000
- And the white ones represent free blocks.
+And the white ones represent free blocks.
+而白色的代表空闲块。
 
 554
 00:53:17,000 --> 00:53:20,680
- So here is a very nice characteristic.
+So here is a very nice characteristic.
+这里有一个非常好的特点。
 
 555
 00:53:20,680 --> 00:53:31,600
- So let's say that I am starting to add, to expand the file, and I'm going to allocate
+So let's say that I am starting to add, to expand the file, and I'm going to allocate
+所以假设我现在开始添加内容，扩展文件，并且我要分配空间。
 
 556
 00:53:31,600 --> 00:53:32,600
- new blocks.
+new blocks.
+新的方块。
 
 557
 00:53:32,600 --> 00:53:35,480
- I have to allocate new blocks.
+I have to allocate new blocks.
+我需要分配新的块。
 
 558
 00:53:35,480 --> 00:53:40,240
- So what I'm going to do here, I'm going to go through this Bitmap.
+So what I'm going to do here, I'm going to go through this Bitmap.
+那么我在这里要做的是，我要遍历这个位图。
 
 559
 00:53:40,240 --> 00:53:43,520
- I'm going to start reading from the beginning.
+I'm going to start reading from the beginning.
+我要从头开始阅读。
 
 560
 00:53:43,520 --> 00:53:50,200
- And whenever I'm going to see a free block, I'm going to allocate it.
+And whenever I'm going to see a free block, I'm going to allocate it.
+每当我要查看一个空闲块时，我都会分配它。
 
 561
 00:53:50,200 --> 00:53:54,360
- So this one, the blue one, starts the one which has been allocated.
+So this one, the blue one, starts the one which has been allocated.
+所以这个，蓝色的那个，开始分配的那个。
 
 562
 00:53:54,360 --> 00:53:55,800
- So so far, so good.
+So so far, so good.
+到目前为止，一切都还不错。
 
 563
 00:53:55,800 --> 00:54:00,360
- Again, it's like I'm going to allocate what I see and encounter first.
+Again, it's like I'm going to allocate what I see and encounter first.
+再说一遍，就好像我要先分配我所看到和遇到的东西。
 
 564
 00:54:00,360 --> 00:54:06,680
- So these blocks actually, in terms of the location, can be quite random if they are
+So these blocks actually, in terms of the location, can be quite random if they are
+那么这些区块实际上在位置上可以相当随机，如果它们是
 
 565
 00:54:06,680 --> 00:54:09,640
- not one near each other.
+not one near each other.
+不要一个靠近另一个。
 
 566
 00:54:09,640 --> 00:54:21,080
- However, when I am going to start allocating, the more I allocate to a file, the more I'm
+However, when I am going to start allocating, the more I allocate to a file, the more I'm
+然而，当我准备开始分配时，我分配给一个文件的越多，我就越
 
 567
 00:54:21,080 --> 00:54:33,400
- going to start looking for bigger gaps, for more contiguous regions.
+going to start looking for bigger gaps, for more contiguous regions.
+要开始寻找更大的间隙，以便找到更多连续的区域。
 
 568
 00:54:33,400 --> 00:54:37,000
- And I think that's basically the key.
+And I think that's basically the key.
+我认为这基本上就是关键。
 
 569
 00:54:37,000 --> 00:54:47,120
- So initially, I am allocating as I find these blocks available, empty.
+So initially, I am allocating as I find these blocks available, empty.
+所以起初，我会根据可用的、空闲的块进行分配。
 
 570
 00:54:47,120 --> 00:54:53,360
- But then after a while, when I start to allocate more and more new blocks to a file, I'm starting
+But then after a while, when I start to allocate more and more new blocks to a file, I'm starting
+但是过了一段时间，当我开始给一个文件分配越来越多的新块时，我开始
 
 571
 00:54:53,360 --> 00:54:58,240
- to look more and more for contiguous blocks.
+to look more and more for contiguous blocks.
+越来越多地寻找相邻的区块。
 
 572
 00:54:58,240 --> 00:55:04,240
- And because I have a Bitmap, it's much easier to look for contiguous blocks because I know
+And because I have a Bitmap, it's much easier to look for contiguous blocks because I know
+而且由于我有一个位图，所以查找连续的块会更容易，因为我知道
 
 573
 00:55:04,240 --> 00:55:05,600
- I just look at the Bitmap.
+I just look at the Bitmap.
+我只是看了一下位图。
 
 574
 00:55:05,600 --> 00:55:10,160
- In the case of the linked list, it's much harder because I need to pop up to go from
+In the case of the linked list, it's much harder because I need to pop up to go from
+在链表的情况下，这要困难得多，因为我需要弹出来从...开始。
 
 575
 00:55:10,160 --> 00:55:13,840
- one to another entry with a linked list.
+one to another entry with a linked list.
+一个到另一个的入口，使用链表。
 
 576
 00:55:13,840 --> 00:55:20,160
- And with a linked list, really, I'm going to look in the order in which I am going to
+And with a linked list, really, I'm going to look in the order in which I am going to
+使用链表，实际上，我会按照我要的顺序进行查找。
 
 577
 00:55:20,160 --> 00:55:26,240
- see to find in the linked list the free blocks.
+see to find in the linked list the free blocks.
+在链表中查找空闲块。
 
 578
 00:55:26,240 --> 00:55:28,760
- Does it make sense?
+Does it make sense?
+这有意义吗？
 
 579
 00:55:28,760 --> 00:55:42,100
- So the PLDR here is that if I have a Bitmap, then it's much easier for me to identify contiguous
+So the PLDR here is that if I have a Bitmap, then it's much easier for me to identify contiguous
+PLDR stands for "Point of Least Drama" in this context. It means that if you have a Bitmap, it will be much easier for you to identify contiguous areas.
 
 580
 00:55:42,100 --> 00:55:46,540
- regions of free blocks.
+regions of free blocks.
+自由块的区域。
 
 581
 00:55:46,540 --> 00:55:51,280
- It's as simple as that.
+It's as simple as that.
+就是这么简单。
 
 582
 00:55:51,280 --> 00:55:53,380
- More efficient.
+More efficient.
+更高效。
 
 583
 00:55:53,380 --> 00:55:58,180
- And then as I have larger and larger files which allocate more and more blocks, I'm going
+And then as I have larger and larger files which allocate more and more blocks, I'm going
+然后随着我拥有越来越大的文件，分配越来越多的块，我就会...
 
 584
 00:55:58,180 --> 00:56:05,680
- to start using and allocate more of these contiguous blocks.
+to start using and allocate more of these contiguous blocks.
+开始使用并分配更多的这些连续块。
 
 585
 00:56:05,680 --> 00:56:19,540
- Yeah, it's a Bitmap.
+Yeah, it's a Bitmap.
+是的，它是一个位图。
 
 586
 00:56:19,540 --> 00:56:24,060
- So the question here, the blocks here are in an array rather than a linked list.
+So the question here, the blocks here are in an array rather than a linked list.
+所以问题在于，这里的块是以数组的形式而不是链表的形式存在的。
 
 587
 00:56:24,060 --> 00:56:25,060
- Yes, it's a Bitmap.
+Yes, it's a Bitmap.
+是的，它是一个位图。
 
 588
 00:56:25,060 --> 00:56:28,640
- A Bitmap is by definition an array.
+A Bitmap is by definition an array.
+位图在定义上是一个数组。
 
 589
 00:56:28,640 --> 00:56:32,540
- But it's very efficient.
+But it's very efficient.
+但它非常高效。
 
 590
 00:56:32,540 --> 00:56:34,580
- A pointer, how many bits you have.
+A pointer, how many bits you have.
+指针，你有多少位？
 
 591
 00:56:34,580 --> 00:56:39,760
- For a pointer, you have four bytes, like 32 bits at least.
+For a pointer, you have four bytes, like 32 bits at least.
+对于一个指针，你有四个字节，至少是32位。
 
 592
 00:56:39,760 --> 00:56:45,780
- Here you have for one block, you have one bit.
+Here you have for one block, you have one bit.
+这里的“block”指的是一个块，而“bit”指的是一个比特。
 
 593
 00:56:45,780 --> 00:56:48,260
- Right.
+Right.
+对的。
 
 594
 00:56:48,260 --> 00:56:50,780
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 595
 00:56:50,780 --> 00:56:57,600
- Now let's go back and...
+Now let's go back and...
+现在让我们回过头来...
 
 596
 00:56:57,600 --> 00:57:01,140
- So a summary for these fast file systems.
+So a summary for these fast file systems.
+这些快速文件系统的总结是什么？
 
 597
 00:57:01,140 --> 00:57:04,380
- I now layout.
+I now layout.
+我现在布局。
 
 598
 00:57:04,380 --> 00:57:10,060
- If you have a small directory, you can fit all the data of the files in the directory
+If you have a small directory, you can fit all the data of the files in the directory
+如果你有一个小目录，你可以将目录中所有文件的数据都放得下。
 
 599
 00:57:10,060 --> 00:57:11,580
- in the same cylinder.
+in the same cylinder.
+在同一个汽缸中。
 
 600
 00:57:11,580 --> 00:57:17,460
- There is no very little six.
+There is no very little six.
+没有非常少的六。
 
 601
 00:57:17,460 --> 00:57:30,300
- And so if the file headers are smaller than the whole blocks, you can obviously fetch
+And so if the file headers are smaller than the whole blocks, you can obviously fetch
+所以，如果文件头部比整个块小，你显然可以获取。
 
 602
 00:57:30,300 --> 00:57:33,700
- many of those at the same time.
+many of those at the same time.
+同时有很多人
 
 603
 00:57:33,700 --> 00:57:42,300
- And the last one, remember that one of the disadvantage of 4.1, it was big reliability,
+And the last one, remember that one of the disadvantage of 4.1, it was big reliability,
+而最后一个，记住4.1的一个缺点是可靠性较差。
 
 604
 00:57:42,300 --> 00:57:45,220
- because all the inodes are in one place.
+because all the inodes are in one place.
+因为所有的inode都在一个位置。
 
 605
 00:57:45,220 --> 00:57:51,220
- If that place is corrupted, you lost all the information from the entire disk.
+If that place is corrupted, you lost all the information from the entire disk.
+如果那个地方被损坏了，你将会丢失整个磁盘上的所有信息。
 
 606
 00:57:51,220 --> 00:57:59,300
- But here, it's basically if some part is corrupted, and maybe you lose some inodes, the information
+But here, it's basically if some part is corrupted, and maybe you lose some inodes, the information
+但是在这里，基本上如果某个部分损坏了，可能会丢失一些索引节点，信息也会丢失。
 
 607
 00:57:59,300 --> 00:58:03,260
- about some files, you can never access those files.
+about some files, you can never access those files.
+关于一些文件，你永远无法访问这些文件。
 
 608
 00:58:03,260 --> 00:58:08,340
- But many other files, they are still going to be accessible, because their inodes are
+But many other files, they are still going to be accessible, because their inodes are
+但是许多其他文件仍然可以访问，因为它们的inode仍然存在。
 
 609
 00:58:08,340 --> 00:58:14,140
- going to be intact because they are stored on different places on the disk.
+going to be intact because they are stored on different places on the disk.
+将保持完好，因为它们存储在磁盘的不同位置。
 
 610
 00:58:14,140 --> 00:58:15,380
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 611
 00:58:15,380 --> 00:58:18,900
- So here is another very interesting aspect, is the rotation latency.
+So here is another very interesting aspect, is the rotation latency.
+所以这里还有一个非常有趣的方面，就是旋转延迟。
 
 612
 00:58:18,900 --> 00:58:20,660
- We talk about the seek.
+We talk about the seek.
+我们谈论寻求。
 
 613
 00:58:20,660 --> 00:58:27,700
- So the block groups are intended to reduce the overhead for the seek time.
+So the block groups are intended to reduce the overhead for the seek time.
+所以块组旨在减少寻道时间的开销。
 
 614
 00:58:27,700 --> 00:58:29,620
- What about rotation latency?
+What about rotation latency?
+旋转延迟是多少？
 
 615
 00:58:29,620 --> 00:58:31,020
- Okay.
+Okay.
+Sure, I'll do my best to assist you with your translations. Please go ahead and provide me with the text you would like me to translate.
 
 616
 00:58:31,020 --> 00:58:35,060
- So here is one interesting thing.
+So here is one interesting thing.
+这里有一件有趣的事情。
 
 617
 00:58:35,060 --> 00:58:42,860
- Initially with Unix, a lot of these blocks, you know, the block, a lot of functionality
+Initially with Unix, a lot of these blocks, you know, the block, a lot of functionality
+最初在Unix中，有很多这些块，你知道的，块，很多功能。
 
 618
 00:58:42,860 --> 00:58:48,860
- of the file system was implemented in the operating system.
+of the file system was implemented in the operating system.
+文件系统的实现是在操作系统中完成的。
 
 619
 00:58:48,860 --> 00:58:53,920
- The controllers of the drive, this drive was very simple.
+The controllers of the drive, this drive was very simple.
+驱动器的控制器，这个驱动器非常简单。
 
 620
 00:58:53,920 --> 00:58:58,740
- So now the operating system was getting a block.
+So now the operating system was getting a block.
+所以现在操作系统出现了一个阻塞。
 
 621
 00:58:58,740 --> 00:58:59,740
- Right?
+Right?
+对吗？
 
 622
 00:58:59,740 --> 00:59:00,740
- Right?
+Right?
+对吗？
 
 623
 00:59:00,740 --> 00:59:06,880
- So the block, say, and then needs to transfer the data from the block.
+So the block, say, and then needs to transfer the data from the block.
+所以，块需要传输数据。
 
 624
 00:59:06,880 --> 00:59:15,260
- But while transferring the data from the block, the head was on top of the next sector.
+But while transferring the data from the block, the head was on top of the next sector.
+但是在将数据从块中传输时，磁头位于下一个扇区的顶部。
 
 625
 00:59:15,260 --> 00:59:17,980
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the text you want to be translated.
 
 626
 00:59:17,980 --> 00:59:26,100
- And then you don't know, right, and then you are going to miss reading the data from the
+And then you don't know, right, and then you are going to miss reading the data from the
+然后你不知道，对吧，然后你将无法读取数据。
 
 627
 00:59:26,100 --> 00:59:27,340
- next sector.
+next sector.
+下一个行业。
 
 628
 00:59:27,340 --> 00:59:28,340
- Right?
+Right?
+对吗？
 
 629
 00:59:28,340 --> 00:59:29,980
- So basically, think about this.
+So basically, think about this.
+所以基本上，考虑一下这个。
 
 630
 00:59:29,980 --> 00:59:36,260
- I want to transfer the data from sectors one by one.
+I want to transfer the data from sectors one by one.
+我想逐个将数据从扇区转移。
 
 631
 00:59:36,260 --> 00:59:39,320
- Assume that the data is on contiguous sectors.
+Assume that the data is on contiguous sectors.
+假设数据位于连续的扇区上。
 
 632
 00:59:39,320 --> 00:59:40,320
- So it's great.
+So it's great.
+太棒了。
 
 633
 00:59:40,320 --> 00:59:41,320
- Right?
+Right?
+对吗？
 
 634
 00:59:41,320 --> 00:59:45,740
- But now the problem is that I read the data from a sector and while I'm transferring the
+But now the problem is that I read the data from a sector and while I'm transferring the
+但是现在的问题是，我正在从一个扇区读取数据，而在我传输数据的同时，
 
 635
 00:59:45,740 --> 00:59:51,180
- data from the sector to read it, the head is on the next sector.
+data from the sector to read it, the head is on the next sector.
+从该扇区读取的数据，头部位于下一个扇区。
 
 636
 00:59:51,180 --> 00:59:52,600
- Right?
+Right?
+对吗？
 
 637
 00:59:52,600 --> 00:59:55,580
- And then I missed that.
+And then I missed that.
+然后我错过了那个。
 
 638
 00:59:55,580 --> 00:59:58,100
- I missed the beginning of the next sector.
+I missed the beginning of the next sector.
+我错过了下一个区域的开头。
 
 639
 00:59:58,100 --> 00:59:59,420
- Right?
+Right?
+对吗？
 
 640
 00:59:59,420 --> 01:00:05,940
- And then I need to wait for the entire rotation of the disk to get the next sector.
+And then I need to wait for the entire rotation of the disk to get the next sector.
+然后我需要等待整个磁盘的旋转，才能获取下一个扇区。
 
 641
 01:00:05,940 --> 01:00:14,580
- So one original techniques to address this problem, it was when I am writing data on
+So one original techniques to address this problem, it was when I am writing data on
+因此，解决这个问题的一个原始技术是在我写入数据时。
 
 642
 01:00:14,580 --> 01:00:25,020
- sectors is to interlink, to not write data on subsequent sectors, but skip one sector.
+sectors is to interlink, to not write data on subsequent sectors, but skip one sector.
+扇区之间的相互连接是为了避免在后续扇区写入数据，而是跳过一个扇区。
 
 643
 01:00:25,020 --> 01:00:29,700
- So that when I read the data, then I'm reading the data on a sector.
+So that when I read the data, then I'm reading the data on a sector.
+这样当我读取数据时，我实际上是在读取一个扇区的数据。
 
 644
 01:00:29,700 --> 01:00:38,540
- And while I'm transferring the data from that sector to the operating system, I am not going
+And while I'm transferring the data from that sector to the operating system, I am not going
+而当我将数据从那个扇区传输到操作系统时，我不能
 
 645
 01:00:38,540 --> 01:00:41,120
- to the next sector.
+to the next sector.
+到下一个行业。
 
 646
 01:00:41,120 --> 01:00:45,580
- It's fine if I'm skipping it because it doesn't contain the data from the file.
+It's fine if I'm skipping it because it doesn't contain the data from the file.
+如果我跳过它，因为它不包含文件中的数据，那就没关系。
 
 647
 01:00:45,580 --> 01:00:50,900
- And by the time the head is over the next sector, which contains the data from the file,
+And by the time the head is over the next sector, which contains the data from the file,
+而当磁头移动到下一个扇区时，其中包含了文件的数据，
 
 648
 01:00:50,900 --> 01:00:56,460
- I am ready to read it.
+I am ready to read it.
+我已经准备好阅读了。
 
 649
 01:00:56,460 --> 01:01:01,780
- OK, makes sense.
+OK, makes sense.
+好的，有道理。
 
 650
 01:01:01,780 --> 01:01:10,340
- So basically here you overlap the transfer time, right?
+So basically here you overlap the transfer time, right?
+所以基本上在这里你重叠了传输时间，对吗？
 
 651
 01:01:10,340 --> 01:01:13,340
- With the rotation.
+With the rotation.
+带着旋转。
 
 652
 01:01:13,340 --> 01:01:18,540
- This is pretty cool.
+This is pretty cool.
+这很酷。
 
 653
 01:01:18,540 --> 01:01:26,980
- But it turns out that actually the other solution was you just read ahead.
+But it turns out that actually the other solution was you just read ahead.
+但事实证明，另一个解决方案是提前阅读。
 
 654
 01:01:26,980 --> 01:01:32,620
- I read a sector and while I am transferring it after that, I'm not sure whether I need
+I read a sector and while I am transferring it after that, I'm not sure whether I need
+我读取了一个扇区，但在传输之后，我不确定是否需要。
 
 655
 01:01:32,620 --> 01:01:37,160
- the data from the next sector or not.
+the data from the next sector or not.
+下一个部门的数据是否包含在内。
 
 656
 01:01:37,160 --> 01:01:38,160
- But it's OK.
+But it's OK.
+但没关系。
 
 657
 01:01:38,160 --> 01:01:41,580
- I'm just assuming that I'm needing it.
+I'm just assuming that I'm needing it.
+我只是假设我需要它。
 
 658
 01:01:41,580 --> 01:01:43,820
- So I'm going to read ahead.
+So I'm going to read ahead.
+所以我要提前阅读。
 
 659
 01:01:43,820 --> 01:01:45,640
- OK.
+OK.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 660
 01:01:45,640 --> 01:01:50,680
- And if I don't need it, I'm going to discard it.
+And if I don't need it, I'm going to discard it.
+如果我不需要它，我会把它丢掉。
 
 661
 01:01:50,680 --> 01:01:51,920
- And I'm just going to buffer it.
+And I'm just going to buffer it.
+然后我只是要缓冲一下。
 
 662
 01:01:51,920 --> 01:01:55,000
- I just need a buffer to push more data.
+I just need a buffer to push more data.
+我只需要一个缓冲区来存储更多的数据。
 
 663
 01:01:55,000 --> 01:01:59,480
- OK, so that's another solution.
+OK, so that's another solution.
+好的，那就是另一个解决方案。
 
 664
 01:01:59,480 --> 01:02:02,240
- It's more flexible solution.
+It's more flexible solution.
+这是一个更灵活的解决方案。
 
 665
 01:02:02,240 --> 01:02:08,000
- And this is actually what today it's used.
+And this is actually what today it's used.
+这实际上是今天的用法。
 
 666
 01:02:08,000 --> 01:02:13,500
- And this is implemented mostly in the controllers of the disk.
+And this is implemented mostly in the controllers of the disk.
+这主要是在磁盘的控制器中实现的。
 
 667
 01:02:13,500 --> 01:02:15,920
- The disk has a RAM, has a buffer, if you remember.
+The disk has a RAM, has a buffer, if you remember.
+这个磁盘有一个RAM，有一个缓冲区，如果你记得的话。
 
 668
 01:02:15,920 --> 01:02:23,740
- So you read in that buffer, and then you transfer to the operating system.
+So you read in that buffer, and then you transfer to the operating system.
+所以你从那个缓冲区读取，然后传输给操作系统。
 
 669
 01:02:23,740 --> 01:02:35,520
- Any questions about this?
+Any questions about this?
+对此有任何问题吗？
 
 670
 01:02:35,520 --> 01:02:39,520
- So the first solution is implementing your rewriting, while the second one is implementing
+So the first solution is implementing your rewriting, while the second one is implementing
+所以第一个解决方案是实施您的重写，而第二个解决方案是实施...
 
 671
 01:02:39,520 --> 01:02:40,520
- your reading.
+your reading.
+你的阅读。
 
 672
 01:02:40,520 --> 01:02:41,520
- It's a question.
+It's a question.
+这是一个问题。
 
 673
 01:02:41,520 --> 01:02:42,520
- No, not really.
+No, not really.
+不，不是真的。
 
 674
 01:02:42,520 --> 01:02:47,320
- In both cases, you can think about this optimization for reading.
+In both cases, you can think about this optimization for reading.
+在这两种情况下，你可以考虑这个优化来进行阅读。
 
 675
 01:02:47,320 --> 01:02:54,060
- It's again, the problem here is that you read a sector, and then I want to-- I am going
+It's again, the problem here is that you read a sector, and then I want to-- I am going
+这又是一次，问题在于你读取了一个扇区，然后我想要--我正在去做的是
 
 676
 01:02:54,060 --> 01:02:58,780
- to send the request for reading the next sector, and the next sector, and the next sector.
+to send the request for reading the next sector, and the next sector, and the next sector.
+发送请求以读取下一个扇区，以及下一个扇区，以及下一个扇区。
 
 677
 01:02:58,780 --> 01:03:03,140
- So I'm reading the sector, and then I need to transfer the data from the sectors.
+So I'm reading the sector, and then I need to transfer the data from the sectors.
+所以我正在读取扇区，然后需要将数据从扇区传输出来。
 
 678
 01:03:03,140 --> 01:03:10,300
- And by the time I am going to issue the request for reading the next sector, the head, it's
+And by the time I am going to issue the request for reading the next sector, the head, it's
+而当我准备发出读取下一个扇区的请求时，磁头已经
 
 679
 01:03:10,300 --> 01:03:14,920
- already over the next sector on the disk.
+already over the next sector on the disk.
+已经超过了磁盘上的下一个扇区。
 
 680
 01:03:14,920 --> 01:03:15,920
- Right?
+Right?
+对吗？
 
 681
 01:03:15,920 --> 01:03:22,200
- Okay, so I'm reading this sector, and then I am-- by the time I am going to issue the
+Okay, so I'm reading this sector, and then I am-- by the time I am going to issue the
+好的，所以我正在阅读这个部门，然后当我准备发出的时候，
 
 682
 01:03:22,200 --> 01:03:29,680
- request for reading the next sector from the file, the next-- I'm already over the next
+request for reading the next sector from the file, the next-- I'm already over the next
+请求从文件中读取下一个扇区，下一个——我已经超过了下一个。
 
 683
 01:03:29,680 --> 01:03:30,680
- sector.
+sector.
+行业。
 
 684
 01:03:30,680 --> 01:03:37,340
- So I'm going-- so if it happened that actually the sector I want to read is just after the
+So I'm going-- so if it happened that actually the sector I want to read is just after the
+所以我要去-所以如果碰巧我想阅读的部分就在后面
 
 685
 01:03:37,340 --> 01:03:44,480
- sector I am reading, then I'm going to miss it.
+sector I am reading, then I'm going to miss it.
+如果我不读这个部分，我会错过它。
 
 686
 01:03:44,480 --> 01:03:45,600
- Right?
+Right?
+对吗？
 
 687
 01:03:45,600 --> 01:03:50,360
- Because I don't get in time the command to read the next sector.
+Because I don't get in time the command to read the next sector.
+因为我没有及时收到读取下一个扇区的指令。
 
 688
 01:03:50,360 --> 01:03:56,560
- So therefore, I am going to-- I have to wait all the way for the disk to rotate once to
+So therefore, I am going to-- I have to wait all the way for the disk to rotate once to
+所以，因此，我要-我必须等待光盘旋转一圈。
 
 689
 01:03:56,560 --> 01:03:58,700
- read the next sector.
+read the next sector.
+读取下一个扇区。
 
 690
 01:03:58,700 --> 01:04:05,480
- So what this first optimization says that I am reading a sector, and now I am transferring
+So what this first optimization says that I am reading a sector, and now I am transferring
+所以这个第一个优化是说我正在读取一个扇区，现在正在传输。
 
 691
 01:04:05,480 --> 01:04:10,880
- and giving some time before I get the next command.
+and giving some time before I get the next command.
+并且在我收到下一个指令之前给我一些时间。
 
 692
 01:04:10,880 --> 01:04:17,260
- And if I get the next command, then I am going to know-- I'm going to be close to this next
+And if I get the next command, then I am going to know-- I'm going to be close to this next
+如果我得到下一个指令，那么我就会知道——我就会接近下一个目标。
 
 693
 01:04:17,260 --> 01:04:20,000
- sector after I skip one.
+sector after I skip one.
+跳过一个后的部门。
 
 694
 01:04:20,000 --> 01:04:21,900
- Okay?
+Okay?
+好的。
 
 695
 01:04:21,900 --> 01:04:29,880
- So if I want to contiguously in this mode to have maximized performance, I need to interleave
+So if I want to contiguously in this mode to have maximized performance, I need to interleave
+所以如果我想在这种模式下连续地获得最大化的性能，我需要交错使用。
 
 696
 01:04:29,880 --> 01:04:32,840
- the sectors when I write them.
+the sectors when I write them.
+当我写它们时，指的是各个行业。
 
 697
 01:04:32,840 --> 01:04:40,920
- So when I read them, I am going to read once, and while I am transferring and getting command
+So when I read them, I am going to read once, and while I am transferring and getting command
+所以当我阅读它们时，我会读一遍，同时我会进行转移和接收指令。
 
 698
 01:04:40,920 --> 01:04:48,080
- for reading the next sector, I have enough time.
+for reading the next sector, I have enough time.
+读取下一个扇区，我有足够的时间。
 
 699
 01:04:48,080 --> 01:04:51,800
- So I am ready to read the next sector.
+So I am ready to read the next sector.
+所以我准备好阅读下一个部分了。
 
 700
 01:04:51,800 --> 01:04:58,600
- This makes sense?
+This makes sense?
+这有意义吗？
 
 701
 01:04:58,600 --> 01:05:03,040
- How big does a track buffer usually need to be to store the entire track?
+How big does a track buffer usually need to be to store the entire track?
+通常，一个音轨缓冲区需要多大才能存储整个音轨？
 
 702
 01:05:03,040 --> 01:05:05,600
- That's a very good question.
+That's a very good question.
+这是一个非常好的问题。
 
 703
 01:05:05,600 --> 01:05:09,840
- So you can read ahead the entire track.
+So you can read ahead the entire track.
+所以你可以提前阅读整个赛道。
 
 704
 01:05:09,840 --> 01:05:14,920
- I don't know on top of my head what is how much.
+I don't know on top of my head what is how much.
+我脑海中不知道是多少。
 
 705
 01:05:14,920 --> 01:05:23,340
- Yeah, I'll probably-- I'll try to get back to you, but I assume a few tens of megabytes
+Yeah, I'll probably-- I'll try to get back to you, but I assume a few tens of megabytes
+是的，我可能会尽量回复你，但我估计会有几十兆字节。
 
 706
 01:05:23,340 --> 01:05:27,360
- depending on the disk.
+depending on the disk.
+取决于硬盘。
 
 707
 01:05:27,360 --> 01:05:31,040
- But yeah.
+But yeah.
+但是，是的。
 
 708
 01:05:31,040 --> 01:05:37,040
- So Gilbert, did I answer your question?
+So Gilbert, did I answer your question?
+所以，Gilbert，我回答了你的问题吗？
 
 709
 01:05:37,040 --> 01:05:43,980
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and translate any non-Chinese text into Chinese. Please provide me with the text you would like me to translate.
 
 710
 01:05:43,980 --> 01:05:50,160
- So it's again, remember that the disks and this controller do a lot of things under the
+So it's again, remember that the disks and this controller do a lot of things under the
+所以，再次提醒一下，这些磁盘和控制器在下面做了很多事情。
 
 711
 01:05:50,160 --> 01:05:51,160
- hood, right?
+hood, right?
+对，是帽子，对吗？
 
 712
 01:05:51,160 --> 01:05:56,920
- Like, remember we did last time, we learned about C-scan and other scheduling algorithms.
+Like, remember we did last time, we learned about C-scan and other scheduling algorithms.
+好的，记得上次我们学习了C-scan和其他调度算法。
 
 713
 01:05:56,920 --> 01:06:02,920
- You should order the request so therefore you reduce the six-time rotation latency.
+You should order the request so therefore you reduce the six-time rotation latency.
+你应该对请求进行排序，从而减少六倍的旋转延迟。
 
 714
 01:06:02,920 --> 01:06:04,800
- Okay.
+Okay.
+好的。
 
 715
 01:06:04,800 --> 01:06:14,440
- So the pros of 4.2, you have efficient storage for both small and large files.
+So the pros of 4.2, you have efficient storage for both small and large files.
+所以4.2的优点是，您可以高效地存储小型和大型文件。
 
 716
 01:06:14,440 --> 01:06:19,480
- And this is because you have these direct blocks, indirect block pointers, and double
+And this is because you have these direct blocks, indirect block pointers, and double
+这是因为你有这些直接块、间接块指针和双重块。
 
 717
 01:06:19,480 --> 01:06:22,660
- indirect and triple indirect.
+indirect and triple indirect.
+间接和三重间接。
 
 718
 01:06:22,660 --> 01:06:28,720
- So you can accommodate both small files and large files.
+So you can accommodate both small files and large files.
+所以你可以同时容纳小文件和大文件。
 
 719
 01:06:28,720 --> 01:06:33,140
- You have locality for both small and large files to try to do that because you try to
+You have locality for both small and large files to try to do that because you try to
+你尝试着对小文件和大文件都进行本地化，以便实现这一目标。
 
 720
 01:06:33,140 --> 01:06:41,680
- store them within the same block group or cylinder group.
+store them within the same block group or cylinder group.
+将它们存储在同一个块组或柱组中。
 
 721
 01:06:41,680 --> 01:06:48,080
- And you also try to-- you have the locality between the metadata and data because the
+And you also try to-- you have the locality between the metadata and data because the
+而且你也试着——你在元数据和数据之间有局部性，因为
 
 722
 01:06:48,080 --> 01:06:57,800
- metadata that is inodes, we try to store them on the same block group where the files themselves
+metadata that is inodes, we try to store them on the same block group where the files themselves
+元数据即索引节点，我们尝试将它们存储在与文件本身相同的块组中。
 
 723
 01:06:57,800 --> 01:07:02,240
- are stored.
+are stored.
+存储在哪里。
 
 724
 01:07:02,240 --> 01:07:06,620
- We didn't talk about this when we say non-defragmentation is necessary.
+We didn't talk about this when we say non-defragmentation is necessary.
+我们在说非碎片整理是必要的时候没有讨论过这个。
 
 725
 01:07:06,620 --> 01:07:11,820
- Non-defragmentation is necessary here because we have the bitmap.
+Non-defragmentation is necessary here because we have the bitmap.
+非碎片整理在这里是必要的，因为我们有位图。
 
 726
 01:07:11,820 --> 01:07:18,500
- In what happens with-- and I remember that when I used it a long time ago.
+In what happens with-- and I remember that when I used it a long time ago.
+关于这个问题，我记得很久以前我用过它。
 
 727
 01:07:18,500 --> 01:07:28,340
- When you use FAT and when you-- or this Microsoft, early Microsoft operating systems and the file
+When you use FAT and when you-- or this Microsoft, early Microsoft operating systems and the file
+当你使用FAT时，或者说在早期的微软操作系统和文件系统中使用FAT。
 
 728
 01:07:28,340 --> 01:07:32,860
- systems, what you have from time to time, you need to defragment the disk.
+systems, what you have from time to time, you need to defragment the disk.
+系统，你时不时需要对磁盘进行碎片整理。
 
 729
 01:07:32,860 --> 01:07:40,060
- Defragment the disk, what meant is this to rewrite the information from the disk so the
+Defragment the disk, what meant is this to rewrite the information from the disk so the
+磁盘碎片整理，指的是重新将磁盘上的信息进行重写，以便提高磁盘的读写速度和性能。
 
 730
 01:07:40,060 --> 01:07:44,020
- files are more contiguously stored.
+files are more contiguously stored.
+文件存储更加连续。
 
 731
 01:07:44,020 --> 01:07:45,380
- Because the disk was fragmented.
+Because the disk was fragmented.
+因为磁盘被碎片化了。
 
 732
 01:07:45,380 --> 01:07:53,060
- As you delete disks, as you delete files and you write more files, it's more and more fragmented,
+As you delete disks, as you delete files and you write more files, it's more and more fragmented,
+当你删除磁盘、删除文件并写入更多文件时，它会变得越来越碎片化。
 
 733
 01:07:53,060 --> 01:07:58,520
- meaning that the data of the files is stored more and more randomly.
+meaning that the data of the files is stored more and more randomly.
+这意味着文件的数据存储越来越随机。
 
 734
 01:07:58,520 --> 01:08:00,700
- The blocks are more and more randomly.
+The blocks are more and more randomly.
+这些方块越来越随机。
 
 735
 01:08:00,700 --> 01:08:03,320
- And from time to time, you do defragmentation.
+And from time to time, you do defragmentation.
+有时候，你会进行碎片整理。
 
 736
 01:08:03,320 --> 01:08:08,880
- So you are going to try again to rewrite the files.
+So you are going to try again to rewrite the files.
+所以你打算再次尝试重写这些文件。
 
 737
 01:08:08,880 --> 01:08:16,100
- So to move the blocks around, so to speak, so that the files are stored on contiguous
+So to move the blocks around, so to speak, so that the files are stored on contiguous
+因此，可以说，为了移动这些块，使文件存储在连续的位置上。
 
 738
 01:08:16,100 --> 01:08:20,320
- blocks and the performance will be much better.
+blocks and the performance will be much better.
+块和性能会更好。
 
 739
 01:08:20,320 --> 01:08:24,220
- Here is not really necessary because I told you about these heuristics in which you try
+Here is not really necessary because I told you about these heuristics in which you try
+这里并不是真正必要的，因为我已经告诉过你关于这些启发式的事情，其中你尝试
 
 740
 01:08:24,220 --> 01:08:35,600
- to find a large bunch of free blocks for large files to store the data.
+to find a large bunch of free blocks for large files to store the data.
+寻找一大堆用于存储数据的大文件的免费块。
 
 741
 01:08:35,600 --> 01:08:42,620
- The cost is inefficient for tiny files.
+The cost is inefficient for tiny files.
+这个成本对于小文件来说是低效的。
 
 742
 01:08:42,620 --> 01:08:49,540
- It's a little bit unfair because it's not-- you still fundamentally need a block to store--
+It's a little bit unfair because it's not-- you still fundamentally need a block to store--
+这有点不公平，因为你仍然基本上需要一个块来存储--
 
 743
 01:08:49,540 --> 01:08:52,700
- so you need to have storage, it's a block.
+so you need to have storage, it's a block.
+所以你需要有存储空间，它是一个块。
 
 744
 01:08:52,700 --> 01:08:59,820
- So even if you have one byte, you still are going to read or write an entire block, which
+So even if you have one byte, you still are going to read or write an entire block, which
+所以即使你只有一个字节，你仍然会读取或写入整个块，这
 
 745
 01:08:59,820 --> 01:09:00,820
- is 40 kilobytes.
+is 40 kilobytes.
+是40千字节。
 
 746
 01:09:00,820 --> 01:09:05,460
- And in addition, also you need an inode for this data block.
+And in addition, also you need an inode for this data block.
+而且，你还需要为这个数据块分配一个inode。
 
 747
 01:09:05,460 --> 01:09:10,720
- Most of the file systems will have this big advantage.
+Most of the file systems will have this big advantage.
+大多数文件系统都会有这个巨大的优势。
 
 748
 01:09:10,720 --> 01:09:16,220
- And inefficient encoding when a file is mostly contiguous on the disk, this basically says
+And inefficient encoding when a file is mostly contiguous on the disk, this basically says
+当文件在磁盘上大部分是连续的时候，使用低效的编码方式，这基本上意味着
 
 749
 01:09:16,220 --> 01:09:22,500
- that you know you are going to have this bitmap to tell you what the blocks are.
+that you know you are going to have this bitmap to tell you what the blocks are.
+你知道你将要有这个位图来告诉你块的情况。
 
 750
 01:09:22,500 --> 01:09:27,320
- And if you have, you have one bit for each block.
+And if you have, you have one bit for each block.
+如果你有的话，每个块都有一个位。
 
 751
 01:09:27,320 --> 01:09:33,240
- But for instance, if the file is contiguous, stored on the disk, then you need only two
+But for instance, if the file is contiguous, stored on the disk, then you need only two
+但是例如，如果文件是连续存储在磁盘上的，那么你只需要两个
 
 752
 01:09:33,240 --> 01:09:39,680
- pieces of information, what is the beginning, the pointer to the first block, and the pointer
+pieces of information, what is the beginning, the pointer to the first block, and the pointer
+信息的组成部分，什么是起始点，指向第一个块的指针，以及指针。
 
 753
 01:09:39,680 --> 01:09:42,900
- to the last block, right?
+to the last block, right?
+到最后一个街区，对吗？
 
 754
 01:09:42,900 --> 01:09:44,940
- Because everything in between is contiguous.
+Because everything in between is contiguous.
+因为中间的一切都是连续的。
 
 755
 01:09:44,940 --> 01:09:52,780
- This is what it means it's inefficient encoding when files is mostly contiguous on the disk.
+This is what it means it's inefficient encoding when files is mostly contiguous on the disk.
+这意味着当文件在磁盘上大部分是连续的时候，它的编码是低效的。
 
 756
 01:09:52,780 --> 01:09:59,400
- And still in order to avoid this defragmentation, you need to have this kind of sprees space
+And still in order to avoid this defragmentation, you need to have this kind of sprees space
+而且为了避免这种碎片化，你需要有这种类型的空闲空间。
 
 757
 01:09:59,400 --> 01:10:00,400
- on the disk.
+on the disk.
+在磁盘上。
 
 758
 01:10:00,400 --> 01:10:05,620
- So you cannot allocate the entire 100% of the disk space.
+So you cannot allocate the entire 100% of the disk space.
+所以你不能分配整个100%的磁盘空间。
 
 759
 01:10:05,620 --> 01:10:11,100
- You need to leave around 10, 20%.
+You need to leave around 10, 20%.
+你需要留下大约10、20%。
 
 760
 01:10:11,100 --> 01:10:19,580
- Okay, Linux is pretty similar.
+Okay, Linux is pretty similar.
+好的，Linux相当相似。
 
 761
 01:10:19,580 --> 01:10:28,380
- You have 12 direct pointers, like in our previous examples, if you remember, when I was a little
+You have 12 direct pointers, like in our previous examples, if you remember, when I was a little
+你有12个直接指针，就像我们之前的例子一样，如果你还记得的话，当时我还小。
 
 762
 01:10:28,380 --> 01:10:33,380
- kid, I was confused between 12 and 10.
+kid, I was confused between 12 and 10.
+孩子，我在12和10之间感到困惑。
 
 763
 01:10:33,380 --> 01:10:36,440
- In this case, you have 12.
+In this case, you have 12.
+在这种情况下，你有12个。
 
 764
 01:10:36,440 --> 01:10:45,440
- And the other thing you can configure is the size of the blocks to be different sizes,
+And the other thing you can configure is the size of the blocks to be different sizes,
+而另一件您可以配置的事情是块的大小可以是不同的尺寸，
 
 765
 01:10:45,440 --> 01:10:46,440
- right?
+right?
+对吗？
 
 766
 01:10:46,440 --> 01:10:51,040
- You can have one kilobyte, two kilobytes, four kilobytes, eight kilobytes, and so forth.
+You can have one kilobyte, two kilobytes, four kilobytes, eight kilobytes, and so forth.
+你可以有一千字节、两千字节、四千字节、八千字节，以此类推。
 
 767
 01:10:51,040 --> 01:10:57,040
- It's again, you don't have in the same system, blocks of different sizes, but when you configure
+It's again, you don't have in the same system, blocks of different sizes, but when you configure
+再次强调，你在同一个系统中没有不同尺寸的块，但是当你进行配置时，
 
 768
 01:10:57,040 --> 01:11:03,460
- the system to start with, you can choose different blocks sizes.
+the system to start with, you can choose different blocks sizes.
+系统起始时，您可以选择不同的块大小。
 
 769
 01:11:03,460 --> 01:11:13,920
- And this X2 and X3 are different versions of Linux in terms of particular or disk layout.
+And this X2 and X3 are different versions of Linux in terms of particular or disk layout.
+而这个X2和X3是在特定或磁盘布局方面不同的Linux版本。
 
 770
 01:11:13,920 --> 01:11:15,440
- You also have journaling.
+You also have journaling.
+你也可以写日记。
 
 771
 01:11:15,440 --> 01:11:22,060
- We are going to talk about journaling later, but it's a particular way to store the files
+We are going to talk about journaling later, but it's a particular way to store the files
+我们稍后会讨论日志记录，但这是一种特殊的文件存储方式。
 
 772
 01:11:22,060 --> 01:11:27,000
- to provide fault tolerance.
+to provide fault tolerance.
+提供容错性。
 
 773
 01:11:27,000 --> 01:11:31,100
- Okay, we'll talk more about that.
+Okay, we'll talk more about that.
+好的，我们会更详细地讨论这个。
 
 774
 01:11:31,100 --> 01:11:36,000
- And other than that, it's the same kind of organization here.
+And other than that, it's the same kind of organization here.
+除此之外，这里的组织方式与其他地方相同。
 
 775
 01:11:36,000 --> 01:11:43,560
- You have, these are the pointers in the group descriptor table.
+You have, these are the pointers in the group descriptor table.
+你有，这些是组描述符表中的指针。
 
 776
 01:11:43,560 --> 01:11:45,080
- You have pointers to the blocks.
+You have pointers to the blocks.
+你有指向这些块的指针。
 
 777
 01:11:45,080 --> 01:11:49,920
- In each blocks, you have inot tables.
+In each blocks, you have inot tables.
+在每个区块中，你有不同的表格。
 
 778
 01:11:49,920 --> 01:11:53,460
- And then the inot tables are going to go, going to go to directories.
+And then the inot tables are going to go, going to go to directories.
+然后inot表将被转移到目录中。
 
 779
 01:11:53,460 --> 01:11:58,860
- This is how the directories are organized in EX2-3.
+This is how the directories are organized in EX2-3.
+这是EX2-3中目录的组织方式。
 
 780
 01:11:58,860 --> 01:12:05,080
- Okay, it's setting up.
+Okay, it's setting up.
+好的，正在设置中。
 
 781
 01:12:05,080 --> 01:12:09,500
- Hard links.
+Hard links.
+硬链接。
 
 782
 01:12:09,500 --> 01:12:11,420
- Okay, sorry.
+Okay, sorry.
+好的，抱歉。
 
 783
 01:12:11,420 --> 01:12:18,260
- So here, we remember last time, we looked through this directory structure and the directory
+So here, we remember last time, we looked through this directory structure and the directory
+所以在这里，我们记得上次我们浏览了这个目录结构和目录。
 
 784
 01:12:18,260 --> 01:12:23,180
- structure, it's an ROG.
+structure, it's an ROG.
+结构，它是一台ROG。
 
 785
 01:12:23,180 --> 01:12:35,340
- And what you have, typically what you can do in Unix, you can have a different, you
+And what you have, typically what you can do in Unix, you can have a different, you
+而你所拥有的，通常在Unix中可以做的事情，你可以有一个不同的，
 
 786
 01:12:35,340 --> 01:12:42,220
- can have another hard link, it's called hard link, another link to the same file, right?
+can have another hard link, it's called hard link, another link to the same file, right?
+可以有另一个硬链接，它被称为硬链接，指向同一文件的另一个链接，对吗？
 
 787
 01:12:42,220 --> 01:12:50,280
- You can have the same file, which is basically, you can have two names for that file and these
+You can have the same file, which is basically, you can have two names for that file and these
+你可以拥有同一个文件，也就是说，你可以为该文件设置两个名称，这样
 
 788
 01:12:50,280 --> 01:12:54,540
- names can appear in different directories.
+names can appear in different directories.
+名字可以出现在不同的目录中。
 
 789
 01:12:54,540 --> 01:12:55,940
- When do you want to do that?
+When do you want to do that?
+你想什么时候做那件事？
 
 790
 01:12:55,940 --> 01:13:03,900
- Well, obviously when I want to share a file from different directories, right?
+Well, obviously when I want to share a file from different directories, right?
+嗯，显然我是指当我想要从不同的目录共享文件时，对吧？
 
 791
 01:13:03,900 --> 01:13:08,660
- And I want to appear to be local to that directory.
+And I want to appear to be local to that directory.
+我想要看起来像是属于那个目录的本地人。
 
 792
 01:13:08,660 --> 01:13:13,340
- It's like, for instance, library files or things like that.
+It's like, for instance, library files or things like that.
+就像，比如说，库文件或者类似的东西。
 
 793
 01:13:13,340 --> 01:13:21,220
- And in this case, again, I'm going to have pointers, the same, two different file names
+And in this case, again, I'm going to have pointers, the same, two different file names
+在这种情况下，我会再次使用指针，同样是两个不同的文件名。
 
 794
 01:13:21,220 --> 01:13:24,380
- are going to point to the same file.
+are going to point to the same file.
+将指向同一个文件。
 
 795
 01:13:24,380 --> 01:13:29,340
- And in the inode, I'm going to maintain a reference count.
+And in the inode, I'm going to maintain a reference count.
+在inode中，我将维护一个引用计数。
 
 796
 01:13:29,340 --> 01:13:30,760
- Why I need that?
+Why I need that?
+为什么我需要那个？
 
 797
 01:13:30,760 --> 01:13:38,380
- Because only when all the references to the same inode, to the same underlying file are
+Because only when all the references to the same inode, to the same underlying file are
+因为只有当所有对同一个inode的引用指向同一个底层文件时，才能
 
 798
 01:13:38,380 --> 01:13:44,340
- removed, I can remove the file.
+removed, I can remove the file.
+已删除，我可以删除这个文件。
 
 799
 01:13:44,340 --> 01:13:47,500
- In addition, I have also soft links.
+In addition, I have also soft links.
+此外，我还有软链接。
 
 800
 01:13:47,500 --> 01:13:50,460
- The soft links provide the same kind of behavior.
+The soft links provide the same kind of behavior.
+软链接提供了相同类型的行为。
 
 801
 01:13:50,460 --> 01:13:58,660
- It's again, they are used to create another entry in my current directory to a file which
+It's again, they are used to create another entry in my current directory to a file which
+这是再次发生了，它们被用来在我的当前目录中创建另一个指向文件的条目。
 
 802
 01:13:58,660 --> 01:14:02,140
- exists in a different directory.
+exists in a different directory.
+存在于不同的目录中。
 
 803
 01:14:02,140 --> 01:14:06,020
- But this is symbolic link or soft link.
+But this is symbolic link or soft link.
+但这是一个符号链接或软链接。
 
 804
 01:14:06,020 --> 01:14:11,100
- In this case, it's actually a symbolic link, it's another entry in the directory, which
+In this case, it's actually a symbolic link, it's another entry in the directory, which
+在这种情况下，实际上是一个符号链接，它是目录中的另一个条目，它
 
 805
 01:14:11,100 --> 01:14:19,140
- basically it's about, it has a file name, the new file name, and then it's linked to
+basically it's about, it has a file name, the new file name, and then it's linked to
+基本上，它涉及到一个文件名、新的文件名，然后与之关联。
 
 806
 01:14:19,140 --> 01:14:20,540
- the destination file name.
+the destination file name.
+目标文件名。
 
 807
 01:14:20,540 --> 01:14:25,780
- So it's a symbolic link, just an entry, just something you write in your directory, which
+So it's a symbolic link, just an entry, just something you write in your directory, which
+所以它是一个符号链接，只是一个条目，只是你在目录中写的东西，它
 
 808
 01:14:25,780 --> 01:14:30,180
- basically links the file name, the new file name, with the destination file name, the
+basically links the file name, the new file name, with the destination file name, the
+基本上将文件名、新文件名和目标文件名链接在一起，
 
 809
 01:14:30,180 --> 01:14:34,900
- one which I want to link.
+one which I want to link.
+一个我想要链接的。
 
 810
 01:14:34,900 --> 01:14:44,420
- And in this particular case, though, if the destination file name is removed, the openings
+And in this particular case, though, if the destination file name is removed, the openings
+而在这种特殊情况下，如果目标文件名被删除，那么打开的
 
 811
 01:14:44,420 --> 01:14:54,460
- are filed using the symbolic link name, it can fail.
+are filed using the symbolic link name, it can fail.
+如果使用符号链接名称进行归档，可能会失败。
 
 812
 01:14:54,460 --> 01:15:02,340
- Because there is no one under the hood to keep the reference counting how many other
+Because there is no one under the hood to keep the reference counting how many other
+由于引用计数没有人在后台进行维护，无法知道有多少其他的引用。
 
 813
 01:15:02,340 --> 01:15:05,420
- file names are pointing to the same file.
+file names are pointing to the same file.
+文件名指向同一个文件。
 
 814
 01:15:05,420 --> 01:15:10,100
- But this is easier to implement.
+But this is easier to implement.
+但是这样更容易实施。
 
 815
 01:15:10,100 --> 01:15:18,380
- So this is what it is.
+So this is what it is.
+这就是它的样子。
 
 816
 01:15:18,380 --> 01:15:25,460
- And you can create both command line, the symbolic links, also hard links, also you
+And you can create both command line, the symbolic links, also hard links, also you
+可以创建命令行、符号链接和硬链接。
 
 817
 01:15:25,460 --> 01:15:33,540
- can have a system call to programmatically manipulate the symbolic links.
+can have a system call to programmatically manipulate the symbolic links.
+可以使用系统调用来以编程方式操作符号链接。
 
 818
 01:15:33,540 --> 01:15:41,300
- So let's look here as an example, and we are close to the end of the lecture, about what
+So let's look here as an example, and we are close to the end of the lecture, about what
+让我们以这里作为一个例子，我们已经接近讲座的结束，谈论一下关于什么。
 
 819
 01:15:41,300 --> 01:15:43,400
- happens under the hood.
+happens under the hood.
+发生在引擎盖下。
 
 820
 01:15:43,400 --> 01:15:54,840
- And let's say we want to access this file staff.txt and the path name is home/cs on
+And let's say we want to access this file staff.txt and the path name is home/cs on
+并且假设我们想要访问这个文件staff.txt，路径名是home/cs。
 
 821
 01:15:54,840 --> 01:15:59,520
- c2 and then is the name of the file staff.txt.
+c2 and then is the name of the file staff.txt.
+c2然后是文件名staff.txt。
 
 822
 01:15:59,520 --> 01:16:04,360
- So first of all, we need to start from the root.
+So first of all, we need to start from the root.
+首先，我们需要从根源开始。
 
 823
 01:16:04,360 --> 01:16:13,360
- So you need to have the ID number of the root and say that's the position 2.
+So you need to have the ID number of the root and say that's the position 2.
+所以你需要有根的ID号，并说这是第2个位置。
 
 824
 01:16:13,360 --> 01:16:21,820
- And this one is going, obviously, is going to have here an inode.
+And this one is going, obviously, is going to have here an inode.
+这个显然会有一个inode。
 
 825
 01:16:21,820 --> 01:16:27,220
- The inode is going to contain a pointer to the data.
+The inode is going to contain a pointer to the data.
+inode将包含指向数据的指针。
 
 826
 01:16:27,220 --> 01:16:37,120
- And this data in this case contains the directory data, directory entries.
+And this data in this case contains the directory data, directory entries.
+这个案例中的数据包含目录数据、目录条目。
 
 827
 01:16:37,120 --> 01:16:44,440
- Remember a directory entry maps a file to a file number.
+Remember a directory entry maps a file to a file number.
+记住，目录条目将文件映射到文件号。
 
 828
 01:16:44,440 --> 01:16:57,080
- Let's assume that the file number is 8086.
+Let's assume that the file number is 8086.
+让我们假设文件号是8086。
 
 829
 01:16:57,080 --> 01:17:04,580
- So now, and this is what you have in memory, what you have here down, it's in memory.
+So now, and this is what you have in memory, what you have here down, it's in memory.
+所以现在，这是你记忆中的内容，你在这里写下的，都在记忆中。
 
 830
 01:17:04,580 --> 01:17:10,160
- Now you read the block 8086, right?
+Now you read the block 8086, right?
+现在你读的是8086块，对吗？
 
 831
 01:17:10,160 --> 01:17:12,140
- And what do you get there?
+And what do you get there?
+你在那里能得到什么？
 
 832
 01:17:12,140 --> 01:17:20,340
- You are going to get the I number of the file.
+You are going to get the I number of the file.
+你将获得文件的I号码。
 
 833
 01:17:20,340 --> 01:17:32,000
- You have the I number and the I number for this, the subdirectory cs162.
+You have the I number and the I number for this, the subdirectory cs162.
+你有I号和I号，用于这个子目录cs162。
 
 834
 01:17:32,000 --> 01:17:38,580
- And you are going to get from that I number, you are going to get data in that directory.
+And you are going to get from that I number, you are going to get data in that directory.
+你将会从那个编号中得到数据，你将会在那个目录中获取数据。
 
 835
 01:17:38,580 --> 01:17:48,540
- And data in the directory is going to maintain the entry and mapping between cs162 and its
+And data in the directory is going to maintain the entry and mapping between cs162 and its
+目录中的数据将维护cs162和其之间的条目和映射。
 
 836
 01:17:48,540 --> 01:17:53,760
- I number, let's say 732.
+I number, let's say 732.
+我是一个数字，比如说732。
 
 837
 01:17:53,760 --> 01:18:03,500
- So you go to 732 now with the I number and you are going now finally to get all the information
+So you go to 732 now with the I number and you are going now finally to get all the information
+所以你现在带着I号码去732，最终你将获得所有的信息。
 
 838
 01:18:03,500 --> 01:18:11,400
- which is in cs162 directory, which is also you have file staff.txt here.
+which is in cs162 directory, which is also you have file staff.txt here.
+这是在cs162目录中，你还在这里有一个文件staff.txt。
 
 839
 01:18:11,400 --> 01:18:17,480
- And once you read the data in the directory, you are going to find the mapping between
+And once you read the data in the directory, you are going to find the mapping between
+并且一旦你读取目录中的数据，你将会找到它们之间的映射关系。
 
 840
 01:18:17,480 --> 01:18:21,000
- staff.txt and its I number.
+staff.txt and its I number.
+staff.txt和它的I号。
 
 841
 01:18:21,000 --> 01:18:25,080
- So the number now is 9909.
+So the number now is 9909.
+所以现在的数字是9909。
 
 842
 01:18:25,080 --> 01:18:30,160
- So finally, I have 9909, which is the I number of staff.txt.
+So finally, I have 9909, which is the I number of staff.txt.
+所以最后，我有了9909，这是staff.txt的I号。
 
 843
 01:18:30,160 --> 01:18:33,500
- Now I can start reading the data from staff.txt.
+Now I can start reading the data from staff.txt.
+现在我可以开始读取staff.txt文件中的数据了。
 
 844
 01:18:33,500 --> 01:18:39,480
- This may require to read additional blocks before I get to the data blocks.
+This may require to read additional blocks before I get to the data blocks.
+这可能需要在读取数据块之前读取额外的块。
 
 845
 01:18:39,480 --> 01:18:47,240
- If this file is large and we need to have single indirected or double indirect or triple
+If this file is large and we need to have single indirected or double indirect or triple
+如果这个文件很大，我们需要使用单间接、双间接或三间接。
 
 846
 01:18:47,240 --> 01:18:52,560
- indirect data blocks.
+indirect data blocks.
+间接数据块。
 
 847
 01:18:52,560 --> 01:18:55,400
- This is pretty much what happens.
+This is pretty much what happens.
+这基本上就是发生的事情。
 
 848
 01:18:55,400 --> 01:19:02,360
- And this is the data blocks from the file.
+And this is the data blocks from the file.
+这是文件中的数据块。
 
 849
 01:19:02,360 --> 01:19:04,720
- And that's pretty much it.
+And that's pretty much it.
+这就是大致的内容。
 
 850
 01:19:04,720 --> 01:19:12,400
- So let's stop here and we'll continue next time.
+So let's stop here and we'll continue next time.
+那么我们就到这里停下来，下次再继续。
 
 851
 01:19:12,400 --> 01:19:26,000
- Oh, so here the question is that what if there was also a file in /.home called cs162?
+Oh, so here the question is that what if there was also a file in /.home called cs162?
+哦，所以问题是，如果在/.home目录下也有一个名为cs162的文件，会怎么样呢？
 
 852
 01:19:26,000 --> 01:19:28,360
- I'm going to answer this question.
+I'm going to answer this question.
+我要回答这个问题。
 
 853
 01:19:28,360 --> 01:19:39,560
- So basically if it was in home another file, that will be cs162.txt.
+So basically if it was in home another file, that will be cs162.txt.
+所以基本上，如果它在家里的另一个文件中，那将是cs162.txt。
 
 854
 01:19:39,560 --> 01:19:44,020
- Also it will have a different extension.
+Also it will have a different extension.
+还有，它将有一个不同的扩展名。
 
 855
 01:19:44,020 --> 01:19:47,720
- So the file system will differentiate.
+So the file system will differentiate.
+所以文件系统会有所区分。
 
 856
 01:19:47,720 --> 01:19:56,860
- If the file system would have exactly the same name as a directory, that cannot happen.
+If the file system would have exactly the same name as a directory, that cannot happen.
+如果文件系统的名字与一个目录完全相同，那是不可能发生的。
 
 857
 01:19:56,860 --> 01:20:07,520
- You cannot have a file name and a directory of the same name in the same directory.
+You cannot have a file name and a directory of the same name in the same directory.
+在同一个目录中，你不能同时拥有相同名称的文件名和目录名。
 
 858
 01:20:07,520 --> 01:20:10,360
- You can try it.
+You can try it.
+你可以试试看。
 
 859
 01:20:10,360 --> 01:20:11,360
- You cannot create it.
+You cannot create it.
+你不能创建它。
 
 860
 01:20:11,360 --> 01:20:13,360
- You will get an error.
+You will get an error.
+你会收到一个错误。
 
 861
 01:20:13,360 --> 01:20:14,360
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 862
 01:20:14,360 --> 01:20:18,720
- With this, thank you and I'll see you next time.
+With this, thank you and I'll see you next time.
+好的，谢谢你，下次再见。
 
 863
 01:20:18,720 --> 01:20:44,720
- [ Silence ]
+[ Silence ]
+[沉默]
 

@@ -1,238 +1,306 @@
 1
 00:01:54,000 --> 00:02:03,000
- Okay. Hello everyone. So, today we are going to talk about one of the main concepts of
+Okay. Hello everyone. So, today we are going to talk about one of the main concepts of
+好的。大家好。所以，今天我们要讨论的是一个主要概念的
 
 2
 00:02:03,000 --> 00:02:13,480
- the operating system that is Threads. And as you remember from last time, we went over
+the operating system that is Threads. And as you remember from last time, we went over
+操作系统是Threads。正如你上次记得的那样，我们讨论了一下。
 
 3
 00:02:13,480 --> 00:02:21,820
- three, the four fundamental operating system concepts Thread, which is a unit of execution,
+three, the four fundamental operating system concepts Thread, which is a unit of execution,
+三，操作系统的四个基本概念之一是线程，它是一个执行单元。
 
 4
 00:02:21,820 --> 00:02:29,800
- which encapsulates the execution state, program counter, registers, stack, execution flag.
+which encapsulates the execution state, program counter, registers, stack, execution flag.
+它封装了执行状态、程序计数器、寄存器、堆栈和执行标志。
 
 5
 00:02:29,800 --> 00:02:41,200
- Then we have the address space, which represent the set of addresses in the memory in which
+Then we have the address space, which represent the set of addresses in the memory in which
+然后我们有地址空间，它代表了内存中的地址集合，其中
 
 6
 00:02:41,200 --> 00:02:49,360
- the program executes. The process, which is an instance of the execution program. So therefore
+the program executes. The process, which is an instance of the execution program. So therefore
+程序执行。进程是执行程序的一个实例。因此，
 
 7
 00:02:49,360 --> 00:02:56,820
- has consists of one more and more of more threads and the address space where these
+has consists of one more and more of more threads and the address space where these
+has consists of one more and more of more threads and the address space where these
+
+这句话的中文含义是：有越来越多的线程和这些线程所在的地址空间。
+
+The English translation is: There are more and more threads and the address space where these threads are located.
 
 8
 00:02:56,820 --> 00:03:05,160
- threads are executing. And finally, we talk briefly about this dual mode operation and
+threads are executing. And finally, we talk briefly about this dual mode operation and
+线程正在执行。最后，我们简要讨论一下这种双模式操作和
 
 9
 00:03:05,160 --> 00:03:12,760
- protections, which enables the system to access certain resources and manage the processes
+protections, which enables the system to access certain resources and manage the processes
+保护机制，使系统能够访问特定资源并管理进程。
 
 10
 00:03:12,760 --> 00:03:20,480
- while at the same time being protected from the user processes changing the operating
+while at the same time being protected from the user processes changing the operating
+同时，又能够防止用户进程改变操作系统。
 
 11
 00:03:20,480 --> 00:03:30,860
- system state. Okay. So, today we are going to talk for, we are going to start to finish
+system state. Okay. So, today we are going to talk for, we are going to start to finish
+系统状态。好的。所以，今天我们要谈论的是，我们要从头到尾开始。
 
 12
 00:03:30,860 --> 00:03:36,680
- as the discussion about this dual mode operation and protection from the last lecture. And
+as the discussion about this dual mode operation and protection from the last lecture. And
+根据上一堂课的讨论，关于双模运行和保护的话题。而且
 
 13
 00:03:36,680 --> 00:03:45,600
- then we are going to continue to focus on the main topics of this lecture, which are
+then we are going to continue to focus on the main topics of this lecture, which are
+然后我们将继续专注于本讲座的主要话题，它们是
 
 14
 00:03:45,600 --> 00:03:58,980
- the Threads. Okay. Again, like always, please ask your questions on the Q&A. I will stop
+the Threads. Okay. Again, like always, please ask your questions on the Q&A. I will stop
+翻译结果：the Threads. 好的。像往常一样，请在问答环节提出你的问题。我会停下来。
 
 15
 00:03:58,980 --> 00:04:10,420
- periodically and answer these questions. So again, about protection, what we want is to
+periodically and answer these questions. So again, about protection, what we want is to
+定期回答这些问题。所以再说一遍，关于保护，我们想要的是什么？
 
 16
 00:04:10,420 --> 00:04:17,560
- protect the operating system and the hardware from being accessed by the user programs,
+protect the operating system and the hardware from being accessed by the user programs,
+保护操作系统和硬件免受用户程序访问。
 
 17
 00:04:17,560 --> 00:04:23,520
- user programs changing the state of the operating system and eventually crashing the system
+user programs changing the state of the operating system and eventually crashing the system
+用户程序改变操作系统的状态，最终导致系统崩溃。
 
 18
 00:04:23,520 --> 00:04:32,460
- or getting and having the system leaking private information about the other users and application
+or getting and having the system leaking private information about the other users and application
+或者获取并拥有系统泄露其他用户和应用程序的私人信息。
 
 19
 00:04:32,460 --> 00:04:41,420
- sharing the same system. Okay. And if we think about the protection, you think about what
+sharing the same system. Okay. And if we think about the protection, you think about what
+共享同一系统。好的。如果我们考虑保护，你会考虑什么？
 
 20
 00:04:41,420 --> 00:04:47,060
- are the resources which are shared between these application and processes and how do
+are the resources which are shared between these application and processes and how do
+这些应用程序和进程之间共享的资源是什么，以及它们是如何共享的？
 
 21
 00:04:47,060 --> 00:04:52,720
- we need to protect these resources. And one of the key resources, it's obviously the memory,
+we need to protect these resources. And one of the key resources, it's obviously the memory,
+我们需要保护这些资源。其中一个关键资源，显然是内存。
 
 22
 00:04:52,720 --> 00:05:00,540
- the address space, right? Which is shared by the thread in the same process, but is
+the address space, right? Which is shared by the thread in the same process, but is
+地址空间，对吗？这是由同一进程中的线程共享的，但是
 
 23
 00:05:00,540 --> 00:05:05,920
- not necessarily shared by different processes. So this is a unit of protection at the same
+not necessarily shared by different processes. So this is a unit of protection at the same
+不一定被不同进程共享。所以这是一种保护单位同时
 
 24
 00:05:05,920 --> 00:05:16,460
- time, the address space. Okay. So, and also remember that what we want here is that we
+time, the address space. Okay. So, and also remember that what we want here is that we
+时间，地址空间。好的。所以，还要记住我们在这里想要的是...
 
 25
 00:05:16,460 --> 00:05:25,720
- have, we want to decouple the physical memory from what the virtual memory, which is what
+have, we want to decouple the physical memory from what the virtual memory, which is what
+我们希望将物理内存与虚拟内存分离开来。
 
 26
 00:05:25,720 --> 00:05:36,640
- the process sees. Okay. And the virtual memory is supposed to provide the process, the illusion
+the process sees. Okay. And the virtual memory is supposed to provide the process, the illusion
+这个过程看起来没问题。虚拟内存应该为进程提供一种幻觉。
 
 27
 00:05:36,640 --> 00:05:44,400
- that the process owns the entire address space. Of course, on the physical machine, you have
+that the process owns the entire address space. Of course, on the physical machine, you have
+该进程拥有整个地址空间。当然，在物理机上，你有
 
 28
 00:05:44,400 --> 00:05:50,800
- multiple processes. So you have to multiplex the physical memory across different processes.
+multiple processes. So you have to multiplex the physical memory across different processes.
+多个进程。因此，您需要将物理内存在不同的进程之间进行复用。
 
 29
 00:05:50,800 --> 00:05:56,080
- So how you are going to make sure that while you are multiplexing the memory, you provide
+So how you are going to make sure that while you are multiplexing the memory, you provide
+那么你打算如何确保在进行内存复用时，能够提供
 
 30
 00:05:56,080 --> 00:06:02,200
- both protection and you provide the illusion to each process that has access to the entire
+both protection and you provide the illusion to each process that has access to the entire
+保护和你都给予每个可以访问整个过程的幻觉。
 
 31
 00:06:02,200 --> 00:06:11,740
- machine to the entire address space. Okay. So one simple solution is to have this base
+machine to the entire address space. Okay. So one simple solution is to have this base
+机器对整个地址空间进行访问。好的。所以一个简单的解决方案是拥有这个基址。
 
 32
 00:06:11,740 --> 00:06:21,960
- and bound. And on the left-hand side here, you have the layout in the virtual memory
+and bound. And on the left-hand side here, you have the layout in the virtual memory
+和边界。在这里的左侧，您有虚拟内存中的布局。
 
 33
 00:06:21,960 --> 00:06:38,380
- of the code and the data of a particular basically thread and process. Okay. So, and on the right-hand
+of the code and the data of a particular basically thread and process. Okay. So, and on the right-hand
+基本上，它涉及特定线程和进程的代码和数据。好的。所以，在右侧
 
 34
 00:06:38,380 --> 00:06:47,720
- side, you have how this virtual memory, this region in the virtual memory are mapped to
+side, you have how this virtual memory, this region in the virtual memory are mapped to
+在计算机中，虚拟内存是一种将物理内存和磁盘空间结合起来使用的技术。虚拟内存将进程的地址空间划分为多个连续的虚拟页面，每个页面的大小通常为4KB或者更大。这些虚拟页面与物理内存中的页面进行映射，使得进程可以使用比物理内存更大的地址空间。
+
+虚拟内存的映射过程是通过页表来完成的。页表是一个数据结构，它记录了虚拟页面和物理页面之间的映射关系。当进程访问一个虚拟地址时，操作系统会根据页表找到对应的物理地址，然后将数据从物理内存中读取或写入。
+
+虚拟内存的映射关系可以动态地改变，这意味着一个虚拟页面可以被映射到不同的物理页面。这种灵活性使得操作系统可以更好地管理内存资源，并且可以实现一些高级的内存管理技术，如页面置换和内存共享。
+
+总之，虚拟内存通过将进程的地址空间划分为虚拟页面，并将其映射到物理内存中的页面，实现了对内存的有效管理和利用。
 
 35
 00:06:47,720 --> 00:06:55,540
- the physical memory. Okay. So now, if you think a little bit, if you have multiple processes
+the physical memory. Okay. So now, if you think a little bit, if you have multiple processes
+物理内存。好的。现在，如果你稍微思考一下，如果你有多个进程
 
 36
 00:06:55,540 --> 00:07:02,640
- and each process has its own view and independent view of its own virtual memory, both, all
+and each process has its own view and independent view of its own virtual memory, both, all
+每个进程都有自己的视图和独立的虚拟内存视图，这两者都是如此。
 
 37
 00:07:02,640 --> 00:07:08,120
- of them, they are going to see the same addresses, right? They started from zero. So the code
+of them, they are going to see the same addresses, right? They started from zero. So the code
+他们中的每一个，他们要看到相同的地址，对吗？他们从零开始。所以这段代码
 
 38
 00:07:08,120 --> 00:07:13,960
- will start from address zero, right? Now, when you are going to bring the physical memory,
+will start from address zero, right? Now, when you are going to bring the physical memory,
+将从地址零开始，对吗？现在，当你要获取物理内存时，
 
 39
 00:07:13,960 --> 00:07:19,280
- go to map all the, to map to the physical memory, obviously not both processes can start
+go to map all the, to map to the physical memory, obviously not both processes can start
+去映射所有的地图，映射到物理内存，显然两个进程都不能同时启动。
 
 40
 00:07:19,280 --> 00:07:25,920
- from address zero. So you need to map and to translate the addresses from the virtual
+from address zero. So you need to map and to translate the addresses from the virtual
+从地址零开始。因此，您需要对虚拟地址进行映射和翻译。
 
 41
 00:07:25,920 --> 00:07:31,240
- memory addresses to the physical memory of different processes. And this is exactly what
+memory addresses to the physical memory of different processes. And this is exactly what
+内存地址指向不同进程的物理内存。这正是我们所需要的。
 
 42
 00:07:31,240 --> 00:07:40,880
- happens here. Base is by how much you are going to translate this, the regions in the
+happens here. Base is by how much you are going to translate this, the regions in the
+这里发生了什么。基于你要翻译的内容有多少，以及所涉及的地区。
 
 43
 00:07:40,880 --> 00:07:46,920
- virtual memory seen by the process to the physical memory. So in this case, it's like
+virtual memory seen by the process to the physical memory. So in this case, it's like
+将进程所看到的虚拟内存映射到物理内存。所以在这种情况下，就像是
 
 44
 00:07:46,920 --> 00:07:55,160
- 1 0 0 0 is base. So this means that what you are going to do, you are going to add to each
+1 0 0 0 is base. So this means that what you are going to do, you are going to add to each
+1 0 0 0 是基数。所以这意味着你要做的是，你要对每个数进行相加。
 
 45
 00:07:55,160 --> 00:08:01,760
- address in the virtual memory of the process, this base address, right? And then the bound
+address in the virtual memory of the process, this base address, right? And then the bound
+进程的虚拟内存中的地址，这是基地址，对吗？然后是边界。
 
 46
 00:08:01,760 --> 00:08:10,040
- represent, the base and the bound represent the region of the physical memory, which is
+represent, the base and the bound represent the region of the physical memory, which is
+表示，基址和界限表示物理内存的区域。
 
 47
 00:08:10,040 --> 00:08:19,200
- owned by the process. Okay. Okay. So that's kind of the main idea. So now when you are
+owned by the process. Okay. Okay. So that's kind of the main idea. So now when you are
+被进程所拥有。好的。好的。所以这就是主要的想法。现在当你
 
 48
 00:08:19,200 --> 00:08:27,480
- going to execute, when the process is going to execute this code, or is going to access
+going to execute, when the process is going to execute this code, or is going to access
+即将执行，当进程要执行这段代码时，或者要访问
 
 49
 00:08:27,480 --> 00:08:35,800
- this data, the addresses the process is going to see are the virtual addresses, right? But
+this data, the addresses the process is going to see are the virtual addresses, right? But
+这些数据，进程将要访问的地址是虚拟地址，对吗？但是
 
 50
 00:08:35,800 --> 00:08:41,880
- now obviously the data or the instructions are in the physical address space. So that's
+now obviously the data or the instructions are in the physical address space. So that's
+现在显然数据或指令位于物理地址空间中。所以这就是
 
 51
 00:08:41,880 --> 00:08:48,480
- what they are actually stored. So in order to access those, they just need to translate
+what they are actually stored. So in order to access those, they just need to translate
+它们实际上是存储在哪里。所以为了访问它们，他们只需要进行翻译。
 
 52
 00:08:48,480 --> 00:08:53,400
- all these addresses, which are accessed from the virtual memory by adding that address
+all these addresses, which are accessed from the virtual memory by adding that address
+所有这些地址，都是通过添加该地址从虚拟内存中访问的。
 
 53
 00:08:53,400 --> 00:08:58,840
- to the base. And now you are going to obtain the corresponding physical memory where the
+to the base. And now you are going to obtain the corresponding physical memory where the
+到基地。现在你要获取相应的物理内存，其中
 
 54
 00:08:58,840 --> 00:09:06,640
- code or the data it's are stored. Okay. This is exactly what happens here. You take the
+code or the data it's are stored. Okay. This is exactly what happens here. You take the
+代码或者数据都是存储在这里的。好的。这就是这里发生的事情。你拿到了
 
 55
 00:09:06,640 --> 00:09:14,200
- virtual address, you add the base, and then you are also going to compare with the bound.
+virtual address, you add the base, and then you are also going to compare with the bound.
+虚拟地址，你要加上基址，然后还要与界限进行比较。
 
 56
 00:09:14,200 --> 00:09:19,080
- So why are you going to compare with the bound now? Because remember this process, which
+So why are you going to compare with the bound now? Because remember this process, which
+所以你现在为什么要与束缚进行比较呢？因为记住这个过程，它
 
 57
 00:09:19,080 --> 00:09:26,120
- is the memory, virtual memory of this process, the yellow is mapped in this region is a physical
+is the memory, virtual memory of this process, the yellow is mapped in this region is a physical
+这个进程的内存、虚拟内存，黄色映射在这个区域是物理内存。
 
 58
 00:09:26,120 --> 00:09:32,580
- memory between one on one zero zero zero and one one zero zero zero. And therefore you
+memory between one on one zero zero zero and one one zero zero zero. And therefore you
+一万零一百到一万一千之间的记忆。因此你...
 
 59
 00:09:32,580 --> 00:09:38,920
- are going to compare to the bound to make sure that the address and it's within this,
+are going to compare to the bound to make sure that the address and it's within this,
 
 60
 00:09:38,920 --> 00:09:46,080

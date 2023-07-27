@@ -1,3956 +1,4946 @@
 1
 00:00:00,000 --> 00:00:28,800
- Hello, everyone. So welcome to the 18th lecture of CS162 2021. So today we are going to talk
+Hello, everyone. So welcome to the 18th lecture of CS162 2021. So today we are going to talk
+大家好。欢迎来到2021年CS162第18讲。今天我们将讨论的内容是
 
 2
 00:00:28,800 --> 00:00:43,600
- about general input output. And just to summarize, so far we have studied abstractions, the API
+about general input output. And just to summarize, so far we have studied abstractions, the API
+关于通用输入输出。总结一下，到目前为止，我们已经学习了抽象和应用程序接口（API）。
 
 3
 00:00:43,600 --> 00:00:52,240
- which is provided by the operating system to the application to run a process. We talk
+which is provided by the operating system to the application to run a process. We talk
+操作系统为应用程序提供的用于运行进程的接口。我们谈论的是
 
 4
 00:00:52,240 --> 00:01:00,400
- quite a bit about the virtual memory, demand paging, how to manage the physical memory,
+quite a bit about the virtual memory, demand paging, how to manage the physical memory,
+关于虚拟内存、需求分页和如何管理物理内存，有相当多的知识。
 
 5
 00:01:00,400 --> 00:01:11,440
- and about virtualization. And we also talk about synchronization and scheduling. Okay?
+and about virtualization. And we also talk about synchronization and scheduling. Okay?
+关于虚拟化。我们还要谈论同步和调度。好吗？
 
 6
 00:01:11,440 --> 00:01:19,120
- So and how to manage the CPU resources and how to synchronize to have multiple processes
+So and how to manage the CPU resources and how to synchronize to have multiple processes
+如何管理CPU资源以及如何同步多个进程呢？
 
 7
 00:01:19,120 --> 00:01:29,840
- and multiple threads, accessing the same resources and how they can cooperate in order to implement
+and multiple threads, accessing the same resources and how they can cooperate in order to implement
+和多个线程，访问相同的资源以及它们如何合作以实现
 
 8
 00:01:29,840 --> 00:01:39,600
- some more complex functionality. Okay? So now one thing we haven't talked as much so far is about
+some more complex functionality. Okay? So now one thing we haven't talked as much so far is about
+一些更复杂的功能。好吗？到目前为止，我们还没有谈论过的一件事是关于什么？
 
 9
 00:01:39,600 --> 00:01:47,600
- input and output. And obviously the input output is a fundamental part of any computer system,
+input and output. And obviously the input output is a fundamental part of any computer system,
+输入和输出。显然，输入输出是任何计算机系统的基本组成部分。
 
 10
 00:01:47,600 --> 00:01:54,880
- because that's why how we interact with the computers through some input output devices
+because that's why how we interact with the computers through some input output devices
+因为这就是我们通过一些输入输出设备与计算机进行交互的方式。
 
 11
 00:01:54,880 --> 00:02:04,640
- like keyboards, mouse, cameras, and things like that. And also this is how the computer itself
+like keyboards, mouse, cameras, and things like that. And also this is how the computer itself
+喜欢键盘、鼠标、相机之类的东西。还有，这就是计算机本身。
 
 12
 00:02:04,640 --> 00:02:09,280
- interact with the environment and with us, displaying information on the screen,
+interact with the environment and with us, displaying information on the screen,
+与环境和我们进行互动，将信息显示在屏幕上，
 
 13
 00:02:09,280 --> 00:02:17,120
- printing information, and other things like that. Right? Now the biggest problem, and this is
+printing information, and other things like that. Right? Now the biggest problem, and this is
+打印信息，还有其他类似的东西。对吗？现在最大的问题是，这是
 
 14
 00:02:17,760 --> 00:02:26,400
- what also makes this also this lecture a little bit maybe harder, is that
+what also makes this also this lecture a little bit maybe harder, is that
+还有一个让这个讲座可能会更难一点的原因是，
 
 15
 00:02:26,400 --> 00:02:33,360
- it's there are a huge variety of this input output devices.
+it's there are a huge variety of this input output devices.
+这里有各种各样的输入输出设备。
 
 16
 00:02:33,360 --> 00:02:40,160
- Right? Actually, if you think about others, like memory, memory is pretty simple. It's an array
+Right? Actually, if you think about others, like memory, memory is pretty simple. It's an array
+对吗？实际上，如果你考虑其他的东西，比如内存，内存是相当简单的。它是一个数组。
 
 17
 00:02:40,160 --> 00:02:46,320
- of addressable bytes. Right? That's pretty much what it is. If you think about the CPUs and so
+of addressable bytes. Right? That's pretty much what it is. If you think about the CPUs and so
+可寻址字节的数量。对吗？基本上就是这样。如果你考虑一下CPU和其他的东西。
 
 18
 00:02:46,320 --> 00:02:54,640
- forth, from our perspective, it's a resource which we want to probably time slice in time,
+forth, from our perspective, it's a resource which we want to probably time slice in time,
+从我们的角度来看，这是一个我们可能想要在时间上进行分配的资源。
 
 19
 00:02:54,640 --> 00:03:04,720
- time slice, so then we can visualize it. So we created this illusion that every process has
+time slice, so then we can visualize it. So we created this illusion that every process has
+时间片，这样我们就可以将其可视化。因此，我们创造了这种错觉，即每个进程都有
 
 20
 00:03:04,720 --> 00:03:13,360
- access to its own machine, virtual machine. Right? But if you look about input output
+access to its own machine, virtual machine. Right? But if you look about input output
+访问自己的机器，虚拟机。对吗？但是如果你考虑输入输出的话。
 
 21
 00:03:13,920 --> 00:03:22,320
- devices, this is a huge variety. And not only in terms of the sizes, not only in terms of the speed
+devices, this is a huge variety. And not only in terms of the sizes, not only in terms of the speed
+设备，这是一个巨大的种类。不仅仅是在尺寸上，也不仅仅是在速度上。
 
 22
 00:03:22,320 --> 00:03:31,040
- they operate at, you can have networking, which is hundreds of gigabytes per second versus keyboard,
+they operate at, you can have networking, which is hundreds of gigabytes per second versus keyboard,
+他们的运行速度可以达到每秒数百千兆字节，而键盘只是几千字节。
 
 23
 00:03:31,040 --> 00:03:41,680
- which is one character per whatever second. But also in terms of reliability, in some cases,
+which is one character per whatever second. But also in terms of reliability, in some cases,
+每秒钟一个字符。但在可靠性方面，在某些情况下，
 
 24
 00:03:41,680 --> 00:03:46,800
- you can lose information like packets on the network can be lost. So you need to recover.
+you can lose information like packets on the network can be lost. So you need to recover.
+你可以丢失信息，就像网络上的数据包可能会丢失一样。所以你需要进行恢复。
 
 25
 00:03:46,800 --> 00:03:53,200
- So in all aspects in low dimension, you have a huge variety. And yet the operating system
+So in all aspects in low dimension, you have a huge variety. And yet the operating system
+所以在低维度的所有方面，你有很多选择。然而操作系统
 
 26
 00:03:53,200 --> 00:04:00,240
- needs to cope with this variety in a reasonable way. Right? You don't want to be exposed.
+needs to cope with this variety in a reasonable way. Right? You don't want to be exposed.
+需要以合理的方式应对这种多样性。对吗？你不想被暴露出来。
 
 27
 00:04:00,240 --> 00:04:05,920
- And what that means, you don't want your program, when you are developing your program, to think
+And what that means, you don't want your program, when you are developing your program, to think
+而这意味着，你不希望在开发程序时，你的程序会去思考。
 
 28
 00:04:05,920 --> 00:04:16,000
- about each of these input devices in a different way. Right? And this is the role of the operating
+about each of these input devices in a different way. Right? And this is the role of the operating
+是的，对每个输入设备以不同的方式进行介绍。这就是操作系统的作用。
 
 29
 00:04:16,000 --> 00:04:23,120
- system. Again, despite this huge variety to provide us with an interface, which is reasonable,
+system. Again, despite this huge variety to provide us with an interface, which is reasonable,
+系统。尽管有如此多的选择来为我们提供一个合理的界面，但是再次强调，
 
 30
 00:04:23,120 --> 00:04:36,160
- which is reasonable, you know, scoped, and you can make sense of it. And you don't need to,
+which is reasonable, you know, scoped, and you can make sense of it. And you don't need to,
+哪个是合理的，你知道的，有限的，并且你可以理解它。而且你不需要，
 
 31
 00:04:36,160 --> 00:04:43,760
- you know, think about different concepts or you are going to operate on different IOD devices.
+you know, think about different concepts or you are going to operate on different IOD devices.
+你知道，考虑不同的概念或者你将要操作不同的IOD设备。
 
 32
 00:04:43,760 --> 00:04:51,840
- Okay. And this is a, if you remember, this is a figure we have shown a few times in the past.
+Okay. And this is a, if you remember, this is a figure we have shown a few times in the past.
+好的。如果你还记得的话，这是一个我们过去几次展示过的图表。
 
 33
 00:04:52,400 --> 00:05:00,000
- And here this protection boundary switches down here, it's also abstracts away
+And here this protection boundary switches down here, it's also abstracts away
+这个保护边界在这里切换，它也抽象了起来。
 
 34
 00:05:00,000 --> 00:05:04,880
- this input output devices.
+this input output devices.
+这是输入输出设备。
 
 35
 00:05:04,880 --> 00:05:15,120
- Okay. So today we are going to talk about how you are going to get the impact, you know,
+Okay. So today we are going to talk about how you are going to get the impact, you know,
+好的。所以今天我们要谈谈你如何获得影响力，你知道的，
 
 36
 00:05:15,120 --> 00:05:21,600
- how you are going to get this kind of input from these devices. And eventually,
+how you are going to get this kind of input from these devices. And eventually,
+你将如何从这些设备中获取这种输入。最终，
 
 37
 00:05:21,600 --> 00:05:26,480
- where do you need to get this input? This input from these devices, you need to put in memory.
+where do you need to get this input? This input from these devices, you need to put in memory.
+你需要将这个输入放在哪里？这个输入来自这些设备，你需要将它们存储在内存中。
 
 38
 00:05:26,480 --> 00:05:31,440
- Right? Because why? Because your program, in order to operate to the input,
+Right? Because why? Because your program, in order to operate to the input,
+对吗？为什么呢？因为你的程序需要输入才能运行。
 
 39
 00:05:31,440 --> 00:05:37,360
- it has to find the input in memory because the program operates only on data in memory.
+it has to find the input in memory because the program operates only on data in memory.
+它必须在内存中找到输入，因为程序只能在内存中操作数据。
 
 40
 00:05:37,360 --> 00:05:47,680
- Right. And that's pretty much it. Now, this is one example, and this is an old example,
+Right. And that's pretty much it. Now, this is one example, and this is an old example,
+好的。基本上就是这样了。现在，这只是一个例子，而且是一个旧的例子。
 
 41
 00:05:48,720 --> 00:05:56,320
- many years back. And this is from Sun Enterprise. Again, Sun, it was a big company of workstations
+many years back. And this is from Sun Enterprise. Again, Sun, it was a big company of workstations
+很多年前。这是来自Sun Enterprise的。再次提到，Sun是一家工作站的大公司。
 
 42
 00:05:56,320 --> 00:06:07,200
- and it was acquired many years back by Oracle. But in the heyday, this was a great company.
+and it was acquired many years back by Oracle. But in the heyday, this was a great company.
+而且它在多年前被Oracle收购了。但在鼎盛时期，这是一家伟大的公司。
 
 43
 00:06:07,200 --> 00:06:14,560
- And if you think about the devices and only looking in terms of the speed,
+And if you think about the devices and only looking in terms of the speed,
+而且如果你考虑设备，并且只从速度的角度来看，
 
 44
 00:06:14,560 --> 00:06:19,680
- you have keyboards, like I mentioned, and the system bus, the system bus, it's learning the
+you have keyboards, like I mentioned, and the system bus, the system bus, it's learning the
+你有键盘，就像我之前提到的一样，还有系统总线，系统总线，它正在学习。
 
 45
 00:06:19,680 --> 00:06:29,840
- system bus on the machine, which connects different devices, which are on the same enclosure on the
+system bus on the machine, which connects different devices, which are on the same enclosure on the
+机器上的系统总线连接着同一机箱上的不同设备。
 
 46
 00:06:29,840 --> 00:06:36,160
- machine, like for instance, this storage and things like that. There are differences,
+machine, like for instance, this storage and things like that. There are differences,
+机器，例如，这个存储和诸如此类的东西。有一些区别，
 
 47
 00:06:36,160 --> 00:06:41,920
- it's two orders of magnitude. So you need to provide interfaces which can cope with such a huge
+it's two orders of magnitude. So you need to provide interfaces which can cope with such a huge
+这是两个数量级的差距。因此，你需要提供能够应对如此巨大差距的接口。
 
 48
 00:06:44,080 --> 00:06:49,040
- variation in the speed. Okay.
+variation in the speed. Okay.
+速度的变化。好的。
 
 49
 00:06:49,040 --> 00:06:56,960
- So this means that, and you need to have something which works very well
+So this means that, and you need to have something which works very well
+所以这意味着，你需要有一些非常好用的东西。
 
 50
 00:06:56,960 --> 00:07:07,680
- when you have high throughput. So the overhead for transfer per byte should be very low. At the
+when you have high throughput. So the overhead for transfer per byte should be very low. At the
+当你有高吞吐量时，每字节的传输开销应该非常低。在这种情况下，传输的开销应该很小。
 
 51
 00:07:07,680 --> 00:07:15,840
- same time, if it's something very slow, you shouldn't just waste time waiting for the slow
+same time, if it's something very slow, you shouldn't just waste time waiting for the slow
+同时，如果是一些非常缓慢的事情，你不应该浪费时间等待缓慢的进展。
 
 52
 00:07:15,840 --> 00:07:22,400
- devices. It's like if something happens one per second, you cannot wait once for the entire second
+devices. It's like if something happens one per second, you cannot wait once for the entire second
+设备。就好像如果每秒发生一次事件，你不能等待整整一秒。
 
 53
 00:07:22,400 --> 00:07:29,760
- to get one character. Okay. This is another way to look about, and this is to put everything in
+to get one character. Okay. This is another way to look about, and this is to put everything in
+获得一个角色。好的。这是另一种思考方式，就是把一切都放在一起。
 
 54
 00:07:29,760 --> 00:07:34,640
- one picture about what we learned so far and what we are going to learn today. Right on the left
+one picture about what we learned so far and what we are going to learn today. Right on the left
+一张关于我们迄今所学和今天将要学习内容的图片。就在左边。
 
 55
 00:07:34,640 --> 00:07:41,840
- hand side, you have the processor and the processor obviously has the CPU, but in addition to CPU has
+hand side, you have the processor and the processor obviously has the CPU, but in addition to CPU has
+在右手边，你有处理器，而处理器显然有CPU，但除了CPU之外还有什么呢？
 
 56
 00:07:41,840 --> 00:07:51,600
- some storage, right? And the storage comes into registers, then a bunch of caches, L1 and L2 cache,
+some storage, right? And the storage comes into registers, then a bunch of caches, L1 and L2 cache,
+一些存储空间，对吗？然后存储空间进入寄存器，接着是一系列的缓存，L1和L2缓存。
 
 57
 00:07:51,600 --> 00:07:58,640
- which are the server core. And then you have an L3 cache and the L3 cache typically shared
+which are the server core. And then you have an L3 cache and the L3 cache typically shared
+哪些是服务器核心。然后你有一个L3缓存，L3缓存通常是共享的。
 
 58
 00:07:58,640 --> 00:08:07,680
- across multiple cores. And then you have memory and secondary storage and maybe another tertiary
+across multiple cores. And then you have memory and secondary storage and maybe another tertiary
+跨多个核心。然后你还有内存、二级存储，也许还有另一个三级存储。
 
 59
 00:08:07,680 --> 00:08:18,080
- storage and so forth. And the difference between this kind of storage hierarchy, it's obviously
+storage and so forth. And the difference between this kind of storage hierarchy, it's obviously
+存储等等。以及这种存储层次结构的区别，显然是
 
 60
 00:08:18,080 --> 00:08:27,120
- like going from registers all the way from this to disk storage. You have at each level, it's much
+like going from registers all the way from this to disk storage. You have at each level, it's much
+像从寄存器一直到磁盘存储这样的过程。在每个层级上，它都有很多。
 
 61
 00:08:27,120 --> 00:08:34,560
- larger capacity, but also higher life latency. Right? So we learn about that. And we learn that
+larger capacity, but also higher life latency. Right? So we learn about that. And we learn that
+更大的容量，但也更高的寿命延迟。对吗？所以我们了解到这一点。而且我们了解到
 
 62
 00:08:34,560 --> 00:08:40,880
- about caching, we learned about demand paging and so forth. And in addition to that, here on the top
+about caching, we learned about demand paging and so forth. And in addition to that, here on the top
+关于缓存，我们学到了需求分页等等。除此之外，在这里的顶部还有
 
 63
 00:08:40,880 --> 00:08:52,160
- with the yellow, you have all these devices, which again, needs to be available, the data which is
+with the yellow, you have all these devices, which again, needs to be available, the data which is
+随着黄色，你拥有所有这些设备，再次需要可用的数据。
 
 64
 00:08:52,160 --> 00:08:58,400
- read from these devices to be available to processor. And then for the processor to write
+read from these devices to be available to processor. And then for the processor to write
+从这些设备中读取的数据对处理器来说是可用的。然后处理器可以进行写入操作。
 
 65
 00:08:58,400 --> 00:09:06,560
- data to these devices, like to storage, to screen for you to see an image. And typically all these
+data to these devices, like to storage, to screen for you to see an image. And typically all these
+数据传输到这些设备上，比如存储设备，屏幕上显示给你看图像。通常所有这些设备都可以完成这些功能。
 
 66
 00:09:06,560 --> 00:09:14,560
- devices are, they have a controller and this controller is what the name implies, controls
+devices are, they have a controller and this controller is what the name implies, controls
+设备是有控制器的，这个控制器就如其名字所示，用来控制设备。
 
 67
 00:09:14,560 --> 00:09:19,360
- these devices because these devices are different. In some sense, this yellow box provides this
+these devices because these devices are different. In some sense, this yellow box provides this
+这些设备因为它们是不同的。从某种意义上说，这个黄色盒子提供了这个。
 
 68
 00:09:19,360 --> 00:09:27,200
- magical interface, which is reasonably uniform across all the devices to the processor and to
+magical interface, which is reasonably uniform across all the devices to the processor and to
+神奇的界面，在所有设备上都相对统一，对处理器和对其进行翻译。
 
 69
 00:09:27,200 --> 00:09:34,000
- the programmer. But in the back is doing this heavy lifting to uniformize these APIs by dealing
+the programmer. But in the back is doing this heavy lifting to uniformize these APIs by dealing
+程序员。但在后台，正在进行这项繁重的工作，通过处理这些API来使其统一化。
 
 70
 00:09:34,000 --> 00:09:45,200
- with such a heterogeneous set of devices. Okay. So now let's look a little bit into more details
+with such a heterogeneous set of devices. Okay. So now let's look a little bit into more details
+使用如此多样化的设备。好的。现在让我们稍微详细地看一下。
 
 71
 00:09:45,200 --> 00:09:50,720
- to see how things are on a computer. Right. And this is what you have on your computer. This is
+to see how things are on a computer. Right. And this is what you have on your computer. This is
+要在电脑上看看情况。对的。这是你电脑上的东西。这是什么？
 
 72
 00:09:50,720 --> 00:10:00,080
- actually on your laptop or iPad. At some level, this is what you have. Okay. And you have processors,
+actually on your laptop or iPad. At some level, this is what you have. Okay. And you have processors,
+实际上在你的笔记本电脑或iPad上。在某种程度上，这就是你所拥有的。好的。而且你有处理器，
 
 73
 00:10:00,080 --> 00:10:06,160
- obviously, and you may have other, you may have GPUs, you may have a network card here.
+obviously, and you may have other, you may have GPUs, you may have a network card here.
+显然，你可能还有其他设备，你可能有GPU，你可能在这里有一张网络卡。
 
 74
 00:10:06,160 --> 00:10:12,400
- Of course, you have some storage devices, you may have big speakers, internal and external speakers,
+Of course, you have some storage devices, you may have big speakers, internal and external speakers,
+当然，你可能有一些存储设备，你可能有大音箱，内置和外置音箱。
 
 75
 00:10:13,040 --> 00:10:20,320
- you may have a printer, of course, keyboards, you have the monitor, and many more. Right. So again,
+you may have a printer, of course, keyboards, you have the monitor, and many more. Right. So again,
+你可能有一台打印机，当然，键盘你也有，还有显示器，还有很多其他设备。对吧。所以，再说一遍，
 
 76
 00:10:20,320 --> 00:10:26,800
- you need to take all this information from these devices to get into process, and then to write
+you need to take all this information from these devices to get into process, and then to write
+你需要将这些设备上的所有信息提取出来，然后进行处理，最后进行写作。
 
 77
 00:10:26,800 --> 00:10:31,920
- back information at least to some devices, some of these devices, of course, you don't need to
+back information at least to some devices, some of these devices, of course, you don't need to
+将信息返回至至少一些设备，当然，并非所有设备都需要。
 
 78
 00:10:31,920 --> 00:10:36,320
- write back information to the keyboard, keyboard is only an input device. As a printer, it's only
+write back information to the keyboard, keyboard is only an input device. As a printer, it's only
+将信息写回键盘，键盘只是一个输入设备。作为打印机，它只是一个输出设备。
 
 79
 00:10:36,320 --> 00:10:42,400
- an output device. And how do you connect them? Right. So first of all, how you wire them.
+an output device. And how do you connect them? Right. So first of all, how you wire them.
+一个输出设备。你如何连接它们？对的。首先，你要如何连接它们。
 
 80
 00:10:43,120 --> 00:10:49,520
- So it turns out that the way you wire them is through this bus, you have a bus, right? So
+So it turns out that the way you wire them is through this bus, you have a bus, right? So
+原来，你将它们连接的方式是通过这个总线，你有一个总线，对吗？所以
 
 81
 00:10:49,520 --> 00:10:56,880
- everything goes to a bus, everything, including actually even the memory on the machine. And the
+everything goes to a bus, everything, including actually even the memory on the machine. And the
+所有东西都被传送到了一辆公交车上，所有东西，包括实际上机器上的内存。而且
 
 82
 00:10:56,880 --> 00:11:04,000
- data is sent through this bus. Okay. And this is how you get the data into the processor. This is
+data is sent through this bus. Okay. And this is how you get the data into the processor. This is
+数据通过这个总线发送。好的。这就是将数据输入处理器的方式。这是
 
 83
 00:11:04,000 --> 00:11:11,440
- how you get the data out of the processors through one bus. And more precisely, what is a bus?
+how you get the data out of the processors through one bus. And more precisely, what is a bus?
+如何通过一个总线从处理器中获取数据。更准确地说，什么是总线？
 
 84
 00:11:12,240 --> 00:11:22,320
- It represents the set of specifications. It specifies what are the wires, how many wires
+It represents the set of specifications. It specifies what are the wires, how many wires
+它代表了一组规格。它指定了有多少根线，以及这些线是什么样的。
 
 85
 00:11:22,320 --> 00:11:34,560
- they have, it has, and how you connect to it. And then on top of that, it has to provide an API.
+they have, it has, and how you connect to it. And then on top of that, it has to provide an API.
+他们有，它有，以及你如何连接它。而且除此之外，它还必须提供一个API。
 
 86
 00:11:35,680 --> 00:11:43,840
- Read, write, how do you read and write from this bus? And you also have how you are going to
+Read, write, how do you read and write from this bus? And you also have how you are going to
+读、写，你是怎么从这辆公交车上读和写的？而且你还有你要怎么去的方式吗？
 
 87
 00:11:43,840 --> 00:11:51,680
- address a particular device. And for the particular device, you also have not only data reading,
+address a particular device. And for the particular device, you also have not only data reading,
+地址一个特定的设备。而对于这个特定的设备，你不仅可以进行数据读取，
 
 88
 00:11:51,680 --> 00:11:58,080
- reading data, but you have also control data, right? Like for instance, for a disk, like you'll
+reading data, but you have also control data, right? Like for instance, for a disk, like you'll
+读取数据，但你也有控制数据，对吗？比如说，对于一个磁盘，你会有控制数据吧？
 
 89
 00:11:58,080 --> 00:12:03,680
- see, you need to tell the disk where a particular block is on the disk to read or to write.
+see, you need to tell the disk where a particular block is on the disk to read or to write.
+看，你需要告诉磁盘在磁盘上的特定块的位置，以便进行读取或写入。
 
 90
 00:12:05,440 --> 00:12:12,880
- This is happening through the control lines, right? And the controller, like you see the
+This is happening through the control lines, right? And the controller, like you see the
+这是通过控制线进行的，对吗？而控制器，就像你所看到的那样。
 
 91
 00:12:12,880 --> 00:12:20,320
- yellow box, is going to decide and instruct using the control line, a device, what to do,
+yellow box, is going to decide and instruct using the control line, a device, what to do,
+黄色盒子将使用控制线来决定和指示一个设备该做什么。
 
 92
 00:12:20,320 --> 00:12:29,280
- and where to get the data from or to write the data to. And then there is also the protocol. You
+and where to get the data from or to write the data to. And then there is also the protocol. You
+还有数据的获取和写入位置。还有协议的问题。
 
 93
 00:12:29,280 --> 00:12:35,200
- have multiple devices which are going to send the data on the same bus. So what do you need to do?
+have multiple devices which are going to send the data on the same bus. So what do you need to do?
+有多个设备将要在同一总线上发送数据。那么你需要做什么？
 
 94
 00:12:36,000 --> 00:12:42,320
- Right? Not all of them can send the data at the same time, right? In general, you have only one
+Right? Not all of them can send the data at the same time, right? In general, you have only one
+对吗？并不是所有的都能同时发送数据，对吗？一般来说，你只有一个。
 
 95
 00:12:42,320 --> 00:12:47,520
- device being able to send data on the bus at a given time. So this means that you need to
+device being able to send data on the bus at a given time. So this means that you need to
+在给定的时间内能够在总线上发送数据的设备。这意味着你需要
 
 96
 00:12:47,520 --> 00:12:52,240
- arbitrate. If more than one device wants to send the data on the bus at the same time,
+arbitrate. If more than one device wants to send the data on the bus at the same time,
+仲裁。如果有多个设备同时想要在总线上发送数据，
 
 97
 00:12:52,240 --> 00:12:56,400
- then you need to arbitrate who is going to be allowed to send and who is going to wait.
+then you need to arbitrate who is going to be allowed to send and who is going to wait.
+那么你需要仲裁谁可以发送，谁需要等待。
 
 98
 00:12:57,200 --> 00:13:10,800
- Okay. And of course, the devices here are, again, remember about they are very different in speed.
+Okay. And of course, the devices here are, again, remember about they are very different in speed.
+好的。当然，这里的设备，再次提醒一下，它们在速度上非常不同。
 
 99
 00:13:10,800 --> 00:13:18,400
- The devices which are close to the processor, like memory, things like that, they are very,
+The devices which are close to the processor, like memory, things like that, they are very,
+接近处理器的设备，比如内存，诸如此类的东西，它们非常重要。
 
 100
 00:13:18,400 --> 00:13:27,280
- very fast. The ones which are very remote, like are much slower, like say, you know,
+very fast. The ones which are very remote, like are much slower, like say, you know,
+非常快。那些非常偏远的地方，比如说，速度要慢得多，就像你知道的那样。
 
 101
 00:13:27,280 --> 00:13:37,760
- keyboard or printer. So now why a bus? This is very important. It may seem that this is obvious.
+keyboard or printer. So now why a bus? This is very important. It may seem that this is obvious.
+键盘或打印机。那么现在为什么是公交车呢？这非常重要。这可能看起来很明显。
 
 102
 00:13:37,760 --> 00:13:43,440
- Of course, it's a bus, right? But think about what is the alternative. So an obvious alternative here,
+Of course, it's a bus, right? But think about what is the alternative. So an obvious alternative here,
+当然，这是一辆公交车，对吧？但是想想还有什么其他选择。所以在这里一个明显的替代方案是，
 
 103
 00:13:44,000 --> 00:13:49,760
- it will be to connect every device to the processor, right? And if the two devices have
+it will be to connect every device to the processor, right? And if the two devices have
+是的，它将连接每个设备到处理器，对吗？如果这两个设备有
 
 104
 00:13:49,760 --> 00:13:55,360
- to communicate among themselves, you're also going to connect between them, right? The problem is that
+to communicate among themselves, you're also going to connect between them, right? The problem is that
+为了让他们之间进行交流，你也会连接他们之间的联系，对吗？问题是
 
 105
 00:13:55,360 --> 00:14:01,520
- then you are going to have, in the worst case, you have n devices and you can have, you know,
+then you are going to have, in the worst case, you have n devices and you can have, you know,
+然后在最坏的情况下，你会有n个设备，你可以有，你知道的。
 
 106
 00:14:01,520 --> 00:14:10,640
- n square connection. You don't want that. It's very complicated. Okay? So that's why what you
+n square connection. You don't want that. It's very complicated. Okay? So that's why what you
+说的是n平方连接。你不想要那个。非常复杂。好吗？所以这就是为什么你
 
 107
 00:14:10,640 --> 00:14:15,120
- want, you have this bus and everyone is connected to the bus and then it's beautiful. Then you
+want, you have this bus and everyone is connected to the bus and then it's beautiful. Then you
+想要的话，你可以拥有这辆巴士，每个人都与巴士连接在一起，然后就很美好了。然后你...
 
 108
 00:14:15,120 --> 00:14:23,600
- multiplex the bus in time. But the problem is that if you multiplex in time, then it may be
+multiplex the bus in time. But the problem is that if you multiplex in time, then it may be
+及时复用公交车。但问题是，如果你及时复用，那么可能会导致
 
 109
 00:14:23,600 --> 00:14:29,040
- very inefficient because remember all these devices have very, very different speeds.
+very inefficient because remember all these devices have very, very different speeds.
+非常低效，因为记住所有这些设备的速度都非常非常不同。
 
 110
 00:14:29,040 --> 00:14:36,720
- So, you know, like for instance, if I'm going the keyboard, right, it's like a key, right? You
+So, you know, like for instance, if I'm going the keyboard, right, it's like a key, right? You
+所以，你知道的，比如说，如果我去键盘，对吧，就像一个键，对吧？
 
 111
 00:14:36,720 --> 00:14:42,880
- click a key and it takes a gain. It's like every one second. It's like, it's very inefficient way
+click a key and it takes a gain. It's like every one second. It's like, it's very inefficient way
+点击一下键盘就会有收益。就像每一秒钟一样。就像，这是一种非常低效的方式。
 
 112
 00:14:42,880 --> 00:14:52,880
- of that bus, right? Because in the same time, you may send if, you know, from memory, you can send
+of that bus, right? Because in the same time, you may send if, you know, from memory, you can send
+那辆公交车的，对吗？因为在同一时间，你可以发送，如果你知道的话，从记忆中，你可以发送什么。
 
 113
 00:14:52,880 --> 00:15:04,640
- hundreds of gigabits per second, which means, you know, a few tens of gigabytes per second. Okay?
+hundreds of gigabits per second, which means, you know, a few tens of gigabytes per second. Okay?
+每秒数百千兆位，也就是说，你知道的，每秒几十千兆字节。好吗？
 
 114
 00:15:04,640 --> 00:15:08,720
- So it's very inefficient, right? You don't, you know, if you have slow devices,
+So it's very inefficient, right? You don't, you know, if you have slow devices,
+所以这很低效，对吧？你知道的，如果你有慢速设备的话，
 
 115
 00:15:08,720 --> 00:15:16,720
- very inefficient for very fast devices. Okay. And so that's one of the big problems.
+very inefficient for very fast devices. Okay. And so that's one of the big problems.
+非常低效对于非常快速的设备。好的。这就是其中一个大问题。
 
 116
 00:15:16,720 --> 00:15:26,160
- Advantage against simplicity, everyone connects to it. The standard bus is today's,
+Advantage against simplicity, everyone connects to it. The standard bus is today's,
+优势在于简洁，每个人都可以连接到它。标准巴士是当今的选择。
 
 117
 00:15:26,160 --> 00:15:33,520
- is PCI is called Peripheral Component Interconnect. And it started as a parallel bus. Parallel bus,
+is PCI is called Peripheral Component Interconnect. And it started as a parallel bus. Parallel bus,
+PCI（Peripheral Component Interconnect）是一种并行总线。
 
 118
 00:15:33,520 --> 00:15:42,400
- meaning that at one device at a time is going to use to be able to send data and it can send data
+meaning that at one device at a time is going to use to be able to send data and it can send data
+这句话的意思是一次只能有一个设备能够发送数据，并且它能够发送数据。
 
 119
 00:15:42,400 --> 00:15:49,920
- in parallel. If he sends, you know, and the weights of the bus represents how many bits you can send
+in parallel. If he sends, you know, and the weights of the bus represents how many bits you can send
+同时进行。如果他发送，你知道，而公交车的重量代表着你可以发送多少位。
 
 120
 00:15:49,920 --> 00:15:55,920
- in parallel. So for instance, if you have 128 bits, this means that you are going to be able to
+in parallel. So for instance, if you have 128 bits, this means that you are going to be able to
+同时进行。例如，如果你有128位，这意味着你将能够同时进行。
 
 121
 00:15:55,920 --> 00:16:08,240
- send in one clock cycle, 128 bits, right? And you multiply this, this, this bus like we discussed,
+send in one clock cycle, 128 bits, right? And you multiply this, this, this bus like we discussed,
+每个时钟周期发送128位，对吗？然后你将这个总线进行乘法运算，就像我们讨论过的那样。
 
 122
 00:16:08,240 --> 00:16:17,040
- but now the problem, if it's a slow device, then you are going to, you know, use, and also it
+but now the problem, if it's a slow device, then you are going to, you know, use, and also it
+但现在的问题是，如果设备运行缓慢，那么你在使用时会感到很困扰，而且还有...
 
 123
 00:16:17,040 --> 00:16:22,960
- doesn't have, it sends only eight bits while the bus is 128 bits. You are going to waste on 20
+doesn't have, it sends only eight bits while the bus is 128 bits. You are going to waste on 20
+没有，它只发送8位，而总线是128位。你将浪费掉20。
 
 124
 00:16:22,960 --> 00:16:31,120
- bits while this device is alone using the bus for sending just eight bits. Okay. So I'm going to,
+bits while this device is alone using the bus for sending just eight bits. Okay. So I'm going to,
+在这个设备独自使用总线发送仅有八个位时，需要一些时间。好的。所以我要...
 
 125
 00:16:31,120 --> 00:16:46,240
- to stop here. Any questions about so far? Okay. So this is a little bit again, it's like very
+to stop here. Any questions about so far? Okay. So this is a little bit again, it's like very
+停在这里。关于目前为止的任何问题吗？好的。所以这又是一点点，就像非常
 
 126
 00:16:46,240 --> 00:16:50,640
- descriptive, a lot of heterogeneity. So maybe a little bit boring, but it will, it will change.
+descriptive, a lot of heterogeneity. So maybe a little bit boring, but it will, it will change.
+描述性的，有很多的异质性。所以可能有点无聊，但它会改变的。
 
 127
 00:16:51,680 --> 00:16:58,240
- So now you may have heard about PCI express bus. So what is the problem is that it's parallel.
+So now you may have heard about PCI express bus. So what is the problem is that it's parallel.
+所以现在你可能听说过PCI Express总线。问题是它是并行的。
 
 128
 00:16:58,240 --> 00:17:06,240
- This is great. You know, it's simple, but only one device can use at the same time. And if it's
+This is great. You know, it's simple, but only one device can use at the same time. And if it's
+这很棒。你知道，它很简单，但一次只能使用一个设备。而且如果它被其他设备连接，你就不能使用它了。
 
 129
 00:17:06,240 --> 00:17:12,480
- a slow device, you waste so much time for the fast devices. So PCI express is pretty smart.
+a slow device, you waste so much time for the fast devices. So PCI express is pretty smart.
+一个慢速设备，你为了快速设备浪费了太多时间。所以PCI Express相当聪明。
 
 130
 00:17:12,480 --> 00:17:17,120
- So it's no longer, no longer parallel bus. You still have multiple lines,
+So it's no longer, no longer parallel bus. You still have multiple lines,
+所以它不再是并行总线。你仍然有多条线路，
 
 131
 00:17:17,840 --> 00:17:26,000
- but they are serial channels. And you can, now a device can choose how many lines it's going to send.
+but they are serial channels. And you can, now a device can choose how many lines it's going to send.
+但它们是串行通道。而且现在，设备可以选择发送多少行。
 
 132
 00:17:26,000 --> 00:17:36,560
- Do you use to send? Right? So for instance, if you have a very slow device, like your keyboard,
+Do you use to send? Right? So for instance, if you have a very slow device, like your keyboard,
+你是用来发送的吗？对吗？所以例如，如果你有一个非常慢的设备，比如你的键盘，
 
 133
 00:17:36,560 --> 00:17:44,960
- right, you can use to send everything on one line, right? And you leave all the other lines for
+right, you can use to send everything on one line, right? And you leave all the other lines for
+是的，你可以将所有内容都放在一行发送，对吗？而其他行你都留空就可以了。
 
 134
 00:17:44,960 --> 00:17:58,080
- others, like memory, right access to memory or the storage. Okay. So this allows the slow devices
+others, like memory, right access to memory or the storage. Okay. So this allows the slow devices
+其他的，比如内存，可以正确地访问内存或存储器。好的。所以这样可以让慢速设备
 
 135
 00:17:58,080 --> 00:18:09,600
- to share the PCI bus with fast devices in an efficient way. And again, the beauty of this,
+to share the PCI bus with fast devices in an efficient way. And again, the beauty of this,
+以高效的方式与快速设备共享PCI总线。再次强调，这的美妙之处在于，
 
 136
 00:18:10,320 --> 00:18:20,000
- of Linux and Unix behind it, before it was that, you know, the ability to support all of these,
+of Linux and Unix behind it, before it was that, you know, the ability to support all of these,
+在它之前，是Linux和Unix的基础，你知道的，它有能力支持所有这些。
 
 137
 00:18:20,000 --> 00:18:27,360
- you know, not only to migrate from PCI to PCI express, but again, to provide a pretty uniform
+you know, not only to migrate from PCI to PCI express, but again, to provide a pretty uniform
+你知道，不仅仅是从PCI迁移到PCI Express，而且还要提供一个相当统一的。
 
 138
 00:18:27,360 --> 00:18:37,360
- interface across all these devices. Okay. And also the API itself remains the same,
+interface across all these devices. Okay. And also the API itself remains the same,
+所有这些设备的接口都是一样的。好的。而且API本身也保持不变。
 
 139
 00:18:37,360 --> 00:18:42,080
- most pretty much the same. And this is quite amazing, right? If you think about it,
+most pretty much the same. And this is quite amazing, right? If you think about it,
+大部分都差不多。这真的很惊人，对吧？如果你仔细想想的话，
 
 140
 00:18:42,080 --> 00:18:49,040
- because Unix, when it was designed, Unix, I mean, a lot of
+because Unix, when it was designed, Unix, I mean, a lot of
+因为Unix在设计时，Unix，我是说，很多
 
 141
 00:18:49,040 --> 00:18:57,760
- things you have today, maybe they are not available then. You don't, you didn't have
+things you have today, maybe they are not available then. You don't, you didn't have
+你今天拥有的东西，也许那时候是没有的。你没有，你以前没有。
 
 142
 00:18:58,960 --> 00:19:08,800
- GPUs for instance. I'm sure you didn't have a lot of this kind of game, you know, game inputs,
+GPUs for instance. I'm sure you didn't have a lot of this kind of game, you know, game inputs,
+例如，GPU。我相信你没有很多这种类型的游戏，你知道的，游戏输入，
 
 143
 00:19:08,800 --> 00:19:19,920
- devices, right? And many other things, right? So despite that, you started to connect things
+devices, right? And many other things, right? So despite that, you started to connect things
+设备，对吗？还有很多其他东西，对吗？所以尽管如此，你开始连接事物。
 
 144
 00:19:22,240 --> 00:19:32,000
- to the computer, which are not envisioned when people designed the operating system in the first
+to the computer, which are not envisioned when people designed the operating system in the first
+对于计算机来说，在人们最初设计操作系统时并没有设想到的东西
 
 145
 00:19:32,000 --> 00:19:38,000
- place. The operating system was still being able to preserve the same API. Of course, you need to
+place. The operating system was still being able to preserve the same API. Of course, you need to
+地方。操作系统仍然能够保持相同的API。当然，你需要
 
 146
 00:19:38,000 --> 00:19:48,320
- implement controllers or drivers, which are going to provide, you know, to support these devices
+implement controllers or drivers, which are going to provide, you know, to support these devices
+实现控制器或驱动程序，这些控制器或驱动程序将提供支持这些设备的功能。
 
 147
 00:19:48,880 --> 00:19:57,280
- and provide the same kind of abstraction like before, right? We'll talk more about that. Okay.
+and provide the same kind of abstraction like before, right? We'll talk more about that. Okay.
+并且提供与之前相同的抽象层，对吗？我们会更详细地讨论这个问题。好的。
 
 148
 00:19:57,280 --> 00:20:05,520
- Anyway, here is an example of the PCI architecture. Today, you have a PCI number zero,
+Anyway, here is an example of the PCI architecture. Today, you have a PCI number zero,
+无论如何，这里是PCI架构的一个例子。今天，你有一个PCI编号为零，
 
 149
 00:20:05,520 --> 00:20:16,640
- PCI number zero here. And this is very fast one. This is connected to the CPU
+PCI number zero here. And this is very fast one. This is connected to the CPU
+PCI编号为零。而且这是一个非常快速的接口。它连接到CPU。
 
 150
 00:20:17,360 --> 00:20:24,080
- and the CPU is also having a memory bus to the RAM. Then there is a PCI bridge here.
+and the CPU is also having a memory bus to the RAM. Then there is a PCI bridge here.
+而且CPU也有一个连接到RAM的内存总线。然后这里还有一个PCI桥接器。
 
 151
 00:20:24,080 --> 00:20:28,160
- You have another PCI bus. This PCI bus is a little...
+You have another PCI bus. This PCI bus is a little...
+你有另一个PCI总线。这个PCI总线有点...
 
 152
 00:20:28,160 --> 00:20:38,420
- bit typically slower. And this connects the storage devices, for instance, a scanner,
+bit typically slower. And this connects the storage devices, for instance, a scanner,
+有点通常会慢一些。这个连接存储设备，比如扫描仪，
 
 153
 00:20:38,420 --> 00:20:46,560
- and all the webcam, mouse and keyboard. And then you have another bridge here from PCI
+and all the webcam, mouse and keyboard. And then you have another bridge here from PCI
+和所有的网络摄像头、鼠标和键盘。然后你还有一个来自PCI的桥接器。
 
 154
 00:20:46,560 --> 00:20:57,260
- to ESA. So ISI, it was an older bus standard. So you may still have devices, for instance,
+to ESA. So ISI, it was an older bus standard. So you may still have devices, for instance,
+向ESA（欧洲航天局）发送。所以ISI是一种较旧的总线标准。所以你可能仍然拥有设备，例如，
 
 155
 00:20:57,260 --> 00:21:08,500
- hard disk drives, which support, which implements this standard and connect to this ISI bus.
+hard disk drives, which support, which implements this standard and connect to this ISI bus.
+硬盘驱动器，支持并实现了这个标准，并连接到这个ISI总线。
 
 156
 00:21:08,500 --> 00:21:16,220
- And this is a bridge, so then you can use these devices on PCI architecture.
+And this is a bridge, so then you can use these devices on PCI architecture.
+这是一座桥梁，所以你可以在PCI架构上使用这些设备。
 
 157
 00:21:16,220 --> 00:21:29,500
- So here, let's go into a little bit more detail. So how does a processor talk to all these
+So here, let's go into a little bit more detail. So how does a processor talk to all these
+所以在这里，让我们更详细地讨论一下。那么处理器是如何与所有这些进行通信的呢？
 
 158
 00:21:29,500 --> 00:21:43,820
- devices? So here is a CPU and you have the memory and you have a memory bus here. And
+devices? So here is a CPU and you have the memory and you have a memory bus here. And
+设备？这里有一个CPU，你有内存，还有一个内存总线。而且
 
 159
 00:21:43,820 --> 00:21:53,740
- now you have, this is connected through a bus adapter to get data from this device controller.
+now you have, this is connected through a bus adapter to get data from this device controller.
+现在你有了，这是通过总线适配器连接的，用于从这个设备控制器获取数据。
 
 160
 00:21:53,740 --> 00:22:01,460
- Right, remember, each device has a controller. And the device, you send the instructions
+Right, remember, each device has a controller. And the device, you send the instructions
+对的，记住，每个设备都有一个控制器。而且，你发送指令给设备。
 
 161
 00:22:01,460 --> 00:22:09,000
- about what data to get or to write. And the controller is talking with the device to get
+about what data to get or to write. And the controller is talking with the device to get
+关于获取或写入哪些数据。控制器正在与设备进行通信以获取数据。
 
 162
 00:22:09,000 --> 00:22:17,220
- what the program asks for. Now, within a device controller, a device controller is quite complicated.
+what the program asks for. Now, within a device controller, a device controller is quite complicated.
+程序要求什么。现在，在设备控制器内部，设备控制器非常复杂。
 
 163
 00:22:17,220 --> 00:22:21,460
- Actually many device controllers, they have their own processor. So it's like their own
+Actually many device controllers, they have their own processor. So it's like their own
+实际上，许多设备控制器都有自己的处理器。所以就像它们有自己的
 
 164
 00:22:21,460 --> 00:22:27,640
- computer, right? They have ARM processor and so forth to implement the program, which is
+computer, right? They have ARM processor and so forth to implement the program, which is
+计算机，对吗？它们使用ARM处理器等来执行程序。
 
 165
 00:22:27,640 --> 00:22:34,100
- going to control that device. Of course, we have a bus interface to send the data in and
+going to control that device. Of course, we have a bus interface to send the data in and
+要控制那个设备。当然，我们有一个总线接口来发送数据进去。
 
 166
 00:22:34,100 --> 00:22:42,540
- out to connect to the other buses in the system. And it has a memory, you can, for instance,
+out to connect to the other buses in the system. And it has a memory, you can, for instance,
+连接到系统中的其他公交车。它还有一个内存，例如，你可以
 
 167
 00:22:42,540 --> 00:22:51,280
- for doing, for caching data. For instance, when you send data to the printer, you can
+for doing, for caching data. For instance, when you send data to the printer, you can
+用于执行，用于缓存数据。例如，当您将数据发送到打印机时，您可以
 
 168
 00:22:51,280 --> 00:22:56,140
- assume that it's not like you send one byte is printed, you send one byte is printed.
+assume that it's not like you send one byte is printed, you send one byte is printed.
+假设不是你发送一个字节就打印一次，而是你发送一个字节就打印一次。
 
 169
 00:22:56,140 --> 00:23:03,640
- No, you send a lot, almost the entire file, or you can send the entire file, which is
+No, you send a lot, almost the entire file, or you can send the entire file, which is
+不，你发送了很多内容，几乎是整个文件，或者你可以发送整个文件，这是可以的。
 
 170
 00:23:03,640 --> 00:23:11,420
- kind of stored, that is part of it in local memory, and then it's printed from there.
+kind of stored, that is part of it in local memory, and then it's printed from there.
+部分存储在本地内存中，然后从那里打印出来。
 
 171
 00:23:11,420 --> 00:23:16,220
- And then this is very important. You have a set of registers here, which are, these
+And then this is very important. You have a set of registers here, which are, these
+然后这一点非常重要。你这里有一组寄存器，它们是...（需要具体指明寄存器的名称或描述）
 
 172
 00:23:16,220 --> 00:23:31,220
- are the registers to which they are used to interact with this controller. They are used
+are the registers to which they are used to interact with this controller. They are used
+这些寄存器用于与该控制器进行交互。它们被使用。
 
 173
 00:23:31,220 --> 00:23:40,420
- to tell the controller what to do, right? And, you know, read, write, or configure,
+to tell the controller what to do, right? And, you know, read, write, or configure,
+告诉控制器该做什么，对吗？而且，你知道，读取、写入或配置。
 
 174
 00:23:40,420 --> 00:23:46,140
- to configure the controller in a particular way. It's also to get the status of the controller.
+to configure the controller in a particular way. It's also to get the status of the controller.
+将控制器配置为特定方式。还可以获取控制器的状态。
 
 175
 00:23:46,140 --> 00:23:50,660
- The status of the controller can be busy, right? The printer is busy, right? Showing
+The status of the controller can be busy, right? The printer is busy, right? Showing
+控制器的状态可以是忙碌的，对吗？打印机忙碌，对吗？显示中。
 
 176
 00:23:50,660 --> 00:23:56,380
- the status, not sorry, this is the status of the device controlled by the controller.
+the status, not sorry, this is the status of the device controlled by the controller.
+设备的状态，不是抱歉，这是由控制器控制的设备的状态。
 
 177
 00:23:56,380 --> 00:24:03,740
- Okay, another important thing, if you remember, we have this kind of interrupts, right? You
+Okay, another important thing, if you remember, we have this kind of interrupts, right? You
+好的，另一个重要的事情，如果你还记得，我们有这种中断，对吧？
 
 178
 00:24:03,740 --> 00:24:08,900
- remember about the interrupts? And one of the main issues of interrupt is to react when
+remember about the interrupts? And one of the main issues of interrupt is to react when
+记得中断吗？中断的一个主要问题是在发生中断时做出反应。
 
 179
 00:24:08,900 --> 00:24:15,960
- something happens in the external world. And one of the main use cases there, it's about
+something happens in the external world. And one of the main use cases there, it's about
+外部世界发生了一些事情。其中一个主要的应用场景是关于什么？
 
 180
 00:24:15,960 --> 00:24:24,700
- when you have some data to get from a device, from the network, for instance, or when some
+when you have some data to get from a device, from the network, for instance, or when some
+当你需要从设备或网络等地方获取一些数据时，比如说，或者当一些情况下
 
 181
 00:24:24,700 --> 00:24:33,980
- device needs attention, right? So that's what the interrupt controller and the controller
+device needs attention, right? So that's what the interrupt controller and the controller
+设备需要注意，对吗？所以这就是中断控制器和控制器的作用。
 
 182
 00:24:33,980 --> 00:24:38,340
- is going to raise some interrupts. And the interrupts are, if you remember, the operating
+is going to raise some interrupts. And the interrupts are, if you remember, the operating
+系统将会引发一些中断。而这些中断，如果你还记得的话，就是操作系统的
 
 183
 00:24:38,340 --> 00:24:43,100
- system, depending on the interrupt, is going to have an interrupt handler, which is going
+system, depending on the interrupt, is going to have an interrupt handler, which is going
+系统根据中断的不同，会有相应的中断处理程序来处理。
 
 184
 00:24:43,100 --> 00:24:54,220
- to handle that interrupt, right? The network card has, and another controller has new data,
+to handle that interrupt, right? The network card has, and another controller has new data,
+处理那个中断，对吗？网络卡有，另一个控制器有新数据。
 
 185
 00:24:54,220 --> 00:25:00,480
- is going to interrupt, to raise an interrupt, the OS is going to handle that interrupt,
+is going to interrupt, to raise an interrupt, the OS is going to handle that interrupt,
+将要中断，提出一个中断，操作系统将处理该中断。
 
 186
 00:25:00,480 --> 00:25:09,900
- and is going to read the data from the controller. Okay. Now, how do I interact? How do I program
+and is going to read the data from the controller. Okay. Now, how do I interact? How do I program
+并且将从控制器读取数据。好的。现在，我该如何进行交互？我该如何编程？
 
 187
 00:25:09,900 --> 00:25:19,120
- these controllers? There are two ways. Port mapped IO, in and out instructions. So basically
+these controllers? There are two ways. Port mapped IO, in and out instructions. So basically
+这些控制器？有两种方式。端口映射IO，输入和输出指令。所以基本上
 
 188
 00:25:19,120 --> 00:25:25,520
- here for the Intel architecture in particular, you have say out 0x21. So this is an address.
+here for the Intel architecture in particular, you have say out 0x21. So this is an address.
+在这里特指Intel架构，你说的是0x21。所以这是一个地址。
 
 189
 00:25:25,520 --> 00:25:33,900
- This is an IO. So each IO has its own address. Each IO device has its own address. And basically
+This is an IO. So each IO has its own address. Each IO device has its own address. And basically
+这是一个输入/输出设备。所以每个输入/输出设备都有自己的地址。每个输入/输出设备都有自己的地址。基本上，
 
 190
 00:25:33,900 --> 00:25:45,860
- out 0x21, AL means that the content of register AL is a register. So the content of that register
+out 0x21, AL means that the content of register AL is a register. So the content of that register
+out 0x21, AL 意味着寄存器 AL 的内容是一个寄存器。因此，那个寄存器的内容
 
 191
 00:25:45,860 --> 00:25:53,280
- will be written on that output, at that address, to that output, will be written to that output.
+will be written on that output, at that address, to that output, will be written to that output.
+将会被写入到那个输出，在那个地址，到那个输出，将会被写入到那个输出。
 
 192
 00:25:53,280 --> 00:26:04,260
- And you have the corresponding in and from a particular port address. And then the data
+And you have the corresponding in and from a particular port address. And then the data
+并且你有对应的进入和从特定端口地址发送的数据。然后是数据。
 
 193
 00:26:04,260 --> 00:26:14,520
- from that port is going to be written in register AL, for instance. Okay. So you have special
+from that port is going to be written in register AL, for instance. Okay. So you have special
+从那个端口将被写入到寄存器AL中，例如。好的。所以你有特殊的
 
 194
 00:26:14,520 --> 00:26:22,880
- instructions here, right? And special addresses for these devices. On the other hand, you
+instructions here, right? And special addresses for these devices. On the other hand, you
+这里是说明吗？还有这些设备的特殊地址。另一方面，你
 
 195
 00:26:22,880 --> 00:26:30,100
- can have memory mapped IO. And this is pretty cool. You basically reserve your, you configure
+can have memory mapped IO. And this is pretty cool. You basically reserve your, you configure
+可以进行内存映射IO。这非常酷。你基本上保留了你的，你进行配置。
 
 196
 00:26:30,100 --> 00:26:39,840
- some addresses in the memory, in the RAM. Okay. And this being are connected to these
+some addresses in the memory, in the RAM. Okay. And this being are connected to these
+一些内存中的地址，即RAM。好的。而这些地址与这些东西相连。
 
 197
 00:26:39,840 --> 00:26:46,440
- input output devices. Okay. And then the only thing you do, you use load and store, because
+input output devices. Okay. And then the only thing you do, you use load and store, because
+输入输出设备。好的。然后你唯一要做的就是使用加载和存储，因为
 
 198
 00:26:46,440 --> 00:26:54,360
- it's memory. Load means if I am going to put the data there at that particular address,
+it's memory. Load means if I am going to put the data there at that particular address,
+这是内存。Load的意思是，如果我要将数据放在特定的地址上，
 
 199
 00:26:54,360 --> 00:27:06,480
- that data is going to be sent to the corresponding device. Right? If I get, if I read the data
+that data is going to be sent to the corresponding device. Right? If I get, if I read the data
+那些数据将会被发送到相应的设备。对吗？如果我理解正确的话，如果我读取这些数据。
 
 200
 00:27:06,480 --> 00:27:13,120
- from that, from a particular address, which is memory mapped address, then I'm going to
+from that, from a particular address, which is memory mapped address, then I'm going to
+从那个特定的地址开始，这是一个内存映射地址，然后我要...
 
 201
 00:27:13,120 --> 00:27:22,040
- read data from the corresponding device. Make sense? This is an example about memory mapped,
+read data from the corresponding device. Make sense? This is an example about memory mapped,
+从相应的设备读取数据。有意义吗？这是一个关于内存映射的示例。
 
 202
 00:27:22,040 --> 00:27:33,000
- right? And this is really used for graphics. Right? So typically, typically here, what
+right? And this is really used for graphics. Right? So typically, typically here, what
+是吗？这个真的用于图形吗？对吗？那么通常，在这里通常是什么意思？
 
 203
 00:27:33,000 --> 00:27:40,660
- you have is that, you know, like your screen is a bitmap. Right? You know that, right?
+you have is that, you know, like your screen is a bitmap. Right? You know that, right?
+你有的是，你知道，就像你的屏幕是位图一样。对吧？你知道的，对吧？
 
 204
 00:27:40,660 --> 00:27:50,700
- So the screen, the control of a screen, sees the same memory, you know, have a region,
+So the screen, the control of a screen, sees the same memory, you know, have a region,
+所以屏幕，屏幕的控制，看到的是同样的内存，你知道的，有一个区域，
 
 205
 00:27:50,700 --> 00:27:59,700
- you devote a region of your RAM, you devote to that, to the screen. And when you are going,
+you devote a region of your RAM, you devote to that, to the screen. And when you are going,
+你将你的一部分RAM分配给屏幕。当你使用时，你将其分配给屏幕。当你离开时，
 
 206
 00:27:59,700 --> 00:28:06,920
- and then you, when you are going to modify this memory, see how, what you modify, you
+and then you, when you are going to modify this memory, see how, what you modify, you
+然后你，在你要修改这个记忆的时候，看看，你要修改什么，你要如何修改，你。
 
 207
 00:28:06,920 --> 00:28:14,700
- see immediately on the screen. Right? And so, so from here, display memory is from this
+see immediately on the screen. Right? And so, so from here, display memory is from this
+立即在屏幕上看到。对吗？所以，从这里开始，显示内存是从这里开始的。
 
 208
 00:28:14,700 --> 00:28:25,280
- address 800, whatever, 10,000 to 800, 8,000, whatever, F000, this is a display memory.
+address 800, whatever, 10,000 to 800, 8,000, whatever, F000, this is a display memory.
+地址从800，不管是10000到800，不管是8000，不管是F000，这是一个显示内存。
 
 209
 00:28:25,280 --> 00:28:33,040
- In addition to that, you may have also a command queue, because you may have, you can provide
+In addition to that, you may have also a command queue, because you may have, you can provide
+除此之外，你还可以有一个命令队列，因为你可能会有这个需求，你可以提供。
 
 210
 00:28:33,040 --> 00:28:44,200
- some commands to the display, you know, for instance, because you may have, like, higher
+some commands to the display, you know, for instance, because you may have, like, higher
+一些对显示器的指令，你知道的，比如，因为你可能有，像，更高的
 
 211
 00:28:44,200 --> 00:28:50,900
- level abstractions, rather than just writing and reading, writing individuals in the individual
+level abstractions, rather than just writing and reading, writing individuals in the individual
+层次抽象，而不仅仅是写和读，写个体在个体中。
 
 212
 00:28:50,900 --> 00:28:57,440
- bits, like, for instance, generating triangles, right, you are going to basically command,
+bits, like, for instance, generating triangles, right, you are going to basically command,
+位，比如说，生成三角形，对吧，你基本上要给出指令，
 
 213
 00:28:57,440 --> 00:29:04,340
- give a command to the controller, the controller, which is a graphic card is going to, to generate
+give a command to the controller, the controller, which is a graphic card is going to, to generate
+给控制器发送一个指令，这个控制器是一个图形卡，它将要生成什么？
 
 214
 00:29:04,340 --> 00:29:11,540
- this kind of, say, triangles to create much faster, to render much faster, some, you know,
+this kind of, say, triangles to create much faster, to render much faster, some, you know,
+这种，比如说，三角形可以创建得更快，渲染得更快，一些，你知道的。
 
 215
 00:29:11,540 --> 00:29:25,680
- impressive, you know, objects. Okay. So this is, this is one thing. So again, that in summary
+impressive, you know, objects. Okay. So this is, this is one thing. So again, that in summary
+令人印象深刻，你知道，物体。好的。所以这是，这是一件事。所以总结一下，
 
 216
 00:29:25,680 --> 00:29:32,680
- from in summary here, in this is very simple example, you are going to have a region on
+from in summary here, in this is very simple example, you are going to have a region on
+从这里总结起来，在这个非常简单的例子中，你将拥有一个区域。
 
 217
 00:29:32,680 --> 00:29:41,120
- the RAM, which is seen both by processor, and is seen by both and also by the controller,
+the RAM, which is seen both by processor, and is seen by both and also by the controller,
+内存，它既被处理器看到，也被控制器看到。
 
 218
 00:29:41,120 --> 00:29:48,880
- the video controller, right. And when you write, when the processor writes to this address,
+the video controller, right. And when you write, when the processor writes to this address,
+视频控制器，对的。当处理器写入这个地址时，
 
 219
 00:29:48,880 --> 00:30:13,600
- to this memory, you see it on the screen. So, any questions? Now, it turns out that
+to this memory, you see it on the screen. So, any questions? Now, it turns out that
+对于这个记忆，你在屏幕上看到了它。那么，有什么问题吗？现在，结果是这样的，
 
 220
 00:30:13,600 --> 00:30:19,320
- today with this, everyone knows about GPUs, you know, graphical processing units, and
+today with this, everyone knows about GPUs, you know, graphical processing units, and
+今天，大家都知道GPU，你知道的，图形处理单元，还有
 
 221
 00:30:19,320 --> 00:30:24,680
- the GPUs, they have actually their own memory. So you don't have the sharing. And the reason
+the GPUs, they have actually their own memory. So you don't have the sharing. And the reason
+显卡实际上有自己的内存。所以你没有共享的情况。而原因是什么呢？
 
 222
 00:30:24,680 --> 00:30:30,160
- for that, because the memory thing on the because the memory is a GPU, if the memory
+for that, because the memory thing on the because the memory is a GPU, if the memory
+对于这个问题，因为内存是一个GPU上的东西，如果内存
 
 223
 00:30:30,160 --> 00:30:37,240
- is on the GPU, that is much, much faster. So you can, you know, render much faster,
+is on the GPU, that is much, much faster. So you can, you know, render much faster,
+是在GPU上进行的，速度快得多。所以你可以，你知道的，渲染得更快，
 
 224
 00:30:37,240 --> 00:30:45,160
- much quicker. That's one of the reasons. This is for you to know. And of course, you can
+much quicker. That's one of the reasons. This is for you to know. And of course, you can
+更快。这是其中一个原因。这是让你知道的。当然，你也可以。
 
 225
 00:30:45,160 --> 00:30:52,760
- protect this memory regions using address translation like we know. Now, here is an
+protect this memory regions using address translation like we know. Now, here is an
+保护这些内存区域，使用我们所熟知的地址转换。现在，这里是一个
 
 226
 00:30:52,760 --> 00:31:01,320
- interesting thing. So far, we saw it, we told, I told you how it's, you know, that you have
+interesting thing. So far, we saw it, we told, I told you how it's, you know, that you have
+有趣的事情。到目前为止，我们看到了它，我们说了，我告诉过你它是怎样的，你知道的，你有的。
 
 227
 00:31:01,320 --> 00:31:07,080
- this processor, and you have all these other storage devices and IO devices around it,
+this processor, and you have all these other storage devices and IO devices around it,
+这个处理器，以及你周围的所有其他存储设备和IO设备，
 
 228
 00:31:07,080 --> 00:31:11,920
- and they are connected by the bus. But if a look in the processor into a processor itself,
+and they are connected by the bus. But if a look in the processor into a processor itself,
+并且它们通过总线连接在一起。但是，如果将目光投向处理器本身，
 
 229
 00:31:11,920 --> 00:31:17,120
- you see some similar things, because in a processor is not a monolith. In a processor,
+you see some similar things, because in a processor is not a monolith. In a processor,
+你看到一些相似的东西，因为处理器并不是一个整体。在一个处理器中，
 
 230
 00:31:17,120 --> 00:31:23,160
- remember, you have multiple cores, you have multiple caches, and so forth. So how, and
+remember, you have multiple cores, you have multiple caches, and so forth. So how, and
+记住，你有多个核心，你有多个缓存等等。那么如何，以及
 
 231
 00:31:23,160 --> 00:31:31,680
- actually many CPUs today, they also have graphic unit, right? Or neural unit, right, like some
+actually many CPUs today, they also have graphic unit, right? Or neural unit, right, like some
+实际上，如今许多CPU也具备图形单元，对吗？或者神经单元，对吗，就像一些
 
 232
 00:31:31,680 --> 00:31:39,560
- of the Apple chips have. Right? So, and then how do you connect those? Well, the answer
+of the Apple chips have. Right? So, and then how do you connect those? Well, the answer
+苹果芯片的优势是什么？然后，你如何将它们连接起来？嗯，答案是
 
 233
 00:31:39,560 --> 00:31:49,000
- is through a bus, right? Okay. So it's again, it's like what you see is outside, you know,
+is through a bus, right? Okay. So it's again, it's like what you see is outside, you know,
+是通过公交车吗？好的。所以，就像你看到的是外面的景象，你知道的，
 
 234
 00:31:49,000 --> 00:31:53,640
- you know, outside the CPU, it's also pretty similar inside the CPU, you have different
+you know, outside the CPU, it's also pretty similar inside the CPU, you have different
+你知道，在CPU之外，CPU内部也非常相似，你有不同的部件。
 
 235
 00:31:53,640 --> 00:31:58,800
- components, like here are a few examples, like I mentioned, and they are connected by
+components, like here are a few examples, like I mentioned, and they are connected by
+组件，比如这里有几个例子，就像我之前提到的一样，它们是通过连接的。
 
 236
 00:31:58,800 --> 00:32:05,280
- a bus. By the way, HDX is a software guard extension. So this is basically, it's a software,
+a bus. By the way, HDX is a software guard extension. So this is basically, it's a software,
+一辆公交车。顺便说一下，HDX是一种软件保护扩展。所以基本上，它是一种软件。
 
 237
 00:32:05,280 --> 00:32:11,120
- it's a hardware enclave for people who, you know, for people who took a security course,
+it's a hardware enclave for people who, you know, for people who took a security course,
+这是一个为那些参加过安全课程的人设计的硬件飞地。
 
 238
 00:32:11,120 --> 00:32:24,120
- a class. And yeah. And then you are going to have, then you are going to connect outside
+a class. And yeah. And then you are going to have, then you are going to connect outside
+一个班级。是的。然后你要有，然后你要连接到外部。
 
 239
 00:32:24,120 --> 00:32:29,960
- the CPU, you are going to connect to the memory, DDR, this is the memory. And you are going
+the CPU, you are going to connect to the memory, DDR, this is the memory. And you are going
+将CPU连接到内存条，DDR，这是内存条。你需要
 
 240
 00:32:29,960 --> 00:32:37,560
- also, you see here, you are going to have a PCI Express, right? This is how you connect
+also, you see here, you are going to have a PCI Express, right? This is how you connect
+还有，你看这里，你会有一个PCI Express，对吧？这是你连接的方式。
 
 241
 00:32:37,560 --> 00:32:47,800
- to the PCI Express to the rest of your devices. This is another way to look at, this is again,
+to the PCI Express to the rest of your devices. This is another way to look at, this is again,
+将PCI Express连接到您的其他设备。这是另一种观点，再次强调，
 
 242
 00:32:47,800 --> 00:32:53,200
- Skylake system configuration. This is the same GPU here. It's pretty old, but today's
+Skylake system configuration. This is the same GPU here. It's pretty old, but today's
+Skylake系统配置。这里使用的是同样的GPU。它相当老了，但在今天仍然可以使用。
 
 243
 00:32:53,200 --> 00:33:03,560
- on the ones today are not very different. Okay. And you have, you have here, basically,
+on the ones today are not very different. Okay. And you have, you have here, basically,
+今天的款式并没有太大的区别。好的。你这里有，基本上，
 
 244
 00:33:03,560 --> 00:33:13,440
- you know, you have, this is a core, and this is connected to memory. Then you have the
+you know, you have, this is a core, and this is connected to memory. Then you have the
+你知道，你有这个，这是一个核心，它连接到记忆。然后你有...
 
 245
 00:33:13,440 --> 00:33:23,280
- PCI Express, it's again to directly connect to other I/O devices. And then you have this
+PCI Express, it's again to directly connect to other I/O devices. And then you have this
+PCI Express 是一种直接连接其他输入/输出设备的接口。然后你还有这个...
 
 246
 00:33:23,280 --> 00:33:31,120
- bridge, and you have another chip which connects to other I/O devices. And this typically saves
+bridge, and you have another chip which connects to other I/O devices. And this typically saves
+桥接，你还有另一个芯片连接到其他输入/输出设备。这通常可以节省
 
 247
 00:33:31,120 --> 00:33:40,840
- a little bit slower devices in general, right? USB, audio, video, LAN, and so forth. So it's
+a little bit slower devices in general, right? USB, audio, video, LAN, and so forth. So it's
+一般来说，设备的速度会稍慢一些，对吧？USB、音频、视频、局域网等等。所以它的速度会稍慢一些。
 
 248
 00:33:40,840 --> 00:33:50,600
- again the same picture, emphasizing this pattern of multiple components being connected by
+again the same picture, emphasizing this pattern of multiple components being connected by
+再次出现相同的图片，强调这种由多个组件连接而成的模式。
 
 249
 00:33:50,600 --> 00:34:15,720
- bus, fast buses. Okay, any questions? So now I mentioned to you that one of the
+bus, fast buses. Okay, any questions? So now I mentioned to you that one of the
+公交车，快速公交车。好的，有什么问题吗？所以现在我向你提到了其中一个
 
 250
 00:34:15,720 --> 00:34:26,280
- beauty and the successes of Unix and Linux, obviously, is that they were able to provide
+beauty and the successes of Unix and Linux, obviously, is that they were able to provide
+美丽和Unix和Linux的成功显然在于它们能够提供
 
 251
 00:34:26,280 --> 00:34:40,680
- an API which remain pretty much the same over time, despite a proliferation of I/O devices.
+an API which remain pretty much the same over time, despite a proliferation of I/O devices.
+一个API在时间推移中基本保持不变，尽管I/O设备不断增多。
 
 252
 00:34:40,680 --> 00:34:52,220
- And the reason for that is because obviously, they got abstraction, right, right. And they
+And the reason for that is because obviously, they got abstraction, right, right. And they
+因为显然，他们有抽象概念，对吧，对吧。而且他们
 
 253
 00:34:52,220 --> 00:34:58,320
- already recognize early on, there are different type of devices and they are going to handle
+already recognize early on, there are different type of devices and they are going to handle
+已经早早认识到，有不同类型的设备，它们将会处理。
 
 254
 00:34:58,320 --> 00:35:09,720
- with different with these devices slightly different. So how, how these devices are segmented?
+with different with these devices slightly different. So how, how these devices are segmented?
+这些设备之间有些微不同。那么，这些设备是如何分割的呢？
 
 255
 00:35:09,720 --> 00:35:16,600
- First is data granularity. When I'm going to read and write from a device, what is the
+First is data granularity. When I'm going to read and write from a device, what is the
+首先是数据粒度。当我要从设备中读取和写入数据时，这是什么意思？
 
 256
 00:35:16,600 --> 00:35:23,080
- granularity of the data I'm going to use? Lowest granularity is like byte, in some cases,
+granularity of the data I'm going to use? Lowest granularity is like byte, in some cases,
+数据的粒度是什么？最低的粒度类似于字节，在某些情况下，
 
 257
 00:35:23,080 --> 00:35:27,400
- there is bit but it's rare, it's byte, right? You read one byte at a time, you write one
+there is bit but it's rare, it's byte, right? You read one byte at a time, you write one
+有一点点，但很少见，是字节对吗？你每次读取一个字节，写入一个字节。
 
 258
 00:35:27,400 --> 00:35:33,320
- byte at a time. But there are other devices, many other devices where you write at a higher
+byte at a time. But there are other devices, many other devices where you write at a higher
+每次一个字节。但是还有其他设备，很多其他设备，你可以以更高的速度写入。
 
 259
 00:35:33,320 --> 00:35:44,640
- granularity, like a block, like to disk, or reading or writing from a disk, or reading
+granularity, like a block, like to disk, or reading or writing from a disk, or reading
+细粒度，像一个块，像写入磁盘或从磁盘读取，或者从磁盘读取。
 
 260
 00:35:44,640 --> 00:35:50,460
- or writing from the network. So it's it's, it's a level of granularity, it's a packet.
+or writing from the network. So it's it's, it's a level of granularity, it's a packet.
+或者从网络中写入。所以它是一个粒度级别，它是一个数据包。
 
 261
 00:35:50,460 --> 00:35:59,520
- So now, let's make a little bit this class more interactive. Why do you think that? Why
+So now, let's make a little bit this class more interactive. Why do you think that? Why
+所以现在，让我们稍微让这堂课更加互动一些。你为什么这么认为呢？为什么？
 
 262
 00:35:59,520 --> 00:36:06,840
- byte is not is not enough? Why not just have the ability to read and write only at the
+byte is not is not enough? Why not just have the ability to read and write only at the
+字节不够用吗？为什么不只具备读写能力呢？
 
 263
 00:36:06,840 --> 00:36:36,280
- background? Anyone can tell me? It's exactly what's bad. Yeah. And actually,
+background? Anyone can tell me? It's exactly what's bad. Yeah. And actually,
+背景？有人可以告诉我吗？到底是怎么回事。是的。实际上，
 
 264
 00:36:36,280 --> 00:36:47,420
- and this is correct. So if you write and read as a by granarity, then you need to this means
+and this is correct. So if you write and read as a by granarity, then you need to this means
+这是正确的。所以如果你将其作为一种粒度来写和阅读，那么你需要这样理解。
 
 265
 00:36:47,420 --> 00:36:55,760
- if you if you think about from the perspective, this is an API to the publication. And I want
+if you if you think about from the perspective, this is an API to the publication. And I want
+如果你从这个角度考虑的话，这是一个用于出版的API。而且我想要
 
 266
 00:36:55,760 --> 00:37:05,000
- to read and write a byte, this translates to a system call, a system call, translate
+to read and write a byte, this translates to a system call, a system call, translate
+读取和写入一个字节，这会转化为一个系统调用，一个系统调用，转化。
 
 267
 00:37:05,000 --> 00:37:16,400
- to a context switch. So the overhead, right, to read and write a byte is non trivial. Right?
+to a context switch. So the overhead, right, to read and write a byte is non trivial. Right?
+对于上下文切换来说，读写一个字节的开销是不可忽视的，对吗？
 
 268
 00:37:16,400 --> 00:37:29,800
- You cannot sustain keep up with very fast IO devices. Okay. So that's the reason. So
+You cannot sustain keep up with very fast IO devices. Okay. So that's the reason. So
+你无法跟上非常快速的IO设备。好的。所以这就是原因。所以
 
 269
 00:37:29,800 --> 00:37:41,720
- byte is fine for keyboard, right? But it's not going to be fine for sending, you know,
+byte is fine for keyboard, right? But it's not going to be fine for sending, you know,
+字节对于键盘来说可以，对吗？但是对于发送来说就不行了，你知道的。
 
 270
 00:37:41,720 --> 00:37:51,400
- data to a gigabit per second. Because the fixed cost of send operation or receiving
+data to a gigabit per second. Because the fixed cost of send operation or receiving
+数据传输速度为每秒一千兆比特。由于发送或接收操作的固定成本，
 
 271
 00:37:51,400 --> 00:38:01,000
- operation is too high. Okay. But they got it right from day one, because they have to
+operation is too high. Okay. But they got it right from day one, because they have to
+操作太高了。好的。但是他们从一开始就做得很对，因为他们必须这样做。
 
 272
 00:38:01,000 --> 00:38:09,840
- support the disk. Okay. And the disk couldn't do it efficiently at byte level. So they have
+support the disk. Okay. And the disk couldn't do it efficiently at byte level. So they have
+支持硬盘。好的。但是硬盘在字节级别上无法高效地完成这个任务。所以他们做了一些改进。
 
 273
 00:38:09,840 --> 00:38:28,640
- to have blocks. Okay, good. Access pattern, sequential versus random. You know, some devices
+to have blocks. Okay, good. Access pattern, sequential versus random. You know, some devices
+具有块。好的。访问模式，顺序与随机。你知道，有些设备
 
 274
 00:38:28,640 --> 00:38:40,400
- this must be accessed sequentially if you have a tape and others are randomly. Now,
+this must be accessed sequentially if you have a tape and others are randomly. Now,
+这必须按顺序访问，如果你有一个磁带，而其他的是随机的。现在，
 
 275
 00:38:40,400 --> 00:38:48,840
- also there are devices which are under this access pattern beyond it's like, are you going
+also there are devices which are under this access pattern beyond it's like, are you going
+还有一些设备在这个访问模式之外，就像它一样，你要吗？
 
 276
 00:38:48,840 --> 00:38:55,160
- and we are going to talk more about that? Do you need to monitor that IO device all
+and we are going to talk more about that? Do you need to monitor that IO device all
+我们要更多地讨论这个问题吗？你需要监控那个IO设备吗？
 
 277
 00:38:55,160 --> 00:38:59,280
- the time to see what happens or you are going to get interrupts when something happens?
+the time to see what happens or you are going to get interrupts when something happens?
+你是想问，在某件事情发生时，是要等待看看会发生什么，还是会被打断吗？
 
 278
 00:38:59,280 --> 00:39:05,880
- Right? Like with a keyboard or a card. But now let me ask you again, it's like, for instance,
+Right? Like with a keyboard or a card. But now let me ask you again, it's like, for instance,
+对吗？就像用键盘或卡片一样。但现在让我再问你一次，就像，例如，
 
 279
 00:39:05,880 --> 00:39:11,320
- about sequential versus random. Why not have only one? Forget about tape for now. Right?
+about sequential versus random. Why not have only one? Forget about tape for now. Right?
+关于顺序和随机的问题。为什么不只选择一个？暂时忘记磁带，对吗？
 
 280
 00:39:11,320 --> 00:39:15,040
- Remove tape, you know, because that with tape it's obvious, right? It's like, you know,
+Remove tape, you know, because that with tape it's obvious, right? It's like, you know,
+移除胶带，你知道的，因为有胶带的话很明显，对吧？就像，你知道的，
 
 281
 00:39:15,040 --> 00:39:24,000
- it's that, you know, it's, you have to access data on sequentially. But even without that,
+it's that, you know, it's, you have to access data on sequentially. But even without that,
+这是这样的，你知道的，它是，你必须按顺序访问数据。但即使没有这个，
 
 282
 00:39:24,000 --> 00:39:31,160
- tell me, why not have random? Right? Because if I have random access pattern, then it doesn't
+tell me, why not have random? Right? Because if I have random access pattern, then it doesn't
+告诉我，为什么不能随机访问呢？对吧？因为如果我有随机访问模式，那就不行了。
 
 283
 00:39:31,160 --> 00:39:37,840
- make sense. I mean, I can emulate sequential, right? I start from one and then I say one,
+make sense. I mean, I can emulate sequential, right? I start from one and then I say one,
+有道理。我的意思是，我可以模拟顺序，对吗？我从一开始，然后我说一，
 
 284
 00:39:37,840 --> 00:39:43,200
- now I want to get two, three, four, five, six by three, two, three, four, five, six,
+now I want to get two, three, four, five, six by three, two, three, four, five, six,
+现在我想要用三、两、三、四、五、六来乘以二、三、四、五、六。
 
 285
 00:39:43,200 --> 00:39:49,760
- right? After all, in memory, I have only random access. I don't have sequential access. So
+right? After all, in memory, I have only random access. I don't have sequential access. So
+对吗？毕竟，在内存中，我只有随机访问。我没有顺序访问。所以
 
 286
 00:39:49,760 --> 00:40:03,040
- why sequential access? Why not random? Yes, Michael. Yeah, it's good. We'll learn. Because
+why sequential access? Why not random? Yes, Michael. Yeah, it's good. We'll learn. Because
+为什么是顺序访问？为什么不是随机访问？是的，迈克尔。是的，很好。我们会学习的。因为
 
 287
 00:40:03,040 --> 00:40:11,360
- the random may involve some non-trivial overhead to locate that random piece of information.
+the random may involve some non-trivial overhead to locate that random piece of information.
+随机可能涉及一些非平凡的开销来定位那个随机的信息片段。
 
 288
 00:40:11,360 --> 00:40:18,840
- That's why. Like we'll see with the disks. And therefore, if I'm going to store the bytes
+That's why. Like we'll see with the disks. And therefore, if I'm going to store the bytes
+那就是为什么。就像我们将在磁盘上看到的那样。因此，如果我要存储字节
 
 289
 00:40:18,840 --> 00:40:24,160
- and I can read or write them sequentially, it's going to be much, much faster. So you
+and I can read or write them sequentially, it's going to be much, much faster. So you
+而且如果我可以按顺序读取或写入它们，速度会快得多，非常非常快。所以你
 
 290
 00:40:24,160 --> 00:40:31,640
- see in both these cases, you can do, you can get away only have read/write as a level of
+see in both these cases, you can do, you can get away only have read/write as a level of
+在这两种情况下，你可以做到的是，你只需要具备读写的能力就可以了。
 
 291
 00:40:31,640 --> 00:40:39,320
- byte and only accessing randomly. But you are going to leave a lot of performance on
+byte and only accessing randomly. But you are going to leave a lot of performance on
+字节和仅随机访问。但是你会浪费很多性能。
 
 292
 00:40:39,320 --> 00:40:45,940
- the table. So block and sequential, block randomization and sequential access pattern,
+the table. So block and sequential, block randomization and sequential access pattern,
+这是一个关于表格的话题。所谓块和顺序，是指块随机化和顺序访问模式。
 
 293
 00:40:45,940 --> 00:40:55,700
- one of the main reasons they are used is for performance reasons. Okay.
+one of the main reasons they are used is for performance reasons. Okay.
+它们被使用的主要原因之一是出于性能考虑。好的。
 
 294
 00:40:55,730 --> 00:40:59,410
- Now the transfer mechanism, how is this?
+Now the transfer mechanism, how is this?
+现在转账机制，是怎样的呢？
 
 295
 00:40:59,410 --> 00:41:02,910
- Program I/O or DMA, Direct Memory Access.
+Program I/O or DMA, Direct Memory Access.
+程序输入/输出或DMA，直接内存访问。
 
 296
 00:41:02,910 --> 00:41:09,110
- Program I/O means the processor takes a byte from one device
+Program I/O means the processor takes a byte from one device
+程序的输入/输出意味着处理器从一个设备中取出一个字节。
 
 297
 00:41:09,110 --> 00:41:11,590
- and transfers to another device.
+and transfers to another device.
+并且转移到另一个设备。
 
 298
 00:41:11,590 --> 00:41:18,710
- Like for instance, takes a block of data from the disk
+Like for instance, takes a block of data from the disk
+例如，从磁盘中获取一块数据。
 
 299
 00:41:18,710 --> 00:41:22,270
- and put it in memory.
+and put it in memory.
+并将其存入内存中。
 
 300
 00:41:22,270 --> 00:41:25,730
- It's doing in, out, and low stuff.
+It's doing in, out, and low stuff.
+这是在进行内部、外部和低层次的工作。
 
 301
 00:41:25,730 --> 00:41:26,250
- It's simple.
+It's simple.
+这很简单。
 
 302
 00:41:26,250 --> 00:41:32,930
- You can program everything through the computer.
+You can program everything through the computer.
+你可以通过计算机编程任何东西。
 
 303
 00:41:32,930 --> 00:41:34,970
- The disadvantage is that you are going
+The disadvantage is that you are going
+缺点是你要去的话
 
 304
 00:41:34,970 --> 00:41:36,490
- to use a CPU for doing that.
+to use a CPU for doing that.
+使用CPU来完成这个任务。
 
 305
 00:41:36,490 --> 00:41:39,370
- You are going to consume these resources just moving
+You are going to consume these resources just moving
+你只是在移动中消耗这些资源。
 
 306
 00:41:39,370 --> 00:41:42,690
- the data around, not doing useful work.
+the data around, not doing useful work.
+数据四处飘荡，没有做有用的工作。
 
 307
 00:41:42,690 --> 00:41:46,390
- The second way is Direct Memory Access.
+The second way is Direct Memory Access.
+第二种方式是直接内存访问（Direct Memory Access）。
 
 308
 00:41:46,390 --> 00:41:48,490
- And now this is a smart one.
+And now this is a smart one.
+现在这个是聪明的。
 
 309
 00:41:48,490 --> 00:41:55,670
- In this case, you say you are going to deal with two devices.
+In this case, you say you are going to deal with two devices.
+在这种情况下，你说你要处理两个设备。
 
 310
 00:41:55,670 --> 00:41:58,070
- And basically, you are going to tell one controller
+And basically, you are going to tell one controller
+基本上，你要告诉一个控制器。
 
 311
 00:41:58,070 --> 00:42:02,830
- from one device, well, you have to transfer the data directly
+from one device, well, you have to transfer the data directly
+从一个设备到另一个设备，嗯，你需要直接传输数据。
 
 312
 00:42:02,830 --> 00:42:05,250
- to this other device.
+to this other device.
+发送到另一个设备。
 
 313
 00:42:05,250 --> 00:42:07,770
- This CPU is going to send instructions
+This CPU is going to send instructions
+这个CPU将发送指令。
 
 314
 00:42:07,770 --> 00:42:09,810
- how the transfer should happen.
+how the transfer should happen.
+转让应该如何进行。
 
 315
 00:42:09,810 --> 00:42:13,970
- But then the transfer happens between the devices
+But then the transfer happens between the devices
+但是转移发生在设备之间。
 
 316
 00:42:13,970 --> 00:42:17,310
- without the CPU being involved.
+without the CPU being involved.
+不涉及CPU的情况下。
 
 317
 00:42:17,310 --> 00:42:20,170
- And here is an example.
+And here is an example.
+这是一个例子。
 
 318
 00:42:20,170 --> 00:42:23,170
- And typically, this is one of the devices is typically
+And typically, this is one of the devices is typically
+而通常，这是其中一个设备通常是什么。
 
 319
 00:42:23,170 --> 00:42:25,230
- memory.
+memory.
+记忆。
 
 320
 00:42:25,230 --> 00:42:27,450
- And here what happens?
+And here what happens?
+这里发生了什么事情？
 
 321
 00:42:27,450 --> 00:42:31,110
- So you have a PCI bus and you have a memory.
+So you have a PCI bus and you have a memory.
+所以你有一个PCI总线和一个内存。
 
 322
 00:42:31,110 --> 00:42:33,210
- And here you have a disk.
+And here you have a disk.
+这是一张光盘。
 
 323
 00:42:33,210 --> 00:42:36,410
- And I want to transfer the data from the disk to the memory,
+And I want to transfer the data from the disk to the memory,
+我想将数据从磁盘传输到内存。
 
 324
 00:42:36,410 --> 00:42:40,350
- to read the data from the disk into memory.
+to read the data from the disk into memory.
+将数据从磁盘读入内存。
 
 325
 00:42:40,350 --> 00:42:42,210
- These are the steps.
+These are the steps.
+这些是步骤。
 
 326
 00:42:42,210 --> 00:42:44,310
- The CPU number one.
+The CPU number one.
+CPU编号一。
 
 327
 00:42:44,310 --> 00:42:47,330
- The CPU is going to--
+The CPU is going to--
+中央处理器即将--
 
 328
 00:42:47,330 --> 00:42:54,810
- the program starts to say, I want
+the program starts to say, I want
+程序开始说，我想要什么
 
 329
 00:42:54,810 --> 00:42:57,690
- to read the data from the disk.
+to read the data from the disk.
+读取磁盘上的数据。
 
 330
 00:42:57,690 --> 00:43:03,050
- Now, under the hood, the OS is going to handle that
+Now, under the hood, the OS is going to handle that
+现在，在底层，操作系统将处理这个。
 
 331
 00:43:03,050 --> 00:43:06,810
- and is going to send a message, control message,
+and is going to send a message, control message,
+并且打算发送一条消息，控制消息，
 
 332
 00:43:06,810 --> 00:43:10,330
- to the IDA disk, the controller disk controller telling it,
+to the IDA disk, the controller disk controller telling it,
+将IDA磁盘连接到控制器磁盘控制器，并告知它。
 
 333
 00:43:10,330 --> 00:43:20,650
- OK, you need to get this data to this address in the memory.
+OK, you need to get this data to this address in the memory.
+好的，你需要将这些数据传送到内存中的这个地址。
 
 334
 00:43:20,650 --> 00:43:28,790
- Address X. Now, the controller is going to tell this, OK,
+Address X. Now, the controller is going to tell this, OK,
+地址是X。现在，控制器要告诉这个，好吗？
 
 335
 00:43:28,790 --> 00:43:30,790
- I need to--
+I need to--
+我需要--
 
 336
 00:43:30,790 --> 00:43:33,850
- I was instructed to move this data,
+I was instructed to move this data,
+我被指示移动这些数据。
 
 337
 00:43:33,850 --> 00:43:39,850
- to transfer this data to memory, to this address X.
+to transfer this data to memory, to this address X.
+将这些数据传输到内存，到地址X。
 
 338
 00:43:39,850 --> 00:43:42,130
- And now the DMA is doing the rest.
+And now the DMA is doing the rest.
+现在DMA正在处理剩下的事情。
 
 339
 00:43:42,130 --> 00:43:45,850
- The DMA, not the CPU, is going to handle the transfer
+The DMA, not the CPU, is going to handle the transfer
+DMA将处理传输，而不是CPU。
 
 340
 00:43:45,850 --> 00:43:48,850
- from the disk controller to the memory.
+from the disk controller to the memory.
+从磁盘控制器到内存。
 
 341
 00:43:48,850 --> 00:43:54,530
- So the DMA is going to read the data from the ID
+So the DMA is going to read the data from the ID
+所以DMA将从ID中读取数据。
 
 342
 00:43:54,530 --> 00:43:58,450
- and then drive the data on the CPU bus to the memory.
+and then drive the data on the CPU bus to the memory.
+然后将数据驱动到内存中的CPU总线上。
 
 343
 00:43:58,450 --> 00:44:06,610
- Once the transfer is completed, the DMA
+Once the transfer is completed, the DMA
+一旦转移完成，DMA
 
 344
 00:44:06,610 --> 00:44:09,330
- is going to send an interrupt to the CPU telling,
+is going to send an interrupt to the CPU telling,
+将向CPU发送中断信号，告知
 
 345
 00:44:09,330 --> 00:44:10,010
- I am ready.
+I am ready.
+我准备好了。
 
 346
 00:44:10,010 --> 00:44:18,650
- Any questions?
+Any questions?
+有任何问题吗？
 
 347
 00:44:18,650 --> 00:44:25,850
- Pretty cool, right?
+Pretty cool, right?
+相当酷，对吧？
 
 348
 00:44:25,850 --> 00:44:37,130
- So when do I/O devices are notifying the operating system?
+So when do I/O devices are notifying the operating system?
+I/O设备何时通知操作系统？
 
 349
 00:44:37,130 --> 00:44:38,730
- Right?
+Right?
+对吗？
 
 350
 00:44:38,730 --> 00:44:39,690
- Two reasons.
+Two reasons.
+两个原因。
 
 351
 00:44:39,690 --> 00:44:45,290
- When it was-- well, the OS--
+When it was-- well, the OS--
+当它是--嗯，操作系统--
 
 352
 00:44:45,290 --> 00:44:47,010
- think about from the OS perspective,
+think about from the OS perspective,
+从操作系统的角度来思考，
 
 353
 00:44:47,010 --> 00:44:48,770
- what do you need to know?
+what do you need to know?
+你需要知道什么？
 
 354
 00:44:48,770 --> 00:44:51,570
- On the other hand, you need to know if you are instructed,
+On the other hand, you need to know if you are instructed,
+另一方面，你需要知道是否有指示。
 
 355
 00:44:51,570 --> 00:44:53,410
- you have instructed a controller,
+you have instructed a controller,
+你已经指示了一个控制器。
 
 356
 00:44:53,410 --> 00:44:56,930
- I/O controller to perform some operation.
+I/O controller to perform some operation.
+I/O控制器执行某些操作。
 
 357
 00:44:56,930 --> 00:45:04,090
- You want to know when that operation is completed.
+You want to know when that operation is completed.
+你想知道那个操作何时完成。
 
 358
 00:45:04,090 --> 00:45:07,570
- The second is if there is an error.
+The second is if there is an error.
+第二种情况是如果出现错误。
 
 359
 00:45:07,570 --> 00:45:09,050
- Right?
+Right?
+对吗？
 
 360
 00:45:09,050 --> 00:45:13,410
- OK.
+OK.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 361
 00:45:13,410 --> 00:45:19,570
- So and like you mentioned, one way to handle that
+So and like you mentioned, one way to handle that
+所以，就像你提到的那样，处理这个问题的一种方法是
 
 362
 00:45:19,570 --> 00:45:21,730
- is I/O interrupt.
+is I/O interrupt.
+是输入/输出中断。
 
 363
 00:45:21,730 --> 00:45:23,610
- Whenever there is one of these events
+Whenever there is one of these events
+每当发生这些事件之一时
 
 364
 00:45:23,610 --> 00:45:29,410
- that OS needs to know about, the I/O controller
+that OS needs to know about, the I/O controller
+那个操作系统需要知道的是输入/输出控制器。
 
 365
 00:45:29,410 --> 00:45:32,610
- raises an interrupt.
+raises an interrupt.
+引发中断。
 
 366
 00:45:32,610 --> 00:45:34,010
- OK.
+OK.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 367
 00:45:34,010 --> 00:45:36,650
- Why this is good?
+Why this is good?
+为什么这个好？
 
 368
 00:45:36,650 --> 00:45:38,610
- The CPU doesn't need to worry about.
+The CPU doesn't need to worry about.
+CPU不需要担心。
 
 369
 00:45:38,610 --> 00:45:41,050
- I'm going-- the CPU is going to--
+I'm going-- the CPU is going to--
+我要走了——CPU要——
 
 370
 00:45:41,050 --> 00:45:49,130
- the device-- the I/O controller is going to let the CPU know
+the device-- the I/O controller is going to let the CPU know
+这个设备--输入/输出控制器将会让CPU知道。
 
 371
 00:45:49,130 --> 00:45:53,850
- and something worse knowing happens.
+and something worse knowing happens.
+发生了一些更糟糕的事情。
 
 372
 00:45:53,850 --> 00:45:58,210
- But also, you can handle unpredictable events
+But also, you can handle unpredictable events
+但是，你也可以处理不可预测的事件。
 
 373
 00:45:58,210 --> 00:46:02,050
- like a new packet arriving on the network.
+like a new packet arriving on the network.
+像一个新的数据包到达网络一样。
 
 374
 00:46:02,050 --> 00:46:06,090
- The disadvantage is that the interrupts are expensive.
+The disadvantage is that the interrupts are expensive.
+缺点是中断的成本较高。
 
 375
 00:46:06,090 --> 00:46:07,930
- It's a context switch.
+It's a context switch.
+这是一个上下文切换。
 
 376
 00:46:07,930 --> 00:46:11,610
- You know, when the CPU--
+You know, when the CPU--
+你知道，当CPU--
 
 377
 00:46:11,610 --> 00:46:18,330
- when I raise an interrupt, maybe most likely a process,
+when I raise an interrupt, maybe most likely a process,
+当我触发一个中断时，很可能是一个进程。
 
 378
 00:46:18,330 --> 00:46:20,970
- a user process was executed.
+a user process was executed.
+一个用户进程被执行了。
 
 379
 00:46:20,970 --> 00:46:22,450
- So you need to do a context switch
+So you need to do a context switch
+所以你需要进行上下文切换
 
 380
 00:46:22,450 --> 00:46:27,410
- to go through the operating system, handle the interrupt,
+to go through the operating system, handle the interrupt,
+通过操作系统来处理中断。
 
 381
 00:46:27,410 --> 00:46:29,250
- and then to go back in the user mode
+and then to go back in the user mode
+然后返回到用户模式。
 
 382
 00:46:29,250 --> 00:46:30,690
- to continue running the process.
+to continue running the process.
+继续运行该进程。
 
 383
 00:46:34,090 --> 00:46:36,570
- The other one is polling.
+The other one is polling.
+另一个是投票。
 
 384
 00:46:36,570 --> 00:46:39,170
- So this is operating system periodically check
+So this is operating system periodically check
+所以这是操作系统定期检查。
 
 385
 00:46:39,170 --> 00:46:43,890
- a device specific status to see whether it's ready.
+a device specific status to see whether it's ready.
+一个设备特定的状态，用于查看它是否准备就绪。
 
 386
 00:46:43,890 --> 00:46:47,490
- Remember that I showed you in the I/O controller,
+Remember that I showed you in the I/O controller,
+记得我在输入/输出控制器中向你展示过，
 
 387
 00:46:47,490 --> 00:46:51,450
- one of these registers was called status.
+one of these registers was called status.
+其中一个寄存器被称为状态。
 
 388
 00:46:51,450 --> 00:46:53,850
- So for instance, it's going to be a printer.
+So for instance, it's going to be a printer.
+所以例如，它将是一台打印机。
 
 389
 00:46:53,850 --> 00:46:54,610
- I was always--
+I was always--
+我一直都是--
 
 390
 00:46:54,610 --> 00:46:57,330
- I want to know when the printer is done,
+I want to know when the printer is done,
+我想知道打印机什么时候完成。
 
 391
 00:46:57,330 --> 00:46:59,130
- when the printing is done.
+when the printing is done.
+当打印完成时。
 
 392
 00:46:59,130 --> 00:47:03,010
- So I can tell the user, OK, the printer is done.
+So I can tell the user, OK, the printer is done.
+所以我可以告诉用户，好的，打印机已经完成了。
 
 393
 00:47:03,010 --> 00:47:04,650
- Whatever you send to the printer is done.
+Whatever you send to the printer is done.
+无论你发送什么给打印机，都已完成。
 
 394
 00:47:04,650 --> 00:47:14,090
- So in that case, the controller has this status register,
+So in that case, the controller has this status register,
+那么在这种情况下，控制器有这个状态寄存器。
 
 395
 00:47:14,090 --> 00:47:17,010
- and it's going to be updated when
+and it's going to be updated when
+并且它将在更新时进行更新。
 
 396
 00:47:17,010 --> 00:47:21,010
- the printer is no longer busy when
+the printer is no longer busy when
+打印机不再忙碌时。
 
 397
 00:47:21,010 --> 00:47:23,490
- the file finished being printed.
+the file finished being printed.
+文件已经打印完成。
 
 398
 00:47:23,490 --> 00:47:27,290
- And then the OS is periodically going to check on that.
+And then the OS is periodically going to check on that.
+然后操作系统会定期检查这个。
 
 399
 00:47:27,290 --> 00:47:30,250
- And when it's no longer busy, it's
+And when it's no longer busy, it's
+而当它不再忙碌时，它就是
 
 400
 00:47:30,250 --> 00:47:34,810
- going to turn to the application.
+going to turn to the application.
+准备转向应用程序。
 
 401
 00:47:34,810 --> 00:47:39,770
- Now the pro here is low overhead because the OS
+Now the pro here is low overhead because the OS
+现在这里的优势是开销低，因为操作系统
 
 402
 00:47:39,770 --> 00:47:46,210
- is going to check on this between contact switches.
+is going to check on this between contact switches.
+将在接触开关之间进行检查。
 
 403
 00:47:46,210 --> 00:47:49,650
- It doesn't need to do a contact switch to just to check.
+It doesn't need to do a contact switch to just to check.
+它不需要进行联系开关，只是为了检查。
 
 404
 00:47:49,650 --> 00:47:53,370
- This one, the operating system gets--
+This one, the operating system gets--
+这个，操作系统得到--
 
 405
 00:47:53,370 --> 00:47:55,250
- the kernel gets control.
+the kernel gets control.
+内核获得控制。
 
 406
 00:47:55,250 --> 00:47:58,370
- It's also going to check this.
+It's also going to check this.
+这也要检查一下。
 
 407
 00:47:58,370 --> 00:48:03,090
- Now the con is that you check and nothing happens,
+Now the con is that you check and nothing happens,
+现在的问题是你检查了，但什么都没有发生，
 
 408
 00:48:03,090 --> 00:48:07,490
- then that's wasted time, CPU cycles.
+then that's wasted time, CPU cycles.
+那么这就是浪费的时间和CPU周期。
 
 409
 00:48:07,490 --> 00:48:09,370
- OK?
+OK?
+好的。
 
 410
 00:48:09,370 --> 00:48:13,370
- So now, typically you combine those.
+So now, typically you combine those.
+所以现在，通常你会将它们结合起来。
 
 411
 00:48:13,370 --> 00:48:15,130
- There is no right solution.
+There is no right solution.
+没有正确的解决方案。
 
 412
 00:48:15,130 --> 00:48:16,730
- That's why you have to do both of them.
+That's why you have to do both of them.
+这就是为什么你必须两者兼顾。
 
 413
 00:48:16,730 --> 00:48:20,490
- If you do only one solution, why would
+If you do only one solution, why would
+如果你只做一种解决方案，为什么会这样呢？
 
 414
 00:48:20,490 --> 00:48:22,930
- have I told you about both?
+have I told you about both?
+我有告诉过你两个都吗？
 
 415
 00:48:22,930 --> 00:48:25,850
- But let me take a step back now and ask you,
+But let me take a step back now and ask you,
+但是现在让我退后一步，问问你，
 
 416
 00:48:25,850 --> 00:48:30,050
- when are you going to use IO interrupts?
+when are you going to use IO interrupts?
+你打算什么时候使用IO中断？
 
 417
 00:48:30,050 --> 00:48:34,050
- And there is a little bit of an answer here.
+And there is a little bit of an answer here.
+这里有一点点答案。
 
 418
 00:48:34,050 --> 00:48:39,330
- But I just want you to give the answer in your own words.
+But I just want you to give the answer in your own words.
+但是我只希望你用你自己的话来回答。
 
 419
 00:48:39,330 --> 00:48:42,090
- When do you think you should use IO interrupts?
+When do you think you should use IO interrupts?
+你认为什么时候应该使用IO中断？
 
 420
 00:48:42,090 --> 00:48:43,730
- When do you think you should use polling?
+When do you think you should use polling?
+你认为什么时候应该使用轮询？
 
 421
 00:48:43,730 --> 00:48:49,410
- Give me another-- this is one example
+Give me another-- this is one example
+给我另一个——这是一个例子。
 
 422
 00:48:49,410 --> 00:48:50,570
- you have here on the slide.
+you have here on the slide.
+你在这张幻灯片上有什么。
 
 423
 00:48:50,570 --> 00:48:51,650
- Give me another example.
+Give me another example.
+给我另一个例子。
 
 424
 00:48:51,650 --> 00:49:06,130
- [AUDIO OUT]
+[AUDIO OUT]
+[音频关闭]
 
 425
 00:49:06,130 --> 00:49:08,690
- Let me ask you, keyboard, right?
+Let me ask you, keyboard, right?
+让我问你，键盘，对吗？
 
 426
 00:49:08,690 --> 00:49:11,570
- Are you going to use polling or interrupts?
+Are you going to use polling or interrupts?
+你打算使用轮询还是中断？
 
 427
 00:49:11,570 --> 00:49:18,250
- Human IO for interrupts.
+Human IO for interrupts.
+人机交互用于中断。
 
 428
 00:49:18,250 --> 00:49:20,170
- OK, that's good.
+OK, that's good.
+好的，没问题。
 
 429
 00:49:20,170 --> 00:49:21,530
- Why is that?
+Why is that?
+为什么这样呢？
 
 430
 00:49:21,530 --> 00:49:23,570
- Why human IO for interrupts?
+Why human IO for interrupts?
+为什么人类IO用于中断？
 
 431
 00:49:23,570 --> 00:49:30,850
- Rare and slow and--
+Rare and slow and--
+稀有而缓慢的——
 
 432
 00:49:30,850 --> 00:49:34,930
- you see here?
+you see here?
+你看到这里了吗？
 
 433
 00:49:34,930 --> 00:49:35,490
- Oh, sorry.
+Oh, sorry.
+哦，抱歉。
 
 434
 00:49:35,490 --> 00:49:40,170
- Unpredictable, right?
+Unpredictable, right?
+不可预测的，对吧？
 
 435
 00:49:40,170 --> 00:49:41,570
- It's unpredictable.
+It's unpredictable.
+这是不可预测的。
 
 436
 00:49:41,570 --> 00:49:43,450
- If it's something unpredictable, it
+If it's something unpredictable, it
+如果是一些不可预测的事情，那就
 
 437
 00:49:43,450 --> 00:49:46,610
- doesn't make sense to poll forever, right,
+doesn't make sense to poll forever, right,
+不断进行投票没有意义，对吧？
 
 438
 00:49:46,610 --> 00:49:50,330
- for something rare to happen.
+for something rare to happen.
+为了某件罕见的事情发生。
 
 439
 00:49:50,330 --> 00:49:51,330
- Yes, Gilbert.
+Yes, Gilbert.
+是的，Gilbert。
 
 440
 00:49:51,330 --> 00:49:53,290
- So your interrupt for frequent sinks,
+So your interrupt for frequent sinks,
+所以你打断了频繁的沉思，
 
 441
 00:49:53,290 --> 00:49:57,370
- polling for stuff we need to continuously check.
+polling for stuff we need to continuously check.
+持续检查我们需要的东西。
 
 442
 00:49:57,370 --> 00:50:00,690
- Yes, or if something happens--
+Yes, or if something happens--
+是的，或者如果发生了什么事情--
 
 443
 00:50:00,690 --> 00:50:09,210
- yeah, this for polling, someone, you
+yeah, this for polling, someone, you
+是的，这是用于投票的，有人，你。
 
 444
 00:50:09,210 --> 00:50:12,450
- say this for polling, sometimes actually you don't use.
+say this for polling, sometimes actually you don't use.
+说这个是为了进行投票，有时候实际上你并不使用。
 
 445
 00:50:12,450 --> 00:50:12,930
- We'll see.
+We'll see.
+我们会看的。
 
 446
 00:50:12,930 --> 00:50:15,970
- But it's not necessary that you are going to poll the disk.
+But it's not necessary that you are going to poll the disk.
+但并不一定需要你去轮询磁盘。
 
 447
 00:50:15,970 --> 00:50:20,610
- Yeah.
+Yeah.
+是的。
 
 448
 00:50:20,610 --> 00:50:21,370
-.
+
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 449
 00:50:21,370 --> 00:50:32,770
- So yeah, for the keyboard, eventually it's again,
+So yeah, for the keyboard, eventually it's again,
+所以，对于键盘来说，最终又是这样，
 
 450
 00:50:32,770 --> 00:50:35,450
- you have to use the interrupt because this
+you have to use the interrupt because this
+你必须使用中断，因为这样
 
 451
 00:50:35,450 --> 00:50:40,170
- is to tell the operating system when some keyboard is pressed.
+is to tell the operating system when some keyboard is pressed.
+是用来告诉操作系统某个键盘被按下的。
 
 452
 00:50:40,170 --> 00:50:45,090
- Because if you watch a movie for two hours
+Because if you watch a movie for two hours
+因为如果你连续观看电影两个小时的话
 
 453
 00:50:45,090 --> 00:50:50,570
- or whatever on your computer, you don't type anything, right?
+or whatever on your computer, you don't type anything, right?
+或者你的电脑上有其他什么东西，你不需要输入任何内容，对吗？
 
 454
 00:50:50,570 --> 00:50:53,850
- Or zoom, like right now.
+Or zoom, like right now.
+或者现在就用Zoom。
 
 455
 00:50:53,850 --> 00:50:57,250
- You are listening to this lecture, right?
+You are listening to this lecture, right?
+你在听这个讲座，对吗？
 
 456
 00:50:57,250 --> 00:50:59,490
- I hope that you are not doing a lot of many things other
+I hope that you are not doing a lot of many things other
+希望你没有做很多其他的事情。
 
 457
 00:50:59,490 --> 00:51:01,410
- than listening to the lecture.
+than listening to the lecture.
+比听讲座更好。
 
 458
 00:51:01,410 --> 00:51:03,450
- But still, right, it's like if you are listening,
+But still, right, it's like if you are listening,
+但是，对吧，就好像你在倾听一样，
 
 459
 00:51:03,450 --> 00:51:04,610
- you don't touch it.
+you don't touch it.
+你不要碰它。
 
 460
 00:51:04,610 --> 00:51:05,770
- You don't have the keyboard.
+You don't have the keyboard.
+你没有键盘。
 
 461
 00:51:05,770 --> 00:51:06,890
- So it's very rare event.
+So it's very rare event.
+所以这是一个非常罕见的事件。
 
 462
 00:51:06,890 --> 00:51:08,410
- Doesn't make a lot of sense to poll.
+Doesn't make a lot of sense to poll.
+不太有意义进行投票。
 
 463
 00:51:08,410 --> 00:51:13,090
- One of the things, the reason you poll
+One of the things, the reason you poll
+你询问的原因之一是什么？
 
 464
 00:51:13,090 --> 00:51:15,970
- is like in this example, when things
+is like in this example, when things
+就像在这个例子中一样，当事情...
 
 465
 00:51:15,970 --> 00:51:21,170
- happens extremely frequent, right?
+happens extremely frequent, right?
+发生得非常频繁，对吗？
 
 466
 00:51:21,170 --> 00:51:23,130
- Once you get, for instance, a packet here,
+Once you get, for instance, a packet here,
+一旦你在这里收到一个包裹，
 
 467
 00:51:23,130 --> 00:51:25,890
- you get so many other packets one after another.
+you get so many other packets one after another.
+你接连收到了这么多其他的包裹。
 
 468
 00:51:25,890 --> 00:51:30,010
- You cannot afford to have a context switching per packet.
+You cannot afford to have a context switching per packet.
+你不能承受每个数据包的上下文切换。
 
 469
 00:51:30,010 --> 00:51:33,730
- When the context switching is--
+When the context switching is--
+当上下文切换发生时--
 
 470
 00:51:33,730 --> 00:51:35,930
- the overhead of context switching
+the overhead of context switching
+上下文切换的开销
 
 471
 00:51:35,930 --> 00:51:42,810
- is larger than the time between the events,
+is larger than the time between the events,
+比事件之间的时间更长，
 
 472
 00:51:42,810 --> 00:51:45,210
- it probably doesn't-- it's not worth the context switching.
+it probably doesn't-- it's not worth the context switching.
+它可能不会——这样做并不值得切换上下文。
 
 473
 00:51:45,210 --> 00:51:49,610
- It's not worth the interrupts, right?
+It's not worth the interrupts, right?
+这不值得打断，对吗？
 
 474
 00:51:49,610 --> 00:51:53,530
- Let me put it in another way.
+Let me put it in another way.
+让我换个方式来表达。
 
 475
 00:51:53,530 --> 00:51:56,490
- So say context switching gets one millisecond
+So say context switching gets one millisecond
+所以说，上下文切换需要1毫秒。
 
 476
 00:51:56,490 --> 00:51:59,250
- and picking some random number, right?
+and picking some random number, right?
+然后选择一些随机数，对吗？
 
 477
 00:51:59,250 --> 00:52:06,730
- And then say an event happens every 10 microseconds.
+And then say an event happens every 10 microseconds.
+然后说每隔10微秒就会发生一个事件。
 
 478
 00:52:06,730 --> 00:52:12,090
- It makes no sense to do the interrupts for event, right?
+It makes no sense to do the interrupts for event, right?
+对于事件来说，做中断没有意义，对吗？
 
 479
 00:52:12,090 --> 00:52:17,130
- You just poll to see for that.
+You just poll to see for that.
+你只是进行调查而已。
 
 480
 00:52:17,130 --> 00:52:21,890
- OK, very good.
+OK, very good.
+好的，非常好。
 
 481
 00:52:21,890 --> 00:52:32,370
- So this is a structure in the kernel for the device.
+So this is a structure in the kernel for the device.
+这是内核中用于设备的一个结构。
 
 482
 00:52:32,370 --> 00:52:36,050
- So you have the system call interface.
+So you have the system call interface.
+所以你有系统调用接口。
 
 483
 00:52:36,050 --> 00:52:37,370
- We'll talk more about them.
+We'll talk more about them.
+我们会更多地谈论他们。
 
 484
 00:52:37,370 --> 00:52:41,130
- And you have some for memory--
+And you have some for memory--
+你还有一些关于记忆的东西--
 
 485
 00:52:41,130 --> 00:52:43,330
- this is what we learned for all.
+this is what we learned for all.
+这是我们为所有人学到的东西。
 
 486
 00:52:43,330 --> 00:52:45,810
- We have process management, memory management,
+We have process management, memory management,
+我们有进程管理、内存管理、
 
 487
 00:52:45,810 --> 00:52:47,370
- file systems.
+file systems.
+文件系统。
 
 488
 00:52:47,370 --> 00:52:49,370
- And then you have the device control.
+And then you have the device control.
+然后你有设备控制。
 
 489
 00:52:49,370 --> 00:52:52,530
- This is for I/O devices and then networking.
+This is for I/O devices and then networking.
+这是用于输入/输出设备，然后是网络。
 
 490
 00:52:52,530 --> 00:52:54,650
- Networking typically is different in apps.
+Networking typically is different in apps.
+网络通信在应用程序中通常是不同的。
 
 491
 00:52:54,650 --> 00:52:58,170
- So the API also for networking is slightly different.
+So the API also for networking is slightly different.
+所以网络方面的API也略有不同。
 
 492
 00:52:58,170 --> 00:53:10,730
- OK, so the device control--
+OK, so the device control--
+好的，所以设备控制--
 
 493
 00:53:10,730 --> 00:53:13,650
- what is-- when we say--
+what is-- when we say--
+什么是--当我们说--
 
 494
 00:53:13,650 --> 00:53:17,610
- so the device control--
+so the device control--
+所以设备控制--
 
 495
 00:53:17,610 --> 00:53:25,530
- the control for the device, this is typically implemented
+the control for the device, this is typically implemented
+设备的控制，通常是通过实现来完成的。
 
 496
 00:53:25,530 --> 00:53:27,050
- on the device itself.
+on the device itself.
+在设备本身上。
 
 497
 00:53:27,050 --> 00:53:31,370
- But this device now has to also interface with the operating
+But this device now has to also interface with the operating
+但是现在这个设备还必须与操作系统进行接口。
 
 498
 00:53:31,370 --> 00:53:32,170
- system.
+system.
+系统。
 
 499
 00:53:32,170 --> 00:53:35,090
- The piece of software which--
+The piece of software which--
+这个软件的一部分--
 
 500
 00:53:35,090 --> 00:53:44,290
- the piece of software which bridges the operating system
+the piece of software which bridges the operating system
+这个软件是用来连接操作系统的。
 
 501
 00:53:44,290 --> 00:53:53,410
- API with the controller API is called device driver.
+API with the controller API is called device driver.
+使用控制器API调用的API被称为设备驱动程序。
 
 502
 00:53:53,410 --> 00:53:56,610
- And it's a piece of code which runs in the operating
+And it's a piece of code which runs in the operating
+而这是一段在操作系统中运行的代码。
 
 503
 00:53:56,610 --> 00:53:57,770
- system, in the kernel.
+system, in the kernel.
+系统，在内核中。
 
 504
 00:53:57,770 --> 00:54:03,090
- And it is the piece of code.
+And it is the piece of code.
+这是一段代码。
 
 505
 00:54:03,090 --> 00:54:08,490
- It implements the Unix I/O API.
+It implements the Unix I/O API.
+它实现了Unix的I/O API。
 
 506
 00:54:08,490 --> 00:54:09,970
- What is that API?
+What is that API?
+那是什么API？
 
 507
 00:54:09,970 --> 00:54:15,810
- Well, this is the thing which survived so many decades.
+Well, this is the thing which survived so many decades.
+这就是那个经历了这么多年的东西。
 
 508
 00:54:15,810 --> 00:54:22,050
- Remember, open, close in order to communicate to a device.
+Remember, open, close in order to communicate to a device.
+记住，打开，关闭以便与设备进行通信。
 
 509
 00:54:22,050 --> 00:54:24,370
- You open, you close.
+You open, you close.
+你打开，你关闭。
 
 510
 00:54:24,370 --> 00:54:26,610
- Then read and write.
+Then read and write.
+然后阅读和写作。
 
 511
 00:54:26,610 --> 00:54:31,610
- And you can read as a program or you can read as a program.
+And you can read as a program or you can read as a program.
+你可以将其理解为一个节目，也可以将其理解为一个计划。
 
 512
 00:54:31,610 --> 00:54:37,690
- And IO-CTL, IO control, this is a escape patch.
+And IO-CTL, IO control, this is a escape patch.
+IO-CTL，IO控制，这是一个逃避补丁。
 
 513
 00:54:37,690 --> 00:54:40,250
- Because each device can have--
+Because each device can have--
+因为每个设备都可以有--
 
 514
 00:54:40,250 --> 00:54:43,330
- is a little bit different, requires a little bit
+is a little bit different, requires a little bit
+有一点不同，需要一点点。
 
 515
 00:54:43,330 --> 00:54:46,850
- different configurations.
+different configurations.
+不同的配置。
 
 516
 00:54:46,850 --> 00:54:51,090
- This is what is IO-CTL is.
+This is what is IO-CTL is.
+这是IO-CTL是什么。
 
 517
 00:54:51,090 --> 00:54:55,290
- It's more for device specific control.
+It's more for device specific control.
+这更多是用于设备特定的控制。
 
 518
 00:54:59,570 --> 00:55:03,810
- Now, the device driver is two halves.
+Now, the device driver is two halves.
+现在，设备驱动程序分为两个部分。
 
 519
 00:55:03,810 --> 00:55:08,490
- One, which basically is executed in the user mode,
+One, which basically is executed in the user mode,
+一，基本上是在用户模式下执行的。
 
 520
 00:55:08,490 --> 00:55:10,690
- and the other one which is executed in the kernel.
+and the other one which is executed in the kernel.
+另一个是在内核中执行的。
 
 521
 00:55:10,690 --> 00:55:16,930
- Sorry.
+Sorry.
+对不起。
 
 522
 00:55:16,930 --> 00:55:18,050
- I'm sorry.
+I'm sorry.
+对不起。
 
 523
 00:55:18,050 --> 00:55:22,490
- Both top and half--
+Both top and half--
+Both top and half--
+两者皆为顶部和一半--
 
 524
 00:55:22,490 --> 00:55:25,690
- bottom and half of the device drivers
+bottom and half of the device drivers
+设备驱动程序的底部一半
 
 525
 00:55:25,690 --> 00:55:27,650
- are executed in the kernel.
+are executed in the kernel.
+在内核中执行。
 
 526
 00:55:27,650 --> 00:55:33,530
- The top one, it provides--
+The top one, it provides--
+最上面的那个，它提供--
 
 527
 00:55:33,530 --> 00:55:40,890
- it helps to provide the kernel IO API, which
+it helps to provide the kernel IO API, which
+它有助于提供内核IO API，该API可以
 
 528
 00:55:40,890 --> 00:55:46,170
- is used by the user program to interact with these devices.
+is used by the user program to interact with these devices.
+被用户程序用来与这些设备进行交互。
 
 529
 00:55:46,170 --> 00:55:47,730
- So let's see what happens.
+So let's see what happens.
+那么让我们看看会发生什么。
 
 530
 00:55:47,730 --> 00:55:49,730
- So let's say you have a user program
+So let's say you have a user program
+那么假设你有一个用户程序。
 
 531
 00:55:49,730 --> 00:55:54,370
- and request an IO operation, say, to write data to the disk.
+and request an IO operation, say, to write data to the disk.
+并请求进行IO操作，比如说，将数据写入磁盘。
 
 532
 00:55:54,370 --> 00:56:01,130
- First of all, is that--
+First of all, is that--
+首先，那是什么？
 
 533
 00:56:01,130 --> 00:56:08,610
- is the request already satisfied or something like that?
+is the request already satisfied or something like that?
+请求已经满足了吗，或者类似的情况？
 
 534
 00:56:08,610 --> 00:56:11,850
- It's like this happens when this happens.
+It's like this happens when this happens.
+就像这样，当发生这种情况时会发生这种情况。
 
 535
 00:56:11,850 --> 00:56:13,890
- This happens, for instance, if I am going
+This happens, for instance, if I am going
+这种情况发生在我要去的时候，例如。
 
 536
 00:56:13,890 --> 00:56:17,490
- to read some data from the disk.
+to read some data from the disk.
+从磁盘中读取一些数据。
 
 537
 00:56:17,490 --> 00:56:19,970
- And when I read the data from the disk,
+And when I read the data from the disk,
+当我从磁盘上读取数据时，
 
 538
 00:56:19,970 --> 00:56:23,850
- the granularity at which the data is transferred from the disk
+the granularity at which the data is transferred from the disk
+数据从磁盘传输的粒度
 
 539
 00:56:23,850 --> 00:56:25,410
- is larger than what I read.
+is larger than what I read.
+比我读的要大。
 
 540
 00:56:25,410 --> 00:56:27,290
- Say, I read only 10 bytes.
+Say, I read only 10 bytes.
+说，我只读了10个字节。
 
 541
 00:56:27,290 --> 00:56:29,490
- But when I'm going to transfer from the disk,
+But when I'm going to transfer from the disk,
+但是当我要从磁盘上转移时，
 
 542
 00:56:29,490 --> 00:56:32,370
- I'm going to transfer one page is four kilobytes.
+I'm going to transfer one page is four kilobytes.
+我将传输一页，大小为四千字节。
 
 543
 00:56:32,370 --> 00:56:36,650
- So these four kilobytes is already stored in memory.
+So these four kilobytes is already stored in memory.
+所以这四千字节已经存储在内存中了。
 
 544
 00:56:36,650 --> 00:56:41,090
- So now, I am just going to--
+So now, I am just going to--
+所以现在，我只是要--
 
 545
 00:56:41,090 --> 00:56:43,290
- if I read those first 10 bytes, then I
+if I read those first 10 bytes, then I
+如果我读取那前10个字节，那么我
 
 546
 00:56:43,290 --> 00:56:44,450
- can read the next 10 bytes.
+can read the next 10 bytes.
+可以读取接下来的10个字节。
 
 547
 00:56:44,450 --> 00:56:45,530
- They're already in memory.
+They're already in memory.
+它们已经在内存中了。
 
 548
 00:56:45,530 --> 00:56:50,050
- So I don't need to do invoke to touch the device again.
+So I don't need to do invoke to touch the device again.
+所以我不需要再次触摸设备来执行操作。
 
 549
 00:56:50,050 --> 00:56:53,730
- But let's say now it's not satisfied.
+But let's say now it's not satisfied.
+但是现在假设它不满意。
 
 550
 00:56:53,730 --> 00:56:55,970
- So now, I'm going to send the request to the device.
+So now, I'm going to send the request to the device.
+所以现在，我要将请求发送到设备。
 
 551
 00:56:55,970 --> 00:57:05,490
- And well, send the request to the device driver.
+And well, send the request to the device driver.
+好的，将请求发送给设备驱动程序。
 
 552
 00:57:05,490 --> 00:57:07,490
- The device driver is looking at the request.
+The device driver is looking at the request.
+设备驱动程序正在查看请求。
 
 553
 00:57:07,490 --> 00:57:14,690
- And from here on, this code, it's device specific.
+And from here on, this code, it's device specific.
+从这里开始，这段代码是特定于设备的。
 
 554
 00:57:14,690 --> 00:57:22,090
- I process the request.
+I process the request.
+我处理这个请求。
 
 555
 00:57:22,090 --> 00:57:25,850
- And then you send it to the device hardware.
+And then you send it to the device hardware.
+然后你将它发送到设备硬件。
 
 556
 00:57:25,850 --> 00:57:27,730
- So this is the device driver.
+So this is the device driver.
+这是设备驱动程序。
 
 557
 00:57:27,730 --> 00:57:29,850
- This is on the hardware.
+This is on the hardware.
+这是关于硬件的事情。
 
 558
 00:57:29,850 --> 00:57:33,730
- So this part, it's on the kernel.
+So this part, it's on the kernel.
+这部分是关于内核的。
 
 559
 00:57:33,730 --> 00:57:36,050
- In the kernel, this part at the bottom
+In the kernel, this part at the bottom
+在内核中，这部分位于底部。
 
 560
 00:57:36,050 --> 00:57:37,330
- can be in the device driver.
+can be in the device driver.
+可以在设备驱动程序中实现。
 
 561
 00:57:37,330 --> 00:57:44,170
- It can be in the device itself.
+It can be in the device itself.
+它可以在设备本身中。
 
 562
 00:57:44,170 --> 00:57:47,170
- And the device, the controller, is
+And the device, the controller, is
+而这个设备，控制器，是什么？
 
 563
 00:57:47,170 --> 00:57:49,050
- going to execute the operation.
+going to execute the operation.
+准备执行该操作。
 
 564
 00:57:49,050 --> 00:57:51,650
- Say, for instance, instruct the disk
+Say, for instance, instruct the disk
+说，例如，指示磁盘。
 
 565
 00:57:51,650 --> 00:57:53,410
- where to read the data from.
+where to read the data from.
+从哪里读取数据？
 
 566
 00:57:53,410 --> 00:57:55,370
- Then read the data.
+Then read the data.
+然后阅读数据。
 
 567
 00:57:55,370 --> 00:57:58,010
- Once it reads the data, it buffers.
+Once it reads the data, it buffers.
+一旦读取数据，它会进行缓冲。
 
 568
 00:57:58,010 --> 00:58:00,170
- It sends an interrupt.
+It sends an interrupt.
+它发送一个中断信号。
 
 569
 00:58:00,170 --> 00:58:01,370
- Sorry.
+Sorry.
+对不起。
 
 570
 00:58:01,370 --> 00:58:03,890
- And the interrupt is sent to the kernel.
+And the interrupt is sent to the kernel.
+中断被发送到内核。
 
 571
 00:58:03,890 --> 00:58:06,890
- The kernel is going to handle this interrupt.
+The kernel is going to handle this interrupt.
+内核将处理这个中断。
 
 572
 00:58:06,890 --> 00:58:09,690
- It's going to get the data from the device.
+It's going to get the data from the device.
+它将从设备中获取数据。
 
 573
 00:58:09,690 --> 00:58:18,730
- And then it's going to see whether the I/O is completed.
+And then it's going to see whether the I/O is completed.
+然后它会检查I/O是否完成。
 
 574
 00:58:18,730 --> 00:58:21,930
- And if it's completed, it's going to let the application
+And if it's completed, it's going to let the application
+而且如果完成了，它将允许应用程序
 
 575
 00:58:21,930 --> 00:58:24,450
- know.
+know.
+知道。
 
 576
 00:58:24,450 --> 00:58:24,930
- OK.
+OK.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 577
 00:58:24,930 --> 00:58:29,570
- Sounds good.
+Sounds good.
+听起来不错。
 
 578
 00:58:29,570 --> 00:58:31,050
- OK.
+OK.
+Sure, I can help you with that. Please go ahead and provide me with the text you would like me to translate.
 
 579
 00:58:31,050 --> 00:58:34,010
- So the goal of the I/O subsystem-- so I/O,
+So the goal of the I/O subsystem-- so I/O,
+I/O subsystem的目标是处理输入/输出（I/O）操作，
 
 580
 00:58:34,010 --> 00:58:39,170
- it's, again, to provide this interface uniform interface.
+it's, again, to provide this interface uniform interface.
+这是为了提供一个统一的界面。
 
 581
 00:58:39,170 --> 00:58:43,010
- And so that uniform interface means--
+And so that uniform interface means--
+所以这个统一的接口意味着--
 
 582
 00:58:43,010 --> 00:58:45,890
- so uniform API means that the code
+so uniform API means that the code
+统一的API意味着代码可以在不同的平台和系统上运行。
 
 583
 00:58:45,890 --> 00:58:49,530
- you wrote for one particular device
+you wrote for one particular device
+你写的是针对特定设备的。
 
 584
 00:58:49,530 --> 00:58:54,250
- should work potentially with very minimal changes
+should work potentially with very minimal changes
+应该可以在非常小的改动下潜在地工作。
 
 585
 00:58:54,250 --> 00:58:56,970
- for other devices.
+for other devices.
+适用于其他设备。
 
 586
 00:58:56,970 --> 00:59:05,210
- So for instance, for this code, this switch opens some code
+So for instance, for this code, this switch opens some code
+所以例如，对于这段代码，这个开关打开了一些代码。
 
 587
 00:59:05,210 --> 00:59:07,810
- and then prints some output.
+and then prints some output.
+然后打印一些输出。
 
 588
 00:59:07,810 --> 00:59:10,410
- It works on multiple devices.
+It works on multiple devices.
+它可以在多个设备上使用。
 
 589
 00:59:10,410 --> 00:59:14,850
- It works on this terminal.
+It works on this terminal.
+它在这个终端上可以工作。
 
 590
 00:59:14,850 --> 00:59:18,290
- If FD is a terminal, the file descriptor is a terminal.
+If FD is a terminal, the file descriptor is a terminal.
+如果FD是一个终端，那么文件描述符就是一个终端。
 
 591
 00:59:18,290 --> 00:59:22,810
- It works for the disk if file descriptor is a file.
+It works for the disk if file descriptor is a file.
+如果文件描述符是一个文件，它适用于磁盘。
 
 592
 00:59:22,810 --> 00:59:27,170
- And it can also work on the printer.
+And it can also work on the printer.
+它也可以在打印机上使用。
 
 593
 00:59:27,170 --> 00:59:29,690
- The same code.
+The same code.
+相同的代码。
 
 594
 00:59:29,690 --> 00:59:30,170
- OK.
+OK.
+Sure. Please go ahead and provide me with the text you would like me to translate.
 
 595
 00:59:38,330 --> 00:59:45,050
- So now let's talk a little bit more about this interface
+So now let's talk a little bit more about this interface
+那么现在让我们再多谈谈这个界面。
 
 596
 00:59:45,050 --> 00:59:49,690
- and why the interface, again, has been
+and why the interface, again, has been
+而为什么界面，再次，已经被修改了呢？
 
 597
 00:59:49,690 --> 00:59:53,330
- so powerful and so general.
+so powerful and so general.
+如此强大且如此通用。
 
 598
 00:59:53,330 --> 00:59:56,730
- Like I mentioned to you, you have block devices.
+Like I mentioned to you, you have block devices.
+就像我之前跟你提到的一样，你有块设备。
 
 599
 00:59:56,730 --> 00:59:58,690
- You have block devices.
+You have block devices.
+你有块设备。
 
 600
 00:59:58,690 --> 01:00:02,730
- And for these block devices, you write the data,
+And for these block devices, you write the data,
+对于这些块设备，你可以写入数据，
 
 601
 01:00:02,730 --> 01:00:03,890
- the block reality.
+the block reality.
+这是一个需要翻译的内容，我将其翻译为英文：the block reality.
 
 602
 01:00:03,890 --> 01:00:09,090
- And you have an open read, write, and seek, right?
+And you have an open read, write, and seek, right?
+你有读、写和查找的权限，对吗？
 
 603
 01:00:09,090 --> 01:00:11,970
- Then you can have character devices.
+Then you can have character devices.
+然后你可以拥有字符设备。
 
 604
 01:00:11,970 --> 01:00:14,490
- And this is the level you read and write the data
+And this is the level you read and write the data
+这是你读写数据的水平。
 
 605
 01:00:14,490 --> 01:00:18,130
- at the level of a single character.
+at the level of a single character.
+在一个字符的层面上。
 
 606
 01:00:18,130 --> 01:00:20,770
- And for this, you have also open read.
+And for this, you have also open read.
+而且为此，你也打开了阅读。
 
 607
 01:00:20,770 --> 01:00:23,650
- But you have also for getting a single character,
+But you have also for getting a single character,
+但是你也可以获取一个单个字符，
 
 608
 01:00:23,650 --> 01:00:27,250
- you get a get input API.
+you get a get input API.
+你可以使用一个获取输入的API。
 
 609
 01:00:27,250 --> 01:00:29,930
- And then for network devices, this
+And then for network devices, this
+然后对于网络设备，这个
 
 610
 01:00:29,930 --> 01:00:33,490
- is different enough that you have a different API,
+is different enough that you have a different API,
+不同到足以需要一个不同的API，
 
 611
 01:00:33,490 --> 01:00:35,130
- slightly different API.
+slightly different API.
+略有不同的API。
 
 612
 01:00:35,130 --> 01:00:37,490
- You still have open and close, but you
+You still have open and close, but you
+你仍然有开和关，但是你
 
 613
 01:00:37,490 --> 01:00:39,370
- have the concept of sockets.
+have the concept of sockets.
+有套接字的概念。
 
 614
 01:00:39,370 --> 01:00:42,610
- And you still have reads and writes, read, write,
+And you still have reads and writes, read, write,
+你仍然有读和写的权限，读取，写入。
 
 615
 01:00:42,610 --> 01:00:44,090
- and open and close.
+and open and close.
+打开和关闭。
 
 616
 01:00:44,090 --> 01:00:45,570
- All of them are still--
+All of them are still--
+他们都还是--
 
 617
 01:00:45,570 --> 01:00:47,130
- you still have those.
+you still have those.
+你还有那些东西。
 
 618
 01:00:47,130 --> 01:00:52,770
- But in addition, you have other richer API.
+But in addition, you have other richer API.
+但是除此之外，你还有其他更丰富的API。
 
 619
 01:00:52,770 --> 01:00:56,730
- If you remember, you have connect, you have accept.
+If you remember, you have connect, you have accept.
+如果你记得的话，你已经连接了，你已经接受了。
 
 620
 01:00:56,730 --> 01:00:59,370
- You have also something else, which is select.
+You have also something else, which is select.
+你还有其他的东西，那就是选择。
 
 621
 01:00:59,370 --> 01:01:02,730
- Select is when you are going to listen on connection
+Select is when you are going to listen on connection
+选择是当你打算监听连接时使用的。
 
 622
 01:01:02,730 --> 01:01:03,970
- from multiple computers.
+from multiple computers.
+从多台计算机。
 
 623
 01:01:03,970 --> 01:01:06,010
- You are going to learn more about that.
+You are going to learn more about that.
+你将会了解更多关于那个的信息。
 
 624
 01:01:06,010 --> 01:01:12,170
- But these are the three standard interfaces provided
+But these are the three standard interfaces provided
+但是这些是提供的三个标准接口。
 
 625
 01:01:12,170 --> 01:01:14,930
- by the operating system.
+by the operating system.
+由操作系统控制。
 
 626
 01:01:14,930 --> 01:01:22,410
- And each of the devices falls in one of these categories.
+And each of the devices falls in one of these categories.
+每个设备都属于这些类别之一。
 
 627
 01:01:22,410 --> 01:01:24,250
- Block device.
+Block device.
+块设备。
 
 628
 01:01:24,250 --> 01:01:25,990
- a character device or a network device.
+a character device or a network device.
+一个字符设备或网络设备。
 
 629
 01:01:25,990 --> 01:01:30,690
- Next,
+Next,
+接下来，
 
 630
 01:01:30,690 --> 01:01:37,590
- how you are going with respect to timing,
+how you are going with respect to timing,
+你在时间方面进展如何？
 
 631
 01:01:37,590 --> 01:01:40,310
- how do you interact with the devices?
+how do you interact with the devices?
+你是如何与设备进行交互的？
 
 632
 01:01:40,310 --> 01:01:43,650
- Well, there are a few ways to interact.
+Well, there are a few ways to interact.
+嗯，有几种互动的方式。
 
 633
 01:01:43,650 --> 01:01:45,850
- One is a blocking interface.
+One is a blocking interface.
+一个是阻塞接口。
 
 634
 01:01:45,850 --> 01:01:47,050
- The blocking interface,
+The blocking interface,
+阻塞接口
 
 635
 01:01:47,050 --> 01:01:50,050
- when you are going to perform an operation,
+when you are going to perform an operation,
+当你准备进行一项手术时，
 
 636
 01:01:50,050 --> 01:01:52,670
- you are going to wait for that operation to finish.
+you are going to wait for that operation to finish.
+你将等待那个操作完成。
 
 637
 01:01:53,590 --> 01:01:54,430
- Right?
+Right?
+对吗？
 
 638
 01:01:54,430 --> 01:01:56,650
- When you request, say for instance,
+When you request, say for instance,
+当你请求时，比如说，
 
 639
 01:01:56,650 --> 01:01:58,030
- when you read some data,
+when you read some data,
+当你阅读一些数据时，
 
 640
 01:01:58,030 --> 01:02:01,650
- you are blocking until the data you requested is available.
+you are blocking until the data you requested is available.
+你将一直阻塞，直到你请求的数据可用。
 
 641
 01:02:01,650 --> 01:02:05,690
- Then it's non-blocking interface.
+Then it's non-blocking interface.
+那么它就是非阻塞接口。
 
 642
 01:02:05,690 --> 01:02:10,690
- You don't, you know, you just write some data
+You don't, you know, you just write some data
+你不需要知道，你只需要写一些数据。
 
 643
 01:02:10,690 --> 01:02:16,390
- and the call returns immediately before the data is written.
+and the call returns immediately before the data is written.
+并且在数据写入之前立即返回呼叫。
 
 644
 01:02:16,390 --> 01:02:18,750
- Okay?
+Okay?
+好的。
 
 645
 01:02:18,750 --> 01:02:19,590
- Now,
+Now,
+现在，
 
 646
 01:02:21,030 --> 01:02:25,070
- so this is obviously you don't know the result,
+so this is obviously you don't know the result,
+所以显然你不知道结果。
 
 647
 01:02:25,070 --> 01:02:26,070
- but then you don't block.
+but then you don't block.
+但是你不会阻止。
 
 648
 01:02:26,070 --> 01:02:27,070
- So you are very efficient.
+So you are very efficient.
+是的，你非常高效。
 
 649
 01:02:27,070 --> 01:02:28,590
- You don't write cycles on the CPU.
+You don't write cycles on the CPU.
+你不在CPU上写循环。
 
 650
 01:02:28,590 --> 01:02:31,230
- And then it's a synchronous interface.
+And then it's a synchronous interface.
+然后它是一个同步接口。
 
 651
 01:02:31,230 --> 01:02:36,190
- And then this basically says,
+And then this basically says,
+然后这基本上是说，
 
 652
 01:02:36,190 --> 01:02:39,450
- I am going to request the data.
+I am going to request the data.
+我将要请求数据。
 
 653
 01:02:39,450 --> 01:02:40,510
- And by the way,
+And by the way,
+顺便说一下，
 
 654
 01:02:40,510 --> 01:02:41,630
- here what you need to do,
+here what you need to do,
+这是你需要做的事情，
 
 655
 01:02:41,630 --> 01:02:43,730
- and let me know when you are done.
+and let me know when you are done.
+并且在你完成后告诉我。
 
 656
 01:02:43,730 --> 01:02:47,270
- So I wanted to read the data and you need,
+So I wanted to read the data and you need,
+所以我想读取数据，你需要的话，
 
 657
 01:02:47,270 --> 01:02:49,850
- so read the data from this device.
+so read the data from this device.
+所以从这个设备中读取数据。
 
 658
 01:02:49,850 --> 01:02:52,490
- And I'm telling you that you need to put the data
+And I'm telling you that you need to put the data
+我告诉你，你需要把数据放进去。
 
 659
 01:02:52,490 --> 01:02:54,010
- after this address in memory.
+after this address in memory.
+在这个内存地址之后。
 
 660
 01:02:54,010 --> 01:02:55,850
- Okay?
+Okay?
+好的。
 
 661
 01:02:55,850 --> 01:02:58,410
- And you put that in the address in memory and tell me,
+And you put that in the address in memory and tell me,
+然后你将其放入内存中的地址，并告诉我，
 
 662
 01:02:58,410 --> 01:03:01,170
- you tell me when you are done with it.
+you tell me when you are done with it.
+你告诉我什么时候完成。
 
 663
 01:03:01,170 --> 01:03:04,830
- This is a synchronous interface.
+This is a synchronous interface.
+这是一个同步接口。
 
 664
 01:03:04,830 --> 01:03:05,670
- Okay?
+Okay?
+好的。
 
 665
 01:03:05,670 --> 01:03:09,730
- So some announcements,
+So some announcements,
+一些公告，
 
 666
 01:03:09,730 --> 01:03:10,890
- unfortunately, you know,
+unfortunately, you know,
+很不幸，你知道的，
 
 667
 01:03:10,890 --> 01:03:14,410
- next week will be quite a week for you.
+next week will be quite a week for you.
+下周对你来说将是相当忙碌的一周。
 
 668
 01:03:14,410 --> 01:03:18,090
- So the good thing is that after the next,
+So the good thing is that after the next,
+所以好的一点是，在接下来的事情之后，
 
 669
 01:03:18,090 --> 01:03:19,790
- the following week, after the next week,
+the following week, after the next week,
+下周之后的那一周。
 
 670
 01:03:19,790 --> 01:03:21,370
- it's going to be easier.
+it's going to be easier.
+这会更容易。
 
 671
 01:03:21,370 --> 01:03:23,410
- And the Thanksgiving is coming soon.
+And the Thanksgiving is coming soon.
+感恩节即将到来。
 
 672
 01:03:23,410 --> 01:03:28,250
- But yeah, next week will be hard.
+But yeah, next week will be hard.
+但是，是的，下周会很辛苦。
 
 673
 01:03:28,250 --> 01:03:31,830
- You have a homework for midterm too.
+You have a homework for midterm too.
+你也有期中考的作业。
 
 674
 01:03:31,830 --> 01:03:32,910
- The review will be,
+The review will be,
+评论将会是...
 
 675
 01:03:32,910 --> 01:03:34,710
- how all will be on Monday.
+how all will be on Monday.
+星期一会怎样。
 
 676
 01:03:34,710 --> 01:03:37,010
- The time we are going to let you know the time.
+The time we are going to let you know the time.
+我们将告诉您时间的时间。
 
 677
 01:03:37,010 --> 01:03:40,550
- The midterm will be on Wednesday
+The midterm will be on Wednesday
+期中考试将在星期三举行。
 
 678
 01:03:40,550 --> 01:03:44,570
- between seven, nine p.m. Pacific time.
+between seven, nine p.m. Pacific time.
+在太平洋时间晚上七点到九点之间。
 
 679
 01:03:44,570 --> 01:03:46,710
- As a project is due on,
+As a project is due on,
+截止日期快到了，
 
 680
 01:03:48,190 --> 01:03:51,210
- at the end of the next week and tomorrow,
+at the end of the next week and tomorrow,
+下周末和明天的最后。
 
 681
 01:03:51,210 --> 01:03:54,890
- unfortunately yesterday, I had, like I mentioned,
+unfortunately yesterday, I had, like I mentioned,
+不幸的是，昨天我有，就像我之前提到的那样，
 
 682
 01:03:54,890 --> 01:03:59,890
- a flight which was canceled and then rescheduled.
+a flight which was canceled and then rescheduled.
+一次被取消然后重新安排的航班。
 
 683
 01:03:59,890 --> 01:04:03,970
- Between 11, 13 and 12, 13, I'll have my office hour.
+Between 11, 13 and 12, 13, I'll have my office hour.
+在11点到13点和12点到13点之间，我会有办公时间。
 
 684
 01:04:03,970 --> 01:04:11,050
- Okay, let's move a little bit.
+Okay, let's move a little bit.
+好的，让我们稍微移动一下。
 
 685
 01:04:11,050 --> 01:04:14,170
- We have another 15 minutes.
+We have another 15 minutes.
+我们还有15分钟。
 
 686
 01:04:14,170 --> 01:04:16,810
- So let's move quick now.
+So let's move quick now.
+那么现在让我们快点行动吧。
 
 687
 01:04:17,890 --> 01:04:19,210
- Storage devices.
+Storage devices.
+存储设备。
 
 688
 01:04:19,210 --> 01:04:25,170
- So storage devices are where we store the data
+So storage devices are where we store the data
+存储设备是我们存储数据的地方。
 
 689
 01:04:25,170 --> 01:04:28,690
- and persistently, right?
+and persistently, right?
+而且是持续不断地，对吗？
 
 690
 01:04:28,690 --> 01:04:32,850
- They typically have much larger capacities than memory,
+They typically have much larger capacities than memory,
+它们通常比内存具有更大的容量，
 
 691
 01:04:32,850 --> 01:04:35,710
- but they are slower, right?
+but they are slower, right?
+但是它们更慢，对吗？
 
 692
 01:04:35,710 --> 01:04:39,610
- And we have magnetic disk and flash memories, right?
+And we have magnetic disk and flash memories, right?
+对的，我们有磁盘和闪存记忆。
 
 693
 01:04:39,610 --> 01:04:41,450
- There are two types.
+There are two types.
+有两种类型。
 
 694
 01:04:41,450 --> 01:04:45,370
- Magnetic disks are, you know,
+Magnetic disks are, you know,
+磁盘是，你知道的，
 
 695
 01:04:45,370 --> 01:04:49,490
- these are traditional ones, flash memories are newer,
+these are traditional ones, flash memories are newer,
+这些是传统的，闪存是较新的。
 
 696
 01:04:49,490 --> 01:04:51,210
- but now are dominant.
+but now are dominant.
+但现在占主导地位。
 
 697
 01:04:51,210 --> 01:04:52,850
- They are more expensive.
+They are more expensive.
+它们更贵。
 
 698
 01:04:52,850 --> 01:04:55,190
- They have provide better performance.
+They have provide better performance.
+他们提供了更好的性能。
 
 699
 01:04:55,190 --> 01:04:58,990
- That's kind of the way to look at them.
+That's kind of the way to look at them.
+这是一种看待它们的方式。
 
 700
 01:04:58,990 --> 01:05:01,370
- These are some examples.
+These are some examples.
+这些是一些例子。
 
 701
 01:05:01,370 --> 01:05:05,170
- This is the disk drive, right?
+This is the disk drive, right?
+这是磁盘驱动器，对吗？
 
 702
 01:05:05,170 --> 01:05:06,410
- You see here a platter.
+You see here a platter.
+你在这里看到一个盘子。
 
 703
 01:05:06,410 --> 01:05:07,610
- You have here the heads.
+You have here the heads.
+你这里有头颅。
 
 704
 01:05:07,610 --> 01:05:09,430
- We read and write the data.
+We read and write the data.
+我们读取并写入数据。
 
 705
 01:05:09,430 --> 01:05:11,330
- And then you are going to have,
+And then you are going to have,
+然后你将会有，
 
 706
 01:05:11,330 --> 01:05:13,290
- here is another hard drive.
+here is another hard drive.
+这里是另一个硬盘。
 
 707
 01:05:13,290 --> 01:05:14,210
- This is the heads.
+This is the heads.
+这是头部。
 
 708
 01:05:14,210 --> 01:05:17,130
- You have multiple platters on each drive the data,
+You have multiple platters on each drive the data,
+每个驱动器上都有多个盘片来存储数据。
 
 709
 01:05:17,130 --> 01:05:19,730
- and therefore you have heads on each platter,
+and therefore you have heads on each platter,
+所以你们每个盘子上都有头。
 
 710
 01:05:19,730 --> 01:05:21,430
- for each platter.
+for each platter.
+每个盘子。
 
 711
 01:05:21,430 --> 01:05:25,710
- And here it's a micro drive, this is this, right?
+And here it's a micro drive, this is this, right?
+这是一个微型驱动器，对吗？
 
 712
 01:05:25,710 --> 01:05:27,730
- Now, just to give you a sense,
+Now, just to give you a sense,
+现在，只是为了让你有个概念，
 
 713
 01:05:27,730 --> 01:05:32,390
- the first IBM personal computer, which was released in 1986.
+the first IBM personal computer, which was released in 1986.
+第一台IBM个人电脑于1986年发布。
 
 714
 01:05:32,390 --> 01:05:36,530
- So that was 35 years ago, right?
+So that was 35 years ago, right?
+那是35年前的事情，对吗？
 
 715
 01:05:36,530 --> 01:05:42,130
- It has, the hard disk was $500.
+It has, the hard disk was $500.
+它有一个硬盘，价格是500美元。
 
 716
 01:05:42,130 --> 01:05:46,490
- It was 30 megabytes, not gigabytes, megabytes.
+It was 30 megabytes, not gigabytes, megabytes.
+它是30兆字节，不是千兆字节，是兆字节。
 
 717
 01:05:46,490 --> 01:05:50,270
- The seek time is how long it takes a random access.
+The seek time is how long it takes a random access.
+寻道时间是指随机访问所需的时间。
 
 718
 01:05:50,270 --> 01:05:52,810
- It's those 30 to locate, you know,
+It's those 30 to locate, you know,
+这是那些30个要找的，你知道的。
 
 719
 01:05:52,810 --> 01:05:56,570
- to write the data randomly, or read the data randomly,
+to write the data randomly, or read the data randomly,
+随机写入数据，或者随机读取数据。
 
 720
 01:05:56,570 --> 01:05:59,150
- or between 30 and 40 milliseconds.
+or between 30 and 40 milliseconds.
+或者在30到40毫秒之间。
 
 721
 01:05:59,150 --> 01:06:02,870
- And the speed, the maximum speed of transferring the data,
+And the speed, the maximum speed of transferring the data,
+以及传输数据的最大速度，
 
 722
 01:06:02,870 --> 01:06:05,830
- what was one megabyte per second, okay?
+what was one megabyte per second, okay?
+一兆字节每秒是多少，好吗？
 
 723
 01:06:05,830 --> 01:06:11,090
- So how it looks like, this is how hard drive it looks like.
+So how it looks like, this is how hard drive it looks like.
+这是它的外观，这就是硬盘的样子。
 
 724
 01:06:11,090 --> 01:06:15,170
- You have the platters, the platter has two surfaces,
+You have the platters, the platter has two surfaces,
+你有盘子，盘子有两个表面。
 
 725
 01:06:15,170 --> 01:06:18,910
- the up and down surface.
+the up and down surface.
+上下表面。
 
 726
 01:06:18,910 --> 01:06:20,970
- So you can write on both of them.
+So you can write on both of them.
+所以你可以在两个上面写。
 
 727
 01:06:20,970 --> 01:06:23,690
- On each of them, you are going to have tracks,
+On each of them, you are going to have tracks,
+在每一个上面，你都会有轨道，
 
 728
 01:06:23,690 --> 01:06:26,890
- and the tracks are divided in sectors.
+and the tracks are divided in sectors.
+并且轨道被分成了扇区。
 
 729
 01:06:26,890 --> 01:06:29,410
- So the sectors stores a block.
+So the sectors stores a block.
+所以这个部门存储一个块。
 
 730
 01:06:29,410 --> 01:06:34,210
- And this is a unit of storing, reading,
+And this is a unit of storing, reading,
+这是一个存储、读取的单位。
 
 731
 01:06:34,210 --> 01:06:36,650
- and writing data from the disk.
+and writing data from the disk.
+并从磁盘中写入数据。
 
 732
 01:06:36,650 --> 01:06:41,170
- And that is written, reads and writes
+And that is written, reads and writes
+这是写的，读和写
 
 733
 01:06:41,170 --> 01:06:44,370
- are performed by the header, okay?
+are performed by the header, okay?
+由标题执行，好吗？
 
 734
 01:06:44,370 --> 01:06:48,330
- So let's now show this one by one.
+So let's now show this one by one.
+那么现在让我们逐一展示。
 
 735
 01:06:48,330 --> 01:06:50,310
- This is a sector, okay?
+This is a sector, okay?
+这是一个行业，好吗？
 
 736
 01:06:50,310 --> 01:06:53,910
- So you have this ring of sectors.
+So you have this ring of sectors.
+所以你有一个扇区的环。
 
 737
 01:06:53,910 --> 01:06:54,970
- This is a stack.
+This is a stack.
+这是一个堆栈。
 
 738
 01:06:54,970 --> 01:07:00,610
- And then the corresponding tracks
+And then the corresponding tracks
+然后是相应的曲目。
 
 739
 01:07:00,610 --> 01:07:05,610
- on all platters represent a cylinder.
+on all platters represent a cylinder.
+所有的盘子都代表一个圆柱体。
 
 740
 01:07:05,610 --> 01:07:10,370
- What is important about cylinder?
+What is important about cylinder?
+圆柱体的重要性在于它的形状和特性。圆柱体具有平面底面和侧面，底面和侧面都是圆形的。它的特点是体积大且稳定，可以用来存储和容纳各种物体和液体。圆柱体在工程、建筑和科学领域中广泛应用，例如管道、柱子、容器等。此外，圆柱体还具有优秀的力学性能，能够承受压力和重量，因此在许多结构和机械设备中起着重要作用。
 
 741
 01:07:10,370 --> 01:07:15,370
- Is that the data from a cylinder can be written
+Is that the data from a cylinder can be written
+是的，可以将数据写入圆柱体。
 
 742
 01:07:15,370 --> 01:07:18,730
- and read without moving the heads.
+and read without moving the heads.
+并且在不移动头部的情况下阅读。
 
 743
 01:07:18,730 --> 01:07:32,750
- Because the movement of heads,
+Because the movement of heads,
+由于头部的运动，
 
 744
 01:07:32,750 --> 01:07:37,690
- which is called SICK operation, is expensive, right?
+which is called SICK operation, is expensive, right?
+这个叫做SICK手术的，很贵，对吗？
 
 745
 01:07:37,690 --> 01:07:42,490
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you would like to be translated.
 
 746
 01:07:42,490 --> 01:07:48,410
- So some numbers, the disk track,
+So some numbers, the disk track,
+一些数字，磁盘轨道，
 
 747
 01:07:48,410 --> 01:07:53,730
- the tracks are around one micron wide.
+the tracks are around one micron wide.
+这些轨道大约有一微米宽。
 
 748
 01:07:53,730 --> 01:07:55,810
- And this is very small.
+And this is very small.
+这个非常小。
 
 749
 01:07:55,810 --> 01:07:59,810
- The wavelength of light, it's only half a micron.
+The wavelength of light, it's only half a micron.
+光的波长只有半微米。
 
 750
 01:07:59,810 --> 01:08:04,810
- The resolution of human eyes is 50 microns.
+The resolution of human eyes is 50 microns.
+人眼的分辨率为50微米。
 
 751
 01:08:04,810 --> 01:08:12,790
- So you have typically 100,000 tracks on a 2.5 inch disk.
+So you have typically 100,000 tracks on a 2.5 inch disk.
+所以你通常在一个2.5英寸的磁盘上有10万个轨道。
 
 752
 01:08:12,790 --> 01:08:16,710
- And you have these tracks in general,
+And you have these tracks in general,
+而且你通常都有这些曲目。
 
 753
 01:08:16,710 --> 01:08:19,550
- separated by some guard regions,
+separated by some guard regions,
+分隔开一些警卫区域，
 
 754
 01:08:19,550 --> 01:08:22,190
- because you don't want right on a track
+because you don't want right on a track
+因为你不想在正确的轨道上。
 
 755
 01:08:22,190 --> 01:08:25,030
- to influence the bits on the others
+to influence the bits on the others
+影响其他人的想法
 
 756
 01:08:25,030 --> 01:08:28,670
- and corrupt, therefore, the bits on the nearby tracks.
+and corrupt, therefore, the bits on the nearby tracks.
+并且腐蚀了附近轨道上的位。
 
 757
 01:08:28,670 --> 01:08:33,670
- Now, the tracks length varies, right?
+Now, the tracks length varies, right?
+是的，赛道的长度是不同的，对吗？
 
 758
 01:08:33,670 --> 01:08:39,530
- The one which are closer to the edges
+The one which are closer to the edges
+靠近边缘的那一个
 
 759
 01:08:39,530 --> 01:08:44,530
- are larger than the one at the center.
+are larger than the one at the center.
+比中心的那个大。
 
 760
 01:08:44,530 --> 01:08:51,270
- And so typically, we are only using half of the radius,
+And so typically, we are only using half of the radius,
+因此，通常情况下，我们只使用半径的一半。
 
 761
 01:08:51,270 --> 01:08:56,930
- only the tracks at the edges of that,
+only the tracks at the edges of that,
+只有边缘的轨道。
 
 762
 01:08:56,930 --> 01:09:00,290
- because you have more space to store information.
+because you have more space to store information.
+因为你有更多的空间来存储信息。
 
 763
 01:09:00,290 --> 01:09:05,790
- If you store it too close to the center,
+If you store it too close to the center,
+如果你将其存放得太靠近中心，
 
 764
 01:09:05,790 --> 01:09:07,590
- the sector is too small.
+the sector is too small.
+这个行业太小了。
 
 765
 01:09:07,590 --> 01:09:11,830
- You are going to get a lot of errors.
+You are going to get a lot of errors.
+你会遇到很多错误。
 
 766
 01:09:11,830 --> 01:09:20,390
- And this card, obviously huge right now,
+And this card, obviously huge right now,
+这张卡片，显然现在非常火。
 
 767
 01:09:20,390 --> 01:09:24,270
- there are terabytes in terms of capacity.
+there are terabytes in terms of capacity.
+容量方面有几个泰字节。
 
 768
 01:09:24,270 --> 01:09:28,510
- So in general, only a small part of this data,
+So in general, only a small part of this data,
+总的来说，只有这些数据的一小部分，
 
 769
 01:09:28,510 --> 01:09:30,750
- which is stored on the disk is active, redrived.
+which is stored on the disk is active, redrived.
+磁盘上存储的是活动的，重新驱动的。
 
 770
 01:09:30,750 --> 01:09:34,110
- The rest is used for being archived.
+The rest is used for being archived.
+其余的用于存档。
 
 771
 01:09:34,110 --> 01:09:35,190
- And this is important.
+And this is important.
+这很重要。
 
 772
 01:09:35,190 --> 01:09:38,070
- Before, in the early days, you archive the data
+Before, in the early days, you archive the data
+之前，在早期，你会归档数据。
 
 773
 01:09:38,070 --> 01:09:40,430
- not on the disk, because it is quite expensive.
+not on the disk, because it is quite expensive.
+不在磁盘上，因为它非常昂贵。
 
 774
 01:09:40,430 --> 01:09:42,650
- You archive the data on magnetic tapes.
+You archive the data on magnetic tapes.
+你将数据存档在磁带上。
 
 775
 01:09:42,650 --> 01:09:49,530
- One note, this is more like a footnote.
+One note, this is more like a footnote.
+一点说明，这更像是一个脚注。
 
 776
 01:09:49,530 --> 01:09:50,890
- There is something which is called
+There is something which is called
+有一样东西叫做什么？
 
 777
 01:09:50,890 --> 01:09:54,150
- single magnetic recording.
+single magnetic recording.
+单磁记录。
 
 778
 01:09:54,150 --> 01:09:57,090
- And in this case, instead of having a guard
+And in this case, instead of having a guard
+而在这种情况下，不是有一个守卫
 
 779
 01:09:57,090 --> 01:09:59,190
- between the tracks, you remember that I told you
+between the tracks, you remember that I told you
+在这些曲目之间，你还记得我告诉过你
 
 780
 01:09:59,190 --> 01:10:01,830
- that between tracks, you have the guards.
+that between tracks, you have the guards.
+在轨道之间，你有护栏。
 
 781
 01:10:01,830 --> 01:10:06,090
- So you avoid writing, when you write on a track a bit
+So you avoid writing, when you write on a track a bit
+所以当你在一条轨道上写作时，你避免写得太多。
 
 782
 01:10:06,090 --> 01:10:11,090
- to influence the nearby tracks, right?
+to influence the nearby tracks, right?
+影响附近的轨道，对吗？
 
 783
 01:10:11,090 --> 01:10:18,030
- But in order in the race to add more and more bits,
+But in order in the race to add more and more bits,
+但是为了在竞争中不断增加更多的位数，
 
 784
 01:10:18,030 --> 01:10:20,610
- to increase the capacity of the disks,
+to increase the capacity of the disks,
+增加磁盘容量，
 
 785
 01:10:20,610 --> 01:10:23,750
- people came up with this technique,
+people came up with this technique,
+人们提出了这种技术。
 
 786
 01:10:23,750 --> 01:10:25,830
- which actually in some sense,
+which actually in some sense,
+在某种意义上，实际上是这样的，
 
 787
 01:10:25,830 --> 01:10:28,630
- the tracks kind of almost overlap.
+the tracks kind of almost overlap.
+这些轨道几乎是重叠的。
 
 788
 01:10:28,630 --> 01:10:31,730
- And obviously now you need to be very careful
+And obviously now you need to be very careful
+显然现在你需要非常小心。
 
 789
 01:10:31,730 --> 01:10:34,390
- and need to have much more complex,
+and need to have much more complex,
+并且需要更加复杂的，
 
 790
 01:10:34,390 --> 01:10:36,910
- digital signal processing techniques
+digital signal processing techniques
+数字信号处理技术
 
 791
 01:10:36,910 --> 01:10:41,910
- in order to make sure that you avoid a bit being corrupted
+in order to make sure that you avoid a bit being corrupted
+为了确保你避免一点被损坏
 
 792
 01:10:41,910 --> 01:10:45,110
- by writing a bit in a nearby track.
+by writing a bit in a nearby track.
+通过在附近的轨道上写一点东西。
 
 793
 01:10:45,110 --> 01:10:51,190
- So, magnetic disk,
+So, magnetic disk,
+磁盘
 
 794
 01:10:52,470 --> 01:10:57,270
- it's again, you have the heads, cylinders, sectors,
+it's again, you have the heads, cylinders, sectors,
+这是再次出现的问题，你有磁头、柱面和扇区。
 
 795
 01:10:57,270 --> 01:11:00,750
- and tracks, and now let's see what is the time
+and tracks, and now let's see what is the time
+和轨道，现在让我们看看现在是几点钟。
 
 796
 01:11:00,750 --> 01:11:06,590
- to read or write data, okay?
+to read or write data, okay?
+读取或写入数据，可以吗？
 
 797
 01:11:06,590 --> 01:11:09,190
- So first of all, this is how
+So first of all, this is how
+首先，这是如何做的。
 
 798
 01:11:09,190 --> 01:11:14,070
- the architecture looks like.
+the architecture looks like.
+这个建筑看起来像什么？
 
 799
 01:11:14,070 --> 01:11:19,730
- So the disk actually has a controller, right?
+So the disk actually has a controller, right?
+所以这个硬盘实际上有一个控制器，对吗？
 
 800
 01:11:19,730 --> 01:11:22,430
- Like we mentioned many times before.
+Like we mentioned many times before.
+就像我们之前多次提到的那样。
 
 801
 01:11:22,430 --> 01:11:25,750
- And you are going to get a request, right?
+And you are going to get a request, right?
+是的，我会收到一个请求，对吗？
 
 802
 01:11:25,750 --> 01:11:29,870
- The controller gets a request, right?
+The controller gets a request, right?
+控制器会收到一个请求，对吗？
 
 803
 01:11:29,870 --> 01:11:34,590
- And let me just show you where this request is coming from.
+And let me just show you where this request is coming from.
+让我给你展示一下这个请求的来源。
 
 804
 01:11:34,590 --> 01:11:36,990
- It's here.
+It's here.
+它在这里。
 
 805
 01:11:36,990 --> 01:11:40,370
- You see the request, this is the request.
+You see the request, this is the request.
+你看到了这个请求，这就是请求。
 
 806
 01:11:40,370 --> 01:11:44,370
- Okay?
+Okay?
+好的？
 
 807
 01:11:44,370 --> 01:11:50,270
- And here we are talking about this device hardware.
+And here we are talking about this device hardware.
+我们现在正在讨论这个设备的硬件。
 
 808
 01:11:50,270 --> 01:11:52,430
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体文本。
 
 809
 01:11:52,430 --> 01:12:01,990
- Okay.
+Okay.
+Sure, I will translate your Chinese text into English and any non-Chinese text into Chinese. Please provide me with the content you need to be translated.
 
 810
 01:12:01,990 --> 01:12:08,550
- So you get the request, and then you have a queue
+So you get the request, and then you have a queue
+所以你收到请求后，就会有一个队列。
 
 811
 01:12:08,550 --> 01:12:11,590
- because multiple application can request data
+because multiple application can request data
+因为多个应用程序可以请求数据。
 
 812
 01:12:11,590 --> 01:12:14,330
- to read and write data from the same time.
+to read and write data from the same time.
+同时读写数据。
 
 813
 01:12:14,330 --> 01:12:17,430
- So you need to queue this request, right?
+So you need to queue this request, right?
+所以你需要将这个请求排队，对吗？
 
 814
 01:12:18,690 --> 01:12:21,970
- And then you have the hardware controller,
+And then you have the hardware controller,
+然后你还有硬件控制器，
 
 815
 01:12:21,970 --> 01:12:24,810
- which is going to take requests from this queue,
+which is going to take requests from this queue,
+哪一个将会从这个队列中接收请求，
 
 816
 01:12:24,810 --> 01:12:28,650
- and that's going to satisfy the request.
+and that's going to satisfy the request.
+这将满足请求。
 
 817
 01:12:28,650 --> 01:12:33,050
- Now, a request, when you satisfy the request, what happens?
+Now, a request, when you satisfy the request, what happens?
+现在
 
 818
 01:12:33,050 --> 01:12:37,610
- You need to figure out and assume that you already know
+You need to figure out and assume that you already know
+你需要弄清楚并假设你已经知道了。
 
 819
 01:12:37,610 --> 01:12:40,050
- where the data you need to read and to,
+where the data you need to read and to,
+你需要读取和处理的数据在哪里？
 
 820
 01:12:40,050 --> 01:12:42,290
- where the data is located, right?
+where the data is located, right?
+数据存储在哪里，对吗？
 
 821
 01:12:42,290 --> 01:12:45,710
- And in order to, once you do that, you need to move that,
+And in order to, once you do that, you need to move that,
+而为了实现这一点，一旦你做到了，你需要移动那个。
 
 822
 01:12:45,710 --> 01:12:47,610
- you need to, so you need to identify
+you need to, so you need to identify
+你需要这样做，所以你需要确定。
 
 823
 01:12:47,610 --> 01:12:49,050
- what you need to identify.
+what you need to identify.
+你需要识别什么。
 
 824
 01:12:49,050 --> 01:12:50,850
- You need to identify a sector.
+You need to identify a sector.
+你需要确定一个行业。
 
 825
 01:12:50,850 --> 01:12:53,570
- A sector means to identify the track, right?
+A sector means to identify the track, right?
+部门是指识别轨道的意思，对吗？
 
 826
 01:12:53,570 --> 01:12:56,230
- In order to get to a track, you need to move the disk,
+In order to get to a track, you need to move the disk,
+为了进入一首音轨，你需要移动光盘。
 
 827
 01:12:56,230 --> 01:12:57,850
- to move the heads.
+to move the heads.
+移动头部。
 
 828
 01:12:57,850 --> 01:13:02,630
- The overhead to move the disk is called seek time.
+The overhead to move the disk is called seek time.
+磁盘移动的开销被称为寻道时间。
 
 829
 01:13:02,630 --> 01:13:07,490
- Then once you are above the corresponding track,
+Then once you are above the corresponding track,
+然后一旦你在相应的轨道上方，
 
 830
 01:13:07,490 --> 01:13:11,290
- you need to wait for the proper sector
+you need to wait for the proper sector
+你需要等待适当的部门。
 
 831
 01:13:11,290 --> 01:13:16,590
- to come under the head so you can read and write.
+to come under the head so you can read and write.
+为了能够阅读和写作，你需要掌握一些基本知识。
 
 832
 01:13:16,590 --> 01:13:18,210
- This is the rotation time.
+This is the rotation time.
+这是旋转时间。
 
 833
 01:13:18,210 --> 01:13:19,930
- And finally, the transfer time,
+And finally, the transfer time,
+最后，转机时间是多久？
 
 834
 01:13:19,930 --> 01:13:22,770
- the time to read and write the information from the sector.
+the time to read and write the information from the sector.
+读取和写入扇区中的信息所需的时间。
 
 835
 01:13:22,770 --> 01:13:30,410
- Here are some numbers from some other magnetic disks.
+Here are some numbers from some other magnetic disks.
+这里是一些其他磁盘的数字。
 
 836
 01:13:30,410 --> 01:13:33,970
- It's a space like 14 terabytes.
+It's a space like 14 terabytes.
+这是一个像14TB一样的空间。
 
 837
 01:13:33,970 --> 01:13:37,730
- It's pretty eight platters.
+It's pretty eight platters.
+这是相当不错的八个盘子。
 
 838
 01:13:37,730 --> 01:13:40,950
- Typically the seek time is four to six milliseconds.
+Typically the seek time is four to six milliseconds.
+通常的寻找时间为四到六毫秒。
 
 839
 01:13:40,950 --> 01:13:45,210
- This rotation, like rotation speed,
+This rotation, like rotation speed,
+这个旋转，就像旋转速度一样，
 
 840
 01:13:45,210 --> 01:13:49,650
- the rotation per minute is like between 3,600 and 7,200.
+the rotation per minute is like between 3,600 and 7,200.
+每分钟的转速大约在3,600到7,200之间。
 
 841
 01:13:49,650 --> 01:13:52,950
- There are also some of the new, you know,
+There are also some of the new, you know,
+还有一些新的，你知道的，
 
 842
 01:13:52,950 --> 01:13:56,470
- faster disk at even 1,500 rotation per minute.
+faster disk at even 1,500 rotation per minute.
+每分钟转速高达1,500转的更快磁盘。
 
 843
 01:13:56,470 --> 01:13:59,670
- Average latency of,
+Average latency of,
+平均延迟为，
 
 844
 01:13:59,670 --> 01:14:04,010
- rotation latency is between four and eight milliseconds.
+rotation latency is between four and eight milliseconds.
+旋转延迟在四到八毫秒之间。
 
 845
 01:14:04,010 --> 01:14:04,850
- Right?
+Right?
+对吗？
 
 846
 01:14:04,850 --> 01:14:05,670
- This is, you know,
+This is, you know,
+这个，你知道的，
 
 847
 01:14:05,670 --> 01:14:08,630
- if it takes eight milliseconds for a full rotation,
+if it takes eight milliseconds for a full rotation,
+如果一次完整的旋转需要八毫秒的时间，
 
 848
 01:14:08,630 --> 01:14:11,430
- then on average, you need to wait for four milliseconds
+then on average, you need to wait for four milliseconds
+然后平均而言，你需要等待四毫秒。
 
 849
 01:14:11,430 --> 01:14:15,430
- rotation latency in order for the sector
+rotation latency in order for the sector
+旋转延迟以便扇区
 
 850
 01:14:15,430 --> 01:14:17,430
- you are looking for to come under the disk,
+you are looking for to come under the disk,
+你想要放在盘子下面，
 
 851
 01:14:17,430 --> 01:14:18,730
- under the head.
+under the head.
+在头部下方。
 
 852
 01:14:18,730 --> 01:14:26,170
- And transfer time between 50 and 250 megabytes per second.
+And transfer time between 50 and 250 megabytes per second.
+并且传输速度在50到250兆字节每秒之间。
 
 853
 01:14:26,170 --> 01:14:30,070
- The transfer sector is typically between
+The transfer sector is typically between
+转让行业通常介于两个部门之间。
 
 854
 01:14:30,070 --> 01:14:34,530
- 512 and one kilobyte and things like that.
+512 and one kilobyte and things like that.
+512和一千字节之类的东西。
 
 855
 01:14:34,530 --> 01:14:35,370
- Right?
+Right?
+对吗？
 
 856
 01:14:35,370 --> 01:14:38,350
- They used to drop,
+They used to drop,
+他们过去常常下降，
 
 857
 01:14:38,350 --> 01:14:41,390
- the cost used to drop by a factor of two every 1.5 years.
+the cost used to drop by a factor of two every 1.5 years.
+成本曾经以每1.5年减少一倍的速度下降。
 
 858
 01:14:41,390 --> 01:14:42,650
- It's no longer true.
+It's no longer true.
+不再是真的了。
 
 859
 01:14:42,650 --> 01:14:47,850
- So now let's go through this example.
+So now let's go through this example.
+那么现在让我们来看一下这个例子。
 
 860
 01:14:47,850 --> 01:14:54,510
- So assuming that we ignore the queuing
+So assuming that we ignore the queuing
+所以假设我们忽略排队的情况
 
 861
 01:14:54,510 --> 01:14:56,050
- and the controller times.
+and the controller times.
+和控制器的时间。
 
 862
 01:14:56,050 --> 01:14:57,970
- Okay?
+Okay?
+好的？
 
 863
 01:14:57,970 --> 01:15:02,150
- So we ignore this queuing time and the controller time.
+So we ignore this queuing time and the controller time.
+所以我们忽略这个排队时间和控制器时间。
 
 864
 01:15:02,150 --> 01:15:04,050
- Let's look only on the media time.
+Let's look only on the media time.
+让我们只关注媒体时间。
 
 865
 01:15:04,050 --> 01:15:09,090
- Assume the average seek time is five milliseconds.
+Assume the average seek time is five milliseconds.
+假设平均寻道时间为五毫秒。
 
 866
 01:15:10,970 --> 01:15:15,170
- Assume that the rotation, you know,
+Assume that the rotation, you know,
+假设旋转，你知道的。
 
 867
 01:15:15,170 --> 01:15:19,230
- speed it's 7,200 rotation per minute.
+speed it's 7,200 rotation per minute.
+速度是每分钟7200转。
 
 868
 01:15:19,230 --> 01:15:22,350
- So this means that it takes eight milliseconds
+So this means that it takes eight milliseconds
+这意味着它需要八毫秒。
 
 869
 01:15:22,350 --> 01:15:24,330
- for a full rotation.
+for a full rotation.
+一整个旋转。
 
 870
 01:15:24,330 --> 01:15:29,450
- And the transfer rate assume is 50 megabytes.
+And the transfer rate assume is 50 megabytes.
+并且假设传输速率为50兆字节。
 
 871
 01:15:29,450 --> 01:15:32,330
- Oh, so then the, sorry.
+Oh, so then the, sorry.
+哦，那么，抱歉。
 
 872
 01:15:32,330 --> 01:15:37,330
- This is the transfer rate of 15 megabytes per second.
+This is the transfer rate of 15 megabytes per second.
+这是每秒传输15兆字节的速率。
 
 873
 01:15:38,310 --> 01:15:41,030
- If it's a block size of four kilobytes, right?
+If it's a block size of four kilobytes, right?
+如果块大小是四千字节，对吗？
 
 874
 01:15:41,030 --> 01:15:44,230
- So assuming the transfer rate is 50 megabytes per second.
+So assuming the transfer rate is 50 megabytes per second.
+所以假设传输速率为每秒50兆字节。
 
 875
 01:15:44,230 --> 01:15:46,810
- If the block size is four kilobytes,
+If the block size is four kilobytes,
+如果块大小为四千字节，
 
 876
 01:15:46,810 --> 01:15:51,810
- then it takes 0.8 milliseconds to transfer one sector.
+then it takes 0.8 milliseconds to transfer one sector.
+然后传输一个扇区需要0.8毫秒。
 
 877
 01:15:51,810 --> 01:15:55,050
- Right?
+Right?
+对吗？
 
 878
 01:15:55,050 --> 01:15:58,710
- You divide four kilobytes, the size of a sector,
+You divide four kilobytes, the size of a sector,
+你将四千字节（一个扇区的大小）除以。
 
 879
 01:15:58,710 --> 01:16:00,150
- on the transfer rate, right?
+on the transfer rate, right?
+关于传输速率，对吗？
 
 880
 01:16:00,150 --> 01:16:00,990
- To get that by.
+To get that by.
+把那个拿过来。
 
 881
 01:16:00,990 --> 01:16:07,250
- So then reading the block from a random place on the disk,
+So then reading the block from a random place on the disk,
+那么，从磁盘上的任意位置读取块，
 
 882
 01:16:08,230 --> 01:16:11,430
- you need to seek first to the track.
+you need to seek first to the track.
+你需要首先寻找轨迹。
 
 883
 01:16:11,430 --> 01:16:15,610
- You need to wait for the sector and then you read it.
+You need to wait for the sector and then you read it.
+你需要等待扇区，然后再读取它。
 
 884
 01:16:15,610 --> 01:16:17,330
- So it takes nine milliseconds,
+So it takes nine milliseconds,
+所以需要九毫秒。
 
 885
 01:16:17,330 --> 01:16:19,070
- a little bit more than nine milliseconds.
+a little bit more than nine milliseconds.
+略微超过九毫秒。
 
 886
 01:16:19,070 --> 01:16:24,070
- Is equivalent to 450 kilobytes per second speed,
+Is equivalent to 450 kilobytes per second speed,
+相当于每秒450千字节的速度。
 
 887
 01:16:24,070 --> 01:16:26,970
- you know, transfer speed.
+you know, transfer speed.
+你知道，传输速度。
 
 888
 01:16:26,970 --> 01:16:30,470
- If you read the block from a random place
+If you read the block from a random place
+如果你从一个随机的位置开始阅读这个区块
 
 889
 01:16:30,470 --> 01:16:34,110
- in the same cylinder, then if you do that,
+in the same cylinder, then if you do that,
+在同一个汽缸中，如果你这样做的话，
 
 890
 01:16:34,110 --> 01:16:38,090
- you don't need to incur the seek time.
+you don't need to incur the seek time.
+你不需要承担寻找时间的成本。
 
 891
 01:16:38,690 --> 01:16:43,690
- So now the latency is only 4.08 milliseconds,
+So now the latency is only 4.08 milliseconds,
+所以现在延迟只有4.08毫秒。
 
 892
 01:16:43,690 --> 01:16:48,890
- which means that the data now rate
+which means that the data now rate
+这意味着数据现在的速率是多少？
 
 893
 01:16:48,890 --> 01:16:53,710
- is one megabyte per second.
+is one megabyte per second.
+每秒钟是一兆字节。
 
 894
 01:16:53,710 --> 01:16:56,910
- But now assume that you just need the same,
+But now assume that you just need the same,
+但是现在假设你只需要相同的东西，
 
 895
 01:16:56,910 --> 01:16:58,530
- next sector on the track.
+next sector on the track.
+赛道上的下一个区域。
 
 896
 01:16:58,530 --> 01:17:00,810
- You sequentially read.
+You sequentially read.
+你是一个顺序阅读的人。
 
 897
 01:17:00,810 --> 01:17:05,810
- Then you don't need to incur the rotation delay either.
+Then you don't need to incur the rotation delay either.
+那么你也不需要承担旋转延迟。
 
 898
 01:17:06,430 --> 01:17:08,790
- So it's 50 megabytes per second.
+So it's 50 megabytes per second.
+所以每秒是50兆字节。
 
 899
 01:17:08,790 --> 01:17:12,250
- So it's 50 times bigger or 100 times bigger
+So it's 50 times bigger or 100 times bigger
+所以它是50倍大还是100倍大？
 
 900
 01:17:12,250 --> 01:17:14,250
- if it's purely random.
+if it's purely random.
+如果这是纯粹的随机的话。
 
 901
 01:17:14,250 --> 01:17:16,730
- So now you see why you have seek.
+So now you see why you have seek.
+所以现在你明白为什么你需要寻求了。
 
 902
 01:17:16,730 --> 01:17:18,870
- Also you have sequential access
+Also you have sequential access
+你还可以顺序访问
 
 903
 01:17:18,870 --> 01:17:22,590
- and versus only random access, right?
+and versus only random access, right?
+对，这只是随机访问而已，对吗？
 
 904
 01:17:22,590 --> 01:17:25,090
- If you can sequentially access the data,
+If you can sequentially access the data,
+如果你可以按顺序访问数据，
 
 905
 01:17:25,090 --> 01:17:28,690
- it's so much faster, at least for the disk.
+it's so much faster, at least for the disk.
+这样会快得多，至少对于磁盘来说。
 
 906
 01:17:28,690 --> 01:17:31,530
- So the key to use a disk effectively
+So the key to use a disk effectively
+使用磁盘的关键是
 
 907
 01:17:31,530 --> 01:17:35,130
- is to make sure that you, as much as possible,
+is to make sure that you, as much as possible,
+是为了尽可能确保你，
 
 908
 01:17:35,130 --> 01:17:39,030
- you access the data sequentially, okay?
+you access the data sequentially, okay?
+你按顺序访问数据，好吗？
 
 909
 01:17:39,030 --> 01:17:44,110
- So now there is a lot of intelligence
+So now there is a lot of intelligence
+所以现在有很多智能。
 
 910
 01:17:44,110 --> 01:17:47,470
- in this embedded into this controller.
+in this embedded into this controller.
+在这个嵌入到这个控制器中。
 
 911
 01:17:47,470 --> 01:17:52,510
- So the sectors, for instance,
+So the sectors, for instance,
+因此，例如，这些行业，
 
 912
 01:17:52,510 --> 01:17:55,510
- you have sophisticated error correcting codes, right?
+you have sophisticated error correcting codes, right?
+你有复杂的纠错码，对吗？
 
 913
 01:17:55,510 --> 01:18:00,770
- Because, you know, to avoid data corruption.
+Because, you know, to avoid data corruption.
+因为，你知道的，为了避免数据损坏。
 
 914
 01:18:00,770 --> 01:18:01,970
- And this is very important
+And this is very important
+这非常重要。
 
 915
 01:18:01,970 --> 01:18:05,290
- because if you store the data on a disk
+because if you store the data on a disk
+因为如果你将数据存储在磁盘上
 
 916
 01:18:05,290 --> 01:18:08,650
- and you trust that disk because it's stored persistently.
+and you trust that disk because it's stored persistently.
+你相信那个磁盘，因为它被持久地存储着。
 
 917
 01:18:08,650 --> 01:18:12,370
- So if the data is corrupted, you know, you lost the data.
+So if the data is corrupted, you know, you lost the data.
+所以如果数据损坏了，你知道的，你就丢失了数据。
 
 918
 01:18:12,370 --> 01:18:14,650
- Sector sparing.
+Sector sparing.
+扇区保留。
 
 919
 01:18:14,650 --> 01:18:16,410
- So it's again, it's like,
+So it's again, it's like,
+所以又是这样，就像是，
 
 920
 01:18:16,410 --> 01:18:20,730
- sometimes some sectors becomes bad.
+sometimes some sectors becomes bad.
+有时候一些行业变得不好。
 
 921
 01:18:20,730 --> 01:18:23,830
- You can no longer read and write data reliably from them.
+You can no longer read and write data reliably from them.
+你无法再可靠地从它们中读取和写入数据了。
 
 922
 01:18:23,830 --> 01:18:25,630
- So in that case, you remap them.
+So in that case, you remap them.
+那么在这种情况下，你需要重新映射它们。
 
 923
 01:18:25,630 --> 01:18:27,770
- You forget about those and you remap that
+You forget about those and you remap that
+你忘记了那些，你重新规划了那个。
 
 924
 01:18:27,770 --> 01:18:30,770
- to transfer it to another spare sector on the disk.
+to transfer it to another spare sector on the disk.
+将其转移到磁盘上的另一个备用扇区。
 
 925
 01:18:30,770 --> 01:18:32,310
- And this is done by the controller
+And this is done by the controller
+这是由控制器完成的。
 
 926
 01:18:32,310 --> 01:18:33,910
- transparently with the software.
+transparently with the software.
+透明地使用软件。
 
 927
 01:18:33,910 --> 01:18:36,730
- Sleep sparing.
+Sleep sparing.
+节约睡眠时间。
 
 928
 01:18:36,730 --> 01:18:39,530
- Now, if there is a bunch,
+Now, if there is a bunch,
+现在，如果有一堆的话，
 
 929
 01:18:39,530 --> 01:18:43,710
- if the sector goes bad,
+if the sector goes bad,
+如果这个行业走下坡路，
 
 930
 01:18:43,710 --> 01:18:46,930
- now the problem is that, you know,
+now the problem is that, you know,
+现在问题是，你知道的，
 
 931
 01:18:46,930 --> 01:18:48,810
- now you no longer have sequential access.
+now you no longer have sequential access.
+现在你不再具有顺序访问的能力。
 
 932
 01:18:48,810 --> 01:18:50,850
- If you want to preserve sequential access,
+If you want to preserve sequential access,
+如果你想保留顺序访问，
 
 933
 01:18:50,850 --> 01:18:52,930
- you may want to remap multiple sectors
+you may want to remap multiple sectors
+你可能想要重新映射多个扇区。
 
 934
 01:18:52,930 --> 01:18:54,770
- to preserve the sequentiality.
+to preserve the sequentiality.
+保持顺序性。
 
 935
 01:18:54,770 --> 01:18:56,290
- And the last is track skewing.
+And the last is track skewing.
+最后一个是轨道偏斜。
 
 936
 01:18:56,290 --> 01:18:59,410
- And here I have a figure for you as a mean track skewing.
+And here I have a figure for you as a mean track skewing.
+这里有一个数字给你，表示平均轨道偏斜。
 
 937
 01:18:59,410 --> 01:19:01,290
- So this means that if I want,
+So this means that if I want,
+这意味着如果我想的话，
 
 938
 01:19:01,290 --> 01:19:06,290
- if the data is stored sequentially on nearby tracks,
+if the data is stored sequentially on nearby tracks,
+如果数据按顺序存储在相邻的磁道上，
 
 939
 01:19:06,290 --> 01:19:09,450
- then I want to make sure that when I move
+then I want to make sure that when I move
+那么我想要确保当我搬家的时候
 
 940
 01:19:09,450 --> 01:19:12,410
- from one track to another, I don't waste time.
+from one track to another, I don't waste time.
+从一条轨道到另一条，我不浪费时间。
 
 941
 01:19:12,410 --> 01:19:16,050
- So here, you know, these are the sectors on track one.
+So here, you know, these are the sectors on track one.
+所以在这里，你知道，这些是第一轨道上的部门。
 
 942
 01:19:16,050 --> 01:19:19,350
- So say I'm going to read on track one here, the head,
+So say I'm going to read on track one here, the head,
+所以说我要在这里读第一轨，头部，
 
 943
 01:19:19,350 --> 01:19:21,650
- you know, I'm just finishing reading everything
+you know, I'm just finishing reading everything
+你知道，我刚刚读完了所有的内容。
 
 944
 01:19:21,650 --> 01:19:24,810
- on the track one and I want to move to track two.
+on the track one and I want to move to track two.
+在第一轨道上，我想要切换到第二轨道。
 
 945
 01:19:24,810 --> 01:19:26,790
- The track two is the one inside.
+The track two is the one inside.
+轨道二是里面的那个。
 
 946
 01:19:26,790 --> 01:19:28,090
- Now, when I want to move,
+Now, when I want to move,
+现在，当我想要搬家的时候，
 
 947
 01:19:28,090 --> 01:19:32,610
- then the first sector on track one, I'm going to shift.
+then the first sector on track one, I'm going to shift.
+那么，我要将第一扇区移到第一磁道上。
 
 948
 01:19:32,610 --> 01:19:36,530
- So then this time,
+So then this time,
+那么这一次，
 
 949
 01:19:36,530 --> 01:19:41,530
- when I'm going to move the head to track one,
+when I'm going to move the head to track one,
+当我要移动头部来跟踪第一个的时候，
 
 950
 01:19:41,530 --> 01:19:45,170
- by the time I moved, now sector zero comes,
+by the time I moved, now sector zero comes,
+当我搬家的时候，现在是零区的时候了。
 
 951
 01:19:45,170 --> 01:19:46,610
- is ready to be read.
+is ready to be read.
+已准备好阅读。
 
 952
 01:19:46,610 --> 01:19:50,810
- If I don't do this, then while I move this head
+If I don't do this, then while I move this head
+如果我不这样做，那么当我移动这个头的时候
 
 953
 01:19:50,810 --> 01:19:53,450
- from one sector, from one track to another,
+from one sector, from one track to another,
+从一个行业到另一个行业，从一个轨道到另一个轨道，
 
 954
 01:19:53,450 --> 01:19:55,450
- I miss a sector zero and I need to wait
+I miss a sector zero and I need to wait
+我想念一个零扇区，我需要等待。
 
 955
 01:19:55,450 --> 01:19:57,490
- for an entire evolution of the disk
+for an entire evolution of the disk
+整个磁盘的演化过程
 
 956
 01:19:57,490 --> 01:20:00,610
- before I start reading it, right?
+before I start reading it, right?
+在我开始阅读之前，对吗？
 
 957
 01:20:00,610 --> 01:20:05,170
- So, and I'm going to end up with this slide.
+So, and I'm going to end up with this slide.
+所以，我最后会得到这张幻灯片。
 
 958
 01:20:05,170 --> 01:20:09,410
- So this is an example of current hard disk drive.
+So this is an example of current hard disk drive.
+这是一个当前硬盘驱动器的例子。
 
 959
 01:20:09,410 --> 01:20:14,410
- It's like 20, 20, 18 terabytes is a hard drive,
+It's like 20, 20, 18 terabytes is a hard drive,
+就像20、20、18 TB是一个硬盘一样。
 
 960
 01:20:14,410 --> 01:20:17,050
- nine platters, 18 hertz.
+nine platters, 18 hertz.
+九个盘子，18赫兹。
 
 961
 01:20:17,050 --> 01:20:19,410
- Each platter has two sides.
+Each platter has two sides.
+每个盘子有两面。
 
 962
 01:20:19,410 --> 01:20:22,130
- So one head for each side.
+So one head for each side.
+所以每边一个头。
 
 963
 01:20:22,130 --> 01:20:24,350
- Four milliseconds, every six time.
+Four milliseconds, every six time.
+四毫秒，每六次。
 
 964
 01:20:25,690 --> 01:20:30,690
- A sector is four kilobytes, 7,200 RPM and so forth.
+A sector is four kilobytes, 7,200 RPM and so forth.
+一个扇区是四千字节，每分钟转速为7,200转等等。
 
 965
 01:20:30,690 --> 01:20:36,130
- And 270 megabytes per second maximum transfer rate
+And 270 megabytes per second maximum transfer rate
+每秒最大传输速率为270兆字节。
 
 966
 01:20:36,130 --> 01:20:37,850
- costs 562.
+costs 562.
+费用为562。
 
 967
 01:20:37,850 --> 01:20:40,890
- Now let's compare with IBM personal computer drive,
+Now let's compare with IBM personal computer drive,
+现在让我们与IBM个人电脑驱动器进行比较，
 
 968
 01:20:40,890 --> 01:20:42,090
- the first drive.
+the first drive.
+第一次驾驶。
 
 969
 01:20:42,090 --> 01:20:44,330
- This was 86, okay?
+This was 86, okay?
+这是86年的，好吗？
 
 970
 01:20:44,330 --> 01:20:48,990
- So the seek time is 10 times better, okay?
+So the seek time is 10 times better, okay?
+所以寻找时间好了10倍，对吗？
 
 971
 01:20:48,990 --> 01:20:54,850
- The transfer time is 300 times better.
+The transfer time is 300 times better.
+转移时间提高了300倍。
 
 972
 01:20:55,850 --> 01:21:00,850
- But the capacity is 600,000 times better.
+But the capacity is 600,000 times better.
+但是容量提高了600,000倍。
 
 973
 01:21:00,850 --> 01:21:05,570
- And the cost, it's almost the same, 600,000 times better.
+And the cost, it's almost the same, 600,000 times better.
+而且成本几乎相同，好了600,000倍。
 
 974
 01:21:05,570 --> 01:21:10,570
- So this is a progress we were able to get in 36 years.
+So this is a progress we were able to get in 36 years.
+这是我们在36年内取得的进展。
 
 975
 01:21:10,570 --> 01:21:12,850
- Okay, so it's quite impressive.
+Okay, so it's quite impressive.
+好的，这真的很令人印象深刻。
 
 976
 01:21:12,850 --> 01:21:14,770
- Okay, so we are going to stop here
+Okay, so we are going to stop here
+好的，所以我们要停在这里。
 
 977
 01:21:14,770 --> 01:21:17,350
- and next time we are going to start talking
+and next time we are going to start talking
+下次我们打算开始交谈。
 
 978
 01:21:17,350 --> 01:21:21,010
- with about solid SSDs.
+with about solid SSDs.
+关于固态硬盘的事情。
 
 979
 01:21:24,050 --> 01:21:25,710
- Thanks everyone, okay.
+Thanks everyone, okay.
+谢谢大家，好的。
 
 980
 01:21:25,710 --> 01:21:32,570
- Okay, I'm going to stop here
+Okay, I'm going to stop here
+好的，我就到这里。
 
 981
 01:21:32,570 --> 01:21:34,570
- and I'm going to answer the questions.
+and I'm going to answer the questions.
+我会回答这些问题。
 
 982
 01:21:34,570 --> 01:21:36,730
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体文本。
 
 983
 01:21:36,730 --> 01:21:38,890
- (silence)
+(silence)
+对不起，我无法翻译空白。请提供需要翻译的具体内容。
 
 984
 01:21:38,890 --> 01:21:41,050
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体文本。
 
 985
 01:21:41,050 --> 01:21:43,210
- (silence)
+(silence)
+对不起，我无法翻译空白。请提供需要翻译的具体内容。
 
 986
 01:21:43,210 --> 01:21:45,370
- (silence)
+(silence)
+对不起，我无法翻译空白的内容。请提供需要翻译的具体内容。
 
 987
 01:21:45,370 --> 01:21:47,530
- (silence)
+(silence)
+对不起，我无法翻译沉默。请提供需要翻译的具体内容。
 
 988
 01:21:47,530 --> 01:21:49,530
- .
+.
+Sure, I can help you with that. Please provide me with the text you would like me to translate.
 
 989
 01:21:49,530 --> 01:21:51,530
- you
+you
+你
 
