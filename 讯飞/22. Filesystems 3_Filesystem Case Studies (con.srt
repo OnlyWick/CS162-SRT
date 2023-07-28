@@ -1,0 +1,5172 @@
+﻿1
+00:00:28,250 --> 00:00:29,130
+Hello, everyone.
+
+2
+00:00:30,140 --> 00:00:30,690
+Welcome. 
+
+3
+00:00:30,700 --> 00:00:34,370
+Today we are going to continue our discussion on file systems. 
+
+4
+00:00:37,820 --> 00:00:41,410
+If you remember, last time we are discussing about,
+
+5
+00:00:41,420 --> 00:00:45,200
+we ended our lecture with the discussion of the first file systems. 
+
+6
+00:00:45,620 --> 00:00:53,420
+And we chose the version of the next version of the file
+
+7
+00:00:53,430 --> 00:00:57,000
+system in unique bsd after original version. 
+
+8
+00:00:57,930 --> 00:01:03,500
+And this has a lot of quite a few innovations. 
+
+9
+00:01:03,970 --> 00:01:06,340
+And we went over a few last time, 
+
+10
+00:01:06,590 --> 00:01:11,040
+mostly the innovation or about improving the performance, 
+
+11
+00:01:11,990 --> 00:01:17,170
+like different block sizes, 
+
+12
+00:01:19,750 --> 00:01:22,930
+basically improving the rotational latency. 
+
+13
+00:01:24,770 --> 00:01:28,120
+A few more features are going to improve the performance. 
+
+14
+00:01:28,940 --> 00:01:34,370
+The one thing we didn't go over is the organization of the directories. 
+
+15
+00:01:35,750 --> 00:01:39,500
+So what is the problem here? 
+
+16
+00:01:39,510 --> 00:01:43,220
+So assume that you have a very large directory with many entries. 
+
+17
+00:01:44,590 --> 00:01:47,940
+Now, if you remember the early file systems,
+
+18
+00:01:47,950 --> 00:01:51,060
+organized directories as lists, this was,
+
+19
+00:01:51,690 --> 00:01:55,260
+in the case of a fact, 
+
+20
+00:01:55,270 --> 00:02:02,790
+the microsoft dose of first file system or arrays
+
+21
+00:02:03,580 --> 00:02:07,610
+of entries or an entry is a file name and the I node
+
+22
+00:02:07,620 --> 00:02:09,170
+corresponding to that file name. 
+
+23
+00:02:11,080 --> 00:02:12,470
+I know, if you remember,
+
+24
+00:02:12,480 --> 00:02:19,150
+it contains the entire information about where which are the blocks
+
+25
+00:02:19,160 --> 00:02:21,350
+of that particular file, 
+
+26
+00:02:21,880 --> 00:02:24,760
+as well as other information about that file, 
+
+27
+00:02:24,770 --> 00:02:27,810
+like access rights and things like that. 
+
+28
+00:02:28,620 --> 00:02:32,760
+The time was on last updated and other information. 
+
+29
+00:02:34,280 --> 00:02:36,630
+The challenge with that is that say, 
+
+30
+00:02:36,640 --> 00:02:39,580
+I want to locate 15, right?
+
+31
+00:02:39,590 --> 00:02:43,620
+And whenever you are going to and is a command line, 
+
+32
+00:02:43,630 --> 00:02:47,250
+or you are going to write a file names to say, 
+
+33
+00:02:47,780 --> 00:02:49,550
+caesar contact to open, 
+
+34
+00:02:50,510 --> 00:02:54,240
+you need to find that file name because in the directory, 
+
+35
+00:02:54,250 --> 00:02:57,500
+because the entry in the directory of that file name, 
+
+36
+00:02:57,510 --> 00:02:59,660
+because that entry will give you the I node. 
+
+37
+00:02:59,670 --> 00:03:05,220
+And the I node will tell you where are the data blocks on the disk of that file. 
+
+38
+00:03:06,650 --> 00:03:11,720
+But if the directory is organized like a list or an array of entries, 
+
+39
+00:03:12,240 --> 00:03:16,990
+then the only way to locate that file is linear search. 
+
+40
+00:03:17,840 --> 00:03:19,600
+If the director is very large, 
+
+41
+00:03:19,610 --> 00:03:21,640
+it is linear search, it's expensive.
+
+42
+00:03:22,400 --> 00:03:23,570
+Even more, 
+
+43
+00:03:23,880 --> 00:03:25,270
+you may need your meaning. 
+
+44
+00:03:25,280 --> 00:03:29,990
+You may need to read the entire directory just to find a file. 
+
+45
+00:03:30,360 --> 00:03:30,600
+Again, 
+
+46
+00:03:31,390 --> 00:03:32,680
+if the directory is large, 
+
+47
+00:03:32,690 --> 00:03:39,270
+you may have to load all the blocks which are storing this large directory. 
+
+48
+00:03:39,820 --> 00:03:41,320
+Again, just to find the fire.
+
+49
+00:03:43,880 --> 00:03:44,750
+What is a solution? 
+
+50
+00:03:46,890 --> 00:03:50,840
+The solution is to find a better structure than a list of one and an array. 
+
+51
+00:03:52,250 --> 00:03:56,630
+If you want to search water of some better structure to search
+
+52
+00:03:57,360 --> 00:03:59,070
+than at least an ordinary, 
+
+53
+00:04:01,390 --> 00:04:03,240
+you learn about many of those. 
+
+54
+00:04:05,260 --> 00:04:06,220
+Can you give an example? 
+
+55
+00:04:06,230 --> 00:04:06,900
+What would you do? 
+
+56
+00:04:07,400 --> 00:04:11,250
+If you had to design a directory data structure, 
+
+57
+00:04:11,260 --> 00:04:14,600
+which is much more efficient in terms of search? 
+
+58
+00:04:16,240 --> 00:04:17,730
+It's a binary tree, right?
+
+59
+00:04:20,710 --> 00:04:21,910
+Yeah, that's pretty good.
+
+60
+00:04:21,920 --> 00:04:23,110
+And it's even better. 
+
+61
+00:04:23,120 --> 00:04:23,430
+Here. 
+
+62
+00:04:23,440 --> 00:04:25,690
+We can have ab tree. 
+
+63
+00:04:27,600 --> 00:04:31,030
+And when you have a tree, a surgery,
+
+64
+00:04:33,540 --> 00:04:37,430
+the depth of the tree is what gives you the complexity of locating
+
+65
+00:04:37,800 --> 00:04:40,040
+that the particular, 
+
+66
+00:04:40,970 --> 00:04:42,280
+in our case, file,
+
+67
+00:04:42,290 --> 00:04:43,800
+which is a leaf in that tree. 
+
+68
+00:04:46,220 --> 00:04:48,810
+This is for you, just aab tree.
+
+69
+00:04:48,820 --> 00:04:51,210
+It's a more sophisticated search tree. 
+
+70
+00:04:53,220 --> 00:04:54,530
+If you remember, 
+
+71
+00:04:56,180 --> 00:05:00,130
+this is just aa reminder for to refresh your memory. 
+
+72
+00:05:03,040 --> 00:05:08,040
+Here, a node is pointing out at a lower level,
+
+73
+00:05:09,630 --> 00:05:11,720
+a on to an array. 
+
+74
+00:05:12,150 --> 00:05:14,710
+And that array contains values, 
+
+75
+00:05:15,110 --> 00:05:18,070
+which are smaller than the value of the paranoid. 
+
+76
+00:05:19,120 --> 00:05:25,740
+In this case, 100 points to this array of values.
+
+77
+00:05:26,200 --> 00:05:28,030
+And all these values, 48, 50,
+
+78
+00:05:28,040 --> 00:05:30,290
+79 are less than 100. 
+
+79
+00:05:31,940 --> 00:05:33,190
+Also, the following.
+
+80
+00:05:34,010 --> 00:05:36,240
+Now, the sibling node of 100, 1,
+
+81
+00:05:36,250 --> 00:05:41,230
+55 now is going to point to a set of values, 
+
+82
+00:05:41,240 --> 00:05:42,710
+to an array of values, 
+
+83
+00:05:43,300 --> 00:05:45,450
+which are lower than itself, 
+
+84
+00:05:45,950 --> 00:05:50,050
+but higher than its sibling on the left right and on. 
+
+85
+00:05:50,310 --> 00:05:53,610
+So these are numbers between 120, 8and 140,
+
+86
+00:05:54,380 --> 00:05:55,240
+and so forth. 
+
+87
+00:05:59,010 --> 00:06:00,960
+Eventually, you need to get the leaves,
+
+88
+00:06:00,970 --> 00:06:05,580
+and let's see how to find a value of the lead at the leaf. 
+
+89
+00:06:06,250 --> 00:06:09,680
+So let's see how this is used in the context of directories, 
+
+90
+00:06:10,150 --> 00:06:11,940
+in the context of directories. 
+
+91
+00:06:12,330 --> 00:06:12,880
+How do we get? 
+
+92
+00:06:12,890 --> 00:06:14,760
+A the number is easy to get? 
+
+93
+00:06:14,770 --> 00:06:17,620
+You just hash is the name of the file. 
+
+94
+00:06:17,860 --> 00:06:19,000
+Now we get a number. 
+
+95
+00:06:19,540 --> 00:06:21,200
+And hopefully the hash is good enough. 
+
+96
+00:06:21,330 --> 00:06:23,680
+The probability of collisions is very small. 
+
+97
+00:06:25,640 --> 00:06:26,530
+But this is what it is. 
+
+98
+00:06:26,540 --> 00:06:29,170
+It's exactly, it's a binary search tree.
+
+99
+00:06:29,730 --> 00:06:31,000
+Sorry, it's a big tree.
+
+100
+00:06:31,800 --> 00:06:36,990
+It is a values in the beatrice, 
+
+101
+00:06:37,000 --> 00:06:40,980
+are the hash is of the file makes. 
+
+102
+00:06:42,610 --> 00:06:44,830
+And you can see here on the leaves, 
+
+103
+00:06:44,840 --> 00:06:51,630
+you are going to see to have the entries in the directory, 
+
+104
+00:06:52,040 --> 00:06:55,560
+which again, is the name of the file, a name,
+
+105
+00:06:55,570 --> 00:06:57,390
+and the file number. 
+
+106
+00:06:58,110 --> 00:07:02,000
+Or I note any questions? 
+
+107
+00:07:02,010 --> 00:07:02,080
+I
+
+108
+00:07:11,700 --> 00:07:12,890
+so in this particular case, 
+
+109
+00:07:12,900 --> 00:07:15,500
+you see that the hash two out two, 
+
+110
+00:07:15,510 --> 00:07:17,720
+it's c 194. 
+
+111
+00:07:18,040 --> 00:07:19,640
+And you are looking through the beatles. 
+
+112
+00:07:19,650 --> 00:07:24,150
+First of all, you are going to look at the values,
+
+113
+00:07:24,750 --> 00:07:30,900
+which are you are looking to the values to the consecutive values says
+
+114
+00:07:30,910 --> 00:07:33,120
+that the value on the left is lower, 
+
+115
+00:07:33,130 --> 00:07:34,000
+the value on the right, 
+
+116
+00:07:34,010 --> 00:07:35,160
+it's higher, 
+
+117
+00:07:35,430 --> 00:07:37,390
+then c one, 94.
+
+118
+00:07:37,710 --> 00:07:45,760
+And then you are going to pick the node corresponding to that, 
+
+119
+00:07:45,770 --> 00:07:48,330
+which is for the range. 
+
+120
+00:07:49,130 --> 00:07:50,800
+Then you are going to go on level down. 
+
+121
+00:07:51,050 --> 00:07:52,200
+For instance, in this case,
+
+122
+00:07:52,210 --> 00:07:56,300
+c 194 is smaller than the first value. 
+
+123
+00:07:56,960 --> 00:07:58,290
+At the first level, 
+
+124
+00:07:58,540 --> 00:08:07,420
+you are going to go take and go to the arrays pointed out by that value. 
+
+125
+00:08:07,860 --> 00:08:13,470
+Note eighty one one zero two o k because remember, 
+
+126
+00:08:13,480 --> 00:08:16,030
+eighty one zero one one zero two, 
+
+127
+00:08:16,240 --> 00:08:18,070
+which is a last left mosque. 
+
+128
+00:08:18,080 --> 00:08:19,150
+Now here, 
+
+129
+00:08:19,580 --> 00:08:21,090
+at the top level, 
+
+130
+00:08:21,100 --> 00:08:25,010
+is going to.only to values which are lower than itself. 
+
+131
+00:08:26,600 --> 00:08:29,910
+You are going to go to the next level at the next level. 
+
+132
+00:08:30,190 --> 00:08:31,210
+The second level, again,
+
+133
+00:08:32,090 --> 00:08:37,980
+you are going to look at the numbers of values at that node. 
+
+134
+00:08:38,380 --> 00:08:42,210
+The values are going to go from the smallest battery, c 19,
+
+135
+00:08:42,220 --> 00:08:44,050
+c 195. 
+
+136
+00:08:44,060 --> 00:08:47,170
+It's against c 195 is greater than c 194. 
+
+137
+00:08:47,510 --> 00:08:52,160
+You are going to go again to the next level is going to be allowed, 
+
+138
+00:08:52,720 --> 00:09:00,100
+which is pointed out by the first I corresponding to the leftmost value. 
+
+139
+00:09:01,970 --> 00:09:03,280
+And finally, here,
+
+140
+00:09:03,590 --> 00:09:07,980
+you are just going to see that you are going to have to find ac 194, 
+
+141
+00:09:07,990 --> 00:09:09,130
+so you'll find a match. 
+
+142
+00:09:09,460 --> 00:09:14,830
+And that match will take you to the entry in the file directory, 
+
+143
+00:09:14,840 --> 00:09:18,600
+which is the name of the file and the file number. 
+
+144
+00:09:25,950 --> 00:09:28,140
+Michael, here has a great question.
+
+145
+00:09:28,150 --> 00:09:31,220
+Why do we want to hash the file names? 
+
+146
+00:09:31,470 --> 00:09:35,260
+Wouldn't using the file name themselves in lexicographical order? 
+
+147
+00:09:35,510 --> 00:09:39,690
+Have the benefit that is easy to enumerate files in lexicographical order. 
+
+148
+00:09:43,420 --> 00:09:46,480
+Anyone wants to answer this question? 
+
+149
+00:10:04,680 --> 00:10:07,630
+The file names can have arbitrary length. 
+
+150
+00:10:07,760 --> 00:10:10,110
+It's going to make the implementation a little bit harder. 
+
+151
+00:10:14,020 --> 00:10:16,420
+Someone says also perhaps to distribute the hydrogen. 
+
+152
+00:10:16,430 --> 00:10:17,940
+For me, that's a great.,
+
+153
+00:10:18,590 --> 00:10:20,080
+actually, as well.
+
+154
+00:10:20,860 --> 00:10:23,000
+You get the more balanced three. 
+
+155
+00:10:23,010 --> 00:10:25,940
+You if you have a hash with hash, 
+
+156
+00:10:26,260 --> 00:10:28,100
+is going to give you pseudo random numbers. 
+
+157
+00:10:28,110 --> 00:10:32,890
+So you are going to easily get a balance three whiles you once you build it. 
+
+158
+00:10:33,470 --> 00:10:37,220
+But the other thing is that if use of finance, it's their strings.
+
+159
+00:10:37,650 --> 00:10:40,960
+So comparing to strings is much more expensive. 
+
+160
+00:10:41,330 --> 00:10:45,770
+Then comparing to numbers again, remember,
+
+161
+00:10:45,780 --> 00:10:49,050
+we are doing building big trees because we want to improve the performance. 
+
+162
+00:10:51,270 --> 00:10:53,270
+Hash is give you values, 
+
+163
+00:10:53,280 --> 00:10:55,510
+which are at the end of the day can be our integers, 
+
+164
+00:10:56,020 --> 00:10:56,650
+can be. 
+
+165
+00:10:57,190 --> 00:10:58,950
+And just comparing integers, 
+
+166
+00:10:58,960 --> 00:11:00,480
+it's much easier. 
+
+167
+00:11:01,100 --> 00:11:02,150
+It's much faster, 
+
+168
+00:11:02,690 --> 00:11:09,550
+and also much easier to build data structures where the fields have a union
+
+169
+00:11:09,560 --> 00:11:10,390
+with the same land. 
+
+170
+00:11:16,010 --> 00:11:17,560
+Do different file systems, 
+
+171
+00:11:17,570 --> 00:11:18,920
+use different between types, 
+
+172
+00:11:18,930 --> 00:11:20,960
+or it's some standard like 234. 
+
+173
+00:11:21,540 --> 00:11:22,500
+That's a great question. 
+
+174
+00:11:22,510 --> 00:11:26,920
+Actually, I do not know the answer to that question.
+
+175
+00:11:27,290 --> 00:11:28,250
+I should look around. 
+
+176
+00:11:29,590 --> 00:11:30,580
+That's a good question. 
+
+177
+00:11:32,930 --> 00:11:37,060
+I would assume that there are some a rule of thumb
+
+178
+00:11:37,070 --> 00:11:39,670
+here about whether the good numbers for this application. 
+
+179
+00:11:40,260 --> 00:11:41,830
+While directory can be large, 
+
+180
+00:11:42,590 --> 00:11:48,070
+probably it doesn't compare with a number of rows. 
+
+181
+00:11:48,080 --> 00:11:49,670
+You can have a in a table, 
+
+182
+00:11:50,070 --> 00:11:51,190
+as you probably know, 
+
+183
+00:11:51,200 --> 00:11:56,860
+be trees are coming from database field to index the rows in a table. 
+
+184
+00:11:57,450 --> 00:12:02,760
+I guess you can have hundreds of millions or even billions of rows in a table. 
+
+185
+00:12:03,100 --> 00:12:06,470
+I don't as well as a number of files can be large, 
+
+186
+00:12:06,480 --> 00:12:08,290
+is not going to reach that barrier. 
+
+187
+00:12:11,000 --> 00:12:12,220
+But that's a good question. 
+
+188
+00:12:15,560 --> 00:12:19,390
+So now we switch gears and we are going to look
+
+189
+00:12:19,400 --> 00:12:21,420
+at another file system and file system, 
+
+190
+00:12:21,430 --> 00:12:30,120
+its windows and dfs what in distance for new technology? 
+
+191
+00:12:30,970 --> 00:12:31,150
+Right? 
+
+192
+00:12:32,640 --> 00:12:35,110
+So it's called new technology file system. 
+
+193
+00:12:36,250 --> 00:12:37,640
+It's an interesting name, right?
+
+194
+00:12:37,650 --> 00:12:40,120
+Because it's always going to be called new technology, 
+
+195
+00:12:40,130 --> 00:12:43,880
+but now this is like3020, 
+
+196
+00:12:43,890 --> 00:12:44,930
+30 years old, 
+
+197
+00:12:44,940 --> 00:12:46,680
+so cannot be that. 
+
+198
+00:12:47,200 --> 00:12:48,220
+So new technology, 
+
+199
+00:12:51,130 --> 00:12:54,160
+this is still the default on modern window systems. 
+
+200
+00:12:54,700 --> 00:12:58,340
+And if you are using the windows machine, 
+
+201
+00:12:58,350 --> 00:13:02,260
+most likely you are using an ndfs file system. 
+
+202
+00:13:05,130 --> 00:13:07,440
+Let me just tell you what is the main idea here. 
+
+203
+00:13:07,970 --> 00:13:09,020
+The main idea here, 
+
+204
+00:13:09,030 --> 00:13:14,620
+one of the main ideas is that instead of fixed blocks, 
+
+205
+00:13:15,380 --> 00:13:19,800
+will we have valuable length blocks? 
+
+206
+00:13:20,400 --> 00:13:23,610
+These variable line blocks are called extents. 
+
+207
+00:13:27,910 --> 00:13:32,230
+And then instead of the fact or I not array, 
+
+208
+00:13:32,810 --> 00:13:36,000
+we are having here what is called a master file paper. 
+
+209
+00:13:36,940 --> 00:13:39,660
+And the master file table is almost like a database. 
+
+210
+00:13:40,170 --> 00:13:45,620
+And it's in the database because it's it has attribute value pairs. 
+
+211
+00:13:46,110 --> 00:13:50,340
+And these attributes and the values can be different things. 
+
+212
+00:13:56,210 --> 00:13:57,680
+Each of these entries, 
+
+213
+00:13:57,690 --> 00:13:59,200
+which is attribute value, 
+
+214
+00:13:59,210 --> 00:14:01,560
+can have one kilobyte size. 
+
+215
+00:14:02,130 --> 00:14:08,990
+So it's more general than the name finding pairs, 
+
+216
+00:14:09,330 --> 00:14:12,180
+which are finding in traditional file systems. 
+
+217
+00:14:12,470 --> 00:14:13,730
+Like we learned so far. 
+
+218
+00:14:16,760 --> 00:14:23,270
+Let me show you a little bit how this is organized. 
+
+219
+00:14:23,570 --> 00:14:27,270
+But the point is that the reason it's more complex, 
+
+220
+00:14:27,690 --> 00:14:34,480
+but this complexity buys your efficiency and performance. 
+
+221
+00:14:35,020 --> 00:14:38,760
+And you'll see how one is. 
+
+222
+00:14:41,070 --> 00:14:45,340
+If you can find enough room on the disk, 
+
+223
+00:14:45,350 --> 00:14:48,840
+and you can have an extent, 
+
+224
+00:14:49,150 --> 00:14:54,870
+let's say, of 100 kilobytes larger than any block.
+
+225
+00:14:55,210 --> 00:14:55,600
+Right? 
+
+226
+00:14:56,260 --> 00:14:59,820
+100 kilobytes extend or even higher, 
+
+227
+00:14:59,830 --> 00:15:01,350
+and that's contiguous. 
+
+228
+00:15:01,970 --> 00:15:02,390
+Right? 
+
+229
+00:15:02,970 --> 00:15:07,310
+So it's very fast to read that block. 
+
+230
+00:15:07,320 --> 00:15:09,910
+There is no signal that extent. 
+
+231
+00:15:10,190 --> 00:15:11,250
+There is no sick time. 
+
+232
+00:15:11,260 --> 00:15:12,750
+You have only one sick time. 
+
+233
+00:15:13,010 --> 00:15:17,200
+You need to waste in order to get to that extent. 
+
+234
+00:15:17,210 --> 00:15:21,420
+But then you read 100 kilobytes with blocks. 
+
+235
+00:15:22,240 --> 00:15:25,470
+It's again, it's like they may not be contiguous.
+
+236
+00:15:25,920 --> 00:15:27,930
+So you are going to have more sick times. 
+
+237
+00:15:28,210 --> 00:15:30,600
+And this kind of, it's more complex.
+
+238
+00:15:33,130 --> 00:15:35,090
+And not only that, 
+
+239
+00:15:35,100 --> 00:15:37,570
+but as you'll see, like, for instance,
+
+240
+00:15:37,990 --> 00:15:41,300
+if you have a smaller file which is more than one kilobyte, 
+
+241
+00:15:41,690 --> 00:15:44,680
+you can actually put in this master file table, 
+
+242
+00:15:44,690 --> 00:15:46,840
+because one of these entries, remember,
+
+243
+00:15:48,180 --> 00:15:51,840
+it can be a up to one kilobyte. 
+
+244
+00:15:53,870 --> 00:15:54,380
+Okay. 
+
+245
+00:15:56,290 --> 00:15:59,080
+Let's look, this is a master file table,
+
+246
+00:15:59,620 --> 00:16:02,970
+and then you have a bunch of records. 
+
+247
+00:16:03,230 --> 00:16:07,740
+And these records are content depends on how large is a fire. 
+
+248
+00:16:08,990 --> 00:16:12,410
+You also are going to learn next lecture about journaling, 
+
+249
+00:16:12,420 --> 00:16:16,120
+which is a way to provide file reliability for the facts. 
+
+250
+00:16:18,550 --> 00:16:19,580
+This is a very small, 
+
+251
+00:16:19,790 --> 00:16:20,820
+it's a small file, 
+
+252
+00:16:21,290 --> 00:16:22,450
+tiny file. 
+
+253
+00:16:22,460 --> 00:16:24,690
+So the file is less than one kilobyte. 
+
+254
+00:16:25,630 --> 00:16:27,720
+One of these centuries is one kilobyte. 
+
+255
+00:16:28,270 --> 00:16:29,780
+So what do you have here? 
+
+256
+00:16:30,130 --> 00:16:34,390
+You have in one of these entries in the master file table for these small files. 
+
+257
+00:16:35,060 --> 00:16:36,460
+You have standard information, 
+
+258
+00:16:36,470 --> 00:16:43,740
+which is the usual when the file was created or the modified the last time, 
+
+259
+00:16:43,750 --> 00:16:45,620
+if you wanna access the last time, 
+
+260
+00:16:45,960 --> 00:16:50,580
+owner id some security specify as flags, 
+
+261
+00:16:50,840 --> 00:16:53,390
+whether is read only hidden, 
+
+262
+00:16:53,400 --> 00:16:54,910
+whether you can see, like,
+
+263
+00:16:54,920 --> 00:16:56,670
+if you do like a user alice, 
+
+264
+00:16:56,680 --> 00:16:58,310
+whether he sees a file or not, 
+
+265
+00:16:58,920 --> 00:17:01,740
+or it's a system file and things like that. 
+
+266
+00:17:01,750 --> 00:17:01,900
+Right? 
+
+267
+00:17:01,910 --> 00:17:04,020
+So this is what you have in the standard information. 
+
+268
+00:17:04,490 --> 00:17:10,130
+Then you have the file name in the file table, master file table.
+
+269
+00:17:10,140 --> 00:17:11,850
+You have the file and remember that. 
+
+270
+00:17:12,170 --> 00:17:15,320
+In the case of I node fa you do not have, 
+
+271
+00:17:15,330 --> 00:17:17,780
+you have only I know the I node, 
+
+272
+00:17:17,790 --> 00:17:18,940
+which is a file number. 
+
+273
+00:17:19,510 --> 00:17:21,620
+The file name is in the directory only. 
+
+274
+00:17:22,180 --> 00:17:25,240
+Then like we discuss if the data is a fairly small, 
+
+275
+00:17:25,250 --> 00:17:28,600
+you may be able to put the entire data in this entry, 
+
+276
+00:17:29,250 --> 00:17:29,700
+right? 
+
+277
+00:17:29,910 --> 00:17:30,810
+And then it's free. 
+
+278
+00:17:31,180 --> 00:17:36,980
+And you are going to just read on one of all this record. 
+
+279
+00:17:37,210 --> 00:17:38,090
+In one goal, 
+
+280
+00:17:39,110 --> 00:17:41,020
+you always want this access. 
+
+281
+00:17:41,370 --> 00:17:44,430
+You can read everything about the file, including the data.
+
+282
+00:17:44,980 --> 00:17:46,520
+It's as fast as you can get. 
+
+283
+00:17:46,960 --> 00:17:47,270
+Right. 
+
+284
+00:17:49,590 --> 00:17:52,900
+Now, what happens if the file is a little bit larger?
+
+285
+00:17:53,340 --> 00:17:57,670
+If the file is larger than instead of having the data here, 
+
+286
+00:17:58,220 --> 00:17:58,610
+right? 
+
+287
+00:17:58,970 --> 00:18:02,270
+You have A bunch of pointers, attribute values.
+
+288
+00:18:02,280 --> 00:18:05,920
+Remember, the same attribute values you are going to have.
+
+289
+00:18:05,930 --> 00:18:11,110
+And each of those is going to point out to a data extent. 
+
+290
+00:18:11,120 --> 00:18:11,510
+Again. 
+
+291
+00:18:11,520 --> 00:18:12,710
+Remember, data extend.
+
+292
+00:18:12,910 --> 00:18:15,120
+It's a variable size block. 
+
+293
+00:18:16,010 --> 00:18:21,390
+In order to refer to a variable size, block, or extend.
+
+294
+00:18:22,070 --> 00:18:25,670
+You are going to for to have a a start, 
+
+295
+00:18:26,290 --> 00:18:30,150
+aa starting pointer and the length of the extent. 
+
+296
+00:18:30,650 --> 00:18:31,010
+Right? 
+
+297
+00:18:31,410 --> 00:18:32,050
+That's enough. 
+
+298
+00:18:34,010 --> 00:18:34,960
+This is what you have. 
+
+299
+00:18:35,650 --> 00:18:41,880
+Now, if you have a are there even larger files?
+
+300
+00:18:43,460 --> 00:18:44,750
+Then what you have, 
+
+301
+00:18:44,760 --> 00:18:47,300
+you can have pointers to there, 
+
+302
+00:18:47,310 --> 00:18:48,620
+to other extent. 
+
+303
+00:18:49,220 --> 00:18:52,410
+Remember to the other mmpf records. 
+
+304
+00:18:58,100 --> 00:19:00,240
+Remember, at the end of the day, extend,
+
+305
+00:19:00,250 --> 00:19:02,520
+it's a contiguous region on the disk, right?
+
+306
+00:19:03,690 --> 00:19:07,940
+So these are this leaf. 
+
+307
+00:19:07,950 --> 00:19:12,110
+No, so to speak in this hierarchy are where the data are,
+
+308
+00:19:12,120 --> 00:19:13,570
+the data extents. 
+
+309
+00:19:16,490 --> 00:19:17,600
+In this particular case, 
+
+310
+00:19:17,610 --> 00:19:25,600
+the attribute list is going to.to have to.to different entries
+
+311
+00:19:27,650 --> 00:19:29,590
+in the master file table. 
+
+312
+00:19:33,240 --> 00:19:35,940
+And this is what a huge file of. 
+
+313
+00:19:37,970 --> 00:19:42,200
+It's again, you are going to have a lot of more mmfd records.
+
+314
+00:19:45,490 --> 00:19:46,400
+Here we go. 
+
+315
+00:19:46,410 --> 00:19:46,720
+Right? 
+
+316
+00:19:46,730 --> 00:19:49,280
+So basically, 
+
+317
+00:19:49,290 --> 00:19:50,950
+at one level, to summarize,
+
+318
+00:19:50,960 --> 00:19:52,870
+if the fire is very small, 
+
+319
+00:19:53,250 --> 00:20:00,740
+the entire file can feed into an mfs mfd record. 
+
+320
+00:20:02,280 --> 00:20:04,170
+If the file is a little bit larger, 
+
+321
+00:20:04,500 --> 00:20:07,980
+then you still have on one of the mfd record. 
+
+322
+00:20:08,430 --> 00:20:10,640
+But in the instead of data, 
+
+323
+00:20:10,650 --> 00:20:15,090
+you have a bunch of pointers. 
+
+324
+00:20:15,100 --> 00:20:16,290
+They die extent. 
+
+325
+00:20:16,300 --> 00:20:18,090
+So it's one level of indirection. 
+
+326
+00:20:18,810 --> 00:20:19,190
+Right? 
+
+327
+00:20:20,330 --> 00:20:24,460
+The extents are referred by the start and the leg. 
+
+328
+00:20:26,010 --> 00:20:27,990
+If the file is even larger, 
+
+329
+00:20:28,320 --> 00:20:33,230
+then you are going to have multiple mfd records. 
+
+330
+00:20:33,960 --> 00:20:36,520
+And if the file is even larger, 
+
+331
+00:20:36,530 --> 00:20:38,640
+you're going to have more fmf direction. 
+
+332
+00:20:42,690 --> 00:20:45,560
+Directories are implemented as betrays. 
+
+333
+00:20:45,570 --> 00:20:49,120
+Like we learn the file numbers, 
+
+334
+00:20:49,130 --> 00:20:56,770
+identify its entry in mft it is similar with the I note table or ra and
+
+335
+00:20:56,780 --> 00:20:59,970
+mfd entry always has a file name attribute. 
+
+336
+00:21:00,610 --> 00:21:00,820
+Right? 
+
+337
+00:21:00,830 --> 00:21:02,140
+To remember here, right?
+
+338
+00:21:04,630 --> 00:21:06,100
+You can check it. 
+
+339
+00:21:06,670 --> 00:21:08,280
+It's human readable as well. 
+
+340
+00:21:09,340 --> 00:21:10,840
+How do you implement hard link? 
+
+341
+00:21:11,560 --> 00:21:12,410
+Very simple. 
+
+342
+00:21:12,630 --> 00:21:14,690
+The way you are going to implement a hard link, 
+
+343
+00:21:15,010 --> 00:21:21,820
+that will be another entry in the mfd table, 
+
+344
+00:21:22,450 --> 00:21:28,170
+which is going to.to the same data extents, 
+
+345
+00:21:30,150 --> 00:21:33,430
+or is going to point to another mft which represents a file. 
+
+346
+00:21:39,970 --> 00:21:42,140
+Its attribute, least part of the data.
+
+347
+00:21:42,150 --> 00:21:43,260
+This was a question. 
+
+348
+00:21:43,770 --> 00:21:44,600
+Very good. 
+
+349
+00:21:45,030 --> 00:21:49,330
+I assume that where it's at the good list, 
+
+350
+00:21:49,340 --> 00:21:50,490
+I think it's nice. 
+
+351
+00:21:50,730 --> 00:21:57,210
+Let me just the attribute list, its, again,
+
+352
+00:21:57,220 --> 00:21:59,450
+is part of the mft record. 
+
+353
+00:22:01,290 --> 00:22:02,810
+I'm not sure what you mean, 
+
+354
+00:22:03,380 --> 00:22:08,280
+what the question means about asking about whether it's part of the data is
+
+355
+00:22:08,290 --> 00:22:12,520
+part of or from afd record for the file. 
+
+356
+00:22:13,030 --> 00:22:14,730
+And it's, again,
+
+357
+00:22:14,740 --> 00:22:21,260
+you have this attribute list if you cannot fit everything in a simple m
+
+358
+00:22:21,270 --> 00:22:23,060
+in the single mfd record, 
+
+359
+00:22:25,190 --> 00:22:27,520
+where instead of data, 
+
+360
+00:22:27,530 --> 00:22:30,440
+you are going to have pointers to the data extent. 
+
+361
+00:22:31,650 --> 00:22:36,880
+You cannot have this one here in the data part. 
+
+362
+00:22:37,530 --> 00:22:43,300
+You do not have enough the room to have to start the pointer, 
+
+363
+00:22:43,310 --> 00:22:44,420
+stall extents. 
+
+364
+00:22:58,100 --> 00:22:58,730
+That's great. 
+
+365
+00:22:58,940 --> 00:23:01,780
+It's a question here from actually, 
+
+366
+00:23:01,790 --> 00:23:08,410
+what are the pros and cons of this of an assume and dfs over berkeley? 
+
+367
+00:23:08,790 --> 00:23:09,830
+Fast file system? 
+
+368
+00:23:11,020 --> 00:23:12,410
+The list of extensive, 
+
+369
+00:23:12,420 --> 00:23:17,740
+similar to the list of direct and direct pointers stood in the eye note. 
+
+370
+00:23:18,460 --> 00:23:22,770
+The data part is replaced with an attribute list of larger facts. 
+
+371
+00:23:28,090 --> 00:23:29,650
+Yeah, do you want to,
+
+372
+00:23:30,010 --> 00:23:31,360
+anyone would like to answer? 
+
+373
+00:23:39,090 --> 00:23:42,420
+So gilbert, you mentioned about the data,
+
+374
+00:23:42,670 --> 00:23:45,500
+but is replaced with the attribute list of four large files. 
+
+375
+00:23:45,510 --> 00:23:49,020
+I'm not sure is that an answer to a shake question? 
+
+376
+00:23:58,360 --> 00:23:59,030
+Anyway, 
+
+377
+00:24:00,350 --> 00:24:04,600
+who would like to try to answer this actually question? 
+
+378
+00:24:05,330 --> 00:24:08,560
+What are the pros and cons between ndfs and ffs
+
+379
+00:24:22,350 --> 00:24:24,060
+one thing is about, 
+
+380
+00:24:24,070 --> 00:24:24,620
+remember, 
+
+381
+00:24:24,630 --> 00:24:31,000
+what is the difference between extend and blocks reviews enough of us. 
+
+382
+00:24:51,200 --> 00:24:54,370
+So with extends, 
+
+383
+00:24:54,640 --> 00:24:56,710
+you can have any size blocks. 
+
+384
+00:24:58,640 --> 00:25:02,750
+What ffs gives you is the ability to configure the file system
+
+385
+00:25:02,760 --> 00:25:04,430
+with different block sizes. 
+
+386
+00:25:05,100 --> 00:25:06,570
+But once you configure the block size, 
+
+387
+00:25:06,580 --> 00:25:09,580
+it will still be the same size. 
+
+388
+00:25:09,590 --> 00:25:11,540
+All the blocks are going to be the same size. 
+
+389
+00:25:15,300 --> 00:25:17,100
+And with a data extent, 
+
+390
+00:25:17,370 --> 00:25:18,990
+with arbitrary size, 
+
+391
+00:25:20,030 --> 00:25:24,540
+you are going to be guaranteed that in order to retrieve and to read
+
+392
+00:25:24,550 --> 00:25:25,300
+all the data, 
+
+393
+00:25:25,310 --> 00:25:26,420
+from one extent, 
+
+394
+00:25:26,970 --> 00:25:33,490
+you are going to have need only one seek to get access to that data. 
+
+395
+00:25:36,780 --> 00:25:39,050
+The blocks are going to be, in general,
+
+396
+00:25:39,060 --> 00:25:40,690
+smaller than one extent. 
+
+397
+00:25:41,250 --> 00:25:43,080
+You are going to have multiple blocks. 
+
+398
+00:25:43,090 --> 00:25:45,360
+And multiple blocks means that you may have to, 
+
+399
+00:25:45,370 --> 00:25:46,920
+if they are not contiguous, 
+
+400
+00:25:46,930 --> 00:25:48,680
+and you are not guaranteed to be contiguous. 
+
+401
+00:25:48,690 --> 00:25:49,520
+If they are blocks, 
+
+402
+00:25:50,510 --> 00:25:55,380
+you may have to pay multiple access times to read the same amount of it. 
+
+403
+00:25:58,910 --> 00:26:01,870
+Nfs is also better for small files, exactly.
+
+404
+00:26:03,350 --> 00:26:04,020
+Michael. 
+
+405
+00:26:06,780 --> 00:26:09,360
+And this be, 
+
+406
+00:26:10,900 --> 00:26:12,180
+because like you see here, 
+
+407
+00:26:12,650 --> 00:26:14,410
+for if the file is very small, 
+
+408
+00:26:14,420 --> 00:26:16,130
+it's less than one kilobyte, 
+
+409
+00:26:16,560 --> 00:26:19,470
+then it fits in one mfd record. 
+
+410
+00:26:22,990 --> 00:26:24,590
+While in the previous case, 
+
+411
+00:26:25,520 --> 00:26:29,190
+you need to have multiple access to loud, 
+
+412
+00:26:29,550 --> 00:26:31,030
+a small file, at least.
+
+413
+00:26:32,570 --> 00:26:35,100
+You need to go to read from I node. 
+
+414
+00:26:35,600 --> 00:26:39,540
+You need to go to read the data blog, which is separate.
+
+415
+00:26:40,630 --> 00:26:42,350
+Like this is a cumulant. 
+
+416
+00:26:42,650 --> 00:26:45,620
+Like the data itself will be part of the eye not. 
+
+417
+00:26:46,520 --> 00:26:46,870
+Right? 
+
+418
+00:26:48,850 --> 00:26:50,420
+But with ffs is not, 
+
+419
+00:26:50,830 --> 00:26:53,280
+you need to read the I node which is access. 
+
+420
+00:26:53,740 --> 00:26:57,190
+And then even have very tiny file, 
+
+421
+00:26:57,430 --> 00:27:00,280
+you still need to need read another blog where the data is located. 
+
+422
+00:27:06,820 --> 00:27:07,490
+Excellent. 
+
+423
+00:27:11,620 --> 00:27:15,610
+Now, let's move and do something even more interesting.
+
+424
+00:27:16,110 --> 00:27:17,960
+Memory mapped files. 
+
+425
+00:27:19,610 --> 00:27:22,840
+Let's what are the memory map files? 
+
+426
+00:27:23,360 --> 00:27:25,040
+You see, and why do we need those?
+
+427
+00:27:25,340 --> 00:27:25,980
+You see, 
+
+428
+00:27:26,740 --> 00:27:29,790
+when you access a file and what we learned, 
+
+429
+00:27:30,140 --> 00:27:31,810
+things are getting quite complicated, 
+
+430
+00:27:31,820 --> 00:27:35,490
+and the data is replicated multiple places from that file. 
+
+431
+00:27:35,500 --> 00:27:36,010
+You need to. 
+
+432
+00:27:36,020 --> 00:27:38,050
+The operating system has to have a buffer. 
+
+433
+00:27:38,060 --> 00:27:42,460
+We are going to learn more about the buffer a little bit later to store
+
+434
+00:27:42,470 --> 00:27:43,660
+the data in that buffer. 
+
+435
+00:27:43,670 --> 00:27:47,180
+And then there is another buffer to put that data at the application level. 
+
+436
+00:27:48,440 --> 00:27:52,210
+You have multiple copies of the data plus system costs. 
+
+437
+00:27:54,020 --> 00:27:59,650
+But what if we could map an entire file directly with our memory? 
+
+438
+00:28:00,760 --> 00:28:01,100
+Right? 
+
+439
+00:28:01,670 --> 00:28:06,780
+And when you are going to read something from that file, 
+
+440
+00:28:06,790 --> 00:28:09,620
+it just is like you read from that region of memory. 
+
+441
+00:28:10,020 --> 00:28:11,750
+When you have to write it, 
+
+442
+00:28:13,010 --> 00:28:14,370
+you're writing like in memory. 
+
+443
+00:28:14,830 --> 00:28:15,610
+And eventually, 
+
+444
+00:28:15,620 --> 00:28:22,030
+the operating system will take care to write back your changes to the list. 
+
+445
+00:28:24,870 --> 00:28:25,350
+By the way, 
+
+446
+00:28:25,360 --> 00:28:30,630
+the executable files are treated this way when we are executing a process. 
+
+447
+00:28:32,510 --> 00:28:34,710
+So now to see the differences, 
+
+448
+00:28:35,050 --> 00:28:40,610
+let's refresh our memory about what happens on a page. 
+
+449
+00:28:41,990 --> 00:28:43,330
+47 instruction. 
+
+450
+00:28:43,710 --> 00:28:46,160
+The instruction provides a virtual address. 
+
+451
+00:28:46,680 --> 00:28:51,800
+The virtual address goes through an mmu and you are going to get
+
+452
+00:28:52,430 --> 00:28:54,020
+the physical page number. 
+
+453
+00:28:54,930 --> 00:28:59,250
+Then you are going to the figure the page number, 
+
+454
+00:28:59,260 --> 00:29:03,250
+the physical page number is going to index into a base table. 
+
+455
+00:29:04,020 --> 00:29:04,330
+Right? 
+
+456
+00:29:05,260 --> 00:29:10,000
+And the base table is going to give you the frame number. 
+
+457
+00:29:11,390 --> 00:29:13,700
+The frame number is going to be, 
+
+458
+00:29:14,030 --> 00:29:17,380
+depending whether you are going to have paging or segmentation, 
+
+459
+00:29:17,740 --> 00:29:20,770
+you are going to concatenate a frame number is the offset, 
+
+460
+00:29:20,780 --> 00:29:22,970
+and you are going to get the address of the physical number. 
+
+461
+00:29:25,420 --> 00:29:26,730
+You go virtual address, 
+
+462
+00:29:26,740 --> 00:29:29,730
+you get the page number from the virtual address is going to point
+
+463
+00:29:29,740 --> 00:29:30,890
+in the page table, 
+
+464
+00:29:31,110 --> 00:29:33,130
+is going to give you the frame number. 
+
+465
+00:29:33,370 --> 00:29:36,860
+And then you are going to get the offset of the visual address. 
+
+466
+00:29:36,870 --> 00:29:40,660
+And you are going to get a frame and offset congratulating. 
+
+467
+00:29:40,670 --> 00:29:44,490
+You're going to give you the address in the physical memory. 
+
+468
+00:29:47,330 --> 00:29:51,460
+Now, if you are going to have aa baseball,
+
+469
+00:29:51,470 --> 00:29:54,710
+baseball means that they do not find the entry
+
+470
+00:29:54,720 --> 00:29:57,150
+corresponding to the page number is a page type. 
+
+471
+00:29:58,180 --> 00:30:01,050
+What we are going to do is there is an exception which
+
+472
+00:30:01,060 --> 00:30:03,750
+is going to be handled by the operating system, 
+
+473
+00:30:03,760 --> 00:30:05,550
+in particular by the baseball handler. 
+
+474
+00:30:06,020 --> 00:30:12,150
+And that is going to look gate on the disk what the page
+
+475
+00:30:12,620 --> 00:30:14,820
+and is going to load it in memory. 
+
+476
+00:30:15,740 --> 00:30:17,170
+Maybe for loading that page, 
+
+477
+00:30:17,180 --> 00:30:19,050
+you need to evict an existing page, 
+
+478
+00:30:19,060 --> 00:30:21,290
+because maybe the memory is full. 
+
+479
+00:30:21,750 --> 00:30:28,320
+And then you are going to update the page table to. to the page, 
+
+480
+00:30:28,330 --> 00:30:30,480
+which you just loaded in memory. 
+
+481
+00:30:30,800 --> 00:30:34,560
+And then you return from the page fault. 
+
+482
+00:30:34,570 --> 00:30:40,280
+And the operators operating system will reschedule that process, 
+
+483
+00:30:40,520 --> 00:30:43,470
+which causes a baseball to execute the same instruction. 
+
+484
+00:30:43,480 --> 00:30:45,550
+And when you execute the same instruction, 
+
+485
+00:30:45,560 --> 00:30:48,900
+now you do have page table is correct. 
+
+486
+00:30:49,220 --> 00:30:54,700
+So you are going to be able to read the page from the physical memory. 
+
+487
+00:30:58,300 --> 00:30:59,840
+So we did that in the past. 
+
+488
+00:30:59,850 --> 00:31:01,280
+This is just a refresher. 
+
+489
+00:31:01,860 --> 00:31:05,730
+Now, what happens is a memory map as well, very simple.
+
+490
+00:31:05,740 --> 00:31:07,570
+It's exactly what you expect. 
+
+491
+00:31:07,850 --> 00:31:09,470
+Here it's a file on the disk. 
+
+492
+00:31:09,940 --> 00:31:14,140
+You are going just to map the file in the memory, 
+
+493
+00:31:14,150 --> 00:31:17,610
+and you are going to map to initialize the base that we
+
+494
+00:31:17,620 --> 00:31:22,530
+are going to allocate base table entries for each page of the file. 
+
+495
+00:31:28,930 --> 00:31:31,330
+When you have, in this case, a baseball,
+
+496
+00:31:32,240 --> 00:31:32,840
+basically, 
+
+497
+00:31:32,850 --> 00:31:37,520
+when you are going that the page is not in memory which represent a file, 
+
+498
+00:31:38,030 --> 00:31:39,530
+which is part of the file, 
+
+499
+00:31:39,790 --> 00:31:42,440
+then you are going to load directly the file, 
+
+500
+00:31:42,450 --> 00:31:44,920
+the portion of the file into the page. 
+
+501
+00:31:45,680 --> 00:31:54,940
+And now you are just going to read files when you access it, 
+
+502
+00:31:55,370 --> 00:31:57,030
+when you access a physical memory, 
+
+503
+00:31:57,040 --> 00:31:59,270
+you basically access the content of the file. 
+
+504
+00:32:04,710 --> 00:32:08,930
+So this is a i'll give you an example. 
+
+505
+00:32:08,940 --> 00:32:10,670
+So hopefully that will clarify things. 
+
+506
+00:32:11,170 --> 00:32:16,770
+This is a system call to create a memory map file. 
+
+507
+00:32:17,700 --> 00:32:18,650
+This basically, 
+
+508
+00:32:18,660 --> 00:32:22,970
+you provide the file descriptor of the file and the offset from where you
+
+509
+00:32:22,980 --> 00:32:26,440
+want to get to map the data from the file. 
+
+510
+00:32:27,770 --> 00:32:30,280
+For instance, if offset it's 100,
+
+511
+00:32:30,530 --> 00:32:36,200
+this means that I want to map of starting with a byte, 
+
+512
+00:32:36,210 --> 00:32:39,490
+100 from the file into memory. 
+
+513
+00:32:41,320 --> 00:32:44,630
+These are some flags and protection. 
+
+514
+00:32:45,140 --> 00:32:50,580
+The other very important fields are the address and of the length is
+
+515
+00:32:51,350 --> 00:32:54,530
+how much from the file you want to map in memory. 
+
+516
+00:32:54,920 --> 00:32:56,070
+And the address, 
+
+517
+00:32:56,330 --> 00:32:57,970
+you can even give an address. 
+
+518
+00:32:57,980 --> 00:32:59,530
+And if you give an address, 
+
+519
+00:32:59,720 --> 00:33:05,750
+then the file system is going to try to map the file that the address is given. 
+
+520
+00:33:06,040 --> 00:33:08,050
+But if it cannot, 
+
+521
+00:33:09,650 --> 00:33:13,960
+then it may find another place in the physical memory, 
+
+522
+00:33:13,970 --> 00:33:16,550
+which enough space to map the file, 
+
+523
+00:33:17,610 --> 00:33:21,400
+which basically is a contiguous region of lang claire. 
+
+524
+00:33:24,360 --> 00:33:25,870
+In either way, 
+
+525
+00:33:25,880 --> 00:33:31,360
+the function returns the address in the memory where you map the file. 
+
+526
+00:33:35,640 --> 00:33:37,180
+In most of the cases, 
+
+527
+00:33:38,830 --> 00:33:42,220
+this can be all you can use also this memory map, 
+
+528
+00:33:42,720 --> 00:33:44,290
+also to communicate between processes. 
+
+529
+00:33:44,300 --> 00:33:46,510
+We'll talk briefly about that later. 
+
+530
+00:33:48,450 --> 00:33:49,910
+But here is a pro, it.
+
+531
+00:33:49,920 --> 00:33:51,940
+Here is an example of a program. 
+
+532
+00:33:52,420 --> 00:33:56,550
+We just give you a sense and what memory map files means. 
+
+533
+00:33:56,560 --> 00:33:57,950
+And what is that? 
+
+534
+00:33:57,960 --> 00:34:01,290
+In effect, 
+
+535
+00:34:03,440 --> 00:34:05,630
+here is a simple program. 
+
+536
+00:34:05,640 --> 00:34:07,350
+And just for the sake of it, 
+
+537
+00:34:07,830 --> 00:34:12,300
+we are going to type three addresses to bring three addresses. 
+
+538
+00:34:12,760 --> 00:34:16,330
+One is something is the address of something is variable something. 
+
+539
+00:34:16,340 --> 00:34:25,400
+And that are something is when a it's a data segment, 
+
+540
+00:34:28,130 --> 00:34:32,960
+then we are going to allocate something and everything which is allocated. 
+
+541
+00:34:33,290 --> 00:34:34,160
+It's on the hip. 
+
+542
+00:34:34,770 --> 00:34:41,210
+This is address for the result of ma log is residing the hip. 
+
+543
+00:34:43,820 --> 00:34:47,170
+The last one is to have this my file here variable, 
+
+544
+00:34:47,180 --> 00:34:48,690
+which is a local variable. 
+
+545
+00:34:49,110 --> 00:34:53,620
+We know that the local variables of the functions are put on the stack. 
+
+546
+00:34:54,350 --> 00:34:58,700
+This address depends on is an address in the stack sector. 
+
+547
+00:34:59,660 --> 00:35:00,780
+Then you open a file, 
+
+548
+00:35:00,790 --> 00:35:01,940
+and this is a file. 
+
+549
+00:35:05,970 --> 00:35:08,840
+We want to map in the memory. 
+
+550
+00:35:09,050 --> 00:35:10,540
+And now we map the file in the memory. 
+
+551
+00:35:10,670 --> 00:35:12,940
+Basically, we are taking this file description.
+
+552
+00:35:12,950 --> 00:35:16,000
+It's file descriptor are going to pass to a map, 
+
+553
+00:35:16,010 --> 00:35:18,730
+the file descriptor of rfd zero, 
+
+554
+00:35:18,740 --> 00:35:23,630
+meaning that I want to start mapping from the first bite in the file. 
+
+555
+00:35:25,600 --> 00:35:28,830
+Here there are again, some flags about read, write,
+
+556
+00:35:28,840 --> 00:35:33,430
+and this is about whether this can be shared between different processes. 
+
+557
+00:35:36,060 --> 00:35:41,410
+The other important thing is that I am the first address or to map. 
+
+558
+00:35:41,990 --> 00:35:46,880
+This program passes sets as being zero system, 
+
+559
+00:35:46,890 --> 00:35:48,440
+the operating system. 
+
+560
+00:35:49,080 --> 00:35:56,220
+You are free to choose a region of memory in the memory where to map this file. 
+
+561
+00:35:56,860 --> 00:35:59,170
+Most of the cases is what you are going to give. 
+
+562
+00:35:59,630 --> 00:36:02,070
+This argument will be zero, right?
+
+563
+00:36:02,310 --> 00:36:05,560
+Because you don't know better than the operating system where you
+
+564
+00:36:05,570 --> 00:36:07,370
+should put this file, 
+
+565
+00:36:07,690 --> 00:36:09,200
+or you should put this file in memory. 
+
+566
+00:36:11,410 --> 00:36:12,880
+My file is a return, 
+
+567
+00:36:12,890 --> 00:36:17,440
+the starting address allocated for that file to be mapped, 
+
+568
+00:36:17,690 --> 00:36:19,400
+where the map where the file is mapped to. 
+
+569
+00:36:22,860 --> 00:36:23,550
+So now, 
+
+570
+00:36:24,540 --> 00:36:29,180
+and then you print the file,  Right?
+
+571
+00:36:29,610 --> 00:36:30,720
+You pass a file. 
+
+572
+00:36:31,380 --> 00:36:36,040
+This is the argument is an argument of this program, and you print it.
+
+573
+00:36:37,330 --> 00:36:45,130
+And then you write something at the address of the file in memory+10. 
+
+574
+00:36:46,130 --> 00:36:46,990
+Let's write over it. 
+
+575
+00:36:48,020 --> 00:36:49,090
+Let's see what happens. 
+
+576
+00:36:50,050 --> 00:36:51,830
+First of all, when I print it,
+
+577
+00:36:52,200 --> 00:36:53,710
+this is when you print the file. 
+
+578
+00:36:54,880 --> 00:36:56,110
+Let's say this is a question. 
+
+579
+00:36:56,120 --> 00:36:57,550
+This is the content of the file. 
+
+580
+00:36:58,250 --> 00:36:58,320
+Right? 
+
+581
+00:36:58,330 --> 00:36:59,720
+So it's my bad. 
+
+582
+00:37:00,110 --> 00:37:02,740
+So the first three lines, 
+
+583
+00:37:02,750 --> 00:37:05,860
+so i'm invoking this program with argument tests. 
+
+584
+00:37:06,550 --> 00:37:12,190
+The first three lines are the printers I talk about printing addresses
+
+585
+00:37:12,200 --> 00:37:13,830
+in the data segment, 
+
+586
+00:37:13,840 --> 00:37:15,880
+heap or stack and stack. 
+
+587
+00:37:16,360 --> 00:37:25,380
+And then the last the next five lines are written by the spring types, 
+
+588
+00:37:25,880 --> 00:37:28,510
+and is basically the content of the test file. 
+
+589
+00:37:28,520 --> 00:37:31,470
+So the content of the test files that are four lines. 
+
+590
+00:37:31,740 --> 00:37:34,810
+This is line one, line two, line three, and line four.
+
+591
+00:37:37,020 --> 00:37:39,410
+Here, i'm now this file,
+
+592
+00:37:39,420 --> 00:37:41,690
+every content the content is mapped in memory. 
+
+593
+00:37:41,700 --> 00:37:42,890
+And now in memory, 
+
+594
+00:37:42,900 --> 00:37:44,130
+I like I mentioned, 
+
+595
+00:37:44,350 --> 00:37:46,600
+I am writing at the address+20. 
+
+596
+00:37:46,610 --> 00:37:47,800
+Let's write over it. 
+
+597
+00:37:48,200 --> 00:37:51,010
+And then I close a file. 
+
+598
+00:37:51,910 --> 00:37:55,940
+I want to see what is inspire after I close it. 
+
+599
+00:37:56,950 --> 00:37:58,300
+I look at the test, 
+
+600
+00:37:58,310 --> 00:37:59,500
+and this is what I find. 
+
+601
+00:37:59,980 --> 00:38:01,170
+This is line one. 
+
+602
+00:38:02,990 --> 00:38:04,430
+And then you can see, 
+
+603
+00:38:04,440 --> 00:38:05,590
+let's write over it. 
+
+604
+00:38:06,150 --> 00:38:13,980
+Because this means that obviously I wrote starting from
+
+605
+00:38:13,990 --> 00:38:21,040
+the The 21st character in the file, 
+
+606
+00:38:22,630 --> 00:38:24,700
+I wrote the string let's write over, 
+
+607
+00:38:24,980 --> 00:38:26,980
+which is exact, and then I close a file.
+
+608
+00:38:27,360 --> 00:38:28,680
+And obviously, 
+
+609
+00:38:28,690 --> 00:38:30,080
+everything was saved, 
+
+610
+00:38:30,480 --> 00:38:32,390
+including the changes in this fact. 
+
+611
+00:38:38,410 --> 00:38:39,250
+Does it make sense? 
+
+612
+00:38:43,660 --> 00:38:44,310
+It's pretty cool. 
+
+613
+00:38:44,320 --> 00:38:45,150
+You guys should drive. 
+
+614
+00:38:53,850 --> 00:38:54,820
+It's like I mentioned, 
+
+615
+00:38:54,830 --> 00:38:59,130
+you can share the files between two different processes. 
+
+616
+00:38:59,560 --> 00:39:04,830
+Here I have the same file and I have two virtual addresses from two processes. 
+
+617
+00:39:07,510 --> 00:39:08,590
+You can share, 
+
+618
+00:39:08,990 --> 00:39:12,240
+you can map the file in memory and can be shared this file
+
+619
+00:39:12,480 --> 00:39:16,910
+between these two processes is exactly like a the
+
+620
+00:39:16,920 --> 00:39:20,420
+file on the disk can be shared between different processes. 
+
+621
+00:39:24,720 --> 00:39:32,790
+Also, you can use this a map to as to share the data,
+
+622
+00:39:33,220 --> 00:39:37,140
+or is it to share memory and use a memory to share the data
+
+623
+00:39:37,360 --> 00:39:40,390
+between the parent and the children and your four kids children? 
+
+624
+00:39:40,750 --> 00:39:43,600
+You can also create an mf file, its anonymous file,
+
+625
+00:39:43,610 --> 00:39:45,560
+because there is not a real file. 
+
+626
+00:39:45,920 --> 00:39:47,920
+And you can share it to the children. 
+
+627
+00:39:47,930 --> 00:39:52,620
+And then you can use it to pass data between the children and the parents
+
+628
+00:39:52,630 --> 00:39:54,380
+with this memory map, 
+
+629
+00:39:54,600 --> 00:39:55,750
+file anonymous memory. 
+
+630
+00:39:55,880 --> 00:39:56,670
+My fact, 
+
+631
+00:39:57,360 --> 00:39:59,190
+this is not backed by the disk. 
+
+632
+00:40:11,030 --> 00:40:18,770
+The question here is a file printed by the printer or the puts
+
+633
+00:40:19,550 --> 00:40:21,220
+here is printed by the printer, 
+
+634
+00:40:21,230 --> 00:40:21,860
+this file. 
+
+635
+00:40:24,800 --> 00:40:29,900
+But I it puts this a special case of printer. 
+
+636
+00:40:29,910 --> 00:40:31,940
+Free sprinter fits is formatting, right?
+
+637
+00:40:31,950 --> 00:40:34,250
+You can bring different values, 
+
+638
+00:40:35,900 --> 00:40:36,230
+right? 
+
+639
+00:40:37,340 --> 00:40:38,440
+In the same instruction. 
+
+640
+00:40:38,910 --> 00:40:40,640
+Here you can see, 
+
+641
+00:40:40,970 --> 00:40:42,210
+as a first argument, 
+
+642
+00:40:42,220 --> 00:40:51,560
+you are going to print because you are painting the map address. 
+
+643
+00:40:51,810 --> 00:40:53,230
+And the second argument, 
+
+644
+00:40:54,980 --> 00:40:59,740
+you are printing what is as the address of, i'm fine.
+
+645
+00:41:01,300 --> 00:41:02,370
+There what you have? 
+
+646
+00:41:03,390 --> 00:41:10,210
+A bunch of you basically have aaa bunch of characters. 
+
+647
+00:41:10,220 --> 00:41:11,570
+You have a string, 
+
+648
+00:41:14,020 --> 00:41:15,730
+and you print everything what you find that. 
+
+649
+00:41:19,400 --> 00:41:19,740
+Okay. 
+
+650
+00:41:33,140 --> 00:41:35,220
+So announcements of project three, 
+
+651
+00:41:35,270 --> 00:41:37,380
+design document, remember,
+
+652
+00:41:37,390 --> 00:41:38,780
+is due saturday, 
+
+653
+00:41:39,590 --> 00:41:40,740
+this saturday, 
+
+654
+00:41:40,750 --> 00:41:42,460
+and the homework five, 
+
+655
+00:41:42,470 --> 00:41:45,020
+homework five is due on monday. 
+
+656
+00:41:46,350 --> 00:41:47,540
+Basically, 
+
+657
+00:41:47,550 --> 00:41:50,140
+almost what2 weeks from now. 
+
+658
+00:41:53,450 --> 00:41:56,480
+Any questions about memory map files? 
+
+659
+00:42:03,200 --> 00:42:06,630
+The next thing we are going to go over is a buffer cache. 
+
+660
+00:42:07,580 --> 00:42:11,160
+Remember, we discussed that when you read from a file,
+
+661
+00:42:11,170 --> 00:42:13,040
+you will create different copies. 
+
+662
+00:42:13,550 --> 00:42:15,950
+One of these copies is in the buffer cache. 
+
+663
+00:42:15,960 --> 00:42:20,260
+It's in the operating system can maintain a cache of the data from the file. 
+
+664
+00:42:21,030 --> 00:42:21,890
+In this case, 
+
+665
+00:42:22,480 --> 00:42:23,920
+you can put the data, 
+
+666
+00:42:23,930 --> 00:42:25,370
+you can put I nodes, 
+
+667
+00:42:26,190 --> 00:42:27,220
+directory, 
+
+668
+00:42:27,470 --> 00:42:29,020
+directories, and so forth.
+
+669
+00:42:29,630 --> 00:42:32,130
+And some of these pages which are cashed, 
+
+670
+00:42:32,550 --> 00:42:34,160
+can be dirty, obviously.
+
+671
+00:42:34,390 --> 00:42:38,330
+And then the operating system has to take care that to write
+
+672
+00:42:38,340 --> 00:42:40,490
+back eventually the dirty pages to the disk. 
+
+673
+00:42:45,070 --> 00:42:48,880
+And really, what you want, the key idea,
+
+674
+00:42:48,890 --> 00:42:52,340
+why do you want to cache the disc data into memory? 
+
+675
+00:42:52,350 --> 00:42:54,650
+Again, this is an operating system memory.
+
+676
+00:42:56,260 --> 00:42:58,650
+It's not in the user space memory, like memory,
+
+677
+00:42:58,660 --> 00:43:01,610
+my files you copied directly in the user space. 
+
+678
+00:43:02,130 --> 00:43:05,040
+For this is in the operating system to get this data, 
+
+679
+00:43:05,050 --> 00:43:08,360
+even if it's in the memory of the operating system, 
+
+680
+00:43:08,550 --> 00:43:10,260
+you still need to make a fund, 
+
+681
+00:43:11,050 --> 00:43:12,990
+a system called to get that data. 
+
+682
+00:43:13,860 --> 00:43:15,310
+And you, 
+
+683
+00:43:15,770 --> 00:43:18,590
+obviously, you cash it to exploit the locality.
+
+684
+00:43:19,620 --> 00:43:19,890
+Right? 
+
+685
+00:43:20,360 --> 00:43:24,060
+There are more, many access is to the same blocks.
+
+686
+00:43:24,860 --> 00:43:29,480
+If you have them in memory is much faster than accessing the disk. 
+
+687
+00:43:30,880 --> 00:43:37,180
+You need to do this translation between a bass name of the file and the I nodes. 
+
+688
+00:43:37,510 --> 00:43:41,460
+And then from the block address to the misconduct, right?
+
+689
+00:43:41,470 --> 00:43:42,940
+The logical block addresses, 
+
+690
+00:43:48,230 --> 00:43:50,580
+let's see how the buffer cache is worked, 
+
+691
+00:43:50,590 --> 00:43:51,820
+and here is settings up. 
+
+692
+00:43:53,710 --> 00:43:55,860
+So this is on the right hand side, you have the disk.
+
+693
+00:43:56,500 --> 00:44:00,030
+This is like ffs layout on the disk. 
+
+694
+00:44:01,110 --> 00:44:02,910
+And now this is a buffer cache, 
+
+695
+00:44:02,920 --> 00:44:05,760
+and the buffer cash has a bunch of blocks. 
+
+696
+00:44:09,570 --> 00:44:13,480
+The blocks typically are the same size as pages memory, bates.
+
+697
+00:44:14,370 --> 00:44:18,390
+Then you are going to catch the blocks and you can have data blocks. 
+
+698
+00:44:18,650 --> 00:44:21,270
+Like I mentioned, they can be I nodes.
+
+699
+00:44:22,830 --> 00:44:28,910
+They can be directory innovation. 
+
+700
+00:44:28,920 --> 00:44:30,390
+You have a free also, 
+
+701
+00:44:30,400 --> 00:44:32,280
+you can have the free bit map. 
+
+702
+00:44:32,290 --> 00:44:40,320
+Remember, you do have the free map on the disk to maintain data about
+
+703
+00:44:41,220 --> 00:44:42,770
+what are the available blocks, 
+
+704
+00:44:43,500 --> 00:44:45,390
+free of available three blocks. 
+
+705
+00:44:48,290 --> 00:44:49,360
+This is what you have. 
+
+706
+00:44:49,370 --> 00:44:55,780
+This is a block side is the cache is organized as an array of blocks. 
+
+707
+00:44:56,790 --> 00:45:01,380
+The color represents different kinds of types of information. 
+
+708
+00:45:02,440 --> 00:45:04,110
+Here you have a state whether, 
+
+709
+00:45:04,720 --> 00:45:08,520
+in this case, it's free or dirty or things like that or what happens,
+
+710
+00:45:09,200 --> 00:45:10,560
+whether you read or write a blog. 
+
+711
+00:45:12,590 --> 00:45:13,580
+Then let's see what happens. 
+
+712
+00:45:13,750 --> 00:45:16,700
+Let's say I am reading an I node, 
+
+713
+00:45:17,230 --> 00:45:19,460
+sorry, I am reading a a data block.
+
+714
+00:45:20,220 --> 00:45:21,360
+I'm reading a data block, 
+
+715
+00:45:21,370 --> 00:45:23,040
+a new data block from the disk. 
+
+716
+00:45:24,920 --> 00:45:28,570
+I am going to find an available block in the cache. 
+
+717
+00:45:30,630 --> 00:45:32,260
+Then I am going to write, 
+
+718
+00:45:32,270 --> 00:45:34,300
+now you see the state is read. 
+
+719
+00:45:34,310 --> 00:45:40,700
+This means that now I am reading the data from the block on the disk
+
+720
+00:45:41,160 --> 00:45:43,020
+into this available space. 
+
+721
+00:45:47,550 --> 00:45:49,540
+Then once you did you once you read it, 
+
+722
+00:45:51,700 --> 00:45:56,260
+you are going to mark that it's no longer free. 
+
+723
+00:45:57,220 --> 00:45:59,730
+If you write it, you have to market that is a dirty.
+
+724
+00:46:01,300 --> 00:46:03,060
+Because now this is modified. 
+
+725
+00:46:03,630 --> 00:46:07,180
+It's no longer the same content as the sale as a page on the disk. 
+
+726
+00:46:13,310 --> 00:46:17,460
+Now you say you are going to read a directory, 
+
+727
+00:46:18,630 --> 00:46:19,170
+right? 
+
+728
+00:46:19,620 --> 00:46:20,540
+Is the same thing. 
+
+729
+00:46:20,550 --> 00:46:21,220
+You are, okay?
+
+730
+00:46:21,670 --> 00:46:24,700
+You find an available block and you read it there. 
+
+731
+00:46:26,350 --> 00:46:26,480
+Right? 
+
+732
+00:46:26,490 --> 00:46:27,600
+And you say what it is. 
+
+733
+00:46:27,610 --> 00:46:28,040
+I know, 
+
+734
+00:46:40,180 --> 00:46:42,130
+if you do it, the data is the same thing.
+
+735
+00:46:43,640 --> 00:46:45,450
+But if you write it, now you say dirty,
+
+736
+00:46:45,460 --> 00:46:46,790
+the data is dirty. 
+
+737
+00:46:48,300 --> 00:46:50,060
+This is what if you write in the block? 
+
+738
+00:46:54,060 --> 00:46:56,170
+If you write to a block, you first,
+
+739
+00:46:56,630 --> 00:46:58,480
+if the block is not in the cache, 
+
+740
+00:46:58,810 --> 00:47:00,230
+you bring the block in the cache, 
+
+741
+00:47:00,240 --> 00:47:03,590
+and you write on the block in the block, on the cache, in memory.
+
+742
+00:47:04,080 --> 00:47:05,720
+And your market. 
+
+743
+00:47:05,730 --> 00:47:09,790
+Is that any questions? 
+
+744
+00:47:13,240 --> 00:47:14,070
+So discussion? 
+
+745
+00:47:14,580 --> 00:47:18,820
+So the buffer cache is entirely implemented in the operating system. 
+
+746
+00:47:20,110 --> 00:47:20,520
+Right? 
+
+747
+00:47:20,860 --> 00:47:21,830
+It's in the software. 
+
+748
+00:47:22,150 --> 00:47:29,880
+There is no dlb the blocks goes through transitional
+
+749
+00:47:29,890 --> 00:47:32,640
+state between 3 and years being greeted from the disk, 
+
+750
+00:47:32,650 --> 00:47:33,880
+being written to the disk, 
+
+751
+00:47:34,750 --> 00:47:35,660
+and so forth. 
+
+752
+00:47:37,360 --> 00:47:42,480
+And blocks contains all this variable where variety of information, 
+
+753
+00:47:42,490 --> 00:47:43,660
+like I mentioned, 
+
+754
+00:47:43,670 --> 00:47:47,360
+I nodes and data and directories and the free math. 
+
+755
+00:47:50,050 --> 00:47:54,740
+And the os it is going to maintain the manners them to maintain the pointer
+
+756
+00:47:54,750 --> 00:47:55,260
+into them. 
+
+757
+00:47:58,110 --> 00:48:03,770
+It's also the os is going to manage this buffer cash when the process exits, 
+
+758
+00:48:03,780 --> 00:48:05,770
+when writes reads. 
+
+759
+00:48:06,440 --> 00:48:08,770
+For instance, on the process exits,
+
+760
+00:48:08,780 --> 00:48:16,120
+you are going to flush to write back all the modified data
+
+761
+00:48:16,450 --> 00:48:17,930
+from the buffer cache to the list. 
+
+762
+00:48:20,700 --> 00:48:22,830
+Now this is a cache, it can fill up.
+
+763
+00:48:23,380 --> 00:48:24,840
+So what happens when you fill up? 
+
+764
+00:48:25,240 --> 00:48:26,830
+There is a replacement policy, 
+
+765
+00:48:28,170 --> 00:48:30,420
+like we know, like the man beijing, if you remember,
+
+766
+00:48:31,040 --> 00:48:32,870
+deployments policy, what can you do?
+
+767
+00:48:33,200 --> 00:48:34,310
+You can do a radio. 
+
+768
+00:48:34,320 --> 00:48:36,350
+It worked pretty well for demand bailing, 
+
+769
+00:48:36,360 --> 00:48:37,830
+so I wanna do something like this. 
+
+770
+00:48:38,990 --> 00:48:39,940
+This works well. 
+
+771
+00:48:39,950 --> 00:48:41,900
+And if the memory is big enough, 
+
+772
+00:48:41,910 --> 00:48:47,940
+especially if can accommodate the working set of the particular
+
+773
+00:48:49,510 --> 00:48:55,100
+applications or consent in terms of the data which is accessed from the file. 
+
+774
+00:48:59,140 --> 00:49:04,800
+Now, the disadvantage is that is for some access patterns,
+
+775
+00:49:05,220 --> 00:49:06,850
+you is not good. 
+
+776
+00:49:07,630 --> 00:49:08,660
+For instance, 
+
+777
+00:49:08,910 --> 00:49:11,790
+if i'm just going to scam the file, 
+
+778
+00:49:12,180 --> 00:49:15,000
+i'm just going to read and to read to it. 
+
+779
+00:49:15,010 --> 00:49:17,480
+I'm going to read a blog only once. 
+
+780
+00:49:19,630 --> 00:49:26,970
+So with alu that block is going to displace another block in the buffer cache. 
+
+781
+00:49:29,470 --> 00:49:32,880
+But then the block we just was loaded into the cache. 
+
+782
+00:49:33,240 --> 00:49:35,070
+I am no longer to access again, 
+
+783
+00:49:35,770 --> 00:49:36,940
+because I got it later. 
+
+784
+00:49:38,670 --> 00:49:39,820
+I'm just doing a scan. 
+
+785
+00:49:40,810 --> 00:49:41,730
+So that's a problem. 
+
+786
+00:49:42,290 --> 00:49:42,550
+Right? 
+
+787
+00:49:43,360 --> 00:49:44,470
+What is a solution here? 
+
+788
+00:49:44,480 --> 00:49:45,750
+It's a smart solution. 
+
+789
+00:49:46,420 --> 00:49:51,070
+The solution here is that the operating system allow application
+
+790
+00:49:51,080 --> 00:49:53,070
+to request other policies. 
+
+791
+00:49:55,130 --> 00:49:57,200
+The application knows more best. 
+
+792
+00:49:57,210 --> 00:49:58,520
+What is the access pattern? 
+
+793
+00:49:59,110 --> 00:50:03,670
+If the application knows that it's only going to scan the file, 
+
+794
+00:50:04,480 --> 00:50:08,430
+it can specify as a replacement policy use once. 
+
+795
+00:50:09,950 --> 00:50:14,500
+This means that the file system can discard the block as soon as they are used. 
+
+796
+00:50:14,920 --> 00:50:17,040
+They don't need to operating system, 
+
+797
+00:50:17,050 --> 00:50:20,260
+doesn't need to maintain that block in the buffer cash. 
+
+798
+00:50:27,440 --> 00:50:31,450
+Now, the cache is obviously stored in the memory.
+
+799
+00:50:32,350 --> 00:50:35,540
+One question is that how much memory you should give
+
+800
+00:50:35,550 --> 00:50:39,520
+to the operating system for the buffer cache versus
+
+801
+00:50:41,470 --> 00:50:45,870
+the memory for to map the processes virtual address space. 
+
+802
+00:50:47,020 --> 00:50:50,040
+If you give too much memory to the file system cache, 
+
+803
+00:50:50,340 --> 00:50:52,130
+the access can be fast, 
+
+804
+00:50:52,140 --> 00:50:57,330
+but you may not have enough room left for the applications. 
+
+805
+00:50:58,340 --> 00:50:59,670
+If you give too little memory, 
+
+806
+00:50:59,680 --> 00:51:02,430
+you are going to have a lot of access to the disk, 
+
+807
+00:51:02,780 --> 00:51:05,980
+because you cannot cash the blocks which are going to be used. 
+
+808
+00:51:06,560 --> 00:51:07,030
+Frequently. 
+
+809
+00:51:08,120 --> 00:51:13,720
+The solution here in the operating system adjust dynamically is a boundary
+
+810
+00:51:14,090 --> 00:51:16,020
+between the os cash, 
+
+811
+00:51:18,770 --> 00:51:20,290
+the application memory, 
+
+812
+00:51:20,630 --> 00:51:25,990
+so that the amount of the rate of beijing in are roughly the same. 
+
+813
+00:51:29,660 --> 00:51:30,660
+Any questions about
+
+814
+00:51:45,770 --> 00:51:48,010
+another things about is the file systems. 
+
+815
+00:51:48,300 --> 00:51:50,000
+You see, a lot is pre fetching,
+
+816
+00:51:50,850 --> 00:51:52,690
+refreshing, you remember is read ahead.
+
+817
+00:51:53,030 --> 00:51:57,580
+And we discuss that also in the case of demand beijing and demand beijing
+
+818
+00:51:57,590 --> 00:51:59,730
+is to avoid compulsory misses. 
+
+819
+00:52:00,500 --> 00:52:00,830
+Right? 
+
+820
+00:52:01,220 --> 00:52:03,000
+If the access is sequential, 
+
+821
+00:52:03,560 --> 00:52:07,830
+that if you have your one of your access, one block,
+
+822
+00:52:08,120 --> 00:52:13,550
+then you are going to very likely these are data from the next block. 
+
+823
+00:52:13,890 --> 00:52:17,670
+So why not bring both blocks right away in memory? 
+
+824
+00:52:17,970 --> 00:52:18,280
+Right? 
+
+825
+00:52:18,830 --> 00:52:22,780
+And avoid to have another access to the disk, 
+
+826
+00:52:22,790 --> 00:52:24,020
+which is very expensive. 
+
+827
+00:52:29,240 --> 00:52:32,560
+You have aggression here. 
+
+828
+00:52:32,570 --> 00:52:37,920
+How many how much you are going to read ahead? 
+
+829
+00:52:37,930 --> 00:52:39,760
+How many blocks are you going to prefect? 
+
+830
+00:52:41,410 --> 00:52:42,620
+If you do too many, 
+
+831
+00:52:43,150 --> 00:52:45,510
+then it's fine, 
+
+832
+00:52:45,520 --> 00:52:47,110
+but you are going to be wasteful. 
+
+833
+00:52:48,160 --> 00:52:48,560
+Right? 
+
+834
+00:52:50,710 --> 00:52:53,800
+And if you are going to do too little, 
+
+835
+00:52:53,810 --> 00:52:57,100
+then you are going to have a lot of more access. 
+
+836
+00:53:01,450 --> 00:53:02,680
+So not these two things off. 
+
+837
+00:53:03,270 --> 00:53:09,520
+One is be fetching is easy if the blocks are sequentially arrange on the group, 
+
+838
+00:53:09,530 --> 00:53:11,000
+arrange on the disk. 
+
+839
+00:53:11,450 --> 00:53:11,880
+Right? 
+
+840
+00:53:12,400 --> 00:53:13,760
+Because it's one sick time, 
+
+841
+00:53:13,770 --> 00:53:17,440
+and you just read multiple blocks. 
+
+842
+00:53:18,850 --> 00:53:19,940
+The other thing, 
+
+843
+00:53:19,950 --> 00:53:25,260
+it's if you are going, 
+
+844
+00:53:25,270 --> 00:53:28,660
+even if the blocks are not sequential, 
+
+845
+00:53:29,560 --> 00:53:33,720
+then you are going to provide the disk controller, 
+
+846
+00:53:34,190 --> 00:53:36,020
+a bunch of blocks you want to read. 
+
+847
+00:53:37,580 --> 00:53:39,680
+And you remember the elevator algorithm. 
+
+848
+00:53:40,250 --> 00:53:41,210
+Two lectures ago, 
+
+849
+00:53:42,040 --> 00:53:46,960
+the elevator algorithms reorder the requests. 
+
+850
+00:53:47,990 --> 00:53:49,950
+If he gets more requests at the same time, 
+
+851
+00:53:50,770 --> 00:53:52,340
+so that he uses the sick time, 
+
+852
+00:53:52,350 --> 00:53:57,920
+it puts them in the order in the order along the direction that the head
+
+853
+00:53:57,930 --> 00:53:58,600
+is moving. 
+
+854
+00:53:59,380 --> 00:53:59,670
+Excuse me, 
+
+855
+00:54:00,850 --> 00:54:02,320
+the head it doesn't go back and forth. 
+
+856
+00:54:02,330 --> 00:54:04,840
+It's just going in one direction, 
+
+857
+00:54:05,380 --> 00:54:10,840
+and is going to get small sick times to the next request, 
+
+858
+00:54:10,850 --> 00:54:11,960
+minimizing the sick time. 
+
+859
+00:54:15,010 --> 00:54:16,820
+So the more privileges you do, 
+
+860
+00:54:17,070 --> 00:54:19,420
+the more requests are going to give the disk, 
+
+861
+00:54:19,760 --> 00:54:25,760
+the more potential to for the elevator algorithms to be efficient at the
+
+862
+00:54:25,770 --> 00:54:26,880
+minimize the sick time. 
+
+863
+00:54:29,560 --> 00:54:31,770
+So how much to prefect you just discussed? 
+
+864
+00:54:32,740 --> 00:54:33,610
+Too much. 
+
+865
+00:54:34,220 --> 00:54:37,910
+It's going to be wasteful boss because delays, 
+
+866
+00:54:37,920 --> 00:54:41,080
+because it takes maybe a little bit more time to refresh multiple blocks, 
+
+867
+00:54:41,090 --> 00:54:49,080
+but also because they are going to bring this data in in the buffer cache. 
+
+868
+00:54:49,470 --> 00:54:51,330
+And maybe you are not going to use it. 
+
+869
+00:54:51,340 --> 00:54:54,410
+And this data, the blocks you are not going to use it,
+
+870
+00:54:54,700 --> 00:54:57,410
+May be replaced some blocks you are going, 
+
+871
+00:54:57,420 --> 00:55:01,100
+which are used frequently too little pre fetching, 
+
+872
+00:55:01,660 --> 00:55:02,740
+many, more six, right?
+
+873
+00:55:02,750 --> 00:55:03,860
+If you at the limit, 
+
+874
+00:55:03,870 --> 00:55:05,020
+you prefer the only one. 
+
+875
+00:55:05,430 --> 00:55:06,460
+You prepare nothing, right?
+
+876
+00:55:06,470 --> 00:55:10,120
+You just then you are going to have a sick for each new block. 
+
+877
+00:55:11,720 --> 00:55:12,330
+You are accessing. 
+
+878
+00:55:15,570 --> 00:55:18,500
+This was about reading multiple blocks. 
+
+879
+00:55:19,970 --> 00:55:24,930
+The same you can do also about the rights is called delayed rights. 
+
+880
+00:55:25,610 --> 00:55:30,860
+So delay writes basically means that it's, again,
+
+881
+00:55:30,870 --> 00:55:32,100
+when you write the data, 
+
+882
+00:55:33,120 --> 00:55:42,260
+you modify the data is modified only in memory in the buffer cache. 
+
+883
+00:55:42,270 --> 00:55:45,570
+So it is not written immediately on the disk. 
+
+884
+00:55:46,170 --> 00:55:49,240
+So therefore, the rights are very fast out of the memory,
+
+885
+00:55:50,570 --> 00:55:52,450
+the rise to the file, a rise to memory.
+
+886
+00:55:52,890 --> 00:55:54,370
+If the block is in the buffer cache, 
+
+887
+00:55:56,330 --> 00:56:00,950
+the read is going to first go to the buffer cash to see why there is
+
+888
+00:56:00,960 --> 00:56:02,270
+a block they want to read, 
+
+889
+00:56:02,280 --> 00:56:03,630
+which is a buffer cash. 
+
+890
+00:56:03,640 --> 00:56:04,870
+And if it is in, 
+
+891
+00:56:05,130 --> 00:56:08,050
+is going to get the most up to date value. 
+
+892
+00:56:08,380 --> 00:56:12,930
+Even if that block was not written yet on the disk, 
+
+893
+00:56:13,360 --> 00:56:14,560
+is still the up. 
+
+894
+00:56:14,570 --> 00:56:15,300
+The right. 
+
+895
+00:56:15,830 --> 00:56:17,890
+Previous right update is a block in the memory. 
+
+896
+00:56:19,050 --> 00:56:19,860
+So we have to find here. 
+
+897
+00:56:22,170 --> 00:56:25,320
+So when does the right, 
+
+898
+00:56:25,330 --> 00:56:28,500
+the changes made by a right to reach the list? 
+
+899
+00:56:30,710 --> 00:56:31,980
+There are a few cases. 
+
+900
+00:56:32,790 --> 00:56:36,300
+One is operating system is flashing it periodically. 
+
+901
+00:56:37,130 --> 00:56:38,930
+I think, like, say, 30 seconds,
+
+902
+00:56:39,930 --> 00:56:41,240
+every 30 seconds, 
+
+903
+00:56:42,830 --> 00:56:45,210
+you go and scan the buffer cache, 
+
+904
+00:56:45,530 --> 00:56:51,240
+and you look at the blocks which are dirty and ride them on the disk. 
+
+905
+00:56:54,610 --> 00:56:56,720
+Or obviously, when the cash is full,
+
+906
+00:56:57,050 --> 00:57:00,610
+then you may want to flush them to write on the disk. 
+
+907
+00:57:02,400 --> 00:57:04,820
+So what are the delay rights advantages? 
+
+908
+00:57:04,830 --> 00:57:06,300
+Why don't you tell me here? 
+
+909
+00:57:06,780 --> 00:57:07,420
+What do you think? 
+
+910
+00:57:07,430 --> 00:57:15,310
+Are the delayed right advantages compared with you right back every time
+
+911
+00:57:15,320 --> 00:57:16,470
+you want to modify a block? 
+
+912
+00:57:32,790 --> 00:57:36,930
+Yes, you do not have to go all the way to the disk for changing every time.
+
+913
+00:57:38,250 --> 00:57:38,890
+That's very good. 
+
+914
+00:57:38,900 --> 00:57:42,010
+Can you think about anything else? 
+
+915
+00:57:50,220 --> 00:57:52,850
+So honest, again, if you don't need to go to the disk,
+
+916
+00:57:53,580 --> 00:57:57,420
+you are going to have a performance advantage, obviously, because you like,
+
+917
+00:57:57,430 --> 00:57:57,780
+I said, 
+
+918
+00:57:57,790 --> 00:58:00,020
+you just write a memory to write to the disk. 
+
+919
+00:58:00,680 --> 00:58:01,080
+Right? 
+
+920
+00:58:01,990 --> 00:58:03,080
+It's also, 
+
+921
+00:58:03,090 --> 00:58:06,600
+you can accumulate multiple rights, right?
+
+922
+00:58:08,050 --> 00:58:13,740
+You can write to the same block multiple times before you is, 
+
+923
+00:58:13,750 --> 00:58:20,220
+before you are going to write the block to the disk, 
+
+924
+00:58:20,390 --> 00:58:22,140
+you have only ones right to the disk, 
+
+925
+00:58:22,760 --> 00:58:26,030
+corresponding to many updates of that block. 
+
+926
+00:58:27,380 --> 00:58:29,220
+The other thing is like for the reads, 
+
+927
+00:58:30,150 --> 00:58:34,930
+if you are going to write multiple pages that discuss the same time, 
+
+928
+00:58:35,360 --> 00:58:40,150
+you understand all these requests to the disk and the disks, 
+
+929
+00:58:40,160 --> 00:58:42,070
+the elevator algorithms on the disk, 
+
+930
+00:58:42,310 --> 00:58:44,490
+again, reorder these requests,
+
+931
+00:58:45,590 --> 00:58:49,500
+so that there is going to write close together, 
+
+932
+00:58:50,010 --> 00:58:52,160
+blocks one after another, 
+
+933
+00:58:52,490 --> 00:58:54,460
+and again, minimize the sector.
+
+934
+00:59:01,680 --> 00:59:04,190
+Another thing is that for delay rights, 
+
+935
+00:59:05,000 --> 00:59:08,270
+you may want to allocate multiple blocks at the same time. 
+
+936
+00:59:08,730 --> 00:59:10,970
+For a files to keep them contiguous. 
+
+937
+00:59:10,980 --> 00:59:16,080
+You can make a room when you write, 
+
+938
+00:59:18,230 --> 00:59:20,940
+you write multiple contiguous files. 
+
+939
+00:59:22,880 --> 00:59:23,240
+Right? 
+
+940
+00:59:26,330 --> 00:59:30,790
+What i'm trying to say here is that when you are going to write data and I
+
+941
+00:59:30,800 --> 00:59:35,630
+have multiple blocks that are modified from or the new blocks, 
+
+942
+00:59:35,640 --> 00:59:35,990
+right? 
+
+943
+00:59:36,390 --> 00:59:37,720
+Because you can create new blocks, 
+
+944
+00:59:37,730 --> 00:59:39,800
+which I remember they are not on the disk. 
+
+945
+00:59:40,040 --> 00:59:41,130
+If you expand the file, right?
+
+946
+00:59:41,560 --> 00:59:45,840
+If you're right at the end of the file on the disk is smaller, right?
+
+947
+00:59:46,110 --> 00:59:47,470
+But now you are going to write, 
+
+948
+00:59:47,480 --> 00:59:49,890
+you are going to allocate more data in the buffer cache, 
+
+949
+00:59:50,970 --> 00:59:53,880
+that now the filing memory is larger than the file of the disk. 
+
+950
+00:59:54,290 --> 00:59:59,650
+Now you find out they worth of ten blocks in memory, 
+
+951
+00:59:59,850 --> 01:00:03,180
+then if I delay to write these ten blocks to the disk, 
+
+952
+01:00:03,460 --> 01:00:04,810
+when I write them the disk, 
+
+953
+01:00:05,020 --> 01:00:06,530
+now are these ten blocks? 
+
+954
+01:00:06,880 --> 01:00:09,030
+I'm telling that from the same file, 
+
+955
+01:00:09,040 --> 01:00:13,640
+so maybe you can find a contiguous place to one that needs to place
+
+956
+01:00:13,650 --> 01:00:14,680
+all these ten blocks, 
+
+957
+01:00:15,900 --> 01:00:16,760
+one after another, 
+
+958
+01:00:17,360 --> 01:00:21,530
+which again, is convenient when you read the data from these blocks,
+
+959
+01:00:21,540 --> 01:00:24,650
+because there's one after another, 
+
+960
+01:00:24,660 --> 01:00:26,250
+says particular region on the risk. 
+
+961
+01:00:27,040 --> 01:00:28,840
+Again, you avoid, in that case,
+
+962
+01:00:29,130 --> 01:00:33,400
+the boys are sick that we are going to avoid the second rotation like this. 
+
+963
+01:00:37,610 --> 01:00:38,680
+Here is a fun thing. 
+
+964
+01:00:39,360 --> 01:00:40,780
+If you have some files, 
+
+965
+01:00:40,790 --> 01:00:43,500
+you open a file during we need your application. 
+
+966
+01:00:44,140 --> 01:00:46,190
+And you close it, 
+
+967
+01:00:46,200 --> 01:00:52,790
+you just use from some to have a file to create a file to share some data
+
+968
+01:00:52,800 --> 01:00:53,570
+between two applications. 
+
+969
+01:00:53,870 --> 01:00:56,510
+If that file, it's very short duration,
+
+970
+01:00:56,750 --> 01:00:58,680
+you may never make on the disk, right?
+
+971
+01:00:58,690 --> 01:01:04,670
+Because it's going to be removed and it's going to be deleted before closed, 
+
+972
+01:01:05,010 --> 01:01:05,490
+right? 
+
+973
+01:01:05,950 --> 01:01:07,500
+And delete it before. 
+
+974
+01:01:08,920 --> 01:01:10,190
+You have the operating system, 
+
+975
+01:01:10,200 --> 01:01:12,470
+have a chance to write it on the disk. 
+
+976
+01:01:16,430 --> 01:01:18,310
+Okay, so here I have a question for you.
+
+977
+01:01:19,780 --> 01:01:22,030
+So with the man beijing, 
+
+978
+01:01:23,450 --> 01:01:25,320
+we remember we demand beijing, 
+
+979
+01:01:25,610 --> 01:01:29,720
+we have an aluria and the same kind of algorithms, 
+
+980
+01:01:30,070 --> 01:01:34,000
+but we are very paranoid then about the performance of the allergy. 
+
+981
+01:01:34,950 --> 01:01:43,040
+And we implement some approximation like clock algorithms and things like that. 
+
+982
+01:01:43,510 --> 01:01:46,810
+Second chance algorithm with buffer caching, 
+
+983
+01:01:46,820 --> 01:01:54,010
+it turns out that people do not implement exact area in the operating system. 
+
+984
+01:01:54,700 --> 01:02:00,710
+So people are not as concerned about the performance of alu cashing
+
+985
+01:02:01,430 --> 01:02:04,710
+for buffer for allah, 
+
+986
+01:02:04,720 --> 01:02:07,290
+you for buffer cashing versus demand beijing. 
+
+987
+01:02:07,820 --> 01:02:08,770
+Why do you think is that? 
+
+988
+01:02:18,660 --> 01:02:22,570
+Why do you think that in the case of the buffer catching is
+
+989
+01:02:22,580 --> 01:02:25,290
+fine to implement the exact area? 
+
+990
+01:02:25,800 --> 01:02:27,240
+Where is the context of demand? 
+
+991
+01:02:27,250 --> 01:02:30,670
+Paging is not that we need to implement up or smash. 
+
+992
+01:02:40,280 --> 01:02:41,120
+It's in softer, 
+
+993
+01:02:41,130 --> 01:02:46,190
+so not that much of a performer skit painting is also in softer. 
+
+994
+01:02:46,640 --> 01:02:50,660
+So demand painting is implemented in software as well. 
+
+995
+01:03:04,020 --> 01:03:04,550
+Anyone? 
+
+996
+01:03:09,000 --> 01:03:11,310
+I think it's a subtle question and it's okay. 
+
+997
+01:03:14,270 --> 01:03:19,550
+If you do not the answer to this question, 
+
+998
+01:03:21,600 --> 01:03:25,190
+one reason is about think about the foreign thing, 
+
+999
+01:03:26,190 --> 01:03:27,180
+demand paging, 
+
+1000
+01:03:27,190 --> 01:03:31,820
+the expectation of the application you are going to read and write from memoir. 
+
+1001
+01:03:34,010 --> 01:03:35,480
+This is what you are against. 
+
+1002
+01:03:36,920 --> 01:03:40,120
+You are against the latency provided by sort of memory, 
+
+1003
+01:03:40,130 --> 01:03:42,280
+because as the expectation of the application, 
+
+1004
+01:03:42,290 --> 01:03:43,350
+it acts as his memory, 
+
+1005
+01:03:45,080 --> 01:03:46,300
+you need to be very fast. 
+
+1006
+01:03:48,630 --> 01:03:49,610
+In contrast, 
+
+1007
+01:03:51,240 --> 01:03:52,630
+when you access a file, 
+
+1008
+01:03:53,900 --> 01:03:56,860
+you don't have a expectation to be that fast. 
+
+1009
+01:03:58,730 --> 01:04:01,070
+Buffer cash is improving the latency, 
+
+1010
+01:04:01,080 --> 01:04:05,190
+but the baseline is accessing the disk, which is slow.
+
+1011
+01:04:05,620 --> 01:04:09,510
+And sometimes you have to access the disk because it's a buffer
+
+1012
+01:04:10,200 --> 01:04:13,470
+that the data is not in memory and so forth. 
+
+1013
+01:04:14,230 --> 01:04:16,610
+So the fire, 
+
+1014
+01:04:16,980 --> 01:04:19,890
+so that's kind of one reason, right?
+
+1015
+01:04:19,900 --> 01:04:21,290
+Because expectation on you, 
+
+1016
+01:04:21,300 --> 01:04:24,560
+when you when you access a disk, 
+
+1017
+01:04:25,150 --> 01:04:27,910
+is not to have the fastest operations. 
+
+1018
+01:04:28,830 --> 01:04:29,150
+Right? 
+
+1019
+01:04:30,460 --> 01:04:31,660
+So therefore, it's okay.
+
+1020
+01:04:32,630 --> 01:04:34,260
+If you had ability to be slower, 
+
+1021
+01:04:34,790 --> 01:04:36,220
+and actually, 
+
+1022
+01:04:36,230 --> 01:04:38,990
+with being a little bit slower, 
+
+1023
+01:04:39,000 --> 01:04:40,670
+you can manage a cash even better, 
+
+1024
+01:04:41,790 --> 01:04:43,710
+but it's no longer an approximation algorithm. 
+
+1025
+01:04:52,480 --> 01:04:54,990
+Eviction palette policy demands beijing. 
+
+1026
+01:04:57,860 --> 01:05:02,340
+Remember, is you have big not recently used pages when memory is slow,
+
+1027
+01:05:02,350 --> 01:05:03,340
+close to full. 
+
+1028
+01:05:05,360 --> 01:05:10,810
+With buffer cash is different if you write back dirty blocks periodically, 
+
+1029
+01:05:11,490 --> 01:05:12,740
+even if you recently. 
+
+1030
+01:05:15,310 --> 01:05:16,100
+Why is that? 
+
+1031
+01:05:17,270 --> 01:05:18,640
+The reason for that is, again,
+
+1032
+01:05:18,650 --> 01:05:20,080
+different expectations. 
+
+1033
+01:05:21,020 --> 01:05:22,450
+When I read and write to memory, 
+
+1034
+01:05:22,460 --> 01:05:25,880
+I don't have any expectation about your ability of the data. 
+
+1035
+01:05:27,180 --> 01:05:27,540
+Right? 
+
+1036
+01:05:29,520 --> 01:05:34,100
+You do expect that the computer crashes or even the program crashes, 
+
+1037
+01:05:35,050 --> 01:05:36,670
+you lose your data in memory, right?
+
+1038
+01:05:38,480 --> 01:05:40,070
+But if you're right on the disk, 
+
+1039
+01:05:40,080 --> 01:05:42,790
+if you think that you're right in a file, 
+
+1040
+01:05:44,560 --> 01:05:47,470
+you do assume that what you wrote is persistent. 
+
+1041
+01:05:49,150 --> 01:05:49,460
+Right? 
+
+1042
+01:05:50,860 --> 01:05:51,610
+So now, 
+
+1043
+01:05:52,840 --> 01:05:56,790
+we'll talk about this quite a bit for the reminding of this lecture
+
+1044
+01:05:56,800 --> 01:05:57,870
+and the next lecture. 
+
+1045
+01:05:59,970 --> 01:06:05,640
+You need the operating system needs to try pretty hard to provide that persistence. 
+
+1046
+01:06:06,620 --> 01:06:11,970
+Savannah is doing it is by periodically writing the updated, 
+
+1047
+01:06:11,980 --> 01:06:16,560
+modified blocks from the buffer cash is a risk. 
+
+1048
+01:06:28,080 --> 01:06:31,670
+The marginal difference between al a real and on a normal area. 
+
+1049
+01:06:32,020 --> 01:06:35,770
+Isn't that big in this context since this baseline, 
+
+1050
+01:06:36,030 --> 01:06:38,600
+since the baseline is at these corporations, 
+
+1051
+01:06:38,610 --> 01:06:40,160
+which takes super long? 
+
+1052
+01:06:40,440 --> 01:06:41,150
+Anyways, 
+
+1053
+01:06:42,140 --> 01:06:44,890
+this is a comment by gilbert. 
+
+1054
+01:06:46,390 --> 01:06:47,780
+That's exactly correct, right?
+
+1055
+01:06:47,790 --> 01:06:49,580
+So in the case of the buffer cash, 
+
+1056
+01:06:49,880 --> 01:06:51,100
+the baseline is a disk. 
+
+1057
+01:06:52,420 --> 01:06:54,060
+In the case of demand beijing, 
+
+1058
+01:06:54,070 --> 01:06:55,380
+the baseline is a memo. 
+
+1059
+01:07:05,820 --> 01:07:08,800
+So like, 
+
+1060
+01:07:10,290 --> 01:07:14,860
+like we mentioned in order to improve the persistency, 
+
+1061
+01:07:16,510 --> 01:07:21,700
+the operating system rise data to the disk from the buffer cash periodically. 
+
+1062
+01:07:22,280 --> 01:07:23,950
+So it flashes it, 
+
+1063
+01:07:23,960 --> 01:07:26,110
+like in the case of being on 70, 30 seconds.
+
+1064
+01:07:28,830 --> 01:07:30,790
+However, obviously,
+
+1065
+01:07:30,800 --> 01:07:33,700
+this is not bulletproof, 
+
+1066
+01:07:34,320 --> 01:07:34,720
+right? 
+
+1067
+01:07:37,450 --> 01:07:40,600
+I what if the operator, the operating system,
+
+1068
+01:07:40,610 --> 01:07:43,160
+or you have a failure as a machine fails, 
+
+1069
+01:07:44,520 --> 01:07:50,920
+and you have dirty blocks into the buffer cache. 
+
+1070
+01:07:52,090 --> 01:07:54,310
+Obviously, this information is lost.
+
+1071
+01:07:55,500 --> 01:07:56,980
+Right now, you have the case.
+
+1072
+01:07:56,990 --> 01:07:58,500
+You have from your application. 
+
+1073
+01:07:58,510 --> 01:07:59,960
+You wrote, 
+
+1074
+01:08:01,070 --> 01:08:02,830
+something is a file you owe, 
+
+1075
+01:08:02,840 --> 01:08:03,910
+it was open. 
+
+1076
+01:08:05,260 --> 01:08:10,010
+And now, machine file fails after you wrote.
+
+1077
+01:08:12,010 --> 01:08:13,710
+And what you wrote is not in the fact. 
+
+1078
+01:08:14,700 --> 01:08:15,850
+Although as a programmer, 
+
+1079
+01:08:15,860 --> 01:08:18,250
+you may believe that I wrote in a file, 
+
+1080
+01:08:18,260 --> 01:08:19,450
+the file is persistent. 
+
+1081
+01:08:19,460 --> 01:08:20,770
+It must be in a file, 
+
+1082
+01:08:22,530 --> 01:08:24,090
+because it happened before the failure. 
+
+1083
+01:08:27,230 --> 01:08:27,490
+Right? 
+
+1084
+01:08:28,040 --> 01:08:29,510
+And this can be pretty ugly. 
+
+1085
+01:08:29,520 --> 01:08:31,470
+If you, for instance, you want to modify a directory.
+
+1086
+01:08:31,480 --> 01:08:32,590
+If you don't modify, 
+
+1087
+01:08:33,000 --> 01:08:37,580
+then you may lose entire files because they are you lost. 
+
+1088
+01:08:38,030 --> 01:08:38,790
+They are dangling fans. 
+
+1089
+01:08:38,800 --> 01:08:39,050
+There. 
+
+1090
+01:08:39,060 --> 01:08:45,270
+We have no presence in the directory or there are many others. 
+
+1091
+01:08:45,920 --> 01:08:46,390
+Okay? 
+
+1092
+01:08:46,750 --> 01:08:48,790
+You may lose, I know, and so forth.
+
+1093
+01:08:50,640 --> 01:08:54,960
+So the file system needs some mechanism to ensure the persistence, 
+
+1094
+01:08:55,880 --> 01:09:01,510
+including some recovery mechanisms to recover kind of inconsistent state. 
+
+1095
+01:09:06,080 --> 01:09:13,770
+There are three important properties of a system when it comes to
+
+1096
+01:09:13,780 --> 01:09:16,260
+its to speak, 
+
+1097
+01:09:22,750 --> 01:09:30,800
+performance availability and so forth of a system and the file system, 
+
+1098
+01:09:30,810 --> 01:09:31,520
+in particular. 
+
+1099
+01:09:32,910 --> 01:09:34,350
+So there are three things. 
+
+1100
+01:09:34,920 --> 01:09:41,750
+One is availability and availability really tells you percentage of time
+
+1101
+01:09:42,570 --> 01:09:42,850
+while the
+
+1102
+01:09:42,860 --> 01:09:46,130
+system can accept and serve your requests. 
+
+1103
+01:09:50,960 --> 01:09:52,830
+So three lines, meaning,
+
+1104
+01:09:53,040 --> 01:09:53,830
+in this case, 
+
+1105
+01:09:53,840 --> 01:09:59,760
+meaning that the probability you send a request to the file system and you
+
+1106
+01:09:59,770 --> 01:10:02,190
+don't get a reply or it is not resolved, 
+
+1107
+01:10:02,650 --> 01:10:03,910
+is 0.1%. 
+
+1108
+01:10:05,570 --> 01:10:06,810
+Then in durability, 
+
+1109
+01:10:07,620 --> 01:10:12,540
+the durability means is that if the data is on the disk, 
+
+1110
+01:10:14,610 --> 01:10:15,730
+then is durable, 
+
+1111
+01:10:16,510 --> 01:10:18,520
+meaning that if this fails, 
+
+1112
+01:10:19,060 --> 01:10:21,570
+there is still a way to recover the data, 
+
+1113
+01:10:24,160 --> 01:10:26,120
+availability and durability. 
+
+1114
+01:10:26,490 --> 01:10:27,710
+They are not the same, 
+
+1115
+01:10:28,060 --> 01:10:31,260
+because availability means that the data is somewhere, 
+
+1116
+01:10:32,670 --> 01:10:35,260
+but doesn't mean necessary that it's accessible. 
+
+1117
+01:10:37,570 --> 01:10:41,240
+And then is a reliability is usually the strongest one is the ability
+
+1118
+01:10:41,250 --> 01:10:47,350
+of a system to better form is required functions as it is defined. 
+
+1119
+01:10:48,640 --> 01:10:50,750
+Its application level definition, 
+
+1120
+01:10:50,760 --> 01:10:54,350
+what that means to perform the function and is
+
+1121
+01:10:54,360 --> 01:10:58,430
+typically stronger than because it implies availability. 
+
+1122
+01:10:58,440 --> 01:10:59,670
+If it's not available, 
+
+1123
+01:11:00,150 --> 01:11:09,920
+the the system cannot perform its functions and also includes durability, 
+
+1124
+01:11:10,640 --> 01:11:14,670
+because the data has to be any purses and data. 
+
+1125
+01:11:15,620 --> 01:11:17,690
+I should be able to get access to it. 
+
+1126
+01:11:23,050 --> 01:11:28,350
+First, we are going to look about how to make this system,
+
+1127
+01:11:28,800 --> 01:11:30,150
+the file system durable. 
+
+1128
+01:11:36,090 --> 01:11:37,690
+How do you make a file system beautiful? 
+
+1129
+01:11:37,700 --> 01:11:43,600
+What I said that what I want to ensure here is that if I wrote the data
+
+1130
+01:11:46,120 --> 01:11:48,530
+on a disk in a file, 
+
+1131
+01:11:48,540 --> 01:11:55,060
+I want to get to be able to read that data at a later time, 
+
+1132
+01:11:57,530 --> 01:12:00,010
+no matter what kind of failures were happening. 
+
+1133
+01:12:03,980 --> 01:12:04,340
+Right? 
+
+1134
+01:12:05,640 --> 01:12:08,630
+Say, the one classic failure is that I this failure.
+
+1135
+01:12:09,440 --> 01:12:11,200
+Ii wrote that on the disk, 
+
+1136
+01:12:11,470 --> 01:12:13,510
+it made it from the buffer cash to the disk. 
+
+1137
+01:12:14,250 --> 01:12:15,420
+But then that's this failed. 
+
+1138
+01:12:16,580 --> 01:12:17,240
+I lost the data. 
+
+1139
+01:12:22,240 --> 01:12:23,170
+How do you avoid that? 
+
+1140
+01:12:31,280 --> 01:12:31,800
+Redundancy? 
+
+1141
+01:12:31,810 --> 01:12:32,640
+You back up? 
+
+1142
+01:12:32,650 --> 01:12:34,520
+Absolutely, is what you are doing for you,
+
+1143
+01:12:34,530 --> 01:12:38,630
+sure you should do for your only the most important data you have, 
+
+1144
+01:12:40,230 --> 01:12:41,600
+right to more than one, 
+
+1145
+01:12:41,610 --> 01:12:43,030
+this totally. 
+
+1146
+01:12:51,740 --> 01:12:54,310
+And there are many ways to do it. 
+
+1147
+01:12:55,290 --> 01:12:57,160
+And we'll see you can do it, 
+
+1148
+01:12:57,170 --> 01:12:58,200
+rich solomon. 
+
+1149
+01:12:59,390 --> 01:13:01,020
+They are correcting codes. 
+
+1150
+01:13:01,610 --> 01:13:03,350
+There are other things you can do. 
+
+1151
+01:13:03,360 --> 01:13:04,230
+It is like, 
+
+1152
+01:13:05,360 --> 01:13:08,510
+you can have battery backgrounds or non volatile ground. 
+
+1153
+01:13:09,030 --> 01:13:11,470
+See that doesn't necessarily need to be on the disk. 
+
+1154
+01:13:11,970 --> 01:13:17,440
+But you can also write it in ram as long as it's powered as in its own battery, 
+
+1155
+01:13:17,450 --> 01:13:18,920
+its own battery, 
+
+1156
+01:13:19,470 --> 01:13:20,820
+and the machine fails. 
+
+1157
+01:13:21,170 --> 01:13:22,480
+The ram is not wiped out, 
+
+1158
+01:13:26,090 --> 01:13:32,580
+but to clearly to have the data surviving more a lot of more long term, 
+
+1159
+01:13:32,830 --> 01:13:33,870
+we need to replicate it. 
+
+1160
+01:13:34,330 --> 01:13:35,820
+And again, when you replicate it,
+
+1161
+01:13:35,830 --> 01:13:39,020
+you need to be very clear about the assumptions, 
+
+1162
+01:13:39,390 --> 01:13:40,910
+failure assumption you are making. 
+
+1163
+01:13:41,940 --> 01:13:49,170
+Because if you have to these stripes and both are on the same machine, 
+
+1164
+01:13:49,950 --> 01:13:51,900
+if the machine fails, 
+
+1165
+01:13:52,670 --> 01:13:57,820
+then you lost both copies to avoid that. 
+
+1166
+01:13:57,830 --> 01:13:59,660
+You need to put copies on different machines. 
+
+1167
+01:14:00,540 --> 01:14:02,560
+But if the machines are in the same rack, 
+
+1168
+01:14:03,590 --> 01:14:04,910
+and the rack fails, 
+
+1169
+01:14:05,760 --> 01:14:08,680
+or the data center experience a catastrophic failure, 
+
+1170
+01:14:10,090 --> 01:14:11,900
+you lost access to those of copies. 
+
+1171
+01:14:13,760 --> 01:14:16,630
+Now you can put the copies on several different continents. 
+
+1172
+01:14:16,640 --> 01:14:20,560
+You are going to be safer than You see that, right?
+
+1173
+01:14:20,570 --> 01:14:21,760
+Because typically, 
+
+1174
+01:14:21,770 --> 01:14:25,690
+many of you assume that when they back up their data, 
+
+1175
+01:14:26,100 --> 01:14:27,260
+where do you back up the data? 
+
+1176
+01:14:28,170 --> 01:14:29,640
+Do you back on the same machine? 
+
+1177
+01:14:29,650 --> 01:14:29,960
+Now? 
+
+1178
+01:14:29,970 --> 01:14:31,040
+Where do you back it up? 
+
+1179
+01:14:32,400 --> 01:14:40,480
+Actually, I'm curious anyone backs up the data
+
+1180
+01:14:47,720 --> 01:14:48,310
+cloud, 
+
+1181
+01:14:48,320 --> 01:14:51,640
+many people being the other one clone the cloud. 
+
+1182
+01:14:52,910 --> 01:14:53,400
+Right? 
+
+1183
+01:14:59,210 --> 01:15:01,410
+Yeah, and this is Michael has a good point,
+
+1184
+01:15:01,660 --> 01:15:06,840
+maybe also the medium you want to write on different media to protect
+
+1185
+01:15:06,850 --> 01:15:08,080
+against some catastrophic failure, 
+
+1186
+01:15:08,090 --> 01:15:13,790
+which are going to engage to involve only on media or degradation over time. 
+
+1187
+01:15:16,350 --> 01:15:16,490
+Good. 
+
+1188
+01:15:16,500 --> 01:15:18,850
+But many people to write to the cloud, right?
+
+1189
+01:15:19,710 --> 01:15:24,010
+And the cloud actually can replicate the data across different regions
+
+1190
+01:15:24,020 --> 01:15:25,570
+in different continents. 
+
+1191
+01:15:28,730 --> 01:15:37,270
+But now getting back and this was like many years back and this was people
+
+1192
+01:15:37,280 --> 01:15:37,990
+are developed. 
+
+1193
+01:15:38,230 --> 01:15:38,400
+First, 
+
+1194
+01:15:38,410 --> 01:15:43,930
+the technology called grade actually was developed at Berkeley by David Patterson, 
+
+1195
+01:15:45,790 --> 01:15:50,810
+Randy cards, and their student god Gibson was faculty of Kennedy mellow.
+
+1196
+01:15:50,820 --> 01:15:52,050
+Now it's at Toronto. 
+
+1197
+01:15:52,730 --> 01:15:59,540
+Is that Toronto you just have a replica of each disk and one you call
+
+1198
+01:16:00,230 --> 01:16:01,860
+the recovery group. 
+
+1199
+01:16:05,940 --> 01:16:09,590
+You double the capacity you need and your new rights. 
+
+1200
+01:16:10,000 --> 01:16:14,970
+A write is done only if you write both as the primary and the replica
+
+1201
+01:16:14,980 --> 01:16:17,200
+of or recovery group. 
+
+1202
+01:16:20,560 --> 01:16:20,990
+That's it. 
+
+1203
+01:16:21,000 --> 01:16:21,430
+Right. 
+
+1204
+01:16:22,310 --> 01:16:26,350
+Now the problem here is that the rights can be quite expensive, 
+
+1205
+01:16:26,360 --> 01:16:30,850
+because each right in it needs to go to tourists. 
+
+1206
+01:16:31,490 --> 01:16:32,960
+And you remember when you write, 
+
+1207
+01:16:34,130 --> 01:16:36,500
+you have but a rotation, 
+
+1208
+01:16:36,730 --> 01:16:38,100
+a disk latency, 
+
+1209
+01:16:39,040 --> 01:16:42,110
+you had going now to finish, 
+
+1210
+01:16:42,120 --> 01:16:45,890
+and you are going to wait for the slowest time to finish disk. 
+
+1211
+01:16:47,540 --> 01:16:48,810
+For as long as this to finish, 
+
+1212
+01:16:48,820 --> 01:16:49,970
+that was a performance. 
+
+1213
+01:16:49,980 --> 01:16:52,010
+It's worse for rights. 
+
+1214
+01:16:53,440 --> 01:16:55,590
+You can synchronize the disks. 
+
+1215
+01:16:56,670 --> 01:16:57,100
+Right? 
+
+1216
+01:16:57,540 --> 01:17:00,300
+So then all both of them finish at the same time. 
+
+1217
+01:17:01,000 --> 01:17:02,040
+But that's very hard. 
+
+1218
+01:17:04,950 --> 01:17:06,710
+What about the reads? 
+
+1219
+01:17:08,120 --> 01:17:10,550
+It turns out that with these, you are better, right?
+
+1220
+01:17:10,560 --> 01:17:13,130
+Because with reads, 
+
+1221
+01:17:13,460 --> 01:17:13,970
+actually, 
+
+1222
+01:17:13,980 --> 01:17:19,250
+you can have twice a boundaries because you can read for any replicas, 
+
+1223
+01:17:21,780 --> 01:17:22,300
+right? 
+
+1224
+01:17:23,560 --> 01:17:25,960
+Or you can send the same read to both replicas, 
+
+1225
+01:17:25,970 --> 01:17:27,920
+and you get the one which is arrived first. 
+
+1226
+01:17:29,610 --> 01:17:30,890
+So it's good for reads. 
+
+1227
+01:17:31,370 --> 01:17:35,930
+Both in terms of latency and the support is bad for rights. 
+
+1228
+01:17:36,630 --> 01:17:38,760
+And also we need to double the capacity. 
+
+1229
+01:17:41,920 --> 01:17:43,690
+What happens on the recovery? 
+
+1230
+01:17:44,540 --> 01:17:45,590
+When a disk fails, 
+
+1231
+01:17:45,990 --> 01:17:47,180
+you need to buy a new disk. 
+
+1232
+01:17:48,180 --> 01:17:50,410
+Then you are going to copy the data to the new disk, 
+
+1233
+01:17:52,760 --> 01:17:53,830
+all data to the new disk. 
+
+1234
+01:17:54,040 --> 01:17:55,670
+Now you have a game to Africa's. 
+
+1235
+01:17:57,870 --> 01:18:00,350
+Now, that was, again, pretty expensive.
+
+1236
+01:18:01,710 --> 01:18:03,630
+And that was the right one. 
+
+1237
+01:18:04,900 --> 01:18:05,910
+Again, right,
+
+1238
+01:18:07,390 --> 01:18:14,500
+is means redundant arrays of inexpensive disks, 
+
+1239
+01:18:15,860 --> 01:18:17,930
+as opposed to much more expensive, 
+
+1240
+01:18:17,940 --> 01:18:19,930
+presumably more reliable beasts. 
+
+1241
+01:18:20,530 --> 01:18:21,570
+Here you have cheap, 
+
+1242
+01:18:21,580 --> 01:18:22,690
+less reliable this, 
+
+1243
+01:18:22,700 --> 01:18:27,460
+but because you do this kind of replication or you'll see a major coding, 
+
+1244
+01:18:28,200 --> 01:18:30,350
+you are going to achieve a much higher level, 
+
+1245
+01:18:30,850 --> 01:18:33,770
+given a much higher reliability than the expense of these. 
+
+1246
+01:18:38,480 --> 01:18:41,270
+There are different, again, level levels of rare rage.
+
+1247
+01:18:42,670 --> 01:18:44,430
+And you can look in the textbook. 
+
+1248
+01:18:46,530 --> 01:18:49,880
+They five and more what they do. 
+
+1249
+01:18:50,290 --> 01:18:51,440
+They basically, 
+
+1250
+01:18:52,440 --> 01:18:55,840
+they stripe the data across multiple disks, 
+
+1251
+01:18:56,400 --> 01:18:59,790
+and they add also a paradise, 
+
+1252
+01:19:01,400 --> 01:19:03,440
+a a parody law. 
+
+1253
+01:19:08,850 --> 01:19:10,480
+So basically say, in this case,
+
+1254
+01:19:10,930 --> 01:19:12,160
+in this figure, 
+
+1255
+01:19:12,630 --> 01:19:15,500
+that each DD one, d two, d three,
+
+1256
+01:19:17,100 --> 01:19:21,840
+these are disks, and these are the blocks.
+
+1257
+01:19:25,610 --> 01:19:28,480
+D zero, d one, d two, d three.
+
+1258
+01:19:29,250 --> 01:19:29,680
+Sorry. 
+
+1259
+01:19:29,690 --> 01:19:33,680
+These are the blocks, the name of the blocks, d zero, d one, d two, d three.
+
+1260
+01:19:34,300 --> 01:19:35,400
+Then to this one, 
+
+1261
+01:19:35,410 --> 01:19:38,720
+you are going to add a parity block is zero. 
+
+1262
+01:19:39,750 --> 01:19:41,340
+The one you can do it. 
+
+1263
+01:19:41,350 --> 01:19:46,320
+The p zero is the x or of the values of the data blocks. 
+
+1264
+01:19:50,470 --> 01:19:52,340
+Therefore, you have four data blocks.
+
+1265
+01:19:52,350 --> 01:19:53,860
+You are going to add another one, 
+
+1266
+01:19:54,230 --> 01:19:55,250
+which is a paradigm. 
+
+1267
+01:19:55,540 --> 01:19:57,690
+The overhead here is 25%, 
+
+1268
+01:19:58,530 --> 01:19:59,120
+not doubled. 
+
+1269
+01:20:01,290 --> 01:20:02,360
+What happens here? 
+
+1270
+01:20:02,370 --> 01:20:03,440
+You can, 
+
+1271
+01:20:03,450 --> 01:20:05,520
+if one this goes away, 
+
+1272
+01:20:05,810 --> 01:20:07,770
+you can still reconstruct the data. 
+
+1273
+01:20:09,090 --> 01:20:10,000
+How do you do it? 
+
+1274
+01:20:10,010 --> 01:20:15,900
+You reconstruct the data of the lost block by simple x sorry, 
+
+1275
+01:20:17,990 --> 01:20:19,360
+all the remaining blocks, 
+
+1276
+01:20:19,370 --> 01:20:20,760
+the three remaining blocks, 
+
+1277
+01:20:21,190 --> 01:20:22,340
+plaza, parity block.
+
+1278
+01:20:24,490 --> 01:20:25,400
+It's as simple as that. 
+
+1279
+01:20:32,240 --> 01:20:34,590
+You can also spread the Information, 
+
+1280
+01:20:34,880 --> 01:20:39,230
+not only across multiple disks in the same server or in the same data center. 
+
+1281
+01:20:39,450 --> 01:20:41,900
+You can also do it across the internet. 
+
+1282
+01:20:43,640 --> 01:20:45,190
+You can use the same technique. 
+
+1283
+01:20:49,190 --> 01:20:50,740
+I'm going to stop here. 
+
+1284
+01:20:50,750 --> 01:20:52,940
+We are going to talk a little bit more about this, 
+
+1285
+01:20:54,840 --> 01:20:57,680
+how to make this durable. 
+
+1286
+01:20:58,270 --> 01:21:00,470
+And next time, 
+
+1287
+01:21:03,040 --> 01:21:03,790
+thank you. 
+
+1288
+01:21:03,800 --> 01:21:05,310
+And this Thursday, 
+
+1289
+01:21:06,160 --> 01:21:07,670
+it's Veterans Day. 
+
+1290
+01:21:08,160 --> 01:21:14,370
+I hope that you are going to enjoy a well deserved lighter day. 
+
+1291
+01:21:15,710 --> 01:21:17,050
+You can get some rest. 
+
+1292
+01:21:19,830 --> 01:21:20,860
+I'll see you next week. 
+
+1293
+01:21:22,390 --> 01:21:22,730
+Bye. 
+
