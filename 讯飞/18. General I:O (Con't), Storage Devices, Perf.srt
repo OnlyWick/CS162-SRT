@@ -1,0 +1,5472 @@
+﻿1
+00:00:14,290 --> 00:00:15,100
+Hello, everyone.
+
+2
+00:00:18,320 --> 00:00:22,750
+Welcome to the 18th lecture of cs on ct two, 
+
+3
+00:00:23,600 --> 00:00:24,570
+2021. 
+
+4
+00:00:26,470 --> 00:00:34,140
+Today, we are going to talk about general input output.
+
+5
+00:00:34,350 --> 00:00:38,350
+And just to summarize so far, 
+
+6
+00:00:39,320 --> 00:00:42,090
+we have studied abstractions, 
+
+7
+00:00:42,100 --> 00:00:47,530
+the api which is provided by the operating system to the application to run
+
+8
+00:00:47,540 --> 00:00:48,210
+a process. 
+
+9
+00:00:50,140 --> 00:00:54,270
+We talk a bit quite a bit about the virtual memory, 
+
+10
+00:00:55,120 --> 00:00:56,130
+demand, paging,
+
+11
+00:00:56,140 --> 00:01:01,910
+how to manage the physical memory and about visualization. 
+
+12
+00:01:04,010 --> 00:01:08,590
+We also talk about synchronization and scheduling. 
+
+13
+00:01:11,340 --> 00:01:18,270
+So and how to manage the cpu resources and how to synchronize to have
+
+14
+00:01:18,280 --> 00:01:20,520
+multiple processes and multiple threads, 
+
+15
+00:01:22,160 --> 00:01:27,730
+accessing the same resources and how they can cooperate
+
+16
+00:01:28,310 --> 00:01:31,420
+in order to implement some more complex functionality. 
+
+17
+00:01:34,930 --> 00:01:41,700
+Now, one thing we haven't talked as my so far is about input and output.
+
+18
+00:01:42,230 --> 00:01:47,470
+Obviously, the input output is a fundamental part of any computer system,
+
+19
+00:01:47,480 --> 00:01:51,190
+because that's how we interact with the computers
+
+20
+00:01:51,200 --> 00:01:54,810
+through some input output devices, 
+
+21
+00:01:55,010 --> 00:01:56,860
+like keyboards, mouse,
+
+22
+00:01:57,840 --> 00:02:00,070
+cameras, and things like that.
+
+23
+00:02:00,690 --> 00:02:06,030
+And also this is how the computer itself interact with the environment
+
+24
+00:02:06,330 --> 00:02:09,820
+and with us displaying information on the screen, 
+
+25
+00:02:09,830 --> 00:02:10,700
+printing information. 
+
+26
+00:02:12,010 --> 00:02:13,120
+And other things like that. 
+
+27
+00:02:13,410 --> 00:02:14,770
+Right now, 
+
+28
+00:02:15,380 --> 00:02:17,500
+the biggest problem, this is,
+
+29
+00:02:17,970 --> 00:02:25,620
+what also makes this also this lecture a little bit may be harder, 
+
+30
+00:02:25,990 --> 00:02:35,420
+is that it's there a huge variety of this input output devices? 
+
+31
+00:02:35,430 --> 00:02:35,960
+Like, actually,
+
+32
+00:02:35,970 --> 00:02:38,930
+if you think about others like memory memory is pretty simple. 
+
+33
+00:02:38,940 --> 00:02:41,640
+It's an ra of addressable bytes. 
+
+34
+00:02:42,040 --> 00:02:42,240
+Right? 
+
+35
+00:02:42,250 --> 00:02:43,560
+That's pretty much what it is. 
+
+36
+00:02:44,440 --> 00:02:46,750
+If you think about the cp us and so forth, 
+
+37
+00:02:47,000 --> 00:02:48,270
+from our perspective, 
+
+38
+00:02:48,880 --> 00:02:56,700
+it's a it's a resource which we want to probably time slice in time slice. 
+
+39
+00:02:57,130 --> 00:02:59,600
+So then we can visualize it. 
+
+40
+00:02:59,610 --> 00:03:07,480
+So he created the illusion that every process has access to its own machine, 
+
+41
+00:03:07,490 --> 00:03:08,380
+virtual machine. 
+
+42
+00:03:11,460 --> 00:03:14,870
+But if you look about input output devices, 
+
+43
+00:03:14,880 --> 00:03:17,110
+this is a huge variety. 
+
+44
+00:03:17,440 --> 00:03:20,190
+And not only in terms of the sizes, 
+
+45
+00:03:20,200 --> 00:03:23,910
+not only in terms of the speed they operated. 
+
+46
+00:03:24,500 --> 00:03:30,880
+You can have a networking which is hundreds of garbage per second versus keyboard, 
+
+47
+00:03:30,890 --> 00:03:32,400
+which is one character, 
+
+48
+00:03:32,410 --> 00:03:34,520
+but whatever second. 
+
+49
+00:03:35,600 --> 00:03:39,620
+But also in terms of reliability, 
+
+50
+00:03:40,440 --> 00:03:41,670
+in some cases, 
+
+51
+00:03:41,910 --> 00:03:45,590
+you can lose information like packets on the network can be lost. 
+
+52
+00:03:46,040 --> 00:03:48,950
+So you need to recover in all aspects. 
+
+53
+00:03:48,960 --> 00:03:51,070
+In low dimension, you have a huge variety.
+
+54
+00:03:51,600 --> 00:03:51,970
+Yet, 
+
+55
+00:03:51,980 --> 00:03:57,780
+the operating system needs to cope with this variety in a reasonable way. 
+
+56
+00:03:58,030 --> 00:03:58,180
+Right? 
+
+57
+00:03:58,190 --> 00:04:00,100
+You don't want to be exposed. 
+
+58
+00:04:00,400 --> 00:04:01,490
+And what that means, 
+
+59
+00:04:01,910 --> 00:04:03,420
+you don't want your program. 
+
+60
+00:04:03,430 --> 00:04:07,660
+You when you are developing a program to think about each
+
+61
+00:04:07,670 --> 00:04:09,780
+of these input devices in a different way. 
+
+62
+00:04:13,520 --> 00:04:17,140
+And this is the role of the operating system. 
+
+63
+00:04:17,150 --> 00:04:21,790
+Again, despite this huge variety to provide us with an interface,
+
+64
+00:04:23,140 --> 00:04:30,430
+which is a reasonable sculpt, 
+
+65
+00:04:31,260 --> 00:04:34,690
+you can make sense of it. 
+
+66
+00:04:35,170 --> 00:04:40,460
+And you don't need to think about different concepts. 
+
+67
+00:04:40,470 --> 00:04:43,940
+So you are going to operate a different diode for entire devices. 
+
+68
+00:04:45,570 --> 00:04:46,920
+A if you remember, 
+
+69
+00:04:46,930 --> 00:04:52,040
+this is a figure we have shown a few times in the past. 
+
+70
+00:04:52,470 --> 00:04:54,320
+And here, 
+
+71
+00:04:54,330 --> 00:04:56,200
+this produce protection boundaries, 
+
+72
+00:04:56,210 --> 00:04:57,640
+which is down here. 
+
+73
+00:04:57,930 --> 00:05:05,190
+It's also abstract away this input output devices. 
+
+74
+00:05:09,010 --> 00:05:14,100
+Today, we are going to talk about how you are going to get the empire,
+
+75
+00:05:15,250 --> 00:05:20,990
+how you are going to get this kind of input from these devices. 
+
+76
+00:05:21,000 --> 00:05:23,150
+And eventually, where do you need to get this input?
+
+77
+00:05:23,620 --> 00:05:24,930
+This input from these devices, 
+
+78
+00:05:24,940 --> 00:05:26,090
+you need to put in memory, 
+
+79
+00:05:28,390 --> 00:05:31,700
+because your program in order to operate the input, 
+
+80
+00:05:32,710 --> 00:05:34,990
+it has to find the input in memory, 
+
+81
+00:05:35,000 --> 00:05:37,350
+because the program operates only on data in memory. 
+
+82
+00:05:40,920 --> 00:05:43,700
+And that's pretty much it. 
+
+83
+00:05:43,710 --> 00:05:46,420
+Now this is one example, 
+
+84
+00:05:46,430 --> 00:05:47,740
+and this is an old example. 
+
+85
+00:05:48,710 --> 00:05:49,940
+Many years back, 
+
+86
+00:05:50,580 --> 00:05:52,950
+this is from sun enterprise, again, sun.
+
+87
+00:05:52,960 --> 00:05:56,620
+It was a big company of workstations. 
+
+88
+00:05:58,330 --> 00:06:03,750
+It was acquired many years back by order. 
+
+89
+00:06:04,840 --> 00:06:07,260
+But in the headache, this was aa great company.
+
+90
+00:06:08,980 --> 00:06:14,350
+And if you think about the devices and only looking in terms of the speed, 
+
+91
+00:06:14,730 --> 00:06:16,920
+you have keyboards, like I mentioned,
+
+92
+00:06:16,930 --> 00:06:22,170
+and the system bus is learning the system bus on the machine, 
+
+93
+00:06:22,180 --> 00:06:25,880
+which connects different devices, 
+
+94
+00:06:25,890 --> 00:06:31,690
+which are in the same enclosure on the machine, like, for instance,
+
+95
+00:06:32,130 --> 00:06:32,980
+this storage. 
+
+96
+00:06:33,310 --> 00:06:34,230
+And things like that. 
+
+97
+00:06:35,020 --> 00:06:37,850
+There are differences to others of manager. 
+
+98
+00:06:37,860 --> 00:06:40,970
+So you need to provide interfaces which can cope
+
+99
+00:06:40,980 --> 00:06:45,840
+with such a huge variation of
+
+100
+00:06:47,250 --> 00:06:47,920
+in the speed. 
+
+101
+00:06:51,370 --> 00:06:57,300
+So this means that you need to have something which works very well. 
+
+102
+00:06:59,030 --> 00:07:01,190
+When you have high throughput, 
+
+103
+00:07:02,180 --> 00:07:08,630
+the overhead for transfer per byte should be very low at the same time. 
+
+104
+00:07:08,950 --> 00:07:11,240
+You shouldn't, if it's something very slow,
+
+105
+00:07:11,970 --> 00:07:16,170
+you shouldn't just waste time waiting for the flow slowly basis. 
+
+106
+00:07:16,180 --> 00:07:16,450
+Right? 
+
+107
+00:07:16,460 --> 00:07:17,010
+It's like, 
+
+108
+00:07:17,580 --> 00:07:20,090
+if something happens one per second, you cannot wait.
+
+109
+00:07:20,450 --> 00:07:21,150
+Once. 
+
+110
+00:07:21,560 --> 00:07:23,430
+For the entire second, we get on corrupt.
+
+111
+00:07:26,330 --> 00:07:28,200
+This is another way to look about. 
+
+112
+00:07:28,210 --> 00:07:31,320
+And this is to put everything in one picture about what we learned
+
+113
+00:07:31,330 --> 00:07:33,400
+so far and what we are going to learn today. 
+
+114
+00:07:34,290 --> 00:07:36,160
+On the left hand side, you have the processor.
+
+115
+00:07:36,170 --> 00:07:43,030
+And the processor obviously has the cpu but in addition to cpu has some storage, 
+
+116
+00:07:44,440 --> 00:07:44,640
+right? 
+
+117
+00:07:44,890 --> 00:07:46,960
+The storage is comes into registers. 
+
+118
+00:07:47,960 --> 00:07:49,750
+Then a bunch of caches, 
+
+119
+00:07:50,040 --> 00:07:51,540
+l one and l two cache, 
+
+120
+00:07:51,850 --> 00:07:53,460
+which added to the start better core. 
+
+121
+00:07:53,780 --> 00:07:58,790
+And then you have another three cash and the three cash typically shared
+
+122
+00:07:58,800 --> 00:08:00,030
+across multiple course. 
+
+123
+00:08:01,510 --> 00:08:04,620
+Then you have memory and secondary storage, 
+
+124
+00:08:04,630 --> 00:08:09,400
+and maybe another tertiary storage or and so forth. 
+
+125
+00:08:09,410 --> 00:08:09,720
+Right? 
+
+126
+00:08:12,520 --> 00:08:16,950
+And the is the difference between this kind of story. 
+
+127
+00:08:16,960 --> 00:08:17,350
+Generally. 
+
+128
+00:08:17,360 --> 00:08:22,740
+It's obviously like going from registers all away from this to disk storage. 
+
+129
+00:08:23,750 --> 00:08:24,940
+You have, 
+
+130
+00:08:25,460 --> 00:08:28,580
+at each level, is much larger capacity,
+
+131
+00:08:28,910 --> 00:08:30,420
+but also highlight latest. 
+
+132
+00:08:31,180 --> 00:08:31,360
+Right? 
+
+133
+00:08:31,370 --> 00:08:32,480
+So we learn about that. 
+
+134
+00:08:33,420 --> 00:08:35,610
+We learned that about cashing, 
+
+135
+00:08:35,620 --> 00:08:36,690
+we learned about demand, 
+
+136
+00:08:36,700 --> 00:08:38,130
+paging and so forth. 
+
+137
+00:08:38,960 --> 00:08:42,020
+In addition to that here on the top with a yellow, 
+
+138
+00:08:42,330 --> 00:08:46,970
+you have all these devices, 
+
+139
+00:08:47,470 --> 00:08:48,700
+which, again,
+
+140
+00:08:48,710 --> 00:08:51,310
+needs to be available the data, 
+
+141
+00:08:51,320 --> 00:08:55,150
+which is read from these devices to be available to processor. 
+
+142
+00:08:55,950 --> 00:08:59,510
+And then for the processor to write the data to these devices, 
+
+143
+00:08:59,520 --> 00:09:03,800
+like the storage to screen to for you to see an image. 
+
+144
+00:09:04,690 --> 00:09:06,180
+And typically, 
+
+145
+00:09:06,190 --> 00:09:08,060
+all these devices are, 
+
+146
+00:09:08,820 --> 00:09:10,040
+they have a controller. 
+
+147
+00:09:10,600 --> 00:09:13,900
+This controller is what the name implies, 
+
+148
+00:09:14,210 --> 00:09:15,330
+control these devices, 
+
+149
+00:09:15,340 --> 00:09:16,930
+because these devices are different. 
+
+150
+00:09:17,220 --> 00:09:18,320
+In some sense, 
+
+151
+00:09:18,330 --> 00:09:20,960
+this yellow box provides magical interface, 
+
+152
+00:09:21,690 --> 00:09:26,990
+which is reasonably uniform across all the devices to the processor
+
+153
+00:09:27,000 --> 00:09:28,190
+and to the programmer. 
+
+154
+00:09:28,630 --> 00:09:31,140
+But in the bank is doing this heavy, leafy,
+
+155
+00:09:31,150 --> 00:09:35,900
+doing uniformly sap is by dealing with such a heterogeneous, 
+
+156
+00:09:36,240 --> 00:09:37,360
+a set of devices. 
+
+157
+00:09:42,700 --> 00:09:43,250
+Now, 
+
+158
+00:09:43,260 --> 00:09:47,530
+let's look a little bit into more details to see how things are on a computer. 
+
+159
+00:09:48,830 --> 00:09:50,870
+This is what you have on your computer. 
+
+160
+00:09:50,880 --> 00:09:53,470
+This is actually on your laptop or ipad. 
+
+161
+00:09:53,740 --> 00:09:55,340
+At some level, this is what you have.
+
+162
+00:09:56,110 --> 00:09:56,750
+Okay? 
+
+163
+00:09:57,020 --> 00:09:59,970
+And you have a processor. 
+
+164
+00:09:59,980 --> 00:10:01,050
+Obviously, 
+
+165
+00:10:03,090 --> 00:10:04,970
+we may have agp us. 
+
+166
+00:10:04,980 --> 00:10:06,590
+You might have another card here. 
+
+167
+00:10:08,080 --> 00:10:09,550
+You have some storage devices, 
+
+168
+00:10:09,560 --> 00:10:10,870
+you may have big speakers, 
+
+169
+00:10:10,880 --> 00:10:12,670
+internal and external speakers. 
+
+170
+00:10:13,110 --> 00:10:14,530
+You may have a printers, 
+
+171
+00:10:14,980 --> 00:10:18,840
+the keyboards, you have the monitor and many more.
+
+172
+00:10:19,300 --> 00:10:19,700
+Right? 
+
+173
+00:10:20,160 --> 00:10:20,510
+Again, 
+
+174
+00:10:20,520 --> 00:10:26,010
+you need to take all this information from these devices to get into process, 
+
+175
+00:10:26,290 --> 00:10:27,820
+and then to write back information, 
+
+176
+00:10:27,830 --> 00:10:29,470
+at least to some devices. 
+
+177
+00:10:29,730 --> 00:10:30,590
+Some of these devices, 
+
+178
+00:10:30,880 --> 00:10:33,850
+they can only do write back information to the keyboard. 
+
+179
+00:10:33,860 --> 00:10:36,060
+It's only an input device as a printer. 
+
+180
+00:10:36,070 --> 00:10:37,300
+It's only an output device. 
+
+181
+00:10:39,250 --> 00:10:40,280
+How do you connect them? 
+
+182
+00:10:40,800 --> 00:10:41,020
+Right? 
+
+183
+00:10:41,110 --> 00:10:42,460
+First of all, how you hire them?
+
+184
+00:10:43,960 --> 00:10:47,180
+It turns out that the way you hire them is through this bus, 
+
+185
+00:10:47,190 --> 00:10:48,220
+you have a bus. 
+
+186
+00:10:48,720 --> 00:10:49,150
+Right? 
+
+187
+00:10:49,520 --> 00:10:51,150
+Everything goes to a bus, 
+
+188
+00:10:51,770 --> 00:10:55,900
+everything, including actually even the memory on the machine.
+
+189
+00:10:56,520 --> 00:10:58,800
+And the data is sent through this bus. 
+
+190
+00:11:01,440 --> 00:11:03,870
+This is how you get the data into the processors. 
+
+191
+00:11:03,880 --> 00:11:06,830
+This is how you get the data out of the processors through one bus. 
+
+192
+00:11:08,220 --> 00:11:10,810
+And more precisely, 
+
+193
+00:11:10,820 --> 00:11:16,840
+what is a bus is represent the set of specifications. 
+
+194
+00:11:17,460 --> 00:11:22,970
+You specify how many wires they have. 
+
+195
+00:11:23,300 --> 00:11:24,610
+It has, 
+
+196
+00:11:26,220 --> 00:11:29,620
+and how you connect to it. 
+
+197
+00:11:30,160 --> 00:11:32,760
+And then on top of that, 
+
+198
+00:11:32,770 --> 00:11:36,530
+it has to provide an api read, write,
+
+199
+00:11:36,540 --> 00:11:38,570
+how do you read and write from this bus? 
+
+200
+00:11:39,570 --> 00:11:46,080
+And you also have how you are going to address a particular device
+
+201
+00:11:47,220 --> 00:11:48,770
+for the particular device. 
+
+202
+00:11:49,170 --> 00:11:52,410
+You also have not only data reading data, 
+
+203
+00:11:52,420 --> 00:11:56,290
+but you have also control data, right?
+
+204
+00:11:56,300 --> 00:11:58,570
+Like, for instance, for a disk, like you'll see,
+
+205
+00:11:58,580 --> 00:12:02,500
+you need to tell the disk where a particular block is on the disk
+
+206
+00:12:02,510 --> 00:12:05,300
+to read or to write. 
+
+207
+00:12:05,310 --> 00:12:05,460
+Right? 
+
+208
+00:12:05,470 --> 00:12:09,690
+This is happening is the counter control lines. 
+
+209
+00:12:10,100 --> 00:12:10,410
+Right? 
+
+210
+00:12:10,420 --> 00:12:11,810
+And the controller, 
+
+211
+00:12:11,820 --> 00:12:16,950
+like you see the yellow box is going to decide and instruct using
+
+212
+00:12:16,960 --> 00:12:17,910
+the control line, 
+
+213
+00:12:18,230 --> 00:12:22,980
+a device what to do and what to get the data from or to write the data to. 
+
+214
+00:12:26,520 --> 00:12:28,890
+And then there is also the protocol. 
+
+215
+00:12:29,580 --> 00:12:33,860
+You have multiple devices which are going to send the data on the same bus. 
+
+216
+00:12:34,450 --> 00:12:35,480
+What do you need to do? 
+
+217
+00:12:36,050 --> 00:12:36,480
+Right? 
+
+218
+00:12:36,490 --> 00:12:38,800
+Not all of them can send the data at the same time. 
+
+219
+00:12:39,840 --> 00:12:40,870
+In general, 
+
+220
+00:12:40,880 --> 00:12:46,350
+you have only one device being able to send data on the bus at a given time. 
+
+221
+00:12:46,690 --> 00:12:49,560
+This means that you need to arbitrate if more than 1 device, 
+
+222
+00:12:49,570 --> 00:12:52,200
+1% the data on the bus at the same time, 
+
+223
+00:12:52,440 --> 00:12:55,680
+they need to arbitrate who is going to be allowed to send and who
+
+224
+00:12:55,690 --> 00:12:56,440
+is going to wait. 
+
+225
+00:13:01,440 --> 00:13:02,490
+Okay, and of course,
+
+226
+00:13:03,450 --> 00:13:08,220
+you are the devices here I will chat again, 
+
+227
+00:13:08,230 --> 00:13:10,700
+remember about they are very different in speed. 
+
+228
+00:13:11,040 --> 00:13:15,990
+The devices which are the close to the processor like memory, 
+
+229
+00:13:16,000 --> 00:13:17,910
+like things like that. 
+
+230
+00:13:17,920 --> 00:13:19,030
+They are very, very fast,
+
+231
+00:13:19,040 --> 00:13:20,510
+the one which are very remote. 
+
+232
+00:13:21,430 --> 00:13:30,070
+I must slower like say keyboard or printer. 
+
+233
+00:13:31,350 --> 00:13:32,860
+Now why a bus, 
+
+234
+00:13:32,870 --> 00:13:34,260
+this and this is very important? 
+
+235
+00:13:35,430 --> 00:13:37,470
+It may seems that this is obvious. 
+
+236
+00:13:38,040 --> 00:13:39,150
+It's a bus, right?
+
+237
+00:13:39,570 --> 00:13:41,770
+But think about what is the alternative. 
+
+238
+00:13:41,780 --> 00:13:43,730
+So an obvious alternative here, 
+
+239
+00:13:44,140 --> 00:13:47,260
+it will be to connect every device to the processor. 
+
+240
+00:13:47,790 --> 00:13:48,250
+Right? 
+
+241
+00:13:48,830 --> 00:13:51,140
+If the two devices have to communicate among themselves, 
+
+242
+00:13:51,670 --> 00:13:53,580
+you're also going to connect between them. 
+
+243
+00:13:54,570 --> 00:13:56,890
+The problem is that then you are going to have, 
+
+244
+00:13:57,140 --> 00:13:58,330
+in the worst case, 
+
+245
+00:13:58,340 --> 00:14:04,450
+you have any devices and you can have all n square connection. 
+
+246
+00:14:04,460 --> 00:14:05,570
+You don't want that. 
+
+247
+00:14:05,580 --> 00:14:06,650
+It's very complicated. 
+
+248
+00:14:08,980 --> 00:14:11,020
+So that's why what you want. 
+
+249
+00:14:11,030 --> 00:14:13,500
+You have this bus and everyone is connected to the bus, 
+
+250
+00:14:13,510 --> 00:14:14,980
+and then you is beautiful. 
+
+251
+00:14:14,990 --> 00:14:17,580
+Then you multiply that the bus in time. 
+
+252
+00:14:18,240 --> 00:14:22,730
+But the problem is that if you multiplexing time, 
+
+253
+00:14:22,990 --> 00:14:25,860
+then it may be very inefficient, because remember,
+
+254
+00:14:25,870 --> 00:14:28,900
+all these devices have very different speeds. 
+
+255
+00:14:29,150 --> 00:14:31,230
+So like, for instance,
+
+256
+00:14:31,240 --> 00:14:34,870
+if i'm going the keyboard right, 
+
+257
+00:14:34,880 --> 00:14:36,700
+is like a key, right?
+
+258
+00:14:36,710 --> 00:14:39,350
+You click a key and it takes a game. 
+
+259
+00:14:39,360 --> 00:14:40,830
+It's like every 1 second. 
+
+260
+00:14:41,580 --> 00:14:45,010
+It's very inefficient way of that bus, right?
+
+261
+00:14:46,440 --> 00:14:47,710
+Because in the same time, 
+
+262
+00:14:48,360 --> 00:14:49,510
+you may send, 
+
+263
+00:14:49,520 --> 00:14:51,910
+if from memory, 
+
+264
+00:14:52,180 --> 00:14:55,370
+you can send hundreds of garbage per second, garbage per second,
+
+265
+00:14:55,380 --> 00:15:03,160
+or or which means a few tons of gigabytes per second. 
+
+266
+00:15:04,370 --> 00:15:05,920
+So it's very inefficient. 
+
+267
+00:15:06,240 --> 00:15:09,000
+Like you don't if you have slow devices, 
+
+268
+00:15:09,010 --> 00:15:10,800
+very inefficient for very fast devices. 
+
+269
+00:15:13,370 --> 00:15:20,020
+And that's one of the big problems advantage against simplicity. 
+
+270
+00:15:20,030 --> 00:15:21,260
+Everyone connects to it. 
+
+271
+00:15:22,130 --> 00:15:26,480
+The standard bus is today's, 
+
+272
+00:15:26,490 --> 00:15:30,000
+but it's pci is called peripheral component interconnect. 
+
+273
+00:15:30,610 --> 00:15:33,720
+It started as a parallel bus, 
+
+274
+00:15:33,730 --> 00:15:41,240
+meaning that at one device at a time is going to use to be able to send data, 
+
+275
+00:15:41,250 --> 00:15:43,840
+and it can send data in parallel if he sends. 
+
+276
+00:15:44,170 --> 00:15:50,570
+And the weights of the bus represents how many beats you can send in parallel. 
+
+277
+00:15:50,820 --> 00:15:53,960
+For instance, if you have128 beats,
+
+278
+00:15:53,970 --> 00:15:58,440
+this means that you are going to be able to send in 1 clock cycle, 
+
+279
+00:15:58,450 --> 00:15:59,640
+128beats, 
+
+280
+00:16:02,510 --> 00:16:08,340
+and multiply this bus like we discussed. 
+
+281
+00:16:08,350 --> 00:16:09,700
+But now is a problem. 
+
+282
+00:16:09,830 --> 00:16:11,340
+If it's a slow device, 
+
+283
+00:16:11,600 --> 00:16:16,340
+then you are going to yours. 
+
+284
+00:16:16,350 --> 00:16:17,860
+And also he doesn't have, 
+
+285
+00:16:17,870 --> 00:16:20,300
+he sends only eight beats while the bus, 
+
+286
+00:16:20,310 --> 00:16:21,660
+so it's 128 beats. 
+
+287
+00:16:21,870 --> 00:16:26,530
+You are going to waste on 20 beats while this device is alone using the bus
+
+288
+00:16:27,160 --> 00:16:28,750
+for sending just eight beats. 
+
+289
+00:16:30,000 --> 00:16:33,060
+I'm going to stop here. 
+
+290
+00:16:33,070 --> 00:16:39,270
+Any questions about so far? 
+
+291
+00:16:43,530 --> 00:16:46,000
+So this is a little bit, again,
+
+292
+00:16:46,010 --> 00:16:47,040
+it's like very descriptive, 
+
+293
+00:16:47,050 --> 00:16:48,080
+a lot of heterogeneity. 
+
+294
+00:16:48,090 --> 00:16:49,640
+So maybe a little bit boring, 
+
+295
+00:16:49,650 --> 00:16:50,680
+but it'll change. 
+
+296
+00:16:51,510 --> 00:16:54,990
+So now,  You may have heard about pci express bus.
+
+297
+00:16:55,240 --> 00:16:55,950
+What is this? 
+
+298
+00:16:55,960 --> 00:16:56,190
+Again? 
+
+299
+00:16:56,200 --> 00:16:58,330
+The problem is that it's parallel. 
+
+300
+00:16:58,340 --> 00:16:59,210
+This is great. 
+
+301
+00:17:00,120 --> 00:17:06,000
+It's simple, but only one device can use at the same time.
+
+302
+00:17:06,010 --> 00:17:07,080
+And if it's a slow device, 
+
+303
+00:17:07,090 --> 00:17:09,200
+you waste so much time for the five devices. 
+
+304
+00:17:10,040 --> 00:17:12,660
+So pci express, it's pretty smart.
+
+305
+00:17:13,230 --> 00:17:15,650
+So it's no a longer parallel bus. 
+
+306
+00:17:15,660 --> 00:17:17,450
+You still have multiple lights, 
+
+307
+00:17:18,100 --> 00:17:20,280
+but there are serial channels. 
+
+308
+00:17:20,810 --> 00:17:21,950
+And you can, 
+
+309
+00:17:21,960 --> 00:17:29,230
+now a device can cures how many lines is going to send 2 years to send. 
+
+310
+00:17:29,840 --> 00:17:30,220
+Right? 
+
+311
+00:17:30,310 --> 00:17:31,620
+For instance, 
+
+312
+00:17:32,080 --> 00:17:36,720
+if you have a very slow device like the keyboard, 
+
+313
+00:17:37,230 --> 00:17:38,100
+the right, 
+
+314
+00:17:38,840 --> 00:17:41,200
+you can use to send everything going online, 
+
+315
+00:17:42,490 --> 00:17:42,750
+right? 
+
+316
+00:17:42,760 --> 00:17:48,270
+And you leave all the other lines for others like memory. 
+
+317
+00:17:48,480 --> 00:17:50,640
+But I have access to memory or the storage. 
+
+318
+00:17:53,290 --> 00:18:01,200
+So this allows the slow devices to share the pci bus with fast
+
+319
+00:18:01,210 --> 00:18:03,630
+devices in an efficient way. 
+
+320
+00:18:07,760 --> 00:18:14,560
+And again, the beauty of this of linux and eunuchs behind it be before it,
+
+321
+00:18:14,810 --> 00:18:19,700
+was that the ability to support all these, 
+
+322
+00:18:20,270 --> 00:18:23,900
+not only to migrate from bci to bci express, 
+
+323
+00:18:24,270 --> 00:18:30,280
+but again, to provide a pretty uniform interface across all these devices.
+
+324
+00:18:32,200 --> 00:18:32,630
+Okay? 
+
+325
+00:18:34,570 --> 00:18:38,690
+And also, the api itself remains the same, most, pretty much the same.
+
+326
+00:18:39,140 --> 00:18:40,910
+And this is quite amazing. 
+
+327
+00:18:41,210 --> 00:18:41,300
+Right? 
+
+328
+00:18:41,310 --> 00:18:42,140
+If you think about it, 
+
+329
+00:18:42,910 --> 00:18:47,170
+because unix, when I was designed unix,
+
+330
+00:18:47,830 --> 00:18:53,250
+I a lot of see things you have today. 
+
+331
+00:18:53,610 --> 00:18:55,550
+Maybe you are not available there. 
+
+332
+00:18:57,090 --> 00:19:00,360
+You didn't have gps for instance. 
+
+333
+00:19:01,090 --> 00:19:09,640
+I'm sure you didn't have a lot of this kind of game gaming inputs devices. 
+
+334
+00:19:09,890 --> 00:19:10,210
+Right? 
+
+335
+00:19:12,060 --> 00:19:14,170
+And many other things, right?
+
+336
+00:19:14,920 --> 00:19:15,930
+Despite that, 
+
+337
+00:19:18,150 --> 00:19:23,170
+we started to connect sinks to the computer to the to the computer, 
+
+338
+00:19:24,370 --> 00:19:31,470
+which are not envisioned when people designed the operating system
+
+339
+00:19:31,480 --> 00:19:32,630
+in the first place. 
+
+340
+00:19:33,820 --> 00:19:37,810
+The operating system are still being able to preserve the same api you
+
+341
+00:19:37,820 --> 00:19:42,030
+need to to implement controllers or drivers, 
+
+342
+00:19:42,830 --> 00:19:50,040
+which are going to provide so to support these devices and provide
+
+343
+00:19:50,050 --> 00:19:50,760
+the same kind of
+
+344
+00:19:50,770 --> 00:19:54,040
+abstraction like before, 
+
+345
+00:19:54,050 --> 00:19:54,490
+right? 
+
+346
+00:19:55,580 --> 00:19:56,670
+We'll talk more about that. 
+
+347
+00:19:57,110 --> 00:19:57,630
+Okay? 
+
+348
+00:19:59,350 --> 00:20:01,630
+Here is an example of the pc architecture. 
+
+349
+00:20:02,090 --> 00:20:05,850
+Today, you have apci number zero,
+
+350
+00:20:06,300 --> 00:20:08,330
+pci number zero here. 
+
+351
+00:20:10,130 --> 00:20:14,850
+And the this is very fast one. 
+
+352
+00:20:15,150 --> 00:20:17,030
+This is connected to the cpu. 
+
+353
+00:20:17,960 --> 00:20:21,670
+The cpu is also having a memory bastards around. 
+
+354
+00:20:22,310 --> 00:20:24,370
+Then there is apci breach here. 
+
+355
+00:20:24,380 --> 00:20:26,190
+You have another pci bus. 
+
+356
+00:20:26,490 --> 00:20:29,270
+This pci bus is a little bit typically slower. 
+
+357
+00:20:29,810 --> 00:20:34,800
+This is connects the storage devices, for instance,
+
+358
+00:20:36,230 --> 00:20:42,070
+a scandal and all the webcam mouse and keyboard. 
+
+359
+00:20:42,760 --> 00:20:50,370
+And then you have another british here from bci to a so isi it was
+
+360
+00:20:50,380 --> 00:20:52,010
+an older bus standard, 
+
+361
+00:20:52,020 --> 00:20:54,770
+so you still have devices. 
+
+362
+00:20:55,080 --> 00:20:55,970
+For instance, 
+
+363
+00:20:56,470 --> 00:21:01,540
+this hardest drives which support which implements this, 
+
+364
+00:21:02,840 --> 00:21:07,890
+stand out and come to connect to this isi bus. 
+
+365
+00:21:08,290 --> 00:21:09,520
+This is a bridge. 
+
+366
+00:21:09,530 --> 00:21:15,500
+So then you can use these devices on apspsppci architecture. 
+
+367
+00:21:22,500 --> 00:21:26,410
+So here let's go into a little bit more into a little bit more details. 
+
+368
+00:21:26,420 --> 00:21:30,300
+So how there's a processor that talk to all these devices. 
+
+369
+00:21:36,130 --> 00:21:39,760
+Here is about is acpu and you have the memory. 
+
+370
+00:21:40,430 --> 00:21:43,300
+You have a memory boss here. 
+
+371
+00:21:43,570 --> 00:21:51,380
+And now you have this is connected through a bus adapter to get
+
+372
+00:21:51,390 --> 00:21:53,860
+data from this device controller. 
+
+373
+00:21:54,140 --> 00:21:54,300
+Right? 
+
+374
+00:21:54,310 --> 00:21:57,060
+To remember each device has a controller. 
+
+375
+00:21:58,140 --> 00:22:00,180
+And to go to the device, 
+
+376
+00:22:00,190 --> 00:22:04,380
+you send the instructions about what data to get or to write. 
+
+377
+00:22:04,390 --> 00:22:10,150
+And the control is doing is talking with a device to get what the program
+
+378
+00:22:10,160 --> 00:22:10,750
+asked for. 
+
+379
+00:22:11,370 --> 00:22:12,280
+Right now, 
+
+380
+00:22:12,290 --> 00:22:16,800
+within a device controller is quite a device controller is quite complicated. 
+
+381
+00:22:16,810 --> 00:22:18,600
+Actually, many device controllers.
+
+382
+00:22:18,990 --> 00:22:20,260
+They have their own processors. 
+
+383
+00:22:20,270 --> 00:22:22,120
+So it's like their own computer. 
+
+384
+00:22:22,380 --> 00:22:22,540
+Right? 
+
+385
+00:22:22,550 --> 00:22:26,900
+They have arm processor and so forth to implement the program, 
+
+386
+00:22:27,190 --> 00:22:30,010
+which is going to control that device. 
+
+387
+00:22:31,520 --> 00:22:35,740
+We have a bus interface to send the data in and out to connect
+
+388
+00:22:35,750 --> 00:22:38,170
+to the other buses in the system. 
+
+389
+00:22:40,080 --> 00:22:41,110
+It has a memory. 
+
+390
+00:22:41,120 --> 00:22:42,310
+You can, for instance,
+
+391
+00:22:42,320 --> 00:22:47,520
+for doing for caching data. 
+
+392
+00:22:48,350 --> 00:22:48,460
+Right? 
+
+393
+00:22:48,470 --> 00:22:50,580
+For instance, when you send data to the printer,
+
+394
+00:22:51,060 --> 00:22:54,750
+you can assume that it's not like you send one by this printed, 
+
+395
+00:22:54,760 --> 00:22:56,370
+you send one by this printed. 
+
+396
+00:22:56,380 --> 00:22:56,640
+No, 
+
+397
+00:22:58,370 --> 00:23:01,750
+you send a lot almost the entire file. 
+
+398
+00:23:02,090 --> 00:23:03,300
+You can send the entire file, 
+
+399
+00:23:03,310 --> 00:23:06,580
+which is kind of store that is part of it in local memory, 
+
+400
+00:23:06,880 --> 00:23:08,350
+and then is spreading from there. 
+
+401
+00:23:08,780 --> 00:23:09,070
+Right? 
+
+402
+00:23:11,160 --> 00:23:13,190
+And then this is very important. 
+
+403
+00:23:13,200 --> 00:23:15,070
+You have a set of registers here, 
+
+404
+00:23:15,330 --> 00:23:18,300
+which these are the register storage. 
+
+405
+00:23:22,520 --> 00:23:30,410
+You you is there used to interact with this controller? 
+
+406
+00:23:30,720 --> 00:23:33,560
+They are used to tell us a controller what to do. 
+
+407
+00:23:34,300 --> 00:23:34,670
+Right? 
+
+408
+00:23:35,500 --> 00:23:37,060
+And read, 
+
+409
+00:23:37,070 --> 00:23:42,520
+write or configure to configure the control in a particular way. 
+
+410
+00:23:42,530 --> 00:23:45,800
+It's also to get the status of the controller. 
+
+411
+00:23:46,150 --> 00:23:48,300
+The status of the controller can be busy, right?
+
+412
+00:23:48,310 --> 00:23:49,380
+The printer is busy, 
+
+413
+00:23:50,000 --> 00:23:50,220
+right? 
+
+414
+00:23:50,230 --> 00:23:51,260
+Showing the status. 
+
+415
+00:23:51,650 --> 00:23:52,200
+Not sorry. 
+
+416
+00:23:52,470 --> 00:23:55,280
+This is the status of the device controlled by the control. 
+
+417
+00:23:58,930 --> 00:23:59,940
+Another important things, 
+
+418
+00:23:59,950 --> 00:24:00,960
+if you remember, 
+
+419
+00:24:00,970 --> 00:24:03,000
+we have this kind of interrupts, 
+
+420
+00:24:03,330 --> 00:24:04,930
+but I can remember about the interrupts. 
+
+421
+00:24:05,360 --> 00:24:09,640
+One of the main series of interactions is to react when something happens
+
+422
+00:24:09,650 --> 00:24:10,960
+in the external world. 
+
+423
+00:24:11,580 --> 00:24:19,520
+And one of the main use cases there is about when you have some data to get
+
+424
+00:24:19,530 --> 00:24:20,560
+from a device, 
+
+425
+00:24:21,210 --> 00:24:22,830
+from the network, for instance,
+
+426
+00:24:23,200 --> 00:24:27,260
+or when some device needs attention, 
+
+427
+00:24:28,160 --> 00:24:28,540
+right? 
+
+428
+00:24:29,390 --> 00:24:31,830
+That's what the interrupt control. 
+
+429
+00:24:31,840 --> 00:24:33,310
+And the value is. 
+
+430
+00:24:33,320 --> 00:24:35,510
+A controller is going to raise some interrupts. 
+
+431
+00:24:35,720 --> 00:24:38,870
+And the interrupts are if you remember the operating system, 
+
+432
+00:24:38,880 --> 00:24:40,110
+depending on the interrupt, 
+
+433
+00:24:40,460 --> 00:24:44,310
+is going to have an interrupt handler which is going to handle that internet. 
+
+434
+00:24:46,020 --> 00:24:46,300
+Right? 
+
+435
+00:24:46,310 --> 00:24:54,300
+The metal card has another controller has pack his new data is
+
+436
+00:24:54,310 --> 00:24:56,580
+going to interrupt to raise and interrupt. 
+
+437
+00:24:56,860 --> 00:25:01,560
+The os is going to handle that interrupt and is going to leave the data
+
+438
+00:25:01,570 --> 00:25:02,240
+from the control. 
+
+439
+00:25:06,880 --> 00:25:08,840
+Now, how do I interact?
+
+440
+00:25:08,850 --> 00:25:10,000
+How do I program? 
+
+441
+00:25:11,270 --> 00:25:12,180
+These controllers? 
+
+442
+00:25:13,340 --> 00:25:14,640
+There are two ways, 
+
+443
+00:25:15,650 --> 00:25:18,850
+both mapped io in and out instructions, 
+
+444
+00:25:19,170 --> 00:25:21,020
+basically here for the intel architecture. 
+
+445
+00:25:21,030 --> 00:25:24,340
+In particular, you have say out zero x 21.
+
+446
+00:25:24,470 --> 00:25:25,380
+This is an address. 
+
+447
+00:25:25,390 --> 00:25:29,280
+This is io so each io has its own address. 
+
+448
+00:25:29,570 --> 00:25:30,560
+Each and io each. 
+
+449
+00:25:30,570 --> 00:25:32,000
+Io device has its own address. 
+
+450
+00:25:32,970 --> 00:25:34,760
+Basically, out zero,
+
+451
+00:25:34,770 --> 00:25:43,640
+x one comma ail means that the content of register al is a register. 
+
+452
+00:25:43,650 --> 00:25:49,270
+So the content of that register will be written on that out at that address
+
+453
+00:25:49,280 --> 00:25:52,080
+to that output will be written to that output. 
+
+454
+00:25:53,070 --> 00:25:59,680
+And you have the corresponding in and from a particular port address. 
+
+455
+00:26:00,440 --> 00:26:09,760
+And then the data from that port is going to be written in registered air. 
+
+456
+00:26:10,040 --> 00:26:10,430
+For instance. 
+
+457
+00:26:13,880 --> 00:26:15,770
+So you have special instructions here, right?
+
+458
+00:26:16,050 --> 00:26:19,750
+And special addresses for these devices. 
+
+459
+00:26:21,230 --> 00:26:22,500
+On the other hand, 
+
+460
+00:26:22,510 --> 00:26:27,870
+you can have memory mapped io this is pretty cool. 
+
+461
+00:26:27,880 --> 00:26:32,290
+You basically reserve your configure some addresses in the memory is around. 
+
+462
+00:26:34,250 --> 00:26:34,780
+Okay? 
+
+463
+00:26:35,670 --> 00:26:41,430
+As and this being got connected to these input output devices. 
+
+464
+00:26:41,790 --> 00:26:42,300
+Okay? 
+
+465
+00:26:43,220 --> 00:26:44,690
+The only thing you do, 
+
+466
+00:26:44,700 --> 00:26:47,050
+you use load and store because it's memory. 
+
+467
+00:26:48,380 --> 00:26:53,970
+Load means if I am going to put the data there at that particular address, 
+
+468
+00:26:54,230 --> 00:26:58,630
+that data is going to be sent to the corresponding device. 
+
+469
+00:27:02,320 --> 00:27:03,630
+If I get, 
+
+470
+00:27:04,410 --> 00:27:09,640
+if I read the data from a particular address, 
+
+471
+00:27:10,290 --> 00:27:12,330
+which is memory mapped address, 
+
+472
+00:27:12,570 --> 00:27:16,150
+then i'm going to read data from the corresponding device. 
+
+473
+00:27:17,150 --> 00:27:17,700
+Make sense? 
+
+474
+00:27:19,930 --> 00:27:21,850
+This is an example of our memory map. 
+
+475
+00:27:22,880 --> 00:27:24,830
+This is really used for graphics. 
+
+476
+00:27:29,970 --> 00:27:31,580
+Typically, here,
+
+477
+00:27:32,830 --> 00:27:37,260
+what you have is that like your screen is a bit math, 
+
+478
+00:27:38,400 --> 00:27:38,690
+right? 
+
+479
+00:27:39,600 --> 00:27:40,110
+That right? 
+
+480
+00:27:40,550 --> 00:27:42,160
+So the screen, 
+
+481
+00:27:42,170 --> 00:27:44,560
+the control of a screen, 
+
+482
+00:27:46,170 --> 00:27:50,030
+see, the same memo have a region.
+
+483
+00:27:50,040 --> 00:27:53,090
+You devote a region of your ram. 
+
+484
+00:27:53,600 --> 00:27:55,790
+You devote to that to the screen. 
+
+485
+00:27:57,360 --> 00:28:04,290
+And when you are going and then when you are going to modify this memory, 
+
+486
+00:28:05,330 --> 00:28:06,760
+see what you modify. 
+
+487
+00:28:06,770 --> 00:28:08,040
+You see immediately on the script. 
+
+488
+00:28:12,010 --> 00:28:16,720
+So from here, display memory is from this address, 800, whatever,
+
+489
+00:28:18,580 --> 00:28:22,100
+10,000 to8,000, 
+
+490
+00:28:22,110 --> 00:28:23,700
+whatever f 000. 
+
+491
+00:28:24,080 --> 00:28:25,010
+This is a disclaimer. 
+
+492
+00:28:25,020 --> 00:28:26,370
+In addition to that, 
+
+493
+00:28:27,370 --> 00:28:28,890
+you may have also comment you, 
+
+494
+00:28:29,250 --> 00:28:36,660
+because you can provide some comments to the display, 
+
+495
+00:28:36,990 --> 00:28:38,020
+for instance, 
+
+496
+00:28:39,160 --> 00:28:46,070
+because you may have like higher level abstractions, 
+
+497
+00:28:46,080 --> 00:28:49,760
+rather than just writing and reading the writing individuals
+
+498
+00:28:49,770 --> 00:28:51,400
+in the individual bits, 
+
+499
+00:28:51,700 --> 00:28:52,810
+like, for instance,
+
+500
+00:28:53,240 --> 00:28:54,790
+generating triangles. 
+
+501
+00:28:55,070 --> 00:28:55,180
+Right? 
+
+502
+00:28:55,190 --> 00:28:59,380
+You are going to basically come and give a comment to the controller, 
+
+503
+00:28:59,390 --> 00:29:00,780
+which is a graphic card, 
+
+504
+00:29:01,170 --> 00:29:05,370
+is going to to generate this kind of, 
+
+505
+00:29:05,860 --> 00:29:10,470
+say, triangles to create much faster to render much faster,
+
+506
+00:29:11,590 --> 00:29:18,620
+some impressive objects. 
+
+507
+00:29:19,750 --> 00:29:20,230
+Okay? 
+
+508
+00:29:22,880 --> 00:29:23,630
+What this is one thing. 
+
+509
+00:29:23,640 --> 00:29:24,110
+So again, 
+
+510
+00:29:25,720 --> 00:29:27,510
+from in somebody here, 
+
+511
+00:29:28,280 --> 00:29:29,970
+in this very simple example, 
+
+512
+00:29:30,210 --> 00:29:33,400
+you are going to have a region on the ram, 
+
+513
+00:29:33,860 --> 00:29:36,040
+which is seen both by processor, 
+
+514
+00:29:36,530 --> 00:29:39,320
+and is seen by both and also by the controller, 
+
+515
+00:29:39,970 --> 00:29:42,150
+the the video controller. 
+
+516
+00:29:42,770 --> 00:29:43,080
+Right? 
+
+517
+00:29:44,110 --> 00:29:48,750
+And when you write when the processor rise to this address, 
+
+518
+00:29:48,990 --> 00:29:51,520
+go to this memory, 
+
+519
+00:29:52,280 --> 00:29:53,910
+you meet your seat on the screen. 
+
+520
+00:29:54,560 --> 00:29:54,830
+Right? 
+
+521
+00:29:57,710 --> 00:29:58,410
+So, 
+
+522
+00:29:59,930 --> 00:30:00,810
+any questions? 
+
+523
+00:30:11,250 --> 00:30:11,740
+Now, 
+
+524
+00:30:12,290 --> 00:30:14,960
+it turns out that today with this, 
+
+525
+00:30:14,970 --> 00:30:20,090
+everyone knows about gps graphical processing units and the gpu they
+
+526
+00:30:20,100 --> 00:30:21,490
+have actually their own memory. 
+
+527
+00:30:21,830 --> 00:30:23,440
+So is you don't have this sharing. 
+
+528
+00:30:24,170 --> 00:30:28,800
+The reason for that because the memory thing on because the memory is a tip
+
+529
+00:30:29,490 --> 00:30:33,130
+if the memory is on the gpu that is much faster. 
+
+530
+00:30:34,140 --> 00:30:37,670
+So you can render much, faster, much quicker.
+
+531
+00:30:38,330 --> 00:30:41,290
+That's one of the reasons this is for you to know. 
+
+532
+00:30:44,980 --> 00:30:48,870
+You can protect this memory regions using address translation like we know. 
+
+533
+00:30:51,840 --> 00:30:53,660
+Now here is an interesting thing. 
+
+534
+00:30:55,040 --> 00:30:55,950
+So far, 
+
+535
+00:30:55,960 --> 00:31:02,590
+we saw we told ii told you how it's that you have this processor and you
+
+536
+00:31:02,600 --> 00:31:03,710
+have all these other
+
+537
+00:31:03,720 --> 00:31:06,950
+storage devices and io devices around it, 
+
+538
+00:31:06,960 --> 00:31:08,390
+and they are connected by the bus. 
+
+539
+00:31:08,800 --> 00:31:11,830
+But if a look in the processor into a processor itself, 
+
+540
+00:31:11,840 --> 00:31:13,270
+you see some similar things, 
+
+541
+00:31:13,280 --> 00:31:15,310
+because in a processor is not a monolith. 
+
+542
+00:31:15,860 --> 00:31:17,300
+In a processor, remember,
+
+543
+00:31:17,600 --> 00:31:18,990
+you have multiple cars, 
+
+544
+00:31:19,350 --> 00:31:21,600
+you have multiple caches and so forth. 
+
+545
+00:31:22,060 --> 00:31:22,420
+How? 
+
+546
+00:31:22,430 --> 00:31:25,010
+And actually many cp us today, 
+
+547
+00:31:25,020 --> 00:31:27,690
+they'd also have graphic unit, right?
+
+548
+00:31:28,820 --> 00:31:30,290
+Or nearly unit, 
+
+549
+00:31:31,130 --> 00:31:33,070
+like some of the apple chips have. 
+
+550
+00:31:33,960 --> 00:31:34,230
+Right? 
+
+551
+00:31:36,530 --> 00:31:38,120
+And then how do you connect us? 
+
+552
+00:31:39,130 --> 00:31:42,020
+The answer is through a bus. 
+
+553
+00:31:42,490 --> 00:31:42,790
+Right? 
+
+554
+00:31:44,610 --> 00:31:45,000
+Okay. 
+
+555
+00:31:45,640 --> 00:31:46,410
+Again, it's like,
+
+556
+00:31:46,420 --> 00:31:51,040
+what you see is there outside outside the cpu it's
+
+557
+00:31:51,050 --> 00:31:54,390
+also pretty similar inside the cpu you have different components, 
+
+558
+00:31:54,400 --> 00:31:56,750
+like here are a few examples, like I mentioned.
+
+559
+00:31:57,440 --> 00:31:59,840
+They are connected by a bus, by the way,
+
+560
+00:31:59,850 --> 00:32:01,460
+adx is a software. 
+
+561
+00:32:01,690 --> 00:32:02,930
+Got extension. 
+
+562
+00:32:03,540 --> 00:32:04,970
+This is basically it's a software. 
+
+563
+00:32:04,980 --> 00:32:07,680
+It's a hard rank like for people of you, 
+
+564
+00:32:08,730 --> 00:32:11,740
+for people who took a security course, a class.
+
+565
+00:32:22,250 --> 00:32:24,560
+Then you are going to connect outside the city. 
+
+566
+00:32:24,570 --> 00:32:26,320
+You are going to connect to the memory, 
+
+567
+00:32:26,700 --> 00:32:28,490
+ddr this is a memory. 
+
+568
+00:32:28,770 --> 00:32:30,330
+And you are going also, 
+
+569
+00:32:30,340 --> 00:32:34,100
+you see here you are going to have aabci express. 
+
+570
+00:32:36,670 --> 00:32:40,710
+This is how you connect to the pci express to the rest of higher devices. 
+
+571
+00:32:45,700 --> 00:32:47,090
+Is another way to look at. 
+
+572
+00:32:47,100 --> 00:32:49,650
+This is against sky lake system configuration. 
+
+573
+00:32:49,660 --> 00:32:51,090
+This is the same chip here. 
+
+574
+00:32:51,100 --> 00:32:54,020
+It's pretty old, but today's on the ones.
+
+575
+00:32:54,030 --> 00:32:56,060
+So they are not very different. 
+
+576
+00:32:57,850 --> 00:33:02,340
+And you have you have here. 
+
+577
+00:33:02,580 --> 00:33:04,690
+Basically, you have,
+
+578
+00:33:06,400 --> 00:33:08,300
+this is a core. 
+
+579
+00:33:08,860 --> 00:33:12,330
+This is connected to memory. 
+
+580
+00:33:12,690 --> 00:33:14,840
+Then you have this pci express. 
+
+581
+00:33:15,430 --> 00:33:19,510
+It's again to directly connect to other io devices. 
+
+582
+00:33:20,020 --> 00:33:23,130
+And then you have this abridge, 
+
+583
+00:33:23,140 --> 00:33:29,220
+and you have another chip which connects to other io devices. 
+
+584
+00:33:29,630 --> 00:33:33,100
+Still, this is typically say these are a little bit slower devices,
+
+585
+00:33:33,910 --> 00:33:35,430
+in general, right?
+
+586
+00:33:36,010 --> 00:33:39,410
+Usb audio video line and so forth. 
+
+587
+00:33:40,620 --> 00:33:41,130
+So it's, again,
+
+588
+00:33:41,140 --> 00:33:49,060
+the same picture emphasizing this pattern of multiple components being
+
+589
+00:33:49,070 --> 00:33:52,050
+connected by bus fast buses. 
+
+590
+00:33:58,240 --> 00:33:59,190
+Any questions? 
+
+591
+00:34:11,680 --> 00:34:12,150
+Now, 
+
+592
+00:34:12,160 --> 00:34:17,150
+ii mentioned to you that one of the beauty and the successes
+
+593
+00:34:17,160 --> 00:34:20,980
+of eunuchs and linux, 
+
+594
+00:34:21,740 --> 00:34:30,790
+obviously, is that they were able to provide an api which remain pretty
+
+595
+00:34:30,800 --> 00:34:38,720
+much the same over time despite applauded proliferation of higher devices. 
+
+596
+00:34:40,180 --> 00:34:48,990
+And the reason for that is because obviously they got abstraction, 
+
+597
+00:34:50,700 --> 00:34:51,090
+right? 
+
+598
+00:34:51,940 --> 00:34:55,010
+And they already recognize early on, 
+
+599
+00:34:55,020 --> 00:34:56,930
+there are different type of devices, 
+
+600
+00:34:56,940 --> 00:35:01,250
+and they are going to handle these different with this device is slightly different. 
+
+601
+00:35:03,310 --> 00:35:07,990
+So how these devices are segmented. 
+
+602
+00:35:09,560 --> 00:35:15,830
+First Is data granality when I am going to read and write from a device. 
+
+603
+00:35:16,150 --> 00:35:20,760
+What is the granularity of the data I am going to use? 
+
+604
+00:35:20,770 --> 00:35:21,960
+Lowest granularity is like byte. 
+
+605
+00:35:21,970 --> 00:35:23,640
+In some case, there is a bit,
+
+606
+00:35:23,650 --> 00:35:24,840
+but it's rare is byte. 
+
+607
+00:35:25,590 --> 00:35:26,860
+You read 1 byte at a time, 
+
+608
+00:35:26,870 --> 00:35:28,060
+you write 1 byte at a time. 
+
+609
+00:35:29,710 --> 00:35:30,980
+But there are other devices, 
+
+610
+00:35:30,990 --> 00:35:33,980
+many other devices where you write at a higher gallery, 
+
+611
+00:35:34,810 --> 00:35:35,430
+like a block, 
+
+612
+00:35:36,490 --> 00:35:39,580
+like to disk, 
+
+613
+00:35:40,630 --> 00:35:42,340
+or reading or writing from a disk, 
+
+614
+00:35:43,070 --> 00:35:45,030
+or reading or writing from the network. 
+
+615
+00:35:47,000 --> 00:35:48,390
+It's a level of product. 
+
+616
+00:35:48,400 --> 00:35:49,230
+It's a pack. 
+
+617
+00:35:50,380 --> 00:35:53,880
+So now, let's make a little bit this class more interactive.
+
+618
+00:35:54,870 --> 00:35:56,790
+Why do you seeing that? 
+
+619
+00:35:59,020 --> 00:36:01,290
+Why bite is not enough? 
+
+620
+00:36:02,070 --> 00:36:07,400
+Why not just have the ability to read and write only at the background? 
+
+621
+00:36:07,410 --> 00:36:07,720
+Eric? 
+
+622
+00:36:11,390 --> 00:36:12,470
+Anyone can tell me? 
+
+623
+00:36:29,790 --> 00:36:31,190
+It's exactly ruth ban. 
+
+624
+00:36:36,080 --> 00:36:38,690
+And actually, and this is correct.
+
+625
+00:36:39,440 --> 00:36:43,370
+So if you're right and to read as a by granularity, 
+
+626
+00:36:44,220 --> 00:36:45,770
+then you need to. 
+
+627
+00:36:46,830 --> 00:36:50,850
+This means if you think about from the perspective, 
+
+628
+00:36:50,860 --> 00:36:53,720
+this is an api to the publication. 
+
+629
+00:36:54,960 --> 00:36:58,430
+And I want to read and write a bite. 
+
+630
+00:36:59,000 --> 00:37:01,750
+This translates to a system, 
+
+631
+00:37:01,760 --> 00:37:06,070
+call a system called translate to a context switch. 
+
+632
+00:37:07,470 --> 00:37:08,540
+The overhead, 
+
+633
+00:37:09,420 --> 00:37:09,950
+right? 
+
+634
+00:37:10,600 --> 00:37:14,640
+To read and write a bite is nontrivial, 
+
+635
+00:37:15,670 --> 00:37:16,060
+right? 
+
+636
+00:37:16,330 --> 00:37:18,890
+You cannot sustain, 
+
+637
+00:37:19,350 --> 00:37:23,010
+keep up with very fast io devices. 
+
+638
+00:37:25,960 --> 00:37:26,790
+So that's the reason. 
+
+639
+00:37:29,330 --> 00:37:32,540
+So bytes is fine for keyboard, 
+
+640
+00:37:33,530 --> 00:37:33,800
+right? 
+
+641
+00:37:36,570 --> 00:37:40,070
+But it's not going to be fine for ascending. 
+
+642
+00:37:41,660 --> 00:37:43,420
+They died doing a bit per second, 
+
+643
+00:37:45,930 --> 00:37:53,380
+because a fixed cost of send operation or receiving operation is too high. 
+
+644
+00:37:56,600 --> 00:37:59,860
+But they got it right from day one, 
+
+645
+00:37:59,870 --> 00:38:01,880
+because they have to support the disk. 
+
+646
+00:38:04,010 --> 00:38:09,390
+And the disk couldn't do it efficiently at byte level. 
+
+647
+00:38:09,400 --> 00:38:12,340
+So they have to have blocks good, 
+
+648
+00:38:16,800 --> 00:38:19,220
+access pattern, sequential versus random.
+
+649
+00:38:27,870 --> 00:38:32,100
+Some devices must be accessed sequentially if you have a tape and others
+
+650
+00:38:32,110 --> 00:38:32,620
+are random. 
+
+651
+00:38:36,060 --> 00:38:36,710
+Now, 
+
+652
+00:38:40,110 --> 00:38:47,900
+also, there are devices which are under this axis pattern beyond is like,
+
+653
+00:38:48,270 --> 00:38:51,060
+are you going and we are going to talk more about that? 
+
+654
+00:38:51,370 --> 00:38:56,640
+Do you need to monitor that I io device all the time to see what happens
+
+655
+00:38:56,650 --> 00:38:58,800
+where you are going to get interrupts when something happens? 
+
+656
+00:38:59,280 --> 00:38:59,300
+Right? 
+
+657
+00:38:59,310 --> 00:39:01,400
+Like with a keyboard or another card. 
+
+658
+00:39:03,070 --> 00:39:05,870
+But now let me ask you again, it's like, for instance,
+
+659
+00:39:05,880 --> 00:39:07,510
+of our sequential best to the random. 
+
+660
+00:39:07,770 --> 00:39:09,240
+Why not have only one? 
+
+661
+00:39:09,450 --> 00:39:10,570
+Forget about tape for now? 
+
+662
+00:39:10,850 --> 00:39:13,840
+Like remove tape because that restate is obvious, right?
+
+663
+00:39:13,850 --> 00:39:14,440
+It's like, 
+
+664
+00:39:15,110 --> 00:39:21,610
+is that you have to access data on the sequential. 
+
+665
+00:39:22,530 --> 00:39:23,570
+But even without that, 
+
+666
+00:39:24,350 --> 00:39:26,370
+tell me why not have random, right?
+
+667
+00:39:26,380 --> 00:39:29,390
+Because if I have random access pattern, 
+
+668
+00:39:30,140 --> 00:39:31,570
+then it does make sense. 
+
+669
+00:39:31,580 --> 00:39:33,810
+I I can emulate sequential, right?
+
+670
+00:39:35,030 --> 00:39:36,380
+I start from one, 
+
+671
+00:39:36,390 --> 00:39:37,900
+and then I say one. 
+
+672
+00:39:37,910 --> 00:39:42,460
+Now I want to get23456×323456. 
+
+673
+00:39:43,520 --> 00:39:45,420
+After all, in memory,
+
+674
+00:39:45,430 --> 00:39:46,540
+I have only random access. 
+
+675
+00:39:46,550 --> 00:39:47,660
+I don't have sequential assets. 
+
+676
+00:39:49,560 --> 00:39:50,900
+So why sequential access? 
+
+677
+00:39:51,780 --> 00:39:52,580
+Why not random? 
+
+678
+00:39:58,370 --> 00:39:58,960
+Yes, michael.
+
+679
+00:39:59,590 --> 00:40:00,090
+It's good. 
+
+680
+00:40:01,790 --> 00:40:08,990
+Because the random may involved some nontrivial overhead to locate
+
+681
+00:40:09,000 --> 00:40:10,710
+as a random piece of information. 
+
+682
+00:40:11,190 --> 00:40:11,570
+That's right. 
+
+683
+00:40:12,640 --> 00:40:13,840
+Like we'll see with the disks. 
+
+684
+00:40:15,070 --> 00:40:15,940
+Therefore, 
+
+685
+00:40:15,950 --> 00:40:20,710
+if I am going to store the the bytes and I can read or write them sequentially, 
+
+686
+00:40:20,720 --> 00:40:22,600
+it's going to be much faster. 
+
+687
+00:40:23,980 --> 00:40:26,000
+So you see, in both these cases,
+
+688
+00:40:29,160 --> 00:40:30,750
+you can get away only have read, 
+
+689
+00:40:30,760 --> 00:40:33,950
+writes as the level of byte and only accessing randomly. 
+
+690
+00:40:36,060 --> 00:40:39,820
+But you are going to leave a lot of performance off on the table. 
+
+691
+00:40:40,720 --> 00:40:45,170
+So block and sequential broken rightly and sequential access factor. 
+
+692
+00:40:45,820 --> 00:40:47,640
+One of the main reasons they are used, 
+
+693
+00:40:48,360 --> 00:40:51,290
+it's for performance reasons. 
+
+694
+00:40:51,300 --> 00:40:51,730
+Okay. 
+
+695
+00:40:55,740 --> 00:40:57,170
+Now, the transfer mechanics,
+
+696
+00:40:57,180 --> 00:41:02,300
+how is this program io or dma direct memory access? 
+
+697
+00:41:03,010 --> 00:41:03,420
+Program? 
+
+698
+00:41:03,430 --> 00:41:09,880
+Io means the processor takes a pipe from one device and transferred
+
+699
+00:41:09,890 --> 00:41:10,960
+to another device. 
+
+700
+00:41:11,930 --> 00:41:14,720
+Like, for instance, they think that they survive.
+
+701
+00:41:14,970 --> 00:41:22,910
+Trump takes a block of data from the disk and put it in memory is doing in
+
+702
+00:41:22,920 --> 00:41:26,580
+out and love stuff is simple. 
+
+703
+00:41:29,020 --> 00:41:31,430
+You can program everything through the computer. 
+
+704
+00:41:32,960 --> 00:41:36,470
+The disadvantage is that you are going to use acpu for doing that. 
+
+705
+00:41:36,480 --> 00:41:38,630
+You are going to consume these resources, 
+
+706
+00:41:38,850 --> 00:41:43,520
+just moving the rate around not doing useful or the second or is
+
+707
+00:41:43,530 --> 00:41:45,040
+direct memory access. 
+
+708
+00:41:46,510 --> 00:41:47,900
+And now this is a smartphone. 
+
+709
+00:41:48,580 --> 00:41:54,710
+In this case, you say you are going to deal with these two devices.
+
+710
+00:41:55,880 --> 00:41:59,070
+Basically, you are going to tell one controller from one device.
+
+711
+00:42:00,540 --> 00:42:03,930
+You have to transfer the data directly to this other peoples. 
+
+712
+00:42:05,320 --> 00:42:09,280
+This acpu is going to send instructions how the transfer should happen. 
+
+713
+00:42:09,870 --> 00:42:15,050
+But then the transfer happens between the devices without the city
+
+714
+00:42:15,060 --> 00:42:15,890
+of being involved. 
+
+715
+00:42:17,580 --> 00:42:18,650
+Here is an example. 
+
+716
+00:42:20,550 --> 00:42:23,740
+Typically, this is one of the devices is typically memory.
+
+717
+00:42:24,490 --> 00:42:24,970
+Right? 
+
+718
+00:42:25,620 --> 00:42:26,420
+Here, what happens?
+
+719
+00:42:26,430 --> 00:42:26,690
+Right? 
+
+720
+00:42:26,970 --> 00:42:29,390
+You have apci boss and what? 
+
+721
+00:42:29,400 --> 00:42:30,910
+And you have a memory. 
+
+722
+00:42:31,210 --> 00:42:32,790
+And here you have a disk. 
+
+723
+00:42:33,350 --> 00:42:35,550
+I want to transfer the data from the disk, 
+
+724
+00:42:35,560 --> 00:42:39,070
+the memory to read the data from the disk into memory. 
+
+725
+00:42:40,390 --> 00:42:41,470
+These are the steps. 
+
+726
+00:42:42,310 --> 00:42:43,470
+The cpu number one, 
+
+727
+00:42:43,480 --> 00:42:47,430
+the cpu is going to
+
+728
+00:42:52,680 --> 00:42:54,310
+the program starts to say, 
+
+729
+00:42:54,320 --> 00:42:56,730
+I want to read the data from the disk. 
+
+730
+00:42:57,760 --> 00:42:59,020
+Now, and there is a good,
+
+731
+00:42:59,330 --> 00:43:04,550
+the os is going to handle that and is going to send
+
+732
+00:43:04,560 --> 00:43:08,670
+a message control message to the idea is the controller. 
+
+733
+00:43:08,680 --> 00:43:10,190
+There is controller telling it, 
+
+734
+00:43:10,920 --> 00:43:18,310
+you need to to get this data to this address in the memoirs
+
+735
+00:43:20,730 --> 00:43:25,880
+address x now, 
+
+736
+00:43:25,890 --> 00:43:28,360
+the controller is going to tell this, 
+
+737
+00:43:28,730 --> 00:43:30,360
+I need to be to, 
+
+738
+00:43:30,370 --> 00:43:36,050
+iii was instructed to move this data to transfer this data to memory, 
+
+739
+00:43:36,060 --> 00:43:41,290
+to this address x now the dm might do that. 
+
+740
+00:43:41,300 --> 00:43:42,130
+You're doing the rest. 
+
+741
+00:43:42,140 --> 00:43:46,480
+The dma not the cpu is going to handle the transfer from the dis
+
+742
+00:43:46,490 --> 00:43:48,820
+controller to the bar to the memoir. 
+
+743
+00:43:51,090 --> 00:43:51,470
+Right? 
+
+744
+00:43:51,780 --> 00:43:55,760
+The dma is going to read the data from the id and then drive the data
+
+745
+00:43:55,770 --> 00:43:58,460
+on the cpu bus to the memory. 
+
+746
+00:44:02,140 --> 00:44:05,360
+Once the transfer is completed, 
+
+747
+00:44:05,730 --> 00:44:09,870
+the dma is going to send an interrupt to the cpo telling i'm ready. 
+
+748
+00:44:17,890 --> 00:44:18,650
+Any questions? 
+
+749
+00:44:24,820 --> 00:44:25,870
+Critical, right?
+
+750
+00:44:31,750 --> 00:44:35,430
+When do io devices are notifying the operating system? 
+
+751
+00:44:37,230 --> 00:44:37,630
+Right? 
+
+752
+00:44:38,790 --> 00:44:40,940
+Teresa tour when it was. 
+
+753
+00:44:44,590 --> 00:44:47,880
+The os think about from the os perspective, what do you need to know?
+
+754
+00:44:48,850 --> 00:44:51,520
+On one hand, you need to know if you are instructed,
+
+755
+00:44:51,530 --> 00:44:53,480
+you have instructed a controller, 
+
+756
+00:44:53,490 --> 00:44:56,350
+io controller to perform some operation. 
+
+757
+00:44:57,020 --> 00:45:00,020
+You want to know when that operation, whether that operate,
+
+758
+00:45:00,030 --> 00:45:01,460
+when that operation is as complete. 
+
+759
+00:45:04,160 --> 00:45:06,230
+The second is if there is an error, 
+
+760
+00:45:07,690 --> 00:45:08,060
+right? 
+
+761
+00:45:17,210 --> 00:45:18,370
+The like you mentioned, 
+
+762
+00:45:18,380 --> 00:45:22,880
+one way to handle that is I will interact whenever there is one
+
+763
+00:45:22,890 --> 00:45:25,280
+of these events that always needs to know about, 
+
+764
+00:45:27,490 --> 00:45:30,160
+the iod the io controller, raise an interrupt.
+
+765
+00:45:34,110 --> 00:45:35,010
+Why this is good? 
+
+766
+00:45:36,650 --> 00:45:38,240
+The cpu doesn't need to worry about. 
+
+767
+00:45:38,700 --> 00:45:40,610
+I'm going the cpu is going to. 
+
+768
+00:45:40,620 --> 00:45:48,430
+Now the divide the air controller is going or it's going to let the
+
+769
+00:45:48,440 --> 00:45:52,680
+cpu now and something worse knowing happens. 
+
+770
+00:45:55,080 --> 00:45:55,210
+Also, 
+
+771
+00:45:55,220 --> 00:46:00,130
+you can handle unpredictable events like a new packet arriving one another. 
+
+772
+00:46:02,160 --> 00:46:06,100
+The disadvantage is that the interacts are expensive. 
+
+773
+00:46:06,110 --> 00:46:07,260
+It's a contact switch. 
+
+774
+00:46:08,260 --> 00:46:09,850
+And when the city, 
+
+775
+00:46:11,940 --> 00:46:13,530
+when I raise and interrupt, 
+
+776
+00:46:15,410 --> 00:46:18,280
+maybe another are most likely a process, 
+
+777
+00:46:18,290 --> 00:46:19,920
+a user process was executed. 
+
+778
+00:46:21,250 --> 00:46:23,920
+You need to do a context switch to go to the operating system, 
+
+779
+00:46:26,280 --> 00:46:27,350
+handle the interrupt, 
+
+780
+00:46:27,360 --> 00:46:30,830
+and then to go back in the user mode to continue that running the process. 
+
+781
+00:46:34,150 --> 00:46:35,620
+The other one is falling. 
+
+782
+00:46:36,830 --> 00:46:38,380
+This is operating system, 
+
+783
+00:46:38,390 --> 00:46:42,340
+politically check a device specific status like, say,
+
+784
+00:46:42,640 --> 00:46:43,800
+to see why there is, right?
+
+785
+00:46:43,810 --> 00:46:47,250
+And I remember that ii show you his eye or controller. 
+
+786
+00:46:47,610 --> 00:46:49,710
+One of these register was called status, 
+
+787
+00:46:51,720 --> 00:46:53,930
+for instance, is going to be a printer.
+
+788
+00:46:53,940 --> 00:46:56,410
+I I want to know when the printer is done, 
+
+789
+00:46:57,710 --> 00:47:00,140
+when the printing is done, they can like that.
+
+790
+00:47:00,150 --> 00:47:01,290
+I can tell the user. 
+
+791
+00:47:01,780 --> 00:47:05,890
+The printer is that the whatever you send to the printer is that right? 
+
+792
+00:47:09,380 --> 00:47:10,410
+So in that case, 
+
+793
+00:47:10,930 --> 00:47:15,450
+the controller has this status register and it's going to be updated
+
+794
+00:47:15,860 --> 00:47:18,650
+and that the printer is no longer me
+
+795
+00:47:18,660 --> 00:47:22,450
+you busy when a file finish being printed. 
+
+796
+00:47:23,610 --> 00:47:26,730
+And then the os it's periodically going to check on that. 
+
+797
+00:47:27,420 --> 00:47:30,100
+And when he's no longer busy, 
+
+798
+00:47:30,110 --> 00:47:31,460
+is going to come to the application. 
+
+799
+00:47:33,000 --> 00:47:33,380
+Okay? 
+
+800
+00:47:34,920 --> 00:47:37,540
+Now, the pro here is low overhead,
+
+801
+00:47:38,200 --> 00:47:45,030
+because the os is going to check on this between context switches. 
+
+802
+00:47:46,340 --> 00:47:50,020
+It doesn't need to do a contact switch to just to check this one, 
+
+803
+00:47:50,030 --> 00:47:54,820
+the operating system gets the kernel gets controlled. 
+
+804
+00:47:55,340 --> 00:47:56,610
+It's also going to check this. 
+
+805
+00:47:57,080 --> 00:47:57,450
+Right? 
+
+806
+00:47:58,500 --> 00:48:02,480
+Now, the coins is that you check and nothing happens.
+
+807
+00:48:03,170 --> 00:48:04,390
+Then that's wasted time. 
+
+808
+00:48:04,950 --> 00:48:05,400
+Right? 
+
+809
+00:48:05,910 --> 00:48:06,870
+Cpu cycles. 
+
+810
+00:48:09,460 --> 00:48:11,320
+So now, 
+
+811
+00:48:12,020 --> 00:48:13,330
+typically or combines us, 
+
+812
+00:48:13,340 --> 00:48:15,090
+there is no right solution. 
+
+813
+00:48:15,100 --> 00:48:16,250
+That's why you have to both of them. 
+
+814
+00:48:16,260 --> 00:48:16,490
+Right? 
+
+815
+00:48:16,500 --> 00:48:18,210
+If you towards only one solution, 
+
+816
+00:48:18,900 --> 00:48:21,890
+ii why would have I told you about boss? 
+
+817
+00:48:23,050 --> 00:48:25,560
+But let me take a step back now and ask you, 
+
+818
+00:48:26,470 --> 00:48:28,540
+when are you going to use our interrupts? 
+
+819
+00:48:30,080 --> 00:48:33,540
+And there is a little bit of an answer here, 
+
+820
+00:48:34,180 --> 00:48:38,990
+but I just want you to give the answer in your own words. 
+
+821
+00:48:40,060 --> 00:48:41,970
+When do you think you should use our interrupts? 
+
+822
+00:48:42,320 --> 00:48:43,670
+When do you think you should use falling? 
+
+823
+00:48:48,040 --> 00:48:50,520
+Give me another this one example you have here on the slide, 
+
+824
+00:48:50,530 --> 00:48:51,640
+give me another example. 
+
+825
+00:49:06,210 --> 00:49:08,250
+Let me ask you keyboard, right?
+
+826
+00:49:08,260 --> 00:49:10,930
+Are you going to use polling or interrupts? 
+
+827
+00:49:16,330 --> 00:49:17,960
+Human eye offer interrupts? 
+
+828
+00:49:18,320 --> 00:49:19,250
+Okay, that's good.
+
+829
+00:49:20,230 --> 00:49:20,830
+Why is that? 
+
+830
+00:49:21,600 --> 00:49:30,520
+Why human I offer in drugs rare and slow? 
+
+831
+00:49:30,530 --> 00:49:34,800
+And is it here? 
+
+832
+00:49:35,300 --> 00:49:35,640
+Sorry, 
+
+833
+00:49:38,510 --> 00:49:39,330
+unpredictable. 
+
+834
+00:49:39,790 --> 00:49:40,130
+Right? 
+
+835
+00:49:40,140 --> 00:49:40,930
+It's unpredictable. 
+
+836
+00:49:40,940 --> 00:49:43,050
+If it's something unpredictable, 
+
+837
+00:49:43,060 --> 00:49:44,160
+it doesn't mean, 
+
+838
+00:49:44,430 --> 00:49:46,340
+but the excess to pull forever, right?
+
+839
+00:49:46,710 --> 00:49:47,900
+For something right to happen. 
+
+840
+00:49:50,420 --> 00:49:51,250
+Yes, said gilbert.
+
+841
+00:49:51,260 --> 00:49:54,210
+So you interrupt, falling, frequent, sinks, falling for stuff.
+
+842
+00:49:54,220 --> 00:49:55,490
+We need to continuously check. 
+
+843
+00:49:57,460 --> 00:49:58,050
+Yes or no? 
+
+844
+00:49:59,490 --> 00:50:01,010
+If something happens. 
+
+845
+00:50:06,490 --> 00:50:06,610
+Yeah, 
+
+846
+00:50:06,620 --> 00:50:11,700
+this for polling is someone you say this for polling sometimes actually you
+
+847
+00:50:11,710 --> 00:50:12,420
+don't use, 
+
+848
+00:50:12,430 --> 00:50:12,860
+we'll see, 
+
+849
+00:50:12,870 --> 00:50:15,960
+but it's not necessary that you are going to pull the disk
+
+850
+00:50:29,040 --> 00:50:30,110
+for the keyboard. 
+
+851
+00:50:30,120 --> 00:50:30,950
+Eventually. 
+
+852
+00:50:32,190 --> 00:50:32,950
+It's again, 
+
+853
+00:50:33,690 --> 00:50:36,930
+you have to use the internet because this is to tell the operating system
+
+854
+00:50:37,540 --> 00:50:39,730
+when some key keyboard is pressed. 
+
+855
+00:50:41,510 --> 00:50:46,950
+If you watch a movie for 2 hours or whatever on your computer, 
+
+856
+00:50:48,730 --> 00:50:49,820
+you don't type anything, 
+
+857
+00:50:50,330 --> 00:50:50,650
+right? 
+
+858
+00:50:50,660 --> 00:50:52,170
+Or zoom like right now. 
+
+859
+00:50:52,510 --> 00:50:53,450
+You got you right? 
+
+860
+00:50:53,910 --> 00:50:56,040
+You are listening to this lecture, 
+
+861
+00:50:56,820 --> 00:50:57,200
+right? 
+
+862
+00:50:57,400 --> 00:51:00,270
+I hope that you are not doing a lot of many things other than listening
+
+863
+00:51:00,280 --> 00:51:00,990
+to the lecture. 
+
+864
+00:51:01,670 --> 00:51:03,380
+But still right, it's like, if you're listening,
+
+865
+00:51:03,390 --> 00:51:06,220
+you don't touch it, don't tell the keyboard, so it's very rarely,
+
+866
+00:51:06,230 --> 00:51:11,540
+but doesn't make a lot of sense to pull where you pull when one
+
+867
+00:51:11,550 --> 00:51:13,540
+of the things the reason of your pool is like, 
+
+868
+00:51:13,890 --> 00:51:18,710
+in this example, when things happens extremely frequent,
+
+869
+00:51:20,220 --> 00:51:20,700
+right? 
+
+870
+00:51:21,270 --> 00:51:23,110
+Once you get, for instance, a packet here,
+
+871
+00:51:23,120 --> 00:51:25,550
+you get so many other packets on after another. 
+
+872
+00:51:25,980 --> 00:51:29,540
+You cannot afford to have a contact switching per packet. 
+
+873
+00:51:30,090 --> 00:51:36,960
+When the context switching is the overhead of context switching is larger, 
+
+874
+00:51:37,390 --> 00:51:42,030
+then the time between the events, 
+
+875
+00:51:42,930 --> 00:51:45,150
+it probably it's not worth to do contact switching. 
+
+876
+00:51:45,160 --> 00:51:47,900
+It does not means it is not worth to do it. 
+
+877
+00:51:49,300 --> 00:51:49,710
+Right? 
+
+878
+00:51:52,080 --> 00:51:53,350
+Let me put in another way, 
+
+879
+00:51:53,360 --> 00:51:57,220
+so it could say contact switching gets 1 millisecond and picking
+
+880
+00:51:57,230 --> 00:51:58,220
+some random number. 
+
+881
+00:51:58,840 --> 00:51:59,160
+Right? 
+
+882
+00:51:59,170 --> 00:52:04,170
+And then say an event happens every 10 microns micro seconds. 
+
+883
+00:52:06,760 --> 00:52:08,250
+It makes no sense to go, 
+
+884
+00:52:09,170 --> 00:52:10,090
+interrupts for event. 
+
+885
+00:52:11,830 --> 00:52:12,060
+Right? 
+
+886
+00:52:12,070 --> 00:52:17,110
+We just fall to see for that. 
+
+887
+00:52:19,980 --> 00:52:20,390
+Okay. 
+
+888
+00:52:21,440 --> 00:52:24,320
+Very good. 
+
+889
+00:52:24,330 --> 00:52:30,040
+So this is a structure in the kernel. 
+
+890
+00:52:30,050 --> 00:52:31,080
+For the device. 
+
+891
+00:52:32,450 --> 00:52:35,490
+You have the system call in interface. 
+
+892
+00:52:36,140 --> 00:52:37,510
+We'll talk more about them, 
+
+893
+00:52:37,520 --> 00:52:41,050
+and you have some for memoir for. 
+
+894
+00:52:41,060 --> 00:52:43,090
+This is what we will learn for. 
+
+895
+00:52:43,420 --> 00:52:44,770
+We have process management, 
+
+896
+00:52:44,780 --> 00:52:45,810
+memory management, 
+
+897
+00:52:45,820 --> 00:52:46,850
+file systems. 
+
+898
+00:52:47,510 --> 00:52:49,470
+And then we have the device control. 
+
+899
+00:52:49,480 --> 00:52:51,390
+This is for io devices. 
+
+900
+00:52:51,400 --> 00:52:54,510
+And the networking typically is different enough. 
+
+901
+00:52:54,520 --> 00:52:57,590
+So the api also wanted to be slightly different. 
+
+902
+00:53:05,260 --> 00:53:14,160
+So the device control what it's when I say or so, 
+
+903
+00:53:15,450 --> 00:53:23,360
+the device controlled the controller who for the device, 
+
+904
+00:53:23,960 --> 00:53:26,620
+this is typically implemented on the device itself. 
+
+905
+00:53:27,150 --> 00:53:31,750
+But this device now has to also interface with your operating system, 
+
+906
+00:53:32,240 --> 00:53:33,370
+the piece of software, 
+
+907
+00:53:33,940 --> 00:53:36,270
+which the piece of software, 
+
+908
+00:53:36,840 --> 00:53:39,030
+which bridges, 
+
+909
+00:53:39,770 --> 00:53:42,540
+the operating system, 
+
+910
+00:53:44,450 --> 00:53:47,720
+api with the controller, 
+
+911
+00:53:47,730 --> 00:53:52,090
+api is called device driver. 
+
+912
+00:53:53,540 --> 00:53:57,850
+And it's a piece of code which runs in the operating system is a cam. 
+
+913
+00:54:01,100 --> 00:54:03,490
+Is this the piece of code? 
+
+914
+00:54:03,500 --> 00:54:09,000
+It implements the unique ioabi what is that? 
+
+915
+00:54:09,010 --> 00:54:15,180
+Abi this is a things which survive so many decades. 
+
+916
+00:54:15,900 --> 00:54:17,610
+Remember, open,
+
+917
+00:54:17,620 --> 00:54:21,870
+close in order to communicate to a device, 
+
+918
+00:54:22,170 --> 00:54:23,240
+you open your clothes, 
+
+919
+00:54:24,470 --> 00:54:25,820
+then read and write. 
+
+920
+00:54:26,850 --> 00:54:28,520
+You can read as a program or80. 
+
+921
+00:54:28,530 --> 00:54:29,880
+You can read as a binary, 
+
+922
+00:54:31,740 --> 00:54:34,370
+and ioctlio control. 
+
+923
+00:54:34,920 --> 00:54:36,490
+This is a scape patch, 
+
+924
+00:54:37,770 --> 00:54:41,470
+because each device can have is a little bit different, 
+
+925
+00:54:41,930 --> 00:54:44,770
+requires a little bit different configurations. 
+
+926
+00:54:46,910 --> 00:54:55,650
+This is what is our city alice is more for device specific control. 
+
+927
+00:54:59,190 --> 00:55:04,560
+Now, the device driver is 2/2 one,
+
+928
+00:55:06,030 --> 00:55:09,390
+which basically is executed in the user mode and the other one which
+
+929
+00:55:09,400 --> 00:55:10,510
+is disagreeing the catalog. 
+
+930
+00:55:13,340 --> 00:55:13,580
+Right? 
+
+931
+00:55:17,110 --> 00:55:17,700
+I'm not sorry. 
+
+932
+00:55:18,100 --> 00:55:21,460
+Both top and half, 
+
+933
+00:55:22,480 --> 00:55:26,850
+bottom and half of the device drivers are executing the camera. 
+
+934
+00:55:27,730 --> 00:55:30,290
+The board, the top one,
+
+935
+00:55:31,940 --> 00:55:32,970
+it provides, 
+
+936
+00:55:33,640 --> 00:55:41,590
+it helps to provide the kernel ioapi on with which is used
+
+937
+00:55:41,850 --> 00:55:45,020
+by the user program to interact with these devices. 
+
+938
+00:55:46,290 --> 00:55:47,190
+So let's see what happens. 
+
+939
+00:55:47,770 --> 00:55:51,480
+Let's say you have a user program and request an eye operation, 
+
+940
+00:55:51,890 --> 00:55:54,390
+say, to write a data to the risk.
+
+941
+00:55:59,290 --> 00:56:00,410
+It's, first of all,
+
+942
+00:56:00,420 --> 00:56:08,030
+is that is a request already satisfied or something like that. 
+
+943
+00:56:08,330 --> 00:56:08,530
+Right? 
+
+944
+00:56:08,540 --> 00:56:12,430
+It's like this happens when this happens. 
+
+945
+00:56:12,440 --> 00:56:16,460
+For instance, if I am going to read some data from the disk.
+
+946
+00:56:17,580 --> 00:56:19,890
+And when I read the data from the disk, 
+
+947
+00:56:19,900 --> 00:56:23,840
+is a good idea which the data is transferred from the disk is
+
+948
+00:56:23,850 --> 00:56:25,090
+larger than what I read. 
+
+949
+00:56:25,480 --> 00:56:27,060
+So I read only 10 bytes. 
+
+950
+00:56:27,380 --> 00:56:29,450
+But when i'm going to transfer from the disk, 
+
+951
+00:56:29,460 --> 00:56:31,930
+i'm going to transfer 1 pages, four kilobytes.
+
+952
+00:56:32,570 --> 00:56:35,520
+These four kilobytes is already stored in memory. 
+
+953
+00:56:36,810 --> 00:56:38,920
+Now, I am just going to,
+
+954
+00:56:41,210 --> 00:56:43,990
+if I had the first and bytes, then I can read the next.
+
+955
+00:56:44,000 --> 00:56:45,270
+And by zero in memory, 
+
+956
+00:56:45,400 --> 00:56:49,270
+I don't need to do invoke to touch the device again. 
+
+957
+00:56:50,140 --> 00:56:53,110
+But let's say now is not satisfied. 
+
+958
+00:56:53,790 --> 00:56:56,240
+So now i'm going to send the request to the device, 
+
+959
+00:56:58,830 --> 00:56:59,170
+right? 
+
+960
+00:57:03,410 --> 00:57:05,120
+Send the request to the device driver. 
+
+961
+00:57:05,130 --> 00:57:10,110
+The device driver is looking at the request and from here on this code. 
+
+962
+00:57:11,740 --> 00:57:12,170
+Right? 
+
+963
+00:57:12,490 --> 00:57:14,800
+Its bottle, its device specific.
+
+964
+00:57:16,190 --> 00:57:18,450
+I process, 
+
+965
+00:57:20,370 --> 00:57:21,190
+the request, 
+
+966
+00:57:22,270 --> 00:57:24,740
+then you send it to the device harbor. 
+
+967
+00:57:26,050 --> 00:57:27,680
+This is a device struck harbor, 
+
+968
+00:57:27,690 --> 00:57:29,600
+this is on the harbor, right?
+
+969
+00:57:30,140 --> 00:57:34,620
+This part is on the kernel, in the kernel.
+
+970
+00:57:34,930 --> 00:57:37,280
+This part of the bottom can be in the device driver. 
+
+971
+00:57:38,520 --> 00:57:38,920
+Right? 
+
+972
+00:57:39,610 --> 00:57:42,400
+In the divisor, it can be in the device itself.
+
+973
+00:57:44,310 --> 00:57:49,000
+And the device controller is going to execute the operation. 
+
+974
+00:57:49,210 --> 00:57:53,270
+Say, for instance, instructs that this where to read the data from,
+
+975
+00:57:53,510 --> 00:57:54,880
+then read the data. 
+
+976
+00:57:55,420 --> 00:57:56,700
+Once there is a data, 
+
+977
+00:57:57,010 --> 00:57:59,320
+it buffers, you send an interrupt.
+
+978
+00:58:00,360 --> 00:58:00,680
+Sorry. 
+
+979
+00:58:01,530 --> 00:58:03,620
+The interrupt is sent to the kernel. 
+
+980
+00:58:03,980 --> 00:58:06,670
+The kernel is going to handle this interrupt, 
+
+981
+00:58:07,020 --> 00:58:09,380
+is going to get the data from the device. 
+
+982
+00:58:10,530 --> 00:58:18,140
+Then it's going to see whether I the io is completed. 
+
+983
+00:58:18,920 --> 00:58:22,210
+If it's completed is going to let the application now
+
+984
+00:58:28,230 --> 00:58:34,500
+sounds the goal of the io subsystem io it's, 
+
+985
+00:58:34,510 --> 00:58:36,540
+again, is to provide this interface,
+
+986
+00:58:37,060 --> 00:58:38,500
+uniform interface, 
+
+987
+00:58:40,170 --> 00:58:46,480
+that a uniform interface means uniform api means that the code you wrote
+
+988
+00:58:47,380 --> 00:58:48,160
+for one
+
+989
+00:58:48,170 --> 00:58:50,400
+particular device should work. 
+
+990
+00:58:50,970 --> 00:58:55,180
+Potential is money with very minimal changes for other devices. 
+
+991
+00:58:57,140 --> 00:58:59,180
+For instance, for this code,
+
+992
+00:59:02,930 --> 00:59:07,450
+this switch opens some scold and then prints some output. 
+
+993
+00:59:07,880 --> 00:59:10,010
+It works on multiple devices. 
+
+994
+00:59:10,510 --> 00:59:13,600
+It works on this terminal. 
+
+995
+00:59:14,840 --> 00:59:16,270
+If fd is a terminal, 
+
+996
+00:59:16,280 --> 00:59:17,870
+the file descriptor is a terminal. 
+
+997
+00:59:18,380 --> 00:59:19,350
+It works for the disk. 
+
+998
+00:59:19,360 --> 00:59:21,600
+If I wait for file descriptor is a file, 
+
+999
+00:59:22,290 --> 00:59:22,600
+right? 
+
+1000
+00:59:22,930 --> 00:59:26,090
+And you can also work on the printer, 
+
+1001
+00:59:27,270 --> 00:59:28,160
+the same code. 
+
+1002
+00:59:39,210 --> 00:59:44,750
+Now, let's talk a little bit more about this interface.
+
+1003
+00:59:46,170 --> 00:59:50,670
+Why the interface it's a game is so has been so powerful. 
+
+1004
+00:59:50,980 --> 00:59:51,890
+And so general, 
+
+1005
+00:59:53,420 --> 00:59:54,790
+like I mentioned to you, 
+
+1006
+00:59:55,050 --> 00:59:56,710
+you have blog device, 
+
+1007
+00:59:56,720 --> 00:59:58,390
+you have blog devices. 
+
+1008
+00:59:59,140 --> 01:00:01,890
+For these blog devices, you write, read and read,
+
+1009
+01:00:01,900 --> 01:00:03,770
+write the data as a blog granularity, 
+
+1010
+01:00:03,780 --> 01:00:05,930
+and you had open, read, write, and seek.
+
+1011
+01:00:06,970 --> 01:00:07,210
+Right? 
+
+1012
+01:00:09,090 --> 01:00:11,960
+Then you can have had the character devices. 
+
+1013
+01:00:11,970 --> 01:00:15,880
+And this is the level you read and write the data at the level of color
+
+1014
+01:00:16,430 --> 01:00:17,500
+of a single character. 
+
+1015
+01:00:18,260 --> 01:00:20,480
+And for this, you have also opened read,
+
+1016
+01:00:20,920 --> 01:00:23,170
+but you have also for getting a single character, 
+
+1017
+01:00:23,180 --> 01:00:29,550
+you gotta get and put abi and then some of the network devices. 
+
+1018
+01:00:29,790 --> 01:00:31,880
+This is different enough that you have
+
+1019
+01:00:32,150 --> 01:00:36,940
+a different api slightly different api you still have open and close, 
+
+1020
+01:00:37,310 --> 01:00:39,130
+but you have the concept of sockets, 
+
+1021
+01:00:39,500 --> 01:00:41,010
+and you still have reads and writes, 
+
+1022
+01:00:41,850 --> 01:00:42,600
+breed, right?
+
+1023
+01:00:42,610 --> 01:00:44,640
+And open and close all of them. 
+
+1024
+01:00:44,650 --> 01:00:46,760
+Are you still have those? 
+
+1025
+01:00:47,230 --> 01:00:48,600
+But in addition, 
+
+1026
+01:00:48,610 --> 01:00:53,520
+you have other richard api if you remember, 
+
+1027
+01:00:53,530 --> 01:00:55,050
+you have connect, 
+
+1028
+01:00:55,060 --> 01:00:57,080
+you have accept, 
+
+1029
+01:00:57,090 --> 01:00:59,080
+you have also something else which is select, 
+
+1030
+01:00:59,440 --> 01:01:03,950
+select this when you are going to listen on connection from multiple computers, 
+
+1031
+01:01:03,960 --> 01:01:05,510
+you are going to learn more about that. 
+
+1032
+01:01:06,060 --> 01:01:14,470
+But these are the three standard interfaces provided by the operating system. 
+
+1033
+01:01:14,480 --> 01:01:22,010
+And each of the devices falls in one of these categories, 
+
+1034
+01:01:22,480 --> 01:01:25,780
+blog device, a character device, or not a device.
+
+1035
+01:01:29,850 --> 01:01:30,380
+Next, 
+
+1036
+01:01:34,960 --> 01:01:37,520
+how you are going with respect to timing? 
+
+1037
+01:01:37,530 --> 01:01:40,020
+How do you interact with the devices? 
+
+1038
+01:01:41,720 --> 01:01:43,310
+There are few ways to interact. 
+
+1039
+01:01:43,640 --> 01:01:45,550
+One is a blocking interface. 
+
+1040
+01:01:45,880 --> 01:01:46,540
+The blocking interface, 
+
+1041
+01:01:47,150 --> 01:01:49,540
+when you are going to perform an operation, 
+
+1042
+01:01:49,550 --> 01:01:52,540
+you are going to wait for that operation to finish. 
+
+1043
+01:01:53,620 --> 01:01:54,000
+Right? 
+
+1044
+01:01:54,270 --> 01:01:56,720
+When you the request, say, for instance,
+
+1045
+01:01:56,730 --> 01:01:58,370
+when you read some data, 
+
+1046
+01:01:58,380 --> 01:02:01,520
+you are blocking until the data requested is available, 
+
+1047
+01:02:03,490 --> 01:02:05,130
+then it's non blocking interface. 
+
+1048
+01:02:07,560 --> 01:02:11,730
+You just write some data, 
+
+1049
+01:02:12,030 --> 01:02:16,330
+and the call returns immediately before the data is written. 
+
+1050
+01:02:17,340 --> 01:02:17,650
+Okay? 
+
+1051
+01:02:18,790 --> 01:02:19,140
+Now, 
+
+1052
+01:02:21,050 --> 01:02:22,880
+so this is, 
+
+1053
+01:02:23,100 --> 01:02:24,840
+obviously don't know the result, 
+
+1054
+01:02:25,120 --> 01:02:26,140
+but then you don't block. 
+
+1055
+01:02:26,150 --> 01:02:27,340
+So you are very efficient. 
+
+1056
+01:02:27,350 --> 01:02:30,940
+You don't recycles of the cpu and then it's a synchronous interface. 
+
+1057
+01:02:33,390 --> 01:02:35,470
+Then this basically says, 
+
+1058
+01:02:36,220 --> 01:02:38,760
+I am going to request the data, 
+
+1059
+01:02:39,640 --> 01:02:41,630
+by the way, here, what you need to do.
+
+1060
+01:02:41,640 --> 01:02:43,630
+And let me know when you are done, 
+
+1061
+01:02:44,820 --> 01:02:47,120
+I wanted to read the data, and you need,
+
+1062
+01:02:47,130 --> 01:02:49,460
+ii also read the data from this device. 
+
+1063
+01:02:49,870 --> 01:02:53,820
+And i'm telling you that you need to put the beta after this address in memory. 
+
+1064
+01:02:55,870 --> 01:02:57,420
+You put that in the address in memory, 
+
+1065
+01:02:57,430 --> 01:03:01,020
+and you tell me111, you are damaged.
+
+1066
+01:03:02,360 --> 01:03:03,850
+This is a synchronous interface. 
+
+1067
+01:03:07,740 --> 01:03:09,010
+So some announcements, 
+
+1068
+01:03:09,820 --> 01:03:10,130
+unfortunately, 
+
+1069
+01:03:10,780 --> 01:03:13,500
+next week will be quite a week for you. 
+
+1070
+01:03:14,480 --> 01:03:18,810
+So the good thing is that after the following week, 
+
+1071
+01:03:18,820 --> 01:03:20,810
+after the next week is going to be easier, 
+
+1072
+01:03:21,390 --> 01:03:23,310
+and the thanksgiving is coming soon, 
+
+1073
+01:03:25,070 --> 01:03:28,090
+but next week will be hard. 
+
+1074
+01:03:29,100 --> 01:03:34,730
+You have a homework for mitten to the review will be how old will be on monday. 
+
+1075
+01:03:34,740 --> 01:03:39,120
+The time we are going to let you know the time the midterm will be
+
+1076
+01:03:39,130 --> 01:03:44,210
+on wednesday between 7:09 pm standard pacific time, 
+
+1077
+01:03:44,600 --> 01:03:49,510
+as a project is due on at the end of the next week. 
+
+1078
+01:03:49,980 --> 01:03:52,570
+And tomorrow's, unfortunately, yesterday,
+
+1079
+01:03:52,620 --> 01:03:53,810
+I had, 
+
+1080
+01:03:53,820 --> 01:03:54,850
+like I mentioned, 
+
+1081
+01:03:54,860 --> 01:04:02,210
+a flight which was cancelled and then rescheduled between 11:30 and 12:30. 
+
+1082
+01:04:02,220 --> 01:04:03,850
+I'll have my office hour. 
+
+1083
+01:04:09,920 --> 01:04:10,950
+Let's move a little bit. 
+
+1084
+01:04:10,960 --> 01:04:14,140
+We have another 15 minutes. 
+
+1085
+01:04:14,150 --> 01:04:19,090
+So let's move quick storage devices. 
+
+1086
+01:04:21,660 --> 01:04:24,690
+So storage devices are always store the data, 
+
+1087
+01:04:26,330 --> 01:04:27,410
+but persistently, 
+
+1088
+01:04:28,130 --> 01:04:28,490
+right? 
+
+1089
+01:04:28,500 --> 01:04:32,690
+They typically have much larger capacities than memory, 
+
+1090
+01:04:32,700 --> 01:04:33,770
+but they are slower. 
+
+1091
+01:04:34,500 --> 01:04:34,900
+Right? 
+
+1092
+01:04:35,800 --> 01:04:38,310
+We have magnetic disk and flash memories. 
+
+1093
+01:04:39,360 --> 01:04:39,520
+Right? 
+
+1094
+01:04:39,530 --> 01:04:40,960
+There are two type two types. 
+
+1095
+01:04:41,440 --> 01:04:47,290
+Magnetic disks are they saw traditional ones. 
+
+1096
+01:04:47,300 --> 01:04:49,040
+Flash memories are newer, 
+
+1097
+01:04:49,050 --> 01:04:50,960
+but now are dominant. 
+
+1098
+01:04:51,250 --> 01:04:55,040
+They are more expensive that have provide better performance. 
+
+1099
+01:04:56,690 --> 01:04:58,880
+That's kind of the way to still look at them. 
+
+1100
+01:05:00,150 --> 01:05:01,550
+These are some examples, 
+
+1101
+01:05:03,270 --> 01:05:04,270
+this drive. 
+
+1102
+01:05:05,100 --> 01:05:06,410
+You see, here a bladder,
+
+1103
+01:05:06,420 --> 01:05:09,050
+you have here the hands we can read and write the data. 
+
+1104
+01:05:09,480 --> 01:05:13,040
+And then you are going to have here is another hard drive. 
+
+1105
+01:05:13,330 --> 01:05:14,230
+This is the heads. 
+
+1106
+01:05:14,240 --> 01:05:16,790
+You have multiple bladders furniture, either data.
+
+1107
+01:05:17,230 --> 01:05:20,520
+Therefore, you have hats on each bladder for each bladder.
+
+1108
+01:05:22,060 --> 01:05:24,250
+Here, it's a microwave this.
+
+1109
+01:05:25,750 --> 01:05:27,530
+Now, just to give you a sense,
+
+1110
+01:05:27,780 --> 01:05:29,550
+the first ibm personal computer, 
+
+1111
+01:05:29,560 --> 01:05:31,630
+which was released in 1986. 
+
+1112
+01:05:32,430 --> 01:05:36,390
+So that was75 years ago, right?
+
+1113
+01:05:38,620 --> 01:05:41,860
+It has the harvest was $500. 
+
+1114
+01:05:42,170 --> 01:05:44,900
+It was 30 megabytes, 
+
+1115
+01:05:44,910 --> 01:05:46,280
+not gigabytes megabytes. 
+
+1116
+01:05:46,540 --> 01:05:49,980
+The sick time is how long it takes a random access. 
+
+1117
+01:05:50,320 --> 01:05:54,210
+Is those 30 to locate to write the data randomly, 
+
+1118
+01:05:54,790 --> 01:05:56,470
+or iterate are really random. 
+
+1119
+01:05:56,480 --> 01:05:58,510
+You are between 30 and 40 million seconds. 
+
+1120
+01:05:59,170 --> 01:06:00,650
+And the speed, 
+
+1121
+01:06:00,880 --> 01:06:04,590
+the maximum speed of transferring the data was one megabyte per second. 
+
+1122
+01:06:07,090 --> 01:06:10,860
+So how it looks like this is how hard I hard drive it looks like. 
+
+1123
+01:06:11,140 --> 01:06:12,090
+You have the bladders, 
+
+1124
+01:06:12,960 --> 01:06:14,880
+you have the platter, has two surfaces,
+
+1125
+01:06:15,220 --> 01:06:18,510
+the up and down surface. 
+
+1126
+01:06:18,940 --> 01:06:20,530
+So you can write on both of them. 
+
+1127
+01:06:21,020 --> 01:06:23,540
+On each of them, you are going to have tracks.
+
+1128
+01:06:24,560 --> 01:06:26,550
+And the tracks are divided in sectors. 
+
+1129
+01:06:26,960 --> 01:06:29,290
+So the sectors stores a block. 
+
+1130
+01:06:30,790 --> 01:06:33,660
+And this is a unit of storing, 
+
+1131
+01:06:33,670 --> 01:06:40,020
+reading and writing data from the disk that is written and read the
+
+1132
+01:06:40,030 --> 01:06:42,690
+reads and writes are performed by the head. 
+
+1133
+01:06:43,700 --> 01:06:44,110
+Okay? 
+
+1134
+01:06:44,650 --> 01:06:49,360
+Let's now show this one by one is a sector. 
+
+1135
+01:06:50,340 --> 01:06:52,130
+You have this ring of, say,
+
+1136
+01:06:52,440 --> 01:06:53,630
+of ring of sectors. 
+
+1137
+01:06:53,640 --> 01:06:54,830
+This is a struck. 
+
+1138
+01:06:55,980 --> 01:07:03,380
+And then the corresponding tracks on all
+
+1139
+01:07:03,390 --> 01:07:06,280
+platters represent a cylinder. 
+
+1140
+01:07:08,100 --> 01:07:15,300
+What is important about cylinder is that the data from a cylinder can be written, 
+
+1141
+01:07:20,900 --> 01:07:23,150
+written, and write a read, a written,
+
+1142
+01:07:23,160 --> 01:07:30,000
+and read without moving the heads, 
+
+1143
+01:07:31,540 --> 01:07:32,660
+because the movement of heads, 
+
+1144
+01:07:32,670 --> 01:07:35,180
+which is called sick operation. 
+
+1145
+01:07:35,470 --> 01:07:36,330
+It's expensive. 
+
+1146
+01:07:43,440 --> 01:07:45,950
+So some numbers, 
+
+1147
+01:07:46,630 --> 01:07:48,030
+the disk track, 
+
+1148
+01:07:48,770 --> 01:07:53,800
+the tracks are around one microns wide. 
+
+1149
+01:07:54,870 --> 01:07:58,100
+This is very small as a wave by wave wavelength of light. 
+
+1150
+01:07:58,110 --> 01:07:59,580
+It's only half of micro. 
+
+1151
+01:08:02,970 --> 01:08:07,180
+A resolution of mike of humanize is 50 microns. 
+
+1152
+01:08:08,100 --> 01:08:12,300
+You have typically 100,000 trucks on a2.5 inch disk. 
+
+1153
+01:08:13,260 --> 01:08:16,390
+And you have these tracks, in general,
+
+1154
+01:08:16,710 --> 01:08:21,820
+separated by some quad regions because you don't want right on a track
+
+1155
+01:08:22,210 --> 01:08:25,650
+to influence that beats on the others and caught up. 
+
+1156
+01:08:25,660 --> 01:08:28,450
+Therefore, the beats on the nearby tracks.
+
+1157
+01:08:32,850 --> 01:08:36,240
+Now, the tracks linked varies.
+
+1158
+01:08:36,730 --> 01:08:44,690
+The one which are closer to the edges are are larger than the one at the center. 
+
+1159
+01:08:46,270 --> 01:08:47,890
+And so typically, 
+
+1160
+01:08:49,150 --> 01:08:52,360
+we are the only using half of the radius, 
+
+1161
+01:08:52,630 --> 01:08:56,710
+the only that the tracks at the edges of that, 
+
+1162
+01:08:57,010 --> 01:09:00,110
+because you have more space to store information. 
+
+1163
+01:09:02,580 --> 01:09:05,580
+If you started too close to the center, 
+
+1164
+01:09:05,590 --> 01:09:07,400
+the sector is too late, too small.
+
+1165
+01:09:08,890 --> 01:09:11,740
+You are going to get a lot of errors. 
+
+1166
+01:09:17,720 --> 01:09:19,750
+This card obviously huge. 
+
+1167
+01:09:19,760 --> 01:09:20,390
+Right now. 
+
+1168
+01:09:20,400 --> 01:09:23,890
+There are terabytes in terms of capacity. 
+
+1169
+01:09:25,680 --> 01:09:28,310
+In general, only small part of this data,
+
+1170
+01:09:28,320 --> 01:09:29,430
+which is not on the disk, 
+
+1171
+01:09:29,440 --> 01:09:33,290
+is active free drive that all the rest is use for our being archived. 
+
+1172
+01:09:34,240 --> 01:09:35,150
+This is important. 
+
+1173
+01:09:35,160 --> 01:09:36,750
+Before, in the early days,
+
+1174
+01:09:37,040 --> 01:09:38,710
+your kinds of data are not on the disk, 
+
+1175
+01:09:38,720 --> 01:09:40,150
+because it is quite expensive. 
+
+1176
+01:09:40,500 --> 01:09:42,530
+Your kinds of data and mathematic tapes. 
+
+1177
+01:09:45,120 --> 01:09:49,280
+One note for this is more like a footnote. 
+
+1178
+01:09:49,550 --> 01:09:53,540
+There is something which is called a a single magnetic recording. 
+
+1179
+01:09:54,220 --> 01:09:57,160
+In this case, instead of having a guard between the trucks,
+
+1180
+01:09:57,170 --> 01:09:58,240
+are you remember that? 
+
+1181
+01:09:58,250 --> 01:10:01,530
+I told you that between tracks you have the guards, 
+
+1182
+01:10:02,130 --> 01:10:11,780
+you avoid writing when you write on a track a bit to influence the nearby tracks. 
+
+1183
+01:10:12,050 --> 01:10:12,350
+Right? 
+
+1184
+01:10:13,080 --> 01:10:15,560
+But in order in the race to add, 
+
+1185
+01:10:16,040 --> 01:10:18,310
+to add more and more bits, 
+
+1186
+01:10:18,590 --> 01:10:20,450
+to increase the capacity of the disks, 
+
+1187
+01:10:21,870 --> 01:10:24,810
+people came up with this technique, which actually,
+
+1188
+01:10:24,820 --> 01:10:25,980
+in some sense, 
+
+1189
+01:10:25,990 --> 01:10:27,930
+attracts kind of almost overlap. 
+
+1190
+01:10:28,660 --> 01:10:29,710
+And obviously, 
+
+1191
+01:10:29,720 --> 01:10:32,900
+now you need to be very careful and need to have
+
+1192
+01:10:32,910 --> 01:10:37,420
+much more complex digital signal processing techniques in order
+
+1193
+01:10:37,430 --> 01:10:43,510
+to make sure that you avoid a bit being corrupted by writing a bit
+
+1194
+01:10:43,520 --> 01:10:44,950
+in a nearby track. 
+
+1195
+01:10:49,800 --> 01:10:50,980
+So minority disk, 
+
+1196
+01:10:52,440 --> 01:10:57,900
+it's, again, you have the head selling their sectors and tracks.
+
+1197
+01:10:58,400 --> 01:11:05,030
+And now let's see what is a time to read or write data. 
+
+1198
+01:11:07,490 --> 01:11:13,950
+First of all, this is how the architecture looks like.
+
+1199
+01:11:15,080 --> 01:11:17,990
+So the disk is actually has a controller, 
+
+1200
+01:11:18,880 --> 01:11:19,170
+right? 
+
+1201
+01:11:19,780 --> 01:11:22,030
+Like we mentioned many times before. 
+
+1202
+01:11:22,470 --> 01:11:24,810
+And you are going to get a request, 
+
+1203
+01:11:25,420 --> 01:11:28,310
+right to the controller gets a request. 
+
+1204
+01:11:30,290 --> 01:11:34,410
+Let me just to show you where this request is coming from. 
+
+1205
+01:11:35,630 --> 01:11:39,220
+Is here you see the request. 
+
+1206
+01:11:39,230 --> 01:11:40,220
+This is a request. 
+
+1207
+01:11:47,840 --> 01:11:50,150
+Here we are talking about this device harder, 
+
+1208
+01:12:05,650 --> 01:12:06,560
+get the request. 
+
+1209
+01:12:07,700 --> 01:12:11,530
+Then you have a cure because multiple application can request data
+
+1210
+01:12:11,540 --> 01:12:13,650
+to read and write data from the same time. 
+
+1211
+01:12:14,460 --> 01:12:16,670
+You need to cue this request, 
+
+1212
+01:12:18,670 --> 01:12:21,310
+and then you have the harder controller, 
+
+1213
+01:12:21,990 --> 01:12:24,500
+which is going to take requests from this queue, 
+
+1214
+01:12:24,510 --> 01:12:28,320
+and that's going to satisfy the request. 
+
+1215
+01:12:28,660 --> 01:12:32,110
+Now, a request, when you satisfy the request, what happens?
+
+1216
+01:12:33,060 --> 01:12:38,520
+You need to figure out and assume that you already know where is the data
+
+1217
+01:12:38,530 --> 01:12:41,490
+you need to read and to where the data is located. 
+
+1218
+01:12:41,500 --> 01:12:41,760
+Right? 
+
+1219
+01:12:42,470 --> 01:12:44,340
+In order to once you do that, 
+
+1220
+01:12:44,350 --> 01:12:45,490
+you need to move that. 
+
+1221
+01:12:46,190 --> 01:12:48,480
+So you need to identify what you need to identify. 
+
+1222
+01:12:48,490 --> 01:12:50,400
+You need to identify a sector. 
+
+1223
+01:12:50,830 --> 01:12:52,440
+The sector means to identify the track. 
+
+1224
+01:12:53,020 --> 01:12:53,410
+Right? 
+
+1225
+01:12:53,420 --> 01:12:54,650
+In order to get to a track, 
+
+1226
+01:12:54,660 --> 01:12:55,850
+you need to move the disk, 
+
+1227
+01:12:56,190 --> 01:12:57,190
+to move the heads, 
+
+1228
+01:12:57,840 --> 01:13:02,500
+the more the overhead to move the disk is called sick time. 
+
+1229
+01:13:03,570 --> 01:13:06,810
+Then once you are above the corresponding track, 
+
+1230
+01:13:07,460 --> 01:13:13,910
+you need to wait for the proper sector to come under the head. 
+
+1231
+01:13:14,610 --> 01:13:17,590
+So you can read and write installation time. 
+
+1232
+01:13:18,240 --> 01:13:19,340
+Finally, the transfer time,
+
+1233
+01:13:19,350 --> 01:13:23,820
+the time to read and write the Information from the second line. 
+
+1234
+01:13:25,430 --> 01:13:32,320
+Here are, again, some numbers from some other magnetic disks is a space.
+
+1235
+01:13:32,330 --> 01:13:37,130
+You like 14 terabytes with the eight bladders. 
+
+1236
+01:13:37,760 --> 01:13:40,780
+Typically, the sick time is 4 to 6 million seconds.
+
+1237
+01:13:41,970 --> 01:13:45,120
+The salutation like a rotation speed, 
+
+1238
+01:13:45,130 --> 01:13:49,520
+the rotation per minute is like between thirty six hundred and seventy two hundred. 
+
+1239
+01:13:50,170 --> 01:13:56,370
+There are also some of the new faster disk at even 1,500 rotation per minute. 
+
+1240
+01:13:57,800 --> 01:14:03,570
+Average latency of rotational latency is between four and a millisecond. 
+
+1241
+01:14:04,010 --> 01:14:04,220
+Right? 
+
+1242
+01:14:04,230 --> 01:14:04,860
+This is, 
+
+1243
+01:14:05,410 --> 01:14:08,400
+if it takes 8 million seconds for a full rotation, 
+
+1244
+01:14:08,640 --> 01:14:12,830
+then on average, you need to wait for 4 million seconds, rotation, latency.
+
+1245
+01:14:12,840 --> 01:14:14,730
+In order for the sector. 
+
+1246
+01:14:14,740 --> 01:14:17,430
+You are looking forward to come under the disk
+
+1247
+01:14:17,440 --> 01:14:22,580
+and under the head and transfer time between
+
+1248
+01:14:22,590 --> 01:14:26,300
+50 and 250 million megabytes per second. 
+
+1249
+01:14:26,590 --> 01:14:31,990
+The transfer a sector is typically between a 512 and one kilobyte
+
+1250
+01:14:33,160 --> 01:14:33,990
+and things like that. 
+
+1251
+01:14:36,970 --> 01:14:40,280
+They used to drop because the cost used to drop by a factor of two. 
+
+1252
+01:14:40,290 --> 01:14:42,480
+Every 1.5 years is no longer true. 
+
+1253
+01:14:45,900 --> 01:14:47,650
+Now, let's go through this example,
+
+1254
+01:14:52,650 --> 01:14:55,670
+assuming that we ignore the queuing and the controller types. 
+
+1255
+01:14:57,040 --> 01:14:57,550
+Okay? 
+
+1256
+01:14:58,130 --> 01:15:02,100
+We ignore the skewing time and the control of time. 
+
+1257
+01:15:02,110 --> 01:15:03,820
+Let's look only on the media time. 
+
+1258
+01:15:06,290 --> 01:15:08,930
+Assume they are very sick time is 5 minute seconds. 
+
+1259
+01:15:10,970 --> 01:15:15,560
+Assume that the rotation speed, 
+
+1260
+01:15:15,570 --> 01:15:18,760
+its7,200 rotation per minute. 
+
+1261
+01:15:19,380 --> 01:15:24,190
+This means that it takes 8 million seconds for a full rotation. 
+
+1262
+01:15:27,080 --> 01:15:29,470
+The transfer rate assume is 50 megabytes. 
+
+1263
+01:15:31,430 --> 01:15:37,340
+So then the, sorry, this is the transfer rate of 15 megabytes per second.
+
+1264
+01:15:38,230 --> 01:15:40,620
+If it's a block size of four kilobytes, 
+
+1265
+01:15:40,630 --> 01:15:43,500
+but I assume the transfer is 15 megabytes per second. 
+
+1266
+01:15:44,260 --> 01:15:46,290
+If the block size is four kilobytes, 
+
+1267
+01:15:46,790 --> 01:15:53,460
+then it takes 0.0.8 millisecond to transfer one sector. 
+
+1268
+01:15:55,060 --> 01:15:57,090
+You divide for kilobytes, 
+
+1269
+01:15:57,100 --> 01:16:00,800
+the size of a sector on the transfer rate, like to get that by.
+
+1270
+01:16:02,340 --> 01:16:06,970
+So then reading the block from a random place on the disk, 
+
+1271
+01:16:08,230 --> 01:16:10,970
+you need to seek first to the track. 
+
+1272
+01:16:11,440 --> 01:16:13,130
+We need to wait for the sector, 
+
+1273
+01:16:14,080 --> 01:16:15,190
+and then you read it. 
+
+1274
+01:16:15,640 --> 01:16:17,040
+So it takes 9 million seconds. 
+
+1275
+01:16:17,050 --> 01:16:18,760
+A little bit more than 9 million seconds, 
+
+1276
+01:16:19,070 --> 01:16:26,780
+is a kivalent to 450 kilobytes per second transfer speed. 
+
+1277
+01:16:28,450 --> 01:16:31,650
+If you read the block from a random place in the same cylinder, 
+
+1278
+01:16:32,700 --> 01:16:34,080
+then if you do that, 
+
+1279
+01:16:34,090 --> 01:16:37,970
+you don't need to incur the sick time. 
+
+1280
+01:16:39,130 --> 01:16:44,250
+Now, the latency is only 4.08 millisecond,
+
+1281
+01:16:45,030 --> 01:16:47,270
+which means the data. 
+
+1282
+01:16:47,570 --> 01:16:48,130
+Now, 
+
+1283
+01:16:50,380 --> 01:16:52,860
+rate is one megabyte per second. 
+
+1284
+01:16:53,730 --> 01:16:58,210
+But now assume that you just need the same next sector on the track. 
+
+1285
+01:16:58,540 --> 01:16:59,470
+You sequentially, 
+
+1286
+01:17:00,810 --> 01:17:05,890
+then you don't need to incur the rotation delay either. 
+
+1287
+01:17:06,440 --> 01:17:08,100
+So it's 50 megabytes per second, 
+
+1288
+01:17:08,800 --> 01:17:10,200
+CC 3 times bigger, 
+
+1289
+01:17:10,480 --> 01:17:11,940
+or 100 a time bigger. 
+
+1290
+01:17:12,530 --> 01:17:13,800
+If it's purely random. 
+
+1291
+01:17:14,240 --> 01:17:16,350
+So now you see why you have sick. 
+
+1292
+01:17:16,740 --> 01:17:21,670
+Also, you have sequential access and versus only random access.
+
+1293
+01:17:22,260 --> 01:17:26,380
+If you can sequential access of data is so much faster, 
+
+1294
+01:17:27,050 --> 01:17:27,940
+at least for the risk. 
+
+1295
+01:17:28,760 --> 01:17:34,720
+The key to use a disk effectively is to make sure that you as much as possible, 
+
+1296
+01:17:35,150 --> 01:17:37,370
+you access a data sequential. 
+
+1297
+01:17:40,540 --> 01:17:48,920
+Now, there is a lot of Intelligence in this embedded into this controller.
+
+1298
+01:17:50,130 --> 01:17:51,920
+The sectors, for instance,
+
+1299
+01:17:51,930 --> 01:17:54,620
+you have sophisticated error correcting codes, 
+
+1300
+01:17:57,360 --> 01:17:57,490
+right? 
+
+1301
+01:17:57,500 --> 01:18:00,360
+Because to avoid data corruption, 
+
+1302
+01:18:00,750 --> 01:18:05,970
+this is very important because if you store the data on a disk and you
+
+1303
+01:18:05,980 --> 01:18:06,930
+trust at this, 
+
+1304
+01:18:06,940 --> 01:18:08,210
+because you start persistently. 
+
+1305
+01:18:08,660 --> 01:18:10,470
+So if the data is corrupted, 
+
+1306
+01:18:11,340 --> 01:18:14,290
+you lost the data sector spanning. 
+
+1307
+01:18:14,670 --> 01:18:16,330
+So again, it's like,
+
+1308
+01:18:16,560 --> 01:18:18,230
+if be, 
+
+1309
+01:18:18,240 --> 01:18:20,630
+sometimes some sectors becomes bad, 
+
+1310
+01:18:20,640 --> 01:18:23,430
+you can no longer read and write data reliably from them. 
+
+1311
+01:18:23,870 --> 01:18:26,770
+In that case, you remember that you forget about those,
+
+1312
+01:18:26,780 --> 01:18:30,410
+and you remember that to transparent to another spare sector on the disk, 
+
+1313
+01:18:30,800 --> 01:18:35,080
+this is done by the controller transparent to the software, 
+
+1314
+01:18:35,790 --> 01:18:36,480
+sleep spanning. 
+
+1315
+01:18:36,740 --> 01:18:36,860
+Now, 
+
+1316
+01:18:38,110 --> 01:18:39,650
+if there is a bank, 
+
+1317
+01:18:40,590 --> 01:18:43,470
+if the a sector goes bad, 
+
+1318
+01:18:43,930 --> 01:18:47,140
+the problem is that in now, 
+
+1319
+01:18:47,150 --> 01:18:48,780
+you no longer have sequential access. 
+
+1320
+01:18:48,790 --> 01:18:50,660
+If you want to preserve sequential access, 
+
+1321
+01:18:50,670 --> 01:18:54,140
+you may want to remap multiple sectors to preserve the sequentially. 
+
+1322
+01:18:54,870 --> 01:18:56,180
+The last thing is track screen, 
+
+1323
+01:18:56,190 --> 01:18:59,020
+and here I have a figure for regard as a mint track screen. 
+
+1324
+01:18:59,450 --> 01:19:06,970
+This means that I I if the data is stored sequentially on nearby tracks, 
+
+1325
+01:19:07,310 --> 01:19:10,780
+then I want to make sure that when I move from one track to another, 
+
+1326
+01:19:10,790 --> 01:19:12,020
+I don't waste time. 
+
+1327
+01:19:12,030 --> 01:19:15,780
+So here is these are the sectors on track one. 
+
+1328
+01:19:16,050 --> 01:19:18,620
+So say I'm going to reach on track one here. 
+
+1329
+01:19:18,850 --> 01:19:22,870
+The head I'm just finishing reading everything on the track one and I want
+
+1330
+01:19:22,880 --> 01:19:24,750
+a move to track two. 
+
+1331
+01:19:24,760 --> 01:19:26,190
+The tractor is the one inside. 
+
+1332
+01:19:26,780 --> 01:19:28,040
+Now, when I want to move,
+
+1333
+01:19:28,050 --> 01:19:30,730
+then the first sector on track one, 
+
+1334
+01:19:30,740 --> 01:19:32,170
+I'm going to shift. 
+
+1335
+01:19:32,590 --> 01:19:35,810
+So then this time, 
+
+1336
+01:19:36,650 --> 01:19:41,190
+when I'm going to move the head to track one, 
+
+1337
+01:19:41,620 --> 01:19:43,010
+by the time I moved, 
+
+1338
+01:19:43,210 --> 01:19:46,120
+now sector zero comes is ready to be read. 
+
+1339
+01:19:46,830 --> 01:19:48,380
+I if I don't do this, 
+
+1340
+01:19:48,390 --> 01:19:51,780
+then while I move this head from one sector, 
+
+1341
+01:19:51,790 --> 01:19:53,260
+from one track to another, 
+
+1342
+01:19:53,420 --> 01:19:54,330
+I miss the sector zero, 
+
+1343
+01:19:54,340 --> 01:19:57,290
+and I need to wait for an entire evolution of the disk. 
+
+1344
+01:19:57,520 --> 01:19:58,630
+Before I start reading, 
+
+1345
+01:20:02,550 --> 01:20:04,740
+I'm going to end up with this slide. 
+
+1346
+01:20:05,260 --> 01:20:08,770
+This is an example of Karen had this drive. 
+
+1347
+01:20:09,400 --> 01:20:12,580
+It's like2020, 
+
+1348
+01:20:12,590 --> 01:20:16,660
+eighteen terabytes is a hard drive, nine players, 18 hertz.
+
+1349
+01:20:17,040 --> 01:20:19,070
+Each bladder has two sides. 
+
+1350
+01:20:19,080 --> 01:20:21,940
+So 11 head for each side, 
+
+1351
+01:20:22,170 --> 01:20:24,230
+4 millisecond are very sick time. 
+
+1352
+01:20:24,910 --> 01:20:26,700
+A sector is four kilobytes, 
+
+1353
+01:20:26,710 --> 01:20:31,020
+70 two hundred rpm and so forth. 
+
+1354
+01:20:32,630 --> 01:20:37,410
+And 270 megabytes per second maximum transfer cost 562. 
+
+1355
+01:20:37,900 --> 01:20:40,720
+Now let's compare with IBM personal computer drive. 
+
+1356
+01:20:40,730 --> 01:20:41,650
+The first drive. 
+
+1357
+01:20:42,150 --> 01:20:43,230
+This was 86. 
+
+1358
+01:20:45,510 --> 01:20:47,870
+The sick time is 10 times better. 
+
+1359
+01:20:51,480 --> 01:20:54,750
+The transfer time is 300 times better, 
+
+1360
+01:20:56,700 --> 01:21:00,830
+but the capacity is 600,000 times better. 
+
+1361
+01:21:01,480 --> 01:21:05,070
+And the cost, it's almost the same 600,000 times better.
+
+1362
+01:21:05,570 --> 01:21:10,010
+So this is a progress we are able to get in 36 years. 
+
+1363
+01:21:10,750 --> 01:21:12,070
+Okay, so it's quite impressive.
+
+1364
+01:21:13,150 --> 01:21:14,660
+So we are going to stop here. 
+
+1365
+01:21:14,670 --> 01:21:20,900
+And next time we are going to start talking with about a solid SS DS. 
+
+1366
+01:21:24,250 --> 01:21:25,060
+Thanks, everyone.
+
+1367
+01:21:25,070 --> 01:21:25,620
+Okay. 
+
+1368
+01:21:31,480 --> 01:21:34,310
+I'm going to stop here and I'm going to answer the questions. 
+
