@@ -1,0 +1,6783 @@
+1
+00:00:17,250 --> 00:00:18,330
+Hello, everyone.
+大家好。
+
+2
+00:00:20,190 --> 00:00:22,420
+So welcome to the nice lecture.
+欢迎来到这个精彩的讲座。
+
+3
+00:00:23,460 --> 00:00:26,570
+This lecture, it's the content of this lecture.
+这节课，是关于这节课的内容。
+
+4
+00:00:26,580 --> 00:00:28,910
+It's included in your first meter.
+这已经包含在您的第一个计量单位中。
+
+5
+00:00:32,160 --> 00:00:33,910
+That's quite important.
+这非常重要。
+
+6
+00:00:34,740 --> 00:00:40,490
+It's also a very important lecture for your future homeworks and projects.
+这也是对你未来的作业和项目非常重要的一堂课。
+
+7
+00:00:43,460 --> 00:00:44,140
+So,
+所以，
+
+8
+00:00:44,470 --> 00:00:51,580
+and we are going to continue our discussion about abstraction to implement critical
+我们将继续讨论关于实现关键抽象的问题。
+
+9
+00:00:51,590 --> 00:00:54,940
+sections and synchronization between processes.
+进程间的分段和同步。
+
+10
+00:00:56,860 --> 00:00:57,810
+If you remember,
+如果你还记得的话，
+
+11
+00:00:59,500 --> 00:01:02,490
+last time we discussed that one of the main abstraction,
+上次我们讨论了一个主要的抽象概念，
+
+12
+00:01:02,500 --> 00:01:05,690
+which it makes it easier to implement critical sections,
+这使得实现临界区更加容易。
+
+13
+00:01:05,700 --> 00:01:09,330
+exclusion from critical sections.
+临界区的排除
+
+14
+00:01:09,340 --> 00:01:12,730
+So only one thread it should be active in a critical section
+在关键区域中只能有一个线程处于活动状态。
+
+15
+00:01:12,740 --> 00:01:14,330
+at a given time or locks.
+在给定的时间或锁定状态下。
+
+16
+00:01:15,900 --> 00:01:19,540
+And we discuss the implementation of locks using interrupts.
+我们讨论了使用中断实现锁的方法。
+
+17
+00:01:19,550 --> 00:01:25,810
+And then we said there are some disadvantages of using interacts and some dangers.
+然后我们说使用交互式界面存在一些缺点和一些危险性。
+
+18
+00:01:26,630 --> 00:01:29,080
+And then we discuss about,
+然后我们讨论关于...
+
+19
+00:01:30,960 --> 00:01:35,700
+then using atomic operation,
+然后使用原子操作，
+
+20
+00:01:36,140 --> 00:01:41,030
+which are more sophisticated than load and store to implement these locks.
+相比于加载和存储操作，有更复杂的方法来实现这些锁。
+
+21
+00:01:41,420 --> 00:01:43,490
+And one of them,
+其中之一，
+
+22
+00:01:43,720 --> 00:01:45,090
+it will be like best and set.
+它将会像最好和设置一样。
+
+23
+00:01:46,560 --> 00:01:47,630
+I if you remember,
+如果你还记得的话，
+
+24
+00:01:47,640 --> 00:01:48,910
+is a test and set,
+是一个测试和设置操作。
+
+25
+00:01:49,660 --> 00:01:55,900
+it's takes a value
+它接受一个值。
+
+26
+00:01:56,880 --> 00:02:00,440
+and maintains a local variable.
+并且维护一个本地变量。
+
+27
+00:02:00,890 --> 00:02:03,370
+Think about distance that maintains a local variable.
+考虑一下维持局部变量的距离。
+
+28
+00:02:04,530 --> 00:02:08,850
+The atomic operation is that taking a value,
+原子操作是指获取一个值，
+
+29
+00:02:09,470 --> 00:02:13,140
+updating the local variable is a new value,
+更新本地变量为一个新值。
+
+30
+00:02:13,410 --> 00:02:18,600
+and then returning the previous value of the local variable.
+然后返回局部变量的先前值。
+
+31
+00:02:19,260 --> 00:02:20,050
+That's pretty much.
+就是这样。
+
+32
+00:02:21,860 --> 00:02:24,490
+This is and implementation.
+这是一个实现。
+
+33
+00:02:24,500 --> 00:02:32,160
+Again, we discussed last time of a lock acquire and lock release and
+上次我们讨论了锁的获取和释放问题，
+
+34
+00:02:32,170 --> 00:02:35,160
+using test and set,
+使用测试和设置（test and set）操作，
+
+35
+00:02:35,690 --> 00:02:43,370
+and basically use test and set here also to implement mutual
+在这里，基本上也可以使用测试和设置来实现互斥。
+
+36
+00:02:43,380 --> 00:02:51,380
+exclusion are of operating of the is the value of the lock.
+互斥是操作系统中锁的一个重要属性。
+
+37
+00:02:52,440 --> 00:02:53,510
+The lock,
+锁定，
+
+38
+00:02:53,900 --> 00:02:56,820
+value of the lock, which whereas is busy or free,
+锁的值，无论是忙碌还是空闲，
+
+39
+00:02:57,240 --> 00:03:02,560
+determine whether you can enter or not in the critical section
+确定你是否可以进入临界区
+
+40
+00:03:03,800 --> 00:03:05,550
+of the program of the user.
+用户程序的功能。
+
+41
+00:03:06,160 --> 00:03:07,590
+Now we have a second,
+现在我们有第二个
+
+42
+00:03:07,600 --> 00:03:10,910
+we use test and set for a second smaller critical section,
+我们使用测试并设置（test and set）来实现一个较小的临界区。
+
+43
+00:03:11,330 --> 00:03:16,440
+which is only concern of updating the lock value to be your free.
+这只涉及将锁的值更新为可用的问题。
+
+44
+00:03:21,220 --> 00:03:22,770
+If you remember,
+如果你还记得的话，
+
+45
+00:03:23,300 --> 00:03:28,000
+all these synchronization primitives involves weight,
+所有这些同步原语都涉及到权重。
+
+46
+00:03:28,950 --> 00:03:34,050
+the reason for that is because it's fundamental because if you have
+这是因为这是基本的原因，如果你有的话。
+
+47
+00:03:34,440 --> 00:03:38,780
+two threads which wants to enter in the same critical section,
+两个线程想要进入同一个临界区
+
+48
+00:03:39,030 --> 00:03:42,830
+you can only allow one thread to enter in the critical section.
+你只允许一个线程进入临界区。
+
+49
+00:03:44,900 --> 00:03:49,320
+Therefore, the other thread has nothing else to do,
+因此，另一个线程没有其他事情要做。
+
+50
+00:03:49,940 --> 00:03:52,460
+but wait for the first step to finish.
+但是请等待第一步完成。
+
+51
+00:03:53,960 --> 00:03:56,440
+So that's why waiting is fundamental.
+这就是为什么等待是基本的。
+
+52
+00:03:57,280 --> 00:03:57,620
+Okay?
+好的？
+
+53
+00:03:58,740 --> 00:04:00,190
+The other thing you remember,
+你还记得的另一件事是，
+
+54
+00:04:00,200 --> 00:04:03,270
+if you wait one way to wait,
+如果你等待一种方式来等待，
+
+55
+00:04:03,690 --> 00:04:06,240
+it's easy to implement the still busy waiting.
+实现静态忙等待很容易。
+
+56
+00:04:07,130 --> 00:04:10,550
+You constantly check whether the critical section is free,
+你不断地检查临界区是否空闲，
+
+57
+00:04:10,560 --> 00:04:12,590
+whether you can acquire the lock.
+你是否能够获取锁。
+
+58
+00:04:13,380 --> 00:04:20,750
+But this consumes the cpu cycles without doing any useful work.
+但这样会消耗 CPU 周期而没有做任何有用的工作。
+
+59
+00:04:21,580 --> 00:04:22,740
+So therefore,
+因此，
+
+60
+00:04:23,700 --> 00:04:25,420
+waiting, what you want to invent,
+等待中，你想要发明什么？
+
+61
+00:04:25,430 --> 00:04:26,940
+the best way to implement,
+最佳实现方式是，
+
+62
+00:04:26,950 --> 00:04:30,160
+waiting and the preferred way is to go to sleep,
+等待的最佳方式是进入睡眠状态，
+
+63
+00:04:30,790 --> 00:04:33,600
+to put the thread when the waiting queue,
+将线程放入等待队列中
+
+64
+00:04:34,200 --> 00:04:40,510
+and then to be open up when there are the previous thread exceeds
+当前线程超过之前的线程时，就会打开。
+
+65
+00:04:40,520 --> 00:04:41,430
+the critical section.
+临界区。
+
+66
+00:04:41,890 --> 00:04:42,340
+Okay?
+好的？
+
+67
+00:04:43,000 --> 00:04:44,030
+This is what you see here.
+这是你在这里看到的。
+
+68
+00:04:44,040 --> 00:04:45,150
+If the value is busy,
+如果值忙碌，
+
+69
+00:04:45,320 --> 00:04:51,370
+if someone acquired a lock and has acquired a locker in the critical section,
+如果有人获取了一个锁，并且在临界区中获取了一个储物柜，
+
+70
+00:04:51,790 --> 00:04:54,980
+you put the thread on the weight queue,
+你将线程放入了权重队列中。
+
+71
+00:04:54,990 --> 00:04:57,620
+and then you go to sleep,
+然后你去睡觉，
+
+72
+00:04:57,630 --> 00:05:00,700
+and then you reset this card, which is, again,
+然后你重新设置这张卡片，这又是
+
+73
+00:05:00,710 --> 00:05:02,140
+this card it's about.
+这张卡片是关于什么的。
+
+74
+00:05:02,920 --> 00:05:09,640
+It's basically you freeze a lock for the critical section,
+这基本上是将一个锁冻结以保护临界区。
+
+75
+00:05:09,650 --> 00:05:13,760
+which is concerned with updating the busy value.
+这个问题涉及到更新繁忙值。
+
+76
+00:05:18,820 --> 00:05:21,690
+As it's the value is busy,
+由于该值正忙，请稍后再试。
+
+77
+00:05:22,550 --> 00:05:23,860
+you set the value to be,
+你将值设置为，
+
+78
+00:05:23,870 --> 00:05:25,220
+this requires a lock,
+这需要一个锁。
+
+79
+00:05:25,640 --> 00:05:26,950
+then you again, said,
+那么你又说，
+
+80
+00:05:26,960 --> 00:05:28,270
+go out to zero.
+出发前往零点。
+
+81
+00:05:29,570 --> 00:05:37,430
+So that for you are going to allow another thread to look,
+所以你要允许另一个线程来查看
+
+82
+00:05:37,440 --> 00:05:42,970
+tend to read the log value and modify it.
+倾向于读取日志值并进行修改。
+
+83
+00:05:44,980 --> 00:05:46,380
+Any questions here?
+这里有什么问题吗？
+
+84
+00:05:55,480 --> 00:05:58,700
+So not, again, that we have the same discussion.
+所以，不要再次讨论这个问题了。
+
+85
+00:05:58,710 --> 00:06:03,940
+We have the same discussion like in the in the case of when using interrupt
+我们的讨论与在使用中断时的情况类似。
+
+86
+00:06:04,530 --> 00:06:06,370
+to implement the choir and release.
+实现合唱和发布。
+
+87
+00:06:06,750 --> 00:06:10,870
+And that is is when we are going to set the guard to zero,
+这就是我们要将警卫设置为零的时候，
+
+88
+00:06:10,880 --> 00:06:13,030
+there is one you are going to disable the interact.
+你要禁用交互的一个功能。
+
+89
+00:06:13,920 --> 00:06:15,490
+And this needs to be done.
+这个需要完成。
+
+90
+00:06:15,890 --> 00:06:17,440
+You cannot do before sleep,
+睡觉前不能做。
+
+91
+00:06:17,450 --> 00:06:20,240
+you cannot do before the thread on weight queue.
+在权重队列上的线程之前，你不能这样做。
+
+92
+00:06:20,970 --> 00:06:22,080
+Just remember.
+请记住。
+
+93
+00:06:22,370 --> 00:06:22,950
+Why is that?
+为什么这样做呢？
+
+94
+00:06:22,960 --> 00:06:24,840
+You can look at the last lecture.
+你可以查看上一堂课的讲义。
+
+95
+00:06:24,850 --> 00:06:27,440
+So you need to do, in some sense, after,
+在某种意义上，你需要在之后做一些事情。
+
+96
+00:06:27,450 --> 00:06:31,140
+but then after the thread itself,
+但在线程本身之后，
+
+97
+00:06:31,150 --> 00:06:33,620
+which call acquire cannot do it because it's sleeping.
+由于它正在休眠，调用acquire无法执行。
+
+98
+00:06:34,620 --> 00:06:39,340
+So that has to be done either by the operating system or by the next trend,
+这要么由操作系统完成，要么由下一个趋势完成。
+
+99
+00:06:39,830 --> 00:06:42,510
+which is going to be scheduled to reset the guard.
+将被安排重置警卫。
+
+100
+00:06:45,250 --> 00:06:45,740
+Okay?
+好的？
+
+101
+00:06:51,280 --> 00:06:53,350
+Here it's a simple example.
+这是一个简单的例子。
+
+102
+00:07:01,440 --> 00:07:03,330
+This is a great question.
+这是一个很好的问题。
+
+103
+00:07:03,690 --> 00:07:08,980
+So one question here, it was a the guard and value will be on the hip.
+这里有一个问题，它是关于警卫和价值物品放在腰间的。
+
+104
+00:07:09,600 --> 00:07:10,830
+They are going to be on.
+它们即将开启。
+
+105
+00:07:11,350 --> 00:07:13,870
+They're going to be a global variables,
+它们将成为全局变量。
+
+106
+00:07:14,680 --> 00:07:17,810
+so everyone can access them.
+这样每个人都可以访问它们。
+
+107
+00:07:21,720 --> 00:07:22,070
+Now,
+现在，
+
+108
+00:07:22,400 --> 00:07:29,000
+we've seen two implementation is actually of acquire and release locks.
+我们已经看到了两种实现实际上是获取和释放锁的方式。
+
+109
+00:07:30,050 --> 00:07:31,560
+One is using interacts,
+一种方法是使用交互式操作。
+
+110
+00:07:31,570 --> 00:07:34,600
+and the other one using test and set.
+另一个方法使用测试和设置。
+
+111
+00:07:35,650 --> 00:07:40,930
+And this basically shows is to show you that actually the logic is very,
+这基本上是要向您展示的是实际上逻辑非常简单，
+
+112
+00:07:40,940 --> 00:07:41,650
+very similar.
+非常相似。
+
+113
+00:07:41,660 --> 00:07:45,950
+And you can think about while test and set,
+你可以在测试和设置时考虑一下，
+
+114
+00:07:47,510 --> 00:07:52,860
+it's similarly disabled interrupts and enabling and guard a reseting guard
+类似地，禁用中断并启用和保护复位保护。
+
+115
+00:07:52,870 --> 00:07:55,480
+to zero is like enabling the interacts.
+将其归零就像启用交互功能。
+
+116
+00:07:57,820 --> 00:08:05,310
+This is against the code for we went over last lecture about implementing,
+这违反了我们上一堂关于实现的课程中讲到的规范。
+
+117
+00:08:05,320 --> 00:08:05,950
+acquire,
+获取、获得、取得
+
+118
+00:08:05,960 --> 00:08:09,700
+and release by disabling and enabling the internet.
+通过禁用和启用互联网来释放。
+
+119
+00:08:12,550 --> 00:08:15,190
+And if you remember,
+如果你还记得的话，
+
+120
+00:08:15,200 --> 00:08:17,110
+also what they did last time,
+还有上次他们做了什么？
+
+121
+00:08:17,120 --> 00:08:19,830
+when we talk about locks we did in two stages.
+当我们谈论锁时，我们分为两个阶段进行。
+
+122
+00:08:20,310 --> 00:08:20,990
+First of all,
+首先，
+
+123
+00:08:21,000 --> 00:08:24,830
+we said we gave this very trivial implementation of the locks acquire.
+我们说过我们给出了这个非常简单的锁获取的实现。
+
+124
+00:08:25,170 --> 00:08:26,660
+You disable the interrupts,
+你禁用了中断。
+
+125
+00:08:27,010 --> 00:08:28,860
+why it is able to interrupt,
+为什么它能够中断？
+
+126
+00:08:28,870 --> 00:08:33,960
+because you don't want new new threats to interrupt you, right?
+因为你不想让新的威胁打断你，对吗？
+
+127
+00:08:33,970 --> 00:08:37,020
+While you are in the critical section, right?
+你是指在临界区域内吗？
+
+128
+00:08:37,390 --> 00:08:39,920
+And then the release is enabling the internet.
+然后发布将使互联网变得可用。
+
+129
+00:08:40,230 --> 00:08:45,340
+But this was very dangerous because if you call as the user level,
+但这样做非常危险，因为如果你在用户级别下调用，
+
+130
+00:08:45,350 --> 00:08:47,220
+acquiring, disable, interrupts,
+获取，禁用，中断
+
+131
+00:08:47,230 --> 00:08:51,240
+and you have a very long critical section or you make mistakes and you have
+一个很长的临界区或者你犯了错误，并且你有
+
+132
+00:08:51,250 --> 00:08:53,400
+an infinite while loop in the critical section.
+在临界区中有一个无限循环。
+
+133
+00:08:53,650 --> 00:08:55,460
+Then your computer will hack.
+那么你的计算机将被黑客攻击。
+
+134
+00:08:56,500 --> 00:08:57,690
+You can do anything about.
+你可以对此事做任何事情。
+
+135
+00:08:59,240 --> 00:09:01,830
+The only thing probably is power off power on.
+可能的唯一解决办法就是关机重启。
+
+136
+00:09:02,580 --> 00:09:02,980
+Right?
+对吗？
+
+137
+00:09:02,990 --> 00:09:04,020
+So therefore,
+因此，
+
+138
+00:09:04,720 --> 00:09:09,170
+is a more sophisticated implementation was to use disable and enable
+更复杂的实现方式是使用禁用和启用。
+
+139
+00:09:09,180 --> 00:09:14,160
+interrupts only for updating the value of the lock.
+中断仅用于更新锁的值。
+
+140
+00:09:14,730 --> 00:09:18,080
+Now you have a value of the lock which set to zero and you disable
+现在你有一个值为零的锁，并且你已经禁用了它。
+
+141
+00:09:18,090 --> 00:09:21,000
+and enable interrupts to update that value,
+并启用中断来更新该值，
+
+142
+00:09:21,430 --> 00:09:21,650
+right?
+对的？
+
+143
+00:09:21,660 --> 00:09:22,810
+Or to leave that value.
+或者保留该值。
+
+144
+00:09:24,210 --> 00:09:26,920
+Now you still use disable and enable interacts.
+现在你仍然使用禁用和启用交互。
+
+145
+00:09:27,190 --> 00:09:30,000
+But now it's very short.
+但现在很短。
+
+146
+00:09:30,500 --> 00:09:34,830
+The critical section is very short and is going to finish very fast.
+临界区非常短，将会非常快地完成。
+
+147
+00:09:36,600 --> 00:09:36,980
+Right?
+对吗？
+
+148
+00:09:38,220 --> 00:09:38,930
+If you look,
+如果你看一下，
+
+149
+00:09:39,560 --> 00:09:42,230
+again, if you look now at the same example,
+再次，如果你现在看同一个例子，
+
+150
+00:09:42,240 --> 00:09:44,950
+but now implementing, acquire, and release,
+但现在正在实现、获取和释放。
+
+151
+00:09:44,960 --> 00:09:46,150
+using test and set,
+使用测试和设置（test and set）操作，
+
+152
+00:09:46,330 --> 00:09:48,480
+we went again through two iterations.
+我们又进行了两轮迭代。
+
+153
+00:09:48,490 --> 00:09:52,400
+The first iteration was very simple that while distance set values,
+第一次迭代非常简单，只是在距离设置值时。
+
+154
+00:09:52,610 --> 00:09:54,520
+you are doing the values, a lot of value.
+你正在做一些有价值的事情，很多价值。
+
+155
+00:09:55,260 --> 00:09:58,350
+While this is why the value is one.
+这就是为什么值为一的原因。
+
+156
+00:09:58,360 --> 00:09:58,660
+Right?
+对吗？
+
+157
+00:09:58,670 --> 00:10:00,210
+Again, the distance said here,
+这里再次提到的距离
+
+158
+00:10:00,260 --> 00:10:01,690
+if value is one,
+如果值为一，
+
+159
+00:10:02,920 --> 00:10:10,330
+is going to returns the previous value of the internal variable
+将返回内部变量的先前值
+
+160
+00:10:10,340 --> 00:10:11,250
+of test and set,
+测试并设置
+
+161
+00:10:12,040 --> 00:10:15,270
+and then set that variable to the new value.
+然后将该变量设置为新值。
+
+162
+00:10:15,900 --> 00:10:18,410
+If it's the previous one was zero, returned,
+如果前一个是零，则返回。
+
+163
+00:10:18,420 --> 00:10:20,010
+zero means there's a lock.
+zero 表示有锁。
+
+164
+00:10:20,020 --> 00:10:20,650
+It's acquired.
+已获取。
+
+165
+00:10:20,850 --> 00:10:22,690
+But now he said to one next time,
+但是现在他对下一次说道，
+
+166
+00:10:22,700 --> 00:10:23,810
+when someone tries,
+当有人尝试时，
+
+167
+00:10:24,080 --> 00:10:25,110
+the value is one,
+这个值是一。
+
+168
+00:10:25,120 --> 00:10:26,610
+the internal variable is one.
+内部变量为一。
+
+169
+00:10:27,710 --> 00:10:28,980
+The internal variables will not change.
+内部变量不会改变。
+
+170
+00:10:28,990 --> 00:10:33,060
+And the test and said returns once you are going to be stuck in the white group.
+当测试和返回一次时，你将会被困在白色组中。
+
+171
+00:10:33,810 --> 00:10:34,170
+Okay?
+好的？
+
+172
+00:10:34,470 --> 00:10:36,080
+But it's, again, the problem is this one,
+但是，问题又回到了这个。
+
+173
+00:10:36,690 --> 00:10:39,220
+and the release is simply set the value to zero.
+而释放操作只是将值设置为零。
+
+174
+00:10:40,370 --> 00:10:42,340
+And the problem with this one,
+这个的问题是，
+
+175
+00:10:42,350 --> 00:10:43,990
+remember this while, look,
+记住这一点，看着，
+
+176
+00:10:45,470 --> 00:10:47,100
+again, it's like it's busy waiting.
+再次，就好像它在忙等待一样。
+
+177
+00:10:47,810 --> 00:10:50,480
+I which we discuss that you want to wait, we want to, sorry,
+我认为我们应该讨论一下你想要等待的事情，我们也想要，抱歉。
+
+178
+00:10:50,490 --> 00:10:51,760
+it's busy waiting.
+它正在忙等待。
+
+179
+00:10:52,080 --> 00:10:54,310
+You should remember we want to avoid.
+你应该记住我们想要避免的事情。
+
+180
+00:10:54,900 --> 00:10:55,260
+Right.
+好的。
+
+181
+00:10:55,650 --> 00:10:56,760
+Again, in this case,
+同样，在这种情况下，
+
+182
+00:10:56,770 --> 00:10:58,440
+we went to the second iteration,
+我们进入了第二次迭代。
+
+183
+00:10:58,450 --> 00:11:02,920
+which we just also presented again,
+我们刚刚也再次呈现了。
+
+184
+00:11:02,930 --> 00:11:05,640
+earlier in the lecture, today's lecture.
+在之前的讲座中，今天的讲座。
+
+185
+00:11:05,940 --> 00:11:11,720
+And you use the test and set only to protect the critical sections,
+你只需要使用测试和设置（test and set）来保护临界区。
+
+186
+00:11:12,130 --> 00:11:16,620
+which are concerned with updating the value of the lock.
+涉及更新锁的值的操作。
+
+187
+00:11:17,450 --> 00:11:20,080
+Now, again, this is much shorter,
+现在，再次，这个要短得多，
+
+188
+00:11:20,330 --> 00:11:21,380
+critical section.
+临界区
+
+189
+00:11:21,710 --> 00:11:23,460
+The test and set will be,
+测试并设置
+
+190
+00:11:23,750 --> 00:11:25,870
+will you wait only for a very short time?
+你只能等待很短的时间吗？
+
+191
+00:11:26,480 --> 00:11:27,600
+And now,
+现在，
+
+192
+00:11:27,610 --> 00:11:29,610
+instead of like, in this case,
+在这种情况下，不是像这样，而是
+
+193
+00:11:29,620 --> 00:11:31,570
+you wait pink, you are waiting.
+你等一下，你正在等待。
+
+194
+00:11:31,580 --> 00:11:33,530
+In the previous case, you are waiting.
+在之前的情况下，你正在等待。
+
+195
+00:11:33,810 --> 00:11:37,090
+As long as someone is in the critical section, do busy waiting.
+只要有人在临界区内，就进行忙等待。
+
+196
+00:11:37,100 --> 00:11:39,030
+So constraints as if you cycles.
+所以约束条件就像是循环一样。
+
+197
+00:11:39,040 --> 00:11:40,290
+In this case,
+在这种情况下，
+
+198
+00:11:42,500 --> 00:11:44,890
+in the more refined iteration,
+在更精细的迭代中，
+
+199
+00:11:45,200 --> 00:11:50,430
+you are going to put the thread which is waiting on the wake you.
+你将把等待唤醒的线程放入其中。
+
+200
+00:11:50,800 --> 00:11:51,010
+Right?
+对吗？
+
+201
+00:11:51,020 --> 00:11:52,370
+So there is no busy waiting.
+所以没有忙等待。
+
+202
+00:11:58,420 --> 00:11:59,380
+Any questions here?
+这里有什么问题吗？
+
+203
+00:12:10,300 --> 00:12:12,130
+So what we are going again with synchronization?
+我们再次讨论同步问题吗？
+
+204
+00:12:12,140 --> 00:12:13,510
+So let's see what we've done.
+那么让我们来看看我们已经做了什么。
+
+205
+00:12:13,790 --> 00:12:15,660
+We look on the hardware support.
+我们关注硬件支持。
+
+206
+00:12:15,670 --> 00:12:19,550
+The love stores is able to interrupt test and set and compare and swap.
+这个锁能够中断测试和设置以及比较和交换操作。
+
+207
+00:12:19,560 --> 00:12:22,270
+These are similar contest and set and compare and swap.
+这些是类似的竞赛、集合和比较交换操作。
+
+208
+00:12:23,000 --> 00:12:26,590
+They are much more useful than load and store.
+它们比加载和存储更加有用。
+
+209
+00:12:27,000 --> 00:12:30,340
+And we saw how you can't use these to implement locks.
+我们看到了你不能使用这些来实现锁。
+
+210
+00:12:30,920 --> 00:12:33,650
+And also he discusses abstraction about singapore's.
+他还讨论了关于新加坡的抽象概念。
+
+211
+00:12:34,350 --> 00:12:40,150
+And and then next also like that,
+然后接下来也是这样的，
+
+212
+00:12:40,160 --> 00:12:41,790
+we are going to talk about monitors.
+我们将要讨论关于监视器的话题。
+
+213
+00:12:42,400 --> 00:12:44,440
+It's, again, the higher level,
+又是高层次的问题，
+
+214
+00:12:44,680 --> 00:12:48,660
+the abstraction, the easier will be for the programs,
+抽象化程度越高，程序编写就会变得更加容易。
+
+215
+00:12:49,050 --> 00:12:55,200
+for the application to implement mutual exclusion and critical sections.
+为应用程序实现互斥和临界区。
+
+216
+00:12:58,690 --> 00:13:02,740
+Next, we are going to go and talk more about this abstraction.
+接下来，我们将进一步讨论这个抽象概念。
+
+217
+00:13:02,930 --> 00:13:05,940
+Let's talk again about summer force that, right?
+让我们再次谈谈关于夏季的力量，对吗？
+
+218
+00:13:07,370 --> 00:13:09,040
+And if you remember,
+如果你还记得的话，
+
+219
+00:13:09,050 --> 00:13:11,000
+just to remind you the summer force,
+只是提醒你夏季的力量。
+
+220
+00:13:11,480 --> 00:13:15,270
+you have that a little bit more sophisticated than locks.
+你需要的是比锁更复杂一点的东西。
+
+221
+00:13:15,700 --> 00:13:17,390
+A lock can have only two values,
+一个锁只能有两个值，
+
+222
+00:13:17,630 --> 00:13:20,240
+01, or busy and three.
+01，或者忙碌和三。
+
+223
+00:13:21,170 --> 00:13:23,750
+We summer force is like a counter,
+我们的夏季力量就像一个计数器，
+
+224
+00:13:23,760 --> 00:13:25,230
+write a special counter,
+编写一个特殊的计数器。
+
+225
+00:13:26,150 --> 00:13:29,050
+like you have a primitive which increments the summer
+就像你有一个原始操作，可以将夏天的值增加一样。
+
+226
+00:13:29,060 --> 00:13:31,490
+for and a primitive decline as a summer for.
+为了和一个原始的下降作为夏天。
+
+227
+00:13:31,790 --> 00:13:33,320
+Then if sum of four is zero,
+那么如果四个数的和为零，
+
+228
+00:13:33,330 --> 00:13:36,300
+then you are going to wait that you are very much.
+那你要等很久了。
+
+229
+00:13:37,080 --> 00:13:38,430
+You are waiting for a lock,
+你正在等待一个锁。
+
+230
+00:13:39,000 --> 00:13:39,860
+which is busy,
+哪个正在忙？
+
+231
+00:13:41,330 --> 00:13:41,960
+if you remember.
+如果你记得的话。
+
+232
+00:13:41,970 --> 00:13:43,880
+So that provides you a little bit more,
+这样可以为你提供更多信息，
+
+233
+00:13:50,770 --> 00:13:52,010
+a little bit more power.
+稍微多一点功率。
+
+234
+00:13:52,490 --> 00:13:53,830
+And therefore,
+因此，
+
+235
+00:13:53,840 --> 00:13:55,110
+it also gives you more,
+它还能给你更多，
+
+236
+00:13:55,870 --> 00:13:58,180
+if gives you more functionality,
+如果提供更多功能，
+
+237
+00:13:58,190 --> 00:14:02,150
+you can implement with the summer for both critical sections.
+你可以为两个临界区都实现一个夏令时。
+
+238
+00:14:02,400 --> 00:14:05,310
+But you also implement and material exclusion,
+但你还要实施和物质排斥。
+
+239
+00:14:05,320 --> 00:14:10,810
+but you also implement can scheduling constraints basically telling
+但你还可以实现调度约束，基本上是在告诉计算机操作系统如何进行调度。
+
+240
+00:14:10,820 --> 00:14:13,280
+signaling one approach a process
+信号量是一种进程间通信的方法。
+
+241
+00:14:13,290 --> 00:14:15,480
+from another process or a threat from another threat.
+来自另一个进程或来自另一个线程的威胁。
+
+242
+00:14:15,980 --> 00:14:16,890
+If you remember,
+如果你还记得的话，
+
+243
+00:14:18,230 --> 00:14:22,910
+the example we gave last time about this was about,
+我们上次给出的关于这个的例子是关于...
+
+244
+00:14:23,340 --> 00:14:24,590
+if you remember,
+如果你记得的话，
+
+245
+00:14:25,440 --> 00:14:27,950
+it was about implementing the strategy,
+这是关于实施策略的事情。
+
+246
+00:14:28,320 --> 00:14:32,730
+waiting the thread who launches a create another thread,
+等待启动一个创建另一个线程的线程。
+
+247
+00:14:32,740 --> 00:14:34,210
+waiting for the new creative,
+等待新的创意。
+
+248
+00:14:34,220 --> 00:14:35,730
+for the greatest thread to finish.
+为了让最重要的线程完成。
+
+249
+00:14:36,350 --> 00:14:36,560
+Right?
+对吗？
+
+250
+00:14:36,570 --> 00:14:37,320
+It's again.
+又是你。
+
+251
+00:14:38,570 --> 00:14:43,090
+Now, we are going to move from locks and some efforts to a new abstraction,
+现在，我们将从锁和一些努力转向一个新的抽象概念，
+
+252
+00:14:43,100 --> 00:14:44,330
+which is called monitors.
+这被称为监视器。
+
+253
+00:14:45,650 --> 00:14:46,930
+And monitors are better,
+而且显示器更好，
+
+254
+00:14:46,940 --> 00:14:50,220
+are simply more powerful.
+更加强大。
+
+255
+00:14:51,060 --> 00:14:58,510
+And and the main idea is to split between and
+主要的想法是在之间进行分割。
+
+256
+00:14:58,520 --> 00:15:00,990
+supporting explicitly these two functionality
+明确支持这两个功能
+
+257
+00:15:01,000 --> 00:15:05,100
+about mark mutual exclusion and scheduling constraints.
+关于标记互斥和调度约束。
+
+258
+00:15:05,670 --> 00:15:10,820
+You use locks for mutual exclusion and what are called condition variable
+你可以使用锁来实现互斥，并且还可以使用条件变量。
+
+259
+00:15:10,830 --> 00:15:12,670
+for scheduling constraints,
+对于调度约束，
+
+260
+00:15:12,680 --> 00:15:12,900
+right?
+对的？
+
+261
+00:15:15,720 --> 00:15:16,400
+A monitor.
+一个显示器。
+
+262
+00:15:16,410 --> 00:15:21,390
+It's a lock and a zero or more conditional variable for managing
+这是一个用于管理锁和一个或多个条件变量的机制。
+
+263
+00:15:21,400 --> 00:15:23,440
+concurrent access to share that.
+并发访问共享资源。
+
+264
+00:15:25,090 --> 00:15:27,430
+And we'll talk more about that.
+我们将会更详细地讨论这个问题。
+
+265
+00:15:27,730 --> 00:15:30,790
+Some languages provide this negatively.
+有些语言提供了这个功能的否定形式。
+
+266
+00:15:34,240 --> 00:15:38,620
+And most of the others,
+还有大部分其他的人，
+
+267
+00:15:38,630 --> 00:15:42,940
+you can use lock and conditional variables as a distinct abstractions.
+你可以使用锁和条件变量作为独立的抽象。
+
+268
+00:15:44,510 --> 00:15:45,730
+I'm going again,
+我要再走一次，
+
+269
+00:15:45,940 --> 00:15:47,580
+if you have any questions,
+如果你有任何问题，
+
+270
+00:15:47,590 --> 00:15:50,310
+let me know this is, again,
+请再次告诉我这是什么。
+
+271
+00:15:50,960 --> 00:15:52,230
+these lectures,
+这些讲座，
+
+272
+00:15:52,470 --> 00:15:56,500
+the past lecture in these lectures are not very easy to follow,
+这些讲座中的过去一节并不容易理解。
+
+273
+00:15:56,510 --> 00:15:59,230
+because they are about concurrency,
+因为它们涉及并发性，
+
+274
+00:15:59,240 --> 00:16:03,640
+are about programs which execute come correctly.
+是关于程序正确执行的问题。
+
+275
+00:16:03,970 --> 00:16:05,430
+And like we discussed last time,
+正如我们上次讨论的那样，
+
+276
+00:16:07,550 --> 00:16:09,050
+it's we,
+这是我们。
+
+277
+00:16:09,060 --> 00:16:13,740
+as humans are not very used about handling many things which happen
+由于人类并不习惯处理许多事情的发生
+
+278
+00:16:13,750 --> 00:16:14,660
+at the same time.
+同时。
+
+279
+00:16:14,910 --> 00:16:19,290
+We had much better in equalizing sequentializing things.
+我们在使事物变得相等和顺序化方面做得更好。
+
+280
+00:16:19,570 --> 00:16:21,860
+So it's perfectly fine.
+所以这是完全没问题的。
+
+281
+00:16:23,120 --> 00:16:27,250
+I if you feel this is a little bit more challenging,
+如果你觉得这有点更具挑战性，
+
+282
+00:16:28,500 --> 00:16:29,580
+but at the same time,
+但与此同时，
+
+283
+00:16:29,590 --> 00:16:32,340
+this also means that you should spend a little bit more time
+这也意味着你应该多花一点时间。
+
+284
+00:16:32,710 --> 00:16:35,500
+to try to understand deeply what's happening here.
+努力深入理解这里发生的事情。
+
+285
+00:16:43,620 --> 00:16:45,610
+Again, some languages provide monitors.
+再次强调，一些编程语言提供了监视器。
+
+286
+00:16:45,620 --> 00:16:50,410
+And let's see what is conditional variables,
+让我们来看看什么是条件变量。
+
+287
+00:16:50,820 --> 00:16:51,970
+conditional variables,
+条件变量
+
+288
+00:16:51,980 --> 00:16:53,490
+what is a conditional variable?
+条件变量是一种在多线程编程中使用的同步机制。它允许线程在满足特定条件之前等待，并在条件满足时被唤醒。条件变量通常与互斥锁一起使用，以确保线程在访问共享资源之前等待正确的条件。当条件不满足时，线程会进入等待状态，释放互斥锁，直到其他线程通过唤醒操作通知条件变量满足条件为止。一旦条件满足，线程会重新获得互斥锁，并继续执行。条件变量的使用可以有效地避免线程的忙等待，提高多线程程序的效率。
+
+289
+00:16:54,080 --> 00:16:59,390
+It's a queue of threads waiting for something inside a critical section to happen.
+这是一个等待在关键区域内某些事件发生的线程队列。
+
+290
+00:17:03,420 --> 00:17:09,040
+And the nice thing about the critical section send the conditional,
+关于临界区和条件发送的好处是，
+
+291
+00:17:09,410 --> 00:17:09,760
+sorry,
+对不起，
+
+292
+00:17:09,770 --> 00:17:16,210
+and I think about the monitors and conditional variables is conditional variables,
+我认为你在谈论监视器和条件变量，其中条件变量是一种条件变量。
+
+293
+00:17:16,760 --> 00:17:20,480
+allow sleeping inside the critical section by atomically,
+通过原子操作允许在临界区内休眠。
+
+294
+00:17:20,490 --> 00:17:23,000
+releasing the lock at a time regardlessly.
+无论何时都会释放锁定。
+
+295
+00:17:23,830 --> 00:17:26,180
+So what I mean by that,
+所以我的意思是，
+
+296
+00:17:26,940 --> 00:17:27,810
+here is what I mean.
+这是我的意思。
+
+297
+00:17:33,050 --> 00:17:34,670
+Remember about this slide?
+还记得这张幻灯片吗？
+
+298
+00:17:35,100 --> 00:17:38,020
+I'll go soon in again in presentation mode.
+我很快会再次进入演示模式。
+
+299
+00:17:38,700 --> 00:17:39,330
+Here,
+在这里，
+
+300
+00:17:40,540 --> 00:17:41,060
+it's a game.
+这是一个游戏。
+
+301
+00:17:42,200 --> 00:17:44,570
+If you try to acquire the lock,
+如果你尝试获取锁定，
+
+302
+00:17:45,450 --> 00:17:47,250
+and the lock is busy,
+锁已被占用，
+
+303
+00:17:47,260 --> 00:17:48,610
+so the value is one.
+所以这个值是一。
+
+304
+00:17:49,650 --> 00:17:50,930
+You have to go to sleep.
+你必须去睡觉。
+
+305
+00:17:52,340 --> 00:17:53,250
+And what you want,
+你想要什么？
+
+306
+00:17:53,820 --> 00:17:54,640
+we want this,
+我们想要这个。
+
+307
+00:17:54,650 --> 00:17:59,610
+how we want this to happen is to put the thread in the waiting queue.
+我们希望的做法是将线程放入等待队列中。
+
+308
+00:18:00,900 --> 00:18:03,100
+But when you put the set of the waiting queue,
+但是当你将等待队列的集合放入时，
+
+309
+00:18:03,110 --> 00:18:09,950
+you need also to really to resell the guard To let other threads.
+你还需要确保重新放置守卫，以允许其他线程进入。
+
+310
+00:18:09,960 --> 00:18:14,220
+And there is a critical section to look at the value,
+并且有一个关键部分需要查看该值，
+
+311
+00:18:14,670 --> 00:18:16,110
+maybe to modify the value.
+可能是为了修改这个值。
+
+312
+00:18:17,700 --> 00:18:21,970
+So now the sleep and the guard have to happen at the same time.
+现在，睡眠和保护必须同时发生。
+
+313
+00:18:23,100 --> 00:18:23,550
+Okay?
+好的？
+
+314
+00:18:24,340 --> 00:18:31,730
+They need to be atomic and monitors,
+它们需要是原子操作和监视器。
+
+315
+00:18:32,050 --> 00:18:34,450
+provide and conditional variables for monitors.
+为监视器提供条件变量和条件变量。
+
+条件变量是一种同步机制，用于在多个线程之间进行通信和协调。它们通常与锁结合使用，以确保线程在满足特定条件之前等待，并在条件满足时被唤醒。
+
+在监视器中，条件变量用于在共享资源的状态发生变化时通知等待线程。它们允许线程在等待条件满足时进入休眠状态，并在条件满足时被唤醒。
+
+提供变量用于监视器的实现。它们用于控制对共享资源的访问，并确保线程按照特定的顺序执行。提供变量通常与锁结合使用，以确保线程在访问共享资源之前获取锁，并在完成后释放锁。
+
+通过使用条件变量和提供变量，可以实现线程之间的协调和同步，以避免竞争条件和死锁等问题。这些机制是操作系统中重要的工具，用于实现并发和并行程序的正确性和效率。
+
+316
+00:18:34,710 --> 00:18:42,120
+Provide you this atomicity between the threads going to sleep and giving
+确保线程进入睡眠和释放之间的原子性
+
+317
+00:18:42,130 --> 00:18:43,360
+up releasing the lock,
+释放锁
+
+318
+00:18:43,800 --> 00:18:50,280
+because it's equally zero release a clock associated with a guard atomically.
+因为它等于零，所以原子地释放与保护原子关联的时钟。
+
+319
+00:18:50,810 --> 00:18:52,090
+You don't need to worry about that.
+你不需要担心那个。
+
+320
+00:18:52,840 --> 00:18:57,520
+That's what conditional variables in monitors are going to do for you.
+这就是在监视器中使用条件变量所能为你做的事情。
+
+321
+00:18:57,770 --> 00:19:00,310
+And that's why they are very useful.
+这就是为什么它们非常有用。
+
+322
+00:19:08,360 --> 00:19:09,630
+Here are the operations,
+以下是操作列表：
+
+323
+00:19:10,500 --> 00:19:12,310
+the operation you wait for the lock,
+你等待锁的操作
+
+324
+00:19:15,260 --> 00:19:21,700
+which I thought you can you can automatically,
+我以为你可以自动完成这个任务。
+
+325
+00:19:21,710 --> 00:19:22,860
+this is going to,
+这将要
+
+326
+00:19:22,870 --> 00:19:26,940
+the operation is going to automatically leads a lock and go to sleep.
+该操作将自动获取锁并进入休眠状态。
+
+327
+00:19:29,560 --> 00:19:31,150
+You can acquire the lock like that.
+你可以这样获取锁。
+
+328
+00:19:31,490 --> 00:19:36,920
+Will also have a few examples to make it more understandable.
+还会有一些例子，以使其更易理解。
+
+329
+00:19:37,270 --> 00:19:38,340
+Then you have signals.
+然后你有信号。
+
+330
+00:19:38,350 --> 00:19:43,700
+You remember that one of the use of the summer force was to signal when one,
+你还记得夏季力的一个用途是用来指示何时有一个
+
+331
+00:19:43,710 --> 00:19:44,750
+a thread, one,
+一个线程
+
+332
+00:19:44,760 --> 00:19:46,850
+an event right between two threads.
+两个线程之间的事件。
+
+333
+00:19:49,110 --> 00:19:50,910
+So now you have a very primitive,
+现在你有一个非常原始的，
+
+334
+00:19:50,920 --> 00:19:54,480
+which is called makes a lot of sense.
+这个被称为的确很有道理。
+
+335
+00:19:54,490 --> 00:19:55,680
+A name is signal.
+一个名字是一个信号。
+
+336
+00:19:56,750 --> 00:19:59,060
+You have also something which is called broadcast,
+你还有一种叫做广播的东西，
+
+337
+00:20:00,070 --> 00:20:00,860
+the signal,
+信号
+
+338
+00:20:02,030 --> 00:20:03,900
+its way, its waking,
+它的方式，它的觉醒，
+
+339
+00:20:04,330 --> 00:20:08,230
+a thread, which is waiting for some particular event to happen,
+一个线程，它正在等待某个特定事件的发生，
+
+340
+00:20:10,140 --> 00:20:11,040
+broadcasts,
+广播
+
+341
+00:20:11,580 --> 00:20:13,630
+its waking multiple waiters,
+它正在唤醒多个等待者，
+
+342
+00:20:13,640 --> 00:20:15,330
+all the waiters, which run,
+所有正在运行的服务员，
+
+343
+00:20:15,340 --> 00:20:17,030
+which waits for the people.
+等待着人们的地方。
+
+344
+00:20:17,640 --> 00:20:19,550
+Signal, if there are multiple waiters,
+如果有多个等待者，就发送信号。
+
+345
+00:20:19,790 --> 00:20:23,580
+it's going to wake only one.
+只会唤醒一个。
+
+346
+00:20:25,080 --> 00:20:27,180
+And that's non deterministic.
+这是非确定性的。
+
+347
+00:20:28,180 --> 00:20:30,290
+You don't know which one is going to be waking up.
+你不知道哪一个会被唤醒。
+
+348
+00:20:31,340 --> 00:20:32,800
+And in many cases, you don't care.
+在许多情况下，你并不在意。
+
+349
+00:20:33,520 --> 00:20:35,370
+Broadcast wakes all of them.
+广播会唤醒它们中的所有进程。
+
+350
+00:20:39,210 --> 00:20:39,590
+Okay.
+好的。
+
+351
+00:20:40,030 --> 00:20:42,360
+Now, when you do that,
+现在，当你这样做时，
+
+352
+00:20:42,370 --> 00:20:45,740
+when you do operation on the condition variables,
+当你对条件变量进行操作时，
+
+353
+00:20:46,370 --> 00:20:48,220
+you need to own the lock.
+你需要拥有锁。
+
+354
+00:20:48,690 --> 00:20:49,030
+Right?
+对吗？
+
+355
+00:20:49,460 --> 00:20:51,650
+Because this is in critical section.
+因为这是在临界区。
+
+356
+00:20:52,620 --> 00:20:54,300
+This is one way to represent it.
+这是一种表示方法。
+
+357
+00:20:54,850 --> 00:20:55,720
+The monikers,
+这些别名，
+
+358
+00:20:56,550 --> 00:20:59,860
+x and y are conditional variables.
+x和y是条件变量。
+
+359
+00:20:59,870 --> 00:21:02,200
+Each of them is associated acute.
+每个都与急性相关。
+
+360
+00:21:03,700 --> 00:21:07,430
+And you have a log,
+你有一个日志文件，
+
+361
+00:21:07,440 --> 00:21:11,080
+which provides a mutual exclusion with a shared data.
+这个提供了对共享数据的互斥访问。
+
+362
+00:21:11,370 --> 00:21:12,580
+In this monitor.
+在这个监视器中。
+
+363
+00:21:15,350 --> 00:21:23,540
+The conditional variables are shared it.
+条件变量是共享的。
+
+364
+00:21:24,810 --> 00:21:25,250
+But it's, again,
+但是，再一次，
+
+365
+00:21:25,260 --> 00:21:30,320
+one of the main advantage you are allowed to wait in the critical section.
+你被允许在临界区等待是其中一个主要的优势。
+
+366
+00:21:32,060 --> 00:21:34,010
+This is not allowed for summer force,
+这对于暑期强制工作是不允许的。
+
+367
+00:21:34,020 --> 00:21:35,650
+which makes the summer falls very,
+这使得夏天变得非常炎热
+
+368
+00:21:35,660 --> 00:21:36,850
+how much harder to use.
+使用起来有多困难？
+
+369
+00:21:38,110 --> 00:21:39,900
+Now, it's, again, let's see.
+现在，再次，让我们看看。
+
+370
+00:21:39,910 --> 00:21:42,100
+And we are going to have a lot of examples.
+我们将会有很多例子。
+
+371
+00:21:42,110 --> 00:21:45,650
+So we give you a better sense about how these monitors,
+这样我们可以更好地了解这些显示器，
+
+372
+00:21:46,200 --> 00:21:47,470
+how you use the monitors.
+如何使用监视器。
+
+373
+00:21:47,480 --> 00:21:49,990
+And also we are going to talk about how they are implemented.
+我们还将讨论它们是如何实现的。
+
+374
+00:21:50,960 --> 00:21:53,190
+Hopefully, by the end of these lectures,
+希望在这些讲座结束时，
+
+375
+00:21:53,450 --> 00:21:56,850
+we are going to have a pretty good feeling about monitors.
+我们对显示器的感觉会非常好。
+
+376
+00:21:57,350 --> 00:21:57,770
+Okay.
+好的。
+
+377
+00:21:59,500 --> 00:22:02,490
+Here is an infinite cube, single eyes.
+这是一个无限立方体，只有一个眼睛。
+
+378
+00:22:02,500 --> 00:22:04,530
+You got producer, consumer.
+你有生产者和消费者。
+
+379
+00:22:04,830 --> 00:22:10,020
+It's infinite in the sense that the producer can put any numbers of items
+从生产者的角度来看，它是无限的，因为生产者可以放置任意数量的物品。
+
+380
+00:22:10,030 --> 00:22:12,500
+in the queue is infinite.
+队列是无限的。
+
+381
+00:22:13,550 --> 00:22:14,100
+How do you do it?
+你是如何做到的？
+
+382
+00:22:14,110 --> 00:22:16,800
+The producer is like your choir is a lock.
+生产者就像你的合唱团是一个锁。
+
+383
+00:22:16,810 --> 00:22:17,850
+It really is a lock.
+这真的是一个锁。
+
+384
+00:22:18,360 --> 00:22:19,470
+You have a buffer lock,
+你有一个缓冲区锁。
+
+385
+00:22:21,270 --> 00:22:25,390
+and the consumer also acquired the lock and release a lock.
+消费者也获得了锁并释放了锁。
+
+386
+00:22:25,650 --> 00:22:26,050
+Right?
+对吗？
+
+387
+00:22:27,080 --> 00:22:31,190
+This is in order to protect the critical sections which are operating
+这是为了保护正在运行的临界区。
+
+388
+00:22:31,200 --> 00:22:31,710
+on the queue.
+在队列中。
+
+389
+00:22:31,840 --> 00:22:32,060
+Right?
+对吗？
+
+390
+00:22:32,070 --> 00:22:35,700
+You don't want a producer and the consumer to operate on the cure
+你不希望生产者和消费者在同一个资源上操作
+
+391
+00:22:35,710 --> 00:22:36,820
+at the same time.
+同时。
+
+392
+00:22:37,130 --> 00:22:40,620
+Because inserting adding a new element to the queue,
+因为要向队列中插入一个新元素，
+
+393
+00:22:40,630 --> 00:22:43,580
+removing an element from the queue are not atomic operations.
+从队列中移除一个元素不是原子操作。
+
+394
+00:22:44,010 --> 00:22:44,290
+Therefore,
+因此，
+
+395
+00:22:44,300 --> 00:22:48,060
+bad things can happen while you both of them are manipulating the pointers,
+在两个人同时操作指针时，可能会发生不好的事情。
+
+396
+00:22:49,650 --> 00:22:49,940
+right?
+对的？
+
+397
+00:22:49,950 --> 00:22:52,500
+To insert or remove the element from the queue.
+向队列中插入或移除元素。
+
+398
+00:22:55,080 --> 00:22:56,430
+Now, you need to you,
+现在，你需要你自己。
+
+399
+00:22:56,440 --> 00:23:03,760
+you can use these conditioned variables like buff cv
+你可以像使用 buff cv 一样使用这些条件变量。
+
+400
+00:23:04,210 --> 00:23:07,130
+in order to signal the producer.
+为了通知生产者。
+
+401
+00:23:07,140 --> 00:23:08,770
+That's basically what says.
+基本上就是这样说的。
+
+402
+00:23:09,030 --> 00:23:11,230
+The buff cv is a signal,
+缓冲区（buff）是一种信号。
+
+403
+00:23:11,580 --> 00:23:17,700
+a is a way for the producer to signal the consumer that there are elements
+a 是生产者向消费者发出信号，表示有元素可用。
+
+404
+00:23:17,710 --> 00:23:20,720
+in the buffer in the queue.
+在队列中的缓冲区中。
+
+405
+00:23:22,860 --> 00:23:24,580
+This is what it is, your signal.
+这就是它，你的信号。
+
+406
+00:23:24,590 --> 00:23:31,430
+It what do you do from in the consumer?
+你在消费者中做什么工作？
+
+407
+00:23:31,760 --> 00:23:32,290
+While it's empty?
+在它是空的时候吗？
+
+408
+00:23:32,300 --> 00:23:34,630
+So you look for the cure as it's empty.
+所以你正在寻找治愈，因为它是空的。
+
+409
+00:23:35,830 --> 00:23:36,010
+Right?
+对吗？
+
+410
+00:23:36,020 --> 00:23:37,330
+It's in the critical section,
+它处于临界区。
+
+411
+00:23:37,340 --> 00:23:40,290
+so it's far as fair to look at the queue,
+所以看待队列是公平的。
+
+412
+00:23:40,300 --> 00:23:42,930
+because no one else will modify the queue while you are
+因为在你操作队列时，没有其他人会对其进行修改。
+
+413
+00:23:42,940 --> 00:23:45,610
+in the critical section to operate on the queue.
+在临界区操作队列。
+
+414
+00:23:46,250 --> 00:23:48,480
+And then you call this condition, wait.
+然后你将这个条件称为等待。
+
+415
+00:23:48,490 --> 00:23:51,240
+So you're waiting for this signal for the best subsidy.
+所以你正在等待这个信号来获得最佳的补贴。
+
+416
+00:23:51,250 --> 00:23:52,880
+And you also, you see,
+而且你也明白，
+
+417
+00:23:52,890 --> 00:23:55,360
+this is the first argument of condition weight.
+这是条件权重的第一个参数。
+
+418
+00:23:55,810 --> 00:23:58,530
+And the second argument in buffalo, why is that?
+在buffalo中的第二个参数是为什么？
+
+419
+00:23:58,880 --> 00:24:04,080
+Because if the queue is empty,
+因为如果队列为空，
+
+420
+00:24:05,460 --> 00:24:06,410
+this is true.
+这是真的。
+
+421
+00:24:07,060 --> 00:24:08,570
+This in condition wait.
+这是一个条件等待。
+
+422
+00:24:09,370 --> 00:24:13,890
+And but what you are going to do is basically you are going to put
+但是你要做的基本上是将其放置
+
+423
+00:24:13,900 --> 00:24:14,890
+the threat to sleep,
+对睡眠的威胁
+
+424
+00:24:15,210 --> 00:24:16,360
+and you need to release a lock.
+你需要释放一个锁。
+
+425
+00:24:17,000 --> 00:24:17,380
+Right?
+对吗？
+
+426
+00:24:18,330 --> 00:24:23,660
+This basically tells the condition wait to release the lock once the thread
+这基本上告诉条件等待在线程完成后释放锁。
+
+427
+00:24:23,670 --> 00:24:24,460
+is going to sleep.
+正在去睡觉。
+
+428
+00:24:27,010 --> 00:24:27,580
+Remember,
+记住，
+
+429
+00:24:28,260 --> 00:24:32,360
+we want here to have atomic operation.
+我们希望这里进行原子操作。
+
+430
+00:24:33,240 --> 00:24:37,140
+The slip, these things above it should be an atomic operation.
+滑动操作，其上的这些事情应该是一个原子操作。
+
+431
+00:24:42,000 --> 00:24:42,640
+Aaron,
+亲爱的亚伦，
+
+432
+00:24:43,370 --> 00:24:45,040
+it has a question here.
+这里有一个问题。
+
+433
+00:24:46,810 --> 00:24:47,940
+If you use a broadcast,
+如果你使用广播，
+
+434
+00:24:48,510 --> 00:24:50,330
+it will create a race condition.
+这将会产生竞态条件。
+
+435
+00:24:51,840 --> 00:24:52,470
+Not necessary.
+不必要的。
+
+436
+00:24:52,720 --> 00:24:54,590
+We'll see that in an example.
+我们将在一个例子中看到这一点。
+
+437
+00:24:54,930 --> 00:24:55,120
+Right?
+对吗？
+
+438
+00:24:55,130 --> 00:24:56,280
+Because still,
+因为仍然，
+
+439
+00:24:56,550 --> 00:25:01,280
+not all you can wake up all the waiters,
+并不是所有的服务员都能被叫醒。
+
+440
+00:25:01,760 --> 00:25:05,730
+but only if all the waiters want to go to the same critical section,
+但前提是所有的服务员都想进入同一个临界区。
+
+441
+00:25:05,740 --> 00:25:07,330
+still only one will succeed.
+仍然只有一个人会成功。
+
+442
+00:25:08,110 --> 00:25:08,610
+Okay?
+好的？
+
+443
+00:25:10,190 --> 00:25:12,160
+And the other one will go back to wait.
+另一个将返回等待状态。
+
+444
+00:25:13,250 --> 00:25:16,550
+So you you are still going to be, okay.
+所以你还会继续做，好的。
+
+445
+00:25:20,400 --> 00:25:20,990
+Sorry.
+抱歉。
+
+446
+00:25:22,770 --> 00:25:24,400
+So this is basically what happened here.
+所以基本上就是发生了这样的事情。
+
+447
+00:25:31,670 --> 00:25:34,080
+Now, and I think this was a question last time.
+现在，我记得上次也是这个问题。
+
+448
+00:25:34,910 --> 00:25:37,820
+I don't remember who has that question.
+我不记得谁有那个问题了。
+
+449
+00:25:37,830 --> 00:25:40,540
+It was a great question about what you remember.
+这是一个很好的问题，关于你记得什么。
+
+450
+00:25:40,550 --> 00:25:41,900
+If you go to,
+如果你去到，
+
+451
+00:25:42,250 --> 00:25:44,400
+I think, was in the context of test onset,
+我认为，在测试开始的背景下，
+
+452
+00:25:44,410 --> 00:25:48,110
+why do you use while and not if it's a similar thing here,
+为什么在这里使用 while 而不是 if，它们的作用类似。
+
+453
+00:25:48,120 --> 00:25:49,350
+and we'll explain why.
+我们将解释原因。
+
+454
+00:25:49,950 --> 00:25:51,020
+And what is the difference.
+这是什么区别呢？
+
+455
+00:25:51,790 --> 00:25:55,670
+And the problem here is that if you look at this piece of code,
+问题在于，如果你看一下这段代码，
+
+456
+00:25:55,680 --> 00:26:01,370
+will you just the consumer wait for the queue to be non empty to have elements?
+作为消费者，您是否会等待队列非空才能获取元素？
+
+457
+00:26:01,640 --> 00:26:02,990
+In order to be queue?
+为了成为队列？
+
+458
+00:26:03,330 --> 00:26:04,950
+A new element from the queue?
+队列中的一个新元素？
+
+459
+00:26:07,570 --> 00:26:08,450
+It has a wire.
+它有一根电线。
+
+460
+00:26:08,810 --> 00:26:09,170
+Right?
+对吗？
+
+461
+00:26:09,560 --> 00:26:12,890
+And the natural question you can ask, look, why?
+而且你可以问的自然问题是，看，为什么呢？
+
+462
+00:26:13,400 --> 00:26:15,440
+Because the thread is going to sleep, right?
+因为线程要进入休眠状态，对吗？
+
+463
+00:26:15,950 --> 00:26:17,820
+So why do you do that?
+那么你为什么这样做呢？
+
+464
+00:26:18,740 --> 00:26:22,920
+And it's true that it's a good question.
+这是一个好问题，而且是真的。
+
+465
+00:26:23,330 --> 00:26:24,200
+Let me start with that.
+让我从那个开始。
+
+466
+00:26:25,670 --> 00:26:29,060
+You see that why should I do the while?
+你看到为什么我要做这个循环呢？
+
+467
+00:26:29,280 --> 00:26:30,470
+Because again,
+因为再次，
+
+468
+00:26:30,480 --> 00:26:32,070
+it's like the study is going to sleep,
+就好像学习要进入休眠状态一样，
+
+469
+00:26:32,080 --> 00:26:38,580
+and it's going to be open up if another thread exceeds the critical section.
+如果另一个线程超过了临界区域，它将被打开。
+
+470
+00:26:39,310 --> 00:26:39,590
+Right?
+对吗？
+
+471
+00:26:40,090 --> 00:26:41,390
+So I should test again.
+所以我应该再次进行测试。
+
+472
+00:26:45,830 --> 00:26:50,110
+The answer here is that it depends on the implementation.
+这里的答案取决于具体的实现方式。
+
+473
+00:26:51,170 --> 00:26:51,660
+Okay?
+好的？
+
+474
+00:26:52,210 --> 00:26:54,530
+You can actually, depending on the implementation,
+实际上，根据实现的不同，你是可以的。
+
+475
+00:26:55,220 --> 00:26:57,690
+you can replace while with if.
+你可以将while替换为if。
+
+476
+00:26:57,950 --> 00:26:59,840
+And that will be correct.
+那样是正确的。
+
+477
+00:27:03,180 --> 00:27:06,050
+And there are two implementation,
+而且有两种实现方式，
+
+478
+00:27:06,470 --> 00:27:08,540
+one in which you need to put while,
+其中一个需要使用while循环的情况。
+
+479
+00:27:08,550 --> 00:27:09,990
+you have to have while.
+你必须使用 while 循环。
+
+480
+00:27:10,400 --> 00:27:13,140
+And the other one you need to have, you can do,
+另外一个你需要拥有的，你可以做到的。
+
+481
+00:27:13,150 --> 00:27:18,930
+you can use if the first one in which requires you to have to save while,
+你可以使用第一个选项，它要求你在保存时使用 while 循环。
+
+482
+00:27:19,180 --> 00:27:20,390
+is called messer style,
+被称为"Messer风格"，
+
+483
+00:27:21,150 --> 00:27:21,570
+right?
+对的？
+
+484
+00:27:22,150 --> 00:27:26,040
+Because it was implemented in xerox parc mass operating system.
+因为它是在施乐帕克大型操作系统中实现的。
+
+485
+00:27:26,520 --> 00:27:28,880
+And this is what most operating system are using.
+这是大多数操作系统正在使用的。
+
+486
+00:27:30,350 --> 00:27:33,310
+The one in which you can use if is horror,
+其中一个你可以使用的是恐怖片。
+
+487
+00:27:33,320 --> 00:27:34,670
+style implementation.
+样式实现。
+
+488
+00:27:34,910 --> 00:27:37,970
+This is a british musician tony hall.
+这是一位英国音乐家托尼·霍尔。
+
+489
+00:27:38,230 --> 00:27:41,340
+And in this case,
+在这种情况下，
+
+490
+00:27:41,350 --> 00:27:45,510
+you can use if let's see how her monitor.
+你可以使用if语句来查看她的显示器。
+
+491
+00:27:45,520 --> 00:27:48,600
+So this is the one you can use if how they are implement.
+这是你可以使用的一个实现方式。
+
+492
+00:27:49,200 --> 00:27:50,710
+Here is for how it's implemented.
+这是它的实现方式。
+
+493
+00:27:50,720 --> 00:27:54,300
+You have acquired on both sides.
+你已经获得了双方的认可。
+
+494
+00:27:54,870 --> 00:27:59,780
+And let's say the first,
+假设首先，
+
+495
+00:28:02,740 --> 00:28:04,090
+you so, sorry,
+你好，非常抱歉，
+
+496
+00:28:04,100 --> 00:28:07,370
+so in both cases,
+所以在这两种情况下，
+
+497
+00:28:07,380 --> 00:28:08,430
+you obviously,
+你显然，
+
+498
+00:28:08,440 --> 00:28:11,870
+you protect the critical sections by above lock.
+你通过上锁来保护临界区。
+
+499
+00:28:12,440 --> 00:28:17,220
+And the code on the left hand side is going to send a signal.
+左侧的代码将发送一个信号。
+
+500
+00:28:19,440 --> 00:28:21,340
+And as a result of the signal,
+由于信号的结果，
+
+501
+00:28:21,680 --> 00:28:26,080
+the thread which are waiting on this conditional by variable,
+正在等待此条件变量的线程
+
+502
+00:28:26,420 --> 00:28:29,160
+buff cv is going to wake up.
+缓冲区 CV 将要被唤醒。
+
+503
+00:28:30,810 --> 00:28:33,990
+The sled on the left is going to send a signal.
+左边的雪橇将发送一个信号。
+
+504
+00:28:34,330 --> 00:28:39,290
+And this the code on the right is going to be of a thread,
+右侧的代码将是一个线程的代码。
+
+505
+00:28:39,570 --> 00:28:43,160
+which is going to be open up by this signal.
+这个信号将会打开哪个东西。
+
+506
+00:28:44,480 --> 00:28:45,670
+Let's see what happens.
+让我们看看会发生什么。
+
+507
+00:28:45,680 --> 00:28:49,450
+So it's hard what happens when you execute this signal.
+当执行这个信号时，发生的情况很难确定。
+
+508
+00:28:50,650 --> 00:28:53,610
+You automatically release a lock,
+你会自动释放一个锁，
+
+509
+00:28:53,960 --> 00:28:55,060
+the buff lock here,
+这里是缓冲区锁。
+
+510
+00:28:55,500 --> 00:28:59,220
+and the cpu and your schedule immediately,
+并且立即查看CPU和你的日程安排。
+
+511
+00:28:59,870 --> 00:29:05,800
+the thread which is waiting on the above cv conditional barrier.
+正在等待上述条件变量屏障的线程。
+
+512
+00:29:06,640 --> 00:29:07,820
+You are going to execute it.
+你将要执行它。
+
+513
+00:29:08,640 --> 00:29:11,010
+And then at the end,
+最后，
+
+514
+00:29:11,480 --> 00:29:13,660
+you are going to release the lock.
+你将要释放锁。
+
+515
+00:29:14,430 --> 00:29:19,020
+And then you go back and continue to execute the first thread,
+然后你返回并继续执行第一个线程。
+
+516
+00:29:19,350 --> 00:29:22,600
+which signaled the second one.
+这个信号表示了第二个。
+
+517
+00:29:25,620 --> 00:29:28,410
+And that's what it is.
+就是这样。
+
+518
+00:29:29,060 --> 00:29:29,410
+Right?
+对吗？
+
+519
+00:29:31,290 --> 00:29:33,040
+This is the implementation now.
+这是当前的实现。
+
+520
+00:29:34,030 --> 00:29:35,880
+So this seems like good, right?
+所以这看起来不错，对吧？
+
+521
+00:29:36,330 --> 00:29:37,920
+Is basically in the signal.
+基本上是在信号中。
+
+522
+00:29:38,280 --> 00:29:39,760
+When I signal someone, I stop,
+当我向某人发出信号时，我会停下来。
+
+523
+00:29:39,770 --> 00:29:43,790
+I give the lock to the thread which is writing.
+我将锁交给正在写入的线程。
+
+524
+00:29:43,800 --> 00:29:51,810
+And this and I the the operating system will schedule that thread to execute,
+然后操作系统会调度这个线程来执行。
+
+525
+00:29:52,310 --> 00:29:53,820
+exceed the critical section.
+超出临界区域。
+
+526
+00:29:53,830 --> 00:29:56,540
+And after that, I gave me that I I get the control back.
+之后，我重新获得了控制权。
+
+527
+00:29:58,470 --> 00:29:58,780
+Good.
+好的。
+
+528
+00:29:59,770 --> 00:30:00,490
+This is correct.
+这是正确的。
+
+529
+00:30:01,190 --> 00:30:01,990
+What is a problem?
+问题是指一个困扰人们、需要解决的情况或难题。
+
+530
+00:30:02,650 --> 00:30:04,040
+The problem here is,
+问题在于，
+
+531
+00:30:04,330 --> 00:30:09,030
+it's a little bit harder to implement and may lead to a lot of context switches.
+这个实现会稍微复杂一些，并且可能会导致大量的上下文切换。
+
+532
+00:30:11,070 --> 00:30:12,510
+Furthermore, as you'll see,
+此外，正如您将看到的，
+
+533
+00:30:12,520 --> 00:30:16,350
+from the next messy style implementation is not really necessary.
+从下一个混乱的样式实现并不是真正必要的。
+
+534
+00:30:17,810 --> 00:30:23,060
+And here it's about messer implementation with a messer implementation.
+这里是关于使用 messer 实现的 messer 实现的内容。
+
+535
+00:30:23,070 --> 00:30:24,300
+When you after your signal,
+当你收到信号后，
+
+536
+00:30:24,310 --> 00:30:32,370
+you do not give the control to the thread waiting for unconditioned barrier.
+你没有将控制权交给等待无条件屏障的线程。
+
+537
+00:30:32,810 --> 00:30:34,690
+Instead, what you do,
+相反，你所做的是什么，
+
+538
+00:30:35,020 --> 00:30:37,160
+you just take that thread,
+你只需要获取那个线程，
+
+539
+00:30:38,320 --> 00:30:40,080
+waiting on the conditional variable,
+等待条件变量,
+
+540
+00:30:41,520 --> 00:30:42,860
+and you put it,
+然后你放置它，
+
+541
+00:30:43,170 --> 00:30:45,620
+move it from the waiting queue to the radical,
+将其从等待队列移动到就绪队列中。
+
+542
+00:30:46,400 --> 00:30:47,440
+is ready to execute.
+已准备好执行。
+
+543
+00:30:49,420 --> 00:30:50,690
+And then you continue.
+然后你继续。
+
+544
+00:30:54,400 --> 00:30:55,480
+And eventually later,
+最终，稍后，
+
+545
+00:30:55,490 --> 00:30:56,520
+when you are done,
+完成后，
+
+546
+00:30:57,490 --> 00:30:59,810
+you are going to schedule the operating system,
+你将要安排操作系统的日程安排。
+
+547
+00:30:59,820 --> 00:31:03,910
+is going to schedule the thread,
+将要调度线程
+
+548
+00:31:04,430 --> 00:31:05,640
+which is now in the radical,
+现在处于激进派的是哪一个？
+
+549
+00:31:10,330 --> 00:31:11,310
+sometimes later.
+稍后一些时候。
+
+550
+00:31:15,890 --> 00:31:16,750
+But you see now,
+但是你现在看到了，
+
+551
+00:31:16,760 --> 00:31:25,210
+so what is but we see now that now you need to check this condition, again,
+所以现在我们看到你需要再次检查这个条件。
+
+552
+00:31:25,220 --> 00:31:27,400
+is mpq why?
+mpq 是什么？
+
+553
+00:31:27,840 --> 00:31:29,460
+Because in the meantime,
+因为与此同时，
+
+554
+00:31:29,800 --> 00:31:31,580
+there can be another between,
+之间可能还有另一个。
+
+555
+00:31:32,390 --> 00:31:33,580
+in the meantime,
+与此同时，
+
+556
+00:31:33,940 --> 00:31:35,900
+you can have a race condition.
+你可能会遇到竞态条件。
+
+557
+00:31:35,910 --> 00:31:40,370
+And another thread comes and wants to acquire acquires a lock,
+另一个线程来了并想要获取一个锁，
+
+558
+00:31:40,700 --> 00:31:41,570
+because it's free.
+因为它是免费的。
+
+559
+00:31:41,930 --> 00:31:46,410
+And now, you are going to have two threads on this,
+现在，你将在这个上面有两个线程。
+
+560
+00:31:47,440 --> 00:31:49,270
+which are on the ridicule,
+这些都是荒谬可笑的。
+
+561
+00:31:49,280 --> 00:31:52,060
+which one to enter is the same critical section.
+进入哪个临界区是相同的。
+
+562
+00:31:52,580 --> 00:31:54,410
+So that is not good.
+那样不好。
+
+563
+00:31:55,670 --> 00:31:56,070
+Right?
+对吗？
+
+564
+00:31:57,260 --> 00:32:00,080
+So that's kind of the problem,
+所以这就是问题所在，
+
+565
+00:32:00,850 --> 00:32:01,000
+right?
+是的，正确的。
+
+566
+00:32:01,010 --> 00:32:01,320
+That's not.
+那不是。
+
+567
+00:32:01,330 --> 00:32:03,140
+But by doing so,
+但是这样做的话，
+
+568
+00:32:03,150 --> 00:32:06,770
+you are going to have less context switches, right?
+你将会减少上下文切换，对吗？
+
+569
+00:32:06,780 --> 00:32:07,650
+In this case.
+在这种情况下。
+
+570
+00:32:08,110 --> 00:32:08,360
+Right?
+对吗？
+
+571
+00:32:08,370 --> 00:32:13,670
+You have the first thread finishes exceeding the critical section.
+你有第一个线程完成超过临界区。
+
+572
+00:32:14,070 --> 00:32:16,120
+Then you are going to,
+那么你将要，
+
+573
+00:32:17,150 --> 00:32:20,690
+after that, you are going to execute the second set.
+之后，你将执行第二组。
+
+574
+00:32:20,700 --> 00:32:21,890
+So it's one context switch.
+所以这是一次上下文切换。
+
+575
+00:32:21,900 --> 00:32:23,210
+In the previous case,
+在之前的情况下，
+
+576
+00:32:23,220 --> 00:32:24,570
+you have one context switch,
+你有一个上下文切换。
+
+577
+00:32:24,740 --> 00:32:28,680
+going from the signaling thread to the thread which is writing and back.
+从信号线程切换到正在写入的线程，然后再切换回来。
+
+578
+00:32:29,340 --> 00:32:30,550
+So at least you have to.
+所以至少你必须这样做。
+
+579
+00:32:32,030 --> 00:32:32,300
+Right?
+对吗？
+
+580
+00:32:38,370 --> 00:32:38,870
+Okay.
+好的。
+
+581
+00:32:39,440 --> 00:32:40,160
+Any questions?
+有任何问题吗？
+
+582
+00:32:45,430 --> 00:32:49,060
+Let's not look now at our buffer,
+现在先不要看我们的缓冲区，
+
+583
+00:32:50,600 --> 00:32:58,330
+q example and use a more.
+请提供一个例子并提供更多的用途。
+
+584
+00:32:58,860 --> 00:33:00,730
+And now we are using,
+现在我们正在使用的是，
+
+585
+00:33:03,170 --> 00:33:08,920
+we are using two conditioned variables for producer and the consumer.
+我们正在使用两个条件变量来控制生产者和消费者。
+
+586
+00:33:08,930 --> 00:33:10,200
+Let me give you the code.
+让我给你提供代码。
+
+587
+00:33:12,780 --> 00:33:15,540
+We are also looking now is bounded buffer.
+我们现在也在看有界缓冲区。
+
+588
+00:33:15,550 --> 00:33:17,060
+So in previous case,
+在之前的情况中，
+
+589
+00:33:17,360 --> 00:33:20,940
+we use only unconditioned variable that it was unbounded buffer,
+我们只使用了一个无条件的变量，它是一个无界缓冲区。
+
+590
+00:33:21,390 --> 00:33:22,550
+infinite buffer size.
+无限缓冲区大小。
+
+591
+00:33:23,040 --> 00:33:24,030
+Here is bounded.
+这是有界的。
+
+592
+00:33:24,900 --> 00:33:26,570
+How do you have two variables?
+你如何拥有两个变量？
+
+593
+00:33:26,860 --> 00:33:29,650
+You can check whether the buffer is full or empty.
+你可以检查缓冲区是否满或空。
+
+594
+00:33:30,580 --> 00:33:32,340
+And then,
+然后，
+
+595
+00:33:33,240 --> 00:33:40,090
+if the buffer is full, while the buffer is full, obviously,
+如果缓冲区已满，当缓冲区已满时，显然，
+
+596
+00:33:40,370 --> 00:33:41,570
+the producer weights.
+生产者的权重。
+
+597
+00:33:42,490 --> 00:33:49,090
+Otherwise, you incur an item in the buffer and you signal the consumer.
+否则，你会在缓冲区中添加一个项目，并通知消费者。
+
+598
+00:33:49,450 --> 00:33:54,230
+Because now the buffer is no longer empty,
+因为现在缓冲区不再为空，
+
+599
+00:33:54,240 --> 00:33:56,430
+and the consumer can drain,
+而消费者可以消耗能量，
+
+600
+00:33:56,670 --> 00:33:58,680
+can take that element from the buffer.
+可以从缓冲区中取出该元素。
+
+601
+00:34:00,950 --> 00:34:02,100
+The consumer is the same.
+消费者是相同的。
+
+602
+00:34:02,510 --> 00:34:03,660
+If the buffer was,
+如果缓冲区是这样的，
+
+603
+00:34:05,090 --> 00:34:06,820
+if the buffer, if it's empty,
+如果缓冲区为空，
+
+604
+00:34:07,320 --> 00:34:08,230
+you can do anything.
+你可以做任何事情。
+
+605
+00:34:08,240 --> 00:34:11,310
+There is no item you can take from the buffer.
+缓冲区中没有可以取出的项目。
+
+606
+00:34:14,680 --> 00:34:16,070
+If the buffer is not empty,
+如果缓冲区不为空，
+
+607
+00:34:16,080 --> 00:34:18,850
+you decue it and you signal a producer,
+你解除它并向生产者发送信号。
+
+608
+00:34:18,860 --> 00:34:22,370
+then there is at least one free slot in the buffer.
+那么缓冲区至少有一个空闲槽位。
+
+609
+00:34:22,380 --> 00:34:24,530
+You can insert a new item.
+你可以插入一个新项目。
+
+610
+00:34:26,180 --> 00:34:26,920
+Right?
+对吗？
+
+611
+00:34:28,950 --> 00:34:35,660
+This is what any questions?
+这是什么问题？
+
+612
+00:34:39,270 --> 00:34:40,700
+You see that fundamentally,
+你可以看到，从根本上说，
+
+613
+00:34:40,710 --> 00:34:42,580
+what you do is condition variable.
+你所做的是条件变量。
+
+614
+00:34:42,590 --> 00:34:45,790
+Here is like you mentioned earlier,
+这是你之前提到的地方，
+
+615
+00:34:46,030 --> 00:34:49,170
+is to signal between threads.
+是用来在线程之间进行信号传递的。
+
+616
+00:34:50,060 --> 00:34:52,760
+When an event occurs.
+当事件发生时。
+
+617
+00:34:53,330 --> 00:34:54,920
+In this particular case,
+在这种特殊情况下，
+
+618
+00:34:55,160 --> 00:35:01,890
+the producer signal to consumer when it's inserted an element in the buffer
+当生产者向缓冲区插入一个元素时，会向消费者发出信号。
+
+619
+00:35:04,360 --> 00:35:12,250
+and the consumer signals to the producer when it removed an element
+当消费者移除一个元素时，它向生产者发出信号。
+
+620
+00:35:12,260 --> 00:35:12,930
+from the buffer.
+从缓冲区中。
+
+621
+00:35:15,720 --> 00:35:19,590
+Now, the producer now that for sure it can add a new element is above.
+现在，生产者确信它可以添加一个新元素。
+
+622
+00:35:24,010 --> 00:35:31,660
+Also, again, I want to reiterate that the thread when he's waiting,
+另外，我想再次强调，当他在等待时，线程应该如何处理。
+
+623
+00:35:31,670 --> 00:35:32,700
+it doesn't do busy,
+它不会忙碌，
+
+624
+00:35:32,710 --> 00:35:35,750
+waiting is sleeping.
+等待就是睡眠。
+
+625
+00:35:36,420 --> 00:35:37,940
+The condition variable,
+条件变量，
+
+626
+00:35:39,210 --> 00:35:41,870
+the semantics there or can't wait,
+那里的语义或者等不及了
+
+627
+00:35:42,280 --> 00:35:43,770
+is to take that thread,
+是将该线程进行处理，
+
+628
+00:35:44,330 --> 00:35:50,140
+put it on the wait queue and release the lock to the critical section.
+将其放入等待队列并释放对临界区的锁定。
+
+629
+00:35:50,900 --> 00:35:51,360
+Rough lock.
+粗糙的锁。
+
+630
+00:35:57,190 --> 00:35:59,360
+Can you construct monitor from some of us?
+你能从我们中的一些人构建监视器吗？
+
+631
+00:36:01,070 --> 00:36:03,070
+The locking aspect is easy, right?
+加锁的部分很容易，对吗？
+
+632
+00:36:03,080 --> 00:36:03,710
+Remember,
+记住，
+
+633
+00:36:04,890 --> 00:36:08,790
+you can use a semaphore which has only two values.
+你可以使用一个只有两个值的信号量。
+
+634
+00:36:09,220 --> 00:36:14,470
+And the way it's basically decrementing, the semaphore.
+而且它的基本操作是对信号量进行递减。
+
+635
+00:36:14,920 --> 00:36:17,610
+If it's one, you initialize on 4~1.
+如果是1，你在4~1上进行初始化。
+
+636
+00:36:17,620 --> 00:36:20,610
+If it's one, you require the lock, and it's zero.
+如果它是1，你需要锁定，如果是0。
+
+637
+00:36:20,710 --> 00:36:24,550
+If someone else said calm since one to decrement it,
+如果有其他人说要冷静，那么就减少一次。
+
+638
+00:36:24,970 --> 00:36:26,940
+then it came out and discussed the white.
+然后它出现并讨论了白色。
+
+639
+00:36:27,560 --> 00:36:27,600
+Right?
+对吗？
+
+640
+00:36:27,610 --> 00:36:30,480
+Because you need to wait for the someone else,
+因为你需要等待别人，
+
+641
+00:36:33,060 --> 00:36:37,180
+increase you to increment the semaphore back to one.
+将信号量增加到一。
+
+642
+00:36:37,800 --> 00:36:38,080
+Right?
+对吗？
+
+643
+00:36:38,370 --> 00:36:39,800
+This will be the signal, right?
+这将是信号，对吗？
+
+644
+00:36:39,810 --> 00:36:40,440
+So you see things.
+所以你能看到事物。
+
+645
+00:36:43,550 --> 00:36:47,770
+But the biggest problem here is that the wait,
+但是这里最大的问题是等待时间，
+
+646
+00:36:47,780 --> 00:36:48,850
+if you do that,
+如果你这样做的话，
+
+647
+00:36:48,860 --> 00:36:50,650
+while you are in a critical section,
+当你处于临界区时，
+
+648
+00:36:50,660 --> 00:36:52,930
+and you have to do that to be in the critical section,
+并且你必须这样做才能进入临界区。
+
+649
+00:36:53,180 --> 00:36:55,150
+then we are going to wait,
+那么我们就等待吧。
+
+650
+00:36:55,560 --> 00:36:57,630
+and you are not going to release a lock.
+而且你不会释放锁。
+
+651
+00:36:58,390 --> 00:36:58,650
+Right?
+对吗？
+
+652
+00:36:58,660 --> 00:36:59,650
+So that's the key.
+所以这就是关键。
+
+653
+00:37:00,030 --> 00:37:03,590
+The monitors on the conditioned variable, conditioned weight,
+条件变量上的监视器，条件权重，
+
+654
+00:37:03,600 --> 00:37:08,610
+that function is releasing the lock atomically when you go to sleep.
+当你进入睡眠状态时，该函数会原子地释放锁。
+
+655
+00:37:09,590 --> 00:37:09,920
+Right?
+对吗？
+
+656
+00:37:11,570 --> 00:37:13,500
+And are this working?
+这个工作吗？
+
+657
+00:37:14,190 --> 00:37:15,580
+This is what about this?
+这是关于什么的？
+
+658
+00:37:16,210 --> 00:37:16,580
+One, right?
+一个，对吗？
+
+659
+00:37:18,720 --> 00:37:21,670
+You release a lock, you put that you release a lock immediately.
+当你释放一个锁时，你应该立即标明你已经释放了该锁。
+
+660
+00:37:22,130 --> 00:37:22,440
+Right?
+对吗？
+
+661
+00:37:22,450 --> 00:37:24,920
+You after wait, right?
+你是在等待吗？
+
+662
+00:37:25,600 --> 00:37:33,570
+This will not work in one of the reasons the conditional variables are have
+这将无法工作的一个原因是条件变量存在问题。
+
+663
+00:37:33,580 --> 00:37:36,390
+no history in the sense that I always signal.
+没有历史记录，意味着我总是发送信号。
+
+664
+00:37:36,400 --> 00:37:38,430
+If I signal you 5 times,
+如果我向你发出5次信号，
+
+665
+00:37:38,650 --> 00:37:41,040
+you are going to be open only once, right?
+你只会开放一次，对吗？
+
+666
+00:37:41,560 --> 00:37:43,190
+But some of us have history.
+但是我们中的一些人有历史。
+
+667
+00:37:44,170 --> 00:37:44,970
+Let me see.
+让我看看。
+
+668
+00:37:53,150 --> 00:37:54,540
+So this is exactly what I was saying.
+所以这正是我所说的。
+
+669
+00:37:54,550 --> 00:37:56,100
+It's a great question that I will.
+这是一个很好的问题，我会解答的。
+
+670
+00:37:56,850 --> 00:37:57,830
+The question is,
+问题是，
+
+671
+00:38:00,640 --> 00:38:02,750
+if the buffer is half full,
+如果缓冲区半满，
+
+672
+00:38:02,990 --> 00:38:08,820
+will the condition variable still going to signal in a a is a in the either
+在条件变量中，如果一个线程在等待状态中，那么当条件满足时，它将被唤醒。
+
+673
+00:38:08,830 --> 00:38:09,120
+case?
+案例？
+
+674
+00:38:09,430 --> 00:38:10,220
+Absolutely.
+当然可以。
+
+675
+00:38:10,430 --> 00:38:12,330
+That's exactly what we mean here.
+这正是我们在这里所指的。
+
+676
+00:38:12,340 --> 00:38:14,370
+The condition variable has no history.
+条件变量没有历史记录。
+
+677
+00:38:14,810 --> 00:38:16,160
+You are going to be signaled.
+你将会被发出信号。
+
+678
+00:38:16,590 --> 00:38:19,140
+In that case, a signal doesn't mean anything,
+在这种情况下，信号没有任何意义。
+
+679
+00:38:19,410 --> 00:38:21,220
+because you may not,
+因为你可能不行，
+
+680
+00:38:21,790 --> 00:38:27,570
+if you signal and there is no thread on waiting, then nothing will happen.
+如果你发送一个信号，但没有线程在等待，那么什么都不会发生。
+
+681
+00:38:30,500 --> 00:38:31,410
+Very good question.
+非常好的问题。
+
+682
+00:38:42,830 --> 00:38:43,420
+And,
+而且，
+
+683
+00:38:44,670 --> 00:38:46,380
+yeah, this is exactly what I said.
+是的，这正是我所说的。
+
+684
+00:38:46,390 --> 00:38:48,980
+It was if the thread signals and no one is waiting,
+如果线程发出信号而没有人在等待，那就是这样。
+
+685
+00:38:48,990 --> 00:38:50,060
+there is no operation.
+没有操作。
+
+686
+00:38:50,070 --> 00:38:50,820
+There is no.
+没有。
+
+687
+00:38:51,730 --> 00:38:53,970
+If a sled later waits,
+如果一个雪橇稍后等待，
+
+688
+00:38:54,210 --> 00:38:56,080
+then it's a problem right now here.
+那么现在这里就有一个问题。
+
+689
+00:38:56,090 --> 00:38:58,200
+But because it's, again,
+但是因为它，再一次，
+
+690
+00:38:58,210 --> 00:38:59,610
+if that happens,
+如果发生这种情况，
+
+691
+00:39:00,310 --> 00:39:05,700
+then it's going to you wait with your visa lock.
+那么你需要等待你的签证被锁定。
+
+692
+00:39:05,930 --> 00:39:11,630
+And the other thread cannot increment the semaphore.
+另一个线程无法对信号量进行递增操作。
+
+693
+00:39:11,640 --> 00:39:13,220
+Which correspond to the lock.
+对应于锁。
+
+694
+00:39:13,230 --> 00:39:18,480
+So you are going to be to be stuck.
+所以你将会被困住。
+
+695
+00:39:20,850 --> 00:39:21,230
+Anyway.
+无论如何。
+
+696
+00:39:22,130 --> 00:39:24,180
+So there are a bunch of questions here,
+所以这里有一堆问题，
+
+697
+00:39:24,190 --> 00:39:27,400
+and I invite you to answer the questions.
+我邀请你回答这些问题。
+
+698
+00:39:28,110 --> 00:39:33,740
+And I just want to as an exercise for you.
+我只是想给你一个练习机会。
+
+699
+00:39:34,320 --> 00:39:40,640
+And you may be very well get some problem like this one and asking you
+你可能会遇到类似这样的问题，并向你寻求帮助。
+
+700
+00:39:40,650 --> 00:39:41,460
+these questions.
+这些问题。
+
+701
+00:39:42,790 --> 00:39:44,810
+But instead,
+但是相反，
+
+702
+00:39:44,820 --> 00:39:48,540
+because you have running a little bit out of time,
+因为你的时间有点不够了，
+
+703
+00:39:48,550 --> 00:39:54,440
+I want to go to the next part of the lecture,
+我想要继续听讲座的下一部分。
+
+704
+00:39:54,450 --> 00:39:56,760
+which is extremely important part of the lecture.
+这是讲座中非常重要的部分。
+
+705
+00:39:57,310 --> 00:40:05,080
+And this is about reader and write that problem.
+这是关于读者和写者问题的内容。
+
+706
+00:40:07,830 --> 00:40:08,980
+Let me just see.
+让我看一下。
+
+707
+00:40:14,140 --> 00:40:17,540
+Ii think I don't have the announcement before going there.
+我想我在去那里之前没有收到通知。
+
+708
+00:40:19,110 --> 00:40:20,000
+Let me do verbally.
+让我口头来做。
+
+709
+00:40:20,010 --> 00:40:25,850
+And i'm going to add the slide about the announcement to the lecture right
+我将在讲座中添加关于公告的幻灯片。
+
+710
+00:40:25,860 --> 00:40:27,970
+after the lecture slide,
+在讲义幻灯片之后，
+
+711
+00:40:27,980 --> 00:40:29,090
+right after the election.
+选举结束后立即。
+
+712
+00:40:29,740 --> 00:40:33,490
+So basically, the most important thing is that obviously,
+基本上，最重要的是显然，
+
+713
+00:40:33,500 --> 00:40:35,370
+next week,
+下周，
+
+714
+00:40:37,310 --> 00:40:41,670
+we are going to have the first meter and to be between seven and nine.
+我们将进行第一次测量，时间将在七点到九点之间。
+
+715
+00:40:41,960 --> 00:40:42,720
+On wednesday,
+周三，
+
+716
+00:40:48,590 --> 00:40:56,440
+we are going to have also a session for between 7:00 and
+我们还将在7:00和之间进行一次会议。
+
+717
+00:40:56,450 --> 00:41:00,980
+9:00 pm on monday for the midterm.
+期中考试时间为周一晚上9点。
+
+718
+00:41:01,520 --> 00:41:04,240
+So you can come and ask any questions you have.
+所以你可以来问任何问题。
+
+719
+00:41:05,580 --> 00:41:10,320
+And this is pretty much it.
+这就是大致的内容了。
+
+720
+00:41:11,130 --> 00:41:16,010
+We are going to provide more informations as you go close to the meter.
+当您靠近仪表时，我们将提供更多的信息。
+
+721
+00:41:17,260 --> 00:41:19,410
+But if you have now, any questions?
+但是如果你现在有任何问题吗？
+
+722
+00:41:19,420 --> 00:41:20,570
+Let me know.
+请告诉我。
+
+723
+00:41:28,880 --> 00:41:33,820
+Now, this is a more complex problem.
+现在，这是一个更复杂的问题。
+
+724
+00:41:34,400 --> 00:41:38,820
+This will really illustrate very clearly the use of monitors.
+这将非常清楚地说明了监视器的使用。
+
+725
+00:41:41,090 --> 00:41:42,250
+So here is a problem.
+所以这里有一个问题。
+
+726
+00:41:42,920 --> 00:41:51,700
+The problem is about accessing a database which is shared by multiple people.
+这个问题涉及到多人共享访问数据库的情况。
+
+727
+00:41:54,080 --> 00:41:59,120
+A can have a bunch of people who want to write and a bunch of people who
+A可以有一群想要写作的人和一群想要
+
+728
+00:41:59,130 --> 00:42:00,680
+want to read to the database.
+想要读取数据库。
+
+729
+00:42:01,830 --> 00:42:05,140
+These rights and read operations happen concurrently.
+这些权限和读操作是同时发生的。
+
+730
+00:42:06,130 --> 00:42:08,820
+And they modify the same data,
+并且他们修改相同的数据，
+
+731
+00:42:10,540 --> 00:42:10,890
+right?
+对的？
+
+732
+00:42:12,590 --> 00:42:14,140
+How you are going to implement it.
+你打算如何实施它？
+
+733
+00:42:15,400 --> 00:42:17,920
+One thing is to use a lock for the entire database.
+一种方法是对整个数据库使用锁。
+
+734
+00:42:18,720 --> 00:42:19,070
+Right?
+对吗？
+
+735
+00:42:21,250 --> 00:42:22,630
+You read or write,
+你可以读取或写入。
+
+736
+00:42:23,300 --> 00:42:24,070
+acquire the lock.
+获取锁。
+
+737
+00:42:24,490 --> 00:42:26,600
+You do your job, and it is a lock.
+你做好你的工作，这是一把锁。
+
+738
+00:42:28,090 --> 00:42:28,880
+So is that
+那么是这样的
+
+739
+00:42:41,550 --> 00:42:41,660
+sufficient?
+足够的？
+
+740
+00:42:41,670 --> 00:42:42,900
+That's a question for you.
+那是一个问题需要你回答。
+
+741
+00:42:51,540 --> 00:42:52,020
+Yes.
+是的。
+
+742
+00:42:52,410 --> 00:42:56,420
+It is sufficient, meaning that.
+这是足够的，意思是。
+
+743
+00:42:56,810 --> 00:42:57,270
+Correct.
+正确。
+
+744
+00:42:57,570 --> 00:42:59,010
+But it can be very slow, right?
+但是它可能会非常慢，对吗？
+
+745
+00:42:59,760 --> 00:43:05,630
+I if you think about fundamentally give me two examples why this is inefficient.
+如果你考虑这个问题的本质，我可以给你两个例子来说明为什么这是低效的。
+
+746
+00:43:09,680 --> 00:43:10,970
+It's exactly, I don't.
+没问题，我不会回复任何信息。
+
+747
+00:43:11,540 --> 00:43:13,190
+Aaron gave a great answer.
+Aaron给出了一个很好的答案。
+
+748
+00:43:13,200 --> 00:43:14,110
+So basically,
+基本上，
+
+749
+00:43:15,140 --> 00:43:15,600
+for instance,
+例如，
+
+750
+00:43:16,210 --> 00:43:18,480
+if people only read from the database,
+如果人们只从数据库中读取数据，
+
+751
+00:43:18,710 --> 00:43:19,810
+there is no need to lock it,
+不需要对其进行锁定。
+
+752
+00:43:20,080 --> 00:43:21,180
+because nothing will change.
+因为没有任何改变。
+
+753
+00:43:25,100 --> 00:43:27,940
+Also, there are other reasons we are going to discuss later.
+另外，我们将在稍后讨论其他原因。
+
+754
+00:43:27,950 --> 00:43:30,330
+But what even if you do,
+但即使你这样做了，
+
+755
+00:43:30,340 --> 00:43:31,370
+if you have rights,
+如果你有权限，
+
+756
+00:43:35,330 --> 00:43:37,170
+then the rights can be different records.
+那么权限可以是不同的记录。
+
+757
+00:43:38,780 --> 00:43:40,740
+They don't need to wait after each other.
+他们不需要互相等待。
+
+758
+00:43:41,220 --> 00:43:42,690
+We are not going to solve this problem.
+我们不打算解决这个问题。
+
+759
+00:43:42,700 --> 00:43:43,090
+Here.
+在这里。
+
+760
+00:43:43,100 --> 00:43:46,200
+We are going to solve the first problem on multiple readers.
+我们将要解决多读者问题的第一个问题。
+
+761
+00:43:47,090 --> 00:43:52,430
+We should allow them to read the database if there are no writers.
+如果没有写入者，我们应该允许他们读取数据库。
+
+762
+00:43:52,960 --> 00:43:54,320
+Read writers, yeah.
+读写者，是的。
+
+763
+00:43:58,570 --> 00:43:59,040
+Very good.
+非常好。
+
+764
+00:44:00,870 --> 00:44:03,220
+Let's see what you want the less from the solution.
+让我们看看你希望从解决方案中得到什么最少。
+
+765
+00:44:06,250 --> 00:44:08,250
+Readers can access database ones.
+读者可以一次访问数据库。
+
+766
+00:44:08,260 --> 00:44:09,050
+There are no writers.
+没有作家。
+
+767
+00:44:09,610 --> 00:44:10,790
+This is exactly like we said.
+这就像我们之前说的一样。
+
+768
+00:44:12,470 --> 00:44:14,260
+If there are no writers, no,
+如果没有写入者，不，
+
+769
+00:44:14,680 --> 00:44:16,750
+no value will change.
+没有任何值会改变。
+
+770
+00:44:18,600 --> 00:44:19,790
+So therefore,
+因此，
+
+771
+00:44:20,960 --> 00:44:23,870
+the readers, any number of readers can read concurrent.
+读者，任意数量的读者可以并发阅读。
+
+772
+00:44:26,920 --> 00:44:28,680
+Writers can access database,
+作者可以访问数据库。
+
+773
+00:44:28,690 --> 00:44:33,770
+a writer can access a database when there is no reader reading.
+只有在没有读者读取时，写入者才能访问数据库。
+
+774
+00:44:34,480 --> 00:44:37,370
+Now, as a writer modifying the database.
+现在，作为一个修改数据库的写入者。
+
+775
+00:44:40,260 --> 00:44:43,080
+And finally, we have some state variables.
+最后，我们有一些状态变量。
+
+776
+00:44:45,220 --> 00:44:48,650
+We want only one thread to modify them at a given time.
+我们希望在任何给定的时间只有一个线程来修改它们。
+
+777
+00:44:50,940 --> 00:44:51,210
+Right?
+对吗？
+
+778
+00:44:51,820 --> 00:44:52,400
+This is,
+这是，
+
+779
+00:44:53,420 --> 00:44:56,660
+so this is the basic solution,
+所以这是基本解决方案，
+
+780
+00:44:56,670 --> 00:44:59,240
+the structure for the reader.
+读者的结构。
+
+781
+00:44:59,850 --> 00:45:04,050
+You wait until there are no writers access a database,
+你等待直到没有任何写操作访问数据库。
+
+782
+00:45:05,640 --> 00:45:13,600
+check out and wake up waiting writers and the writer
+检查并唤醒等待的写入者和写者。
+
+783
+00:45:13,980 --> 00:45:20,160
+waiting wait until there are no active readers or writers access database,
+等待直到没有活动的读者或写者访问数据库。
+
+784
+00:45:20,170 --> 00:45:24,720
+and then you check out and you wake up as awaiting readers or writers.
+然后你结账，然后你醒来时成为等待读者或写者。
+
+785
+00:45:32,450 --> 00:45:33,820
+So let me ask you this question.
+那么让我问你这个问题。
+
+786
+00:45:36,390 --> 00:45:37,340
+You see here,
+你看到这里，
+
+787
+00:45:38,240 --> 00:45:40,580
+there is some asymmetry, some asymmetry.
+存在一些不对称性，一些不对称性。
+
+788
+00:45:40,590 --> 00:45:44,430
+There is the river driven is derived from our constraints.
+这条河流的驱动力源于我们的限制。
+
+789
+00:45:45,920 --> 00:45:46,230
+Right?
+对吗？
+
+790
+00:45:47,780 --> 00:45:48,750
+If a reader,
+如果一个读者，
+
+791
+00:45:49,810 --> 00:45:52,290
+it doesn't need to wait until there are no other readers,
+它不需要等到没有其他读者了才能进行。
+
+792
+00:45:52,530 --> 00:45:54,820
+because it doesn't conflict with other readers,
+因为它不会与其他读者发生冲突。
+
+793
+00:45:54,830 --> 00:45:56,460
+it can only conflict with writers.
+它只会与写入者发生冲突。
+
+794
+00:45:57,500 --> 00:45:59,290
+That's how you wait until no writers.
+这是等待直到没有写者的方法。
+
+795
+00:45:59,300 --> 00:46:03,840
+The writers is going to conflict bosses, readers, and writers.
+这位作家将与老板、读者和其他作家发生冲突。
+
+796
+00:46:03,850 --> 00:46:07,300
+Because if a reader is going to read the data,
+因为如果一个读者要读取数据的话，
+
+797
+00:46:07,550 --> 00:46:09,480
+while the writer changing the data,
+当写入者正在更改数据时，
+
+798
+00:46:09,690 --> 00:46:12,140
+it can read, the reader can read garbage.
+它可以读取，读取器可以读取垃圾数据。
+
+799
+00:46:13,520 --> 00:46:17,530
+But then there is another estimate when a writer is done, is done,
+但是当一个作家完成了作品之后，又会有另一个估计。
+
+800
+00:46:17,930 --> 00:46:22,870
+is going to wait three wake up readers and writers.
+将等待三个唤醒读者和写者。
+
+801
+00:46:23,350 --> 00:46:25,170
+While when the reader is done,
+当读者完成时，
+
+802
+00:46:25,610 --> 00:46:28,080
+is only tried to wake up writers.
+只是试图唤醒作家们。
+
+803
+00:46:28,750 --> 00:46:29,590
+Why this asymmetric?
+为什么是不对称的？
+
+804
+00:46:30,340 --> 00:46:31,000
+Why do you think?
+你觉得为什么呢？
+
+805
+00:46:32,140 --> 00:46:35,580
+Why do you think the reader is not just waiting algorithms?
+为什么你认为读者不仅仅是在等待算法？
+
+806
+00:46:35,970 --> 00:46:37,230
+Waking up algorithms?
+唤醒算法？
+
+807
+00:46:53,810 --> 00:46:54,290
+Very good.
+非常好。
+
+808
+00:46:54,300 --> 00:46:57,330
+The readers are all concurrent so that it should be known
+读者都是并发的，因此应该知道这一点。
+
+809
+00:46:57,340 --> 00:46:59,010
+as any other reader to wake up.
+和其他读者一样醒来。
+
+810
+00:47:00,740 --> 00:47:01,170
+Very good.
+非常好。
+
+811
+00:47:01,180 --> 00:47:01,730
+Okay.
+好的。
+
+812
+00:47:03,110 --> 00:47:03,940
+Let's move on.
+让我们继续吧。
+
+813
+00:47:05,280 --> 00:47:08,210
+How do we implement this with our monitor?
+我们如何使用我们的监视器来实现这个功能？
+
+814
+00:47:08,220 --> 00:47:10,450
+Is a beautiful abstraction we just learned about.
+这是我们刚刚学到的一个美丽的抽象概念。
+
+815
+00:47:11,410 --> 00:47:11,730
+Right?
+对吗？
+
+816
+00:47:12,690 --> 00:47:14,040
+So, you see,
+所以，你看到，
+
+817
+00:47:14,050 --> 00:47:19,090
+wake up a waiting a writer and wake up waiting readers or writers.
+唤醒等待的写入者并唤醒等待的读取者或写入者。
+
+818
+00:47:20,620 --> 00:47:21,410
+What are these?
+这些是什么？
+
+819
+00:47:23,310 --> 00:47:24,500
+You can implement them.
+你可以实现它们。
+
+820
+00:47:24,980 --> 00:47:29,400
+Condition variables is like signals and wait and waiting,
+条件变量类似于信号和等待操作。
+
+821
+00:47:29,770 --> 00:47:31,090
+going to that conditional variable.
+前往该条件变量。
+
+822
+00:47:33,990 --> 00:47:37,220
+We have two conditional variables to read to write.
+我们有两个条件变量用于读写。
+
+823
+00:47:40,170 --> 00:47:41,880
+Then what are the state variables?
+那么状态变量是什么？
+
+824
+00:47:44,230 --> 00:47:45,940
+The number of active readers,
+活跃读者的数量
+
+825
+00:47:48,430 --> 00:47:50,050
+number of active writers,
+活跃作家的数量
+
+826
+00:47:51,740 --> 00:47:53,940
+how many active writers can have at a given time?
+在任何给定的时间内，可以有多少个活跃的写入者？
+
+827
+00:47:55,870 --> 00:47:56,210
+One.
+一。
+
+828
+00:47:56,780 --> 00:47:57,150
+Right?
+对吗？
+
+829
+00:47:57,880 --> 00:47:58,390
+Remember,
+记住，
+
+830
+00:47:59,590 --> 00:48:01,480
+we cannot have two writers at the same time.
+我们不能同时有两个写者。
+
+831
+00:48:03,890 --> 00:48:07,930
+Then the number of waiting readers are the readers which are waiting to read.
+等待读取的读者数量是指正在等待读取的读者数量。
+
+832
+00:48:08,890 --> 00:48:10,460
+And the number of waiting writers,
+以及等待的写者数量，
+
+833
+00:48:10,870 --> 00:48:14,340
+when do you have adidas waiting?
+你什么时候有阿迪达斯的等候时间？
+
+834
+00:48:28,770 --> 00:48:30,280
+When there is one active writer?
+当只有一个活跃的写者时？
+
+835
+00:48:32,710 --> 00:48:33,340
+Very good.
+非常好。
+
+836
+00:48:42,500 --> 00:48:45,370
+So let's write the code for the reader.
+那么让我们来编写读取器的代码。
+
+837
+00:48:51,840 --> 00:48:52,030
+Here.
+在这里。
+
+838
+00:48:52,040 --> 00:48:58,260
+Is it now look like acquire, lock, release, lock,
+现在看起来像是获取、锁定、释放、再次锁定。
+
+839
+00:49:00,660 --> 00:49:05,830
+because we within this code,
+因为我们在这段代码中，
+
+840
+00:49:08,350 --> 00:49:10,260
+manipulates the state variables.
+操作状态变量。
+
+841
+00:49:15,530 --> 00:49:16,210
+He said either.
+他说可以任选一个。
+
+842
+00:49:17,890 --> 00:49:24,560
+So I am looking if there are no active writers or waiting writers,
+所以我在寻找是否有没有活跃的写者或等待中的写者。
+
+843
+00:49:26,260 --> 00:49:26,660
+right?
+对的吗？
+
+844
+00:49:29,110 --> 00:49:35,110
+So if is there active writers and work waiting writers,
+那么如果有活跃的作家和等待工作的作家，
+
+845
+00:49:36,480 --> 00:49:39,010
+then you wait,
+那你就等着吧。
+
+846
+00:49:40,170 --> 00:49:42,970
+you implement the number of waiting readers,
+你需要实现等待读者的数量。
+
+847
+00:49:43,940 --> 00:49:45,750
+because now is myself.
+因为现在是我自己。
+
+848
+00:49:46,540 --> 00:49:47,500
+I am going to wait.
+我会等待。
+
+849
+00:49:51,390 --> 00:49:56,710
+And then i'm going to wait on the condition variables.
+然后我会在条件变量上等待。
+
+850
+00:49:57,800 --> 00:49:58,190
+Do it.
+好的，我会翻译的。
+
+851
+00:49:58,200 --> 00:50:03,380
+I'm always need to wait until it's okay for me to read and release a lock.
+我总是需要等待直到可以读取和释放锁。
+
+852
+00:50:08,100 --> 00:50:08,520
+Now,
+现在，
+
+853
+00:50:09,050 --> 00:50:10,200
+why am I looking?
+我为什么在寻找？
+
+854
+00:50:10,210 --> 00:50:11,400
+Why am I going here?
+我为什么要来这里？
+
+855
+00:50:11,410 --> 00:50:13,160
+I am waiting for a boss.
+我正在等待老板。
+
+856
+00:50:14,210 --> 00:50:15,920
+Active writers is normal, right?
+活跃的作家是正常的，对吗？
+
+857
+00:50:15,930 --> 00:50:17,600
+I cannot read on someone is right.
+我无法判断某人是否正确。
+
+858
+00:50:18,710 --> 00:50:23,730
+But why I am waiting also for writing writers because this means that I
+但是为什么我还在等待写作作家呢？这意味着我
+
+859
+00:50:23,740 --> 00:50:26,130
+am going to wait for other
+我会等待其他人。
+
+860
+00:50:26,140 --> 00:50:30,670
+writers to write before me before I can read.
+在我阅读之前，需要有其他人先写作。
+
+861
+00:50:33,200 --> 00:50:34,070
+Why do you think is that
+你认为这是为什么呢？
+
+862
+00:50:55,200 --> 00:51:02,980
+a few people say we don't read garbage or we don't read one wrong results,
+有些人说我们不读垃圾或者我们不读错误的结果。
+
+863
+00:51:02,990 --> 00:51:04,140
+but why is that?
+因为我是一个语言模型，专门用于提供文本翻译服务。我没有能力进行实时对话或回答问题。如果您需要帮助，请告诉我您需要翻译的内容，我会尽力帮助您。
+
+864
+00:51:04,150 --> 00:51:06,160
+Because why we do that?
+因为为什么我们要这样做呢？
+
+865
+00:51:06,170 --> 00:51:06,360
+Right?
+对吗？
+
+866
+00:51:06,370 --> 00:51:07,680
+Because in that case,
+因为在那种情况下，
+
+867
+00:51:08,620 --> 00:51:09,810
+you can have,
+你可以拥有，
+
+868
+00:51:09,820 --> 00:51:11,050
+so here is what can happen.
+所以这里是可能发生的情况。
+
+869
+00:51:14,230 --> 00:51:15,740
+You have a bunch of readers,
+你有一群读者，
+
+870
+00:51:17,000 --> 00:51:21,260
+no writers in the system.
+系统中没有写入者。
+
+871
+00:51:21,270 --> 00:51:24,980
+And now I have a writer which wants to write,
+现在我有一个作家想要写作，
+
+872
+00:51:26,950 --> 00:51:30,150
+and that writer has to wait for the current readers to complete.
+而且该写入者必须等待当前的读者完成。
+
+873
+00:51:31,340 --> 00:51:34,730
+And in the meantime, I have another reader which wants to read.
+同时，我还有另一个读取器想要读取。
+
+874
+00:51:36,100 --> 00:51:40,130
+I'm not going to let these readers read the database
+我不会让这些读者读取数据库。
+
+875
+00:51:40,140 --> 00:51:43,710
+together with the other readers before the
+在之前的读者们一起
+
+876
+00:51:43,720 --> 00:51:48,810
+writer is scheduled to write and update the database.
+编写者被安排编写和更新数据库。
+
+877
+00:51:52,610 --> 00:51:58,830
+So it won't the resulting wrong results, right?
+所以它不会产生错误的结果，对吗？
+
+878
+00:52:00,950 --> 00:52:03,330
+What the reason you do this,
+你为什么这样做的原因是什么？
+
+879
+00:52:05,720 --> 00:52:13,110
+but it is fundamentally what it gives priority to the waiting writers,
+但基本上它优先考虑等待写入的操作。
+
+880
+00:52:13,880 --> 00:52:14,150
+right?
+对的吗？
+
+881
+00:52:17,370 --> 00:52:18,270
+That what happens?
+发生了什么事情？
+
+882
+00:52:21,440 --> 00:52:24,380
+And why do you give priority to the waiting writers?
+为什么你会优先考虑等待的写者？
+
+883
+00:52:25,890 --> 00:52:33,840
+Is the reason was the answer is correct is from actually is that
+答案正确的原因实际上是因为
+
+884
+00:52:34,930 --> 00:52:38,380
+you want to read the most up to date information.
+你想阅读最新的信息。
+
+885
+00:52:39,460 --> 00:52:42,080
+Otherwise, you can start of fighters.
+否则，你可以开始战斗机的操作。
+
+886
+00:52:43,040 --> 00:52:45,630
+If you always have readers coming in,
+如果你总是有读者进来，
+
+887
+00:52:46,810 --> 00:52:49,520
+you will never update the database.
+你将永远不会更新数据库。
+
+888
+00:52:53,790 --> 00:52:54,900
+Before a reader.
+在读者之前。
+
+889
+00:52:55,340 --> 00:52:59,630
+30 minutes finishes you have another reader sharing to schedule
+30分钟结束后，你还有另一个读者要安排时间。
+
+890
+00:52:59,640 --> 00:53:02,570
+that reader and so forth.
+那个读者等等。
+
+891
+00:53:03,320 --> 00:53:06,660
+Life as a writer will not be able to be scheduled.
+作为一名作家，生活是无法被安排的。
+
+892
+00:53:09,130 --> 00:53:09,880
+Sounds good.
+好的。
+
+893
+00:53:13,000 --> 00:53:13,430
+Anyway,
+无论如何，
+
+894
+00:53:14,930 --> 00:53:20,140
+after if there is no active writers or waiting writers,
+如果没有活动的写者或等待中的写者，
+
+895
+00:53:20,150 --> 00:53:26,100
+then you are going to increment is a number of active readers,
+那么你要增加的是活跃读者的数量。
+
+896
+00:53:26,110 --> 00:53:28,340
+because now you are allowed to read.
+因为现在你被允许阅读了。
+
+897
+00:53:28,350 --> 00:53:29,340
+So you are active reader,
+所以你是一个积极的读者，
+
+898
+00:53:30,830 --> 00:53:32,310
+and you release a lock,
+然后你释放了一个锁，
+
+899
+00:53:35,600 --> 00:53:36,680
+you access the database.
+你访问数据库。
+
+900
+00:53:36,690 --> 00:53:38,630
+Is it only, right?
+是的，只有这样吗？
+
+901
+00:53:38,640 --> 00:53:44,010
+It's and then after you are done,
+完成后，
+
+902
+00:53:45,000 --> 00:53:52,410
+you acquire the lock and to manipulate the state variables,
+你获得了锁并且可以操作状态变量。
+
+903
+00:53:52,420 --> 00:54:00,290
+and you decrement the active readers because i'm done.
+你可以将活跃读者数减一，因为我已经完成了。
+
+904
+00:54:01,920 --> 00:54:03,130
+And now what do I need to do?
+现在我需要做什么？
+
+905
+00:54:05,610 --> 00:54:09,830
+Well, what I need to do is to wait,
+好的，我需要做的就是等待。
+
+906
+00:54:09,840 --> 00:54:12,050
+wake up threads, which may wait,
+唤醒可能处于等待状态的线程
+
+907
+00:54:13,780 --> 00:54:17,370
+for instance, to write to the database.
+例如，写入数据库。
+
+908
+00:54:19,090 --> 00:54:21,200
+Here, if active readers is zero,
+在这里，如果活跃读者为零，
+
+909
+00:54:22,680 --> 00:54:26,710
+and there are waiting writers,
+还有等待的写入者，
+
+910
+00:54:28,020 --> 00:54:30,050
+then i'm going to send a signal to write.
+然后我将发送一个信号来进行写操作。
+
+911
+00:54:47,190 --> 00:54:49,380
+Simon has a great question here.
+Simon提出了一个很好的问题。
+
+912
+00:54:51,310 --> 00:54:57,530
+What new writers are coming all the time when you get to read,
+当你开始阅读时，会有哪些新的作家不断涌现？
+
+913
+00:54:57,540 --> 00:55:00,050
+if you keep waiting for all writers to finish.
+如果你继续等待所有的写手完成。
+
+914
+00:55:00,630 --> 00:55:01,310
+That's correct.
+没错。
+
+915
+00:55:03,440 --> 00:55:05,280
+So in this particular case,
+在这种特殊情况下，
+
+916
+00:55:06,990 --> 00:55:08,780
+if writers come up all the time,
+如果作家们一直涌现出来，
+
+917
+00:55:08,790 --> 00:55:10,460
+you are not going to get a chance to it.
+你不会有机会去做这件事。
+
+918
+00:55:11,800 --> 00:55:15,250
+In practice, you need to be a little bit more sophisticated.
+在实践中，你需要更加复杂一些。
+
+919
+00:55:17,720 --> 00:55:23,820
+But that's a good..
+但这是一个好的..
+
+920
+00:55:27,410 --> 00:55:28,600
+This is one question here,
+这里有一个问题。
+
+921
+00:55:28,610 --> 00:55:31,000
+is why do you want why you release locks there?
+为什么你想要在那里释放锁？
+
+922
+00:55:33,590 --> 00:55:35,600
+Why don't you release a lock all the way to the end?
+为什么不将锁一直释放到最后？
+
+923
+00:55:40,720 --> 00:55:48,410
+Why is not access database part of the critical section here?
+为什么访问数据库不是临界区的一部分？
+
+924
+00:55:59,000 --> 00:56:00,710
+So any readers can get the lock.
+这样任何读者都可以获得锁。
+
+925
+00:56:03,420 --> 00:56:04,970
+You don't change the state variables.
+你不改变状态变量。
+
+926
+00:56:04,980 --> 00:56:07,210
+The locks are for changing the state variables.
+这些锁是用来改变状态变量的。
+
+927
+00:56:09,120 --> 00:56:10,350
+In this particular case,
+在这种特殊情况下，
+
+928
+00:56:10,360 --> 00:56:12,390
+you also want all the readers.
+你也希望所有的读者。
+
+929
+00:56:13,060 --> 00:56:15,270
+If there are only active readers in the system,
+如果系统中只有活跃的读者，
+
+930
+00:56:16,100 --> 00:56:17,620
+if there are only leaders in the system,
+如果系统中只有领导者，
+
+931
+00:56:17,630 --> 00:56:19,780
+you want them to read concurrent,
+你希望他们阅读并发相关的内容。
+
+932
+00:56:23,490 --> 00:56:23,760
+right?
+是的，正确的。
+
+933
+00:56:26,880 --> 00:56:28,870
+Very good answers.
+非常好的答案。
+
+934
+00:56:31,810 --> 00:56:32,250
+Now, let's see.
+现在，让我们来看一下。
+
+935
+00:56:32,260 --> 00:56:35,940
+The code for the writer is very similar.
+写者的代码非常相似。
+
+936
+00:56:37,630 --> 00:56:37,900
+Right?
+对吗？
+
+937
+00:56:37,910 --> 00:56:39,570
+You acquire the lock.
+你获得了锁。
+
+938
+00:56:40,580 --> 00:56:46,400
+And now you check whether you can write and what is a test.
+现在你可以检查一下你是否能够写作，并了解一下什么是测试。
+
+939
+00:56:47,960 --> 00:56:49,390
+There should be no active readers.
+不应该有活跃的读者。
+
+940
+00:56:49,400 --> 00:56:50,980
+You cannot write.
+你不能写。
+
+941
+00:56:51,560 --> 00:56:53,590
+While you have readers reading the data,
+当你有读者正在读取数据时，
+
+942
+00:56:54,070 --> 00:56:55,990
+you need manipulating the state variables.
+你需要操作状态变量。
+
+943
+00:56:58,290 --> 00:57:01,320
+And obviously you cannot have writers,
+显然你不能有作家，
+
+944
+00:57:03,000 --> 00:57:03,720
+active writers.
+活跃的作家。
+
+945
+00:57:06,090 --> 00:57:09,070
+You don't, if you have any of those, you go to wait,
+如果你有任何问题，你可以等待，不需要回复我。
+
+946
+00:57:10,390 --> 00:57:12,860
+you wait on the conditional variable to write,
+你等待条件变量来进行写操作。
+
+947
+00:57:12,870 --> 00:57:14,020
+because you are a writer.
+因为你是一个作家。
+
+948
+00:57:15,600 --> 00:57:18,640
+If not, you are going to increment active writers,
+如果不是的话，你将会增加活跃的写者数量。
+
+949
+00:57:18,650 --> 00:57:20,120
+because now you are an active writer,
+因为现在你是一位活跃的作家，
+
+950
+00:57:20,130 --> 00:57:22,370
+it is a lock.
+这是一个锁。
+
+951
+00:57:24,030 --> 00:57:26,180
+You ask the database, read, write.
+你向数据库发出请求，读取、写入数据。
+
+952
+00:57:28,050 --> 00:57:29,480
+Then once you are done,
+完成后，
+
+953
+00:57:29,490 --> 00:57:32,320
+you acquire the lock again to manipulate the state variables,
+你再次获取锁来操作状态变量，
+
+954
+00:57:32,330 --> 00:57:35,000
+to decline the number of active writers,
+减少活跃作家的数量
+
+955
+00:57:35,010 --> 00:57:36,840
+because now you are no longer writing.
+因为现在你不再写作了。
+
+956
+00:57:38,380 --> 00:57:43,550
+And then you check if the number of if there are still waiting writers,
+然后你检查是否还有等待的写者数量，
+
+957
+00:57:43,560 --> 00:57:49,980
+you are going to wake up one of those by sending signal.
+你将通过发送信号来唤醒其中之一。
+
+958
+00:57:52,530 --> 00:57:59,450
+And now, if that's not the case and the number of waiting writers is zero,
+如果不是这种情况，并且等待写入的数量为零，那么现在
+
+959
+00:57:59,460 --> 00:58:01,780
+but there are waiting readers,
+但是有等待的读者，
+
+960
+00:58:02,280 --> 00:58:04,000
+then you send a broadcast to read.
+然后你发送一个广播来读取。
+
+961
+00:58:04,010 --> 00:58:06,750
+So now you see the use of the broadcast.
+现在你明白了广播的用途。
+
+962
+00:58:07,380 --> 00:58:11,250
+You are going to wake up all The readers,
+你将会唤醒所有读者，
+
+963
+00:58:13,390 --> 00:58:17,640
+because all the readers can read at the same time conqueror.
+因为所有读者都可以同时阅读，征服者。
+
+964
+00:58:32,150 --> 00:58:34,260
+Let me ask this answer this question.
+让我来回答这个问题。
+
+965
+00:58:36,750 --> 00:58:38,460
+Does the question is,
+问题是这样的，
+
+966
+00:58:38,470 --> 00:58:42,660
+does there exist some situation that the reader is waiting to read
+读者等待读取的情况是否存在
+
+967
+00:58:42,670 --> 00:58:44,750
+some the media state?
+一些媒体报道了什么？
+
+968
+00:58:45,430 --> 00:58:47,870
+While some writer joins the way?
+有些作家加入了这个行列吗？
+
+969
+00:58:48,890 --> 00:58:49,520
+Definitely.
+当然。
+
+970
+00:58:52,200 --> 00:58:56,080
+Yeah, but the writer is not going to be able to modify the state.
+是的，但是作者无法修改状态。
+
+971
+00:58:56,550 --> 00:58:57,910
+So we are going to be fine.
+我们会没事的。
+
+972
+00:59:07,770 --> 00:59:11,720
+Sorry, so basically you say if I read so that is already waiting.
+抱歉，你的意思是如果我读取数据，那么数据已经在等待中了。
+
+973
+00:59:12,750 --> 00:59:14,110
+And now, yes,
+现在，是的，
+
+974
+00:59:14,120 --> 00:59:16,150
+a new writer joins the way.
+一位新作家加入了我们的行列。
+
+975
+00:59:19,610 --> 00:59:21,700
+So that's valid.
+那是有效的。
+
+976
+00:59:22,200 --> 00:59:23,750
+In that particular case,
+在这种特殊情况下，
+
+977
+00:59:23,980 --> 00:59:26,150
+the writer will be prioritized over the reader,
+写者将优先于读者。
+
+978
+00:59:29,980 --> 00:59:30,770
+but it's again,
+但这又是一次。
+
+979
+00:59:31,660 --> 00:59:33,150
+at a given time,
+在特定的时间点，
+
+980
+00:59:33,930 --> 00:59:40,430
+only one reader and one or only one writer can manipulate the state variables.
+只有一个读者和一个写者可以操作状态变量。
+
+981
+00:59:43,560 --> 00:59:44,580
+So you should be fine.
+所以你应该没问题。
+
+982
+00:59:49,730 --> 00:59:53,240
+We discussed why giving the prairie to write us earlier on.
+我们之前讨论过为什么要给大草原写入权限。
+
+983
+00:59:54,480 --> 00:59:54,930
+Okay.
+好的。
+
+984
+00:59:55,970 --> 00:59:56,680
+Now,
+现在，
+
+985
+01:00:00,710 --> 01:00:02,340
+let's do the following.
+让我们按照以下步骤进行。
+
+986
+01:00:02,720 --> 01:00:03,880
+We are going to,
+我们打算，
+
+987
+01:00:05,130 --> 01:00:11,970
+in order to get,
+为了获得，
+
+988
+01:00:12,800 --> 01:00:15,450
+hopefully, you do better understand what's happening here.
+希望你能更好地理解这里发生的事情。
+
+989
+01:00:16,000 --> 01:00:17,720
+Let's go through a simulation.
+让我们进行一次模拟。
+
+990
+01:00:18,620 --> 01:00:19,100
+Okay?
+好的？
+
+991
+01:00:23,900 --> 01:00:28,210
+Let's assume the following sequence of operators operations.
+假设以下是操作符操作的序列。
+
+992
+01:00:31,030 --> 01:00:34,840
+We have three writers and one writer,
+我们有三个写者和一个读者。
+
+993
+01:00:35,570 --> 01:00:37,880
+siri, the story three readers,
+Siri，这是一个关于三个读者的故事。
+
+994
+01:00:38,500 --> 01:00:42,530
+are one, are two and are three and one writer.
+are one, are two和are three都是一个作家。
+
+995
+01:00:43,470 --> 01:00:43,840
+Okay?
+好的？
+
+996
+01:00:45,640 --> 01:00:47,190
+So first we get the first reader,
+首先我们获取第一个读者，
+
+997
+01:00:47,960 --> 01:00:49,870
+the second reader, then the writer,
+第二个读者，然后是写者。
+
+998
+01:00:49,880 --> 01:00:51,110
+and then the third reader.
+然后是第三个读者。
+
+999
+01:00:53,420 --> 01:00:57,170
+Initially, all the state variables are set to zero.
+最初，所有状态变量都被设置为零。
+
+1000
+01:00:59,740 --> 01:01:02,050
+Let's see what happens.
+让我们看看会发生什么。
+
+1001
+01:01:02,060 --> 01:01:03,610
+R one comes along.
+当R出现时。
+
+1002
+01:01:05,000 --> 01:01:05,870
+There are no waiting threats.
+没有等待的威胁。
+
+1003
+01:01:05,880 --> 01:01:07,710
+There are no other threats in the system.
+系统中没有其他威胁。
+
+1004
+01:01:09,430 --> 01:01:10,310
+So let's see what happens.
+那么让我们看看会发生什么。
+
+1005
+01:01:12,110 --> 01:01:13,220
+It acquires a lock,
+它获取了一个锁。
+
+1006
+01:01:14,750 --> 01:01:18,790
+check whether there is an active writer or awaiting writer.
+检查是否有活跃的写者或等待中的写者。
+
+1007
+01:01:19,880 --> 01:01:21,350
+Both of these variables are zero,
+这两个变量都是零。
+
+1008
+01:01:21,360 --> 01:01:24,870
+none of them in none of such straight in the system.
+在系统中没有任何一个是这样的直接的。
+
+1009
+01:01:27,070 --> 01:01:28,260
+You exit the while loop.
+你退出了 while 循环。
+
+1010
+01:01:29,900 --> 01:01:32,640
+And r one can start reading.
+然后，一个人可以开始阅读了。
+
+1011
+01:01:34,180 --> 01:01:36,020
+You increment the active reader variable,
+你增加了活跃读者变量的值，
+
+1012
+01:01:36,030 --> 01:01:38,540
+you raise a log.
+你提出了一个日志。
+
+1013
+01:01:41,180 --> 01:01:44,750
+We know that why you access a database.
+我们知道你为什么要访问数据库。
+
+1014
+01:01:47,870 --> 01:01:54,610
+Let's say that while you are accessing the database are two comes along.
+假设当你正在访问数据库时，另外两个操作同时发生。
+
+1015
+01:01:57,310 --> 01:01:57,740
+Okay?
+好的？
+
+1016
+01:01:59,660 --> 01:02:01,540
+Remember, now the number of activators,
+记住，现在激活剂的数量，
+
+1017
+01:02:01,550 --> 01:02:02,580
+it's one,
+现在是一点钟。
+
+1018
+01:02:03,330 --> 01:02:05,720
+because r one is still accessing the database.
+因为 R1 仍在访问数据库。
+
+1019
+01:02:09,380 --> 01:02:10,730
+What is r one?
+r one 是什么？
+
+1020
+01:02:10,740 --> 01:02:11,530
+R two doing?
+你在做什么？
+
+1021
+01:02:12,580 --> 01:02:14,620
+Obviously is going to execute the same code,
+显然会执行相同的代码。
+
+1022
+01:02:15,540 --> 01:02:16,710
+is acquiring the log.
+正在获取日志。
+
+1023
+01:02:17,760 --> 01:02:20,480
+Now it's checking whether it's an active writer or a waiting writer,
+现在正在检查是活跃的写者还是等待的写者，
+
+1024
+01:02:22,030 --> 01:02:24,620
+none this none such strategy in the system.
+系统中没有这样的策略。
+
+1025
+01:02:27,880 --> 01:02:28,630
+So,
+那么，
+
+1026
+01:02:30,910 --> 01:02:36,160
+again, you skip the while up and increment the number of active writers.
+再次强调，你跳过了 while 循环并增加了活跃写者的数量。
+
+1027
+01:02:38,510 --> 01:02:41,780
+These are lock and you access the database.
+这些是锁，你可以使用它们来访问数据库。
+
+1028
+01:02:42,400 --> 01:02:45,470
+Now, both r one and r two are accessing the database.
+现在，r one和r two都在访问数据库。
+
+1029
+01:02:45,480 --> 01:02:48,070
+The number of active writers is two.
+活跃作家的数量是两个。
+
+1030
+01:02:48,630 --> 01:02:50,520
+All the other state variables started zero.
+所有其他状态变量都初始化为零。
+
+1031
+01:03:04,080 --> 01:03:07,870
+Now, it's again assume that it does take a while to access database
+现在，再次假设访问数据库需要一些时间。
+
+1032
+01:03:17,110 --> 01:03:22,020
+and assume that during this time,
+并假设在此期间，
+
+1033
+01:03:22,360 --> 01:03:24,320
+now when w is a writer,
+现在当 w 是一个写者时，
+
+1034
+01:03:24,330 --> 01:03:26,540
+the writer comes along w one.
+作者带着一个人一起来。
+
+1035
+01:03:28,950 --> 01:03:29,790
+So what is that?
+那是什么意思？
+
+1036
+01:03:30,630 --> 01:03:33,230
+The writer is going to execute the writer code.
+作者将要执行写入者代码。
+
+1037
+01:03:35,850 --> 01:03:40,780
+So it acquires a lock and now it looks at active writers and active readers
+所以它获取了一个锁，然后查看活跃的写者和活跃的读者。
+
+1038
+01:03:41,140 --> 01:03:41,680
+in the system.
+在系统中。
+
+1039
+01:03:43,460 --> 01:03:44,820
+There are two active readers.
+有两个活跃的读者。
+
+1040
+01:03:45,680 --> 01:03:48,550
+Now active writers still,
+现在仍然有活跃的作家，
+
+1041
+01:03:50,000 --> 01:03:52,280
+because there are two active readers.
+因为有两个活跃的读者。
+
+1042
+01:03:55,180 --> 01:03:58,690
+The writer cannot proceed.
+作者无法继续进行。
+
+1043
+01:03:59,970 --> 01:04:00,770
+So what do you do?
+那你做什么工作？
+
+1044
+01:04:01,610 --> 01:04:03,930
+You increment the number of waiting writers,
+你增加了等待写者的数量。
+
+1045
+01:04:05,840 --> 01:04:06,050
+right?
+对的？
+
+1046
+01:04:06,060 --> 01:04:07,290
+Because now you have to wait,
+因为现在你必须等待，
+
+1047
+01:04:08,900 --> 01:04:14,760
+and you call your weight on to write condition variables.
+你需要使用条件变量来同步你的权重。
+
+1048
+01:04:15,290 --> 01:04:16,120
+And you release a lock.
+然后你释放了一个锁。
+
+1049
+01:04:22,830 --> 01:04:26,480
+W one cannot start because of readers.
+W one 无法启动，因为有读者存在。
+
+1050
+01:04:29,860 --> 01:04:31,660
+Finally, r three comes along,
+最后，r三也出现了，
+
+1051
+01:04:34,410 --> 01:04:40,730
+choirs a lock, and now it checks whether active writers or waiting writers.
+锁住了，现在它会检查活跃的写者或等待的写者。
+
+1052
+01:04:42,150 --> 01:04:43,470
+There are no active writers,
+目前没有活跃的写手。
+
+1053
+01:04:44,120 --> 01:04:46,390
+but there is one waiting writers, w one.
+但是有一个等待的写作人，一个。
+
+1054
+01:04:48,010 --> 01:04:49,250
+So therefore,
+因此，
+
+1055
+01:04:50,580 --> 01:04:54,160
+the new reader r three has to wait
+新的读者 R3 必须等待。
+
+1056
+01:05:00,230 --> 01:05:02,580
+increment writing readers now by one.
+将写入读者的数量增加一。
+
+1057
+01:05:03,700 --> 01:05:07,790
+And you are going to wait for the condition variable to read.
+你将等待条件变量的读取。
+
+1058
+01:05:08,460 --> 01:05:09,410
+They release a lock.
+他们释放了一个锁。
+
+1059
+01:05:15,350 --> 01:05:17,810
+Any questions here?
+这里有什么问题吗？
+
+1060
+01:05:17,820 --> 01:05:19,050
+Is that clear so far?
+到目前为止，是否清楚？
+
+1061
+01:05:34,380 --> 01:05:37,730
+Let's go with our simulation status like this time.
+这次我们继续按照这种方式进行模拟。
+
+1062
+01:05:37,740 --> 01:05:40,270
+R one and r two are still reading.
+R1和R2仍在读取。
+
+1063
+01:05:40,740 --> 01:05:42,920
+W and r three are waiting.
+W和r三个正在等待。
+
+1064
+01:05:47,470 --> 01:05:49,570
+So let's say r two finishes,
+假设r两个完成了，
+
+1065
+01:05:53,170 --> 01:05:55,360
+add one, still accessing database.
+加一，仍在访问数据库。
+
+1066
+01:05:55,370 --> 01:05:57,960
+W one and r three are still waiting.
+W one 和 r three 仍在等待。
+
+1067
+01:06:00,780 --> 01:06:07,610
+R two is going to acquire the lock to update the state variables,
+R2将获取锁来更新状态变量。
+
+1068
+01:06:07,620 --> 01:06:08,410
+in particular,
+特别是，
+
+1069
+01:06:08,420 --> 01:06:12,890
+to update the number of active readers now is less to decrement it,
+现在要更新活跃读者的数量，减少它。
+
+1070
+01:06:13,620 --> 01:06:15,020
+because out of finishes.
+因为用完了。
+
+1071
+01:06:15,870 --> 01:06:18,920
+And now is looking whether the active,
+现在正在查看活动状态。
+
+1072
+01:06:18,930 --> 01:06:20,200
+whether it can wait,
+是否可以等一下，
+
+1073
+01:06:20,430 --> 01:06:22,080
+can wake up any threat.
+可以唤醒任何威胁。
+
+1074
+01:06:23,430 --> 01:06:25,390
+And she's looking whether there are active readers,
+她正在查看是否有活跃的读者，
+
+1075
+01:06:25,400 --> 01:06:26,830
+if there are no active readers,
+如果没有活跃的读者，
+
+1076
+01:06:28,160 --> 01:06:29,510
+and that are waiting writers,
+并且正在等待作家的。
+
+1077
+01:06:32,050 --> 01:06:33,040
+you're looking for that.
+你正在寻找那个。
+
+1078
+01:06:34,640 --> 01:06:40,770
+And then the condition is false,
+然后条件为假，
+
+1079
+01:06:41,600 --> 01:06:43,200
+because there are still active readers.
+因为仍然有活跃的读者。
+
+1080
+01:06:44,580 --> 01:06:45,420
+This is r one.
+这是r one。
+
+1081
+01:06:46,730 --> 01:06:47,600
+Then you release along.
+那么你就可以放手了。
+
+1082
+01:06:49,690 --> 01:06:51,390
+And r one now is done.
+现在已经完成了。
+
+1083
+01:06:56,210 --> 01:06:56,630
+Okay.
+好的。
+
+1084
+01:07:00,150 --> 01:07:03,920
+Now let's say r finishes, sorry, r two is done.
+现在假设 r 完成了，抱歉，r two 完成了。
+
+1085
+01:07:04,920 --> 01:07:05,210
+Right?
+对吗？
+
+1086
+01:07:05,560 --> 01:07:07,080
+Now, say r one finishes.
+现在，假设 r1 完成了。
+
+1087
+01:07:07,090 --> 01:07:08,320
+He's doing the same thing.
+他正在做同样的事情。
+
+1088
+01:07:08,980 --> 01:07:12,150
+Acquire the lock, decrement the number of active readers.
+获取锁，减少活跃读者的数量。
+
+1089
+01:07:12,160 --> 01:07:14,790
+Now both are one and are two are going to be done.
+现在两个都是一个，两个都要完成。
+
+1090
+01:07:15,650 --> 01:07:17,590
+And our active readers become zero.
+我们的活跃读者变成了零。
+
+1091
+01:07:19,360 --> 01:07:21,100
+And there waiting writers,
+在那里等待着作家们，
+
+1092
+01:07:21,900 --> 01:07:23,040
+there is w one.
+有一个。
+
+1093
+01:07:24,610 --> 01:07:26,770
+So that now this condition is true.
+所以现在这个条件是真的。
+
+1094
+01:07:28,650 --> 01:07:34,730
+And now you are going to signal to the writer that it's okay to write.
+现在你要向写作者发出信号，告诉他可以开始写作了。
+
+1095
+01:07:42,050 --> 01:07:42,280
+Right?
+对吗？
+
+1096
+01:07:42,290 --> 01:07:43,320
+Readers are done.
+读者已完成。
+
+1097
+01:07:43,330 --> 01:07:50,570
+You can see it's the signal to write aw so now,
+你可以看到这是写入aw的信号，现在，
+
+1098
+01:07:51,110 --> 01:07:52,110
+the writer,
+作者
+
+1099
+01:07:53,420 --> 01:07:55,970
+which was waiting was a condition variable to write,
+正在等待的是一个条件变量来进行写操作。
+
+1100
+01:07:55,980 --> 01:07:57,170
+to receive the signal.
+接收信号。
+
+1101
+01:07:59,340 --> 01:08:00,930
+It's moved to the ridicule.
+它已经变得可笑了。
+
+1102
+01:08:00,940 --> 01:08:03,170
+And now we can start executing it,
+现在我们可以开始执行它了。
+
+1103
+01:08:03,180 --> 01:08:04,250
+executing this slide.
+执行此幻灯片。
+
+1104
+01:08:05,990 --> 01:08:08,670
+It acquires a lock back because remember,
+它重新获取了锁，因为记住了之前的锁。
+
+1105
+01:08:09,380 --> 01:08:15,990
+we are still in the critical section decrement number of waiting writers.
+我们仍然在临界区内，减少等待写者的数量。
+
+1106
+01:08:16,740 --> 01:08:18,080
+I am no longer waiting now.
+我现在不再等待了。
+
+1107
+01:08:19,740 --> 01:08:21,770
+Increment is a number of active writers.
+Increment是活跃写者的数量。
+
+1108
+01:08:21,780 --> 01:08:22,650
+I am active now,
+我现在在线。
+
+1109
+01:08:24,680 --> 01:08:27,160
+but it is a log and access a database.
+但它是一个日志并访问数据库。
+
+1110
+01:08:30,190 --> 01:08:31,770
+This again, although I am writing now,
+这又是一次，虽然我现在正在写。
+
+1111
+01:08:31,780 --> 01:08:36,210
+is still okay to accept to access a database outside the locks.
+在锁定的情况下仍然可以接受访问外部数据库。
+
+1112
+01:08:37,610 --> 01:08:43,810
+Because this database is going to be accessed can show only if the number
+由于这个数据库将被访问，只能显示数字。
+
+1113
+01:08:43,820 --> 01:08:44,970
+of active writers.
+活跃作家的数量。
+
+1114
+01:08:45,690 --> 01:08:46,260
+It's one.
+是的，现在是一点钟。
+
+1115
+01:08:47,890 --> 01:08:50,130
+You are guaranteed it will not be greater than one.
+你可以确保它不会大于一。
+
+1116
+01:08:54,480 --> 01:08:55,810
+Then say you are done,
+然后说你完成了。
+
+1117
+01:08:56,880 --> 01:08:58,010
+you acquire the lock,
+你获得了锁。
+
+1118
+01:08:59,520 --> 01:09:01,520
+you decline the number of active writers.
+你减少了活跃作家的数量。
+
+1119
+01:09:03,630 --> 01:09:05,250
+And now you look to signal.
+现在你要关注信号。
+
+1120
+01:09:06,770 --> 01:09:09,010
+Again, you give priority to the waiting writers,
+再次强调，你应该优先考虑等待的写入者。
+
+1121
+01:09:09,910 --> 01:09:09,970
+right?
+对的？
+
+1122
+01:09:09,980 --> 01:09:12,350
+Because you are prioritized writings of readings.
+因为你优先考虑阅读材料的写作。
+
+1123
+01:09:14,760 --> 01:09:16,870
+So now is there are awaiting writers,
+现在有等待的作家吗？
+
+1124
+01:09:16,880 --> 01:09:18,360
+you call okay to write.
+你可以写了。
+
+1125
+01:09:18,370 --> 01:09:20,880
+But in this case, there are no longer waiting writers.
+但在这种情况下，不再有等待的写入者。
+
+1126
+01:09:24,240 --> 01:09:27,990
+Therefore, you are going to look where there are waiting readers.
+因此，你将查找等待读者的位置。
+
+1127
+01:09:29,080 --> 01:09:30,850
+There is one is r three.
+有一个是r三。
+
+1128
+01:09:32,820 --> 01:09:40,140
+Then you are going to signal to r three that it can is okay to continue to read.
+然后你要向r3发出信号，告诉它可以继续读取了。
+
+1129
+01:09:45,290 --> 01:09:49,030
+Now we start executing the code for our three,
+现在我们开始执行我们的三个代码。
+
+1130
+01:09:49,330 --> 01:09:51,140
+who is resuming the execution,
+谁在恢复执行，
+
+1131
+01:09:53,320 --> 01:09:55,100
+acquires a lock back,
+重新获取锁
+
+1132
+01:09:56,060 --> 01:09:57,410
+decrement avoiding readers,
+避免读者递减
+
+1133
+01:09:58,610 --> 01:10:02,040
+access the database requires a lock,
+访问数据库需要加锁。
+
+1134
+01:10:02,050 --> 01:10:03,880
+decrement the number of active readers.
+减少活跃读者的数量。
+
+1135
+01:10:03,890 --> 01:10:05,290
+It is a lock.
+这是一个锁。
+
+1136
+01:10:07,160 --> 01:10:08,100
+So we are done.
+我们完成了。
+
+1137
+01:10:09,440 --> 01:10:11,290
+Now all the readers are done,
+现在所有的读者都完成了，
+
+1138
+01:10:11,300 --> 01:10:12,840
+all the writers are done.
+所有的作家都完成了。
+
+1139
+01:10:25,110 --> 01:10:27,240
+So here is question.
+所以这是一个问题。
+
+1140
+01:10:27,540 --> 01:10:32,790
+How from how young if we want to signal the writer with a fixed order?
+如果我们想以固定的顺序向写入者发送信号，那么从多年轻开始就可以了。
+
+1141
+01:10:33,900 --> 01:10:35,270
+How should we modify our code?
+我们应该如何修改我们的代码？
+
+1142
+01:10:36,990 --> 01:10:38,090
+Any suggestion here?
+这里有什么建议吗？
+
+1143
+01:10:38,630 --> 01:10:41,020
+The question, if the way I understand it,
+问题，如果我理解正确的话，
+
+1144
+01:10:41,570 --> 01:10:45,110
+if we want to signals the writers in a particular order,
+如果我们想按特定顺序通知写入者，
+
+1145
+01:10:45,120 --> 01:10:46,350
+how do we signal them?
+我们如何向他们发送信号？
+
+1146
+01:11:04,130 --> 01:11:05,770
+Any suggestion here from the class?
+有班级里的任何建议吗？
+
+1147
+01:11:17,620 --> 01:11:18,200
+That's great.
+太好了。
+
+1148
+01:11:18,210 --> 01:11:18,480
+Quite.
+相当。
+
+1149
+01:11:24,390 --> 01:11:25,820
+There are two ways to do it.
+有两种方法可以做到这一点。
+
+1150
+01:11:25,830 --> 01:11:26,820
+One easy way.
+一种简单的方法。
+
+1151
+01:11:30,570 --> 01:11:34,470
+You can use a different condition variable for each writer.
+你可以为每个写入者使用不同的条件变量。
+
+1152
+01:11:35,360 --> 01:11:36,420
+Very good style.
+非常好的风格。
+
+1153
+01:11:37,620 --> 01:11:42,060
+The other one is to be five more conditioned variables than to have a queue
+另一种方法是拥有比队列多五个条件变量
+
+1154
+01:11:43,310 --> 01:11:44,730
+of writers.
+作家们。
+
+1155
+01:11:47,410 --> 01:11:52,580
+But I to maintain it and only wake up the one from the head of the queue.
+但是我要维护它，并且只唤醒队列头部的那个。
+
+1156
+01:11:53,800 --> 01:11:55,150
+But this is pretty complicated.
+但这很复杂。
+
+1157
+01:11:57,180 --> 01:11:58,960
+But anyway, it's a possibility.
+但无论如何，这是一个可能性。
+
+1158
+01:12:03,760 --> 01:12:06,230
+Very good.
+非常好。
+
+1159
+01:12:08,340 --> 01:12:09,250
+So we are all done.
+我们都完成了。
+
+1160
+01:12:10,330 --> 01:12:11,660
+So here are some questions.
+所以这里有一些问题。
+
+1161
+01:12:12,500 --> 01:12:13,100
+Let's see.
+让我们看看。
+
+1162
+01:12:13,110 --> 01:12:14,860
+Let's check your understanding.
+让我们来检查一下你的理解。
+
+1163
+01:12:17,480 --> 01:12:19,680
+So let's say,
+那么假设，
+
+1164
+01:12:27,020 --> 01:12:27,530
+sorry,
+对不起，
+
+1165
+01:12:30,910 --> 01:12:31,960
+can read a starter.
+可以读一个启动程序。
+
+1166
+01:12:36,970 --> 01:12:40,420
+We answered this question.
+我们回答了这个问题。
+
+1167
+01:12:41,700 --> 01:12:45,490
+Readers can start off if that or you have continuous stream of writers.
+读者可以开始阅读，如果有连续的作者或者你有连续的作者流。
+
+1168
+01:12:47,320 --> 01:12:48,240
+Here is the second question.
+这是第二个问题。
+
+1169
+01:12:48,250 --> 01:12:53,730
+What if we erase a condition check in reader x this one?
+如果我们在读取器x中删除一个条件检查会怎么样？
+
+1170
+01:12:59,940 --> 01:13:04,700
+Basically, we say wherever a reader finishes,
+基本上，我们说无论读者在哪里结束阅读，
+
+1171
+01:13:05,420 --> 01:13:12,300
+say it's okay to write what will happen.
+可以写下将会发生的事情，没问题。
+
+1172
+01:13:20,710 --> 01:13:21,710
+It is a good idea,
+这是个好主意。
+
+1173
+01:13:21,720 --> 01:13:23,190
+it is worth going to work.
+值得去工作。
+
+1174
+01:13:24,840 --> 01:13:25,760
+Any drawbacks?
+有什么缺点吗？
+
+1175
+01:13:38,730 --> 01:13:39,360
+Okay?
+好的？
+
+1176
+01:13:39,950 --> 01:13:40,540
+Question here,
+这里有一个问题，
+
+1177
+01:13:40,550 --> 01:13:44,220
+one answer here is writers can start writing when readers are separating,
+这里的一个答案是，作家可以在读者分离时开始写作。
+
+1178
+01:13:45,730 --> 01:13:46,980
+as I said, can be reading.
+正如我所说的，可以阅读。
+
+1179
+01:13:47,450 --> 01:13:47,830
+Okay.
+好的。
+
+1180
+01:13:50,310 --> 01:13:51,260
+Let's look at this one.
+让我们来看看这个。
+
+1181
+01:13:53,350 --> 01:13:55,110
+In order to answer that question,
+为了回答这个问题，
+
+1182
+01:13:56,140 --> 01:13:59,760
+let's look at the code to write.
+让我们来看一下要编写的代码。
+
+1183
+01:14:00,080 --> 01:14:03,360
+This is a greater code here.
+这是一个更好的代码。
+
+1184
+01:14:09,240 --> 01:14:10,190
+What will happen here?
+这里会发生什么？
+
+1185
+01:14:10,200 --> 01:14:10,430
+Guys?
+大家好？
+
+1186
+01:14:12,810 --> 01:14:13,420
+You see?
+你明白吗？
+
+1187
+01:14:14,320 --> 01:14:15,400
+You get okay to write.
+你可以开始写了。
+
+1188
+01:14:17,910 --> 01:14:23,550
+You go out here is waiting right to you decrement waiting writers.
+你出去这里等着你减少等待的写者。
+
+1189
+01:14:24,600 --> 01:14:25,720
+But then what do you do next?
+那么接下来你要做什么呢？
+
+1190
+01:14:26,670 --> 01:14:28,110
+You go back to the while look.
+你回到了 while 循环。
+
+1191
+01:14:30,420 --> 01:14:31,410
+And in the while, look,
+与此同时，看着，
+
+1192
+01:14:32,220 --> 01:14:34,900
+if there are still active writers or active readers,
+如果仍然有活跃的写者或读者，
+
+1193
+01:14:37,770 --> 01:14:39,660
+you still cannot write.
+你仍然不能写作。
+
+1194
+01:14:40,660 --> 01:14:41,630
+You go to sleep again.
+你又去睡觉了。
+
+1195
+01:14:44,230 --> 01:14:44,730
+You see,
+你看，
+
+1196
+01:14:45,370 --> 01:14:47,680
+because it's wild, because you check again,
+因为它很随意，因为你再次检查一下，
+
+1197
+01:14:51,910 --> 01:14:53,080
+the state variables.
+状态变量。
+
+1198
+01:14:54,990 --> 01:14:56,020
+You are going to be fine.
+你会没事的。
+
+1199
+01:14:57,980 --> 01:15:02,870
+While this will happen is that he just wakes a writer,
+这将发生的是，他只是唤醒了一个作家。
+
+1200
+01:15:03,750 --> 01:15:06,210
+just for the writer to go immediately back to sleep.
+让作者立即回去睡觉。
+
+1201
+01:15:07,640 --> 01:15:09,600
+So just graduates contacts region.
+所以只是毕业生联系区域。
+
+1202
+01:15:11,650 --> 01:15:13,150
+So it's an efficiency problem,
+所以这是一个效率问题，
+
+1203
+01:15:13,960 --> 01:15:15,260
+is not a correctness problem.
+这不是一个正确性问题。
+
+1204
+01:15:18,030 --> 01:15:18,550
+Okay.
+好的。
+
+1205
+01:15:22,630 --> 01:15:22,870
+Good.
+好的。
+
+1206
+01:15:23,160 --> 01:15:25,310
+Let's go to the next one.
+我们继续下一个。
+
+1207
+01:15:28,100 --> 01:15:33,080
+So go
+那就开始吧
+
+1208
+01:15:39,040 --> 01:15:39,440
+farther.
+更远的。
+
+1209
+01:15:39,450 --> 01:15:43,500
+What if we turn the signal into broadcasts to,
+如果我们将信号转化为广播，会怎样呢？
+
+1210
+01:15:44,150 --> 01:15:47,490
+instead of having a condition broadcast to write?
+是否可以改为使用条件广播来进行写操作？
+
+1211
+01:15:48,780 --> 01:15:51,610
+You broadcast to write every analog instead of the signal?
+你是指广播将每个模拟信号都转换成数字信号吗？
+
+1212
+01:15:52,480 --> 01:15:53,540
+What will happen in this case?
+在这种情况下会发生什么？
+
+1213
+01:15:54,440 --> 01:15:55,210
+Is it correct?
+这是正确的吗？
+
+1214
+01:15:57,050 --> 01:15:59,080
+First question.
+第一个问题。
+
+1215
+01:16:10,120 --> 01:16:15,120
+Let's try to give an answer to anyone.
+让我们试着给任何人一个答案。
+
+1216
+01:16:29,320 --> 01:16:29,970
+Yes.
+是的。
+
+1217
+01:16:36,030 --> 01:16:37,620
+It's correct.
+没问题。
+
+1218
+01:16:37,630 --> 01:16:38,070
+Somali.
+索马里人。
+
+1219
+01:16:39,920 --> 01:16:40,340
+Yeah.
+是的。
+
+1220
+01:16:41,110 --> 01:16:41,510
+Yes.
+是的。
+
+1221
+01:16:41,520 --> 01:16:43,230
+And it's absolutely correct.
+而且这是绝对正确的。
+
+1222
+01:16:44,060 --> 01:16:45,310
+It's for the same reasons.
+出于同样的原因。
+
+1223
+01:16:45,950 --> 01:16:48,820
+You see the fundamental observation here.
+你看到了这里的基本观察。
+
+1224
+01:16:48,830 --> 01:16:48,940
+It's,
+这是
+
+1225
+01:16:51,280 --> 01:16:51,860
+again,
+再一次，
+
+1226
+01:16:52,500 --> 01:16:54,680
+the fundamental observation here is, again,
+这里的基本观察是，再次强调，
+
+1227
+01:16:54,690 --> 01:16:55,910
+for the writer,
+对于作者来说，
+
+1228
+01:16:56,490 --> 01:16:57,860
+i'm going here to the code.
+我要去这里看代码。
+
+1229
+01:16:58,320 --> 01:16:59,530
+You are still in the while loop.
+你仍然在while循环中。
+
+1230
+01:16:59,950 --> 01:17:03,680
+So no matter, even if you are going to be okay, not by mistake,
+所以无论如何，即使你会没事，也不是错误。
+
+1231
+01:17:03,690 --> 01:17:05,480
+no matter who is waking you up,
+无论是谁叫醒你，
+
+1232
+01:17:06,530 --> 01:17:10,090
+you are still going to check whether there are active writers and active readers.
+你仍然要检查是否有活跃的写者和活跃的读者。
+
+1233
+01:17:10,960 --> 01:17:12,690
+And if they are, you go back to sleep.
+如果是这样的话，你可以继续睡觉。
+
+1234
+01:17:14,470 --> 01:17:15,620
+It's inefficiency problem.
+这是一个效率问题。
+
+1235
+01:17:15,630 --> 01:17:15,940
+Again.
+再次。
+
+1236
+01:17:16,930 --> 01:17:19,410
+It doesn't matter how many times you are waking up open up.
+无论你醒来多少次都没关系。
+
+1237
+01:17:20,180 --> 01:17:21,690
+You are not going to do stupid things.
+你不会做愚蠢的事情。
+
+1238
+01:17:22,850 --> 01:17:23,360
+Okay?
+好的？
+
+1239
+01:17:25,590 --> 01:17:26,460
+The last one.
+最后一个。
+
+1240
+01:17:26,870 --> 01:17:29,900
+Finally, if we use only one condition variable,
+最后，如果我们只使用一个条件变量，
+
+1241
+01:17:30,890 --> 01:17:33,410
+call it continue instead of two separate ones,
+将其称为"继续"而不是两个独立的操作。
+
+1242
+01:17:34,330 --> 01:17:37,460
+both readers and writers are going to wake up.
+读者和写者都要醒来了。
+
+1243
+01:17:39,370 --> 01:17:40,800
+These are going to be correct.
+这些将是正确的。
+
+1244
+01:17:50,810 --> 01:17:52,680
+It's going to be correct for the same reason.
+这个原因也是正确的。
+
+1245
+01:17:53,740 --> 01:18:01,020
+Neither writer nor the right reader are going to continue if the test
+如果测试不通过，既没有作者也没有合适的读者会继续进行。
+
+1246
+01:18:01,030 --> 01:18:01,980
+for the while loop.
+对于 while 循环。
+
+1247
+01:18:04,730 --> 01:18:05,530
+It's still true.
+这仍然是真的。
+
+1248
+01:18:10,900 --> 01:18:12,110
+So here is what happens,
+所以这是发生的事情，
+
+1249
+01:18:14,630 --> 01:18:14,820
+right?
+是的，正确。
+
+1250
+01:18:14,830 --> 01:18:17,340
+And this is what i'm going to end up with this one.
+这就是我最终要得到的结果。
+
+1251
+01:18:22,510 --> 01:18:23,640
+So you can use one.
+所以你可以使用一个。
+
+1252
+01:18:27,410 --> 01:18:27,760
+But,
+但是，
+
+1253
+01:18:30,230 --> 01:18:30,770
+okay,
+好的，没问题。
+
+1254
+01:18:32,290 --> 01:18:35,850
+although there is in theory that there is one thing here,
+虽然理论上存在一个事物在这里，
+
+1255
+01:18:36,850 --> 01:18:39,080
+but I this is subtle things.
+但这是微妙的事情。
+
+1256
+01:18:40,460 --> 01:18:47,610
+This is correct with one condition to continue that it's actually,
+只有在满足一个条件的情况下，这个说法才是正确的，那就是实际上，
+
+1257
+01:18:48,100 --> 01:18:55,310
+if I continue is going to wake up one single thread,
+如果我继续执行，将会唤醒一个单个线程。
+
+1258
+01:18:55,320 --> 01:18:59,030
+and that single thread is an incorrect one and go to sleep here is a sink.
+这个单线程是错误的，现在进入休眠状态，这里是一个下沉点。
+
+1259
+01:18:59,950 --> 01:19:01,310
+If I wake up,
+如果我醒来，
+
+1260
+01:19:02,640 --> 01:19:06,950
+if I do, if I have only one continue conditional variable,
+如果我只有一个继续条件变量，那么如果我这样做，
+
+1261
+01:19:07,590 --> 01:19:11,630
+both the writers and readers are going to wait up, wake up on that.
+写作者和读者都将等待并在那时醒来。
+
+1262
+01:19:11,640 --> 01:19:15,710
+And now assume that by mistake, not by mistake,
+现在假设出于错误，而不是故意，
+
+1263
+01:19:15,720 --> 01:19:17,090
+it just happens.
+这只是发生了。
+
+1264
+01:19:17,590 --> 01:19:18,620
+I wake up the reader,
+我唤醒读者，
+
+1265
+01:19:18,630 --> 01:19:22,670
+the reader is going to check and there are waiting writers
+读者将进行检查，而写者们正在等待。
+
+1266
+01:19:22,680 --> 01:19:24,670
+and it's going to go immediately to sleep.
+然后它将立即进入睡眠状态。
+
+1267
+01:19:26,070 --> 01:19:28,310
+But now these signals were spent out.
+但是现在这些信号已经消耗完了。
+
+1268
+01:19:29,620 --> 01:19:30,090
+Okay?
+好的？
+
+1269
+01:19:30,910 --> 01:19:33,560
+And the writer cannot continue.
+作者无法继续写作。
+
+1270
+01:19:33,960 --> 01:19:34,590
+It's already,
+已经完成了。
+
+1271
+01:19:35,120 --> 01:19:35,870
+it's a slip.
+这是一张纸条。
+
+1272
+01:19:36,620 --> 01:19:37,900
+The reader is a slip.
+读者是一个滑块。
+
+1273
+01:19:39,190 --> 01:19:41,140
+If there is no, as I said, coming in,
+如果没有，正如我所说的，进来的话，
+
+1274
+01:19:41,680 --> 01:19:42,640
+we are deadlocked.
+我们陷入了僵局。
+
+1275
+01:19:43,510 --> 01:19:45,250
+In order for this tour at work,
+为了这次工作参观，
+
+1276
+01:19:45,560 --> 01:19:52,380
+need to also change this signal from the right reader to broadcast.
+还需要将来自右侧读取器的信号改为广播。
+
+1277
+01:19:53,630 --> 01:19:54,110
+Okay?
+好的？
+
+1278
+01:19:56,720 --> 01:19:58,150
+Okay, so you need to broadcast.
+好的，所以你需要进行广播。
+
+1279
+01:20:00,560 --> 01:20:01,070
+Okay?
+好的？
+
+1280
+01:20:02,520 --> 01:20:03,660
+And you also need to broadcast,
+而且你还需要广播，
+
+1281
+01:20:03,670 --> 01:20:05,100
+so you need to do some changes.
+所以你需要做一些改变。
+
+1282
+01:20:07,510 --> 01:20:08,020
+So,
+所以，
+
+1283
+01:20:09,390 --> 01:20:13,320
+so the summary here and we are going to end up with this is
+所以这里的总结是，我们最终会得出这个结论。
+
+1284
+01:20:13,330 --> 01:20:17,360
+that these wild looks are extremely powerful,
+这些狂野的表情非常强大，
+
+1285
+01:20:18,470 --> 01:20:18,740
+right?
+对的？
+
+1286
+01:20:18,750 --> 01:20:25,210
+Because they are going to guard against doing stupid things or incorrect things.
+因为他们要防止做愚蠢或错误的事情。
+
+1287
+01:20:26,270 --> 01:20:28,440
+If you are woken up by mistake.
+如果你被错误地唤醒了。
+
+1288
+01:20:31,250 --> 01:20:32,080
+So we are safe.
+所以我们是安全的。
+
+1289
+01:20:32,090 --> 01:20:36,690
+So what we need to be careful about is that because there is no history
+我们需要注意的是，由于没有历史记录，所以我们需要小心。
+
+1290
+01:20:36,700 --> 01:20:38,250
+with this condition variables,
+使用条件变量，
+
+1291
+01:20:39,670 --> 01:20:41,720
+I am protected to waking up the wrong,
+我受到保护，不会错误地被唤醒。
+
+1292
+01:20:41,730 --> 01:20:42,880
+but the wrong thread.
+但是错误的线程。
+
+1293
+01:20:43,880 --> 01:20:46,300
+But then if I am waking up the wrong thread,
+但是如果我唤醒了错误的线程，
+
+1294
+01:20:47,090 --> 01:20:49,180
+that signal was wasted,
+那个信号被浪费了。
+
+1295
+01:20:50,250 --> 01:20:53,520
+and the correct thread will not be open up.
+而且正确的线程不会被打开。
+
+1296
+01:20:54,300 --> 01:20:55,580
+So you can have deadlocks.
+所以你可能会遇到死锁问题。
+
+1297
+01:20:58,340 --> 01:21:02,030
+So that's why here you need to be careful what you need to be careful about.
+所以这就是为什么在这里你需要注意你需要注意的事情。
+
+1298
+01:21:03,380 --> 01:21:05,630
+That's why you have to be a liberal with a broadcast.
+这就是为什么你在广播中必须保持自由主义的原因。
+
+1299
+01:21:07,540 --> 01:21:09,500
+So we are going to end up with this one.
+所以我们最终会得到这个。
+
+1300
+01:21:10,350 --> 01:21:14,600
+And I think that it's a good place we are done with this example.
+我认为我们完成了这个例子，这是一个不错的地方。
+
+1301
+01:21:15,780 --> 01:21:17,970
+Please take a look at these examples,
+请看一下这些例子，
+
+1302
+01:21:18,920 --> 01:21:20,180
+careful carefully.
+小心 小心地。
+
+1303
+01:21:21,200 --> 01:21:23,410
+And for the exam,
+关于考试，
+
+1304
+01:21:24,240 --> 01:21:25,340
+and i'll stop here.
+我会在这里停下来。
+
+1305
+01:21:25,350 --> 01:21:27,780
+And the lecture is done.
+讲座已经结束了。
+
+1306
+01:21:28,150 --> 01:21:30,060
+I there is one last question.
+还有一个最后的问题。
+
+1307
+01:21:30,070 --> 01:21:32,060
+I am going to try to answer.
+我将尝试回答。
+
+1308
+01:21:33,140 --> 01:21:33,950
+Thank you.
+谢谢你。
+
+1309
+01:21:33,960 --> 01:21:36,410
+And i'll see you on monday,
+我会在周一见到你。
+
+1310
+01:21:37,020 --> 01:21:39,110
+on tuesday and monday.
+在周二和周一。
+
+1311
+01:21:40,320 --> 01:21:45,110
+And thank you.
+谢谢你。
+
+1312
+01:21:46,320 --> 01:21:48,100
+So two questions.
+所以有两个问题。
+
+1313
+01:21:49,060 --> 01:21:49,850
+Why not question?
+为什么不提问呢？
+
+1314
+01:21:49,860 --> 01:21:51,850
+The why look give us good protection?
+为什么我们要寻求良好的保护？
+
+1315
+01:21:51,860 --> 01:21:55,650
+But doesn't that cost a lot of cpu cycles since we are constantly pulling?
+但是这样做会消耗大量的CPU周期，因为我们不断地进行拉取操作。
+
+1316
+01:21:56,010 --> 01:21:56,750
+Absolutely.
+当然可以。
+
+1317
+01:21:56,970 --> 01:21:57,860
+It's inefficiency.
+这是低效的。
+
+1318
+01:21:59,100 --> 01:22:00,340
+It's your absolutely correct.
+这是完全正确的。
+
+1319
+01:22:01,280 --> 01:22:02,050
+It's inefficient.
+这是低效的。
+
+1320
+01:22:03,030 --> 01:22:04,290
+It's correct, but inefficient.
+这是正确的，但效率不高。
+
+1321
+01:22:05,850 --> 01:22:08,340
+And from Chad,
+来自乍得，
+
+1322
+01:22:09,760 --> 01:22:14,610
+wouldn't this possibly make a finished writers broadcast hit awaiting reader?
+这是否可能使得一篇完成的作家广播等待读者的作品受欢迎呢？
+
+1323
+01:22:14,850 --> 01:22:15,890
+First before awaiting reader,
+首先，在等待读者之前，
+
+1324
+01:22:15,900 --> 01:22:18,590
+if there was both waiting read as a writer,
+如果既有读者等待又有写者等待的情况下，
+
+1325
+01:22:18,930 --> 01:22:23,540
+which means observed ordering priority of writers of writers before readers,
+这意味着在读者之前观察到的写者的写入顺序优先级。
+
+1326
+01:22:25,460 --> 01:22:29,170
+this will no longer guarantee the priority order between writers and readers.
+这将不再保证写者和读者之间的优先顺序。
+
+1327
+01:22:29,830 --> 01:22:31,510
+If you have only one conditioned variables,
+如果你只有一个条件变量，
+
+1328
+01:22:31,520 --> 01:22:36,290
+you are no longer going to be guaranteed this one unnecessary,
+你将不再被保证这个不必要的东西。
+
+1329
+01:22:40,730 --> 01:22:44,280
+although it is still,
+尽管如此，
+
+1330
+01:22:44,690 --> 01:22:49,240
+II you are not guaranteed readers when you wake up,
+当你醒来时，并不能保证有读者。
+
+1331
+01:22:49,890 --> 01:22:51,070
+but still in,
+但仍然在进行中，
+
+1332
+01:22:51,080 --> 01:22:52,510
+if you want to proceed,
+如果你想继续，
+
+1333
+01:22:53,150 --> 01:22:55,470
+you are the while loop will take care of that.
+你可以使用 while 循环来处理这个。
+
+1334
+01:22:57,050 --> 01:22:59,480
+In from the point of view of accessing the database,
+从访问数据库的角度来看，
+
+1335
+01:23:00,410 --> 01:23:04,790
+the while loop is going to enforce a priority because a reader,
+while循环将强制执行优先级，因为一个读者，
+
+1336
+01:23:06,960 --> 01:23:11,680
+it's going to look whether there are active writers or waiting writers.
+它将检查是否有活跃的写者或等待中的写者。
+
+1337
+01:23:11,690 --> 01:23:13,480
+And if they are waiting writers,
+如果他们是等待的作家，
+
+1338
+01:23:13,840 --> 01:23:15,100
+it's not going to proceed.
+无法继续进行。
+
+1339
+01:23:15,740 --> 01:23:16,120
+Right?
+对吗？
+
+1340
+01:23:16,610 --> 01:23:18,550
+So as long as they are waiting writers,
+只要他们是等待的写入者，
+
+1341
+01:23:19,270 --> 01:23:23,280
+these wire conditions will ensure that the reader cannot proceed.
+这些线路条件将确保读者无法继续操作。
+
+1342
+01:23:23,970 --> 01:23:25,350
+So actually,
+实际上，
+
+1343
+01:23:25,360 --> 01:23:29,110
+the priority is still enforced.
+优先级仍然得到执行。
+
+1344
+01:23:30,410 --> 01:23:30,900
+Okay?
+好的？
+
+1345
+01:23:31,770 --> 01:23:34,370
+The priority is enforced by the while of conditions.
+优先级是通过条件的 while 循环来实施的。
+
+1346
+01:23:36,280 --> 01:23:41,620
+But the priority is not enforcing the sense that you can wake
+但是优先级不在于强制你能够醒来的感觉。
+
+1347
+01:23:41,630 --> 01:23:46,020
+up every a reader while you shouldn't have woken up.
+在你还没有醒来的时候，每个读者都不应该被唤醒。
+
+1348
+01:23:46,850 --> 01:23:48,030
+And this can lead,
+这可能会导致，
+
+1349
+01:23:48,520 --> 01:23:56,450
+again to deadlocks without without changing the code and more be
+再次讨论死锁问题，不改变代码的情况下，并且更深入地研究。
+
+1350
+01:23:56,460 --> 01:23:59,170
+more liberal in broadcasting the ok continue.
+在广播方面更加自由开放，好的，继续。
+
+1351
+01:24:00,010 --> 01:24:00,400
+Okay.
+好的。
+
+1352
+01:24:01,190 --> 01:24:01,590
+Thank you.
+谢谢你。
+
+1353
+01:24:01,600 --> 01:24:04,310
+And i'll see you on Tuesday and Monday.
+我会在周二和周一见到你。
+
+1354
+01:24:04,320 --> 01:24:04,650
+Bye.
+再见。
+
+1355
+01:24:05,170 --> 01:24:05,540
+Bye.
+再见。
+

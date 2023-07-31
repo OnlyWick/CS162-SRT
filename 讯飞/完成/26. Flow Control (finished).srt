@@ -1,0 +1,6695 @@
+1
+00:00:13,810 --> 00:00:14,740
+Hello, everyone.
+大家好。
+
+2
+00:00:14,750 --> 00:00:22,000
+Welcome to the next to last lecture of this semester,
+欢迎来到本学期的倒数第二堂课。
+
+3
+00:00:24,730 --> 00:00:27,800
+the one to the next to the last week of classes.
+倒数第二周的那一周课程。
+
+4
+00:00:29,280 --> 00:00:31,790
+Today we are going to have a very interesting lecture,
+今天我们将进行一场非常有趣的讲座，
+
+5
+00:00:31,800 --> 00:00:35,590
+and that will be on the dcp flow control and actually congestion control.
+这将涉及到数据中心网络的流量控制和拥塞控制。
+
+6
+00:00:38,050 --> 00:00:39,160
+Remember,
+记住，
+
+7
+00:00:39,170 --> 00:00:41,560
+here we are talking about the transfer layer.
+我们现在正在讨论传输层。
+
+8
+00:00:42,150 --> 00:00:44,780
+This is about the networking stock,
+这是关于网络股票的事情。
+
+9
+00:00:44,790 --> 00:00:46,100
+the internet stock.
+互联网股票。
+
+10
+00:00:47,190 --> 00:00:54,240
+And as you can see the transport layer and if you remember sits on top
+正如你所看到的，传输层位于顶部，如果你还记得的话。
+
+11
+00:00:54,250 --> 00:00:55,520
+of the network layer,
+网络层
+
+12
+00:00:56,700 --> 00:01:02,150
+the transport layer it's implemented actually is the first layer if you go
+实际上，传输层是实现的第一层，如果你继续往下走的话。
+
+13
+00:01:02,160 --> 00:01:04,010
+from bottom up,
+从底向上
+
+14
+00:01:04,780 --> 00:01:11,080
+which is only implemented by n hosts is not implemented by the network.
+只有n个主机实现的功能并未被网络实现。
+
+15
+00:01:12,460 --> 00:01:13,030
+Okay.
+好的。
+
+16
+00:01:14,650 --> 00:01:22,720
+And one of the key services that the transport layer is providing,
+传输层提供的关键服务之一是
+
+17
+00:01:22,730 --> 00:01:23,880
+if you remember,
+如果你记得的话，
+
+18
+00:01:24,610 --> 00:01:32,360
+it's multiplexing and multiplexing connections on the same machines,
+这是在同一台机器上进行复用和复用连接。
+
+19
+00:01:33,000 --> 00:01:35,280
+between the processes on the same machines.
+在同一台机器上的进程之间。
+
+20
+00:01:35,930 --> 00:01:36,140
+Right?
+对吗？
+
+21
+00:01:36,960 --> 00:01:41,510
+The internet as another player doesn't differentiate between processes.
+作为另一个参与者，互联网不区分进程。
+
+22
+00:01:41,760 --> 00:01:44,890
+The letter blair addresses only machines,
+这封信只针对机器。
+
+23
+00:01:45,400 --> 00:01:46,470
+only and hosts.
+仅限主机。
+
+24
+00:01:47,150 --> 00:01:55,150
+So nato clare is going to get take a packet and send it to another
+那么，Nato Clare将获取一个数据包并将其发送到另一个位置。
+
+25
+00:01:56,100 --> 00:02:02,040
+and host whose address is in the packet header as destination address.
+并将主机地址作为目标地址填入数据包头部。
+
+26
+00:02:02,700 --> 00:02:07,050
+But once the packet gets to the end to that end host,
+但是一旦数据包到达目标主机的终点，
+
+27
+00:02:07,420 --> 00:02:11,460
+it needs to be delivered to a particular process to particular application
+它需要被传递给特定的进程和特定的应用程序。
+
+28
+00:02:13,920 --> 00:02:15,070
+to being processed.
+正在处理中。
+
+29
+00:02:16,360 --> 00:02:21,230
+The way you differentiate between these different processes is using poor numbers.
+区分这些不同的进程的方法是使用糟糕的数字。
+
+30
+00:02:22,460 --> 00:02:27,460
+The transporter is the one who uses four numbers to the multiplex of packet
+传输器是使用四个数字来进行数据包复用的人。
+
+31
+00:02:27,470 --> 00:02:30,460
+when it arrives of an host and deliver it
+当它到达一个主机并将其传递
+
+32
+00:02:31,070 --> 00:02:33,780
+to the proper process.
+分配给正确的进程。
+
+33
+00:02:35,070 --> 00:02:35,660
+Okay?
+好的？
+
+34
+00:02:36,240 --> 00:02:38,190
+As you again, if you remember,
+正如你再次提到的，如果你还记得的话，
+
+35
+00:02:38,200 --> 00:02:40,030
+in the internet as a transport layer,
+在互联网中作为传输层，
+
+36
+00:02:40,040 --> 00:02:41,670
+we have two protocols,
+我们有两个协议，
+
+37
+00:02:41,680 --> 00:02:47,740
+udp and dcp the user data ground protocol and transport control protocol.
+UDP和TCP是用户数据报协议（UDP）和传输控制协议（TCP）。
+
+38
+00:02:51,680 --> 00:02:58,930
+The udp doesn't do much more besides multiplexing and many multiplexing of packets
+UDP除了进行多路复用和分组的多路复用之外，并没有做太多其他的工作。
+
+39
+00:03:00,740 --> 00:03:02,180
+from and to processes.
+从进程到进程。
+
+40
+00:03:03,830 --> 00:03:07,050
+So we are not going to talk more about that.
+所以我们不会再谈论那个了。
+
+41
+00:03:07,490 --> 00:03:09,210
+Now, the transfer control protocol,
+现在，传输控制协议（TCP），
+
+42
+00:03:09,220 --> 00:03:13,540
+which is the one we are going to talk most.
+我们将要讨论的是哪一个？
+
+43
+00:03:14,090 --> 00:03:19,360
+Mostly in this lecture is providing two additional services flow control.
+在这个讲座中，主要提供了两种额外的服务：流量控制。
+
+44
+00:03:20,160 --> 00:03:22,750
+We talk a little bit at the end of the last lecture,
+我们在上一堂课的最后稍微聊了一下。
+
+45
+00:03:22,760 --> 00:03:26,310
+but I am a to start again talking about it.
+但是我想重新开始谈论这个话题。
+
+46
+00:03:26,710 --> 00:03:28,390
+We have more time during this lecture,
+在本次讲座中，我们有更多的时间。
+
+47
+00:03:28,400 --> 00:03:30,070
+and it's a very important topic.
+这是一个非常重要的话题。
+
+48
+00:03:30,970 --> 00:03:32,250
+And congestion control.
+拥塞控制。
+
+49
+00:03:32,880 --> 00:03:36,370
+The difference between the two is that the flow control.
+两者的区别在于流量控制。
+
+50
+00:03:36,580 --> 00:03:39,930
+The goal of the flow control is not overflow.
+流量控制的目标是防止溢出。
+
+51
+00:03:40,490 --> 00:03:42,540
+The receiver, a slower receiver,
+接收器，一个较慢的接收器，
+
+52
+00:03:42,550 --> 00:03:46,540
+the congestion control is to the north of our flows and network.
+拥塞控制位于我们的流量和网络的北部。
+
+53
+00:03:46,950 --> 00:03:52,350
+Overflowing means that the sender sends more data than the receiver
+Overflowing 意味着发送方发送的数据超过了接收方的容量。
+
+54
+00:03:52,360 --> 00:03:53,590
+or the network can hand.
+或者网络可以处理。
+
+55
+00:03:56,040 --> 00:03:59,660
+During this lecture, we are going to talk about flow control and condition.
+在本讲座中，我们将讨论流程控制和条件。
+
+56
+00:04:02,450 --> 00:04:03,330
+Any questions?
+有任何问题吗？
+
+57
+00:04:06,730 --> 00:04:10,000
+Again, from the last lecture and from many lectures ago,
+再次强调，从上一次讲座和很久以前的讲座中，
+
+58
+00:04:10,540 --> 00:04:15,850
+if you remember this producer consumer is a bounded buffer,
+如果你还记得，生产者消费者问题是一个有界缓冲区。
+
+59
+00:04:15,860 --> 00:04:17,450
+meaning that it has,
+意思是它具有，
+
+60
+00:04:17,830 --> 00:04:22,630
+we can accept only a finer set of items in the buffer.
+我们只能接受缓冲区中更精细的一组项目。
+
+61
+00:04:24,390 --> 00:04:30,560
+This is improvised implements a natural a form of flow control,
+This is improvised实现了一种自然的流程控制形式。
+
+62
+00:04:30,570 --> 00:04:36,470
+because if the consumer cannot consume as fast as a producer percents that
+因为如果消费者无法以与生产者相同的速度消费产品，那么
+
+63
+00:04:36,480 --> 00:04:37,870
+I died into the buffer,
+我溢出了缓冲区。
+
+64
+00:04:39,110 --> 00:04:40,860
+inserts item into the buffer,
+将项目插入缓冲区中。
+
+65
+00:04:40,870 --> 00:04:42,650
+the buffer will get feel.
+缓冲区将会被填满。
+
+66
+00:04:42,660 --> 00:04:46,410
+And when they get when the gap buffer is full,
+当缓冲区已满时，他们会怎么做？
+
+67
+00:04:46,710 --> 00:04:50,960
+the producer can no longer add new items in the buffer.
+生产者无法再向缓冲区添加新的项目。
+
+68
+00:04:52,630 --> 00:04:54,520
+So the producer has to stop.
+所以生产者必须停止。
+
+69
+00:04:55,190 --> 00:05:01,720
+It's going to slow down over time to match the speed that with a consumer
+随着时间的推移，它会逐渐减慢，以与消费者的速度相匹配。
+
+70
+00:05:01,980 --> 00:05:04,090
+can read the data from the buffer.
+可以从缓冲区中读取数据。
+
+71
+00:05:05,960 --> 00:05:07,000
+That makes sense.
+那很有道理。
+
+72
+00:05:10,320 --> 00:05:12,500
+So that's pretty much you.
+那就是你的情况大致如此。
+
+73
+00:05:14,050 --> 00:05:15,180
+So obviously,
+显然，
+
+74
+00:05:15,190 --> 00:05:19,820
+the one problem you have with this one and we are going to discuss more
+你对这个问题有一个困扰，我们将会进一步讨论。
+
+75
+00:05:19,830 --> 00:05:21,900
+about it is that
+关于它的是
+
+76
+00:05:23,050 --> 00:05:26,550
+if producer and consumer as a buffer on a single machine,
+如果生产者和消费者在同一台机器上作为缓冲区，
+
+77
+00:05:26,560 --> 00:05:27,450
+things are easy,
+事情很简单，
+
+78
+00:05:27,460 --> 00:05:31,100
+but here the producer and consumers are on different machines.
+但是在这里，生产者和消费者位于不同的机器上。
+
+79
+00:05:31,620 --> 00:05:34,290
+How do you now produce a being on one machine?
+你现在如何在一台机器上生成一个实体？
+
+80
+00:05:34,300 --> 00:05:36,450
+How does it now is a buffer on?
+现在缓冲区是如何工作的？
+
+81
+00:05:36,820 --> 00:05:38,540
+The consumer side is full?
+消费者端已满？
+
+82
+00:05:43,430 --> 00:05:48,780
+He needs to somehow wait for some acknowledgment from the consumer that
+他需要以某种方式等待消费者的确认
+
+83
+00:05:49,590 --> 00:05:51,060
+it's okay to send more data.
+可以发送更多的数据。
+
+84
+00:05:53,690 --> 00:05:58,710
+The simplest version of that is called stop and wait,
+最简单的版本被称为停止等待。
+
+85
+00:05:58,720 --> 00:06:00,270
+and is as simple as you can think of.
+并且就像你能想象的那样简单。
+
+86
+00:06:01,180 --> 00:06:04,930
+We are going to use a lot of this kind of diagram,
+我们将会使用很多这种类型的图表。
+
+87
+00:06:04,940 --> 00:06:10,050
+and you see you have sender and the receiver on both sides.
+你可以看到在双方都有发送者和接收者。
+
+88
+00:06:10,780 --> 00:06:14,990
+And then the time goes down.
+然后时间递减。
+
+89
+00:06:18,510 --> 00:06:20,660
+The oldest time is at the top,
+最早的时间在顶部。
+
+90
+00:06:20,670 --> 00:06:22,180
+the newest time it is about.
+最新的时间是多少。
+
+91
+00:06:23,460 --> 00:06:25,060
+So stop and why it is very simple.
+所以停下来的原因很简单。
+
+92
+00:06:26,460 --> 00:06:27,500
+You send a packet,
+你发送了一个数据包。
+
+93
+00:06:29,680 --> 00:06:30,910
+you wait for an acknowledgment,
+你等待确认。
+
+94
+00:06:30,920 --> 00:06:34,790
+and only after extent you got the acknowledgment, you send another pack.
+只有在你收到确认后，才发送另一个数据包。
+
+95
+00:06:38,340 --> 00:06:38,770
+Okay.
+好的。
+
+96
+00:06:43,850 --> 00:06:47,480
+Now, there are several important aspects in our metrics here.
+现在，我们的指标中有几个重要的方面。
+
+97
+00:06:47,490 --> 00:06:52,880
+So it is this d which is a delay or one way delay.
+所以这个d是延迟或单向延迟。
+
+98
+00:06:53,090 --> 00:06:58,680
+How long it takes a packet to get to the receiver from the center?
+从中心到接收方需要多长时间才能到达？
+
+99
+00:07:00,110 --> 00:07:00,450
+Right?
+对吗？
+
+100
+00:07:02,640 --> 00:07:03,910
+It takes some time.
+这需要一些时间。
+
+101
+00:07:04,400 --> 00:07:06,710
+There are different overheads and at all,
+有不同的开销和全部的开销。
+
+102
+00:07:07,080 --> 00:07:08,320
+on top of that, obviously,
+此外，显然，
+
+103
+00:07:08,330 --> 00:07:09,820
+there is a speed of light.
+光速存在。
+
+104
+00:07:13,160 --> 00:07:15,710
+So across the continent, I think, is what?
+大陆的另一边是什么？
+
+105
+00:07:16,100 --> 00:07:19,740
+Maybe than 20 millisecond in us something like that.
+大概是20毫秒左右，以微秒为单位。
+
+106
+00:07:22,970 --> 00:07:24,750
+And now you need to wait for acknowledgment.
+现在你需要等待确认。
+
+107
+00:07:24,760 --> 00:07:26,710
+So acknowledgment, it might take another,
+所以确认，可能需要另外一些时间。
+
+108
+00:07:27,700 --> 00:07:28,900
+the same amount of time,
+相同的时间量
+
+109
+00:07:29,420 --> 00:07:32,040
+assuming that asymmetric capacity metrics,
+假设不对称容量指标，
+
+110
+00:07:32,130 --> 00:07:34,240
+it's not necessary for the past to be symmetrics.
+过去并不一定需要对称。
+
+111
+00:07:35,320 --> 00:07:38,350
+Because as the packet from the sender to the receiver,
+因为作为从发送方到接收方的数据包，
+
+112
+00:07:38,360 --> 00:07:42,110
+can go on a different path from the sender to the back from the receiver
+可以从发送方到接收方的路径上选择不同的路径返回。
+
+113
+00:07:42,120 --> 00:07:42,830
+to the sender.
+给发件人。
+
+114
+00:07:43,260 --> 00:07:45,270
+Even if they go to on the same path,
+即使他们走在同一条道路上，
+
+115
+00:07:45,740 --> 00:07:48,650
+there can be different level of congestion in the network is,
+网络中可能存在不同程度的拥塞。
+
+116
+00:07:49,020 --> 00:07:52,020
+for instance, at a given time, in the day,
+例如，在一天的某个时间，
+
+117
+00:07:52,210 --> 00:07:56,390
+is not taking you the same time to go from auckland to san jose,
+从奥克兰到圣何塞所需的时间不同。
+
+118
+00:07:58,280 --> 00:08:00,660
+as to go from san jose 2o'clock.
+关于从圣何塞出发的时间是两点钟。
+
+119
+00:08:01,690 --> 00:08:02,020
+Right?
+对吗？
+
+120
+00:08:02,920 --> 00:08:04,230
+Different level of congestion.
+不同程度的拥塞。
+
+121
+00:08:05,190 --> 00:08:06,820
+But anyway, for simplicity,
+但无论如何，为了简单起见，
+
+122
+00:08:06,830 --> 00:08:12,820
+assuming assume that you have the same one way latency,
+假设你们有相同的单向延迟，
+
+123
+00:08:13,290 --> 00:08:14,360
+as this, assume no congestion.
+假设没有拥塞。
+
+124
+00:08:14,370 --> 00:08:15,980
+So if there are no congestion,
+那么如果没有拥塞的话，
+
+125
+00:08:15,990 --> 00:08:18,410
+so it does take the same amount of time.
+所以它确实需要相同的时间。
+
+126
+00:08:19,210 --> 00:08:20,450
+And now,
+现在，
+
+127
+00:08:22,140 --> 00:08:28,780
+but then you need to wait for two times d in the best case scenario to get
+但在最好的情况下，你需要等待两倍的d时间才能得到。
+
+128
+00:08:28,790 --> 00:08:29,710
+the acknowledgment back.
+确认回复。
+
+129
+00:08:30,940 --> 00:08:33,060
+And these 2 times this round trip time,
+而这两次往返时间，
+
+130
+00:08:33,460 --> 00:08:34,630
+it's called round trip time.
+它被称为往返时间。
+
+131
+00:08:34,640 --> 00:08:38,860
+Round trip time is how long it takes a packet to travel from sender
+往返时间是指数据包从发送方到达接收方并返回所需的时间。
+
+132
+00:08:38,870 --> 00:08:39,980
+to receiver and back.
+发送和返回给接收者。
+
+133
+00:08:42,240 --> 00:08:42,620
+Okay.
+好的。
+
+134
+00:08:46,970 --> 00:08:48,910
+Now, what is this throughput?
+现在，什么是吞吐量？
+
+135
+00:08:49,600 --> 00:08:50,910
+How many packets you can send?
+你能发送多少个数据包？
+
+136
+00:08:52,720 --> 00:08:53,270
+Let's say,
+假设，
+
+137
+00:08:54,160 --> 00:08:56,410
+let me give you some numbers.
+让我给你一些数字。
+
+138
+00:08:57,420 --> 00:08:59,750
+So say, is that one way latency?
+所以，你是指单向延迟吗？
+
+139
+00:09:00,290 --> 00:09:06,360
+It's 1 million seconds using this protocol,
+使用这个协议需要1百万秒。
+
+140
+00:09:08,160 --> 00:09:09,280
+assuming that everything is symmetric,
+假设一切都是对称的，
+
+141
+00:09:09,850 --> 00:09:13,200
+all the one way latency are the same for all packets.
+所有单向延迟对于所有数据包来说都是相同的。
+
+142
+00:09:13,930 --> 00:09:15,920
+How many packets I can send in 1second?
+在1秒钟内，您可以发送多少个数据包？
+
+143
+00:09:18,690 --> 00:09:20,480
+I know latency is 1millisecond.
+我知道延迟是1毫秒。
+
+144
+00:09:22,510 --> 00:09:28,510
+And I am asking you how many packets I can send in 1second?
+我正在问您每秒可以发送多少个数据包？
+
+145
+00:09:40,550 --> 00:09:41,480
+500.
+500.
+
+146
+00:09:42,540 --> 00:09:43,750
+That's correct, simon.
+没错，Simon。
+
+147
+00:09:46,420 --> 00:09:48,530
+Indeed, that's the correct answer.
+确实，那是正确的答案。
+
+148
+00:09:48,540 --> 00:09:49,890
+And it's very simple, right?
+这很简单，对吗？
+
+149
+00:09:49,900 --> 00:09:53,010
+It's like we can send only one packet per round trip time,
+就好像我们每个往返时间只能发送一个数据包一样。
+
+150
+00:09:53,890 --> 00:09:57,520
+because you need to wait for the acknowledgment before you send another packet.
+因为在发送另一个数据包之前，你需要等待确认。
+
+151
+00:09:58,180 --> 00:10:01,470
+The round trip time is twice the one way delay.
+往返时间是单程延迟的两倍。
+
+152
+00:10:02,090 --> 00:10:04,060
+Latency is too many seconds.
+延迟太多秒。
+
+153
+00:10:04,460 --> 00:10:07,610
+So 1second over 2 million seconds.
+所以1秒等于200万秒。
+
+154
+00:10:07,900 --> 00:10:12,370
+It's1,000 million seconds over two is500.
+100亿秒等于两个500亿。
+
+155
+00:10:15,110 --> 00:10:15,660
+Good.
+好的。
+
+156
+00:10:18,500 --> 00:10:19,230
+Sounds good.
+好的。
+
+157
+00:10:20,960 --> 00:10:23,350
+So how fast can you send data?
+你能以多快的速度发送数据？
+
+158
+00:10:23,360 --> 00:10:24,950
+You answer that question?
+你回答了那个问题吗？
+
+159
+00:10:25,420 --> 00:10:30,570
+Again, the little law applies on this case as a number of packets.
+同样，利特尔定律适用于这种情况，作为数据包的数量。
+
+160
+00:10:30,580 --> 00:10:35,530
+It's be how many packets you have in the system times the round trip time.
+这取决于系统中有多少个数据包以及往返时间的乘积。
+
+161
+00:10:35,540 --> 00:10:40,920
+And b will be the number of packets you have in the system.
+b将是系统中的数据包数量。
+
+162
+00:10:40,930 --> 00:10:43,450
+Sorry, you the number of packets you have in the system.
+抱歉，您在系统中的数据包数量。
+
+163
+00:10:43,460 --> 00:10:44,370
+It's only one pack.
+只有一个包。
+
+164
+00:10:45,200 --> 00:10:45,450
+Right?
+对吗？
+
+165
+00:10:46,340 --> 00:10:48,230
+So you have one packet priority,
+所以你有一个数据包的优先级，
+
+166
+00:10:50,190 --> 00:10:50,990
+like we discuss.
+像我们讨论的那样。
+
+167
+00:10:55,950 --> 00:10:56,340
+Now,
+现在，
+
+168
+00:10:57,130 --> 00:10:59,030
+let's do a little bit more complicated here.
+让我们来做一些更复杂的事情吧。
+
+169
+00:10:59,040 --> 00:10:59,990
+Now you have,
+现在你拥有了，
+
+170
+00:11:00,580 --> 00:11:02,170
+in this particular case,
+在这种特殊情况下，
+
+171
+00:11:02,550 --> 00:11:07,660
+you'll have what is the throughput in terms of the number of bytes,
+你将会得到吞吐量的字节数。
+
+172
+00:11:07,670 --> 00:11:08,900
+not in the number of packers?
+不在打包工人的数量中吗？
+
+173
+00:11:08,910 --> 00:11:11,800
+Like I mentioned, I ask you a little bit earlier.
+就像我之前提到的，我稍早之前问过你一点问题。
+
+174
+00:11:12,340 --> 00:11:15,280
+If you have the round trip time of 100millisecond.
+如果你有100毫秒的往返时间。
+
+175
+00:11:15,720 --> 00:11:18,340
+So one way the latency is 50millisecond,
+所以一种方式是延迟为50毫秒。
+
+176
+00:11:18,810 --> 00:11:20,550
+a packet has100,
+一个数据包有100个。
+
+177
+00:11:21,030 --> 00:11:26,100
+1,500bytes that what is a throughput in terms of bits per second?
+1,500字节是指以每秒传输的比特数来衡量的吞吐量是多少？
+
+178
+00:11:27,020 --> 00:11:28,290
+It's very simple, right?
+这很简单，对吗？
+
+179
+00:11:28,300 --> 00:11:37,830
+You can send one packet means1,500×8beats in0.1seconds.
+你可以发送一个数据包，意味着在0.1秒内可以传输1500×8比特。
+
+180
+00:11:37,840 --> 00:11:40,190
+So it's 120 kilobits per second.
+所以它是每秒120千比特。
+
+181
+00:11:41,660 --> 00:11:42,000
+Okay.
+好的。
+
+182
+00:11:44,770 --> 00:11:46,480
+The main.here, though,
+主要在这里，然而，
+
+183
+00:11:46,490 --> 00:11:48,160
+is that as you can see,
+正如你所看到的，
+
+184
+00:11:48,720 --> 00:11:50,150
+this is very simple protocol.
+这是一个非常简单的协议。
+
+185
+00:11:50,160 --> 00:11:51,550
+You can implement it right away.
+你可以立即实现它。
+
+186
+00:11:51,560 --> 00:11:54,720
+So it's at the advantage of this protocol.
+因此，这个协议具有优势。
+
+187
+00:11:58,160 --> 00:11:58,940
+It's simplicity.
+它的简单性。
+
+188
+00:11:59,700 --> 00:12:01,730
+On the other hand, is very inefficient.
+另一方面，非常低效。
+
+189
+00:12:01,740 --> 00:12:02,390
+You see,
+你看到了，
+
+190
+00:12:03,020 --> 00:12:09,000
+he's taking, you cannot send more than at 120 kilobits per second.
+他正在进行传输，你不能以每秒超过120千比特的速度发送。
+
+191
+00:12:09,290 --> 00:12:11,680
+No matter how fast than a turkey is,
+无论火鸡跑得多快，
+
+192
+00:12:15,380 --> 00:12:18,700
+because because in this case,
+因为在这种情况下，
+
+193
+00:12:18,710 --> 00:12:20,660
+a throughput is governed only,
+吞吐量仅受控制
+
+194
+00:12:20,670 --> 00:12:21,820
+by the one way letters.
+通过单向信函。
+
+195
+00:12:23,870 --> 00:12:27,580
+The one way latency will not depend in moscow cases.
+单向延迟在莫斯科的情况下不会有影响。
+
+196
+00:12:27,590 --> 00:12:29,820
+If you think about its mostly speed of light,
+如果你考虑到它主要是光速，
+
+197
+00:12:30,310 --> 00:12:34,980
+it will not depend if there's a speed of light component of the latency
+这不会取决于延迟中是否存在光速组件。
+
+198
+00:12:34,990 --> 00:12:36,540
+of how fast is a network.
+网络的速度有多快。
+
+199
+00:12:36,940 --> 00:12:37,830
+How fast is the link?
+这个链接有多快？
+
+200
+00:12:38,940 --> 00:12:42,540
+If you have 100 megabytes per second or one gigabytes per second bit
+如果你有每秒100兆字节或每秒1吉字节的速度
+
+201
+00:12:42,550 --> 00:12:43,840
+or ten gigabytes per second,
+或每秒十千兆字节。
+
+202
+00:12:44,440 --> 00:12:48,830
+you can still only send at 120 kilobits per second.
+你仍然只能以每秒120千比特的速度发送。
+
+203
+00:12:51,590 --> 00:12:52,730
+So how can you send more?
+那么你想发送更多信息吗？
+
+204
+00:12:54,510 --> 00:12:57,250
+How would you modify this protocol to send more
+你会如何修改这个协议以发送更多的数据？
+
+205
+00:13:07,930 --> 00:13:09,050
+batch acknowledgement?
+批量确认
+
+206
+00:13:10,060 --> 00:13:11,380
+So if you bat, it's true.
+如果你击球，那是真的。
+
+207
+00:13:11,710 --> 00:13:13,300
+But if you bat the acknowledgment,
+但是如果你忽略了确认，
+
+208
+00:13:13,310 --> 00:13:18,170
+this means that you have to send a packet before you receive
+这意味着在接收之前你必须发送一个数据包。
+
+209
+00:13:18,180 --> 00:13:19,450
+the acknowledgment for that pack,
+该数据包的确认
+
+210
+00:13:20,630 --> 00:13:22,040
+your intuition is correct.
+你的直觉是正确的。
+
+211
+00:13:22,620 --> 00:13:27,180
+But as you'll see,
+但是你会看到，
+
+212
+00:13:27,190 --> 00:13:30,260
+and that's big part of the solution.
+这是解决方案的重要部分。
+
+213
+00:13:30,570 --> 00:13:32,690
+But as you see, things will not be as easy.
+但是正如你所看到的，事情并不会那么容易。
+
+214
+00:13:35,090 --> 00:13:37,910
+It's exactly simon and allison.
+确切地说，是Simon和Allison。
+
+215
+00:13:38,160 --> 00:13:39,390
+It's the same.
+是一样的。
+
+216
+00:13:40,120 --> 00:13:41,390
+You don't need to get block on act,
+你不需要在行动上受阻。
+
+217
+00:13:41,400 --> 00:13:43,150
+because if you get block on a knack,
+因为如果你在某个技能上被阻塞了，
+
+218
+00:13:43,540 --> 00:13:47,430
+then it's no longer you can send packets.
+那么你就不能再发送数据包了。
+
+219
+00:13:48,800 --> 00:13:49,120
+Right?
+对吗？
+
+220
+00:13:53,530 --> 00:13:55,760
+But the problem is the following.
+但问题是以下的。
+
+221
+00:13:56,480 --> 00:13:59,390
+Okay, you don't draw it's, they do it.
+好的，你不需要绘制它，他们会完成这个任务。
+
+222
+00:13:59,400 --> 00:14:01,150
+Your intuition is absolutely correct.
+你的直觉完全正确。
+
+223
+00:14:01,480 --> 00:14:05,270
+The main problem here is that I need to wait for an acknowledgment
+这里的主要问题是我需要等待一个确认回复。
+
+224
+00:14:05,280 --> 00:14:08,130
+from the previous packet before I can send the next packet.
+在发送下一个数据包之前，我需要等待前一个数据包的确认。
+
+225
+00:14:09,490 --> 00:14:10,870
+And the solution is, okay,
+解决方案是，好的，
+
+226
+00:14:11,310 --> 00:14:12,430
+don't wait for that.
+不要等待那个。
+
+227
+00:14:12,700 --> 00:14:12,800
+Right?
+对吗？
+
+228
+00:14:12,810 --> 00:14:16,440
+Send more packets as a problem.
+发送更多数据包是一个问题。
+
+229
+00:14:16,610 --> 00:14:19,720
+And if you don't have losses,
+如果你没有损失的话，
+
+230
+00:14:20,330 --> 00:14:21,290
+that will be great.
+太好了。
+
+231
+00:14:23,010 --> 00:14:24,980
+But if the packets are lost,
+但是如果数据包丢失了，
+
+232
+00:14:26,930 --> 00:14:33,370
+then here the acknowledgment serves to proposes one to slow you down,
+在这里，确认书旨在建议您放慢速度，
+
+233
+00:14:33,380 --> 00:14:35,490
+to slow the sender down, right?
+是的，减慢发送方的速度，对吗？
+
+234
+00:14:36,380 --> 00:14:37,200
+To block the sender.
+屏蔽发件人。
+
+235
+00:14:37,880 --> 00:14:39,860
+But the other one is also to say,
+但另一个也是这样说的，
+
+236
+00:14:40,090 --> 00:14:42,760
+there's a packet has been successfully receipt.
+已成功接收到一个数据包。
+
+237
+00:14:45,080 --> 00:14:46,900
+So let's talk about losses.
+那么让我们来谈谈损失。
+
+238
+00:14:47,520 --> 00:14:48,730
+So in the internet,
+在互联网上，
+
+239
+00:14:48,960 --> 00:14:51,770
+you are going to have losses like we discussed last time.
+你会遇到亏损，就像我们上次讨论的那样。
+
+240
+00:14:52,420 --> 00:14:52,770
+Right?
+对吗？
+
+241
+00:14:53,090 --> 00:14:53,680
+And actually,
+实际上，
+
+242
+00:14:53,690 --> 00:14:58,750
+dcp transfer control protocol is going also to provide reliability
+DCP传输控制协议也将提供可靠性。
+
+243
+00:14:58,760 --> 00:15:00,790
+besides flow control and congestion control.
+除了流量控制和拥塞控制之外。
+
+244
+00:15:02,490 --> 00:15:02,650
+Right?
+对吗？
+
+245
+00:15:02,660 --> 00:15:04,450
+But as another player,
+但作为另一个玩家，
+
+246
+00:15:04,460 --> 00:15:08,810
+you are going to have losses be because many reasons,
+你将会遭受损失，原因有很多。
+
+247
+00:15:09,150 --> 00:15:11,120
+it's like we discussed in the past.
+就像我们之前讨论过的那样。
+
+248
+00:15:11,480 --> 00:15:18,130
+We have your microwave can corrupt your wireless link,
+我们的微波炉可能会干扰您的无线连接。
+
+249
+00:15:19,530 --> 00:15:21,770
+even in optical network, in optical networks,
+即使在光网络中，光网络中，
+
+250
+00:15:21,780 --> 00:15:23,090
+abyss can be corrupted.
+深渊可以被腐化。
+
+251
+00:15:23,840 --> 00:15:26,180
+The wire can be bad,
+电线可能有问题，
+
+252
+00:15:26,190 --> 00:15:28,770
+not very well connected.
+连接不太好。
+
+253
+00:15:28,780 --> 00:15:29,610
+And many reasons.
+有很多原因。
+
+254
+00:15:29,990 --> 00:15:36,330
+Or like we will see the buffers in the routers are going to overflow,
+或者说我们会看到路由器中的缓冲区将会溢出，
+
+255
+00:15:36,340 --> 00:15:37,690
+and you are going to draw packets.
+而且你将要绘制数据包。
+
+256
+00:15:40,880 --> 00:15:41,330
+Now,
+现在，
+
+257
+00:15:43,340 --> 00:15:43,950
+we,
+我们，
+
+258
+00:15:44,560 --> 00:15:47,350
+when you with a packet,
+当你处理一个数据包时，
+
+259
+00:15:47,360 --> 00:15:48,830
+you have associated,
+你已经关联了。
+
+260
+00:15:54,260 --> 00:15:55,020
+basically,
+基本上，
+
+261
+00:15:57,820 --> 00:15:58,710
+as we'll see,
+正如我们将看到的，
+
+262
+00:16:00,400 --> 00:16:02,330
+there are two way,
+有两种方式。
+
+263
+00:16:02,340 --> 00:16:03,370
+two,
+两个
+
+264
+00:16:03,380 --> 00:16:06,010
+or two ways to lose a packet here.
+这里有两种丢失数据包的方式。
+
+265
+00:16:07,010 --> 00:16:10,960
+First of all, the packet doesn't get to the destination at all,
+首先，数据包根本没有到达目的地。
+
+266
+00:16:12,190 --> 00:16:12,660
+is lost.
+丢失了。
+
+267
+00:16:13,360 --> 00:16:16,770
+The second one, the packet is corrupted.
+第二个，数据包已损坏。
+
+268
+00:16:18,200 --> 00:16:19,350
+You get the packet,
+你收到了数据包，
+
+269
+00:16:19,660 --> 00:16:21,970
+but some bits are flipped.
+但是有一些位被翻转了。
+
+270
+00:16:23,470 --> 00:16:23,900
+Okay?
+好的？
+
+271
+00:16:26,100 --> 00:16:27,290
+On the receiver side,
+在接收方，
+
+272
+00:16:27,300 --> 00:16:32,460
+you need to know that you need to make sure that you get all the packets,
+你需要知道的是，你必须确保获取到所有的数据包。
+
+273
+00:16:33,780 --> 00:16:35,740
+the package you got are not corrupted.
+你收到的包裹没有损坏。
+
+274
+00:16:36,730 --> 00:16:37,260
+And by the way,
+顺便说一下，
+
+275
+00:16:37,270 --> 00:16:40,620
+you also want to make sure that you get each package exactly once delivered
+你还要确保每个包裹只被送达一次。
+
+276
+00:16:40,630 --> 00:16:41,460
+to the application.
+给应用程序。
+
+277
+00:16:47,020 --> 00:16:48,540
+So this acknowledgment,
+因此，这个确认，
+
+278
+00:16:48,550 --> 00:16:51,080
+like we see by soft earlier on,
+就像我们之前在软件上看到的那样，
+
+279
+00:16:51,590 --> 00:16:58,890
+they also serve as an acknowledgement that the packet was delivered to the destination.
+它们还作为确认该数据包已被传送到目的地的标志。
+
+280
+00:17:04,270 --> 00:17:06,200
+So basically, if I am the receiver,
+那么基本上，如果我是接收者，
+
+281
+00:17:06,210 --> 00:17:07,400
+I get the packet.
+我收到了数据包。
+
+282
+00:17:07,890 --> 00:17:09,130
+I check the packet.
+我检查数据包。
+
+283
+00:17:09,630 --> 00:17:10,960
+Whether is correct?
+这是否正确？
+
+284
+00:17:10,970 --> 00:17:12,840
+How do I check the package that is correct?
+如何检查正确的软件包？
+
+285
+00:17:13,090 --> 00:17:14,620
+They have the correct information.
+他们有正确的信息。
+
+286
+00:17:15,120 --> 00:17:15,840
+How you do it?
+你是如何做到的？
+
+287
+00:17:19,670 --> 00:17:20,780
+You are the designer.
+你是设计师。
+
+288
+00:17:27,100 --> 00:17:29,390
+That's you do have a check sum,
+这是你有一个校验和的意思。
+
+289
+00:17:30,640 --> 00:17:31,980
+like the check sound like parity,
+像校验声音一样，听起来像是奇偶校验。
+
+290
+00:17:31,990 --> 00:17:33,600
+be something more sophisticated than that.
+要比那个更复杂一些。
+
+291
+00:17:33,610 --> 00:17:34,680
+But that's the idea.
+但这就是想法。
+
+292
+00:17:36,920 --> 00:17:39,070
+The packet has a data and has a check sound.
+该数据包包含数据和校验码。
+
+293
+00:17:41,950 --> 00:17:44,340
+You take the data and you could compute the checks,
+你拿到数据后可以计算校验和。
+
+294
+00:17:44,350 --> 00:17:45,460
+are using the same algorithm.
+正在使用相同的算法。
+
+295
+00:17:45,590 --> 00:17:49,500
+You compare that the computed checks out is the same as the jackson in the back.
+你比较计算出的校验结果与后面的杰克逊是否相同。
+
+296
+00:17:50,220 --> 00:17:51,280
+If they are the same,
+如果它们是相同的，
+
+297
+00:17:52,230 --> 00:17:53,880
+you say this packet,
+你说这个数据包，
+
+298
+00:17:53,890 --> 00:17:55,400
+the data is correct.
+数据是正确的。
+
+299
+00:17:56,050 --> 00:17:57,720
+Otherwise, you drop the back.
+否则，你就放弃后面的部分。
+
+300
+00:18:02,270 --> 00:18:04,200
+Now, if a packet is dropped,
+现在，如果一个数据包被丢弃，
+
+301
+00:18:04,210 --> 00:18:05,760
+like in our previous case,
+就像我们之前的情况一样，
+
+302
+00:18:06,440 --> 00:18:06,830
+right?
+对的？
+
+303
+00:18:08,820 --> 00:18:11,780
+The question is that i'm sending a packet.
+问题是我正在发送一个数据包。
+
+304
+00:18:12,450 --> 00:18:13,460
+The packet is lost,
+数据包丢失了。
+
+305
+00:18:14,260 --> 00:18:14,840
+for instance,
+例如，
+
+306
+00:18:16,750 --> 00:18:20,470
+or it gets a packet is get to the destination this job.
+或者它接收到一个数据包，将该任务传送到目的地。
+
+307
+00:18:22,410 --> 00:18:23,310
+What i'm going to do,
+我要做什么？
+
+308
+00:18:23,320 --> 00:18:31,210
+so what i'm going to do because i'm going through it indefinitely,
+所以我要做什么，因为我要无限期地经历这个？
+
+309
+00:18:31,220 --> 00:18:34,810
+because i'm going to wait for a knack which will never come.
+因为我将会等待一个永远不会到来的机会。
+
+310
+00:18:36,060 --> 00:18:41,510
+So what you do here is basically very simple solution.
+你在这里所做的基本上是一个非常简单的解决方案。
+
+311
+00:18:42,330 --> 00:18:47,430
+Basically, you wait for a timeout is like you in real life.
+基本上，等待超时就像你在现实生活中等待一样。
+
+312
+00:18:48,050 --> 00:18:51,130
+You are waiting for your friend to call.
+你正在等待你的朋友打电话。
+
+313
+00:18:52,840 --> 00:18:58,480
+And he doesn't call at When it was the time you expected.
+他并没有在你期望的时间打电话。
+
+314
+00:19:00,980 --> 00:19:01,560
+What do you do?
+你做什么工作？
+
+315
+00:19:03,450 --> 00:19:06,990
+After a while, you are calling your friend,
+过了一会儿，你给你的朋友打电话。
+
+316
+00:19:08,590 --> 00:19:08,910
+right?
+对的？
+
+317
+00:19:09,430 --> 00:19:11,060
+Or you go to meet someone.
+或者你去见某个人。
+
+318
+00:19:11,880 --> 00:19:13,360
+And that person doesn't show up.
+那个人没有出现。
+
+319
+00:19:14,180 --> 00:19:16,530
+What do you wait for a while?
+你等一下要做什么？
+
+320
+00:19:16,810 --> 00:19:17,340
+And then you leave.
+然后你离开。
+
+321
+00:19:17,350 --> 00:19:19,300
+All right.
+好的。
+
+322
+00:19:19,310 --> 00:19:23,710
+So now, obviously,
+所以现在，显然，
+
+323
+00:19:26,760 --> 00:19:27,910
+again, it's like,
+再说一次，就像是，
+
+324
+00:19:29,060 --> 00:19:31,260
+it's very important to notice here,
+在这里需要特别注意，
+
+325
+00:19:32,940 --> 00:19:35,530
+by the way, that if you don't get the acknowledgment,
+顺便说一下，如果你没有收到确认回复，
+
+326
+00:19:36,330 --> 00:19:40,610
+it doesn't mean that the receiver that it didn't give the original message.
+这并不意味着接收者没有收到原始消息。
+
+327
+00:19:40,980 --> 00:19:41,760
+Now, right?
+现在，对吗？
+
+328
+00:19:42,040 --> 00:19:45,090
+Can you give me an example in noisy receiver?
+你能给我一个噪声接收器的例子吗？
+
+329
+00:19:45,310 --> 00:19:49,060
+I didn't hear about the acknowledgment by the receiver got the packet,
+我没有听说接收方收到数据包的确认。
+
+330
+00:19:49,070 --> 00:19:50,180
+and the packet is correct.
+并且数据包是正确的。
+
+331
+00:19:54,620 --> 00:19:55,850
+I send you the packet.
+我已经发送了数据包。
+
+332
+00:19:55,860 --> 00:19:57,730
+I I don't hear from you back.
+如果我没有收到你的回复。
+
+333
+00:20:00,300 --> 00:20:00,780
+Yes.
+是的。
+
+334
+00:20:01,390 --> 00:20:03,980
+The acknowledgment is lost.
+确认丢失了。
+
+335
+00:20:04,270 --> 00:20:06,990
+The acknowledgment is also packet that can be lost as far.
+确认也是一种数据包，同样有可能丢失。
+
+336
+00:20:08,030 --> 00:20:08,430
+Right?
+对吗？
+
+337
+00:20:12,860 --> 00:20:14,140
+So basically,
+基本上，
+
+338
+00:20:16,070 --> 00:20:17,580
+you may send a packet.
+你可以发送一个数据包。
+
+339
+00:20:19,070 --> 00:20:20,530
+Me maybe sends a packet,
+我可能发送一个数据包，
+
+340
+00:20:21,110 --> 00:20:23,380
+because they don't get the acknowledgment on the timeout.
+因为它们在超时时没有收到确认。
+
+341
+00:20:25,300 --> 00:20:27,690
+Now, the receiver gets an application of the packet.
+现在，接收方收到了一个数据包的应用程序。
+
+342
+00:20:27,820 --> 00:20:30,810
+That's why the receiver has to have a way also to differentiate
+这就是为什么接收方也必须有一种区分的方式
+
+343
+00:20:30,820 --> 00:20:33,740
+between duplicate as the original packet.
+将重复的数据包视为原始数据包。
+
+344
+00:20:34,270 --> 00:20:37,460
+Because if the original packet was already delivered to the destination
+因为如果原始数据包已经成功传送到目的地
+
+345
+00:20:37,470 --> 00:20:38,380
+to the process,
+对于进程来说，
+
+346
+00:20:39,820 --> 00:20:43,130
+you need to drop that the duplicate.
+你需要删除那个重复的。
+
+347
+00:20:48,160 --> 00:20:50,540
+So this is an example.
+所以这是一个例子。
+
+348
+00:20:50,550 --> 00:20:51,940
+When the ark is lost,
+方舟失落时，
+
+349
+00:20:51,950 --> 00:20:53,060
+you resend the packet.
+你重新发送数据包。
+
+350
+00:20:53,070 --> 00:20:56,380
+And now the receiver gets to packets right.
+现在接收方收到了数据包。
+
+351
+00:20:58,900 --> 00:20:59,340
+Now,
+现在，
+
+352
+00:21:02,300 --> 00:21:06,520
+it's one of the challenge here is how you are going to pick the time out.
+这是一个挑战，你需要考虑如何选择超时时间。
+
+353
+00:21:09,890 --> 00:21:11,170
+If the timeout is short,
+如果超时时间很短，
+
+354
+00:21:11,860 --> 00:21:13,530
+you may get lots of applicants.
+你可能会收到很多申请者。
+
+355
+00:21:16,750 --> 00:21:17,520
+So why is that?
+那么为什么会这样呢？
+
+356
+00:21:20,830 --> 00:21:21,350
+Right?
+对吗？
+
+357
+00:21:21,360 --> 00:21:23,590
+Remember that this,
+请记住，这一点，
+
+358
+00:21:24,870 --> 00:21:26,620
+like in our simple examples,
+就像我们简单的例子中一样，
+
+359
+00:21:26,630 --> 00:21:29,860
+we assume that the one way latency is constant.
+我们假设单向延迟是恒定的。
+
+360
+00:21:30,530 --> 00:21:31,600
+It's like in real life.
+就像在现实生活中一样。
+
+361
+00:21:33,090 --> 00:21:34,690
+It's like, once a highway,
+就像一条高速公路，
+
+362
+00:21:35,810 --> 00:21:38,980
+like we discussed, the latency is not going to be the same.
+正如我们讨论过的，延迟不会相同。
+
+363
+00:21:40,620 --> 00:21:45,360
+You are too trigger happy with the timeout and to resend the packet.
+你对超时和重新发送数据包过于敏感了。
+
+364
+00:21:45,370 --> 00:21:48,040
+I wait just for that time out,
+我只是等待超时的时间。
+
+365
+00:21:48,050 --> 00:21:50,140
+the minimal time out, right?
+最小超时时间，对吗？
+
+366
+00:21:51,770 --> 00:21:54,150
+That sort of the new as a minimum round trip time.
+这种情况下，最小往返时间是多少。
+
+367
+00:21:55,150 --> 00:21:56,200
+Then if I send,
+那么如果我发送了，
+
+368
+00:21:57,150 --> 00:21:58,710
+I may send too early,
+我可能发送得太早了。
+
+369
+00:22:00,020 --> 00:22:03,840
+because I didn't give enough time to the packet to make the destination
+因为我没有给数据包足够的时间到达目的地。
+
+370
+00:22:03,850 --> 00:22:05,200
+and the acknowledgment to come back.
+并等待回复的确认。
+
+371
+00:22:07,220 --> 00:22:08,620
+Obviously, if it's a wait,
+显然，如果是一个等待操作，
+
+372
+00:22:08,630 --> 00:22:14,600
+it was too long than the performance offers.
+性能提供的时间太长了。
+
+373
+00:22:15,290 --> 00:22:16,730
+For instance, around 3 times,
+例如，大约3次。
+
+374
+00:22:16,740 --> 00:22:18,760
+it's 100 millisecond and the timeout.
+它是100毫秒的超时时间。
+
+375
+00:22:18,770 --> 00:22:19,340
+It's 1.
+现在是1点钟。
+
+376
+00:22:21,260 --> 00:22:21,710
+Second, right?
+第二个，对吗？
+
+377
+00:22:25,770 --> 00:22:29,280
+This means that if there is a timeout,
+这意味着如果发生超时，
+
+378
+00:22:29,290 --> 00:22:32,680
+I lost the opportunity to send another line packets,
+我错过了发送另一行数据包的机会。
+
+379
+00:22:33,260 --> 00:22:33,620
+right?
+对的？
+
+380
+00:22:37,300 --> 00:22:42,970
+Or ten depends how you count how you deal with the application.
+或者十个，这取决于你如何计算和处理这个应用程序。
+
+381
+00:22:46,870 --> 00:22:52,270
+Basically, you have somehow to put some sequence number in the packets.
+基本上，你需要在数据包中添加一些序列号。
+
+382
+00:22:52,280 --> 00:22:54,070
+And these sequence numbers are unique.
+这些序列号是唯一的。
+
+383
+00:22:54,750 --> 00:22:57,530
+And the acknowledgment will be for a particular sequence number.
+而且确认将针对特定的序列号进行。
+
+384
+00:22:59,090 --> 00:22:59,540
+Right?
+对吗？
+
+385
+00:23:01,640 --> 00:23:03,440
+And the sender, when you send,
+发送者，在你发送时，
+
+386
+00:23:03,450 --> 00:23:10,160
+you keep the packets which are not acknowledged,
+你保留未被确认的数据包。
+
+387
+00:23:12,470 --> 00:23:12,670
+right?
+对的吗？
+
+388
+00:23:13,200 --> 00:23:14,950
+About you still have the packets.
+关于你仍然拥有这些数据包。
+
+389
+00:23:15,310 --> 00:23:16,070
+If they are lost,
+如果他们迷路了，
+
+390
+00:23:17,070 --> 00:23:18,940
+if a packet is acknowledged,
+如果一个数据包被确认收到，
+
+391
+00:23:19,550 --> 00:23:23,470
+the sender can remove that packet from his buffer.
+发送方可以从缓冲区中移除该数据包。
+
+392
+00:23:26,090 --> 00:23:27,340
+And on the receiver side,
+在接收方面，
+
+393
+00:23:27,350 --> 00:23:34,220
+I also keep a track of the sql numbers of the packets.
+我还会追踪数据包的 SQL 编号。
+
+394
+00:23:34,230 --> 00:23:34,860
+I got.
+我明白了。
+
+395
+00:23:35,960 --> 00:23:38,790
+If I get the duplicate the packet with the application number,
+如果我复制带有应用程序编号的数据包，
+
+396
+00:23:38,800 --> 00:23:39,430
+I can drop it.
+我可以放弃它。
+
+397
+00:23:50,460 --> 00:23:54,050
+You want to simplify it by having only one message at a time.
+你想简化它，只保留一条消息。
+
+398
+00:23:55,230 --> 00:23:59,890
+Again, and you just don't move until the message has been sent,
+再说一遍，直到消息发送完毕你才可以动。
+
+399
+00:23:59,900 --> 00:24:03,080
+has been received by the sender, by the receiver.
+已被发件人和收件人接收。
+
+400
+00:24:06,760 --> 00:24:06,810
+Okay?
+好的？
+
+401
+00:24:07,150 --> 00:24:11,100
+And this is exactly what we are talking about in our example.
+这正是我们在例子中讨论的内容。
+
+402
+00:24:11,750 --> 00:24:13,000
+The problem, obviously,
+显然，问题是
+
+403
+00:24:13,010 --> 00:24:19,290
+that is slow and better perform us.
+这是慢的，而且性能更好。
+
+404
+00:24:23,240 --> 00:24:24,020
+So now,
+所以现在，
+
+405
+00:24:25,460 --> 00:24:27,650
+let's go back to solve our problem.
+让我们回到解决我们的问题吧。
+
+406
+00:24:27,660 --> 00:24:34,630
+And our problem was that how we are going to improve the throughput
+我们的问题是如何提高吞吐量。
+
+407
+00:24:36,020 --> 00:24:37,170
+over stop and write.
+暂停并写入。
+
+408
+00:24:38,820 --> 00:24:39,170
+Right?
+对吗？
+
+409
+00:24:39,660 --> 00:24:44,580
+We said that in order to improve this report is quite easy.
+我们说过，要改进这份报告是相当容易的。
+
+410
+00:24:45,080 --> 00:24:49,870
+Is basically don't we send packets without waiting for the acknowledgment?
+基本上，我们是不是可以在不等待确认的情况下发送数据包呢？
+
+411
+00:24:52,080 --> 00:24:57,470
+And we saw that doing that won't be that easy,
+我们看到这样做并不容易，
+
+412
+00:24:57,480 --> 00:25:00,990
+because the acknowledgment also acknowledged whether the packet was
+因为确认还确认了数据包是否已经被接收
+
+413
+00:25:01,000 --> 00:25:03,900
+received or not and leave the packets or lost.
+接收或未接收并丢弃数据包或丢失。
+
+414
+00:25:06,000 --> 00:25:07,160
+Things get complicated.
+事情变得复杂了。
+
+415
+00:25:09,100 --> 00:25:09,380
+Right?
+对吗？
+
+416
+00:25:09,390 --> 00:25:10,620
+But this being said,
+但是话虽如此，
+
+417
+00:25:12,010 --> 00:25:13,160
+this is a solution, right?
+这是一个解决方案，对吗？
+
+418
+00:25:13,170 --> 00:25:15,940
+For improving the performance.
+为了提高性能。
+
+419
+00:25:15,950 --> 00:25:22,600
+You send a lot of packets without waiting for the acknowledgment.
+你发送了很多数据包而不等待确认。
+
+420
+00:25:23,440 --> 00:25:24,830
+So we pipeline the sending,
+所以我们将发送过程进行流水线处理，
+
+421
+00:25:25,500 --> 00:25:25,830
+right?
+对的？
+
+422
+00:25:28,970 --> 00:25:30,000
+That's very simple.
+这很简单。
+
+423
+00:25:38,040 --> 00:25:38,500
+Now,
+现在，
+
+424
+00:25:39,300 --> 00:25:40,570
+if you have this one,
+如果你有这个的话，
+
+425
+00:25:40,900 --> 00:25:45,690
+the natural way to implement this and to implement this protocol,
+实现这个的自然方式和实现这个协议的方式是，
+
+426
+00:25:46,640 --> 00:25:49,560
+is to call to have what is called a window.
+所谓"窗口"，即是指进行呼叫的行为。
+
+427
+00:25:51,080 --> 00:25:58,940
+A window is how many packets or how many bytes you can
+窗口是指可以发送的数据包数量或字节数量。
+
+428
+00:25:58,950 --> 00:26:02,520
+send without hearing for an acknowledgment.
+发送而不需要收到确认。
+
+429
+00:26:06,040 --> 00:26:07,270
+If the window size,
+如果窗口大小，
+
+430
+00:26:07,280 --> 00:26:09,470
+let's think about in terms of packets,
+让我们从数据包的角度来思考一下，
+
+431
+00:26:09,480 --> 00:26:11,430
+and we say without missing in terms of bytes,
+我们说的是以字节为单位，不会丢失任何数据。
+
+432
+00:26:12,750 --> 00:26:16,610
+if a window size is ten packets,
+如果窗口大小为十个数据包，
+
+433
+00:26:17,830 --> 00:26:20,160
+this means that I can send ten packets.
+这意味着我可以发送十个数据包。
+
+434
+00:26:21,660 --> 00:26:23,660
+Before I hear,
+在我听之前，
+
+435
+00:26:23,830 --> 00:26:27,260
+ii get back the acknowledgment from the first packet.
+我收到了第一个数据包的确认回复。
+
+436
+00:26:27,270 --> 00:26:27,580
+I said,
+我说过，
+
+437
+00:26:30,950 --> 00:26:31,340
+okay,
+好的，没问题。
+
+438
+00:26:34,150 --> 00:26:35,860
+now, in a round trip time,
+现在，在一个往返时间内，
+
+439
+00:26:35,870 --> 00:26:38,340
+I can send a window worth of packets,
+我可以发送一个窗口大小的数据包。
+
+440
+00:26:40,940 --> 00:26:41,120
+right?
+对的？
+
+441
+00:26:41,130 --> 00:26:45,210
+Because this is how many packets I can send without hearing for an average.
+这是我可以发送的平均数据包数量，而无需等待回应。
+
+442
+00:26:48,190 --> 00:26:48,450
+Right?
+对吗？
+
+443
+00:26:48,460 --> 00:26:49,090
+So therefore,
+所以，
+
+444
+00:26:51,380 --> 00:26:53,690
+in the number of packets which are in flight,
+在飞行中的数据包数量中，
+
+445
+00:26:54,110 --> 00:26:56,700
+are going to be without meaning in flight,
+在飞行中将失去意义。
+
+446
+00:26:56,710 --> 00:26:58,860
+from packets, which are in flight.
+从正在传输中的数据包中。
+
+447
+00:26:58,870 --> 00:27:01,550
+I haven't heard an acknowledgment for this package.
+我还没有收到这个包裹的确认收到通知。
+
+448
+00:27:01,560 --> 00:27:05,350
+It yet is a window size over the packet size.
+这是一个窗口大小大于数据包大小的情况。
+
+449
+00:27:11,330 --> 00:27:14,130
+How long do you, does the sender need to seen packets around?
+发送方需要多长时间来查看数据包？
+
+450
+00:27:16,180 --> 00:27:17,070
+What is your answer?
+你的答案是什么？
+
+451
+00:27:17,490 --> 00:27:20,130
+How many packets that the sender needs to skip around?
+发送方需要跳过多少个数据包？
+
+452
+00:27:21,010 --> 00:27:22,320
+If the packets are lost?
+如果数据包丢失了？
+
+453
+00:27:22,830 --> 00:27:28,850
+Can still fix the loss.
+仍然可以修复损失。
+
+454
+00:27:43,410 --> 00:27:44,600
+Alison, this is good.
+艾莉森，这很好。
+
+455
+00:27:45,530 --> 00:27:48,320
+You need to keep at least a number of packets,
+你需要至少保留一定数量的数据包。
+
+456
+00:27:48,330 --> 00:27:52,850
+which is equally the window size.
+这也是窗口大小的一种方式。
+
+457
+00:27:56,270 --> 00:27:59,260
+How long does the receiver have to keep the packet data?
+接收方需要保留数据包的时间有多长？
+
+458
+00:28:02,510 --> 00:28:05,740
+Remember, the receiver needs to keep the log back as date hour,
+请记住，接收者需要将日志保留为日期和小时。
+
+459
+00:28:05,750 --> 00:28:08,340
+and these are a sequence number in order to avoid applications.
+这些是为了避免应用程序冲突而使用的序列号。
+
+460
+00:28:21,800 --> 00:28:24,720
+Until the packet in the window that is time out.
+直到窗口中的数据包超时。
+
+461
+00:28:32,150 --> 00:28:34,470
+Let's think about forget about the protocol.
+让我们考虑忘记协议的事情。
+
+462
+00:28:38,500 --> 00:28:39,980
+When can you remove a packet?
+什么时候可以移除一个数据包？
+
+463
+00:28:39,990 --> 00:28:41,340
+Think about your receiver packet?
+请思考一下你的接收器数据包。
+
+464
+00:28:42,700 --> 00:28:45,350
+When can you remove the information about that packet?
+你什么时候可以删除关于那个数据包的信息？
+
+465
+00:28:46,930 --> 00:28:47,130
+Again,
+再次，
+
+466
+00:28:47,140 --> 00:28:50,170
+the main reason you are going to keep that information around is not going up.
+你保留那些信息的主要原因并不是为了提高。
+
+467
+00:28:56,100 --> 00:28:57,200
+So I send your packet.
+所以我发送了你的数据包。
+
+468
+00:29:00,780 --> 00:29:05,600
+When do you know that I am not going to send you again that packet?
+你怎么知道我不会再次发送那个数据包呢？
+
+469
+00:29:23,200 --> 00:29:26,260
+When I send the next packet depends on the protocol, right?
+发送下一个数据包的时间取决于协议，对吗？
+
+470
+00:29:26,270 --> 00:29:27,460
+Is the next sequence number.
+下一个序列号是多少？
+
+471
+00:29:28,220 --> 00:29:30,180
+It's a little more complicated, but than that,
+这个问题稍微复杂一些，但不止于此。
+
+472
+00:29:30,190 --> 00:29:31,580
+I think we are close.
+我觉得我们很接近了。
+
+473
+00:29:32,350 --> 00:29:33,170
+But fundamentally,
+但从根本上说，
+
+474
+00:29:33,180 --> 00:29:39,410
+the answer to my question is that that you can remove the packet
+我的问题的答案是，你可以删除该数据包。
+
+475
+00:29:42,270 --> 00:29:47,220
+when I know that you got the packet,
+当我知道你收到了数据包时，
+
+476
+00:29:48,010 --> 00:29:49,710
+once I know that I you got the packet,
+一旦我知道你收到了数据包，
+
+477
+00:29:49,720 --> 00:29:51,690
+i'm no longer going to send you the packet.
+我不再打算给你发送这个数据包了。
+
+478
+00:29:57,350 --> 00:29:59,380
+We'll see a little bit is how that is done.
+我们将会稍微了解一下如何完成这个任务。
+
+479
+00:30:00,000 --> 00:30:01,390
+It's not that easy,
+这并不容易，
+
+480
+00:30:02,080 --> 00:30:05,790
+but because you see if i'm getting user packet is an sequence number,
+但是因为你看到的是用户数据包的序列号，
+
+481
+00:30:08,630 --> 00:30:10,230
+it's not necessarily the case, right?
+这并不一定是情况，对吗？
+
+482
+00:30:10,240 --> 00:30:13,350
+Because like here,
+因为就像这里一样，
+
+483
+00:30:13,360 --> 00:30:16,020
+if you look at this in this figure,
+如果你在这个图中看一下，
+
+484
+00:30:22,260 --> 00:30:23,540
+a packet will be lost.
+一个数据包将会丢失。
+
+485
+00:30:24,190 --> 00:30:25,900
+But back at the set packet is lost.
+但是在返回数据包时丢失了。
+
+486
+00:30:33,850 --> 00:30:34,880
+I get the next packet.
+我收到了下一个数据包。
+
+487
+00:30:34,890 --> 00:30:36,160
+Actually, in some cases,
+实际上，在某些情况下，
+
+488
+00:30:36,170 --> 00:30:38,430
+you cannot return,
+你不能返回，
+
+489
+00:30:38,440 --> 00:30:40,470
+you cannot remove the packet one or two.
+您无法删除数据包一或数据包二。
+
+490
+00:30:42,350 --> 00:30:43,780
+Because in some protocols,
+因为在某些协议中，
+
+491
+00:30:43,790 --> 00:30:47,060
+the sender is going to start from the beginning to send all the packets.
+发送方将从头开始发送所有数据包。
+
+492
+00:30:49,910 --> 00:30:52,780
+Actually, in pcp and most version of this piece soon happen,
+实际上，在pcp和大多数版本的这个片段中，很快就会发生。
+
+493
+00:30:56,090 --> 00:30:58,910
+what if the sender is sending back as faster than the receiver can process
+如果发送方发送的速度比接收方处理的速度快，会发生什么情况？
+
+494
+00:30:58,920 --> 00:30:59,510
+the data?
+数据？
+
+495
+00:31:09,780 --> 00:31:11,060
+In this case, it's quite simple.
+在这种情况下，非常简单。
+
+496
+00:31:11,070 --> 00:31:13,410
+You slow down the accomplishments.
+你拖慢了进展。
+
+497
+00:31:16,360 --> 00:31:18,800
+If you cannot get more buffer about more packets,
+如果你无法获得更多的缓冲区来处理更多的数据包，
+
+498
+00:31:19,330 --> 00:31:20,090
+you slow down.
+你放慢速度。
+
+499
+00:31:21,440 --> 00:31:21,650
+Now,
+现在，
+
+500
+00:31:21,660 --> 00:31:24,730
+we are going to talk about these are some good questions and to keep
+我们要讨论的是一些好问题，并保持
+
+501
+00:31:24,740 --> 00:31:26,270
+in mind and see how they are.
+在脑海中想象并观察它们。
+
+502
+00:31:26,280 --> 00:31:29,370
+So in particular, the last one,
+所以特别是最后一个，
+
+503
+00:31:30,210 --> 00:31:33,240
+how long does the receiver have to keep the packets data?
+接收方需要保留数据包的时间有多长？
+
+504
+00:31:33,250 --> 00:31:35,560
+What if the standard is sending back as faster
+如果标准是以更快的速度返回，那会怎么样？
+
+505
+00:31:35,570 --> 00:31:38,570
+than the receiving receiver campus is a rate,
+比接收方校园的速率更快。
+
+506
+00:31:38,930 --> 00:31:40,990
+which is about exactly the flow control?
+这是关于流量控制的问题。
+
+507
+00:31:43,520 --> 00:31:45,340
+Now, the pcp again,
+现在，再谈谈生产者-消费者问题（pcp）。
+
+508
+00:31:45,350 --> 00:31:46,640
+I mentioned that last time,
+我上次提到过，
+
+509
+00:31:46,650 --> 00:31:52,060
+but it was very quickly has a slide the window protocol at the bite,
+但是很快就有了滑动窗口协议来处理字节。
+
+510
+00:31:52,070 --> 00:31:53,060
+not back at level.
+未回到原始水平。
+
+511
+00:31:53,410 --> 00:31:54,960
+So far we talk about packets.
+到目前为止，我们已经讨论了数据包。
+
+512
+00:31:54,970 --> 00:31:57,450
+It was easier to visualize.
+这样更容易形象化。
+
+513
+00:31:59,610 --> 00:32:01,870
+And he has two ways to recover, go back.
+他有两种方式来恢复，返回。
+
+514
+00:32:01,880 --> 00:32:08,090
+And is that if I miss some packets,
+那么如果我丢失了一些数据包，
+
+515
+00:32:09,590 --> 00:32:10,080
+right?
+对的？
+
+516
+00:32:10,640 --> 00:32:11,870
+I'm going to go back,
+我要回去了，
+
+517
+00:32:11,880 --> 00:32:15,640
+and i'm going to send the packets from the one in chinese
+我将从中文的一个发送数据包。
+
+518
+00:32:15,650 --> 00:32:17,360
+and also the subsequent packets,
+以及随后的数据包，
+
+519
+00:32:17,370 --> 00:32:18,960
+whether you receive them or not.
+无论你是否收到它们。
+
+520
+00:32:20,250 --> 00:32:24,250
+Selective repeat, you only send on the packets is called discipline sack.
+选择重传（Selective Repeat），只对丢失的数据包进行重传的策略被称为选择性重传。
+
+521
+00:32:24,580 --> 00:32:28,720
+You only send all the only the packers which are lost,
+你只需要发送所有丢失的包裹。
+
+522
+00:32:29,000 --> 00:32:30,190
+all the bytes which are lost.
+所有丢失的字节。
+
+523
+00:32:35,510 --> 00:32:39,540
+Qa the main way of this tcp implements,
+这个TCP的主要实现方式是什么？
+
+524
+00:32:39,550 --> 00:32:41,900
+the flow control is by the receiver,
+流量控制由接收方控制。
+
+525
+00:32:42,470 --> 00:32:45,500
+telling the sender how many more bytes it can receive.
+告知发送方它还可以接收多少字节。
+
+526
+00:32:45,510 --> 00:32:47,020
+And this is called advertisement.
+这被称为广告。
+
+527
+00:32:49,120 --> 00:32:52,440
+And the acknowledgment contains a sequence number,
+而确认消息包含一个序列号，
+
+528
+00:32:52,450 --> 00:32:57,280
+and of the next by the receiver expects.
+并且接收方期望的下一个。
+
+529
+00:33:00,540 --> 00:33:04,530
+This means that the receiver has received all bytes in sequence up to
+这意味着接收方已按顺序接收到所有字节，直到
+
+530
+00:33:04,540 --> 00:33:05,970
+and including n minus one.
+包括 n 减一在内。
+
+531
+00:33:07,300 --> 00:33:08,570
+If there is a gap,
+如果有一个间隙，
+
+532
+00:33:08,580 --> 00:33:11,630
+I received the first 100 bytes,
+我收到了前100个字节。
+
+533
+00:33:12,670 --> 00:33:14,260
+then there is a gap of 50 bytes.
+那么就会有一个50字节的间隙。
+
+534
+00:33:14,270 --> 00:33:17,340
+And then I received the buys from 150, 250.
+然后我收到了来自150和250的购买订单。
+
+535
+00:33:18,420 --> 00:33:18,950
+As a receiver.
+作为接收者。
+
+536
+00:33:18,960 --> 00:33:21,110
+I'm still going to send to the sender,
+我仍然会将邮件发送给发件人。
+
+537
+00:33:23,020 --> 00:33:24,240
+101,
+101
+
+538
+00:33:24,250 --> 00:33:26,520
+which is the next byte in sequence.
+下一个字节是什么？
+
+539
+00:33:27,030 --> 00:33:27,670
+I'm expecting.
+我怀孕了。
+
+540
+00:33:32,210 --> 00:33:40,940
+So next we are going to go through a bunch of definitions about some variables.
+接下来，我们将逐个解释一些变量的定义。
+
+541
+00:33:41,870 --> 00:33:43,050
+There are six of them.
+有六个。
+
+542
+00:33:43,610 --> 00:33:45,670
+And then we are going to take an example,
+然后我们将举一个例子，
+
+543
+00:33:45,920 --> 00:33:46,940
+a simple example.
+一个简单的例子。
+
+544
+00:33:47,440 --> 00:33:49,960
+So hopefully the examples will clarify things.
+希望这些例子能够澄清事情。
+
+545
+00:33:52,040 --> 00:33:58,840
+But it's please beer with me.
+请耐心等待一下。
+
+546
+00:34:00,780 --> 00:34:01,930
+This is a bounding.
+这是一个边界。
+
+547
+00:34:02,420 --> 00:34:04,810
+If i'm taking this bounding buffer example,
+如果我使用这个边界缓冲区的例子，
+
+548
+00:34:04,820 --> 00:34:07,210
+like I showed you earlier in the lecture,
+就像我之前在讲座中向你展示的那样，
+
+549
+00:34:07,620 --> 00:34:13,430
+I tried to map it on to hosts sender and the receiver.
+我试图将其映射到发送方和接收方的主机上。
+
+550
+00:34:13,920 --> 00:34:18,240
+This is one I will, or I I I can show I can do it.
+这是一个我可以展示我能做到的事情。
+
+551
+00:34:18,250 --> 00:34:22,300
+I can have a buffer on the receiving process.
+我可以在接收进程上使用缓冲区。
+
+552
+00:34:22,310 --> 00:34:23,380
+That's a bounding buffer.
+这是一个有界缓冲区。
+
+553
+00:34:23,390 --> 00:34:25,810
+And the sending was going to send it to.
+发送方将要发送给谁。
+
+554
+00:34:26,360 --> 00:34:32,040
+And these packets are going to be and curing in that buff
+这些数据包将会在缓冲区中进行处理和排队。
+
+555
+00:34:32,880 --> 00:34:35,290
+and then delivered to the receiving process.
+然后将数据传递给接收进程。
+
+556
+00:34:38,720 --> 00:34:44,390
+However, like I mentioned to you like we discussed last time,
+然而，正如我上次和你讨论的那样，
+
+557
+00:34:46,500 --> 00:34:49,140
+this is not going to work well in practice,
+在实践中，这不会很好地运作。
+
+558
+00:34:49,150 --> 00:34:52,270
+because this means that for each packet,
+这意味着对于每个数据包，
+
+559
+00:34:52,880 --> 00:34:55,030
+the sender process sends,
+发送进程发送数据，
+
+560
+00:34:55,300 --> 00:34:56,970
+you need to have a course, a contact switching,
+你需要有一门课程，一个联系切换。
+
+561
+00:34:56,980 --> 00:35:02,060
+because your operating system is going to be involved in the act of sending
+因为你的操作系统将参与发送的行为中。
+
+562
+00:35:02,590 --> 00:35:03,300
+the packet,
+数据包
+
+563
+00:35:03,630 --> 00:35:07,950
+because the tcpip is a network stack,
+因为TCP/IP是一个网络协议栈，
+
+564
+00:35:07,960 --> 00:35:11,410
+is implemented in the operating system.
+在操作系统中实现。
+
+565
+00:35:13,830 --> 00:35:17,580
+If you do a context switching on sending every packet, like, for instance,
+如果你在发送每个数据包时进行上下文切换，例如，
+
+566
+00:35:17,590 --> 00:35:19,100
+in the case of the internet,
+在互联网的情况下，
+
+567
+00:35:19,680 --> 00:35:22,550
+the packet size is typically 1,500 bytes.
+数据包的大小通常为1,500字节。
+
+568
+00:35:23,540 --> 00:35:28,530
+Then in order to sustain the stroke of a one garbage per second
+为了维持每秒处理一个垃圾的速度
+
+569
+00:35:28,540 --> 00:35:30,410
+or one garbage per second link,
+或者每秒一个垃圾链接
+
+570
+00:35:30,730 --> 00:35:37,980
+you need to send a packet every 12 to 12 microsecond.
+你需要每12到12微秒发送一个数据包。
+
+571
+00:35:40,090 --> 00:35:41,470
+If the packet is small, smaller,
+如果数据包很小，更小的话，
+
+572
+00:35:41,480 --> 00:35:43,630
+like 100 bytes in less than one microsecond.
+在不到一微秒的时间内，可以传输大约100字节的数据。
+
+573
+00:35:45,440 --> 00:35:47,370
+And this is too little for the contact switch.
+这对于接触开关来说太少了。
+
+574
+00:35:48,860 --> 00:35:49,210
+Right?
+对吗？
+
+575
+00:35:50,150 --> 00:35:51,740
+Therefore, how you solve the problem,
+因此，你如何解决这个问题，
+
+576
+00:35:51,750 --> 00:35:53,060
+you have other buffers.
+你还有其他缓冲区。
+
+577
+00:35:53,900 --> 00:35:54,410
+In general,
+一般来说，
+
+578
+00:35:54,420 --> 00:35:58,460
+you have one buffer on the sender side and one buffer on the receiver side.
+发送方和接收方各有一个缓冲区。
+
+579
+00:36:00,230 --> 00:36:06,230
+This is what operating system maintains and the processes themselves.
+操作系统维护的是进程本身以及它们的状态。
+
+580
+00:36:06,240 --> 00:36:11,230
+They can have other buffers, right?
+他们可以有其他的缓冲区，对吗？
+
+581
+00:36:11,970 --> 00:36:12,680
+Actually,
+实际上，
+
+582
+00:36:12,690 --> 00:36:17,750
+the process of sending from one process towards another has three steps.
+从一个进程发送到另一个进程的过程有三个步骤。
+
+583
+00:36:18,700 --> 00:36:24,250
+The sending process sends the data to the operating system or is buffered
+发送进程将数据发送到操作系统或进行缓冲处理。
+
+584
+00:36:25,750 --> 00:36:26,510
+in the discipline.
+在学科中。
+
+585
+00:36:29,320 --> 00:36:32,520
+The operating system is using the ip layer to send.
+操作系统正在使用IP层进行发送。
+
+586
+00:36:33,120 --> 00:36:33,960
+We chop the data,
+我们将数据进行分割。
+
+587
+00:36:33,970 --> 00:36:41,130
+you send the sender into packets and send it to the receiver operating system.
+你将发送者的数据分割成数据包，并发送到接收者的操作系统。
+
+588
+00:36:41,140 --> 00:36:45,700
+The receiver operating system will put the data it receives in a buffer.
+接收操作系统将接收到的数据放入缓冲区。
+
+589
+00:36:46,730 --> 00:36:50,420
+And then from this buffer is going to deliver the data to the receiving process.
+然后从这个缓冲区将数据传递给接收进程。
+
+590
+00:36:57,380 --> 00:36:57,850
+By the way,
+顺便说一下，
+
+591
+00:36:57,860 --> 00:37:01,980
+the fact you see is I have a buffer allows me for something else.
+你所看到的事实是，我有一个缓冲区，这使我能够做其他事情。
+
+592
+00:37:02,830 --> 00:37:06,630
+The sending process can have a stream oriented protocol like we learned.
+发送进程可以使用我们学过的面向流的协议。
+
+593
+00:37:07,690 --> 00:37:09,420
+So I can send a stream of bytes,
+所以我可以发送一串字节流，
+
+594
+00:37:10,110 --> 00:37:11,390
+1,000 bytes,
+1,000字节
+
+595
+00:37:11,400 --> 00:37:12,430
+four kilobytes,
+四千字节
+
+596
+00:37:13,110 --> 00:37:13,640
+whatever.
+随便。
+
+597
+00:37:15,830 --> 00:37:17,660
+Then the operating system, this buffer,
+然后操作系统会使用这个缓冲区，
+
+598
+00:37:17,670 --> 00:37:19,420
+I put all these data into the buffer,
+我将所有这些数据放入缓冲区中，
+
+599
+00:37:19,430 --> 00:37:23,260
+and the operating system can then take the data and chop it in packets,
+然后操作系统可以将数据分割成数据包。
+
+600
+00:37:23,270 --> 00:37:25,960
+because that ip layer is not a streaming protocol.
+因为IP层不是一个流媒体协议。
+
+601
+00:37:26,310 --> 00:37:27,540
+You have to send packets.
+你需要发送数据包。
+
+602
+00:37:28,630 --> 00:37:31,020
+I need to put take some piece of daytime,
+我需要花一些时间来完成一些任务。
+
+603
+00:37:31,030 --> 00:37:32,060
+putting the headers,
+放置头部信息
+
+604
+00:37:32,690 --> 00:37:39,080
+poor numbers for a source and destination ipip addresses.
+源IP地址和目标IP地址的贫瘠数字。
+
+605
+00:37:39,490 --> 00:37:40,930
+Then at the lower level,
+然后在较低的层次上，
+
+606
+00:37:40,940 --> 00:37:43,540
+you put the mac addresses and things like that.
+你需要输入MAC地址和类似的信息。
+
+607
+00:37:48,780 --> 00:37:49,590
+So now,
+所以现在，
+
+608
+00:37:51,110 --> 00:37:54,500
+let's assume that the maximum ip packet size,
+假设最大的IP数据包大小为
+
+609
+00:37:54,510 --> 00:37:55,660
+for this example,
+对于这个例子，
+
+610
+00:37:55,670 --> 00:37:56,940
+is 100 bytes.
+是100字节。
+
+611
+00:37:57,630 --> 00:37:59,230
+Again, in general, in practice,
+再次强调，在实践中，
+
+612
+00:37:59,240 --> 00:38:00,470
+is 1,500 bytes.
+是1,500字节。
+
+613
+00:38:01,490 --> 00:38:04,600
+In the size of the receiving buffer is 300 bytes,
+接收缓冲区的大小为300字节，
+
+614
+00:38:05,760 --> 00:38:07,970
+the receiver, and this is a buffer.
+这是接收器，这是一个缓冲区。
+
+615
+00:38:08,250 --> 00:38:13,280
+300 bytes also recalls as the acknowledgment indicates,
+300字节也被称为确认信息。
+
+616
+00:38:13,290 --> 00:38:15,580
+the next expected biting sequence,
+下一个预期的咬合序列
+
+617
+00:38:16,110 --> 00:38:17,590
+knows the last three seat bikes.
+知道最后三辆自行车的座位情况。
+
+618
+00:38:18,550 --> 00:38:21,240
+Like as we discussed last time, we circular buffers.
+正如我们上次讨论的那样，我们要讨论循环缓冲区。
+
+619
+00:38:22,080 --> 00:38:22,440
+Right?
+对吗？
+
+620
+00:38:23,910 --> 00:38:24,660
+If you remember,
+如果你还记得的话，
+
+621
+00:38:26,730 --> 00:38:29,520
+basically, a circular buffer is like, you see,
+基本上，循环缓冲区就像是，你看，
+
+622
+00:38:29,930 --> 00:38:33,090
+here is basically goes around,
+这基本上是围绕着...进行的。
+
+623
+00:38:33,800 --> 00:38:36,600
+and you keep the head and the tail of the buffer.
+你保留缓冲区的头部和尾部。
+
+624
+00:38:41,290 --> 00:38:43,600
+So now, with all of these,
+现在，有了所有这些，
+
+625
+00:38:44,420 --> 00:38:45,580
+let's see how things are working.
+让我们看看事情是如何运作的。
+
+626
+00:38:45,960 --> 00:38:46,790
+Like I mentioned,
+就像我之前提到的那样，
+
+627
+00:38:47,540 --> 00:38:50,860
+we are going to decide to define six variables.
+我们打算决定定义六个变量。
+
+628
+00:38:52,020 --> 00:38:53,360
+Last byte written.
+最后一个字节已写入。
+
+629
+00:38:54,220 --> 00:38:58,110
+This is a sequence of the last byte written by the sending process
+这是发送进程写入的最后一个字节的序列。
+
+630
+00:38:58,120 --> 00:38:59,610
+into the operating system buffer.
+写入操作系统缓冲区。
+
+631
+00:39:02,180 --> 00:39:07,970
+Last byte Send is the last by sent by the sender to the receiver.
+"Last byte Send" 是发送方发送给接收方的最后一个字节。
+
+632
+00:39:09,010 --> 00:39:11,140
+Last by act is a last act,
+"Last by act is a last act" 可以翻译为 "最后一次行动是最后的行动"。
+
+633
+00:39:11,390 --> 00:39:13,260
+received by sender from the receiver.
+发送方从接收方收到。
+
+634
+00:39:14,340 --> 00:39:18,860
+Last by the received is the last by the received by receiver from the sender.
+"Last by the received" 是指最后一次接收到的消息，"last by the received by receiver from the sender" 则表示该消息是发送者发送给接收者的最后一条消息。
+
+635
+00:39:19,360 --> 00:39:22,990
+Next byte expected is a lasting sequence byte expected by the receiver.
+下一个期望的字节是接收方期望的持续序列字节。
+
+636
+00:39:28,370 --> 00:39:32,280
+Is it a convention to start a circular buffer at one index?
+在循环缓冲区中，从一个索引开始是一种惯例吗？
+
+637
+00:39:33,960 --> 00:39:38,110
+It depends what language you are going to use if you see is probably zero.
+这取决于你要使用的语言，如果你看到的话，可能是零。
+
+638
+00:39:41,780 --> 00:39:42,160
+Yeah.
+是的。
+
+639
+00:39:48,360 --> 00:39:52,790
+Now let's take the examples and sorry the last by dread is the last
+现在让我们来看一些例子，抱歉上一个是错误的，这个才是最后一个。
+
+640
+00:39:52,800 --> 00:39:54,510
+by dread by this receiving process.
+对于这个接收过程感到恐惧。
+
+641
+00:39:54,740 --> 00:39:55,350
+Okay.
+好的。
+
+642
+00:39:57,610 --> 00:40:05,550
+So this basically says that you have in this blue area,
+这基本上是说你在这个蓝色区域内，
+
+643
+00:40:06,160 --> 00:40:09,500
+in the receiving buffer is how many bytes you have in the buffer
+接收缓冲区中有多少字节在缓冲区中。
+
+644
+00:40:09,510 --> 00:40:10,540
+in the receiving buffer.
+在接收缓冲区中。
+
+645
+00:40:12,640 --> 00:40:13,830
+You consumed from one end.
+你从一端消耗。
+
+646
+00:40:14,110 --> 00:40:15,450
+This is the start.
+这是开始。
+
+647
+00:40:15,460 --> 00:40:21,120
+The last by dread is the start of the buffer of the data in the buffer.
+"dread"的最后一个是缓冲区中数据的起始位置。
+
+648
+00:40:21,960 --> 00:40:28,460
+Last byte received is the last byte in this data of the data in the buffer.
+最后接收的字节是缓冲区中的数据的最后一个字节。
+
+649
+00:40:28,850 --> 00:40:30,220
+Next byte expected in this case,
+在这种情况下，下一个字节预期是什么。
+
+650
+00:40:30,230 --> 00:40:32,060
+is the last by the receipt+1,
+是根据收据的最后一张加1。
+
+651
+00:40:32,720 --> 00:40:34,140
+because that's the one you expect.
+因为那是你所期望的。
+
+652
+00:40:37,250 --> 00:40:37,790
+Okay.
+好的。
+
+653
+00:40:39,220 --> 00:40:43,720
+Now, the advertised window is, by definition, again,
+现在，广告窗口的定义再次是
+
+654
+00:40:44,360 --> 00:40:47,410
+how many bytes,
+多少字节？
+
+655
+00:40:47,770 --> 00:40:49,020
+the receiver,
+接收者
+
+656
+00:40:49,030 --> 00:40:54,840
+the sender can send me without me overflowing?
+发送方可以在不让我溢出的情况下发送给我吗？
+
+657
+00:41:01,150 --> 00:41:01,940
+Basically,
+基本上，
+
+658
+00:41:03,350 --> 00:41:07,560
+if i'm the receiver and my buffer size is 300 bytes,
+如果我是接收方，且我的缓冲区大小为300字节，
+
+659
+00:41:10,730 --> 00:41:11,920
+the buffer is empty.
+缓冲区为空。
+
+660
+00:41:12,790 --> 00:41:17,130
+I tell you you can send me 300 bytes.
+我告诉你，你可以发送给我300字节的数据。
+
+661
+00:41:21,030 --> 00:41:22,260
+If my buffer,
+如果我的缓冲区，
+
+662
+00:41:22,270 --> 00:41:25,580
+I already have 100 by source of data in the buffer,
+我已经在缓冲区中有100个数据来源。
+
+663
+00:41:26,770 --> 00:41:29,560
+I tell you you can send me only $200.
+我告诉你，你只能给我发送200美元。
+
+664
+00:41:31,380 --> 00:41:34,340
+This formula is computing exactly what I told you.
+这个公式正在计算我告诉你的内容。
+
+665
+00:41:34,350 --> 00:41:40,040
+It's a massive zeta buffer minus how much data I have
+这是一个巨大的ζ缓冲区，减去我拥有的数据量。
+
+666
+00:41:40,050 --> 00:41:42,640
+in this contiguous region in the buffer,
+在缓冲区中的这个连续区域中，
+
+667
+00:41:43,680 --> 00:41:46,010
+which is last by the received minus last by the red.
+这是通过接收减去红色的最后一个。
+
+668
+00:41:50,110 --> 00:41:53,220
+The same in the same thing.
+相同在同一件事情中。
+
+669
+00:41:54,240 --> 00:41:57,860
+It's on the sending side of similarities.
+这是在发送方面的相似之处。
+
+670
+00:41:58,400 --> 00:41:58,770
+Right?
+对吗？
+
+671
+00:42:01,270 --> 00:42:02,940
+Here I have last bike act.
+这里有最后一次自行车行动。
+
+672
+00:42:06,100 --> 00:42:10,880
+Here, if I get an acknowledgment in this protocol,
+在这个协议中，如果我收到一个确认信息，
+
+673
+00:42:10,890 --> 00:42:14,930
+if i'm going to get an acknowledgment for a byte,
+如果我要获取一个字节的确认
+
+674
+00:42:15,550 --> 00:42:18,940
+this means that the receiving process receives a byte.
+这意味着接收进程接收到一个字节。
+
+675
+00:42:19,540 --> 00:42:23,010
+I know I no longer need to keep it in the buffer.
+我知道我不再需要将它保留在缓冲区中。
+
+676
+00:42:24,010 --> 00:42:24,690
+As a sender,
+作为发送者，
+
+677
+00:42:26,050 --> 00:42:32,250
+cried everything before after before last byte act can be dropped.
+在最后一个字节之前之后之前之前的所有内容都可以被删除。
+
+678
+00:42:33,400 --> 00:42:34,730
+And then you have last by set.
+然后你通过集合进行最后的操作。
+
+679
+00:42:35,340 --> 00:42:36,830
+What is last by act?
+"last by act" 的意思是 "按照行动的顺序来看"。
+
+680
+00:42:36,840 --> 00:42:41,000
+What is these things between us by act and last by cent?
+在我们之间是什么东西，由行动决定，由分分之一决定的最后一刻是什么？
+
+681
+00:42:46,250 --> 00:42:47,640
+This green area,
+这个绿色区域，
+
+682
+00:42:50,830 --> 00:42:57,540
+this is green area represents the data that the sending process send it
+这个绿色区域表示发送进程发送的数据。
+
+683
+00:42:58,000 --> 00:42:59,190
+without being acknowledged.
+未被承认。
+
+684
+00:43:01,390 --> 00:43:01,920
+That's it.
+就这样。
+
+685
+00:43:05,880 --> 00:43:10,320
+So let me see.
+那么让我看看。
+
+686
+00:43:11,910 --> 00:43:13,300
+It's exactly simon, yeah.
+没错，确实是西蒙。
+
+687
+00:43:14,740 --> 00:43:18,340
+The package we send that have not received an axe so they are not acknowledged.
+我们发送的包裹没有收到斧头，所以没有得到确认。
+
+688
+00:43:19,330 --> 00:43:21,190
+So now think about sender window.
+现在我们来考虑发送窗口。
+
+689
+00:43:21,200 --> 00:43:24,310
+And this again, you have the formula you can look at the formula,
+这里再次提醒，你可以查看公式。
+
+690
+00:43:24,320 --> 00:43:25,510
+but let's take an example.
+但是让我们举个例子。
+
+691
+00:43:27,620 --> 00:43:30,470
+Now let's think about from the receipt,
+现在让我们从收据的角度来考虑一下，
+
+692
+00:43:30,480 --> 00:43:31,910
+from the center perspective,
+从中心的角度来看，
+
+693
+00:43:34,510 --> 00:43:36,560
+say the receiver,
+对接收者说，
+
+694
+00:43:36,570 --> 00:43:38,500
+you are the sender.
+你是发件人。
+
+695
+00:43:39,340 --> 00:43:43,530
+The receiver tells you my advertising window is 300 bytes.
+接收方告诉你我的广告窗口大小为300字节。
+
+696
+00:43:46,610 --> 00:43:48,720
+And since I learned this information,
+自从我学到这个信息以来，
+
+697
+00:43:49,780 --> 00:43:53,090
+I already send you 100 bytes.
+我已经发送给你100字节了。
+
+698
+00:43:55,070 --> 00:43:58,220
+How many more bikes can I send you before i'm hearing back from?
+在我收到回复之前，我还可以给你发送多少辆自行车？
+
+699
+00:43:59,880 --> 00:44:01,760
+So that I am absolutely certain.
+为了我能够完全确定。
+
+700
+00:44:01,770 --> 00:44:10,330
+I'm not going to overflow you, right?
+我不会让你溢出，对吧？
+
+701
+00:44:11,630 --> 00:44:14,520
+It's again, the receiver tells you,
+又是接收者告诉你，
+
+702
+00:44:14,960 --> 00:44:16,430
+you can send me 300 bytes.
+你可以发送给我300字节的数据。
+
+703
+00:44:16,440 --> 00:44:20,680
+Since you heard that, then you heard that you send 100 bytes,
+既然你听到了，那你听到了你发送了100字节。
+
+704
+00:44:22,980 --> 00:44:24,760
+still, nothing from the receiver.
+仍然没有来自接收方的任何消息。
+
+705
+00:44:25,690 --> 00:44:28,790
+How many more bytes you can send before you hear from the receiver?
+在收到接收方的回复之前，您还可以发送多少字节的数据？
+
+706
+00:44:36,690 --> 00:44:38,560
+It's, in my example, was 200,
+在我的例子中，它是200。
+
+707
+00:44:40,330 --> 00:44:40,770
+right?
+对的？
+
+708
+00:44:41,840 --> 00:44:43,920
+Receiver told you, you can send me 300 bytes,
+接收方告诉你，你可以发送给我300字节。
+
+709
+00:44:43,930 --> 00:44:45,000
+you send 100 bytes.
+你发送了100字节。
+
+710
+00:44:45,010 --> 00:44:46,200
+You haven't heard yet.
+你还没有听到。
+
+711
+00:44:46,680 --> 00:44:48,330
+You can send another 200 bytes.
+你可以发送另外200字节。
+
+712
+00:44:48,980 --> 00:44:52,000
+So then you send in total 300 by rights.
+那么你应该总共发送300个。
+
+713
+00:44:52,350 --> 00:44:55,480
+Before you hear back, you cannot send more.
+在你收到回复之前，你不能发送更多的信息。
+
+714
+00:44:59,350 --> 00:45:01,440
+This is exactly this next formula.
+这就是下一个公式。
+
+715
+00:45:01,450 --> 00:45:06,020
+The sender window is how many more bytes you can send without overflowing
+发送窗口是指在不溢出的情况下可以发送的额外字节数。
+
+716
+00:45:06,030 --> 00:45:06,740
+the receiver.
+接收者。
+
+717
+00:45:07,540 --> 00:45:16,620
+It's advertise window minus my number of bytes you send out without being acknowledged.
+广告窗口减去未被确认的发送字节数。
+
+718
+00:45:17,530 --> 00:45:18,090
+Is that radar?
+那是雷达吗？
+
+719
+00:45:26,120 --> 00:45:27,130
+It's still true.
+这仍然是真的。
+
+720
+00:45:27,140 --> 00:45:29,170
+There is a very important aspect.
+有一个非常重要的方面。
+
+721
+00:45:29,810 --> 00:45:32,320
+This is still true if you miss the data,
+如果你丢失了数据，这仍然是正确的。
+
+722
+00:45:33,060 --> 00:45:33,930
+these formulas,
+这些公式，
+
+723
+00:45:36,640 --> 00:45:39,990
+because if you miss that data here on the receiver side,
+因为如果在接收端丢失了这些数据，
+
+724
+00:45:40,650 --> 00:45:42,260
+the next byte expected, by the way,
+下一个期望的字节，顺便说一下，
+
+725
+00:45:43,080 --> 00:45:46,850
+you see here, the next byte expected is the one which is in sequence.
+你看到了，下一个期望的字节是按顺序的那个字节。
+
+726
+00:45:47,830 --> 00:45:48,320
+Right?
+对吗？
+
+727
+00:45:48,840 --> 00:45:52,600
+Because you have a gap, the gap doesn't matter for the next bikes expected,
+因为你有一个间隙，这个间隙对于接下来预期的自行车并不重要。
+
+728
+00:45:52,610 --> 00:45:54,760
+but for the last by the receive, it matters.
+但对于最后一个接收者来说，这很重要。
+
+729
+00:45:58,960 --> 00:46:06,500
+So remember that these are the same formulas if you miss the data in the middle.
+所以请记住，如果你在中间丢失了数据，这些公式仍然适用。
+
+730
+00:46:09,020 --> 00:46:10,970
+Now let's take a simple example.
+现在让我们来看一个简单的例子。
+
+731
+00:46:15,370 --> 00:46:18,800
+Let's say the sending application since 350 bytes,
+假设发送方应用程序有350字节。
+
+732
+00:46:21,020 --> 00:46:24,500
+we assume the ip only accept package no larger than 100 bytes.
+我们假设IP只接受不超过100字节的数据包。
+
+733
+00:46:24,510 --> 00:46:28,530
+And let's say the max receives advertised window.
+假设最大接收的广告窗口。
+
+734
+00:46:28,830 --> 00:46:30,660
+Mac receiving buffer is 300 bytes,
+Mac接收缓冲区大小为300字节。
+
+735
+00:46:30,670 --> 00:46:33,420
+and advertising in the initial is one hundred three hundred bytes,
+广告在初始时占用10300字节。
+
+736
+00:46:35,830 --> 00:46:38,100
+send the first send buffers packet,
+发送第一个发送缓冲区的数据包。
+
+737
+00:46:38,110 --> 00:46:39,940
+how much we get the first packet?
+我们收到了第一个数据包多少？
+
+738
+00:46:40,530 --> 00:46:41,410
+100 bytes.
+100字节。
+
+739
+00:46:42,210 --> 00:46:43,860
+Because as a maximum size of the package,
+因为作为一个包的最大尺寸，
+
+740
+00:46:46,040 --> 00:46:50,440
+we grain, I show the packet which are sand without being acknowledged.
+我们收到了一些未被确认的数据包。
+
+741
+00:46:52,270 --> 00:46:53,150
+Here on his side,
+在他这边，
+
+742
+00:46:53,160 --> 00:46:59,990
+i'm saying one one hundred between these square brackets is a by which had been sent.
+我在说方括号中的"一百分之一"是指已发送的一个字节。
+
+743
+00:47:01,610 --> 00:47:02,730
+I am starting from one.
+我从一开始。
+
+744
+00:47:07,180 --> 00:47:08,310
+So eventually,
+最终，
+
+745
+00:47:08,850 --> 00:47:11,320
+the last by sent, when I am doing, when I am sending,
+最后一次发送时，当我在做的时候，当我在发送的时候。
+
+746
+00:47:11,330 --> 00:47:12,680
+initially the last by that,
+最初最后的那个
+
+747
+00:47:12,690 --> 00:47:15,980
+it's is zero.
+它是零。
+
+748
+00:47:15,990 --> 00:47:18,080
+I no, nothing was active.
+我没有，没有任何活动。
+
+749
+00:47:18,960 --> 00:47:20,390
+As the last by cent.
+作为最后一个百分点。
+
+750
+00:47:20,400 --> 00:47:21,430
+It's 100,
+是100。
+
+751
+00:47:22,000 --> 00:47:23,580
+because I send 100 bytes.
+因为我发送了100字节。
+
+752
+00:47:24,410 --> 00:47:28,470
+And I eventually this packet is delivered to the destination.
+最终，这个数据包被送达到目的地。
+
+753
+00:47:28,480 --> 00:47:29,460
+Last byte receives.
+最后一个字节接收。
+
+754
+00:47:29,470 --> 00:47:30,450
+It's 100.
+是100。
+
+755
+00:47:30,820 --> 00:47:31,700
+Next spike is expected.
+预计下一次突发事件。
+
+756
+00:47:31,710 --> 00:47:32,860
+It's 101.
+这是101。
+
+757
+00:47:33,310 --> 00:47:33,650
+Right?
+对吗？
+
+758
+00:47:36,290 --> 00:47:37,230
+Everything is good.
+一切都很好。
+
+759
+00:47:40,340 --> 00:47:40,760
+Now,
+现在，
+
+760
+00:47:41,770 --> 00:47:45,870
+the sad receiver send back acknowledgment 101.
+悲伤的接收者发送回确认信息 101。
+
+761
+00:47:46,130 --> 00:47:47,940
+Advertising, don't know, is 200.
+广告费用，不清楚，是200元。
+
+762
+00:47:48,880 --> 00:47:49,000
+Right?
+对吗？
+
+763
+00:47:49,010 --> 00:47:52,000
+Because I it was 300, I got 100.
+因为我是300，所以我得到了100。
+
+764
+00:47:52,010 --> 00:47:53,480
+Now you can send me only 200.
+现在你只能给我发送200。
+
+765
+00:47:56,920 --> 00:47:57,400
+Okay?
+好的？
+
+766
+00:47:59,620 --> 00:48:01,940
+Before receiving this acknowledgment,
+在收到此确认之前，
+
+767
+00:48:02,740 --> 00:48:04,640
+because the window advertising,
+由于窗口广告，
+
+768
+00:48:04,650 --> 00:48:07,320
+there is 300 bytes and I sent only 100 bytes.
+有300字节，我只发送了100字节。
+
+769
+00:48:08,140 --> 00:48:11,160
+I went to send the next packet me being the sender.
+我去发送下一个数据包，我是发送方。
+
+770
+00:48:13,460 --> 00:48:17,210
+The bytes are between a one on one and 200.
+这些字节的范围在1到200之间。
+
+771
+00:48:18,600 --> 00:48:19,020
+Right?
+对吗？
+
+772
+00:48:19,660 --> 00:48:22,890
+Again, sorry, here I am saying all the packets which are being sent,
+再次抱歉，我在这里说的是所有正在发送的数据包。
+
+773
+00:48:23,360 --> 00:48:24,690
+all the bytes which have been sent.
+所有已发送的字节。
+
+774
+00:48:25,140 --> 00:48:27,600
+Now I sent from the center between 1 and 200.
+现在我从1到200之间的中心发送了消息。
+
+775
+00:48:33,180 --> 00:48:34,850
+This packet is going to,
+这个数据包即将发送。
+
+776
+00:48:35,540 --> 00:48:37,510
+now the last by cent is 200.
+现在最后一位是200。
+
+777
+00:48:38,790 --> 00:48:41,180
+It's going to get to the receiver and the receiver.
+它将会到达接收者和接收者。
+
+778
+00:48:41,190 --> 00:48:42,740
+You have lost by the receipt 200,
+您已经丢失了200元的收据。
+
+779
+00:48:42,750 --> 00:48:44,580
+next by the expected 201.
+下一个是预计的201年。
+
+780
+00:48:45,070 --> 00:48:49,700
+I'm going to now201.
+我现在要去201教室。
+
+781
+00:48:51,360 --> 00:48:53,520
+Now assume that next thing is what happened,
+现在假设接下来发生的事情是什么。
+
+782
+00:48:53,530 --> 00:48:54,840
+the receiving process.
+接收进程。
+
+783
+00:48:55,330 --> 00:48:57,930
+There is some data, let's say it is 100 bytes,
+有一些数据，假设它是100字节。
+
+784
+00:48:59,060 --> 00:49:00,730
+the first 100 bytes.
+前100个字节。
+
+785
+00:49:01,630 --> 00:49:04,920
+So now, in the receiving window,
+现在，在接收窗口中，
+
+786
+00:49:06,330 --> 00:49:07,480
+in the receiving buffer,
+在接收缓冲区中，
+
+787
+00:49:07,490 --> 00:49:09,280
+I only have 100 bytes,
+我只有100字节。
+
+788
+00:49:09,290 --> 00:49:12,640
+because 100 bytes already were required processed by the receiver,
+因为接收方已经处理了100字节的数据。
+
+789
+00:49:13,540 --> 00:49:15,360
+were already delivered to the receiver process.
+已经被发送到接收进程。
+
+790
+00:49:17,060 --> 00:49:22,840
+And i'm going to send back an acknowledgment.
+我会发送一个确认回复。
+
+791
+00:49:22,850 --> 00:49:24,640
+I'm going to include the next sequence,
+我将包含下一个序列，
+
+792
+00:49:24,650 --> 00:49:26,280
+the next flight expected,
+预计下一班航班
+
+793
+00:49:26,290 --> 00:49:27,400
+which is 201.
+这是201。
+
+794
+00:49:29,560 --> 00:49:31,480
+And then advertising window,
+然后是广告窗口，
+
+795
+00:49:31,490 --> 00:49:32,560
+it's again 200.
+又是200。
+
+796
+00:49:33,370 --> 00:49:34,590
+Because in the buffer,
+因为在缓冲区中，
+
+797
+00:49:34,600 --> 00:49:36,270
+I have only 100 bytes.
+我只有100字节。
+
+798
+00:49:36,590 --> 00:49:37,960
+The buffer is 300 bytes.
+缓冲区大小为300字节。
+
+799
+00:49:41,970 --> 00:49:42,390
+Now,
+现在，
+
+800
+00:49:43,210 --> 00:49:46,500
+the sender is, again,
+发送者是，再次，
+
+801
+00:49:46,510 --> 00:49:49,190
+I still have,
+我还有。
+
+802
+00:49:49,400 --> 00:49:52,270
+I know that I ii send only 200 bytes.
+我知道我只会发送200字节。
+
+803
+00:49:53,310 --> 00:49:56,620
+The receiver told me initially that I can send 300 bytes.
+接收方最初告诉我可以发送300字节。
+
+804
+00:49:56,990 --> 00:49:58,410
+I still can send 100 buy.
+我仍然可以发送100个购买请求。
+
+805
+00:49:58,420 --> 00:49:59,880
+So let me send the next pack.
+那么让我发送下一个数据包。
+
+806
+00:50:01,990 --> 00:50:05,600
+But let's assume now to make things more interesting that this packet
+但是现在让我们假设为了增加趣味性，这个数据包
+
+807
+00:50:05,610 --> 00:50:06,320
+has been lost.
+已丢失。
+
+808
+00:50:08,770 --> 00:50:09,180
+Okay?
+好的？
+
+809
+00:50:11,170 --> 00:50:11,970
+That's fine.
+没问题。
+
+810
+00:50:13,230 --> 00:50:14,420
+In the meantime,
+与此同时，
+
+811
+00:50:14,430 --> 00:50:19,260
+as I have and the last by set sent as on the understanding on the standard
+根据理解和标准，我已经发送了最后一条设置的消息。
+
+812
+00:50:19,270 --> 00:50:20,300
+to 300,
+到300。
+
+813
+00:50:21,360 --> 00:50:22,630
+in the meantime,
+与此同时，
+
+814
+00:50:23,460 --> 00:50:25,770
+and the sending window now is zero.
+发送窗口现在为零。
+
+815
+00:50:25,780 --> 00:50:30,500
+I can no longer send you see the sending window magically now is zero
+我无法再发送给你，现在发送窗口神奇地变成了零。
+
+816
+00:50:30,510 --> 00:50:32,950
+because I sent 300 bytes.
+因为我发送了300字节。
+
+817
+00:50:32,960 --> 00:50:35,230
+I knew that the advertising noise, 300 bytes,
+我知道广告噪音是300字节。
+
+818
+00:50:35,240 --> 00:50:37,550
+I haven't heard anything from the receiver.
+我还没有收到接收方的任何消息。
+
+819
+00:50:37,700 --> 00:50:39,750
+So that for I have to stop sending.
+所以我必须停止发送。
+
+820
+00:50:45,680 --> 00:50:47,340
+Now, in the meantime,
+现在，在此期间，
+
+821
+00:50:47,350 --> 00:50:50,740
+I get the first acknowledgment back.
+我收到了第一个确认回复。
+
+822
+00:50:52,830 --> 00:50:55,110
+The fact that nourishment back is telling me,
+给我反馈的事实是，营养是重要的。
+
+823
+00:50:55,120 --> 00:50:58,180
+I have 101 the economy is 1, 01,
+我有101个经济是1，01。
+
+824
+00:50:58,190 --> 00:50:59,780
+and advertising window is 200.
+广告窗口大小为200。
+
+825
+00:51:01,870 --> 00:51:02,030
+Right?
+对吗？
+
+826
+00:51:02,200 --> 00:51:03,710
+The first packet was acknowledged,
+第一个数据包已被确认。
+
+827
+00:51:07,460 --> 00:51:07,820
+right?
+对的？
+
+828
+00:51:08,430 --> 00:51:10,700
+Because the first packet was acknowledge,
+因为第一个数据包已经被确认收到，
+
+829
+00:51:11,470 --> 00:51:17,320
+it was acknowledged and also indicates an expected to send.
+这已经得到确认，并且也表示预计会发送。
+
+830
+00:51:18,300 --> 00:51:21,700
+So the receiver no longer needs the first 100 bytes.
+所以接收方不再需要前100个字节。
+
+831
+00:51:21,710 --> 00:51:24,300
+So i'm going to remove these from the receiver,
+所以我将从接收器中移除这些。
+
+832
+00:51:24,310 --> 00:51:25,850
+but from the sender buffer.
+但是从发送缓冲区中。
+
+833
+00:51:26,660 --> 00:51:30,260
+Because the receiver told me that it got the first 100 bytes.
+因为接收方告诉我它已经收到了前100个字节。
+
+834
+00:51:30,940 --> 00:51:31,400
+Okay?
+好的？
+
+835
+00:51:33,160 --> 00:51:36,070
+I am going to ask advance last byte act 100,
+我要求提前最后一个字节动作100次。
+
+836
+00:51:39,130 --> 00:51:42,420
+but the sender window is still zero.
+但发送窗口仍然为零。
+
+837
+00:51:45,630 --> 00:51:45,930
+Right?
+对吗？
+
+838
+00:51:45,940 --> 00:51:49,040
+Because I I ii send said,
+因为我发送了一条消息。
+
+839
+00:51:49,050 --> 00:51:51,000
+iii send 300 bytes.
+我发送了300字节。
+
+840
+00:51:54,080 --> 00:51:57,110
+Now the sender told me I got 100 bytes,
+现在发送方告诉我我收到了100字节。
+
+841
+00:51:57,120 --> 00:51:58,990
+but I can receive only 200 bytes,
+但是我只能接收200字节的信息。
+
+842
+00:51:59,570 --> 00:52:01,000
+2 or 200 more bytes.
+2或200个字节。
+
+843
+00:52:05,360 --> 00:52:12,220
+I I removed the 100 bytes at sanders and told that the receiver told me
+我删除了 sanders 上的 100 字节，并告诉接收者我已经这样做了。
+
+844
+00:52:12,230 --> 00:52:13,300
+that they receive.
+他们收到的。
+
+845
+00:52:14,570 --> 00:52:18,300
+But still, I have 200 bytes which are not acknowledged.
+但是，我仍然有200字节的数据没有被确认。
+
+846
+00:52:18,940 --> 00:52:25,120
+And the receiver told me that it can only send receive bytes without being acknowledged.
+接收方告诉我它只能发送接收字节而无需确认。
+
+847
+00:52:26,860 --> 00:52:29,430
+So I cannot send anything.
+所以我不能发送任何东西。
+
+848
+00:52:32,140 --> 00:52:34,740
+But finally, now I get the second acknowledgment.
+但最终，现在我收到了第二个确认。
+
+849
+00:52:35,810 --> 00:52:38,170
+And their second acknowledgment tells me,
+而他们的第二个确认告诉我，
+
+850
+00:52:38,180 --> 00:52:43,430
+tells the receiver that the get us to the sender that the receiver got
+告诉接收者，将我们带到发送者那里，告诉接收者已经收到。
+
+851
+00:52:43,440 --> 00:52:44,870
+the first 200 bytes.
+前200个字节。
+
+852
+00:52:46,090 --> 00:52:48,880
+The next expected byte is 201,
+下一个预期的字节是201。
+
+853
+00:52:49,570 --> 00:52:51,600
+and the advertising window is 200.
+广告窗口为200。
+
+854
+00:52:52,240 --> 00:52:54,470
+Now you're on your computer advertise window.
+现在你正在电脑上的广告窗口上。
+
+855
+00:52:54,480 --> 00:53:01,680
+You get 100 because it's 200 advertiser window.
+你得到100是因为这是200个广告商窗口。
+
+856
+00:53:02,810 --> 00:53:04,550
+Now I have in flight,
+现在我正在飞行中，
+
+857
+00:53:04,970 --> 00:53:06,060
+only 100 bytes,
+只有100字节。
+
+858
+00:53:06,070 --> 00:53:07,860
+so I can send another 100 bytes.
+那么我可以发送另外100个字节。
+
+859
+00:53:08,950 --> 00:53:10,630
+I don't have 100 bytes to send.
+我没有100字节要发送。
+
+860
+00:53:10,640 --> 00:53:12,670
+I only have 50,
+我只有50块。
+
+861
+00:53:15,040 --> 00:53:15,260
+right?
+是的，正确的。
+
+862
+00:53:15,270 --> 00:53:18,380
+Because I I wanted to send 350 bytes.
+因为我想发送350字节。
+
+863
+00:53:18,750 --> 00:53:22,980
+I'm going to send this By few the last 50 bytes.
+我将通过最后的50个字节发送这个。
+
+864
+00:53:23,680 --> 00:53:27,840
+And then they are going to be received by the receiver.
+然后它们将被接收者接收。
+
+865
+00:53:27,990 --> 00:53:31,300
+But now I have a gap, and the gap is a third packet which is lost.
+但是现在我有一个间隙，这个间隙是丢失的第三个数据包。
+
+866
+00:53:34,500 --> 00:53:34,920
+You see it?
+你看到了吗？
+
+867
+00:53:34,930 --> 00:53:37,560
+Now, next byte expected is still 201,
+现在，下一个期望的字节仍然是201。
+
+868
+00:53:39,680 --> 00:53:40,050
+right?
+对的？
+
+869
+00:53:42,510 --> 00:53:44,500
+The last byte receive now is 350.
+现在接收到的最后一个字节是350。
+
+870
+00:53:46,010 --> 00:53:48,040
+Now I sent back to the receiver and say,
+现在我回复给接收者并说，
+
+871
+00:53:52,010 --> 00:53:54,320
+I got the next bite.
+我明白了下一步的内容。
+
+872
+00:53:54,330 --> 00:53:56,240
+I am expecting these 201,
+我期待着这些201。
+
+873
+00:53:56,570 --> 00:53:58,500
+but the advertiser on one window is 50.
+但是一个窗口上的广告费用是50元。
+
+874
+00:54:07,650 --> 00:54:09,660
+If the advertiser window is 50,
+如果广告窗口大小为50，
+
+875
+00:54:12,390 --> 00:54:14,140
+what is the sending process going to do?
+发送进程将执行什么操作？
+
+876
+00:54:27,410 --> 00:54:27,760
+Right?
+对吗？
+
+877
+00:54:34,380 --> 00:54:35,020
+Yes.
+是的。
+
+878
+00:54:35,620 --> 00:54:37,110
+You can send, in this case,
+在这种情况下，你可以发送
+
+879
+00:54:37,870 --> 00:54:39,110
+you can send the packet.
+你可以发送数据包。
+
+880
+00:54:39,120 --> 00:54:39,860
+We just lost.
+我们刚刚失败了。
+
+881
+00:54:40,160 --> 00:54:41,610
+Why you can send this packet.
+你为什么能发送这个数据包。
+
+882
+00:54:41,620 --> 00:54:42,410
+We just lost.
+我们刚刚输了。
+
+883
+00:54:50,880 --> 00:54:57,230
+We'll do more about this in a while is still in the green region.
+我们稍后会更多地讨论这个问题，目前仍处于可行的范围内。
+
+884
+00:54:57,520 --> 00:54:58,190
+It's exact
+没问题
+
+885
+00:55:16,770 --> 00:55:18,950
+by the sending window is less,
+发送窗口较小，
+
+886
+00:55:20,360 --> 00:55:23,600
+it's good by the sending leno is less than zero.
+当发送长度小于零时，这是一个好的情况。
+
+887
+00:55:25,030 --> 00:55:26,900
+Is very good observation.
+观察得非常好。
+
+888
+00:55:27,630 --> 00:55:30,460
+But the point here that I can descend the packet,
+但关键是我可以降低数据包的优先级。
+
+889
+00:55:30,470 --> 00:55:33,140
+because I already sent that packet, it doesn't count.
+因为我已经发送了那个数据包，所以它不算数。
+
+890
+00:55:33,150 --> 00:55:34,900
+I can all always,
+我总是可以的。
+
+891
+00:55:35,370 --> 00:55:39,860
+he sent aa lost a packet which had previously ii previously sent,
+他发送了一个之前他已经发送过的丢失的数据包。
+
+892
+00:55:41,140 --> 00:55:41,490
+right?
+对的？
+
+893
+00:55:42,270 --> 00:55:44,290
+Because in the worst case, it should be the duplicate.
+因为在最坏的情况下，它应该是重复的。
+
+894
+00:55:46,090 --> 00:55:47,330
+In the best case,
+在最好的情况下，
+
+895
+00:55:47,920 --> 00:55:49,210
+in the worst case will be duplicate.
+在最坏的情况下会出现重复。
+
+896
+00:55:49,220 --> 00:55:51,330
+In the best case, it's going to repair the loss.
+在最理想的情况下，它将修复损失。
+
+897
+00:55:53,010 --> 00:55:59,750
+You see, the receiver by this gap already accounted for the loss packet.
+你看，接收方已经考虑到了丢失的数据包。
+
+898
+00:56:03,350 --> 00:56:04,280
+That's a key.
+那是一把钥匙。
+
+899
+00:56:07,040 --> 00:56:08,430
+You see, it's already accounted.
+你看，已经考虑到了。
+
+900
+00:56:08,440 --> 00:56:11,380
+The next expected byte is 350.
+下一个预期的字节是350。
+
+901
+00:56:12,480 --> 00:56:15,950
+Therefore, if i'm going to send a packet,
+因此，如果我要发送一个数据包，
+
+902
+00:56:16,550 --> 00:56:18,840
+that's not going to change the window on anything,
+这不会对任何窗口产生影响。
+
+903
+00:56:21,110 --> 00:56:23,150
+it's again, either is going to repair a loss,
+又是这样，要么修复损失，
+
+904
+00:56:23,160 --> 00:56:24,310
+what is going to be dedicated.
+将要被专用的是什么。
+
+905
+00:56:26,590 --> 00:56:30,270
+So that's why I can send the packet and why i'm going to send now.
+所以这就是为什么我可以发送数据包以及为什么我现在要发送。
+
+906
+00:56:30,510 --> 00:56:35,320
+In this particular circle is aaaa particular case.
+在这个特定的圈子中，有一个特殊的情况。
+
+907
+00:56:35,720 --> 00:56:39,750
+I am going to send it because you see,
+我要发送它，因为你看到了，
+
+908
+00:56:41,000 --> 00:56:42,390
+is the second time,
+这是第二次。
+
+909
+00:56:42,870 --> 00:56:49,090
+I get acknowledgment sender.
+我收到了发送方的确认。
+
+910
+00:56:49,600 --> 00:56:53,030
+The receiver told me that the acknowledgment is the next sequence number,
+接收方告诉我，确认消息的序列号是下一个序列号。
+
+911
+00:56:53,640 --> 00:56:55,150
+it's expecting is 201.
+它的期望值是201。
+
+912
+00:56:56,970 --> 00:57:00,320
+Basically, if and we'll see this next,
+基本上，如果我们接下来看到的是这样的话，
+
+913
+00:57:00,940 --> 00:57:03,660
+this is a way to detect a failure.
+这是一种检测故障的方法。
+
+914
+00:57:06,110 --> 00:57:07,900
+I can't aa packet loss.
+我无法解决数据包丢失的问题。
+
+915
+00:57:08,530 --> 00:57:14,060
+One way to detect a packet loss is that if the receiver tells me multiple times,
+检测数据包丢失的一种方法是接收方多次告知。
+
+916
+00:57:14,070 --> 00:57:16,820
+I am waiting for this sequence number, next sequence number,
+我正在等待这个序列号，下一个序列号是。
+
+917
+00:57:18,310 --> 00:57:21,300
+because this means that it gets the reason in the receiver.
+这意味着它在接收器中获取原因。
+
+918
+00:57:21,590 --> 00:57:25,440
+Can you tell me that it twice for the same sequence number over and over again,
+你能告诉我它是一遍又一遍地重复相同的序列号吗？
+
+919
+00:57:25,450 --> 00:57:28,380
+is that I sent him a next pack, another packet,
+是的，我给他发送了下一个数据包，另一个数据包。
+
+920
+00:57:28,390 --> 00:57:30,390
+but it's a gap is not in sequence.
+但是这个间隙不是连续的。
+
+921
+00:57:31,170 --> 00:57:32,360
+Because if it's in sequence,
+因为如果是按顺序的话，
+
+922
+00:57:32,690 --> 00:57:33,690
+the next sequence number,
+下一个序列号
+
+923
+00:57:33,700 --> 00:57:38,200
+the receiver will tell me will advance as well.
+接收方也会告诉我他们的进展。
+
+924
+00:57:41,090 --> 00:57:41,560
+Anyway,
+无论如何，
+
+925
+00:57:44,180 --> 00:57:45,650
+now, if you have,
+现在，如果你有的话，
+
+926
+00:57:47,170 --> 00:57:49,480
+if finally you get the next packet,
+如果最终你收到了下一个数据包，
+
+927
+00:57:50,990 --> 00:57:52,060
+the loss packet,
+丢失的数据包
+
+928
+00:57:52,500 --> 00:57:54,530
+the receiver gets a loss packet.
+接收方收到了一个丢失的数据包。
+
+929
+00:57:55,860 --> 00:57:58,920
+Everything gets got up to 350.
+所有东西都涨到了350。
+
+930
+00:57:59,140 --> 00:58:03,490
+Is going that acknowledgment or contains 351 with the next sequence number
+这个确认信息是否包含了序列号为351的下一个序列号。
+
+931
+00:58:03,500 --> 00:58:04,650
+is going to wait for.
+将要等待。
+
+932
+00:58:05,000 --> 00:58:06,970
+Advertising window is still 50.
+广告窗口仍然是50。
+
+933
+00:58:07,300 --> 00:58:08,670
+And now,
+现在，
+
+934
+00:58:09,060 --> 00:58:10,140
+and the receiver,
+接收者，
+
+935
+00:58:10,150 --> 00:58:12,100
+the sender gets acknowledgment,
+发送方收到确认
+
+936
+00:58:12,660 --> 00:58:13,910
+351.
+351. 三百五十一。
+
+937
+00:58:13,920 --> 00:58:17,210
+It can remove every everything from its buffer,
+它可以从缓冲区中移除所有内容。
+
+938
+00:58:17,220 --> 00:58:19,610
+because all the data I sent was acknowledged.
+因为我发送的所有数据都得到了确认。
+
+939
+00:58:22,630 --> 00:58:23,340
+Now we are done.
+现在我们完成了。
+
+940
+00:58:26,920 --> 00:58:27,810
+Any questions?
+有任何问题吗？
+
+941
+00:58:36,570 --> 00:58:37,120
+So please,
+所以，请
+
+942
+00:58:38,250 --> 00:58:39,120
+you can go through.
+你可以通过。
+
+943
+00:58:39,130 --> 00:58:46,060
+This example is very revealing,
+这个例子非常有启发性，
+
+944
+00:58:46,700 --> 00:58:49,740
+but you need to go a few times to really feel it,
+但你需要多去几次才能真正感受到它。
+
+945
+00:58:51,420 --> 00:58:52,090
+understand it.
+理解了。
+
+946
+00:58:54,570 --> 00:58:57,660
+So let's have a short discussion before remove.
+在移除之前，让我们进行一次简短的讨论。
+
+947
+00:59:05,620 --> 00:59:06,290
+Yes.
+是的。
+
+948
+00:59:07,300 --> 00:59:08,890
+Almost everything we talked,
+我们几乎谈论的一切
+
+949
+00:59:09,620 --> 00:59:12,530
+it goes to back and selective repeat.
+它采用回退重传和选择重传的方式。
+
+950
+00:59:12,950 --> 00:59:15,630
+The only difference is like it was said,
+唯一的区别就像之前所说的那样，
+
+951
+00:59:16,120 --> 00:59:17,920
+someone said, for instance,
+有人说，例如，
+
+952
+00:59:18,320 --> 00:59:19,480
+the difference here,
+这里的区别是，
+
+953
+00:59:20,450 --> 00:59:27,300
+This was mostly I shown you about selective acknowledgment.
+这主要是我向你展示有关选择性确认的内容。
+
+954
+00:59:27,310 --> 00:59:29,730
+So i'm telling you what is a difference.
+所以我告诉你一下有什么区别。
+
+955
+00:59:32,930 --> 00:59:34,070
+So we go back.
+那么我们回去吧。
+
+956
+00:59:35,520 --> 00:59:40,930
+And that is the sender is going to send everything up from 2001,
+这意味着发送方将发送从2001年开始的所有内容。
+
+957
+00:59:40,940 --> 00:59:45,710
+including the last 50 bytes which are already received by the receiver.
+包括接收方已经接收到的最后50个字节。
+
+958
+00:59:47,150 --> 00:59:51,280
+You only already go from the first sequence number,
+你只需要从第一个序列号开始。
+
+959
+00:59:51,610 --> 00:59:55,240
+which was expected by of the missing packet.
+这是对丢失数据包的预期情况。
+
+960
+00:59:57,170 --> 00:59:57,640
+Okay?
+好的？
+
+961
+00:59:58,330 --> 01:00:01,890
+In the case of selective acknowledgment,
+在选择性确认的情况下，
+
+962
+01:00:02,510 --> 01:00:04,870
+the recess sender is like, in this case,
+在这种情况下，"recess sender" 是指发送方暂停的意思。
+
+963
+01:00:04,880 --> 01:00:08,810
+is going only to send out the missing packets.
+只会发送丢失的数据包。
+
+964
+01:00:09,200 --> 01:00:09,600
+The missing
+缺失的
+
+965
+01:00:21,490 --> 01:00:27,590
+information would last bite read calls a bottleneck on how is the question
+这句话的意思是：信息的最后一次读取调用成为瓶颈，问题是如何解决它。
+
+966
+01:00:27,600 --> 01:00:28,640
+from my assignment?
+是的，我可以帮你将你的作业翻译成中文。请提供你需要翻译的英文内容。
+
+967
+01:00:29,280 --> 01:00:30,910
+Would last by read,
+请问您的问题是什么？
+
+968
+01:00:32,330 --> 01:00:36,590
+brad, cause a bottleneck on how fast we can clear the buffer.
+Brad，导致我们清空缓冲区速度变慢的瓶颈。
+
+969
+01:00:36,600 --> 01:00:42,510
+If we are not spending enough cycles to man copy from buffer from to process,
+如果我们没有花足够的周期来从缓冲区将数据从一个进程复制到另一个进程，
+
+970
+01:00:42,520 --> 01:00:47,390
+we cannot advance last by dread as fast so that limits our advertising know.
+我们不能像害怕一样快速前进，这限制了我们的广告知识。
+
+971
+01:00:47,610 --> 01:00:53,210
+Absolutely and that exactly the proposal the goal of his having
+当然，这正是他提案的目标所在。
+
+972
+01:00:53,220 --> 01:00:54,450
+this last bite read.
+这是最后一次读取。
+
+973
+01:00:55,110 --> 01:01:04,350
+The goal is basically he had the ultimate receiver is a perceiving process.
+目标基本上是他拥有一个最终的接收器是一个感知过程。
+
+974
+01:01:04,360 --> 01:01:06,350
+So the receiving process, for some reason,
+由于某种原因，接收进程
+
+975
+01:01:06,360 --> 01:01:10,170
+cannot consume data with the sender shouldn't send faster.
+发送方不应该发送得太快，否则无法消费数据。
+
+976
+01:01:17,650 --> 01:01:18,720
+So let's move on.
+那么我们继续吧。
+
+977
+01:01:20,020 --> 01:01:20,710
+Let's go.
+走吧。
+
+978
+01:01:20,720 --> 01:01:24,910
+So why not have a huge buffer at the receiver memory ship?
+为什么不在接收器内存芯片上设置一个巨大的缓冲区呢？
+
+979
+01:01:24,920 --> 01:01:25,610
+After all?
+最终/最后？
+
+980
+01:01:41,900 --> 01:01:43,180
+A huge buffer is a receiver,
+一个巨大的缓冲区是一个接收器，
+
+981
+01:01:43,190 --> 01:01:45,260
+also means a huge buffer is a sender.
+也意味着一个巨大的缓冲区是发送方。
+
+982
+01:01:46,620 --> 01:01:47,030
+Right?
+对吗？
+
+983
+01:01:48,080 --> 01:01:49,630
+We'll see that huge buffer actually,
+我们将看到实际上有多大的缓冲区，
+
+984
+01:01:49,640 --> 01:01:51,750
+also in the network organization control,
+此外，在网络组织控制中，
+
+985
+01:01:51,760 --> 01:01:55,990
+means as a latency is going to increase significantly.
+这意味着延迟将显著增加。
+
+986
+01:01:56,710 --> 01:01:59,310
+Because the latency is going to increase significantly,
+由于延迟将显著增加，
+
+987
+01:01:59,320 --> 01:02:04,000
+because it's going to take more to send to clear the buffer.
+因为需要更多的时间来发送并清空缓冲区。
+
+988
+01:02:10,730 --> 01:02:13,440
+It's like a large transmissions that the round trip time,
+这就像是一个大型传输，往返时间很长。
+
+989
+01:02:13,450 --> 01:02:15,840
+the transmission time is going to grow up a lot.
+传输时间将会大大增加。
+
+990
+01:02:19,250 --> 01:02:22,480
+Ascending window also depend on at a congestion is that are going to go
+升序窗口还取决于拥塞情况是否会发生。
+
+991
+01:02:22,490 --> 01:02:23,200
+to do next.
+下一步要做什么。
+
+992
+01:02:23,210 --> 01:02:24,680
+There are a lot of details about,
+关于这个问题有很多细节。
+
+993
+01:02:24,690 --> 01:02:28,320
+if you are interesting about networking takes cs on 3.68.
+如果你对网络感兴趣，可以选择在3.68上学习计算机科学。
+
+994
+01:02:29,560 --> 01:02:30,070
+By the way,
+顺便说一下，
+
+995
+01:02:30,080 --> 01:02:34,150
+we talk about a few buffer to buffers here in the operating systems.
+我们在操作系统中讨论了几种缓冲区到缓冲区的情况。
+
+996
+01:02:34,740 --> 01:02:36,490
+For the sender and the receiver side.
+对于发送方和接收方。
+
+997
+01:02:36,500 --> 01:02:38,230
+In practice, there are more buffers.
+在实践中，通常会有更多的缓冲区。
+
+998
+01:02:38,690 --> 01:02:40,550
+There are network artist buffers,
+有网络艺术家缓冲区，
+
+999
+01:02:40,560 --> 01:02:42,230
+buffering the network and everything.
+缓冲网络和其他所有内容。
+
+1000
+01:02:45,090 --> 01:02:47,750
+Let's announcements.
+让我们开始公告。
+
+1001
+01:02:48,540 --> 01:02:49,660
+Meters three is tomorrow.
+明天是三米节。
+
+1002
+01:02:49,670 --> 01:02:55,380
+What they've done over today in the lecture is not for next,
+他们在今天的讲座中所做的并不是为了下一步。
+
+1003
+01:02:55,630 --> 01:02:57,910
+for is not included in the material.
+for循环不包含在教材中。
+
+1004
+01:02:59,400 --> 01:03:00,380
+For the exam,
+考试时，
+
+1005
+01:03:00,940 --> 01:03:04,160
+for the last meter on sunday,
+对于星期日的最后一米，
+
+1006
+01:03:05,040 --> 01:03:08,440
+we are going this project three party between 10:00 and 2:00
+我们将在10:00至2:00之间进行这个项目的三方会议。
+
+1007
+01:03:08,450 --> 01:03:12,950
+pm the discussions will be converted in
+私信中的讨论将被转换为中文。
+
+1008
+01:03:12,960 --> 01:03:16,270
+office hours to help you with the projects last project.
+办公时间是为了帮助您完成最后一个项目。
+
+1009
+01:03:17,170 --> 01:03:18,790
+With the exam, if you have, well,
+关于考试，如果你有的话，嗯，
+
+1010
+01:03:18,800 --> 01:03:20,470
+is it will be after the exam.
+考试之后会有的。
+
+1011
+01:03:20,480 --> 01:03:22,610
+So it don't help you as much.
+所以它对你帮助不大。
+
+1012
+01:03:23,840 --> 01:03:27,590
+The office hours also will continue into that week again to help you
+办公时间也将延续到下周，以提供帮助。
+
+1013
+01:03:27,600 --> 01:03:28,510
+with the projects.
+关于项目。
+
+1014
+01:03:29,030 --> 01:03:37,070
+How much c six is due friday and next friday and project.
+周五和下周五分别有多少C语言作业和项目要交？
+
+1015
+01:03:37,360 --> 01:03:38,220
+No, this friday.
+不，是这个星期五。
+
+1016
+01:03:38,230 --> 01:03:39,570
+So next friday.
+下周五。
+
+1017
+01:03:40,120 --> 01:03:41,630
+And the project through three,
+并且这个项目经历了三个阶段，
+
+1018
+01:03:41,640 --> 01:03:45,920
+it's due as you now on december 8.
+截止日期是12月8日，就像你现在所知道的那样。
+
+1019
+01:03:49,480 --> 01:03:51,910
+Now we have another 15 minutes.
+现在我们还有另外15分钟。
+
+1020
+01:03:52,720 --> 01:03:55,020
+Let me tell you a little bit about the congestion control.
+让我给你讲一下拥塞控制的一些基本知识。
+
+1021
+01:03:56,200 --> 01:03:57,370
+Flow control,
+流量控制
+
+1022
+01:03:57,380 --> 01:03:58,550
+don't overflow,
+不要溢出。
+
+1023
+01:03:58,560 --> 01:04:00,910
+the receiver congestion control,
+接收方拥塞控制
+
+1024
+01:04:01,580 --> 01:04:03,410
+don't overflow the network.
+不要使网络溢出。
+
+1025
+01:04:03,750 --> 01:04:06,060
+The network has routers has buffers in between.
+网络中的路由器之间有缓冲区。
+
+1026
+01:04:07,820 --> 01:04:09,480
+So now the question is,
+那么现在的问题是，
+
+1027
+01:04:09,810 --> 01:04:14,540
+how you are going to detect the congestion is an adult.
+你将如何检测拥塞是否成年人。
+
+1028
+01:04:15,240 --> 01:04:19,290
+And remember the congestion i'm going to detect as a transfer level.
+请记住，我将在传输层检测拥塞。
+
+1029
+01:04:19,550 --> 01:04:19,630
+Player.
+玩家。
+
+1030
+01:04:19,640 --> 01:04:21,790
+There is no transfer layer in the network.
+网络中没有传输层。
+
+1031
+01:04:21,800 --> 01:04:23,410
+It's only between two and host.
+只有两个人和主机之间。
+
+1032
+01:04:23,420 --> 01:04:25,650
+So I can only observe the network.
+所以我只能观察网络。
+
+1033
+01:04:27,020 --> 01:04:28,990
+There are a few ways to detect the congestions.
+有几种方法可以检测拥塞。
+
+1034
+01:04:30,120 --> 01:04:31,990
+One, a packet is dropped.
+一、一个数据包被丢弃了。
+
+1035
+01:04:32,810 --> 01:04:35,240
+You interpret this to be a sign of congestion,
+你将这个迹象解释为拥堵的迹象。
+
+1036
+01:04:35,250 --> 01:04:39,350
+because you assume there's the reason a packet has been dropped is
+因为你假设一个数据包被丢弃的原因是什么
+
+1037
+01:04:39,360 --> 01:04:42,740
+that because a buffer of the router was overflow,
+这是因为路由器的缓冲区溢出了。
+
+1038
+01:04:44,030 --> 01:04:50,510
+filled in the router can no longer cannot send packets as fast as you get
+当路由器被填满后，它将无法像你接收数据那样快速发送数据包。
+
+1039
+01:04:50,520 --> 01:04:52,310
+the buffer fields in packers at all.
+所有的打包器中都有缓冲区字段。
+
+1040
+01:04:53,760 --> 01:04:55,390
+There is a modified version,
+有一个修改过的版本，
+
+1041
+01:04:55,400 --> 01:04:57,150
+early congestion amplification.
+早期拥塞放大。
+
+1042
+01:04:57,160 --> 01:04:59,310
+So when the buffer is a router,
+当缓冲区是一个路由器时，
+
+1043
+01:05:00,770 --> 01:05:03,010
+increases of over some threshold,
+超过某个阈值的增加量，
+
+1044
+01:05:03,410 --> 01:05:07,400
+the router set up a bit is called easy and bit in the packet.
+路由器设置中的一个位被称为"易位"位或"位于数据包中的位"。
+
+1045
+01:05:08,890 --> 01:05:13,560
+And then the receiver sends back to the sender saying, hey,
+然后接收方回复发送方说，嘿，
+
+1046
+01:05:14,820 --> 01:05:16,060
+don't send a slowdown,
+不要发送减速信号。
+
+1047
+01:05:16,070 --> 01:05:21,320
+because this router it's about to be is congested.
+因为这个路由器即将拥堵。
+
+1048
+01:05:22,500 --> 01:05:24,360
+The other one is the light packets.
+另一个是光包。
+
+1049
+01:05:24,840 --> 01:05:26,070
+When the buffer grows,
+当缓冲区增长时，
+
+1050
+01:05:26,080 --> 01:05:30,380
+the late entrance latency growth is like on the highway.
+晚进入的延迟增长就像在高速公路上一样。
+
+1051
+01:05:32,250 --> 01:05:34,280
+If I see that the delay has increased,
+如果我发现延迟增加了，
+
+1052
+01:05:34,290 --> 01:05:35,560
+maybe I need to slow down.
+也许我需要放慢速度。
+
+1053
+01:05:37,790 --> 01:05:39,030
+The simplest one.
+最简单的一个。
+
+1054
+01:05:39,960 --> 01:05:41,630
+It's drop packets.
+它丢弃数据包。
+
+1055
+01:05:41,640 --> 01:05:43,270
+And this is what we are going to assume,
+这是我们要假设的内容，
+
+1056
+01:05:43,710 --> 01:05:47,050
+is the most use sign of congestion today.
+今天最常见的拥堵标志是。
+
+1057
+01:05:48,800 --> 01:05:52,590
+Like we discussed, there are two ways what to detect these drawbacks.
+正如我们讨论过的，有两种方法可以检测这些缺点。
+
+1058
+01:05:52,600 --> 01:05:53,790
+Again, the question is,
+问题是：
+
+1059
+01:05:53,800 --> 01:05:55,320
+how do you detect a drawback?
+你如何检测到一个缺点？
+
+1060
+01:05:57,790 --> 01:05:58,180
+Right?
+对吗？
+
+1061
+01:05:59,650 --> 01:06:02,970
+Congestion means the router buffer is full,
+拥塞意味着路由器缓冲区已满，
+
+1062
+01:06:04,160 --> 01:06:06,580
+and then because it's full, the bakery is dropped.
+然后因为它已经满了，面包店被放弃了。
+
+1063
+01:06:06,590 --> 01:06:07,340
+But now,
+但是现在，
+
+1064
+01:06:08,610 --> 01:06:09,610
+if i'm the sender,
+如果我是发件人，
+
+1065
+01:06:09,620 --> 01:06:13,960
+how i'm going to know that's a packet of stock,
+我怎样才能知道这是一份股票的数据包？
+
+1066
+01:06:15,860 --> 01:06:17,830
+how i'm going to decide a packet of stock.
+如何决定购买一包股票。
+
+1067
+01:06:19,230 --> 01:06:23,690
+One way is like we discussed earlier on timeout.
+一种方法就是我们之前讨论过的超时机制。
+
+1068
+01:06:24,200 --> 01:06:25,440
+I wait for some time,
+我等了一段时间，
+
+1069
+01:06:25,450 --> 01:06:28,000
+which is significantly larger than round 3 time.
+这个时间比第三轮的时间显著长。
+
+1070
+01:06:28,010 --> 01:06:29,480
+I don't get an acknowledgment.
+我没有收到确认。
+
+1071
+01:06:29,490 --> 01:06:31,610
+I assume the packet is lost,
+我假设数据包丢失了。
+
+1072
+01:06:32,300 --> 01:06:33,460
+even if it was.
+即使是这样。
+
+1073
+01:06:33,470 --> 01:06:36,670
+So I resent it.
+所以我重新发送了它。
+
+1074
+01:06:36,680 --> 01:06:39,530
+And the other one I just alluded to you earlier on.
+而另一个我之前提到的。
+
+1075
+01:06:40,430 --> 01:06:44,320
+It's when I received the same acknowledgment,
+当我收到相同的确认时，
+
+1076
+01:06:45,400 --> 01:06:48,400
+the same sequence number in the acknowledgment, the next sequence number,
+在确认中使用相同的序列号，下一个序列号，
+
+1077
+01:06:48,410 --> 01:06:50,440
+expected sequence number over and over again.
+一遍又一遍地期望序列号。
+
+1078
+01:06:53,120 --> 01:06:54,600
+Because again, in this case,
+因为在这种情况下，
+
+1079
+01:06:54,930 --> 01:06:56,830
+i'm going to send yourself, in this case,
+我将会将您自己发送出去，在这种情况下，
+
+1080
+01:06:56,840 --> 01:06:59,800
+I send you the packet200,
+我给你发送了数据包200。
+
+1081
+01:07:01,490 --> 01:07:02,000
+right?
+对的？
+
+1082
+01:07:02,230 --> 01:07:03,590
+From 100 to 200.
+从100到200。
+
+1083
+01:07:03,600 --> 01:07:06,830
+So you tell me the next sequence number i'm going to,
+所以你告诉我我要去的下一个序列号是多少。
+
+1084
+01:07:06,840 --> 01:07:10,130
+I ii am expecting from you is 201.
+我期待你的是201。
+
+1085
+01:07:10,140 --> 01:07:10,390
+Now.
+现在。
+
+1086
+01:07:11,030 --> 01:07:13,980
+I'm sending you the next packet with a bias 200 to 300.
+我将发送下一个数据包，偏置为200到300。
+
+1087
+01:07:16,130 --> 01:07:16,580
+You lost.
+你输了。
+
+1088
+01:07:17,360 --> 01:07:18,300
+You don't tell me anything.
+你没有告诉我任何事情。
+
+1089
+01:07:19,230 --> 01:07:21,370
+Now i'm sending the next packet 300 to 400.
+现在我正在发送第300到400个数据包。
+
+1090
+01:07:22,880 --> 01:07:24,660
+You give me the acknowledgment for that packet,
+你为那个数据包给予了确认。
+
+1091
+01:07:24,670 --> 01:07:25,780
+but is the sequence number.
+但是这是序列号。
+
+1092
+01:07:25,790 --> 01:07:29,690
+Next sequence, expected sequence number is still to 100,
+下一个序列，预期的序列号仍然是100。
+
+1093
+01:07:29,970 --> 01:07:32,300
+because you are telling me about the in sequence,
+因为你正在告诉我关于顺序的事情。
+
+1094
+01:07:33,130 --> 01:07:35,590
+next expected in sequencing number.
+下一个预期的序列号。
+
+1095
+01:07:37,450 --> 01:07:40,320
+Now, you told me 2 times 206,
+现在，你告诉我两次206。
+
+1096
+01:07:40,330 --> 01:07:41,440
+the next sequence.
+下一个序列。
+
+1097
+01:07:41,890 --> 01:07:43,050
+In sequence number,
+在序列号中，
+
+1098
+01:07:43,060 --> 01:07:45,790
+you expect this 201.
+你期望这个201。
+
+1099
+01:07:46,400 --> 01:07:48,170
+I'm sending you another packet.
+我正在发送给你另一个数据包。
+
+1100
+01:07:48,410 --> 01:07:50,990
+Now between 400 and $500.
+现在的价格在400到500美元之间。
+
+1101
+01:07:52,250 --> 01:07:56,150
+Again, you tell me the next bike in sequence,
+再次告诉我下一个按顺序的自行车。
+
+1102
+01:07:56,160 --> 01:07:57,670
+i'm expecting is 201.
+我期望的是201。
+
+1103
+01:07:58,510 --> 01:08:01,770
+Again, an acknowledgment which is duplicate.
+再次，这是一个重复的确认。
+
+1104
+01:08:02,020 --> 01:08:03,730
+This is what they called applicant acknowledgment,
+这是所谓的申请者确认函。
+
+1105
+01:08:03,740 --> 01:08:06,530
+because you tell me repeatedly over and over, I call you,
+因为你一再告诉我，我给你打电话。
+
+1106
+01:08:06,540 --> 01:08:09,250
+don't they told me over and over again.
+他们难道不是一遍又一遍地告诉我吗？
+
+1107
+01:08:09,380 --> 01:08:10,990
+Beyond the next equal number,
+超过下一个相等的数字之后，
+
+1108
+01:08:11,000 --> 01:08:13,030
+i'm expecting is 201.
+我期望的是201。
+
+1109
+01:08:14,090 --> 01:08:15,460
+So after a few of those,
+所以经过几次这样的操作之后，
+
+1110
+01:08:15,470 --> 01:08:19,580
+I decide that packet was lost.
+我判断该数据包已丢失。
+
+1111
+01:08:19,590 --> 01:08:22,780
+And i'm going to resent this is the applicant acknowledge.
+我会重新发送这封邮件，直到申请人确认收到为止。
+
+1112
+01:08:28,090 --> 01:08:28,740
+Make sense?
+有意义吗？
+
+1113
+01:08:33,860 --> 01:08:35,250
+Congestion control.
+拥塞控制。
+
+1114
+01:08:35,260 --> 01:08:41,000
+The key idea is a standard increase to increase ascending rate
+关键思想是标准增加以提高上升速率。
+
+1115
+01:08:41,010 --> 01:08:43,700
+if the network until congestion,
+如果网络拥塞了，
+
+1116
+01:08:43,710 --> 01:08:47,900
+if the network is not congested,
+如果网络没有拥塞，
+
+1117
+01:08:48,410 --> 01:08:50,830
+individuals ascending ratings and turkeys congest,
+个体评级逐渐上升，而火鸡拥挤。
+
+1118
+01:08:53,590 --> 01:08:55,440
+how does the sender control sending rate?
+发送方如何控制发送速率？
+
+1119
+01:08:56,360 --> 01:09:00,240
+Send their it's called window size, the sending window size,
+发送方的窗口大小被称为窗口大小，发送窗口大小。
+
+1120
+01:09:00,770 --> 01:09:03,590
+which is called right now in this context,
+在这个上下文中，它被称为...
+
+1121
+01:09:03,600 --> 01:09:05,110
+congestion and window size.
+拥塞和窗口大小。
+
+1122
+01:09:13,260 --> 01:09:15,300
+Here is a great question from allison.
+这是一个来自Allison的好问题。
+
+1123
+01:09:15,760 --> 01:09:18,070
+About the previous case.
+关于之前的案例。
+
+1124
+01:09:18,510 --> 01:09:19,600
+What I mentioned to you,
+我跟你提到的是，
+
+1125
+01:09:20,400 --> 01:09:22,310
+the question from allison is the following.
+艾莉森的问题如下：
+
+1126
+01:09:23,270 --> 01:09:26,500
+Can you not conclude it was lost?
+你能不能不要得出这是丢失了的结论？
+
+1127
+01:09:26,510 --> 01:09:29,060
+The packet was lost after the first duplicate act?
+第一个重复的动作之后，数据包丢失了吗？
+
+1128
+01:09:36,850 --> 01:09:39,040
+Tell me why you wouldn't do that.
+告诉我为什么你不会这样做。
+
+1129
+01:09:40,350 --> 01:09:42,220
+You could do that, but why you wouldn't do it.
+你可以这样做，但为什么你不愿意这样做呢？
+
+1130
+01:09:59,690 --> 01:10:00,810
+May be out of order.
+可能是失序的。
+
+1131
+01:10:01,300 --> 01:10:04,030
+It's exactly out of order arrivals.
+这完全是无序到达。
+
+1132
+01:10:04,700 --> 01:10:05,310
+You see,
+你看，
+
+1133
+01:10:05,700 --> 01:10:11,560
+look at this figure and assume that these packets which is lost
+请看这个图表，并假设这些数据包已丢失。
+
+1134
+01:10:11,570 --> 01:10:12,720
+instead of being lost.
+而不是迷失方向。
+
+1135
+01:10:13,400 --> 01:10:18,460
+It travels on a different passenger network and arrives
+它通过不同的乘客网络进行旅行并到达目的地。
+
+1136
+01:10:18,470 --> 01:10:22,820
+actually as a destination after the packet,
+实际上作为数据包的目的地，
+
+1137
+01:10:24,580 --> 01:10:25,620
+the force packet,
+力量数据包
+
+1138
+01:10:27,150 --> 01:10:33,780
+the one, which right after the last packet, right?
+是的，就是紧接在最后一个数据包之后的那个。
+
+1139
+01:10:34,630 --> 01:10:35,880
+Which was sent by the sender.
+这是由发件人发送的。
+
+1140
+01:10:37,630 --> 01:10:40,360
+The third packet is lost in this example,
+在这个例子中，第三个数据包丢失了。
+
+1141
+01:10:40,370 --> 01:10:41,600
+but assume is not lost,
+但是假设并没有丢失，
+
+1142
+01:10:42,150 --> 01:10:43,760
+but it arrives after the force packet.
+但是它在强制数据包之后到达。
+
+1143
+01:10:45,590 --> 01:10:46,780
+If that's the case,
+如果是这样的话，
+
+1144
+01:10:48,250 --> 01:10:50,330
+the sender will see the same things.
+发送者将看到相同的东西。
+
+1145
+01:10:50,340 --> 01:10:52,620
+It cannot differentiate between the two.
+它无法区分这两者。
+
+1146
+01:10:55,160 --> 01:10:57,280
+So waiting for more duplicate acknowledgments,
+所以等待更多的重复确认。
+
+1147
+01:10:57,290 --> 01:11:01,600
+it's a way to make it more sure that the packet was really lost.
+这是一种确保数据包确实丢失的方法。
+
+1148
+01:11:02,570 --> 01:11:04,360
+It's not because the packets are ordered,
+并不是因为数据包是有序的，
+
+1149
+01:11:04,370 --> 01:11:05,520
+and the packets are reordered,
+并且数据包被重新排序了，
+
+1150
+01:11:05,530 --> 01:11:08,800
+because every packet can take a different route in the network,
+因为在网络中，每个数据包都可以选择不同的路径传输。
+
+1151
+01:11:12,010 --> 01:11:19,770
+which means also is through a dialogue that street applicant acknowledgment missing a city that became $1 million
+这句话的意思是，通过对话，街头申请者意识到一个城市失去了100万美元。
+
+1152
+01:11:19,780 --> 01:11:24,550
+are not necessarily always guarantee a back at has been lost.
+并不总是保证能够找回已经丢失的数据。
+
+1153
+01:11:25,850 --> 01:11:26,410
+It's correct.
+没问题。
+
+1154
+01:11:26,720 --> 01:11:30,990
+It just increase the probability that a session to be correct.
+这只是增加了一个会话正确的概率。
+
+1155
+01:11:33,170 --> 01:11:33,620
+Okay.
+好的。
+
+1156
+01:11:35,800 --> 01:11:37,670
+How does the sender control sending?
+发送方如何控制发送过程？
+
+1157
+01:11:37,680 --> 01:11:38,070
+Right?
+对吗？
+
+1158
+01:11:38,080 --> 01:11:40,550
+It's as easy in account as again, a window.
+这就像是再次打开一个窗口一样简单。
+
+1159
+01:11:40,890 --> 01:11:44,300
+It's called congestion window size and congestion window size.
+它被称为拥塞窗口大小和拥塞窗口大小。
+
+1160
+01:11:45,530 --> 01:11:50,740
+It's going to take the minimum between the sending window size
+这将取发送窗口大小和接收窗口大小之间的最小值。
+
+1161
+01:11:51,060 --> 01:11:54,840
+and this congestion window site,
+以及这个拥塞窗口的网站，
+
+1162
+01:11:54,850 --> 01:11:56,880
+which is computed in the network.
+在网络中进行计算。
+
+1163
+01:11:59,010 --> 01:12:01,940
+And obviously, it might be less than the receiver advertising, though,
+显然，它可能小于接收方的广告值，尽管如此，
+
+1164
+01:12:02,600 --> 01:12:07,340
+and increase the size of the windows and until congestion and reduce
+并增加窗口的大小，直到拥塞并减小。
+
+1165
+01:12:07,350 --> 01:12:09,060
+the size of the window if congestion.
+拥塞时窗口的大小。
+
+1166
+01:12:09,390 --> 01:12:09,810
+Right?
+对吗？
+
+1167
+01:12:10,030 --> 01:12:11,050
+Because the window size,
+由于窗口大小，
+
+1168
+01:12:11,060 --> 01:12:12,790
+it tells me how many packets,
+它告诉我有多少个数据包，
+
+1169
+01:12:13,130 --> 01:12:18,460
+how many buys I can send without being acknowledged.
+在不需要确认的情况下，我可以发送多少个购买请求？
+
+1170
+01:12:20,310 --> 01:12:20,710
+Right?
+对吗？
+
+1171
+01:12:21,970 --> 01:12:23,920
+Bigger window means higher throughput.
+更大的窗口意味着更高的吞吐量。
+
+1172
+01:12:23,930 --> 01:12:29,750
+I can send more data before being acknowledged smaller window size.
+即使窗口大小较小，我仍然可以在收到确认之前发送更多的数据。
+
+1173
+01:12:30,200 --> 01:12:31,640
+I can send, if it's unpack it,
+如果需要，我可以发送文件，只要解压缩即可。
+
+1174
+01:12:31,650 --> 01:12:33,280
+I can it's stop and wait.
+我可以，这是停等协议。
+
+1175
+01:12:36,610 --> 01:12:37,670
+So finally,
+所以最后，
+
+1176
+01:12:37,950 --> 01:12:41,020
+let me tell you, i'm going to spend a few minutes on this plot.
+让我告诉你，我将花几分钟来解释这个情节。
+
+1177
+01:12:41,340 --> 01:12:46,610
+And this is just to give you a taste about how is the tcp
+这只是为了让你对TCP是什么有个初步了解
+
+1178
+01:12:46,620 --> 01:12:47,910
+it's working and congestion control.
+它正在工作和拥塞控制。
+
+1179
+01:12:48,970 --> 01:12:49,680
+What is working?
+工作是指进行特定任务或活动的行为或过程。它涉及执行任务、完成工作、实现目标或达到预期结果。工作可以是个人的，也可以是团队的，可以涉及不同的领域和行业。工作可以包括物理劳动、思维活动、创造性工作、管理任务等。
+
+1180
+01:12:50,000 --> 01:12:50,940
+This is one, right?
+这是一个，对吗？
+
+1181
+01:12:53,340 --> 01:12:54,330
+First of all,
+首先，
+
+1182
+01:12:54,340 --> 01:13:01,390
+I don't know how much when I am starting to send data as a receiver as a sender,
+当我作为接收者或发送者开始发送数据时，我不知道具体的数量。
+
+1183
+01:13:01,800 --> 01:13:02,720
+sorry, as a sender.
+抱歉，作为发送者。
+
+1184
+01:13:03,350 --> 01:13:08,750
+I know how much the receiver can handle,
+我知道接收器可以处理多少数据量。
+
+1185
+01:13:08,760 --> 01:13:11,070
+because the receiver there is a initially,
+因为接收器在那里是初始的。
+
+1186
+01:13:11,080 --> 01:13:14,790
+when I established a connection and a three way handshake protocol,
+当我建立连接并进行三次握手协议时，
+
+1187
+01:13:14,800 --> 01:13:16,870
+and the receiver tell me about the advertisement.
+接收者告诉我关于广告的情况。
+
+1188
+01:13:17,200 --> 01:13:17,570
+It's advertising.
+这是广告。
+
+1189
+01:13:17,580 --> 01:13:21,590
+So I I know how much to send result of applying this.
+所以我知道要发送应用结果的数量。
+
+1190
+01:13:21,600 --> 01:13:22,550
+That is very simple.
+这很简单。
+
+1191
+01:13:23,000 --> 01:13:26,230
+But they don't know about how much I can send without overflowing is
+但他们不知道我可以发送多少数据而不会溢出。
+
+1192
+01:13:26,730 --> 01:13:30,240
+a network that what i'm sending,
+我正在发送的是一个网络。
+
+1193
+01:13:30,250 --> 01:13:33,240
+i'm going to send a start with a congestion window of one.
+我将发送一个拥塞窗口为一的开始。
+
+1194
+01:13:33,610 --> 01:13:34,870
+Let's again,
+让我们再次开始，
+
+1195
+01:13:34,880 --> 01:13:36,770
+think about our congestion window,
+考虑一下我们的拥塞窗口，
+
+1196
+01:13:36,780 --> 01:13:39,560
+one packet to simplify the discussion.
+一个数据包来简化讨论。
+
+1197
+01:13:40,480 --> 01:13:46,010
+I'm moving from one from window measuring and bytes into packs to pack us again.
+我正在从一个窗口的测量和字节转换为打包的方式转换回来。
+
+1198
+01:13:47,020 --> 01:13:49,420
+I'm sending one packet and i'm waiting for acknowledgment.
+我正在发送一个数据包，并等待确认。
+
+1199
+01:13:49,430 --> 01:13:51,040
+So i'm sending only one packet.
+所以我只发送一个数据包。
+
+1200
+01:13:52,060 --> 01:13:53,210
+So it's like stop.
+所以就像停止一样。
+
+1201
+01:13:53,220 --> 01:13:55,510
+And now,
+现在，
+
+1202
+01:13:55,520 --> 01:13:57,310
+when i'm getting the first acknowledgment,
+当我收到第一个确认时，
+
+1203
+01:13:57,320 --> 01:13:59,110
+I saw I sent a packet.
+我看到我发送了一个数据包。
+
+1204
+01:13:59,120 --> 01:14:00,010
+It went through.
+已经通过了。
+
+1205
+01:14:00,630 --> 01:14:02,030
+Let me be more aggressive.
+让我更加积极一些。
+
+1206
+01:14:02,040 --> 01:14:02,310
+Now.
+现在。
+
+1207
+01:14:03,090 --> 01:14:06,980
+I'm going to increase the congestion window when I get the acknowledgment
+当我收到确认时，我将增加拥塞窗口大小。
+
+1208
+01:14:06,990 --> 01:14:07,580
+by one.
+逐个地。
+
+1209
+01:14:08,350 --> 01:14:10,150
+Now i'm going to send two packets.
+现在我要发送两个数据包。
+
+1210
+01:14:12,130 --> 01:14:16,570
+And each acknowledgment I get,
+每次我收到的确认都让我感到
+
+1211
+01:14:17,780 --> 01:14:20,830
+I add another one to the congestion window.
+我将拥塞窗口增加了一个。
+
+1212
+01:14:21,710 --> 01:14:23,230
+Now, this is called slow start.
+现在，这被称为慢启动。
+
+1213
+01:14:23,740 --> 01:14:25,410
+Slow start is a terrible name,
+慢启动这个名字很糟糕，
+
+1214
+01:14:25,420 --> 01:14:26,450
+because actually,
+因为实际上，
+
+1215
+01:14:26,750 --> 01:14:33,310
+if you think about in the slow start by cw is a congestion window here,
+如果你考虑拥塞控制中的慢启动阶段，cw表示拥塞窗口。
+
+1216
+01:14:35,240 --> 01:14:36,520
+if you increase a congestion window,
+如果你增加拥塞窗口大小，
+
+1217
+01:14:36,530 --> 01:14:38,600
+every time you get a knock by one,
+每次你被敲一下，
+
+1218
+01:14:39,210 --> 01:14:41,930
+you double the congestion into every rounded time.
+你在每个循环时间内将拥塞翻倍。
+
+1219
+01:14:42,250 --> 01:14:43,480
+In the first round of time,
+在第一轮时间中，
+
+1220
+01:14:43,490 --> 01:14:44,680
+I sent one packet.
+我发送了一个数据包。
+
+1221
+01:14:44,690 --> 01:14:46,680
+I got one acknowledgment.
+我收到了一个确认回执。
+
+1222
+01:14:46,770 --> 01:14:47,120
+Now.
+现在。
+
+1223
+01:14:47,130 --> 01:14:48,200
+In the second round of time,
+在第二轮时间中，
+
+1224
+01:14:48,210 --> 01:14:49,560
+I sent two packets.
+我发送了两个数据包。
+
+1225
+01:14:49,990 --> 01:14:52,780
+I get two acknowledgment for each acknowledgment I get
+每次我收到一个确认时，我会得到两个确认。
+
+1226
+01:14:52,790 --> 01:14:55,420
+in the second round trip time.
+在第二个往返时间内。
+
+1227
+01:14:55,430 --> 01:14:59,580
+I'm going to increase the window size by one from two is going to go to four.
+我将把窗口大小从2增加到4。
+
+1228
+01:15:00,290 --> 01:15:01,730
+Now, in the third condition,
+现在，在第三个条件下，
+
+1229
+01:15:01,740 --> 01:15:03,050
+in a round of time,
+在一段时间内，
+
+1230
+01:15:03,060 --> 01:15:05,110
+i'm going to send four packets.
+我要发送四个数据包。
+
+1231
+01:15:05,560 --> 01:15:08,330
+For each acknowledgment, i'm going to increase the condition by one,
+对于每个确认，我将把条件增加一次。
+
+1232
+01:15:08,340 --> 01:15:09,690
+so i'm going to have eight.
+所以我将会有八个。
+
+1233
+01:15:10,890 --> 01:15:12,330
+This is what you see.
+这是你所看到的。
+
+1234
+01:15:12,340 --> 01:15:15,390
+The congestion window side is on the vertical.
+拥塞窗口的一侧是垂直的。
+
+1235
+01:15:15,990 --> 01:15:19,140
+It's going from small a double every time.
+每次都是以两倍的速度增长。
+
+1236
+01:15:19,550 --> 01:15:20,660
+And at some point,
+在某个时候，
+
+1237
+01:15:21,590 --> 01:15:25,560
+I am going probably to lose a packet,
+我可能会丢失一个数据包。
+
+1238
+01:15:26,390 --> 01:15:27,510
+because I sent too much.
+因为我发送了太多。
+
+1239
+01:15:28,990 --> 01:15:30,320
+This is when the packet is lost.
+这是数据包丢失的情况。
+
+1240
+01:15:31,150 --> 01:15:34,190
+So what i'm going to do when that happened,
+当发生这种情况时，我该怎么办？
+
+1241
+01:15:37,130 --> 01:15:38,570
+you need to be very aggressive,
+你需要非常积极主动，
+
+1242
+01:15:38,990 --> 01:15:42,550
+because it turns out that if you are not very aggressive,
+因为事实证明，如果你不够积极主动，
+
+1243
+01:15:42,560 --> 01:15:45,000
+and this is it's a queuing theory properly.
+这是一个队列论的正确应用。
+
+1244
+01:15:45,010 --> 01:15:46,840
+We don't have time to go into it.
+我们没有时间深入讨论这个问题。
+
+1245
+01:15:47,440 --> 01:15:51,170
+But if you don't reduce a sending rate very fast,
+但是如果你不迅速降低发送速率，
+
+1246
+01:15:51,990 --> 01:15:54,030
+you cannot be relieved the congestion.
+你无法缓解拥堵。
+
+1247
+01:15:57,120 --> 01:15:57,420
+Right?
+对吗？
+
+1248
+01:15:57,890 --> 01:15:59,770
+So in this case, you are very dramatic.
+所以在这种情况下，你非常戏剧化。
+
+1249
+01:16:00,250 --> 01:16:04,750
+They are going to go in the congestion window all the way to one reduce it.
+他们打算将拥塞窗口一直减小到一个。
+
+1250
+01:16:05,170 --> 01:16:07,490
+And then you go, again, slow start,
+然后你再次开始，慢启动，
+
+1251
+01:16:07,710 --> 01:16:08,840
+the gain, exponential increase.
+增益，指数增长。
+
+1252
+01:16:08,850 --> 01:16:11,720
+But now you go through until to this threshold.
+但现在你一直坚持到了这个阈值。
+
+1253
+01:16:13,740 --> 01:16:18,260
+And this threshold is the last a is a congestion window.
+而这个阈值是最后一个拥塞窗口的a。
+
+1254
+01:16:19,520 --> 01:16:20,950
+In the previous slow start,
+在之前的慢启动阶段中，
+
+1255
+01:16:21,870 --> 01:16:23,020
+you are still successful.
+你仍然很成功。
+
+1256
+01:16:23,030 --> 01:16:24,470
+All the packers made it.
+所有的打包工人都成功了。
+
+1257
+01:16:26,510 --> 01:16:26,960
+Right?
+对吗？
+
+1258
+01:16:27,390 --> 01:16:28,040
+Congestion window.
+拥塞窗口。
+
+1259
+01:16:28,050 --> 01:16:29,030
+It was eight.
+是八点钟。
+
+1260
+01:16:29,040 --> 01:16:30,350
+I sent eight packets.
+我发送了八个数据包。
+
+1261
+01:16:30,360 --> 01:16:31,670
+I got eight acknowledgment.
+我收到了八个确认。
+
+1262
+01:16:32,210 --> 01:16:35,230
+Then and then when I conditional increase to 16,
+当我条件性地增加到16时，然后再然后。
+
+1263
+01:16:35,240 --> 01:16:38,560
+I got I lost by I lost packets.
+我丢失了一些数据包导致我失败了。
+
+1264
+01:16:38,890 --> 01:16:40,340
+I'm going the next time.
+我下次会去。
+
+1265
+01:16:40,550 --> 01:16:43,020
+I am only going to stop this slow start.
+我只是要停止这个慢启动。
+
+1266
+01:16:43,720 --> 01:16:44,800
+What aggressive start?
+什么是激进的开始？
+
+1267
+01:16:45,500 --> 01:16:46,630
+2~8.
+2~8表示从2到8的范围。
+
+1268
+01:16:48,160 --> 01:16:50,480
+Because I know that kind of a successful last time.
+因为我知道上次那样做是成功的。
+
+1269
+01:16:50,490 --> 01:16:57,380
+And then i'm going to be much more timidly explore how increase and explore
+然后我将更加谨慎地探索如何增加和探索。
+
+1270
+01:16:57,390 --> 01:16:58,930
+the capacity of the network.
+网络的容量。
+
+1271
+01:16:59,650 --> 01:17:00,040
+Right?
+对吗？
+
+1272
+01:17:00,650 --> 01:17:06,660
+So i'm going to increase now with one i'm going only to increase is that I
+所以现在我要增加一个，我只要增加就可以了
+
+1273
+01:17:06,670 --> 01:17:07,420
+was talking about.
+在谈论什么。
+
+1274
+01:17:07,430 --> 01:17:12,330
+And now i'm going to increase only the condition we know by one
+现在我要将我们所知道的条件增加一个。
+
+1275
+01:17:13,080 --> 01:17:13,840
+by round trip time.
+通过往返时间。
+
+1276
+01:17:14,330 --> 01:17:16,180
+So this means that in now,
+这意味着现在，
+
+1277
+01:17:17,030 --> 01:17:19,020
+when i'm going to get an acknowledgment,
+我什么时候会收到确认回复？
+
+1278
+01:17:19,030 --> 01:17:23,570
+i'm going to increase a congestion window by one over n where n Is
+我将通过每次增加一个单位来增加拥塞窗口，其中n是...
+
+1279
+01:17:23,580 --> 01:17:25,290
+a current congestion window size.
+当前的拥塞窗口大小。
+
+1280
+01:17:26,250 --> 01:17:28,680
+If I have the congestion window site is stand,
+如果我的拥塞窗口站点是可用的，
+
+1281
+01:17:28,690 --> 01:17:31,360
+and every acknowledgment I'm going to increase,
+每次确认，我都会增加。
+
+1282
+01:17:31,740 --> 01:17:33,700
+the window sized by 1/10.
+窗口的大小缩小了1/10。
+
+1283
+01:17:33,980 --> 01:17:35,750
+Now, in one round of time,
+现在，在一个时间轮回中，
+
+1284
+01:17:35,760 --> 01:17:39,210
+I'm going to increase a condition from 10 to 11.
+我将把条件从10增加到11。
+
+1285
+01:17:41,280 --> 01:17:42,380
+You get this one.
+你来处理这个。
+
+1286
+01:17:42,670 --> 01:17:43,780
+This is additive increase.
+这是加法增加。
+
+1287
+01:17:43,790 --> 01:17:44,900
+It's called additive increase.
+这被称为加法增加。
+
+1288
+01:17:45,380 --> 01:17:45,740
+Right?
+对吗？
+
+1289
+01:17:46,280 --> 01:17:47,390
+Then I get the loss here.
+那么我在这里遭受了损失。
+
+1290
+01:17:47,400 --> 01:17:50,630
+If I lost here, maybe I is because cw get acknowledgment.
+如果我在这里迷失了方向，可能是因为我没有得到确认。
+
+1291
+01:17:50,640 --> 01:17:51,870
+Now I'm going back.
+现在我要回去了。
+
+1292
+01:17:52,250 --> 01:17:53,790
+If it's really double, we get acknowledgment.
+如果确实是双重的，我们会得到确认。
+
+1293
+01:17:53,800 --> 01:17:55,870
+I'm going to get back to the threshold.
+我要回到阈值。
+
+1294
+01:17:56,650 --> 01:17:56,980
+Right?
+对吗？
+
+1295
+01:17:57,440 --> 01:17:59,860
+And then I go, I grow again and things like that.
+然后我继续前进，我再次成长，诸如此类的事情。
+
+1296
+01:18:05,250 --> 01:18:06,460
+So that's basically what it is.
+所以基本上就是这样。
+
+1297
+01:18:06,810 --> 01:18:09,410
+So there is an early stage,
+所以有一个早期阶段，
+
+1298
+01:18:09,800 --> 01:18:12,830
+you grow very fast to explore the limits of the network.
+你迅速成长，探索网络的极限。
+
+1299
+01:18:13,710 --> 01:18:14,810
+Then after that,
+然后在那之后，
+
+1300
+01:18:14,820 --> 01:18:17,400
+you get into this regime, which is,
+你进入了这个体制，这个体制是...
+
+1301
+01:18:17,410 --> 01:18:18,510
+at the end,
+最后，
+
+1302
+01:18:18,810 --> 01:18:20,580
+you additive increase,
+你是增加性增加，
+
+1303
+01:18:21,550 --> 01:18:23,810
+then the window size, and you get a loss,
+然后是窗口大小，如果出现丢失，
+
+1304
+01:18:23,820 --> 01:18:25,370
+you multiply to be decrease.
+你乘以一个数会减少。
+
+1305
+01:18:25,690 --> 01:18:27,290
+This is called multiplying degrees.
+这被称为角度乘法。
+
+1306
+01:18:27,300 --> 01:18:29,050
+Basically, you're cutting to half.
+基本上，你是在减半。
+
+1307
+01:18:29,270 --> 01:18:29,660
+In general,
+一般来说，
+
+1308
+01:18:30,980 --> 01:18:32,090
+you grow linearly,
+你的增长是线性的。
+
+1309
+01:18:32,100 --> 01:18:34,970
+you cut it to half, you grow linearly, you cut it to half.
+你将其减半，你线性增长，你再将其减半。
+
+1310
+01:18:37,360 --> 01:18:38,110
+That's pretty much.
+就是这样。
+
+1311
+01:18:38,600 --> 01:18:38,870
+Again.
+再次。
+
+1312
+01:18:38,880 --> 01:18:39,950
+It's fascinating.
+这真是令人着迷。
+
+1313
+01:18:41,910 --> 01:18:44,780
+Algorithm is very simple, but in dynamics,
+算法非常简单，但在动态情况下，
+
+1314
+01:18:44,790 --> 01:18:46,300
+the dynamics are fascinating.
+这个动态非常迷人。
+
+1315
+01:18:47,700 --> 01:18:49,050
+I'm going to stop here,
+我要停在这里了。
+
+1316
+01:18:49,060 --> 01:18:52,490
+and we talk about the network.
+我们现在讨论网络。
+
+1317
+01:18:52,980 --> 01:18:57,180
+The networking summary we will talk about at least we talk about networking.
+我们将至少讨论网络摘要，我们谈论网络。
+
+1318
+01:18:58,120 --> 01:19:00,400
+We have a few lecture on that.
+我们有几节关于这个的讲座。
+
+1319
+01:19:01,700 --> 01:19:04,950
+Remember the internet has five layers, physical layer, data link,
+记住互联网有五层，物理层、数据链路层、
+
+1320
+01:19:04,960 --> 01:19:05,830
+layer network layer,
+网络层
+
+1321
+01:19:05,840 --> 01:19:07,390
+transporter application layer.
+传输层应用程序。
+
+1322
+01:19:09,160 --> 01:19:12,910
+We talk about and to end argument and to our argument is saying
+我们谈论和结束争论的目的是为了达成共识。
+
+1323
+01:19:12,920 --> 01:19:16,070
+that if higher layers can implement functionally correctly,
+如果更高层次的组件能够正确实现功能，
+
+1324
+01:19:17,950 --> 01:19:21,510
+you should implement the functionality as a lower layer only if it improves
+只有在改进功能时，你才应该将其实现为较低层。
+
+1325
+01:19:21,520 --> 01:19:25,750
+the performance significantly for applications that needs a function ID
+对于需要功能ID的应用程序，性能显著提高。
+
+1326
+01:19:25,760 --> 01:19:29,990
+and it does not impose burden on applications that do not require this functionality.
+并且它不会对不需要这个功能的应用程序造成负担。
+
+1327
+01:19:31,230 --> 01:19:32,780
+We discuss flow control,
+我们讨论流量控制。
+
+1328
+01:19:32,790 --> 01:19:35,510
+which is whose goal is not overflows.
+这是一个目标是不溢出的问题。
+
+1329
+01:19:35,520 --> 01:19:37,100
+The receiver buffer.
+接收缓冲区
+
+1330
+01:19:37,850 --> 01:19:39,520
+Congestion control is the main goal,
+拥塞控制是主要目标。
+
+1331
+01:19:39,530 --> 01:19:40,720
+is to not overflowing it.
+是为了不让它溢出。
+
+1332
+01:19:41,980 --> 01:19:42,490
+Thank you.
+谢谢你。
+
+1333
+01:19:42,500 --> 01:19:43,570
+And next lecture,
+下一堂课，
+
+1334
+01:19:43,580 --> 01:19:46,250
+I'm going to do its special topics.
+我打算做它的特殊主题。
+
+1335
+01:19:46,580 --> 01:19:50,780
+I'm going to tell you a little bit about some of the research which we
+我要告诉你一些关于我们正在进行的研究的情况
+
+1336
+01:19:50,790 --> 01:19:53,100
+have been doing at rice lab and envelope.
+在Rice实验室和信封上一直在进行工作。
+
+1337
+01:19:54,510 --> 01:19:55,740
+Okay, see you all.
+好的，再见。
+
+1338
+01:19:58,770 --> 01:19:59,910
+I'm going to stop here.
+我要停在这里了。
+
+1339
+01:19:59,920 --> 01:20:02,660
+And there is a question I'm going to take.
+我要提一个问题。
+

@@ -1,0 +1,5823 @@
+1
+00:00:12,620 --> 00:00:13,620
+Hello, everyone.
+大家好。
+
+2
+00:00:14,930 --> 00:00:16,600
+So today, during today's lecture,
+今天，在今天的讲座中，
+
+3
+00:00:16,610 --> 00:00:24,490
+we are going to finish the discussion on the deadlocks and then continue
+我们将完成对死锁的讨论，然后继续进行。
+
+4
+00:00:24,500 --> 00:00:29,920
+to start to learn about the visual memory and address translation.
+开始学习关于可视内存和地址转换的知识。
+
+5
+00:00:33,210 --> 00:00:39,480
+Last time, we spent quite a bit on deadlocks is a very important concept.
+上次我们花了相当多的时间讨论死锁，这是一个非常重要的概念。
+
+6
+00:00:40,120 --> 00:00:41,820
+And if you remember,
+如果你还记得的话，
+
+7
+00:00:41,830 --> 00:00:47,290
+there are four requirements which needs to happen to have a deadlock.
+发生死锁需要满足四个条件。
+
+8
+00:00:48,300 --> 00:00:50,200
+The first in mutual explosion,
+首先是相互爆炸。
+
+9
+00:00:50,910 --> 00:00:54,690
+that means that only one thread at a time can use a particular resource.
+这意味着同一时间只有一个线程可以使用特定的资源。
+
+10
+00:00:55,620 --> 00:00:57,110
+The second is hot and white.
+第二个是炎热而白色的。
+
+11
+00:00:58,030 --> 00:01:05,490
+That is a thread holds a list on resource and is waiting to acquire additional
+这是一个线程持有一个资源列表，并等待获取额外资源的情况。
+
+12
+00:01:05,500 --> 00:01:08,390
+resources which are held by other threads.
+被其他线程持有的资源。
+
+13
+00:01:09,010 --> 00:01:11,540
+So this means that this thread cannot make progress,
+这意味着该线程无法取得进展。
+
+14
+00:01:11,550 --> 00:01:14,260
+because it means the other resources in order to make.
+因为它意味着为了制造其他资源。
+
+15
+00:01:14,930 --> 00:01:16,210
+He needs a computation,
+他需要进行计算。
+
+16
+00:01:16,410 --> 00:01:19,870
+which, again, are owned by other threads.
+再次强调，这些资源是由其他线程所拥有的。
+
+17
+00:01:21,000 --> 00:01:21,550
+No preemptions.
+不进行抢占。
+
+18
+00:01:22,510 --> 00:01:28,450
+Resources are released only voluntarily by a thread holding the resource.
+资源只有在持有资源的线程自愿释放时才会被释放。
+
+19
+00:01:29,790 --> 00:01:32,780
+You can a thread cannot be emptied another thread to get the resource
+一个线程无法清空另一个线程以获取资源。
+
+20
+00:01:32,790 --> 00:01:33,980
+to finish the computation.
+完成计算。
+
+21
+00:01:35,040 --> 00:01:37,240
+Then in circular weights, you have a cycle,
+在循环权重中，你有一个循环。
+
+22
+00:01:38,850 --> 00:01:40,320
+which is a cycle,
+哪个是一个循环？
+
+23
+00:01:40,330 --> 00:01:42,240
+which is defined by the pattern that,
+这是由模式定义的，
+
+24
+00:01:42,670 --> 00:01:48,350
+like aa thread is waiting for a resource that is held by another thread.
+就像一个线程正在等待另一个线程持有的资源一样。
+
+25
+00:01:48,530 --> 00:01:51,070
+And that thread is waiting for every story that is held
+这个线程正在等待每个被持有的故事。
+
+26
+00:01:51,080 --> 00:01:52,910
+by another thread and so on.
+通过另一个线程等等。
+
+27
+00:01:52,920 --> 00:01:54,870
+And you're going until you get a cycle.
+直到你找到一个循环为止。
+
+28
+00:01:57,170 --> 00:01:57,610
+Okay?
+好的？
+
+29
+00:01:58,490 --> 00:01:58,950
+Also,
+另外，
+
+30
+00:01:59,700 --> 00:02:00,430
+last,
+最后,
+
+31
+00:02:01,570 --> 00:02:09,220
+there are several techniques we listed last time to resolve a deadlock.
+上次我们列出了几种解决死锁的技术。
+
+32
+00:02:11,230 --> 00:02:14,660
+One of them, it's and to recover from the deadlock.
+其中一个方法是从死锁中恢复。
+
+33
+00:02:14,670 --> 00:02:15,580
+So one,
+所以首先，
+
+34
+00:02:16,810 --> 00:02:21,750
+some of the things we mentioned last time was to terminate the thread.
+上次我们提到的一些事情是终止线程。
+
+35
+00:02:23,290 --> 00:02:26,440
+Therefore, you can terminate a thread which owns a resource.
+因此，你可以终止拥有资源的线程。
+
+36
+00:02:26,960 --> 00:02:28,710
+As there are other threads,
+由于存在其他线程，
+
+37
+00:02:29,040 --> 00:02:31,950
+can acquire the resource that can finish their computation.
+可以获取能够完成它们计算的资源。
+
+38
+00:02:36,120 --> 00:02:39,150
+This you don't always want to do that.
+这并不是你总是想要做的。
+
+39
+00:02:39,160 --> 00:02:39,950
+In some cases.
+在某些情况下。
+
+40
+00:02:40,280 --> 00:02:41,190
+It's pretty hard.
+这很困难。
+
+41
+00:02:41,700 --> 00:02:42,530
+Like, for instance,
+例如，
+
+42
+00:02:42,540 --> 00:02:49,250
+you can kill a thread which is modifying some sensitive data or important data.
+你可以终止一个正在修改敏感数据或重要数据的线程。
+
+43
+00:02:49,490 --> 00:02:53,790
+Then you can it like, for instance,
+那么你可以这样做，例如，
+
+44
+00:02:53,800 --> 00:02:56,760
+are updating your bank balance, right?
+你是在更新你的银行余额，对吗？
+
+45
+00:02:57,070 --> 00:03:02,410
+You don't want to do that because you may end up with garbage,
+你不想这样做，因为你可能会得到垃圾数据。
+
+46
+00:03:05,470 --> 00:03:09,700
+pre and resources without killing of a thread.
+在不终止线程的情况下预留资源。
+
+47
+00:03:10,330 --> 00:03:16,270
+This means that the system is the ability to suspend a threat.
+这意味着系统具有暂停威胁的能力。
+
+48
+00:03:16,730 --> 00:03:22,000
+And then you can preempt that resource while that thread is suspended
+当线程被挂起时，你可以抢占该资源。
+
+49
+00:03:22,010 --> 00:03:24,920
+or is sleeping.
+或正在睡觉。
+
+50
+00:03:25,960 --> 00:03:29,230
+Another thread can get that resource and again,
+另一个线程可以获取该资源，并且再次使用。
+
+51
+00:03:29,240 --> 00:03:30,550
+complete the computation.
+完成计算。
+
+52
+00:03:30,940 --> 00:03:33,540
+When the thread which are suspended ghost comes back,
+当被挂起的线程回来时，
+
+53
+00:03:33,550 --> 00:03:37,020
+hopefully there are enough resources for the threat of things of computation.
+希望计算机的威胁有足够的资源来应对。
+
+54
+00:03:38,720 --> 00:03:41,990
+But all back, the actions, if you remember, in our example,
+但是回到我们的例子中，如果你还记得的话，所有的操作都是这样的。
+
+55
+00:03:42,000 --> 00:03:45,350
+is a bridge and you have two cars on an online bridge coming,
+是一个桥，上面有两辆车正在过桥。
+
+56
+00:03:46,420 --> 00:03:48,770
+had to head in the middle of the bridge.
+不得不在桥的中间停下来。
+
+57
+00:03:48,780 --> 00:03:52,320
+One way to resolve the problems are deadlocked is for one,
+解决死锁问题的一种方法是：首先，
+
+58
+00:03:52,330 --> 00:03:57,650
+a car to back up.
+一辆倒车的汽车。
+
+59
+00:03:57,660 --> 00:04:01,160
+And when you look at the operating system,
+当你看操作系统时，
+
+60
+00:04:01,170 --> 00:04:03,840
+some of them use some of these options, right?
+他们中的一些人使用了其中的一些选项，对吗？
+
+61
+00:04:03,850 --> 00:04:05,000
+It's like, for instance,
+例如，就像是，
+
+62
+00:04:05,500 --> 00:04:06,930
+one system, hanks,
+一个系统，汉克斯。
+
+63
+00:04:07,190 --> 00:04:09,010
+but I typically one system hanks,
+但是我通常只有一个系统，谢谢。
+
+64
+00:04:09,400 --> 00:04:11,060
+and you can do anything about it.
+你对此无能为力。
+
+65
+00:04:11,350 --> 00:04:13,120
+In some cases, he said a lot bad luck.
+他说在某些情况下，他遇到了很多倒霉的事情。
+
+66
+00:04:14,230 --> 00:04:14,980
+In many cases.
+在许多情况下。
+
+67
+00:04:14,990 --> 00:04:16,260
+So how do you do it?
+那么你是如何做到的呢？
+
+68
+00:04:16,270 --> 00:04:17,180
+You report it.
+你需要报告它。
+
+69
+00:04:17,680 --> 00:04:17,990
+Right?
+对吗？
+
+70
+00:04:18,330 --> 00:04:19,200
+So you get everything.
+所以你明白了一切。
+
+71
+00:04:21,060 --> 00:04:24,660
+And preempting resources is the operating system is doing that.
+抢占资源是操作系统正在进行的操作。
+
+72
+00:04:24,670 --> 00:04:26,540
+As you now, threads are preempted,
+正如你所知，线程是可以被抢占的，
+
+73
+00:04:26,550 --> 00:04:29,860
+are put on the slip.
+被放在凭条上。
+
+74
+00:04:31,030 --> 00:04:33,100
+Ii put on the waiting queue.
+我将其放入等待队列中。
+
+75
+00:04:36,500 --> 00:04:37,730
+We set a few examples.
+我们设置了几个例子。
+
+76
+00:04:41,550 --> 00:04:47,730
+So also we talk about another example.
+所以我们也来讨论另一个例子。
+
+77
+00:04:48,710 --> 00:04:50,100
+Last time, another way.
+上次，另一种方式。
+
+78
+00:04:50,110 --> 00:04:53,020
+Obviously, you can solve the deadlock problem.
+显然，你可以解决死锁问题。
+
+79
+00:04:53,030 --> 00:04:54,500
+You have infinite resources, right?
+你有无限的资源，对吗？
+
+80
+00:04:54,510 --> 00:04:58,490
+If even the resources means that every thread at any given time has
+即使资源意味着每个线程在任何给定时间都有
+
+81
+00:04:58,500 --> 00:04:59,420
+all the resources,
+所有的资源，
+
+82
+00:04:59,430 --> 00:05:03,650
+it needs to continue to progress and to finish its computation.
+它需要继续进行并完成计算。
+
+83
+00:05:05,620 --> 00:05:06,650
+This is relevant.
+这是相关的。
+
+84
+00:05:06,660 --> 00:05:11,050
+Here is an example about the second part with the second part of the lecture.
+这是关于讲座第二部分的一个例子。
+
+85
+00:05:11,060 --> 00:05:14,270
+And we are going to talk about virtual memory.
+我们将讨论虚拟内存。
+
+86
+00:05:14,880 --> 00:05:17,560
+And because virtual memory,
+由于虚拟内存，
+
+87
+00:05:17,570 --> 00:05:21,170
+it provides you a memory,
+它为您提供了内存。
+
+88
+00:05:21,180 --> 00:05:29,180
+which is much larger than the physical memory at,
+这个值远远大于物理内存的大小。
+
+89
+00:05:30,810 --> 00:05:31,880
+you can think about, like,
+你可以考虑一下，比如说，
+
+90
+00:05:31,890 --> 00:05:33,400
+for most applications,
+对于大多数应用程序来说，
+
+91
+00:05:33,410 --> 00:05:36,520
+the same like infinite space, like infinite memory.
+就像无限空间一样，就像无限内存一样。
+
+92
+00:05:38,940 --> 00:05:40,330
+The one thing, though, is that,
+不过，有一件事是，
+
+93
+00:05:40,340 --> 00:05:41,450
+as we will see,
+正如我们将看到的，
+
+94
+00:05:41,460 --> 00:05:47,450
+and there is a hood of the virtual memories or the virtual memory it's implemented.
+虚拟内存是如何实现的。
+
+95
+00:05:47,830 --> 00:05:52,020
+You are going to load different parts of the virtual memory
+你将要加载虚拟内存的不同部分。
+
+96
+00:05:52,720 --> 00:05:53,830
+in the physical memory.
+在物理内存中。
+
+97
+00:05:53,840 --> 00:05:58,290
+And then you are going to offload to move some of the parts of the
+然后你将进行卸载以移动部分组件。
+
+98
+00:05:58,820 --> 00:06:02,330
+of the virtual memory of the threads,
+线程的虚拟内存
+
+99
+00:06:02,640 --> 00:06:07,410
+which are not running of the physical memory,
+没有运行在物理内存中的程序
+
+100
+00:06:07,420 --> 00:06:08,810
+maybe put them on the disk.
+也许把它们存储到磁盘上。
+
+101
+00:06:09,700 --> 00:06:12,230
+And in doing so, you basically,
+在这样做的过程中，基本上你就是...
+
+102
+00:06:12,240 --> 00:06:14,390
+the solution under the hood is to preempt.
+底层的解决方案是进行抢占。
+
+103
+00:06:15,680 --> 00:06:15,970
+Right?
+对吗？
+
+104
+00:06:15,980 --> 00:06:19,280
+You preempt the physical memory,
+你抢占了物理内存。
+
+105
+00:06:19,690 --> 00:06:20,350
+a storage,
+存储设备
+
+106
+00:06:20,360 --> 00:06:25,040
+which contains a virtual memory data from one thread with another,
+其中包含了一个线程与另一个线程之间的虚拟内存数据。
+
+107
+00:06:26,850 --> 00:06:30,040
+a a with a virtual memory content of another thread.
+一个带有另一个线程虚拟内存内容的线程。
+
+108
+00:06:30,730 --> 00:06:31,820
+We'll talk more about that.
+我们会更详细地讨论这个问题。
+
+109
+00:06:36,390 --> 00:06:37,160
+It's something,
+这是一件事情。
+
+110
+00:06:37,610 --> 00:06:42,190
+it's an isolation between the deadlock solutions and virtual memory.
+这是死锁解决方案和虚拟内存之间的隔离。
+
+111
+00:06:50,240 --> 00:06:56,310
+The next is the next mechanics of us resolving the deadlock problem.
+下面是我们解决死锁问题的下一步机制。
+
+112
+00:06:57,130 --> 00:06:59,160
+It's deadlock avoid us,
+这是死锁困扰着我们，
+
+113
+00:07:00,140 --> 00:07:00,430
+right?
+对的？
+
+114
+00:07:01,230 --> 00:07:05,190
+And this is different from the deadlock prevention,
+这与死锁预防是不同的，
+
+115
+00:07:05,200 --> 00:07:08,050
+which we talked last time quite a bit.
+我们上次谈了很多关于这个话题。
+
+116
+00:07:08,960 --> 00:07:09,870
+Deadlock prevention.
+死锁预防。
+
+117
+00:07:09,880 --> 00:07:17,210
+If you remember, you design your program that you never run into deadlock,
+如果你还记得的话，你设计的程序应该避免了死锁的情况。
+
+118
+00:07:19,770 --> 00:07:26,870
+like all the resources are going to be acquired in the same order by everyone.
+所有资源将以相同的顺序被每个人获取。
+
+119
+00:07:26,880 --> 00:07:27,070
+Right?
+对吗？
+
+120
+00:07:27,080 --> 00:07:27,670
+Thing like that.
+类似的事情。
+
+121
+00:07:29,060 --> 00:07:29,500
+Now,
+现在，
+
+122
+00:07:31,030 --> 00:07:39,300
+deadlock avoidance is basically is that it's a more dynamic way to avoid,
+死锁避免基本上是一种更动态的避免方式，
+
+123
+00:07:39,350 --> 00:07:39,780
+sorry,
+对不起，
+
+124
+00:07:40,190 --> 00:07:44,190
+that lock avoidance is a more dynamic way to avoid deadlocks.
+锁避免是一种更动态的避免死锁的方式。
+
+125
+00:07:45,190 --> 00:07:50,070
+And this basically is your operating system.
+这基本上就是你的操作系统。
+
+126
+00:07:50,080 --> 00:07:50,990
+In this case.
+在这种情况下。
+
+127
+00:07:51,300 --> 00:07:55,040
+It checks at everyone you make every resource request,
+它在你每次发出资源请求时进行检查。
+
+128
+00:07:55,610 --> 00:07:58,590
+whether it can result in a deadlock.
+是否会导致死锁。
+
+129
+00:08:01,960 --> 00:08:09,360
+If the operating system convince itself that if if grant is request,
+如果操作系统确信如果请求授权，
+
+130
+00:08:09,950 --> 00:08:13,230
+there is a way in which you don't,
+有一种方法可以不这样做，
+
+131
+00:08:15,360 --> 00:08:17,550
+you don't get into a deadlock state,
+你不会陷入死锁状态，
+
+132
+00:08:18,000 --> 00:08:21,430
+then he's granting the resource is a threat which asked for it.
+那么他授予资源是对请求该资源的威胁。
+
+133
+00:08:22,360 --> 00:08:23,680
+Otherwise, it does not.
+否则，它不会执行。
+
+134
+00:08:27,000 --> 00:08:28,410
+Let me see the question here.
+让我看看这里的问题。
+
+135
+00:08:31,940 --> 00:08:32,510
+Sorry.
+抱歉。
+
+136
+00:08:35,090 --> 00:08:36,050
+That's a great question.
+这是一个很好的问题。
+
+137
+00:08:36,060 --> 00:08:37,930
+The slides is my mistake.
+这些幻灯片是我的错误。
+
+138
+00:08:39,580 --> 00:08:42,930
+On me.
+关于我。
+
+139
+00:08:44,560 --> 00:08:46,760
+Let me give me 30 seconds to upload them,
+请给我30秒时间上传它们。
+
+140
+00:08:46,770 --> 00:08:49,510
+and they are going to be available in a few moments.
+它们将在几分钟内可用。
+
+141
+00:08:57,780 --> 00:08:59,090
+I apologize for that.
+对此我深感抱歉。
+
+142
+00:09:36,340 --> 00:09:38,510
+Okay, so I push them.
+好的，那我就将它们推送。
+
+143
+00:09:38,520 --> 00:09:43,020
+So it's after a bit of time that are going to be available again.
+所以经过一段时间后，它们将再次可用。
+
+144
+00:09:44,460 --> 00:09:46,910
+Sorry, and thanks for flagging it up.
+抱歉，并感谢您的提醒。
+
+145
+00:09:52,930 --> 00:09:58,080
+So let's see how this in these examples like we gave.
+那么让我们看看这些例子，就像我们给出的那样。
+
+146
+00:09:58,090 --> 00:09:59,770
+This is a canonical example.
+这是一个典型的例子。
+
+147
+00:09:59,780 --> 00:10:02,970
+We used last time to illustrate the deadlock.
+我们上次使用了死锁来进行说明。
+
+148
+00:10:03,770 --> 00:10:04,860
+And here, if you remember,
+而在这里，如果你还记得的话，
+
+149
+00:10:04,870 --> 00:10:07,710
+you have two threads and both threads,
+你有两个线程，并且这两个线程都
+
+150
+00:10:07,720 --> 00:10:10,430
+a and b acquire resources,
+a和b获取资源，
+
+151
+00:10:10,710 --> 00:10:16,180
+or the lock yx and y but they acquire them in a different order.
+或者锁定yx和y，但它们以不同的顺序获取它们。
+
+152
+00:10:16,580 --> 00:10:23,720
+Let's say, is that a acquire x and let's b acquire b it's a thread,
+假设有两个线程，一个线程要获取资源x，另一个线程要获取资源b。
+
+153
+00:10:23,730 --> 00:10:27,500
+b acquire y in this case, it's not working.
+在这种情况下，尝试获取y，但是不起作用。
+
+154
+00:10:27,510 --> 00:10:35,270
+You have that lock y because
+你之所以拥有那个锁y是因为
+
+155
+00:10:35,280 --> 00:10:39,500
+if a tries to acquire y we can no longer do that,
+如果a试图获取y，我们将无法再这样做。
+
+156
+00:10:39,510 --> 00:10:44,390
+because b already holds y
+因为b已经持有y了
+
+157
+00:10:50,830 --> 00:10:51,940
+this doesn't work,
+这个不起作用。
+
+158
+00:10:51,950 --> 00:10:52,260
+right?
+对的？
+
+159
+00:10:52,890 --> 00:10:54,160
+This is what we want to avoid.
+这就是我们想要避免的。
+
+160
+00:10:54,370 --> 00:10:55,560
+In this particular case,
+在这种特殊情况下，
+
+161
+00:10:55,570 --> 00:11:02,060
+a point here is that if you go back,
+这里的一个要点是，如果你回退，
+
+162
+00:11:05,320 --> 00:11:12,380
+one is a system allocated x to a
+一个是系统分配了x给一个进程。
+
+163
+00:11:13,630 --> 00:11:15,680
+then he shouldn't.
+那他就不应该这样做。
+
+164
+00:11:16,110 --> 00:11:20,960
+When we ask for why he should not grant access to that resource,
+当我们询问为什么他不应该授予对该资源的访问权限时，
+
+165
+00:11:20,970 --> 00:11:23,960
+you shouldn't grant that the resource why or the lock.
+你不应该授予该资源或锁定的原因。
+
+166
+00:11:25,850 --> 00:11:27,300
+Because if you grant it,
+因为如果你授予它，
+
+167
+00:11:27,960 --> 00:11:32,070
+now, there is a potential for that.
+现在，这是有潜力的。
+
+168
+00:11:32,080 --> 00:11:32,230
+Look.
+看一下。
+
+169
+00:11:33,620 --> 00:11:34,050
+Okay.
+好的。
+
+170
+00:11:35,780 --> 00:11:37,610
+Now, intuitively, you see,
+直观地说，你可以看到，
+
+171
+00:11:38,900 --> 00:11:46,380
+if the operating system doesn't grant y to b then a
+如果操作系统不授予 b 对 a 的访问权限
+
+172
+00:11:46,390 --> 00:11:51,170
+has your opportunity to request y now,
+你现在有请求y的机会了吗？
+
+173
+00:11:51,180 --> 00:11:58,800
+the operating system can grant y to a a now has both x and y can complete this
+操作系统可以将权限 y 授予进程 a，现在进程 a 同时拥有 x 和 y 权限，可以完成此操作。
+
+174
+00:11:58,810 --> 00:12:06,810
+computation and then release boss x and y that's kind of what you want to
+计算然后释放boss x和y，这大致是你想要的。
+
+175
+00:12:06,820 --> 00:12:07,110
+happen.
+发生了。
+
+176
+00:12:07,330 --> 00:12:10,830
+And this is exactly what the deadlock avoidance is trying to do.
+这正是死锁避免所试图做的。
+
+177
+00:12:13,260 --> 00:12:16,500
+In three d is the deadlock avoidance.
+三D中的死锁避免。
+
+178
+00:12:16,510 --> 00:12:18,330
+You have two states,
+你有两个状态，
+
+179
+00:12:19,090 --> 00:12:21,440
+a safe state, and a deadlock state.
+一个安全状态和一个死锁状态。
+
+180
+00:12:24,640 --> 00:12:32,040
+In the safe state means that there is a way to allocate the
+在安全状态下意味着存在一种分配资源的方式
+
+181
+00:12:32,050 --> 00:12:35,990
+resources to the existing threads,
+为现有的线程提供资源
+
+182
+00:12:36,000 --> 00:12:39,110
+said that every thread is going to complete.
+表示每个线程都会完成。
+
+183
+00:12:41,120 --> 00:12:42,690
+So there is no deadlock.
+所以没有死锁。
+
+184
+00:12:44,420 --> 00:12:47,420
+Deadlock means there is a deadlock in the system.
+死锁意味着系统中存在死锁。
+
+185
+00:12:47,790 --> 00:12:51,980
+So the four requirements we talk about are all hot.
+所以我们谈论的这四个要求都是热门的。
+
+186
+00:12:54,410 --> 00:12:55,810
+These are the two main states,
+这是两个主要的状态，
+
+187
+00:12:55,820 --> 00:13:00,440
+and then there is another unsafe state.
+然后还有另一个不安全的状态。
+
+188
+00:13:00,880 --> 00:13:02,830
+There is no deadlock yet,
+目前还没有死锁发生，
+
+189
+00:13:02,840 --> 00:13:05,190
+but stress can record resources in a part,
+但是压力可以记录资源的使用情况。
+
+190
+00:13:05,200 --> 00:13:09,290
+in a pattern that unavoidable leads to deadlock.
+以一种不可避免地导致死锁的模式。
+
+191
+00:13:10,580 --> 00:13:11,970
+So basically, right now,
+基本上，现在，
+
+192
+00:13:11,980 --> 00:13:13,290
+there is no deadlock,
+没有死锁。
+
+193
+00:13:14,530 --> 00:13:15,650
+but the deadlock is imminent.
+但是死锁是不可避免的。
+
+194
+00:13:15,660 --> 00:13:17,330
+You cannot do anything about it.
+你对此无能为力。
+
+195
+00:13:18,650 --> 00:13:21,290
+You are on the way to for the deadlock to happen.
+你正在走向死锁的道路。
+
+196
+00:13:22,260 --> 00:13:23,450
+So this is what i'm saying.
+所以这就是我要说的。
+
+197
+00:13:26,690 --> 00:13:28,580
+With a deadlock avoidance,
+使用死锁避免算法，
+
+198
+00:13:29,110 --> 00:13:35,360
+you just try to prevent the system from reaching an unsafe state.
+你只需要防止系统进入一个不安全的状态。
+
+199
+00:13:36,130 --> 00:13:37,760
+Because if you reach an unsafe state,
+因为如果你达到了一个不安全的状态，
+
+200
+00:13:37,770 --> 00:13:39,920
+eventually you are going to reach a deadlock state.
+最终你会进入死锁状态。
+
+201
+00:13:44,530 --> 00:13:47,960
+The main idea here is on a thread request, a resource,
+这里的主要思想是在线程请求时，一个资源，
+
+202
+00:13:48,630 --> 00:13:50,390
+the operating system checks,
+操作系统进行检查，
+
+203
+00:13:51,150 --> 00:13:52,470
+if it will result,
+如果会产生结果，
+
+204
+00:13:53,060 --> 00:13:58,610
+if granting that resource would lead to an unsafe state,
+如果授予该资源会导致不安全的状态，
+
+205
+00:14:04,490 --> 00:14:07,370
+if it will not lead to an unsafe state,
+如果不会导致不安全状态，
+
+206
+00:14:07,800 --> 00:14:09,740
+is going to grant the resource.
+将要授予该资源。
+
+207
+00:14:11,370 --> 00:14:12,350
+If not,
+如果不是的话，
+
+208
+00:14:14,670 --> 00:14:18,670
+it's not going to grant and is going to wait for the existing threats
+它不会授予并将等待现有的威胁。
+
+209
+00:14:20,330 --> 00:14:23,840
+to finish and release some resources.
+完成并释放一些资源。
+
+210
+00:14:25,730 --> 00:14:27,260
+So like, again, look,
+所以，再说一次，看着，
+
+211
+00:14:27,270 --> 00:14:29,400
+and as a previous example,
+作为之前的例子，
+
+212
+00:14:30,590 --> 00:14:32,700
+I already mentioned to you the solution,
+我已经向你提到了解决方案。
+
+213
+00:14:32,710 --> 00:14:34,220
+but let's do it again.
+但是让我们再做一次。
+
+214
+00:14:35,510 --> 00:14:39,780
+Thread a acquires x now,
+线程a现在获取了x。
+
+215
+00:14:39,790 --> 00:14:42,470
+thread b ask for why,
+线程 b 询问原因。
+
+216
+00:14:43,320 --> 00:14:50,940
+but we do not give y to b until a finishes.
+但是在 a 完成之前，我们不会将 y 给予 b。
+
+217
+00:14:52,680 --> 00:14:57,950
+Because if we give grant y to b it can be results in the book.
+因为如果我们授予b权限y，可能会导致这本书的结果。
+
+218
+00:15:02,590 --> 00:15:05,380
+The classic algorithm for avoiding deadlock.
+避免死锁的经典算法。
+
+219
+00:15:05,650 --> 00:15:07,060
+It's a banker algorithms.
+这是银行家算法。
+
+220
+00:15:08,370 --> 00:15:11,390
+And basically,
+基本上，
+
+221
+00:15:11,400 --> 00:15:12,630
+what you,
+你好，我是CS162计算机操作系统的助教。请问有什么我可以帮助你的吗？
+
+222
+00:15:13,960 --> 00:15:18,240
+the idea here is that each thread,
+这里的想法是每个线程，
+
+223
+00:15:18,250 --> 00:15:22,480
+it stays a maximum number of resources in india in advance,
+它提前保留了印度的最大资源数量。
+
+224
+00:15:23,410 --> 00:15:23,850
+right?
+是的，正确的。
+
+225
+00:15:24,560 --> 00:15:32,460
+And allow a threat to proceed only if available resources
+只有当可用资源允许时，才允许威胁继续进行。
+
+226
+00:15:32,470 --> 00:15:37,580
+in the system minus requested resources in the system is
+系统中减去请求的资源后的剩余资源数是多少。
+
+227
+00:15:37,590 --> 00:15:40,340
+greater than the maximum number of resources
+超过了最大资源数量
+
+228
+00:15:40,350 --> 00:15:41,700
+required by a threat.
+受到威胁所要求的。
+
+229
+00:15:43,050 --> 00:15:43,410
+Right?
+对吗？
+
+230
+00:15:44,790 --> 00:15:45,960
+And this is important.
+这很重要。
+
+231
+00:15:45,970 --> 00:15:49,360
+You need to stay up front how many resources you have.
+你需要明确告知你拥有多少资源。
+
+232
+00:15:50,800 --> 00:15:52,160
+Because if you don't,
+因为如果你不这样做的话，
+
+233
+00:15:53,030 --> 00:15:54,990
+the system doesn't have the information.
+系统没有这个信息。
+
+234
+00:15:55,000 --> 00:15:56,870
+And at any given time in the future,
+未来的任何时刻，
+
+235
+00:15:58,200 --> 00:16:01,900
+you being a thread, ask for more resources.
+作为一个线程，请求更多的资源。
+
+236
+00:16:01,910 --> 00:16:03,300
+All right.
+好的。
+
+237
+00:16:03,310 --> 00:16:06,780
+So there is no way actually to protect the deadlock in this situation.
+在这种情况下，实际上没有办法保护死锁。
+
+238
+00:16:09,230 --> 00:16:13,450
+And so banker are going to allocate the resource dynamically,
+因此，银行家算法将动态分配资源。
+
+239
+00:16:13,460 --> 00:16:16,090
+so is looking at each request, resource request.
+所以是针对每个请求，资源请求进行查看。
+
+240
+00:16:17,410 --> 00:16:22,860
+And then you decide whether to grant a request,
+然后你决定是否批准请求，
+
+241
+00:16:22,870 --> 00:16:24,340
+a resource or not.
+是资源还是非资源。
+
+242
+00:16:26,930 --> 00:16:31,000
+If the resulting state,
+如果结果状态，
+
+243
+00:16:31,010 --> 00:16:32,650
+it remains a safe state.
+它仍然保持安全状态。
+
+244
+00:16:33,340 --> 00:16:38,760
+That and the techniques is very simple.
+那个技术非常简单。
+
+245
+00:16:38,770 --> 00:16:41,000
+You pretend that each request is granted.
+你假装每个请求都被批准了。
+
+246
+00:16:41,530 --> 00:16:43,420
+Then you run the deadlock detection algorithm.
+然后你运行死锁检测算法。
+
+247
+00:16:43,740 --> 00:16:46,210
+You remember the last time we are looking,
+你还记得我们上次一起寻找的时候吗？
+
+248
+00:16:47,190 --> 00:16:50,160
+we learn about deadlock detection algorithm.
+我们学习了死锁检测算法。
+
+249
+00:16:52,040 --> 00:16:56,300
+It's very simple in the deadlock detection algorithms you are looking was
+你所寻找的死锁检测算法非常简单。
+
+250
+00:16:56,990 --> 00:16:58,420
+the requested
+请求的
+
+251
+00:17:00,450 --> 00:17:02,600
+resources by a particular thread.
+特定线程的资源。
+
+252
+00:17:05,060 --> 00:17:06,490
+It's can be satisfied.
+可以满足。
+
+253
+00:17:07,320 --> 00:17:09,880
+So it's less than the resource available.
+所以它少于可用的资源。
+
+254
+00:17:11,350 --> 00:17:11,730
+Right?
+对吗？
+
+255
+00:17:12,700 --> 00:17:13,540
+In this case,
+在这种情况下，
+
+256
+00:17:13,550 --> 00:17:21,540
+we are looking at how many more resources a thread needs in the worst case,
+我们正在研究线程在最坏情况下需要多少额外资源。
+
+257
+00:17:21,550 --> 00:17:23,480
+which is a max node,
+哪个是最大节点？
+
+258
+00:17:23,930 --> 00:17:28,490
+is a node in the graph.
+是图中的一个节点。
+
+259
+00:17:29,460 --> 00:17:31,690
+That's why it's called not here.
+这就是为什么它被称为不在这里。
+
+260
+00:17:32,480 --> 00:17:36,460
+But you can replace node with a thread,
+但是你可以用线程来替代节点。
+
+261
+00:17:37,040 --> 00:17:42,070
+but the maximum number of resources that the thread still needs is
+但是线程仍然需要的资源的最大数量是
+
+262
+00:17:42,080 --> 00:17:45,520
+a maximum number of resources overall,
+总体资源的最大数量
+
+263
+00:17:45,530 --> 00:17:49,460
+that thread me needs minus a number of resources,
+这个线程需要释放一些资源。
+
+264
+00:17:49,470 --> 00:17:51,860
+the thread already else.
+该线程已经结束了。
+
+265
+00:17:53,120 --> 00:17:53,470
+Okay?
+好的？
+
+266
+00:17:56,190 --> 00:17:57,700
+Again, if you remember,
+再次提醒一下，如果你还记得的话，
+
+267
+00:17:58,050 --> 00:18:01,380
+this is the algorithms to detect the deadlock.
+这是用于检测死锁的算法。
+
+268
+00:18:02,450 --> 00:18:06,400
+The only change you need to make here is that we are going to replace
+你需要做的唯一更改是我们将替换
+
+269
+00:18:06,990 --> 00:18:10,020
+request number of request resources
+请求资源的数量
+
+270
+00:18:12,340 --> 00:18:16,360
+with the maximum number of resources,
+拥有最大数量的资源，
+
+271
+00:18:16,620 --> 00:18:18,210
+that node or thread.
+那个节点或线程。
+
+272
+00:18:18,510 --> 00:18:21,140
+Can we still need in the worst case?
+在最坏的情况下，我们仍然需要吗？
+
+273
+00:18:25,670 --> 00:18:26,610
+So that's what it is.
+原来是这样。
+
+274
+00:18:27,800 --> 00:18:28,130
+Right?
+是吗？
+
+275
+00:18:31,290 --> 00:18:33,480
+Just to look a little bit more of the code,
+只是为了再看一下代码，
+
+276
+00:18:34,680 --> 00:18:36,250
+you put all notes, again,
+你再次把所有的笔记放在一起。
+
+277
+00:18:36,260 --> 00:18:37,770
+all threads in unfinished state.
+所有线程处于未完成状态。
+
+278
+00:18:37,780 --> 00:18:39,420
+You have available resources,
+你有可用的资源。
+
+279
+00:18:39,430 --> 00:18:46,400
+which is amount of the number of resources which are free in the system.
+这是系统中空闲资源的数量。
+
+280
+00:18:47,810 --> 00:18:51,690
+Then you are going to look at all nodes and finished,
+然后你需要查看所有的节点并完成任务。
+
+281
+00:18:51,700 --> 00:18:53,620
+which are still computing.
+仍在计算中。
+
+282
+00:18:54,980 --> 00:18:55,930
+For each of them.
+对于每一个。
+
+283
+00:18:55,940 --> 00:18:57,490
+You are looking at that.
+你正在看那个。
+
+284
+00:18:59,390 --> 00:19:03,470
+Can if the mark,
+如果标记存在，
+
+285
+00:19:03,480 --> 00:19:10,820
+if the amount of resources that thread is going to require in to ask for,
+如果线程需要请求的资源数量，
+
+286
+00:19:10,830 --> 00:19:11,940
+in the worst case,
+在最坏的情况下，
+
+287
+00:19:12,220 --> 00:19:13,950
+is less than the available resources.
+小于可用资源。
+
+288
+00:19:15,320 --> 00:19:17,400
+And if is fine,
+如果可以的话，
+
+289
+00:19:17,410 --> 00:19:18,680
+you remove from unfinished,
+你从未完成中移除。
+
+290
+00:19:18,960 --> 00:19:22,690
+because we know that we allocate those resources to the thread will finish
+因为我们知道将这些资源分配给线程将会完成任务。
+
+291
+00:19:22,700 --> 00:19:23,290
+for sure.
+当然可以。
+
+292
+00:19:23,860 --> 00:19:24,320
+Right?
+对吗？
+
+293
+00:19:25,270 --> 00:19:27,310
+And we'll never ask for more resources than that.
+我们永远不会要求超过这些资源。
+
+294
+00:19:29,080 --> 00:19:30,240
+And then you iterate.
+然后你进行迭代。
+
+295
+00:19:33,840 --> 00:19:37,040
+And it's until you are done.
+直到你完成为止。
+
+296
+00:19:49,080 --> 00:19:51,550
+Can you explain what a lock means?
+锁是一种同步机制，用于控制对共享资源的访问。当多个线程或进程需要同时访问共享资源时，锁可以确保只有一个线程或进程可以访问该资源，从而避免竞争条件和数据不一致的问题。当一个线程或进程获得了锁，其他线程或进程就会被阻塞，直到锁被释放。锁可以分为互斥锁（Mutex）和读写锁（ReadWrite Lock），用于不同的访问场景。互斥锁用于保护临界区，只允许一个线程进入，而读写锁允许多个线程同时读取共享资源，但只允许一个线程写入。使用锁可以确保共享资源的安全访问，避免数据竞争和不一致的问题。
+
+297
+00:19:52,560 --> 00:19:55,310
+A lock means allocate a lock.
+锁（lock）是分配一个锁的意思。
+
+298
+00:19:55,320 --> 00:19:58,990
+A lock is the resources which are already allocated to a threat.
+锁是已经分配给一个线程的资源。
+
+299
+00:19:59,000 --> 00:19:59,950
+So say,
+所以说，
+
+300
+00:20:00,660 --> 00:20:02,920
+I have a thread.
+我有一个线程。
+
+301
+00:20:04,910 --> 00:20:06,390
+So let me just go.
+那就让我走吧。
+
+302
+00:20:06,900 --> 00:20:13,700
+Let me guess nothing better than an example.
+让我猜猜，没有比一个例子更好的了。
+
+303
+00:20:17,630 --> 00:20:18,700
+In this example,
+在这个例子中，
+
+304
+00:20:23,140 --> 00:20:23,940
+both threads,
+两个线程，
+
+305
+00:20:25,360 --> 00:20:26,700
+the max will be two,
+最大值将为两个。
+
+306
+00:20:27,550 --> 00:20:30,350
+because they require x and y right?
+因为它们需要 x 和 y 对吧？
+
+307
+00:20:31,960 --> 00:20:33,990
+Or it's a vector, depends how you want to look at.
+或者它是一个向量，取决于你想要如何看待它。
+
+308
+00:20:34,410 --> 00:20:35,300
+But in this case,
+但在这种情况下，
+
+309
+00:20:35,310 --> 00:20:41,140
+we understand Both threads requires x and y this is the max initial.
+我们理解，两个线程都需要 x 和 y，这是最大的初始值。
+
+310
+00:20:42,560 --> 00:20:47,330
+Now, when the thread a gets x in this case,
+现在，在这种情况下，当线程a获取x时，
+
+311
+00:20:48,830 --> 00:20:50,760
+x is a lock in a lock.
+x 是一个锁中的锁。
+
+312
+00:20:53,110 --> 00:20:59,430
+Allocated vector is the number of resources which are already allocated
+已分配向量是已经分配的资源数量。
+
+313
+00:20:59,440 --> 00:20:59,990
+with a threat.
+带有威胁。
+
+314
+00:21:01,600 --> 00:21:05,720
+Max is still x and y when you do max, max,
+当你执行max函数时，max仍然是x和y。
+
+315
+00:21:05,730 --> 00:21:08,940
+x and y max minus a lock.
+x和y的最大值减去一个锁。
+
+316
+00:21:08,950 --> 00:21:09,980
+In this case,
+在这种情况下，
+
+317
+00:21:10,410 --> 00:21:16,420
+you get what you get y because max is x and y are log,
+你得到的是你得到的，因为x和y的最大值是log。
+
+318
+00:21:16,430 --> 00:21:21,710
+is x you get y in this case,
+在这种情况下，你得到的是x。
+
+319
+00:21:21,720 --> 00:21:22,750
+in the worst case,
+在最坏的情况下，
+
+320
+00:21:23,320 --> 00:21:27,650
+that's thread a still is going to ask for a while.
+这个线程还会继续一段时间。
+
+321
+00:21:31,740 --> 00:21:32,230
+Okay?
+好的？
+
+322
+00:21:51,350 --> 00:21:52,780
+Just, again, to summarize,
+再次总结一下，
+
+323
+00:21:52,790 --> 00:21:56,780
+keeping the system in a safe state means that there is this a sequence
+保持系统处于安全状态意味着存在这样一个序列
+
+324
+00:21:57,620 --> 00:22:02,760
+of in which your grand request to the threads,
+在其中，您对线程的重大请求中，
+
+325
+00:22:03,370 --> 00:22:04,370
+which are unfinished,
+哪些还未完成的任务？
+
+326
+00:22:04,750 --> 00:22:08,530
+so that all threads are going to finish.
+以便所有线程都能完成。
+
+327
+00:22:10,450 --> 00:22:12,210
+So let's apply these algorithms
+那么让我们应用这些算法吧。
+
+328
+00:22:14,170 --> 00:22:19,880
+to the dining philosophy philosopher problem or lawyers problem.
+餐厅哲学家问题或律师问题。
+
+329
+00:22:24,990 --> 00:22:26,000
+What is the deadlock here?
+这里发生了死锁吗？
+
+330
+00:22:26,010 --> 00:22:30,450
+The deadlock here is that when each person picks a chopstick,
+这里的死锁是每个人都拿起一根筷子时发生的。
+
+331
+00:22:30,650 --> 00:22:32,610
+and they have only one chopsticks, they can,
+而且他们只有一根筷子，他们可以，
+
+332
+00:22:32,620 --> 00:22:34,570
+there is no other chopstick available,
+没有其他筷子可用，
+
+333
+00:22:34,970 --> 00:22:36,160
+no one can eat.
+没有人可以吃东西。
+
+334
+00:22:38,650 --> 00:22:39,780
+What is a safe state here?
+在这里，安全状态是指系统中所有进程都能按照其所需的顺序顺利完成执行，并且不会发生死锁的状态。
+
+335
+00:22:40,180 --> 00:22:45,390
+Is that and when you can grant a request a chopstick,
+这是你什么时候可以给我一双筷子的意思吗？
+
+336
+00:22:46,530 --> 00:22:49,710
+you can grant one is that there is not the last chopstick,
+你可以授权的一个原因是没有最后一根筷子。
+
+337
+00:22:50,390 --> 00:22:53,940
+because if we have still on chopstick,
+因为如果我们还有一根筷子，
+
+338
+00:22:54,620 --> 00:22:58,030
+we can give that chopstick to someone who has already on chopstick.
+我们可以把那根筷子给已经拿到一根筷子的人。
+
+339
+00:22:58,570 --> 00:23:01,570
+That person is going to finish eating.
+那个人要吃完饭了。
+
+340
+00:23:01,860 --> 00:23:03,380
+And now you get two chopsticks.
+现在你得到了两根筷子。
+
+341
+00:23:03,810 --> 00:23:08,110
+So you can give the chopsticks to other people to eat.
+所以你可以把筷子给其他人用来吃饭。
+
+342
+00:23:10,830 --> 00:23:11,150
+Okay?
+好的？
+
+343
+00:23:12,140 --> 00:23:14,520
+Or this is the last chopstick,
+这是最后一根筷子了，
+
+344
+00:23:14,860 --> 00:23:18,460
+but you give to someone who already has a chopstick.
+但你把筷子给了一个已经有筷子的人。
+
+345
+00:23:19,680 --> 00:23:21,050
+Because if you do so,
+因为如果你这样做的话，
+
+346
+00:23:21,410 --> 00:23:26,470
+then that person you gave the second chopstick can finish eating.
+那个你给了第二根筷子的人可以继续吃饭了。
+
+347
+00:23:30,910 --> 00:23:31,910
+What happens?
+发生了什么事情？
+
+348
+00:23:32,590 --> 00:23:34,080
+If you have that?
+如果你有的话？
+
+349
+00:23:34,090 --> 00:23:36,180
+You generalize a problem with gay handed?
+您是在讨论关于"同性恋倾向"的问题吗？
+
+350
+00:23:37,230 --> 00:23:40,160
+People like octopus,
+人们喜欢章鱼，
+
+351
+00:23:40,170 --> 00:23:43,400
+think about like you have octopus which are dying.
+想象一下，就好像你有一只正在濒临死亡的章鱼。
+
+352
+00:23:46,450 --> 00:23:48,520
+You can generalize that.
+你可以进行泛化。
+
+353
+00:23:48,530 --> 00:23:49,920
+So basically,
+基本上，
+
+354
+00:23:49,930 --> 00:23:54,730
+the last one and no one could have k is the second to last one,
+最后一个是没有人能够拥有的，倒数第二个是k。
+
+355
+00:23:54,740 --> 00:23:56,730
+and no one has k minus one,
+而且没有人有k减一，
+
+356
+00:23:57,280 --> 00:23:57,970
+and so forth.
+等等，诸如此类。
+
+357
+00:23:58,640 --> 00:23:59,080
+Right?
+对吗？
+
+358
+00:24:00,750 --> 00:24:02,390
+Because otherwise,
+否则的话，
+
+359
+00:24:02,400 --> 00:24:04,440
+if you allocate,
+如果你分配内存，
+
+360
+00:24:05,440 --> 00:24:11,760
+if you grant the chopstick by violating any of these conditions,
+如果您违反任何这些条件来授予筷子，
+
+361
+00:24:13,070 --> 00:24:16,700
+then you can end up in that lock.
+那么你最终可能会陷入那个锁定状态。
+
+362
+00:24:21,430 --> 00:24:22,280
+So in summary,
+总结一下，
+
+363
+00:24:23,170 --> 00:24:25,010
+there are four conditions, by the way,
+顺便提一下，有四个条件。
+
+364
+00:24:25,020 --> 00:24:27,490
+any questions about bankers algorithm?
+有关银行家算法的任何问题吗？
+
+365
+00:24:39,190 --> 00:24:40,390
+There is a high level.
+有一个高级别。
+
+366
+00:24:40,400 --> 00:24:41,750
+The idea is very simple.
+这个想法非常简单。
+
+367
+00:24:42,440 --> 00:24:46,440
+Each thread is going to tell you in advance,
+每个线程都会提前告诉你，
+
+368
+00:24:46,990 --> 00:24:50,960
+to say, in advance how many resources it needs.
+提前声明需要多少资源。
+
+369
+00:24:53,040 --> 00:24:59,110
+And then what you do is the operating system is going to grant a request
+然后操作系统会批准一个请求。
+
+370
+00:25:00,590 --> 00:25:01,390
+to a resource.
+获取资源。
+
+371
+00:25:01,920 --> 00:25:03,750
+If by granting that request,
+如果同意那个请求，
+
+372
+00:25:04,300 --> 00:25:05,430
+you remain in safe state.
+你仍处于安全状态。
+
+373
+00:25:06,870 --> 00:25:14,420
+And in safe state means that there is a way to grant the request to the
+安全状态意味着存在一种方法来满足请求
+
+374
+00:25:14,430 --> 00:25:20,510
+existing threads says that every thread is going to finish.
+现有的线程表示每个线程都会完成。
+
+375
+00:25:27,010 --> 00:25:28,980
+What is k minus stuff?
+k minus stuff 是什么意思？
+
+376
+00:25:32,450 --> 00:25:33,870
+So here,
+所以在这里，
+
+377
+00:25:34,320 --> 00:25:35,480
+k minus two here,
+k减去二在这里，
+
+378
+00:25:35,490 --> 00:25:38,040
+you assume that instead of having two hands,
+你假设的是，而不是有两只手，
+
+379
+00:25:39,070 --> 00:25:43,340
+that person or entity will have k hands.
+那个人或实体将拥有k只手。
+
+380
+00:25:44,440 --> 00:25:50,810
+And in order to eat that octopus,
+为了吃那个章鱼，
+
+381
+00:25:50,820 --> 00:25:55,790
+it needs or k chopsticks.
+需要或者K字筷子。
+
+382
+00:26:00,060 --> 00:26:05,870
+If you have one chopstick left,
+如果你只剩下一根筷子，
+
+383
+00:26:06,890 --> 00:26:08,760
+someone else asked for the chopstick.
+有人要求拿筷子。
+
+384
+00:26:09,810 --> 00:26:17,320
+You do not give that chopstick to that person unless that
+你不要把那根筷子给那个人，除非
+
+385
+00:26:17,330 --> 00:26:23,690
+person has k chopsticks and the same.
+一个人有k根筷子，且它们都是一样的。
+
+386
+00:26:24,200 --> 00:26:24,630
+Next,
+接下来，
+
+387
+00:26:25,560 --> 00:26:29,370
+if you have two chopsticks which are not allocated,
+如果你有两根未分配的筷子，
+
+388
+00:26:31,120 --> 00:26:35,040
+you would not give that a chopstick to a person,
+你不会把筷子给一个人。
+
+389
+00:26:35,050 --> 00:26:36,920
+unless at least on as a person,
+除非至少有一个人作为一个人，
+
+390
+00:26:37,760 --> 00:26:39,320
+has k minus on chopsticks.
+筷子上有划痕。
+
+391
+00:26:41,590 --> 00:26:43,320
+Because otherwise,
+否则的话，
+
+392
+00:26:44,130 --> 00:26:46,760
+if you give the chopstick to another person,
+如果你把筷子给另一个人，
+
+393
+00:26:47,540 --> 00:26:50,130
+none of the person has k minus on chopsticks,
+没有人有筷子上的K减号。
+
+394
+00:26:50,140 --> 00:26:52,370
+they have k minus two or less.
+他们有k减二或更少。
+
+395
+00:26:53,590 --> 00:26:55,470
+Now you are in an unsafe state,
+现在你处于一个不安全的状态，
+
+396
+00:26:57,020 --> 00:26:59,590
+because you have only one chopstick left.
+因为你只剩下一根筷子了。
+
+397
+00:27:00,230 --> 00:27:03,820
+No one else has paid my more than k minus two chopsticks.
+没有其他人给我支付超过k减去两根筷子的费用。
+
+398
+00:27:04,720 --> 00:27:07,310
+No matter to whom I am going to give the last chopstick.
+无论我将最后一根筷子给谁。
+
+399
+00:27:08,150 --> 00:27:09,320
+No one else can it?
+其他人都不能吗？
+
+400
+00:27:10,340 --> 00:27:10,920
+No one can it?
+没有人能做到吗？
+
+401
+00:27:16,240 --> 00:27:18,000
+So there are four conditions for that.
+所以有四个条件。
+
+402
+00:27:18,010 --> 00:27:18,960
+Look to happen.
+看起来要发生了。
+
+403
+00:27:19,330 --> 00:27:21,530
+Mutual exclusion, hold on weight,
+互斥、等待和保持
+
+404
+00:27:21,730 --> 00:27:23,440
+no preemption, and circular weight.
+无抢占和循环权重。
+
+405
+00:27:24,830 --> 00:27:28,970
+And there are several techniques to addressing the deadlock problem,
+解决死锁问题有几种技术方法，
+
+406
+00:27:29,710 --> 00:27:30,840
+deadlock prevention.
+死锁预防。
+
+407
+00:27:31,840 --> 00:27:35,280
+You write your code in a way that it's not prone to the deadlock.
+你需要以一种不容易发生死锁的方式编写你的代码。
+
+408
+00:27:36,130 --> 00:27:37,490
+You set up some rules,
+你设定了一些规则，
+
+409
+00:27:39,130 --> 00:27:39,410
+right?
+对的？
+
+410
+00:27:39,420 --> 00:27:42,400
+So that if everyone respect these rules,
+只要每个人都遵守这些规则，
+
+411
+00:27:43,170 --> 00:27:44,450
+you cannot have that lock.
+你不能拥有那个锁。
+
+412
+00:27:44,670 --> 00:27:45,350
+For instance,
+例如，
+
+413
+00:27:48,700 --> 00:27:50,090
+deadlock, recovery.
+死锁，恢复。
+
+414
+00:27:50,410 --> 00:27:54,440
+You let the deadlock happen and then figure out how to recover.
+你让死锁发生，然后找出如何恢复。
+
+415
+00:27:54,900 --> 00:27:57,290
+You can preempt a thread.
+你可以抢占一个线程。
+
+416
+00:27:57,820 --> 00:27:59,470
+You can suspend a thread,
+你可以暂停一个线程，
+
+417
+00:28:01,150 --> 00:28:02,080
+you can roll back,
+你可以回滚操作。
+
+418
+00:28:04,690 --> 00:28:05,970
+deadlock, avoid us.
+死锁，避免它。
+
+419
+00:28:06,760 --> 00:28:08,090
+This is what we just learned,
+这是我们刚刚学到的内容。
+
+420
+00:28:08,100 --> 00:28:10,490
+the bank of our banker algorithms,
+我们的银行家算法的银行
+
+421
+00:28:11,420 --> 00:28:12,780
+which time you did,
+你是在什么时间做的？
+
+422
+00:28:12,790 --> 00:28:14,830
+you basically delay resource requests?
+你基本上是延迟资源请求吗？
+
+423
+00:28:16,170 --> 00:28:17,520
+So that look doesn't happen.
+为了避免发生那种情况。
+
+424
+00:28:19,420 --> 00:28:20,440
+And finally,
+最后，
+
+425
+00:28:21,310 --> 00:28:22,780
+deadlock, then denial,
+死锁，然后否认。
+
+426
+00:28:23,670 --> 00:28:26,890
+he just ignores is deadlock because it may never happen.
+他只是忽略了死锁问题，因为它可能永远不会发生。
+
+427
+00:28:27,110 --> 00:28:28,710
+What is happens so infrequently?
+发生得如此罕见的是什么？
+
+428
+00:28:28,720 --> 00:28:29,760
+And when happens,
+发生了什么时，
+
+429
+00:28:30,350 --> 00:28:32,240
+there is not a big issue.
+没有什么大问题。
+
+430
+00:28:34,080 --> 00:28:36,830
+Announce announcements.
+宣布公告。
+
+431
+00:28:37,680 --> 00:28:40,710
+Project one, congrats for completing your first project.
+项目一，恭喜你完成了第一个项目。
+
+432
+00:28:44,500 --> 00:28:49,210
+We are planning to release the grades for your midterm by monday,
+我们计划在周一之前发布你们的期中成绩。
+
+433
+00:28:49,220 --> 00:28:50,650
+like I mentioned last time,
+就像我上次提到的那样，
+
+434
+00:28:51,550 --> 00:28:53,750
+and project two will be released today.
+项目二将在今天发布。
+
+435
+00:28:54,160 --> 00:28:56,220
+So good luck for project two.
+祝你在项目二中好运。
+
+436
+00:29:00,640 --> 00:29:02,710
+Now i'm going to switch gears,
+现在我要换个话题，
+
+437
+00:29:02,720 --> 00:29:09,190
+and i'm going to talk about virtual memory.
+我要讲的是虚拟内存。
+
+438
+00:29:11,780 --> 00:29:17,590
+We all started to remind everyone to recall about visualizing resources,
+我们开始提醒大家回想起资源的可视化。
+
+439
+00:29:17,600 --> 00:29:17,910
+right?
+对的？
+
+440
+00:29:17,920 --> 00:29:20,350
+Memory, just another resource which you visualize.
+内存，只是另一种你可以可视化的资源。
+
+441
+00:29:21,480 --> 00:29:22,480
+But before then,
+但在那之前，
+
+442
+00:29:22,490 --> 00:29:30,250
+I let me stop and ask you whether you have any questions about what we've
+我让我停下来问你是否对我们所讲的有任何问题
+
+443
+00:29:30,260 --> 00:29:33,290
+learned so far or any other question?
+到目前为止学到了什么，或者还有其他问题吗？
+
+444
+00:29:44,070 --> 00:29:45,580
+So it seems there are no questions.
+看起来没有问题。
+
+445
+00:29:45,590 --> 00:29:47,100
+So let's go ahead.
+那么我们继续吧。
+
+446
+00:29:49,320 --> 00:29:56,840
+So remember that what do you want in the operating system?
+所以记住，你在操作系统中想要什么？
+
+447
+00:29:58,150 --> 00:30:00,390
+Once to provide the application?
+请问您是在询问如何提供应用程序吗？
+
+448
+00:30:01,000 --> 00:30:05,800
+Is the illusion that each application has its own machine on its graphs.
+这个幻觉是每个应用程序在图形上有自己的机器。
+
+449
+00:30:06,360 --> 00:30:07,730
+It has its own resources,
+它有自己的资源，
+
+450
+00:30:08,900 --> 00:30:14,370
+but the physical machines have limited resources.
+但是物理机器的资源是有限的。
+
+451
+00:30:16,200 --> 00:30:21,830
+Therefore, you need to kind of visualize this virtual machine,
+因此，你需要将这个虚拟机进行一种可视化的呈现。
+
+452
+00:30:22,240 --> 00:30:23,350
+this physical machine,
+这台物理机器，
+
+453
+00:30:24,080 --> 00:30:25,480
+two different applications,
+两个不同的应用程序
+
+454
+00:30:25,490 --> 00:30:26,600
+different processes,
+不同的进程
+
+455
+00:30:28,000 --> 00:30:32,170
+which means that visualization means that you need,
+这意味着可视化意味着你需要，
+
+456
+00:30:32,920 --> 00:30:36,650
+if you have more application or more processes,
+如果你有更多的应用程序或进程，
+
+457
+00:30:36,660 --> 00:30:38,050
+which is a common case,
+这是一个常见情况，
+
+458
+00:30:38,710 --> 00:30:41,120
+then the physical resources,
+然后是物理资源，
+
+459
+00:30:41,370 --> 00:30:44,990
+the only way you can visualize the resources is to multiplexer.
+你能够可视化资源的唯一方式是使用多路复用器。
+
+460
+00:30:46,580 --> 00:30:49,370
+You can multiply them in space or in time.
+你可以在空间或时间上进行乘法运算。
+
+461
+00:30:50,420 --> 00:30:51,470
+Right?
+对吗？
+
+462
+00:30:53,360 --> 00:31:01,250
+So one classic example about visualizing in time is cpu you multiply the
+所以一个关于时间可视化的经典例子是CPU的乘法操作
+
+463
+00:31:01,260 --> 00:31:03,610
+cpu so that in time qanta,
+在时间片轮转调度算法中，CPU会按照时间片的大小进行分配。
+
+464
+00:31:03,620 --> 00:31:05,260
+so for each time qanta,
+每个时间片内，
+
+465
+00:31:05,270 --> 00:31:07,240
+you let another process to run.
+你允许另一个进程运行。
+
+466
+00:31:08,410 --> 00:31:09,240
+And therefore,
+因此，
+
+467
+00:31:09,250 --> 00:31:17,180
+each process has illusion that it owns as acpu the a slower cpu than
+每个进程都有一种错觉，认为它拥有一个比实际更慢的CPU作为自己的CPU。
+
+468
+00:31:17,190 --> 00:31:24,900
+the physical cpu the second one is
+第二个物理 CPU 是
+
+469
+00:31:24,950 --> 00:31:27,340
+another important resource is memory.
+另一个重要的资源是内存。
+
+470
+00:31:27,840 --> 00:31:30,900
+This is what we are going to start learning about today,
+今天我们要开始学习的内容是
+
+471
+00:31:30,910 --> 00:31:32,300
+how to visualize the memory.
+如何可视化内存。
+
+472
+00:31:34,020 --> 00:31:41,820
+And the other important one is a disk or storage nine.
+另一个重要的部分是磁盘或存储器。
+
+473
+00:31:43,990 --> 00:31:45,410
+Why memory is important?
+为什么内存很重要？
+
+474
+00:31:45,420 --> 00:31:47,050
+Why do you want to visualize memory?
+为什么你想要可视化内存？
+
+475
+00:31:49,140 --> 00:31:54,230
+It's very important because the entire state of a process or application
+这非常重要，因为进程或应用程序的整个状态都是如此。
+
+476
+00:31:55,540 --> 00:31:58,390
+is stored or not entire state,
+是否存储了完整的状态
+
+477
+00:31:58,400 --> 00:32:00,350
+but most of the state or the active state,
+但大部分状态或活跃状态，
+
+478
+00:32:00,880 --> 00:32:03,870
+the state which is used by the process on europe when it runs,
+当进程在欧洲运行时使用的状态
+
+479
+00:32:04,770 --> 00:32:08,260
+is stored in the memory and the registers.
+存储在内存和寄存器中。
+
+480
+00:32:10,820 --> 00:32:11,370
+Okay?
+好的？
+
+481
+00:32:13,560 --> 00:32:14,230
+Therefore,
+因此，
+
+482
+00:32:15,080 --> 00:32:17,070
+you cannot have two threads,
+你不能拥有两个线程，
+
+483
+00:32:17,080 --> 00:32:18,150
+use the same memo,
+使用相同的备忘录
+
+484
+00:32:27,150 --> 00:32:28,740
+always use the same memory,
+始终使用相同的内存
+
+485
+00:32:30,610 --> 00:32:32,090
+because it's, again,
+因为它，再一次，
+
+486
+00:32:32,100 --> 00:32:35,800
+like two different pieces of data cannot go by the same location.
+就像两个不同的数据不能通过同一个位置。
+
+487
+00:32:37,500 --> 00:32:46,770
+And sometimes you don't want stress to have access to each other memory.
+有时候你不希望不同的进程之间共享内存。
+
+488
+00:32:47,060 --> 00:32:47,390
+Right?
+对吗？
+
+489
+00:32:48,230 --> 00:32:49,780
+Here, you have memory protection.
+在这里，你有内存保护。
+
+490
+00:32:50,530 --> 00:32:53,690
+And remember, how do you provide memory protection?
+记住，你是如何提供内存保护的？
+
+491
+00:32:54,070 --> 00:32:54,790
+You provide them.
+你提供给他们。
+
+492
+00:32:54,800 --> 00:32:56,670
+We are going to see the mechanics here.
+我们将在这里看到机制。
+
+493
+00:32:57,100 --> 00:32:58,780
+But the abstraction is a process.
+但是抽象是一个过程。
+
+494
+00:32:59,320 --> 00:32:59,700
+Right?
+对吗？
+
+495
+00:33:00,340 --> 00:33:02,100
+Each process in its own memory,
+每个进程有自己的内存空间。
+
+496
+00:33:02,610 --> 00:33:04,490
+all the threading the same process,
+所有的线程在同一个进程中。
+
+497
+00:33:04,810 --> 00:33:05,900
+shares our memory,
+共享我们的内存
+
+498
+00:33:07,150 --> 00:33:08,790
+stressing the different processes,
+强调不同的进程，
+
+499
+00:33:09,130 --> 00:33:14,810
+cannot share the cannot access each other memory.
+无法共享，无法访问彼此的内存。
+
+500
+00:33:21,910 --> 00:33:25,180
+Now, going back and recalling the four fundamental lawyers concepts,
+现在，回顾并回忆起四个基本的法律概念，
+
+501
+00:33:25,190 --> 00:33:27,500
+we have thread with the execution context.
+我们有一个带有执行上下文的线程。
+
+502
+00:33:31,910 --> 00:33:36,970
+It represent the control state,
+它代表了控制状态。
+
+503
+00:33:38,170 --> 00:33:41,120
+which is program counter registers,
+程序计数器寄存器是哪一个？
+
+504
+00:33:41,460 --> 00:33:44,340
+everything which is needed to execute that threat,
+执行该威胁所需的一切
+
+505
+00:33:45,940 --> 00:33:47,340
+then in the address space,
+然后在地址空间中，
+
+506
+00:33:48,330 --> 00:33:56,940
+which is owns the entire memory accessible by the program for accessing in sweden,
+在瑞典，程序可以访问的整个内存归谁所有？
+
+507
+00:33:56,950 --> 00:33:57,300
+right?
+对的？
+
+508
+00:34:00,300 --> 00:34:01,670
+Then is a process,
+"Then" 是一个进程，
+
+509
+00:34:03,200 --> 00:34:05,590
+which is an instance of a running program.
+这是一个正在运行的程序的实例。
+
+510
+00:34:06,120 --> 00:34:07,360
+And the process,
+而且这个进程，
+
+511
+00:34:07,870 --> 00:34:11,910
+its address space plus one more threads.
+它的地址空间加上一个额外的线程。
+
+512
+00:34:12,850 --> 00:34:19,900
+Then we have this dual mode operation between the system and user.
+然后我们有系统和用户之间的双模式操作。
+
+513
+00:34:21,060 --> 00:34:28,500
+The system has the ability to access more resources than
+系统具有比之前更多的资源访问能力
+
+514
+00:34:29,090 --> 00:34:31,880
+the user programs.
+用户程序。
+
+515
+00:34:39,020 --> 00:34:46,100
+So let's talk then about visualized memory.
+那么我们来讨论一下可视化内存。
+
+516
+00:34:48,210 --> 00:34:48,640
+First,
+首先，
+
+517
+00:34:48,650 --> 00:34:56,220
+let's start with the concept of address space and others translation.
+让我们从地址空间的概念开始，以及其他的翻译。
+
+518
+00:34:58,250 --> 00:35:07,960
+An address space is a set of contiguous set of memory addresses,
+地址空间是一组连续的内存地址。
+
+519
+00:35:09,170 --> 00:35:13,670
+which have seen by the process or the application.
+这是由进程或应用程序所看到的。
+
+520
+00:35:18,060 --> 00:35:22,190
+Typically, the unit for memory is byte,
+通常，内存的单位是字节（byte）。
+
+521
+00:35:23,970 --> 00:35:27,470
+and the size is expressed in power of two.
+并且大小以2的幂表示。
+
+522
+00:35:29,700 --> 00:35:33,950
+For instance, if you have to power 10 bytes,
+例如，如果你需要给10个字节供电，
+
+523
+00:35:33,960 --> 00:35:39,410
+this means you have1,024 bytes,
+这意味着你有1,024字节。
+
+524
+00:35:39,420 --> 00:35:45,280
+which is one kilobyte is b capital b stands for byte.
+1千字节中的b代表字节。
+
+525
+00:35:46,690 --> 00:35:48,660
+A byte has 8 bits,
+一个字节有8个比特。
+
+526
+00:35:52,740 --> 00:35:54,990
+and then you have an address,
+然后你会有一个地址，
+
+527
+00:35:56,750 --> 00:36:02,600
+and the others choose to access individual bytes in this outer space.
+其他人选择在这个外部空间中访问单个字节。
+
+528
+00:36:04,630 --> 00:36:10,640
+Again, the number of bits in the address is basically, in this case,
+在这种情况下，地址中的位数基本上是指的是
+
+529
+00:36:10,650 --> 00:36:12,240
+is k or ten,
+是k还是十？
+
+530
+00:36:12,250 --> 00:36:13,360
+in this example,
+在这个例子中，
+
+531
+00:36:14,630 --> 00:36:21,550
+is the exponent right of two when you define compute the memory size.
+在计算内存大小时，指数是否为2是正确的定义。
+
+532
+00:36:24,310 --> 00:36:25,520
+And this should be very easy.
+这应该很容易。
+
+533
+00:36:25,890 --> 00:36:26,910
+But I do remember, right?
+但是我确实记得，对吗？
+
+534
+00:36:26,920 --> 00:36:35,410
+If you have and addresses how many bits you need to encode this analysis,
+如果你有地址，需要多少位来编码这个分析？
+
+535
+00:36:36,760 --> 00:36:38,920
+a bit has to value zero and one.
+一个比特（bit）只能取值为0或1。
+
+536
+00:36:39,440 --> 00:36:43,050
+You need log of n in this case,
+在这种情况下，你需要使用以n为底的对数。
+
+537
+00:36:43,060 --> 00:36:46,680
+n is to k log base two of two.
+n 是以2为底 k 的对数。
+
+538
+00:36:46,690 --> 00:36:51,690
+K is k how many bits of others?
+K是k个其他位的数量。
+
+539
+00:36:52,090 --> 00:36:55,380
+Each byte, but a bit of others,
+每个字节，但其他位不同。
+
+540
+00:36:57,420 --> 00:37:01,560
+how many bits you need to address each byte in a 4 kilobyte page?
+在一个4千字节的页面中，需要多少位来寻址每个字节？
+
+541
+00:37:05,680 --> 00:37:06,520
+Is 12, right?
+是12吗？
+
+542
+00:37:06,530 --> 00:37:08,840
+Because two power 12 is four kilobytes.
+因为2的12次方等于4千字节。
+
+543
+00:37:11,760 --> 00:37:14,690
+And obviously,
+显然，
+
+544
+00:37:14,980 --> 00:37:17,490
+if you have20 bits to address,
+如果你有20位来寻址，
+
+545
+00:37:17,500 --> 00:37:20,210
+you can address 2.2 power 20.
+你可以表示为2.2的20次方。
+
+546
+00:37:24,170 --> 00:37:25,190
+But bytes,
+但是字节，
+
+547
+00:37:25,930 --> 00:37:27,010
+you have 32 beats.
+你有32个节拍。
+
+548
+00:37:27,020 --> 00:37:30,050
+You can address the power of 32 bytes and so forth.
+你可以讨论32字节等的容量。
+
+549
+00:37:33,490 --> 00:37:34,460
+But this is what?
+但这是什么？
+
+550
+00:37:34,720 --> 00:37:41,100
+A process ca contiguous set of addresses,
+一个进程是一组连续的地址。
+
+551
+00:37:43,060 --> 00:37:44,530
+typically one at each other.
+通常是彼此之间的一个。
+
+552
+00:37:44,540 --> 00:37:46,570
+As you have 1 byte, you can store 1 byte.
+由于你有1字节，你可以存储1字节的数据。
+
+553
+00:37:47,280 --> 00:37:48,520
+1 byte is 8 bits.
+1字节等于8位。
+
+554
+00:37:51,270 --> 00:37:58,880
+And then the process uses this address
+然后进程使用这个地址。
+
+555
+00:37:58,890 --> 00:38:02,260
+space to store various information,
+用于存储各种信息的空间
+
+556
+00:38:03,040 --> 00:38:04,080
+code and data.
+代码和数据。
+
+557
+00:38:09,320 --> 00:38:11,300
+And axis you will address.
+您将要处理的轴。
+
+558
+00:38:12,410 --> 00:38:15,250
+Accessible addresses are all the addresses.
+可访问地址是指所有的地址。
+
+559
+00:38:15,260 --> 00:38:22,040
+A process can read and write or write and the state associated with them.
+一个进程可以读取和写入或者写入和与之关联的状态。
+
+560
+00:38:22,750 --> 00:38:24,740
+What is stored as a particular others?
+特定的其他内容存储了什么？
+
+561
+00:38:29,790 --> 00:38:30,780
+In some cases,
+在某些情况下，
+
+562
+00:38:30,790 --> 00:38:38,020
+we are also measuring or give the size of a memory in awards.
+我们也可以用字节来衡量或表示内存的大小。
+
+563
+00:38:39,380 --> 00:38:45,530
+And award typically has more than 1 bytes.
+一个奖项通常有多于1个字节。
+
+564
+00:38:47,050 --> 00:38:48,160
+For instance,
+例如，
+
+565
+00:38:49,230 --> 00:38:51,430
+a forward is 32 bits.
+一个前向引用是32位。
+
+566
+00:38:54,970 --> 00:39:02,780
+One question here is how many 32 beats numbers or 4 byte words you
+这里有一个问题，即有多少个32位数字或4字节的单词。
+
+567
+00:39:02,790 --> 00:39:06,330
+can feed in an address space of,
+可以输入一个地址空间的大小，
+
+568
+00:39:06,910 --> 00:39:07,330
+right?
+是的，正确的。
+
+569
+00:39:07,880 --> 00:39:08,940
+We set it to beats,
+我们将它设置为节拍。
+
+570
+00:39:09,650 --> 00:39:10,070
+right?
+对的？
+
+571
+00:39:12,570 --> 00:39:13,760
+You have 72 beats,
+你的心跳为72次每分钟。
+
+572
+00:39:13,770 --> 00:39:14,880
+so you have two powers,
+所以你有两个权力，
+
+573
+00:39:14,890 --> 00:39:17,020
+32 bytes.
+32字节。
+
+574
+00:39:18,310 --> 00:39:19,420
+You need to divide by four,
+你需要除以四，
+
+575
+00:39:19,430 --> 00:39:20,980
+because award is 4 bytes.
+因为奖励是4个字节。
+
+576
+00:39:20,990 --> 00:39:23,060
+You get to power circuit, which is 1 billion.
+你需要为一个10亿的电路供电。
+
+577
+00:39:30,480 --> 00:39:32,710
+Now, we are going to learn more about that,
+现在，我们将更深入地了解这个。
+
+578
+00:39:32,720 --> 00:39:38,890
+but that's for you to know that when you read and write to an address,
+但是你需要知道的是，当你读取和写入一个地址时，
+
+579
+00:39:39,840 --> 00:39:42,190
+there are many things can happen.
+有很多事情可能发生。
+
+580
+00:39:43,910 --> 00:39:50,560
+The most natural thing is that you read and write that particular piece of data,
+最自然的事情就是你读取和写入那个特定的数据。
+
+581
+00:39:51,360 --> 00:39:54,160
+which is associated with the address that we should read and write.
+这与我们应该读写的地址相关联。
+
+582
+00:39:56,830 --> 00:39:58,840
+But other things could happen.
+但是其他事情也可能发生。
+
+583
+00:40:01,390 --> 00:40:05,350
+You can actually, when you write or to special designated addresses,
+实际上，当你写入或者写入特定指定的地址时，
+
+584
+00:40:06,510 --> 00:40:08,860
+or you read from special designated addresses,
+或者你从特定指定的地址读取数据，
+
+585
+00:40:09,840 --> 00:40:14,690
+you can read and write to some device like more like display.
+你可以读取和写入一些设备，比如显示器。
+
+586
+00:40:17,890 --> 00:40:19,600
+And these are memory mapped,
+这些是内存映射的。
+
+587
+00:40:19,920 --> 00:40:23,890
+io operations that we can,
+我们可以进行的IO操作包括：
+
+588
+00:40:24,150 --> 00:40:28,790
+cause a program to aboard when is a program or do second.
+当程序出现错误或执行第二个操作时导致程序中止。
+
+589
+00:40:30,580 --> 00:40:31,770
+When this can happen,
+这可能发生在以下情况下：
+
+590
+00:40:32,210 --> 00:40:33,530
+when does programs at fault?
+程序何时会出错？
+
+程序在以下情况下可能会出错：
+
+1. 语法错误：程序中存在语法错误，例如拼写错误、缺少分号等。
+
+2. 逻辑错误：程序中存在逻辑错误，导致程序的行为与预期不符。这可能是由于错误的算法、错误的条件判断或错误的变量使用等。
+
+3. 内存错误：程序试图访问未分配的内存或释放了已分配的内存，导致内存错误。
+
+4. 并发错误：程序在多线程或多进程环境中运行时，可能会出现并发错误，例如竞争条件、死锁等。
+
+5. 输入错误：程序对输入数据的处理不正确，导致输出结果错误或崩溃。
+
+6. 外部依赖错误：程序依赖的外部资源（如文件、网络连接等）不可用或出现错误，导致程序出错。
+
+7. 硬件错误：程序在与硬件交互时，可能会遇到硬件错误，例如硬件故障、通信错误等。
+
+这些只是一些常见的程序出错的情况，实际上程序可能会在各种其他情况下出错。为了减少程序出错的可能性，开发人员需要进行充分的测试和调试，并采取适当的错误处理措施。
+
+591
+00:40:37,320 --> 00:40:42,410
+You should know by now you've done homeworks projects.
+你现在应该知道你已经完成了作业项目。
+
+592
+00:40:43,090 --> 00:40:51,010
+I'm sure that this is many of you had this unfortunate experience and map memory.
+我相信很多人都有过这种不幸的经历，即内存映射。
+
+593
+00:40:53,940 --> 00:40:54,060
+Yeah.
+是的。
+
+594
+00:40:54,070 --> 00:40:54,820
+So basically,
+基本上，
+
+595
+00:40:57,090 --> 00:41:04,630
+if i'm going to try to access an address
+如果我要尝试访问一个地址
+
+596
+00:41:05,750 --> 00:41:08,690
+which I don't is not accessible to me,
+我无法访问的东西。
+
+597
+00:41:10,090 --> 00:41:13,480
+i'm going to read from and write from address which is not accessible.
+我将从一个不可访问的地址读取数据并写入数据。
+
+598
+00:41:18,370 --> 00:41:19,160
+That's fine.
+没问题。
+
+599
+00:41:19,170 --> 00:41:25,080
+Or the some addresses owned by other
+或者是其他人拥有的一些地址
+
+600
+00:41:32,520 --> 00:41:32,580
+processes.
+进程。
+
+601
+00:41:36,240 --> 00:41:37,270
+As you are now,
+由于您现在是这样的，
+
+602
+00:41:37,520 --> 00:41:40,390
+in the address space, there are three parts, four particle,
+在地址空间中，有三个部分，四个粒子。
+
+603
+00:41:40,400 --> 00:41:42,910
+four important segments for each process.
+每个进程的四个重要段。
+
+604
+00:41:43,690 --> 00:41:46,130
+You have the code segment which contains the code.
+你有包含代码的代码段。
+
+605
+00:41:47,340 --> 00:41:52,660
+You are going to execute the stack segment,
+你将要执行栈段。
+
+606
+00:41:53,460 --> 00:41:58,920
+which you now is used to push the return addresses when you call
+在调用时，您现在使用的是哪个用于推送返回地址的机制？
+
+607
+00:41:58,930 --> 00:42:01,280
+a function and also pass
+一个函数并且传递
+
+608
+00:42:01,290 --> 00:42:03,600
+the arguments or to that function,
+该函数的参数或者对该函数的调用
+
+609
+00:42:05,330 --> 00:42:11,190
+is a heap for dynamically allocating memory
+堆是用于动态分配内存的数据结构。
+
+610
+00:42:12,810 --> 00:42:15,460
+and its static data,
+以及它的静态数据，
+
+611
+00:42:16,850 --> 00:42:17,690
+which is for what?
+这是用于什么的？
+
+612
+00:42:18,930 --> 00:42:23,620
+For a static data is implied like global variables.
+对于静态数据，指的是全局变量。
+
+613
+00:42:32,600 --> 00:42:35,260
+You seen this picture many times,
+你已经看过这张图片很多次了，
+
+614
+00:42:36,020 --> 00:42:37,900
+apologize for showing you again.
+对不起再次给你带来麻烦。
+
+615
+00:42:39,240 --> 00:42:44,220
+But as if you remember the relation, this shows you again,
+但是如果你记得这个关系，这再次向你展示了
+
+616
+00:42:44,230 --> 00:42:46,780
+the relation between a process and a threat,
+进程与威胁之间的关系
+
+617
+00:42:46,790 --> 00:42:52,990
+a process can have multiple threads,
+一个进程可以拥有多个线程。
+
+618
+00:42:55,460 --> 00:42:57,700
+all threads in the same process,
+同一进程中的所有线程
+
+619
+00:42:58,510 --> 00:43:00,010
+share resources,
+分享资源，
+
+620
+00:43:00,860 --> 00:43:05,700
+including most of the memory resources,
+包括大部分的内存资源，
+
+621
+00:43:07,070 --> 00:43:09,350
+including heap,
+包括堆，
+
+622
+00:43:09,850 --> 00:43:10,490
+static,
+静态的
+
+623
+00:43:11,530 --> 00:43:13,020
+and co segments.
+和合作伙伴的部分。
+
+624
+00:43:14,280 --> 00:43:19,430
+The only one segment they don't share is a stack.
+他们唯一不共享的段是堆栈。
+
+625
+00:43:20,660 --> 00:43:21,900
+And the registers obvious.
+而且寄存器显而易见。
+
+626
+00:43:22,990 --> 00:43:25,490
+And the reason you don't share the stack, because again,
+你不共享栈的原因是因为，再次强调，
+
+627
+00:43:25,500 --> 00:43:29,380
+the stack contains the state of the execution.
+栈包含了执行的状态。
+
+628
+00:43:30,040 --> 00:43:32,630
+But if you call a function in the thread,
+但是如果你在线程中调用一个函数，
+
+629
+00:43:33,840 --> 00:43:37,950
+then you have to push the return On the stack.
+那么你需要将返回值推入栈中。
+
+630
+00:43:39,390 --> 00:43:44,080
+So now that represent the execution state of that thread,
+所以现在表示该线程的执行状态，
+
+631
+00:43:46,120 --> 00:43:48,590
+you can also have a single threaded process,
+你也可以拥有一个单线程的进程。
+
+632
+00:43:48,600 --> 00:43:50,310
+which has a single thread.
+它只有一个线程。
+
+633
+00:43:53,190 --> 00:43:56,190
+There are three important aspects of memory multiplex.
+内存多路复用有三个重要方面。
+
+634
+00:43:57,930 --> 00:43:59,160
+One is protection.
+一个是保护。
+
+635
+00:44:00,940 --> 00:44:09,360
+You prevent a process from accessing the data of another process.
+你阻止一个进程访问另一个进程的数据。
+
+636
+00:44:12,990 --> 00:44:20,780
+The second one is translation is the ability to translate from a
+第二个翻译是指从一种语言翻译到另一种语言的能力。
+
+637
+00:44:21,070 --> 00:44:24,200
+visual address space to a physical address space.
+将虚拟地址空间映射到物理地址空间。
+
+638
+00:44:24,640 --> 00:44:25,620
+We'll learn about.
+我们将学习关于...
+
+639
+00:44:28,930 --> 00:44:31,050
+And when this translation occurs,
+当这个翻译发生时，
+
+640
+00:44:31,460 --> 00:44:33,550
+you are going to have these future others.
+你将会有这些未来的其他人。
+
+641
+00:44:37,560 --> 00:44:40,910
+This can be used to avoid overlap or talk next,
+这可以用来避免重叠或者进行下一步的交流。
+
+642
+00:44:42,210 --> 00:44:47,080
+provide a uniform view to the program to the process.
+为进程提供统一的视图。
+
+643
+00:44:49,870 --> 00:44:55,180
+And also can be used to provide products.
+还可以用来提供产品。
+
+644
+00:44:57,990 --> 00:44:59,750
+And the control overlap.
+控制重叠。
+
+645
+00:45:03,900 --> 00:45:09,850
+Its separate state of the thread should not cause colliding physical memory.
+线程的独立状态不应导致物理内存冲突。
+
+646
+00:45:11,040 --> 00:45:12,230
+This means that, again,
+这意味着，再次，
+
+647
+00:45:12,240 --> 00:45:21,510
+we have only one physical memory in the same a a on a single machine.
+在同一台机器上，我们只有一个物理内存。
+
+648
+00:45:21,520 --> 00:45:23,670
+So you have different processes,
+所以你有不同的进程，
+
+649
+00:45:24,420 --> 00:45:25,420
+different threads,
+不同的线程
+
+650
+00:45:26,330 --> 00:45:27,470
+they shouldn't collect.
+他们不应该收集。
+
+651
+00:45:27,810 --> 00:45:28,960
+But I they shouldn't,
+但是他们不应该这样做。
+
+652
+00:45:33,550 --> 00:45:35,880
+for instance, share the same, I don't know,
+例如，分享相同的，我不知道。
+
+653
+00:45:36,890 --> 00:45:38,060
+share the same data segments.
+共享相同的数据段。
+
+654
+00:45:45,000 --> 00:45:53,430
+An alternative view is to have to look at at what is the allowable process behavior,
+另一种观点是要考虑可允许的进程行为是什么。
+
+655
+00:45:55,620 --> 00:45:56,030
+right?
+对的？
+
+656
+00:45:56,420 --> 00:45:58,010
+What do you allow process to go?
+你允许进程执行什么操作？
+
+657
+00:46:04,360 --> 00:46:06,040
+And this,
+而这个，
+
+658
+00:46:06,050 --> 00:46:07,600
+what is allowed to do?
+可以做什么？
+
+659
+00:46:11,790 --> 00:46:13,940
+It's regulated by the operating system.
+这由操作系统进行管理。
+
+660
+00:46:16,740 --> 00:46:18,490
+The operating system, in one way,
+操作系统在某种程度上，
+
+661
+00:46:18,500 --> 00:46:21,570
+is interposing itself.
+正在插手干涉。
+
+662
+00:46:21,580 --> 00:46:24,170
+So to make sure that the processes are well behaved.
+为了确保进程的良好行为。
+
+663
+00:46:25,910 --> 00:46:30,180
+That's why and the processes don't do anything back.
+这就是为什么进程不会有任何回应的原因。
+
+664
+00:46:31,160 --> 00:46:38,530
+The operating system is handling the eye operations on the behalf of the processes.
+操作系统代表进程处理眼部操作。
+
+665
+00:46:40,670 --> 00:46:44,710
+It makes sure that every process get access to the cpu,
+它确保每个进程都能访问CPU，
+
+666
+00:46:47,290 --> 00:46:48,560
+like you'll see,
+就像你会看到的，
+
+667
+00:46:49,140 --> 00:46:52,690
+is going to make sure that each process,
+将确保每个进程，
+
+668
+00:46:53,030 --> 00:46:58,200
+it gets its own physical memory under the hood.
+它在底层获得了自己的物理内存。
+
+669
+00:46:58,990 --> 00:46:59,430
+Okay?
+好的？
+
+670
+00:47:02,320 --> 00:47:04,270
+The question is, how do you enforce that?
+问题是，你如何强制执行这一点？
+
+671
+00:47:06,930 --> 00:47:08,820
+In the previous two cases,
+在之前的两个案例中，
+
+672
+00:47:09,010 --> 00:47:11,050
+the operating system,
+操作系统
+
+673
+00:47:12,550 --> 00:47:15,400
+it's like this requires a context switch.
+这就像需要进行一次上下文切换。
+
+674
+00:47:16,380 --> 00:47:16,660
+Right?
+对吗？
+
+675
+00:47:16,670 --> 00:47:18,100
+I operation.
+我操作。
+
+676
+00:47:18,110 --> 00:47:20,210
+You is a cisco.
+你是思科。
+
+677
+00:47:20,530 --> 00:47:26,190
+It's a context switch for the cpu we share them to multiply the cpu
+这是一个上下文切换，我们将它们共享给多个CPU进行处理。
+
+678
+00:47:26,200 --> 00:47:28,590
+between different processes or threads.
+在不同的进程或线程之间。
+
+679
+00:47:28,910 --> 00:47:30,120
+You need to do context switch,
+你需要进行上下文切换。
+
+680
+00:47:30,870 --> 00:47:31,190
+right?
+对的？
+
+681
+00:47:31,780 --> 00:47:32,940
+And context we can remember,
+并且我们可以记住上下文信息，
+
+682
+00:47:34,390 --> 00:47:35,260
+it's expensive.
+它很贵。
+
+683
+00:47:36,070 --> 00:47:37,530
+It can be tens of thousand,
+可以是数万个。
+
+684
+00:47:37,540 --> 00:47:38,980
+hundreds of thousands of instructions.
+数十万条指令。
+
+685
+00:47:40,750 --> 00:47:42,140
+Now, the question here is,
+现在，这里的问题是，
+
+686
+00:47:42,550 --> 00:47:43,700
+what about the memory?
+关于内存方面呢？
+
+687
+00:47:44,480 --> 00:47:45,880
+It doesn't seem, there's a memory.
+似乎没有内存。
+
+688
+00:47:45,890 --> 00:47:47,000
+You can do that.
+你可以这样做。
+
+689
+00:47:47,610 --> 00:47:49,140
+Whenever you access to the memory,
+每当您访问内存时，
+
+690
+00:47:50,830 --> 00:47:52,640
+it's too expensive.
+太贵了。
+
+691
+00:47:54,170 --> 00:48:00,040
+You need to have another way to make this kind of translation to interpose,
+你需要另一种方法来进行这种翻译的干预。
+
+692
+00:48:01,150 --> 00:48:03,980
+to have this interposition layer between the virtual memory
+在虚拟内存之间有这个中间层
+
+693
+00:48:03,990 --> 00:48:04,900
+and the physical matter.
+以及物质实体。
+
+694
+00:48:07,930 --> 00:48:09,520
+If there are exception cases,
+如果有异常情况，
+
+695
+00:48:09,530 --> 00:48:10,880
+like you'll see like page four,
+就像你会看到的，就像第四页一样，
+
+696
+00:48:10,890 --> 00:48:16,130
+you'll see that then you can give the control to the operating system.
+你会发现，然后你可以将控制权交给操作系统。
+
+697
+00:48:16,140 --> 00:48:18,720
+You can have the opposite operating system,
+你可以选择相反的操作系统。
+
+698
+00:48:18,850 --> 00:48:20,010
+interpose interposing itself.
+介入，介入自身。
+
+699
+00:48:22,550 --> 00:48:24,180
+We learn about that.
+我们已经了解了这个。
+
+700
+00:48:27,280 --> 00:48:28,750
+Again, this is a previous picture.
+这是之前的一张照片。
+
+701
+00:48:28,760 --> 00:48:29,710
+You've seen.
+你看到了。
+
+702
+00:48:30,160 --> 00:48:31,710
+One of the first lectures,
+其中一节的课程
+
+703
+00:48:34,820 --> 00:48:37,100
+everything here in this big box.
+这个大盒子里的所有东西。
+
+704
+00:48:37,110 --> 00:48:39,980
+It's harder in the operating system.
+在操作系统中更加困难。
+
+705
+00:48:39,990 --> 00:48:45,070
+And it with this big box provides a visualization of the os
+而且它还通过这个大盒子提供了操作系统的可视化展示。
+
+706
+00:48:45,080 --> 00:48:48,540
+and of the machine to the application.
+将机器与应用程序连接起来。
+
+707
+00:48:49,410 --> 00:48:51,570
+That's all of the operating system.
+这就是操作系统的全部内容。
+
+708
+00:48:58,270 --> 00:49:04,300
+And just to for big picture of what happens under the hood when you execute
+当你执行时，底层发生的大致情况是这样的
+
+709
+00:49:04,310 --> 00:49:05,020
+a program.
+一个程序。
+
+710
+00:49:05,680 --> 00:49:07,330
+To remember, if you remember,
+记住，如果你记得的话，
+
+711
+00:49:07,860 --> 00:49:09,020
+your copy is a program.
+你的副本是一个程序。
+
+712
+00:49:09,030 --> 00:49:14,820
+It's on the disk that you copy the code in the memory,
+它是在将代码从磁盘复制到内存中的过程中发生的。
+
+713
+00:49:15,490 --> 00:49:16,700
+and then you start executive.
+然后你开始执行。
+
+714
+00:49:19,470 --> 00:49:21,660
+Let's see what happens when you execute.
+让我们看看执行时会发生什么。
+
+715
+00:49:21,670 --> 00:49:30,820
+And here a it's a a snippet of assembly language.
+这是一段汇编语言的片段。
+
+716
+00:49:35,660 --> 00:49:37,850
+And basically, what happens here?
+基本上，这里发生了什么？
+
+717
+00:49:37,860 --> 00:49:44,810
+You allowed some from this address data one,
+你允许从这个地址获取一些数据。
+
+718
+00:49:45,680 --> 00:49:48,310
+the data, which is there and register at one.
+数据在一个寄存器中，并且已经注册。
+
+719
+00:49:48,820 --> 00:49:50,640
+And depending on the value,
+根据数值的不同，
+
+720
+00:49:50,650 --> 00:49:55,800
+you are going to jump to this address.
+你将要跳转到这个地址。
+
+721
+00:49:56,540 --> 00:49:57,570
+Otherwise,
+否则，
+
+722
+00:49:57,580 --> 00:50:00,980
+you are going to decrement the value.
+你将要减少这个值。
+
+723
+00:50:01,420 --> 00:50:03,110
+And then you are going to, look,
+然后你要，看，
+
+724
+00:50:03,120 --> 00:50:06,430
+you go to until it's not zero,
+你继续执行直到它不为零。
+
+725
+00:50:06,440 --> 00:50:09,550
+b and z means r one is not zero.
+b和z表示r不为零。
+
+726
+00:50:09,860 --> 00:50:10,570
+You go back.
+你回去。
+
+727
+00:50:13,670 --> 00:50:15,780
+Basically, as long as it's not,
+基本上，只要不是的话，
+
+728
+00:50:16,340 --> 00:50:18,890
+when it's zero, you jump out of you terminate.
+当它为零时，你跳出并终止。
+
+729
+00:50:25,780 --> 00:50:27,210
+Basically, in this code,
+基本上，在这段代码中，
+
+730
+00:50:27,220 --> 00:50:28,490
+take a piece of data,
+获取一段数据，
+
+731
+00:50:29,710 --> 00:50:30,430
+checks it.
+正在检查。
+
+732
+00:50:32,730 --> 00:50:37,490
+And then you take advantage,
+然后你利用这个机会，
+
+733
+00:50:38,660 --> 00:50:41,990
+and then you go back.
+然后你回去。
+
+734
+00:50:45,640 --> 00:50:48,020
+So what is in memory for this program?
+这个程序在内存中有什么内容？
+
+735
+00:50:48,030 --> 00:50:48,740
+Or do you start?
+还是你开始？
+
+736
+00:50:49,730 --> 00:50:51,310
+So in memory, you have only beats.
+在内存中，你只有节拍。
+
+737
+00:50:55,760 --> 00:50:57,470
+This is an example here.
+这是一个例子。
+
+738
+00:51:00,080 --> 00:51:03,310
+And you have 2 columns for the physical address.
+你有两列用于物理地址。
+
+739
+00:51:04,140 --> 00:51:06,500
+The column on the left are the addresses.
+左侧的列是地址。
+
+740
+00:51:08,720 --> 00:51:13,620
+And the column on the right are the content is the content of the novels.
+右侧的栏目是小说的内容。
+
+741
+00:51:17,060 --> 00:51:19,420
+In this memory layout.
+在这个内存布局中。
+
+742
+00:51:20,630 --> 00:51:23,340
+We are using 4 byte words.
+我们使用4字节的字。
+
+743
+00:51:23,800 --> 00:51:24,780
+How do you see that?
+你是怎么看待这个问题的？
+
+744
+00:51:26,080 --> 00:51:28,750
+You see this number here on the right, 0000.
+你看到右边的这个数字，0000。
+
+745
+00:51:29,920 --> 00:51:32,990
+You have 1234560cents, and20.
+你有1234560美分，还有20个。
+
+746
+00:51:34,350 --> 00:51:36,060
+You have eight characters.
+你有八个字符。
+
+747
+00:51:36,920 --> 00:51:38,640
+Each of these characters,
+这些字符中的每一个，
+
+748
+00:51:42,280 --> 00:51:44,110
+a sorry,
+对不起，
+
+749
+00:51:44,120 --> 00:51:45,510
+represent4bits,
+表示4位的数字，
+
+750
+00:51:46,360 --> 00:51:46,760
+right?
+对的？
+
+751
+00:51:47,600 --> 00:51:49,230
+It's a hexadecimal format.
+这是一个十六进制格式。
+
+752
+00:51:51,160 --> 00:51:57,800
+It's from zero to f each of these is from zero to f we have eight of them,
+每个都从零到f，我们有八个。
+
+753
+00:51:57,810 --> 00:52:01,430
+8times for its 32bits.
+对于32位系统来说，这个数字需要重复8次。
+
+754
+00:52:02,630 --> 00:52:04,260
+They have 32 bits worth,
+它们有32位的长度。
+
+755
+00:52:04,530 --> 00:52:06,100
+or for byte work.
+或者适用于字节操作。
+
+756
+00:52:10,460 --> 00:52:17,980
+The sink with a red are the addresses which also appears in the program.
+红色的汇聚点是程序中出现的地址。
+
+757
+00:52:19,250 --> 00:52:20,580
+You have three addresses,
+你有三个地址，
+
+758
+00:52:20,590 --> 00:52:21,620
+four addresses.
+四个地址。
+
+759
+00:52:22,270 --> 00:52:25,010
+One is the address for this data one.
+这个数据的地址是1。
+
+760
+00:52:26,580 --> 00:52:27,720
+This is red.
+这是红色的。
+
+761
+00:52:29,130 --> 00:52:32,070
+The blue one is check it,
+蓝色的那个是检查它。
+
+762
+00:52:32,080 --> 00:52:35,890
+address the green one.
+请处理绿色的那个。
+
+763
+00:52:35,900 --> 00:52:37,130
+It's a loop.
+这是一个循环。
+
+764
+00:52:40,440 --> 00:52:48,190
+Others now,
+其他人现在，
+
+765
+00:52:49,390 --> 00:52:50,390
+tell me now,
+请告诉我现在，
+
+766
+00:52:51,010 --> 00:52:52,050
+I said that,
+我说过，
+
+767
+00:52:52,750 --> 00:52:53,920
+say, take with the red,
+拿红色的。
+
+768
+00:52:53,930 --> 00:52:57,390
+I said that z zero zero, c zero,
+我说的是 z 零 零，c 零。
+
+769
+00:52:57,800 --> 00:52:58,880
+which is a program,
+这是一个程序，
+
+770
+00:52:58,890 --> 00:53:01,190
+refers to this0300.
+指的是这个0300。
+
+771
+00:53:03,340 --> 00:53:09,850
+Can you figure out how these are connected and why they are connected?
+你能弄清楚这些是如何连接的以及为什么它们连接在一起吗？
+
+772
+00:53:09,860 --> 00:53:11,530
+Why basically the same thing?
+为什么基本上是同样的事情？
+
+773
+00:53:37,920 --> 00:53:38,870
+So here it is.
+所以这就是它。
+
+774
+00:53:44,120 --> 00:53:51,550
+If you address the memory at 32 beats boundaries,
+如果您按照32字节边界访问内存，
+
+775
+00:53:53,050 --> 00:53:55,320
+so an address as the word granularity,
+地址的粒度可以理解为以字为单位。
+
+776
+00:53:56,230 --> 00:53:57,350
+each order is 4bytes.
+每个订单占据4个字节。
+
+777
+00:54:00,360 --> 00:54:03,130
+You need 4 times fewer addresses.
+你只需要四分之一的地址。
+
+778
+00:54:06,390 --> 00:54:07,100
+That's what it is.
+就是这样。
+
+779
+00:54:09,040 --> 00:54:10,710
+That's basically what happens here.
+这基本上就是在这里发生的事情。
+
+780
+00:54:11,410 --> 00:54:11,620
+Right?
+对吗？
+
+781
+00:54:11,630 --> 00:54:14,510
+When the program is going to,
+当程序即将执行时，
+
+782
+00:54:17,060 --> 00:54:18,940
+look, you compile the program.
+看，你编译程序。
+
+783
+00:54:20,090 --> 00:54:21,700
+And when you allocate the memory,
+当你分配内存时，
+
+784
+00:54:22,680 --> 00:54:27,590
+everything happens at forward for the 4bytes,
+所有的事情都在前进4个字节的位置发生。
+
+785
+00:54:27,600 --> 00:54:29,870
+granite or 32 beats granite.
+花岗岩或32拍花岗岩。
+
+786
+00:54:31,970 --> 00:54:34,570
+There are four as this granularity.
+这个粒度有四个。
+
+787
+00:54:34,580 --> 00:54:37,860
+We need 4 times fewer so to speak,
+我们需要少4倍，可以这么说。
+
+788
+00:54:38,960 --> 00:54:41,100
+addresses or beats.
+地址或节拍。
+
+789
+00:54:42,870 --> 00:54:44,020
+This is what happens here.
+这是在这里发生的事情。
+
+790
+00:54:45,330 --> 00:54:49,360
+00, c zero is0300,
+00, c zero 是0300。
+
+791
+00:54:49,690 --> 00:54:51,990
+but is absurdity, rupees, granularity.
+但是荒谬、卢比、粒度。
+
+792
+00:54:52,380 --> 00:54:56,470
+Instead of at the 8 bit or background.
+而不是在8位或背景上。
+
+793
+00:54:58,890 --> 00:54:59,560
+Indeed,
+确实，
+
+794
+00:55:00,600 --> 00:55:03,040
+if you multiply c zero by4,
+如果你将c乘以零再乘以4，
+
+795
+00:55:04,280 --> 00:55:06,360
+you get300.
+你得到了300。
+
+796
+00:55:12,580 --> 00:55:13,580
+Any questions here?
+这里有什么问题吗？
+
+797
+00:55:28,750 --> 00:55:29,980
+The same for the other one.
+对于另一个也是一样的。
+
+798
+00:55:29,990 --> 00:55:31,620
+If you multiply grade zero,
+如果你将成绩乘以零，
+
+799
+00:55:31,630 --> 00:55:33,540
+you are going to get a00.
+你将得到A00。
+
+800
+00:55:33,550 --> 00:55:35,740
+If you multiply 0to42×4,
+如果你将0到42乘以4，
+
+801
+00:55:35,750 --> 00:55:38,020
+you get0908.
+你得到了0908。
+
+802
+00:55:41,130 --> 00:55:47,620
+Now, this is how these values are stored in the physical memories,
+现在，这是这些值在物理内存中存储的方式，
+
+803
+00:55:47,630 --> 00:55:49,700
+another way in another representation.
+另一种方式在另一种表达中。
+
+804
+00:55:50,750 --> 00:55:51,200
+Right?
+对吗？
+
+805
+00:55:52,280 --> 00:55:55,210
+You have the values in these boxes.
+这些框中有数值。
+
+806
+00:55:55,780 --> 00:55:57,970
+And the address is on the side.
+地址在侧面。
+
+807
+00:56:02,500 --> 00:56:03,810
+Now, here is a question.
+现在，这里有一个问题。
+
+808
+00:56:06,150 --> 00:56:07,830
+Say i'm running this program,
+假设我正在运行这个程序，
+
+809
+00:56:08,740 --> 00:56:10,870
+and this program loads into physical memory.
+这个程序被加载到物理内存中。
+
+810
+00:56:10,880 --> 00:56:13,210
+And these addresses, right?
+这些地址，对吗？
+
+811
+00:56:13,220 --> 00:56:14,730
+Because these are the addresses,
+因为这些是地址。
+
+812
+00:56:15,730 --> 00:56:20,070
+maybe in the program on the disk.
+可能在磁盘上的程序中。
+
+813
+00:56:23,410 --> 00:56:25,100
+If I run again this program,
+如果我再次运行这个程序，
+
+814
+00:56:27,560 --> 00:56:28,270
+what will happen?
+会发生什么？
+
+815
+00:56:30,310 --> 00:56:34,620
+But I if I run again this program,
+但是如果我再次运行这个程序，
+
+816
+00:56:34,630 --> 00:56:40,700
+I don't want to load to be loaded exactly in the same place,
+我不希望加载在完全相同的位置。
+
+817
+00:56:45,210 --> 00:56:50,060
+because a different instance of the problem by different data.
+因为不同的数据会导致问题的不同实例。
+
+818
+00:56:54,860 --> 00:56:57,070
+So that's one of the problem we need to solve.
+这是我们需要解决的问题之一。
+
+819
+00:56:58,520 --> 00:56:59,600
+You need this translation.
+你需要这个翻译。
+
+820
+00:57:01,950 --> 00:57:03,640
+So one way to do the translation.
+所以一种翻译的方法是：
+
+821
+00:57:03,650 --> 00:57:08,170
+So instead of I modify these addresses with this nuance,
+所以，我不是用这种细微差别修改这些地址，
+
+822
+00:57:08,850 --> 00:57:09,560
+now,
+现在，
+
+823
+00:57:10,300 --> 00:57:15,670
+all these addresses will not overlap with a previous instance.
+所有这些地址都不会与先前的实例重叠。
+
+824
+00:57:15,680 --> 00:57:18,750
+They are going to not overlap to be non overlapping.
+他们将不重叠以保持非重叠状态。
+
+825
+00:57:19,170 --> 00:57:23,590
+And you are going to be able to load the second time you run
+当你第二次运行时，你将能够加载。
+
+826
+00:57:23,600 --> 00:57:27,520
+the same program at a different address space.
+在不同的地址空间中运行相同的程序。
+
+827
+00:57:28,030 --> 00:57:32,350
+So the two programs now they don't step on each other.
+现在这两个程序彼此不会干扰。
+
+828
+00:57:41,160 --> 00:57:47,510
+So there are many way to possible way to translate.
+所以有很多可能的翻译方式。
+
+829
+00:57:47,520 --> 00:57:48,790
+This is only one possibility.
+这只是一种可能性。
+
+830
+00:57:51,690 --> 00:57:58,340
+So translation can happens at 2times the link time,
+翻译可以在链接时间的两倍时间内完成。
+
+831
+00:58:01,290 --> 00:58:05,980
+when or before in our execution time.
+在我们的执行时间中的何时或之前。
+
+832
+00:58:06,670 --> 00:58:13,920
+I it's compile time, link time, and execution time,
+这是编译时间、链接时间和执行时间。
+
+833
+00:58:14,460 --> 00:58:16,700
+but link or lower time.
+但是链接或者更低的时间。
+
+834
+00:58:17,590 --> 00:58:19,310
+So compile time,
+编译时，
+
+835
+00:58:22,060 --> 00:58:22,820
+it's very hard.
+这很困难。
+
+836
+00:58:23,330 --> 00:58:25,030
+We are not going to talk much about it.
+我们不打算多谈这个。
+
+837
+00:58:25,910 --> 00:58:27,370
+The link and low time.
+链接和低延迟时间。
+
+838
+00:58:27,650 --> 00:58:30,040
+It's we are going to talk briefly,
+我们要简要地谈一下。
+
+839
+00:58:30,050 --> 00:58:37,080
+and then we are going to focus mostly when the translation happened and execution.
+然后我们将主要关注翻译和执行的过程。
+
+840
+00:58:37,090 --> 00:58:43,520
+So before talking about link low time translation,
+在讨论链接低时延传输之前，
+
+841
+00:58:43,890 --> 00:58:50,360
+let's remind ourselves what is the lifetime of a program?
+让我们回顾一下程序的生命周期是什么？
+
+842
+00:58:52,140 --> 00:58:53,460
+You start with the source,
+你从源代码开始，
+
+843
+00:58:54,880 --> 00:58:57,620
+you compile, you get the object modules,
+你编译后会得到目标模块。
+
+844
+00:58:58,600 --> 00:59:05,280
+then you link response possible other modules and libraries,
+然后你可以将响应链接到其他模块和库。
+
+845
+00:59:05,290 --> 00:59:09,340
+and then you load it in the memory.
+然后你将它加载到内存中。
+
+846
+00:59:10,000 --> 00:59:13,660
+And in the process, you are going also to the link with some system,
+在这个过程中，你还将与某个系统进行链接。
+
+847
+00:59:13,960 --> 00:59:15,300
+libraries and some libraries.
+库和一些库。
+
+848
+00:59:15,310 --> 00:59:19,970
+You can actually link them at the run time after you started executive.
+在执行程序后，你实际上可以在运行时将它们链接起来。
+
+849
+00:59:21,480 --> 00:59:21,910
+Okay.
+好的。
+
+850
+00:59:23,420 --> 00:59:25,700
+But here is our previous example.
+但是这是我们之前的例子。
+
+851
+00:59:25,710 --> 00:59:27,660
+Actually, what implicitly done?
+实际上，隐式地做了什么？
+
+852
+00:59:29,710 --> 00:59:33,950
+You modify the addresses before loading to memory.
+在加载到内存之前，你需要修改地址。
+
+853
+00:59:34,680 --> 00:59:37,630
+This is linked load time when you modify the others.
+当你修改其他内容时，这是链接加载的时间。
+
+854
+00:59:38,630 --> 00:59:39,020
+Right?
+对吗？
+
+855
+00:59:39,420 --> 00:59:40,460
+Remember, here,
+请记住，在这里，
+
+856
+00:59:40,980 --> 00:59:42,520
+we said this is our program,
+我们说这是我们的程序，
+
+857
+00:59:43,720 --> 00:59:44,040
+right?
+对的？
+
+858
+00:59:45,820 --> 00:59:47,170
+Maybe this is on the disk.
+也许这个在磁盘上。
+
+859
+00:59:49,260 --> 00:59:54,780
+But when I am cooperating system is going to load this program in memory,
+但是当我在操作系统中运行这个程序时，操作系统会将它加载到内存中。
+
+860
+00:59:55,160 --> 01:00:02,440
+is going to override these addresses that is not going to overlap
+将要覆盖这些不会重叠的地址
+
+861
+01:00:02,450 --> 01:00:03,480
+with other programs,
+与其他程序一起，
+
+862
+01:00:03,490 --> 01:00:05,120
+which are already in the physical amount.
+这些已经是实际数量了。
+
+863
+01:00:12,130 --> 01:00:13,160
+So this is what happens.
+所以发生了这样的事情。
+
+864
+01:00:13,170 --> 01:00:13,800
+Okay?
+好的？
+
+865
+01:00:21,570 --> 01:00:22,130
+Make sense?
+有意义吗？
+
+866
+01:00:22,140 --> 01:00:23,330
+It's any questions?
+有任何问题吗？
+
+867
+01:00:29,970 --> 01:00:33,130
+Now, a little bit of history,
+现在，让我们来了解一点历史背景，
+
+868
+01:00:35,200 --> 01:00:35,860
+again,
+再一次，
+
+869
+01:00:36,650 --> 01:00:43,990
+the earliest operating systems for personal computers were very simple.
+个人计算机最早的操作系统非常简单。
+
+870
+01:00:46,000 --> 01:00:47,760
+You have only one other space,
+你只有另外一个空间。
+
+871
+01:00:49,160 --> 01:00:53,110
+and you have only one application and you got a given time.
+你只有一个应用程序，并且你有一个给定的时间。
+
+872
+01:00:54,280 --> 01:01:00,290
+The application was owning the entire physical address space.
+该应用程序拥有整个物理地址空间。
+
+873
+01:01:02,580 --> 01:01:05,340
+You have the illusion of a dedicated machine,
+你拥有一个专用机器的错觉，
+
+874
+01:01:06,030 --> 01:01:14,330
+because you have a dedicated machine.
+因为你有一台专用的机器。
+
+875
+01:01:16,510 --> 01:01:17,780
+How do you do this?
+你是如何做到这一点的？
+
+876
+01:01:18,560 --> 01:01:19,580
+Now is the next step.
+现在是下一步。
+
+877
+01:01:20,760 --> 01:01:24,000
+If you start to work to run multiple programs,
+如果你开始工作来运行多个程序，
+
+878
+01:01:24,980 --> 01:01:27,540
+you want to run in the same computer.
+你想在同一台计算机上运行。
+
+879
+01:01:28,220 --> 01:01:31,760
+It's again, if the operating system doesn't provide your support,
+如果操作系统不提供支持的话，
+
+880
+01:01:34,520 --> 01:01:36,040
+like you see for translation,
+就像你所看到的一样，这是一个翻译任务。
+
+881
+01:01:37,180 --> 01:01:39,410
+the one way you can do it,
+你可以这样做：
+
+882
+01:01:39,420 --> 01:01:40,850
+like we've just seen,
+就像我们刚刚看到的那样，
+
+883
+01:01:42,830 --> 01:01:44,590
+it's basically translation.
+这基本上是翻译工作。
+
+884
+01:01:44,600 --> 01:01:52,250
+You translate the addresses of the program before you load it to avoid overlapping,
+在加载程序之前，你需要将地址进行翻译，以避免重叠。
+
+885
+01:01:52,590 --> 01:01:54,680
+conflicting with another program.
+与另一个程序冲突。
+
+886
+01:01:56,200 --> 01:02:01,350
+This was a case for early version of the microsoft windows, three,
+这是一个关于微软Windows早期版本的案例，版本号为3。
+
+887
+01:02:03,230 --> 01:02:05,980
+the windows, the early version of the windows.
+Windows，Windows的早期版本。
+
+888
+01:02:08,740 --> 01:02:09,780
+With these things,
+有了这些东西，
+
+889
+01:02:09,790 --> 01:02:10,820
+it's risky.
+这很危险。
+
+890
+01:02:10,830 --> 01:02:15,760
+There is no protection to the buggy code and applicable all applications
+这个有缺陷的代码没有任何保护措施，适用于所有应用程序。
+
+891
+01:02:15,770 --> 01:02:18,630
+here have access to the entire memory.
+在这里可以访问整个内存。
+
+892
+01:02:20,240 --> 01:02:25,160
+One application can read and write the data from another application.
+一个应用程序可以读取和写入另一个应用程序的数据。
+
+893
+01:02:26,580 --> 01:02:32,650
+So it can also crash another application.
+所以它也可以导致其他应用程序崩溃。
+
+894
+01:02:32,660 --> 01:02:37,620
+The next level is to provide protection is still one other space.
+下一个层次是提供保护的另一个领域。
+
+895
+01:02:38,460 --> 01:02:41,820
+Still, the applications are going to be,
+尽管如此，应用程序将会是...
+
+896
+01:02:42,510 --> 01:02:47,260
+the addresses will be overwritten when you went by the louder
+当你通过扬声器传递时，地址将被覆盖。
+
+897
+01:02:48,630 --> 01:02:52,170
+before loading the application,
+在加载应用程序之前，
+
+898
+01:02:52,180 --> 01:02:53,610
+the program to the memory.
+将程序加载到内存中。
+
+899
+01:02:55,100 --> 01:02:56,860
+But now you do have protection.
+但是现在你确实有保护措施了。
+
+900
+01:02:57,950 --> 01:02:59,390
+How do you have protections?
+你是如何保护自己的？
+
+901
+01:03:00,860 --> 01:03:01,730
+Base and bound?
+基址和界限？
+
+在计算机操作系统中，基址和界限是一种内存管理技术。基址是指内存块的起始地址，界限是指内存块的大小。通过使用基址和界限，操作系统可以将内存划分为多个独立的区域，每个区域都有自己的基址和界限。
+
+基址和界限的使用可以帮助操作系统实现内存保护和隔离。通过限制每个进程的内存访问范围，可以防止进程越界访问其他进程的内存空间，从而提高系统的安全性和稳定性。
+
+在基址和界限的机制下，当一个进程试图访问超出其界限范围的内存时，操作系统会产生一个异常，从而阻止非法的内存访问。这种机制可以帮助操作系统检测和处理内存访问错误，保护系统的稳定性和可靠性。
+
+总之，基址和界限是一种用于内存管理的技术，通过限制每个进程的内存访问范围，提高系统的安全性和稳定性。
+
+902
+01:03:01,740 --> 01:03:04,190
+Do you remember about this?
+你还记得这件事吗？
+
+903
+01:03:04,200 --> 01:03:05,110
+We talk about that.
+我们谈论过这个。
+
+904
+01:03:06,070 --> 01:03:09,030
+You have a base and a bound and associated with each application.
+每个应用程序都有一个基址和一个边界。
+
+905
+01:03:09,040 --> 01:03:18,330
+And you make sure that when the applications is going to a access,
+你要确保当应用程序要访问时，
+
+906
+01:03:18,340 --> 01:03:18,810
+a memory,
+一块内存
+
+907
+01:03:18,820 --> 01:03:21,970
+that address is going to be between base and bound.
+该地址将位于基址和界限之间。
+
+908
+01:03:24,260 --> 01:03:26,290
+This was in 31 super computer,
+这是在31台超级计算机中的情况。
+
+909
+01:03:26,300 --> 01:03:27,850
+one of the first super computer.
+其中一台最早的超级计算机。
+
+910
+01:03:31,070 --> 01:03:31,780
+This is what we do.
+这是我们所做的。
+
+911
+01:03:31,790 --> 01:03:36,230
+If like we have address of the program here,
+如果我们在这里有程序的地址，
+
+912
+01:03:36,240 --> 01:03:37,350
+101.
+101.
+
+913
+01:03:37,940 --> 01:03:43,280
+The base you have base is 1000 is bound1100.
+你所拥有的基数是1000，上限是1100。
+
+914
+01:03:43,780 --> 01:03:45,810
+When you address, you are going to check.
+当你寻址时，你将进行检查。
+
+915
+01:03:47,630 --> 01:03:52,870
+Sorry, you are going to check whether it's between100, and110.
+抱歉，你需要检查它是否在100和110之间。
+
+916
+01:03:53,760 --> 01:03:56,480
+If it is, you can access a memory.
+如果是这样的话，你可以访问内存。
+
+917
+01:03:56,900 --> 01:03:57,990
+Otherwise,
+否则，
+
+918
+01:03:58,790 --> 01:04:05,460
+you are going to set for you protect and isolate programs.
+你将要设置保护和隔离程序。
+
+919
+01:04:06,080 --> 01:04:10,980
+But this is requires you to, again,
+但这需要你再次
+
+920
+01:04:11,650 --> 01:04:15,660
+override the addresses of the application before the program,
+在程序执行之前覆盖应用程序的地址。
+
+921
+01:04:15,670 --> 01:04:16,660
+before you load it.
+在加载之前。
+
+922
+01:04:17,060 --> 01:04:20,520
+This is also called relocating louder, a louder,
+这也被称为重新定位音量更大的声音。
+
+923
+01:04:20,530 --> 01:04:21,760
+like that is doing that.
+就像那样做。
+
+924
+01:04:21,770 --> 01:04:24,520
+Rewriting is called relocating louder.
+重写被称为重新定位更大声。
+
+925
+01:04:29,370 --> 01:04:30,250
+Can be very fast.
+可以非常快速。
+
+926
+01:04:30,580 --> 01:04:35,210
+The basin bounds are going to be implemented in harbor.
+将在港口实施盆地边界。
+
+927
+01:04:36,460 --> 01:04:39,230
+And there is its only comparison,
+这是它唯一的比较对象，
+
+928
+01:04:39,240 --> 01:04:42,030
+no addition or nothing can done extremely fast.
+没有任何加法或其他操作可以做得非常快。
+
+929
+01:04:45,780 --> 01:04:46,300
+Okay.
+好的。
+
+930
+01:04:47,120 --> 01:04:49,430
+To summarize, we saw unit programming,
+总结一下，我们学习了单元编程。
+
+931
+01:04:49,790 --> 01:04:52,510
+no protection, one program at a given time,
+没有保护机制，一次只能运行一个程序。
+
+932
+01:04:52,760 --> 01:04:54,830
+multiprogramming, no protection,
+多道程序设计，无保护
+
+933
+01:04:54,840 --> 01:04:59,680
+but you have multiple programs at a given time in the same physical memory.
+但是在同一物理内存中，您可以同时运行多个程序。
+
+934
+01:05:00,100 --> 01:05:05,540
+And you need relocating loader to make sure that the programs,
+你需要使用重定位加载器来确保程序可以在内存中正确加载和运行。
+
+935
+01:05:05,550 --> 01:05:06,300
+when you load them,
+当你加载它们时，
+
+936
+01:05:06,590 --> 01:05:11,060
+you overwrite their addresses so that they don't step on each other.
+你覆盖它们的地址，以防它们相互干扰。
+
+937
+01:05:11,730 --> 01:05:14,160
+Finally, here we have, again,
+最后，我们再次来到这里，
+
+938
+01:05:14,170 --> 01:05:15,880
+no protection,
+没有保护
+
+939
+01:05:15,890 --> 01:05:17,200
+one physical memory,
+一个物理内存
+
+940
+01:05:17,210 --> 01:05:18,560
+no visualization.
+没有可视化。
+
+941
+01:05:18,940 --> 01:05:20,970
+You have also base and bounds to,
+你还有基址和界限。
+
+942
+01:05:21,660 --> 01:05:22,410
+sorry.
+对不起。
+
+943
+01:05:23,860 --> 01:05:24,450
+In this case,
+在这种情况下，
+
+944
+01:05:25,860 --> 01:05:31,200
+again, you have only one address physical memory,
+再次强调，你只有一个物理内存地址。
+
+945
+01:05:32,350 --> 01:05:33,900
+only one other space,
+只有另一个空间。
+
+946
+01:05:33,910 --> 01:05:36,020
+which is shared by the applications.
+这是应用程序共享的。
+
+947
+01:05:36,440 --> 01:05:39,880
+But in this case, you provide protection by using base and bounds.
+但在这种情况下，你可以通过使用基址和界限来提供保护。
+
+948
+01:05:40,090 --> 01:05:41,400
+This is provided in harvard.
+这是哈佛提供的。
+
+949
+01:05:44,520 --> 01:05:45,620
+So now,
+所以现在，
+
+950
+01:05:47,230 --> 01:05:47,790
+it's a time.
+现在是时间。
+
+951
+01:05:47,800 --> 01:05:49,110
+This is a pretty complicated,
+这是一个相当复杂的问题。
+
+952
+01:05:49,120 --> 01:05:50,950
+like relocating louder and so forth.
+如重新定位、更大声等等。
+
+953
+01:05:50,960 --> 01:05:52,830
+It's pretty complicated and it's pretty limited.
+这很复杂，而且很有限。
+
+954
+01:05:54,190 --> 01:05:54,880
+So next,
+接下来，
+
+955
+01:05:55,340 --> 01:06:00,720
+we are going to start discussing about the general address translation.
+我们将开始讨论关于通用地址转换的内容。
+
+956
+01:06:01,700 --> 01:06:02,200
+Okay?
+好的？
+
+957
+01:06:04,560 --> 01:06:07,790
+The general address translation is happening this way.
+通常的地址转换是这样进行的。
+
+958
+01:06:08,750 --> 01:06:09,980
+You have the cpu.
+你拥有CPU。
+
+959
+01:06:10,390 --> 01:06:13,910
+Remember this because sometimes it's little confusion.
+记住这个，因为有时候会有一点困惑。
+
+960
+01:06:15,770 --> 01:06:17,900
+When the cpu issues an instruction.
+当CPU发出一条指令时。
+
+961
+01:06:19,010 --> 01:06:19,660
+In general,
+一般来说，
+
+962
+01:06:20,490 --> 01:06:24,330
+the instructions contain virtual addresses.
+这些指令包含虚拟地址。
+
+963
+01:06:25,450 --> 01:06:29,130
+So these virtual addresses are then mapped to the physical address.
+因此，这些虚拟地址随后被映射到物理地址。
+
+964
+01:06:30,090 --> 01:06:31,500
+And they are done, typically,
+通常情况下，它们已经完成了。
+
+965
+01:06:31,510 --> 01:06:35,110
+by cheap or part of the processor,
+通过廉价或处理器的一部分，
+
+966
+01:06:35,870 --> 01:06:40,050
+which is called mmu memory management unit.
+这被称为内存管理单元（MMU）。
+
+967
+01:06:42,690 --> 01:06:44,160
+The programs,
+这些程序，
+
+968
+01:06:44,570 --> 01:06:48,530
+because they are running on the CPU they see mutual address spaces.
+因为它们在CPU上运行，所以它们看到的是共享的地址空间。
+
+969
+01:06:51,380 --> 01:06:51,790
+Okay?
+好的？
+
+970
+01:06:52,670 --> 01:06:53,670
+From the memory side,
+从内存方面来看，
+
+971
+01:06:53,680 --> 01:06:55,270
+you have only physical addresses.
+你只有物理地址。
+
+972
+01:07:08,770 --> 01:07:10,040
+In translation,
+在翻译中，
+
+973
+01:07:10,050 --> 01:07:11,480
+it's a generalized technique,
+这是一种通用技术，
+
+974
+01:07:11,820 --> 01:07:13,570
+which helps you is many things.
+这有很多帮助你的东西。
+
+975
+01:07:15,070 --> 01:07:16,540
+But if you really want,
+但是如果你真的想要的话，
+
+976
+01:07:16,910 --> 01:07:17,940
+if you only want,
+如果你只想要的话，
+
+977
+01:07:19,150 --> 01:07:20,170
+like I mentioned,
+就像我之前提到的那样，
+
+978
+01:07:20,490 --> 01:07:21,560
+protections,
+保护措施，
+
+979
+01:07:22,460 --> 01:07:23,850
+control, overlap,
+控制，重叠
+
+980
+01:07:24,380 --> 01:07:25,250
+and sing like that.
+并且像那样唱歌。
+
+981
+01:07:25,850 --> 01:07:29,870
+But if you really want to implement only one of these things like protection,
+但是如果你真的只想实现其中一件事，比如保护机制，
+
+982
+01:07:29,880 --> 01:07:31,610
+like you've seen in the past,
+就像你过去所见到的那样，
+
+983
+01:07:32,460 --> 01:07:39,400
+things are easier while you're on protection,
+在受到保护的时候，事情会变得更容易。
+
+984
+01:07:39,410 --> 01:07:43,190
+because if task a cannot gain access to speed data,
+因为如果任务A无法访问速度数据，
+
+985
+01:07:43,200 --> 01:07:45,950
+no way for anr to adversely affect.
+ANR（Application Not Responding）无法产生负面影响。
+
+986
+01:07:50,150 --> 01:07:50,540
+Now,
+现在，
+
+987
+01:07:51,190 --> 01:07:53,610
+if you have the translation,
+如果你有翻译的话，可以提供给我。
+
+988
+01:07:54,790 --> 01:08:00,520
+then every program can be linked or loaded into the same region of the users.
+那么每个程序都可以链接或加载到用户的同一区域。
+
+989
+01:08:02,800 --> 01:08:04,350
+Again, you have two applications.
+再次，你有两个应用程序。
+
+990
+01:08:04,360 --> 01:08:05,230
+In this case.
+在这种情况下。
+
+991
+01:08:06,460 --> 01:08:10,740
+Both applications have different virtual addresses,
+这两个应用程序具有不同的虚拟地址。
+
+992
+01:08:12,460 --> 01:08:13,520
+virtual address space,
+虚拟地址空间
+
+993
+01:08:14,610 --> 01:08:16,470
+because they have their own process.
+因为它们有自己的进程。
+
+994
+01:08:17,290 --> 01:08:21,760
+And each process has its own address space, visual address.
+每个进程都有自己的地址空间和虚拟地址。
+
+995
+01:08:23,690 --> 01:08:26,380
+These boss applications,
+这些老板应用程序，
+
+996
+01:08:26,910 --> 01:08:30,980
+they can see the same virtual memory.
+他们可以看到相同的虚拟内存。
+
+997
+01:08:31,720 --> 01:08:33,440
+Both of them, they see visual memory, say,
+他们两个都能看到视觉记忆，比如说，
+
+998
+01:08:33,450 --> 01:08:41,230
+from 000 to fff the trick here is that these two address spaces are
+从000到fff，这里的技巧是这两个地址空间是连续的。
+
+999
+01:08:41,730 --> 01:08:49,430
+going to be mapped to different locations in the physical memory by using translation.
+通过使用转换，将要映射到物理内存的不同位置。
+
+1000
+01:08:51,040 --> 01:08:52,640
+That's what the translation gives.
+这是翻译的结果。
+
+1001
+01:08:55,100 --> 01:08:57,920
+Let's consider examples.
+让我们来考虑一些例子。
+
+1002
+01:08:59,860 --> 01:09:02,380
+It's a one way to do it.
+这是一种方法来做。
+
+1003
+01:09:02,390 --> 01:09:09,290
+It's a very simple change of the previous
+这是对之前的一个非常简单的修改。
+
+1004
+01:09:13,890 --> 01:09:17,050
+basin bound technique.
+盆地边界技术。
+
+1005
+01:09:20,010 --> 01:09:21,100
+Here is a difference.
+这是一个区别。
+
+1006
+01:09:21,110 --> 01:09:23,940
+Let me just go back to make sure that it's different, right?
+让我回去确认一下，确保它是不同的，对吗？
+
+1007
+01:09:24,360 --> 01:09:25,070
+This is the difference.
+这是不同之处。
+
+1008
+01:09:25,080 --> 01:09:26,230
+In this case,
+在这种情况下，
+
+1009
+01:09:27,020 --> 01:09:28,540
+the base and bound,
+基址和界限
+
+1010
+01:09:29,790 --> 01:09:30,190
+right?
+对的？
+
+1011
+01:09:30,730 --> 01:09:32,070
+Are absolute addresses.
+是绝对地址。
+
+1012
+01:09:32,460 --> 01:09:35,040
+And the program address is also absolute address.
+程序地址也是绝对地址。
+
+1013
+01:09:35,380 --> 01:09:36,720
+You have 1010,
+你有1010个。
+
+1014
+01:09:37,310 --> 01:09:38,340
+and absolute meaning.
+绝对含义。
+
+1015
+01:09:38,650 --> 01:09:41,100
+I am referring to physical addresses.
+我指的是物理地址。
+
+1016
+01:09:42,020 --> 01:09:46,130
+You need to compare 1010 with the base and with a bound.
+你需要将1010与基准值和上限进行比较。
+
+1017
+01:09:50,800 --> 01:09:52,170
+With translation,
+翻译如下：
+
+通过翻译，
+
+1018
+01:09:52,890 --> 01:09:55,680
+the program address is not absolute,
+程序地址不是绝对的。
+
+1019
+01:09:55,690 --> 01:09:58,400
+is the relative to the bound to the basis.
+这个句子的意思不太清楚，可能是有些语法错误。如果你能提供更多的上下文，我可以帮你更好地理解并翻译这个句子。
+
+1020
+01:09:59,750 --> 01:10:01,420
+Actually, the real address,
+实际上，真实地址是
+
+1021
+01:10:01,650 --> 01:10:07,110
+physical address is a program address plus the base.
+物理地址是程序地址加上基址。
+
+1022
+01:10:10,520 --> 01:10:13,750
+In this case, a program address is 0010.
+在这种情况下，程序地址是0010。
+
+1023
+01:10:15,970 --> 01:10:17,880
+Base address is 1000.
+基地址是1000。
+
+1024
+01:10:18,090 --> 01:10:19,920
+If you add them up, it's 1010.
+如果你把它们加起来，结果是1010。
+
+1025
+01:10:22,990 --> 01:10:25,580
+These addresses are translated on the flight.
+这些地址是实时翻译的。
+
+1026
+01:10:26,230 --> 01:10:26,410
+Right?
+对吗？
+
+1027
+01:10:26,420 --> 01:10:27,290
+Very convenient.
+非常方便。
+
+1028
+01:10:29,950 --> 01:10:30,880
+So you still now,
+所以你现在还在吗？
+
+1029
+01:10:31,990 --> 01:10:33,710
+this program addresses,
+这个程序解决了...
+
+1030
+01:10:34,450 --> 01:10:35,820
+they don't need to be changed.
+它们不需要被改变。
+
+1031
+01:10:36,110 --> 01:10:39,310
+The only thing I need to change in order to make sure that programs
+程序确保正常运行的唯一需要更改的事情是
+
+1032
+01:10:39,320 --> 01:10:42,230
+are mapped into different address spaces.
+被映射到不同的地址空间中。
+
+1033
+01:10:43,990 --> 01:10:47,290
+Physical address spaces is the just chains of these others.
+物理地址空间只是这些其他地址空间的链表。
+
+1034
+01:10:48,430 --> 01:10:48,710
+Right?
+对吗？
+
+1035
+01:10:49,700 --> 01:10:50,160
+Indeed,
+确实，
+
+1036
+01:10:50,850 --> 01:10:51,160
+right?
+对的？
+
+1037
+01:10:53,770 --> 01:10:55,200
+It's harder for location.
+定位更困难。
+
+1038
+01:10:55,210 --> 01:10:59,280
+It's also called, then basically,
+它也被称为，基本上，
+
+1039
+01:10:59,650 --> 01:11:01,880
+a question here, can you touch the program?
+这里有一个问题，你能触碰程序吗？
+
+1040
+01:11:01,890 --> 01:11:11,730
+Can you touch the os but if you are careful,
+如果你小心的话，你可以触碰操作系统。
+
+1041
+01:11:12,390 --> 01:11:14,480
+we are not going.
+我们不去了。
+
+1042
+01:11:14,490 --> 01:11:19,440
+You cannot touch the os because the os will be outside the base address
+你无法访问操作系统，因为操作系统位于基地址之外。
+
+1043
+01:11:19,450 --> 01:11:22,090
+and the bound address of any
+和任何绑定地址的
+
+1044
+01:11:22,800 --> 01:11:24,820
+up any user process.
+唤醒任何用户进程。
+
+1045
+01:11:26,580 --> 01:11:27,940
+Can you touch other programs?
+你能够接触其他程序吗？
+
+1046
+01:11:27,950 --> 01:11:29,140
+Now, if you are careful,
+现在，如果你小心的话，
+
+1047
+01:11:29,150 --> 01:11:30,420
+that's how you provide protection.
+这就是你提供保护的方式。
+
+1048
+01:11:33,030 --> 01:11:34,540
+Again, it's a very simple idea.
+再说一遍，这是一个非常简单的想法。
+
+1049
+01:11:35,900 --> 01:11:37,090
+Any questions about that?
+对此有任何问题吗？
+
+1050
+01:11:37,100 --> 01:11:42,210
+Do you see how now I no longer need to override the program analysis?
+你看到了吗，现在我不再需要覆盖程序分析了吗？
+
+1051
+01:11:42,670 --> 01:11:44,310
+When I load the program in memory,
+当我将程序加载到内存中时，
+
+1052
+01:11:44,320 --> 01:11:48,220
+I just do that as a runner when the program I give.
+当我运行给定的程序时，我只是作为一个运行者来执行这个任务。
+
+1053
+01:11:51,980 --> 01:11:52,780
+Any questions?
+有任何问题吗？
+
+1054
+01:11:56,680 --> 01:11:56,980
+Okay.
+好的。
+
+1055
+01:11:59,420 --> 01:12:03,890
+What are the issues with this basin bound method?
+这个盆地边界方法存在哪些问题？
+
+1056
+01:12:06,270 --> 01:12:10,310
+The issue here is about what is called is about fragmentation.
+这里的问题是关于所谓的碎片化。
+
+1057
+01:12:12,400 --> 01:12:13,870
+And this is a very simple example,
+这是一个非常简单的例子，
+
+1058
+01:12:14,880 --> 01:12:20,790
+because each process requires different amount of data,
+因为每个进程需要不同数量的数据，
+
+1059
+01:12:21,250 --> 01:12:23,550
+the different amount of space, memory space.
+不同的空间量，内存空间。
+
+1060
+01:12:24,960 --> 01:12:26,070
+They are not uniform,
+它们不是统一的。
+
+1061
+01:12:29,320 --> 01:12:30,430
+because they are not uniform,
+因为它们不是统一的，
+
+1062
+01:12:30,440 --> 01:12:32,670
+like in this case process to requires a lot.
+就像在这种情况下，进程需要很多资源。
+
+1063
+01:12:33,790 --> 01:12:38,320
+And you process to goes away.
+然后你的进程消失了。
+
+1064
+01:12:38,330 --> 01:12:40,940
+Another process nine comes,
+又来了一个进程九，
+
+1065
+01:12:41,280 --> 01:12:43,320
+you are locates a memory spatial process,
+你正在定位一个内存空间的进程。
+
+1066
+01:12:43,330 --> 01:12:46,120
+9+5 goes away.
+9+5消失了。
+
+1067
+01:12:46,600 --> 01:12:48,940
+And now look at this situation,
+现在看看这种情况，
+
+1068
+01:12:49,400 --> 01:12:50,590
+you have process 11,
+你有进程11。
+
+1069
+01:12:50,600 --> 01:12:53,830
+and you have enough physical memory for process 11.
+你的物理内存足够容纳进程11。
+
+1070
+01:12:54,830 --> 01:13:00,310
+But the point that this physical memory is scattered and process 11 needs
+但是问题是这个物理内存是分散的，进程11需要
+
+1071
+01:13:00,320 --> 01:13:03,290
+a contiguous region of memory.
+一个连续的内存区域。
+
+1072
+01:13:05,790 --> 01:13:06,580
+That's a problem.
+这是一个问题。
+
+1073
+01:13:12,080 --> 01:13:13,190
+How do you do it?
+你是如何做到的？
+
+1074
+01:13:14,280 --> 01:13:15,420
+What is your solution here?
+你在这里的解决方案是什么？
+
+1075
+01:13:17,180 --> 01:13:18,170
+There are many solutions.
+有很多解决方案。
+
+1076
+01:13:19,690 --> 01:13:21,690
+But one simple solution is to have,
+但是一个简单的解决方案是拥有，
+
+1077
+01:13:21,700 --> 01:13:27,030
+instead of only one segment for each program,
+每个程序不再只有一个段，
+
+1078
+01:13:28,360 --> 01:13:29,950
+you can have different segments.
+你可以拥有不同的段。
+
+1079
+01:13:31,660 --> 01:13:33,570
+Typically, you can have code segment,
+通常情况下，你可以有代码段，
+
+1080
+01:13:33,580 --> 01:13:36,860
+data segments that had segment sub segment.
+具有段子段的数据段。
+
+1081
+01:13:38,450 --> 01:13:39,840
+You do this independently.
+你可以独立完成这个任务。
+
+1082
+01:13:40,210 --> 01:13:42,040
+This gives you a little bit more flexibility.
+这会给你更多的灵活性。
+
+1083
+01:13:50,150 --> 01:13:54,480
+Also, another problem is the solution I show you here,
+另外，还有一个问题是我在这里展示给你的解决方案。
+
+1084
+01:13:56,570 --> 01:13:58,720
+the original solution, the ban,
+原始解决方案，禁止
+
+1085
+01:13:58,730 --> 01:14:05,260
+the basin bound is that remember about threads and processes.
+基本原则是要记住线程和进程。
+
+1086
+01:14:06,430 --> 01:14:09,030
+You can have multiple threads in the same process.
+在同一个进程中可以有多个线程。
+
+1087
+01:14:10,390 --> 01:14:12,060
+The site is the same process.
+该网站是同一个过程。
+
+1088
+01:14:12,070 --> 01:14:12,980
+Here is a code.
+这是一段代码。
+
+1089
+01:14:14,800 --> 01:14:16,270
+But how you are going to do it here,
+但是你在这里要如何做呢？
+
+1090
+01:14:18,480 --> 01:14:18,770
+right?
+对的？
+
+1091
+01:14:23,010 --> 01:14:23,540
+Because right?
+因为对吗？
+
+1092
+01:14:26,650 --> 01:14:29,920
+And even like think about, actually,
+而且，实际上，甚至还要考虑到，
+
+1093
+01:14:30,330 --> 01:14:34,790
+you can think about maybe a better example than what I said is libraries.
+你可以考虑一个比我之前提到的更好的例子，比如图书馆。
+
+1094
+01:14:36,140 --> 01:14:41,890
+If you have common library system libraries with these libraries,
+如果你有与这些库相同的常用库系统库，
+
+1095
+01:14:42,460 --> 01:14:44,370
+they are used by multiple applications.
+它们被多个应用程序使用。
+
+1096
+01:14:44,840 --> 01:14:51,760
+So it makes no sense to allow the copy of the library for each application
+因此，允许每个应用程序复制该库是没有意义的。
+
+1097
+01:14:51,770 --> 01:14:53,760
+set up against share system values.
+建立起对共享系统价值的抵制。
+
+1098
+01:14:54,940 --> 01:14:55,300
+Right?
+对吗？
+
+1099
+01:14:56,990 --> 01:14:57,620
+How are you doing?
+你好吗？
+
+1100
+01:15:02,660 --> 01:15:03,170
+Again,
+再次，
+
+1101
+01:15:04,320 --> 01:15:06,310
+now we can alleviate this problem.
+现在我们可以缓解这个问题。
+
+1102
+01:15:07,430 --> 01:15:10,780
+Like I mentioned that instead of having one segment per process,
+就像我之前提到的，我们不再采用每个进程一个段的方式，
+
+1103
+01:15:11,320 --> 01:15:12,760
+you have multiple segments,
+你有多个段落。
+
+1104
+01:15:13,400 --> 01:15:13,680
+right?
+对的？
+
+1105
+01:15:14,990 --> 01:15:18,310
+But process a typical one, like I mentioned,
+但是处理一个典型的进程，就像我之前提到的那样，
+
+1106
+01:15:18,320 --> 01:15:20,990
+you have code data stacked heap segment.
+你有代码段、数据段、堆段和栈段。
+
+1107
+01:15:21,700 --> 01:15:24,260
+But in general, you can have a segment at one extreme.
+但一般来说，你可以在一个极端拥有一个段落。
+
+1108
+01:15:24,270 --> 01:15:25,980
+You can have a segment for each function.
+你可以为每个函数分配一个段。
+
+1109
+01:15:28,140 --> 01:15:28,490
+Right?
+对吗？
+
+1110
+01:15:30,660 --> 01:15:33,930
+For a segment, you have a base and a bound or a limit.
+对于一个段，你有一个基址和一个界限或限制。
+
+1111
+01:15:35,020 --> 01:15:37,090
+Now, because the segments are smaller,
+现在，由于分段更小，
+
+1112
+01:15:37,100 --> 01:15:40,330
+you have more flexibility how to place them in the physical,
+你在物理上放置它们的方式更加灵活。
+
+1113
+01:15:41,370 --> 01:15:42,880
+in the physical memory.
+在物理内存中。
+
+1114
+01:15:43,960 --> 01:15:47,410
+Let me go back here in this process 11.
+让我回到这个进程的第11步。
+
+1115
+01:15:47,420 --> 01:15:48,890
+If this process 11,
+如果这个进程是11，
+
+1116
+01:15:50,000 --> 01:15:54,540
+maybe it had been consisted by from two segments.
+可能它由两个片段组成。
+
+1117
+01:15:56,210 --> 01:15:57,230
+Then you'd have feet.
+那么你就会有脚。
+
+1118
+01:15:57,240 --> 01:15:58,430
+You could have feet.
+你可以有脚。
+
+1119
+01:15:58,920 --> 01:16:00,540
+Process one in physical memory,
+物理内存中的进程一。
+
+1120
+01:16:00,550 --> 01:16:06,160
+because maybe one segment of process one would have fit in one of these gaps,
+因为进程一的某个段可能适合填补这些间隙之一，
+
+1121
+01:16:06,170 --> 01:16:07,880
+and the other one is the other gap.
+另一个是另一个间隙。
+
+1122
+01:16:10,470 --> 01:16:12,800
+So that's how multiple segments can help.
+这就是多个段可以帮助的原因。
+
+1123
+01:16:20,120 --> 01:16:21,990
+This is one version.
+这是一个版本。
+
+1124
+01:16:22,550 --> 01:16:23,900
+You have then a map.
+你现在有一张地图。
+
+1125
+01:16:24,850 --> 01:16:27,070
+How would you implement it?
+你会如何实现它？
+
+1126
+01:16:27,080 --> 01:16:28,230
+Now you need a map,
+现在你需要一张地图，
+
+1127
+01:16:29,090 --> 01:16:30,280
+a segment map,
+一个段映射表
+
+1128
+01:16:30,950 --> 01:16:33,670
+which needs to reside in the processor.
+需要驻留在处理器中。
+
+1129
+01:16:34,630 --> 01:16:36,910
+And then how do you address it?
+然后你如何解决这个问题？
+
+1130
+01:16:37,280 --> 01:16:38,790
+How do we know we segment?
+我们如何知道我们正在进行分段操作？
+
+1131
+01:16:40,520 --> 01:16:41,060
+We are in.
+我们进来了。
+
+1132
+01:16:42,160 --> 01:16:46,770
+So one way to do it is to divide the address space,
+所以一种方法是将地址空间划分为多个部分，
+
+1133
+01:16:46,780 --> 01:16:49,510
+a virtual address into two.
+将一个虚拟地址分成两部分。
+
+1134
+01:16:50,650 --> 01:16:58,470
+The first beats of the asset advice are the most significant ones represent the
+资产建议的首要节拍是最重要的，代表着
+
+1135
+01:16:58,480 --> 01:17:02,760
+segment.to this segment map.
+将此段映射到该段位图中。
+
+1136
+01:17:05,130 --> 01:17:09,530
+And the second and the other part of the address is a quality of.
+地址的第二部分和其他部分是一个质量的。
+
+1137
+01:17:12,230 --> 01:17:16,150
+So when the processor issues such virtual address,
+当处理器发出这样的虚拟地址时，
+
+1138
+01:17:18,350 --> 01:17:22,430
+the processor take the first,
+处理器取第一个。
+
+1139
+01:17:22,440 --> 01:17:26,260
+the segment beats its indexes in the segment map,
+段在段映射中击败了它的索引。
+
+1140
+01:17:27,070 --> 01:17:35,990
+then it gets the base and the limit the offset is added to the base.
+然后它获取基址和限制，将偏移量添加到基址上。
+
+1141
+01:17:38,740 --> 01:17:40,750
+And now this you have the physical address,
+现在你已经有了物理地址，
+
+1142
+01:17:40,760 --> 01:17:46,700
+and then you need also to compare the offset to the limit,
+然后你还需要将偏移量与限制值进行比较，
+
+1143
+01:17:48,630 --> 01:17:48,830
+right?
+对的？
+
+1144
+01:17:48,840 --> 01:17:50,550
+To see that you are within the segment.
+确认你在该段内。
+
+1145
+01:17:52,360 --> 01:17:53,390
+If not, it's an error.
+如果不是，那就是一个错误。
+
+1146
+01:17:55,750 --> 01:17:56,340
+You are done.
+你完成了。
+
+1147
+01:18:01,910 --> 01:18:05,990
+Now you can chunk the memory in as many chunks that you have
+现在你可以将内存分成与你拥有的块数相同的块。
+
+1148
+01:18:06,000 --> 01:18:09,320
+in this map map table.
+在这个映射表中。
+
+1149
+01:18:13,190 --> 01:18:20,730
+And this is what very early versions of intel 86
+这是Intel 86的早期版本。
+
+1150
+01:18:21,900 --> 01:18:23,670
+are implemented.
+已经实现。
+
+1151
+01:18:28,210 --> 01:18:28,990
+86.
+86可以翻译成中文为八十六。
+
+1152
+01:18:31,160 --> 01:18:32,550
+We are going to stop here.
+我们要停下来了。
+
+1153
+01:18:32,560 --> 01:18:33,550
+We are at time.
+我们现在是在时间上。
+
+1154
+01:18:34,690 --> 01:18:38,970
+And we are going to continue our discussion on virtual memory.
+我们将继续讨论虚拟内存的问题。
+
+1155
+01:18:39,560 --> 01:18:40,240
+Next Monday.
+下周一。
+
+1156
+01:18:41,800 --> 01:18:48,350
+Until then, good luck with project two is good to start early.
+在那之前，祝你在项目二中好运，早点开始是个好主意。
+
+1157
+01:18:50,170 --> 01:18:52,000
+I'll see you then on virtually.
+那么我们就在虚拟平台上见了。
+
+1158
+01:18:52,010 --> 01:18:53,040
+I'll see you on Monday.
+我周一见你。
+
+1159
+01:18:53,050 --> 01:18:56,100
+If you have any other questions, please, let me know.
+如果你有任何其他问题，请告诉我。
+

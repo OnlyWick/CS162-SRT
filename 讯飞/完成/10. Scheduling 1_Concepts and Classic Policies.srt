@@ -1,0 +1,6812 @@
+1
+00:00:07,880 --> 00:00:08,830
+Hello, everyone.
+大家好。
+
+2
+00:00:08,840 --> 00:00:11,030
+Welcome to the tennis lecture.
+欢迎来到网球讲座。
+
+3
+00:00:12,810 --> 00:00:16,480
+Today we are going to finish synchronization, primitives,
+今天我们将完成同步、原语的学习。
+
+4
+00:00:16,490 --> 00:00:18,840
+and then the rest of the lecture,
+然后是剩下的讲座内容，
+
+5
+00:00:18,850 --> 00:00:22,590
+we are going to focus on scheduling,
+我们将专注于调度。
+
+6
+00:00:23,950 --> 00:00:25,460
+main key concepts.
+主要关键概念。
+
+7
+00:00:25,470 --> 00:00:29,740
+And we are going to learn some of the basic policies.
+我们将学习一些基本的策略。
+
+8
+00:00:32,890 --> 00:00:38,280
+Recall that last time we learned about monitors and condition variables,
+回想一下，上次我们学习了关于监视器和条件变量的内容，
+
+9
+00:00:41,740 --> 00:00:43,920
+just to,
+只是为了，
+
+10
+00:00:45,780 --> 00:00:47,450
+if you remember a monitor,
+如果你记得一个显示器，
+
+11
+00:00:47,460 --> 00:00:48,490
+it's a lock,
+这是一个锁。
+
+12
+00:00:50,340 --> 00:00:55,090
+and which owns one or more conditioned variables,
+并且拥有一个或多个条件变量的对象，
+
+13
+00:00:55,900 --> 00:01:01,450
+these condition variables are used for managing the access to share data.
+这些条件变量用于管理对共享数据的访问。
+
+14
+00:01:02,330 --> 00:01:02,760
+Okay?
+好的？
+
+15
+00:01:09,980 --> 00:01:12,730
+The way this is happening is our conditional variable.
+这种情况发生的方式是我们的条件变量。
+
+16
+00:01:12,740 --> 00:01:14,970
+You can imagine it as a queue of thread,
+你可以将其想象成一个线程队列，
+
+17
+00:01:15,270 --> 00:01:19,580
+waiting for something to happen inside a critical section, a section.
+在一个临界区内等待某个事件发生。
+
+18
+00:01:20,080 --> 00:01:26,610
+And they are waiting for a signal from this condition variable.
+他们正在等待来自这个条件变量的信号。
+
+19
+00:01:27,770 --> 00:01:32,990
+The key here is that because you are waiting for something to happen
+关键在于你正在等待某件事情发生
+
+20
+00:01:33,000 --> 00:01:34,830
+in the critical section,
+在临界区内，
+
+21
+00:01:36,150 --> 00:01:38,230
+the critical section has a lock.
+临界区有一个锁。
+
+22
+00:01:38,960 --> 00:01:43,390
+You need to look at critical section to implement mutual exclusion.
+你需要关注临界区来实现互斥。
+
+23
+00:01:44,720 --> 00:01:48,790
+But because you are waiting in a critical section before,
+但是因为你之前在一个关键段中等待，
+
+24
+00:01:50,980 --> 00:01:52,970
+when you're being the thread,
+当你成为线程时，
+
+25
+00:01:53,230 --> 00:01:56,280
+you are put to sleep on the waiting queue.
+你被放入等待队列中休眠。
+
+26
+00:01:56,530 --> 00:01:57,510
+You need to release a lock.
+你需要释放一个锁。
+
+27
+00:01:58,300 --> 00:02:01,140
+And the monitors does the art for you.
+而且显示器会为您完成艺术创作。
+
+28
+00:02:01,150 --> 00:02:04,410
+You don't need as a programmer to do anything.
+作为一个程序员，你不需要做任何事情。
+
+29
+00:02:07,150 --> 00:02:09,290
+Basically, from the programming perspective,
+从编程角度来看，
+
+30
+00:02:09,300 --> 00:02:15,270
+you can wait in the critical section for the event to happen.
+你可以在临界区等待事件发生。
+
+31
+00:02:15,610 --> 00:02:17,280
+But under the hood,
+但在底层实现中，
+
+32
+00:02:17,600 --> 00:02:18,950
+the lock is released.
+锁已经释放。
+
+33
+00:02:19,270 --> 00:02:20,920
+Once you are put on the radio.
+一旦你被放到广播中。
+
+34
+00:02:21,960 --> 00:02:22,360
+Okay?
+好的？
+
+35
+00:02:25,040 --> 00:02:27,210
+Besides awake wake,
+除了"awake"和"wake"之外，
+
+36
+00:02:28,970 --> 00:02:32,760
+we take the argument as a lock of the critical section.
+我们将参数作为临界区的锁。
+
+37
+00:02:32,770 --> 00:02:38,350
+You are going to wait in order to trigger events,
+你需要等待以触发事件。
+
+38
+00:02:39,050 --> 00:02:42,280
+to wake up the threads which are waiting for these events to happen.
+唤醒等待这些事件发生的线程。
+
+39
+00:02:43,090 --> 00:02:46,560
+There are two primitives, signal,
+有两个原语，signal，
+
+40
+00:02:47,340 --> 00:02:48,630
+and broadcast.
+广播。
+
+41
+00:02:49,590 --> 00:02:52,260
+A signal wakes up only one waiter.
+一个信号只能唤醒一个等待者。
+
+42
+00:02:52,570 --> 00:02:55,780
+Aa broadcast can wake up all the waiters,
+广播可以唤醒所有等待者。
+
+43
+00:02:56,100 --> 00:02:58,990
+which are waiting for that particular event to happen.
+它们正在等待特定事件的发生。
+
+44
+00:03:01,330 --> 00:03:01,760
+Okay?
+好的？
+
+45
+00:03:04,860 --> 00:03:09,840
+When you do condition variable operations,
+当你进行条件变量操作时，
+
+46
+00:03:10,180 --> 00:03:12,960
+then you are going to have to, obviously,
+那么你显然需要做的是，
+
+47
+00:03:12,970 --> 00:03:14,480
+to keep the lock.
+保持锁定状态。
+
+48
+00:03:20,450 --> 00:03:22,520
+One question here from actually,
+这里有一个问题来自实际情况，
+
+49
+00:03:22,530 --> 00:03:26,600
+that why it is nice to be able to wait in the critical section.
+这就是为什么能够在临界区等待是很好的。
+
+50
+00:03:28,360 --> 00:03:29,750
+So if you remember,
+所以如果你还记得的话，
+
+51
+00:03:30,110 --> 00:03:34,880
+if not, if the program doesn't allow you to wait,
+如果不允许等待的话，
+
+52
+00:03:35,110 --> 00:03:37,950
+if the program constructs api doesn't allow you to wait,
+如果程序构建的 API 不允许你等待，
+
+53
+00:03:39,090 --> 00:03:46,790
+then you need somehow programmatic to give the
+那么你需要以某种编程方式提供
+
+54
+00:03:46,800 --> 00:03:49,120
+lock while you are going to sleep.
+睡觉时请锁好门。
+
+55
+00:03:49,860 --> 00:03:55,110
+Because if you are going to sleep while you keep the lock that no one
+因为如果你在持有锁的情况下睡觉，没有其他人能够使用该锁。
+
+56
+00:03:55,120 --> 00:03:56,510
+else can acquire the lock.
+其他线程可以获取锁。
+
+57
+00:03:56,920 --> 00:03:58,790
+So basically, the entire system.
+基本上，整个系统。
+
+58
+00:03:59,180 --> 00:04:01,680
+So no one even can wake you up.
+所以没有人能够把你叫醒。
+
+59
+00:04:02,210 --> 00:04:04,550
+So the entire system is deadlock.
+整个系统陷入了死锁。
+
+60
+00:04:05,200 --> 00:04:09,040
+It's fundamental that as you are going to go to sleep,
+睡觉前最重要的是，
+
+61
+00:04:09,810 --> 00:04:11,390
+you have to be the lock.
+你必须成为锁。
+
+62
+00:04:12,300 --> 00:04:18,480
+But doing that in a program is to separate instructions going to sleep and reading,
+但在程序中这样做是为了将休眠和读取指令分开。
+
+63
+00:04:18,490 --> 00:04:19,830
+the lock is very difficult.
+这个锁很难。
+
+64
+00:04:20,420 --> 00:04:23,020
+It cannot the instruction has to be atomic.
+这是不可能的，指令必须是原子的。
+
+65
+00:04:23,620 --> 00:04:26,010
+These two actions should be atomic in the same instruction.
+这两个操作应该在同一条指令中是原子的。
+
+66
+00:04:28,220 --> 00:04:31,400
+That's what monitors provide to you.
+这就是监视器为您提供的功能。
+
+67
+00:04:36,450 --> 00:04:37,180
+Good question.
+好问题。
+
+68
+00:04:39,110 --> 00:04:39,420
+Now,
+现在，
+
+69
+00:04:39,430 --> 00:04:44,380
+aa key question is that the monitor is clearly a a much more advanced api
+重要的问题是，显示器明显是一个更先进的API。
+
+70
+00:04:44,550 --> 00:04:45,740
+for synchronization.
+用于同步。
+
+71
+00:04:45,750 --> 00:04:49,380
+And one of the natural question, actually, it's about,
+其中一个自然的问题，实际上，是关于...
+
+72
+00:04:49,390 --> 00:04:53,360
+can you use lower level synchronization primitives like some of us to go
+你能像我们一样使用较低级别的同步原语，比如一些Go语言中的吗？
+
+73
+00:04:53,370 --> 00:04:54,290
+to implement monitors?
+实现监视器？
+
+74
+00:04:54,810 --> 00:04:55,170
+Right?
+对吗？
+
+75
+00:04:56,450 --> 00:05:00,140
+Again, we got out of two to constructs,
+再次，我们得到了两个构造体。
+
+76
+00:05:00,150 --> 00:05:02,620
+you need to implement one.
+你需要实现一个。
+
+77
+00:05:02,630 --> 00:05:03,660
+It's about,
+这是关于...
+
+78
+00:05:04,580 --> 00:05:05,410
+you need to,
+你需要，
+
+79
+00:05:07,110 --> 00:05:08,390
+you have a critical section,
+你有一个临界区
+
+80
+00:05:08,820 --> 00:05:09,850
+you need to implement.
+你需要实现。
+
+81
+00:05:09,860 --> 00:05:14,590
+So you need to lock the lock primitive.
+所以你需要锁定锁原语。
+
+82
+00:05:14,940 --> 00:05:16,840
+The other one is signaling, right?
+另一个是信号传递，对吗？
+
+83
+00:05:17,470 --> 00:05:20,680
+To signal in the events or condition variables.
+发出信号以激活事件或条件变量。
+
+84
+00:05:22,400 --> 00:05:24,390
+The condition variables, basically,
+条件变量，基本上，
+
+85
+00:05:24,880 --> 00:05:26,470
+you can think you can do it,
+你可以相信你能做到。
+
+86
+00:05:26,820 --> 00:05:32,020
+because you can one possibility would be to wait to use a semaphore.
+因为你可以，一个可能的方法是等待使用信号量。
+
+87
+00:05:32,890 --> 00:05:34,160
+You wait for a similar for,
+你等待一个类似的表单。
+
+88
+00:05:34,170 --> 00:05:37,000
+and the way you do it,
+以及你的做法，
+
+89
+00:05:37,010 --> 00:05:44,240
+you the seven p p operation and so forth.
+你是指七个P操作等等吗？
+
+90
+00:05:44,250 --> 00:05:47,360
+If you remember the p operations decrement the similar for it,
+如果你记得p操作会将类似的操作减少一个。
+
+91
+00:05:47,370 --> 00:05:49,280
+it has a value greater than one.
+它的值大于一。
+
+92
+00:05:49,530 --> 00:05:52,350
+If it has a value later than the issue is,
+如果它的值比问题发生的时间晚，
+
+93
+00:05:52,660 --> 00:05:55,840
+the film sum of our value is zero, then you wait.
+电影《我们的价值之和为零》然后你等待。
+
+94
+00:05:57,590 --> 00:06:02,550
+And then signaling its use as an operation which is v which is
+然后将其标记为一个操作，该操作为v，其中v是...
+
+95
+00:06:02,560 --> 00:06:04,930
+just increment the cinema for right?
+只需要将电影院增加一个即可吗？
+
+96
+00:06:05,560 --> 00:06:09,950
+If you are waiting on a similar for because the value zero and I
+如果你正在等待一个类似的表单，因为值为零，那么我
+
+97
+00:06:09,960 --> 00:06:12,270
+am implementing the similar for the value to one,
+我正在实现类似的功能，将值设置为1。
+
+98
+00:06:12,390 --> 00:06:15,010
+i'm going to basically wake you up,
+我将基本上唤醒你，
+
+99
+00:06:15,660 --> 00:06:16,870
+but i'm going to signal it.
+但是我会发出信号。
+
+100
+00:06:19,250 --> 00:06:20,120
+So does this work?
+这个工作吗？
+
+101
+00:06:24,850 --> 00:06:25,850
+One think,
+有一件事，
+
+102
+00:06:26,810 --> 00:06:28,290
+one reason this may not work,
+这可能不起作用的一个原因是，
+
+103
+00:06:28,300 --> 00:06:34,450
+because if you call weight in during in the critical section,
+因为如果你在临界区内调用weight函数，
+
+104
+00:06:34,700 --> 00:06:36,120
+then it doesn't release a lock.
+那么它就不会释放锁。
+
+105
+00:06:37,030 --> 00:06:39,070
+And if you have the problem,
+如果你有问题，
+
+106
+00:06:39,080 --> 00:06:44,840
+I just mentioned earlier that you are going to sleep with while you hold
+我刚刚提到你要在抱着的时候睡觉。
+
+107
+00:06:44,850 --> 00:06:45,280
+the lock.
+锁。
+
+108
+00:06:45,590 --> 00:06:48,300
+So no one else can enter the critical section.
+所以其他人无法进入临界区。
+
+109
+00:06:54,970 --> 00:06:56,600
+In order to avoid this problem,
+为了避免这个问题，
+
+110
+00:06:56,610 --> 00:06:58,760
+you can think to have something like this, right?
+你可以考虑有类似这样的东西，对吗？
+
+111
+00:06:58,770 --> 00:06:59,240
+It's like,
+就像是，
+
+112
+00:07:02,110 --> 00:07:02,830
+when you wait,
+当你等待时，
+
+113
+00:07:03,560 --> 00:07:06,030
+this is the implementation of the weight function.
+这是权重函数的实现。
+
+114
+00:07:06,550 --> 00:07:06,990
+Right?
+对吗？
+
+115
+00:07:08,450 --> 00:07:09,560
+You release a lock,
+你释放了一个锁。
+
+116
+00:07:10,320 --> 00:07:15,310
+then you do some r for p and again,
+然后你为p做一些r操作，然后再次进行。
+
+117
+00:07:15,320 --> 00:07:16,470
+you try to decrement,
+你尝试进行递减操作，
+
+118
+00:07:16,890 --> 00:07:18,080
+you acquire the lock.
+你获得了锁。
+
+119
+00:07:18,730 --> 00:07:19,040
+Right?
+对吗？
+
+120
+00:07:19,650 --> 00:07:21,550
+So basically, so in this sense,
+基本上，在这个意义上，
+
+121
+00:07:21,560 --> 00:07:25,700
+is that if you are going to slap sleep across the center for zero,
+这是说如果你要将睡眠函数跨越中心对齐到零点，
+
+122
+00:07:26,490 --> 00:07:33,450
+your lock was at least the signal is the same.
+你的锁至少是信号是一样的。
+
+123
+00:07:34,910 --> 00:07:35,840
+It does this work.
+它完成了这项工作。
+
+124
+00:07:36,290 --> 00:07:36,660
+Right?
+对吗？
+
+125
+00:07:38,360 --> 00:07:40,940
+It doesn't work a for a series of reason,
+由于一系列原因，它无法正常工作。
+
+126
+00:07:40,950 --> 00:07:43,820
+but one of the things which is, again, we discussed last time.
+但是其中一件事情，就是我们上次讨论过的。
+
+127
+00:07:44,180 --> 00:07:48,990
+But I want to emphasize is that the condition variables,
+但我想强调的是条件变量，
+
+128
+00:07:49,000 --> 00:07:50,190
+when you send a signal,
+当你发送一个信号时，
+
+129
+00:07:50,570 --> 00:07:51,720
+there is no history.
+没有历史记录。
+
+130
+00:07:54,430 --> 00:08:00,270
+If there is, if no one is waiting on a condition variable,
+如果存在的话，如果没有人在等待条件变量，
+
+131
+00:08:02,100 --> 00:08:05,390
+some are someone will send a signal for that condition variable.
+有些人会为那个条件变量发送一个信号。
+
+132
+00:08:06,300 --> 00:08:07,820
+That signal was lost.
+信号丢失了。
+
+133
+00:08:10,150 --> 00:08:10,770
+That is,
+也就是说，
+
+134
+00:08:11,090 --> 00:08:15,880
+if you send a signal upon a conditioned variable on which no one is listening,
+如果你在一个没有人监听的条件变量上发送一个信号，
+
+135
+00:08:16,540 --> 00:08:17,190
+is writing.
+正在写作。
+
+136
+00:08:17,600 --> 00:08:17,870
+Now,
+现在，
+
+137
+00:08:17,880 --> 00:08:21,370
+someone else comes after you send the signal waiting on the condition
+在你发送信号并等待条件的过程中，可能会有其他人到来。
+
+138
+00:08:21,380 --> 00:08:24,420
+variable that someone else is going to be stuck,
+即将被其他人卡住的变量
+
+139
+00:08:24,430 --> 00:08:25,140
+is going to wait.
+将要等待。
+
+140
+00:08:27,040 --> 00:08:28,440
+This is different from singapore.
+这与新加坡不同。
+
+141
+00:08:28,450 --> 00:08:32,010
+The singapore have history because you are increment in the singapore.
+新加坡有历史，因为你在新加坡不断发展。
+
+142
+00:08:33,300 --> 00:08:34,520
+So take the same scenario.
+那么就以同样的情景来看。
+
+143
+00:08:35,130 --> 00:08:36,210
+No one is waiting.
+没有人在等待。
+
+144
+00:08:37,120 --> 00:08:38,350
+But now the semaphore,
+但是现在信号量，
+
+145
+00:08:38,360 --> 00:08:43,160
+you called a signal and use a semaphore implementation.
+你调用了一个信号并使用了一个信号量实现。
+
+146
+00:08:45,080 --> 00:08:45,950
+What will happen then?
+那么会发生什么呢？
+
+147
+00:08:46,280 --> 00:08:46,900
+What will happen?
+会发生什么？
+
+148
+00:08:47,310 --> 00:08:47,740
+Then?
+然后呢？
+
+149
+00:08:47,750 --> 00:08:50,540
+You are going to increment the summer now the summer for each one.
+你现在要逐个增加夏天的计数。
+
+150
+00:08:51,870 --> 00:08:52,510
+So the next,
+下一步，
+
+151
+00:08:53,680 --> 00:08:58,690
+if someone else waits on the summer for price to wait,
+如果有其他人等待夏季的价格下降，
+
+152
+00:08:59,120 --> 00:09:01,000
+is no longer wait, because it's not for one,
+不再等待，因为它不是为一个人而存在。
+
+153
+00:09:01,010 --> 00:09:02,440
+is going to decrement to zero.
+将要递减到零。
+
+154
+00:09:03,140 --> 00:09:04,280
+And it's going to go ahead.
+并且它将继续进行。
+
+155
+00:09:05,310 --> 00:09:05,590
+Right?
+对吗？
+
+156
+00:09:06,050 --> 00:09:07,440
+This is one of the key difference.
+这是其中一个关键的区别。
+
+157
+00:09:11,170 --> 00:09:12,610
+This is exactly what I mentioned.
+这正是我所提到的。
+
+158
+00:09:18,340 --> 00:09:18,750
+Okay?
+好的？
+
+159
+00:09:20,330 --> 00:09:22,360
+This is a key difference investment.
+这是一个关键的投资差异。
+
+160
+00:09:26,210 --> 00:09:32,100
+The other the main problem here is that another way to say it is
+这里的另一个主要问题是另一种说法是
+
+161
+00:09:32,110 --> 00:09:35,880
+that p and v are committed if it doesn't matter in which order happen,
+如果发生的顺序无关紧要，那么p和v是可靠的。
+
+162
+00:09:36,440 --> 00:09:38,180
+the value of the semaphore will be the same.
+信号量的值将保持不变。
+
+163
+00:09:39,300 --> 00:09:39,630
+Right?
+对吗？
+
+164
+00:09:40,590 --> 00:09:42,020
+On the other hand,
+另一方面，
+
+165
+00:09:42,400 --> 00:09:44,410
+the condition variable or not,
+是否使用条件变量
+
+166
+00:09:44,420 --> 00:09:47,010
+because like we explain, if you send a condition,
+因为就像我们解释的那样，如果你发送一个条件，
+
+167
+00:09:47,440 --> 00:09:50,690
+if you send a signal on a condition variable,
+如果你在一个条件变量上发送一个信号，
+
+168
+00:09:50,700 --> 00:09:53,720
+and no one is waiting on that condition variable,
+并且没有人在等待该条件变量，
+
+169
+00:09:54,050 --> 00:09:55,880
+that signal was lost.
+信号丢失了。
+
+170
+00:09:56,700 --> 00:09:57,130
+Okay.
+好的。
+
+171
+00:10:00,130 --> 00:10:01,160
+Here is another try.
+这是另一次尝试。
+
+172
+00:10:01,910 --> 00:10:03,540
+Let's try to fix a problem.
+让我们尝试解决一个问题。
+
+173
+00:10:03,900 --> 00:10:06,090
+And how do we try to fix the problem here?
+在这里，我们如何尝试解决这个问题？
+
+174
+00:10:06,890 --> 00:10:09,600
+You are going only to increment the semaphore.
+你只需要增加信号量。
+
+175
+00:10:09,940 --> 00:10:18,740
+If there is no one waiting on the npk or is aq is empty for that condition variable.
+如果没有人在npk上等待，或者aq对于该条件变量为空。
+
+176
+00:10:18,750 --> 00:10:21,180
+The condition variable associated with us an offer.
+与我们的提供相关联的条件变量。
+
+177
+00:10:24,120 --> 00:10:24,470
+Is that?
+那是吗？
+
+178
+00:10:41,690 --> 00:10:45,110
+So it doesn't talk either because, for instance, there is,
+所以它也不会说话，因为，例如，有一些原因，
+
+179
+00:10:45,120 --> 00:10:47,350
+you cannot look at the center for,
+你不能查看中心的内容。
+
+180
+00:10:48,000 --> 00:10:53,310
+you cannot look at contents on some of the cube that there is no primitive.
+你无法查看一些没有原始内容的立方体上的内容。
+
+181
+00:10:53,320 --> 00:10:54,630
+There is no api for that.
+这方面没有 API。
+
+182
+00:10:55,260 --> 00:10:55,700
+Right?
+对吗？
+
+183
+00:10:56,440 --> 00:10:58,110
+That's one of the reason it doesn't work.
+这是其中一个原因导致它不起作用。
+
+184
+00:10:58,580 --> 00:11:00,050
+And also there is a race condition,
+还有一个竞态条件，
+
+185
+00:11:05,660 --> 00:11:12,070
+the signal that can just signal after the lock release and before the way
+在释放锁之后、在进入下一个阶段之前才能发出的信号
+
+186
+00:11:12,080 --> 00:11:13,390
+to execute some authority,
+执行某种权限
+
+187
+00:11:15,590 --> 00:11:17,540
+hear what the rest condition can happen.
+听一下剩余条件可能发生的情况。
+
+188
+00:11:20,500 --> 00:11:20,930
+Anyway,
+无论如何，
+
+189
+00:11:23,100 --> 00:11:26,850
+it turns out that it's actually possible to implement this correct reason for,
+事实证明，实际上可以正确地实现这个原因。
+
+190
+00:11:26,860 --> 00:11:28,130
+but it's a very complex solution.
+但这是一个非常复杂的解决方案。
+
+191
+00:11:30,130 --> 00:11:34,720
+The take away here is that the monitor is a very useful abstraction.
+这里的要点是，监视器是一个非常有用的抽象概念。
+
+192
+00:11:35,520 --> 00:11:38,550
+One way to see that it's useful abstraction.
+一个理解它有用的抽象的方法。
+
+193
+00:11:38,770 --> 00:11:42,580
+It's by the fact that it's very hard to implemented using
+这是因为它很难实现。
+
+194
+00:11:42,590 --> 00:11:47,400
+more primitive or more basic abstractions like some of us.
+更原始或更基本的抽象概念，就像我们中的一些人一样。
+
+195
+00:11:48,630 --> 00:11:49,010
+Okay?
+好的？
+
+196
+00:11:54,100 --> 00:11:55,050
+In conclusion,
+总之，
+
+197
+00:11:56,070 --> 00:12:01,510
+monitors they synchronize the present the synchronization of the logic,
+监视器是用来同步逻辑的，它们用于同步当前的状态。
+
+198
+00:12:02,170 --> 00:12:06,500
+then capsule the synchronization logic of the program.
+然后对程序进行同步逻辑的封装。
+
+199
+00:12:06,510 --> 00:12:13,330
+And this means that to wait for some event to happen and the ability
+这意味着等待某个事件发生和能力
+
+200
+00:12:13,340 --> 00:12:15,050
+to signal that event.
+发出信号以表示该事件。
+
+201
+00:12:16,120 --> 00:12:20,500
+And the typical monitor based program.
+典型的基于监视器的程序。
+
+202
+00:12:20,510 --> 00:12:22,220
+It looks something like that, right?
+是这样的吗？
+
+203
+00:12:23,200 --> 00:12:25,530
+You look the critical section,
+你看一下这个临界区。
+
+204
+00:12:25,940 --> 00:12:28,650
+you acquire the lock on the critical section where you
+你在临界区获得了锁。
+
+205
+00:12:28,660 --> 00:12:31,790
+are going to manipulate state variables.
+将要操作状态变量。
+
+206
+00:12:31,800 --> 00:12:33,110
+If you remember,
+如果你还记得的话，
+
+207
+00:12:34,050 --> 00:12:35,320
+in the previous lecture,
+在之前的讲座中，
+
+208
+00:12:35,330 --> 00:12:36,840
+we have to acquire the lock.
+我们需要获取锁。
+
+209
+00:12:37,100 --> 00:12:38,410
+While we are manipulating,
+当我们进行操作时，
+
+210
+00:12:38,420 --> 00:12:40,570
+we are updating where we are testing,
+我们正在更新我们的测试位置。
+
+211
+00:12:41,430 --> 00:12:46,980
+that active writer is or waiting writer is activity that is waiting readers.
+活跃的写者是等待读者的活动。
+
+212
+00:12:50,620 --> 00:12:55,150
+You are going to wait if necessary for some condition to happen.
+如果需要的话，你将会等待某个条件发生。
+
+213
+00:12:55,720 --> 00:12:56,100
+Right?
+对吗？
+
+214
+00:13:00,030 --> 00:13:01,100
+In another,
+在另一个中，
+
+215
+00:13:01,360 --> 00:13:03,470
+typically, another critical section,
+通常情况下，另一个关键区域，
+
+216
+00:13:03,480 --> 00:13:05,670
+you are going to signal.
+你要发送信号。
+
+217
+00:13:06,600 --> 00:13:07,670
+That condition becomes true.
+那个条件变为真。
+
+218
+00:13:07,680 --> 00:13:08,710
+You are going to signal.
+你要发送信号。
+
+219
+00:13:08,920 --> 00:13:10,230
+Now you are going to wait,
+现在你需要等待，
+
+220
+00:13:10,600 --> 00:13:11,730
+wake the threads,
+唤醒线程，
+
+221
+00:13:12,690 --> 00:13:14,120
+one or more threads,
+一个或多个线程
+
+222
+00:13:14,410 --> 00:13:16,840
+which are waiting for that condition variable to happen.
+正在等待该条件变量发生的线程。
+
+223
+00:13:16,850 --> 00:13:18,000
+If you send a signal,
+如果你发送一个信号，
+
+224
+00:13:18,010 --> 00:13:22,880
+only one threading member is going to wake up that if you send broadcast,
+如果发送广播，只有一个线程成员会被唤醒。
+
+225
+00:13:24,150 --> 00:13:27,860
+if then all the strategies are waiting on their condition,
+如果所有的策略都在等待它们的条件，那么
+
+226
+00:13:27,870 --> 00:13:29,180
+variable are going to wake up.
+变量即将被唤醒。
+
+227
+00:13:32,350 --> 00:13:33,860
+Now, question is about,
+现在，问题是关于...
+
+228
+00:13:33,870 --> 00:13:35,300
+what about these languages?
+这些语言怎么样？
+
+229
+00:13:35,310 --> 00:13:36,940
+What is the support in today's languages?
+今天的编程语言有哪些支持？
+
+230
+00:13:39,150 --> 00:13:46,100
+There is every language has some level of support for synchronization primitives,
+每种编程语言都有一定程度的支持同步原语。
+
+231
+00:13:46,590 --> 00:13:47,630
+some better than others.
+有些比其他的更好。
+
+232
+00:13:48,290 --> 00:13:50,010
+Like, for instance, for the sea language,
+例如，对于海洋语言来说，
+
+233
+00:13:51,690 --> 00:13:54,070
+they do have support.
+他们确实有支持。
+
+234
+00:13:54,080 --> 00:13:56,230
+You do have support for the locks,
+你确实有对锁的支持。
+
+235
+00:13:56,850 --> 00:13:59,660
+right now,
+现在，
+
+236
+00:14:00,920 --> 00:14:02,920
+with this support, for locks.
+通过这种支持，用于锁定。
+
+237
+00:14:03,790 --> 00:14:08,610
+So you need to be careful if you are going to return, right?
+所以如果你打算返回，你需要小心，对吗？
+
+238
+00:14:08,620 --> 00:14:13,810
+Because if you acquire the lock at the beginning of your function,
+因为如果你在函数开始时获取锁定，
+
+239
+00:14:14,970 --> 00:14:19,400
+naturally, you are going to release the look at the end of the function.
+在函数的末尾，你自然会释放锁。
+
+240
+00:14:19,710 --> 00:14:23,730
+But you need also to release a look at every time you return from that function.
+但是每次从该函数返回时，你也需要释放锁。
+
+241
+00:14:23,740 --> 00:14:25,270
+So you need to be very careful,
+所以你需要非常小心，
+
+242
+00:14:25,280 --> 00:14:26,810
+because if you forget to do that,
+因为如果你忘记做那个的话，
+
+243
+00:14:27,900 --> 00:14:28,970
+you can happen.
+你可以发生。
+
+244
+00:14:28,980 --> 00:14:30,250
+Aa deadlock can happen.
+死锁可能发生。
+
+245
+00:14:32,400 --> 00:14:39,490
+Now, the other problem is that in sea,
+现在，另一个问题是在海洋中，
+
+246
+00:14:39,700 --> 00:14:40,910
+it's actually or unfortunate.
+这实际上是不幸的。
+
+247
+00:14:40,920 --> 00:14:42,230
+You can also jump.
+你也可以跳跃。
+
+248
+00:14:43,260 --> 00:14:48,160
+And if you are going to jump into the program again,
+如果你打算再次参加这个项目，
+
+249
+00:14:48,170 --> 00:14:49,630
+you can create the deadlock.
+你可以创建死锁。
+
+250
+00:14:57,240 --> 00:15:00,020
+But even when you have more rocks,
+但即使你有更多的岩石，
+
+251
+00:15:00,030 --> 00:15:03,740
+things are just becoming even more complex, right?
+事情变得更加复杂了，对吗？
+
+252
+00:15:04,080 --> 00:15:08,050
+Because you need to keep track in the program as a developer
+作为开发人员，你需要在程序中进行跟踪。
+
+253
+00:15:08,490 --> 00:15:10,770
+when to release every each lock.
+何时释放每个锁。
+
+254
+00:15:11,470 --> 00:15:19,710
+And it's the program is not even going to look uniform in the same function.
+而且，即使在同一个函数中，程序也不会呈现出统一的外观。
+
+255
+00:15:20,210 --> 00:15:20,630
+Right?
+对吗？
+
+256
+00:15:20,930 --> 00:15:23,360
+Still, depending on where you allocate the locks and so forth.
+然而，这仍取决于您分配锁等资源的位置。
+
+257
+00:15:23,370 --> 00:15:26,640
+And for somebody tells you have to at least two locks in this example,
+在这个例子中，有人告诉你至少要使用两个锁。
+
+258
+00:15:26,650 --> 00:15:28,040
+for some of them, only one lock.
+对于其中一些，只有一个锁。
+
+259
+00:15:28,580 --> 00:15:31,360
+You can imagine that it's very easy to make mistakes.
+你可以想象犯错误是非常容易的。
+
+260
+00:15:31,640 --> 00:15:33,300
+And again, once you make mistakes,
+再次强调，一旦你犯了错误，
+
+261
+00:15:33,510 --> 00:15:37,270
+you run into the danger to create that looks.
+你会遇到创造出看起来危险的情况。
+
+262
+00:15:39,310 --> 00:15:39,670
+Okay.
+好的。
+
+263
+00:15:42,750 --> 00:15:47,970
+That another problem I just mentioned why is harbin see to to get locks
+我刚刚提到的另一个问题是为什么哈尔滨似乎无法获取锁定。
+
+264
+00:15:47,980 --> 00:15:50,040
+because in ceo can also jump around.
+因为在CEO中也可以跳转。
+
+265
+00:15:50,050 --> 00:15:51,420
+You have a goal to stay.
+你有一个留下的目标。
+
+266
+00:15:52,240 --> 00:15:52,630
+Right.
+好的。
+
+267
+00:15:53,100 --> 00:15:56,720
+Now you can think about they can use go to statement to provide
+现在你可以考虑一下他们如何使用跳转语句来实现。
+
+268
+00:15:56,730 --> 00:15:59,360
+some syntactic sugar to make it easier,
+一些语法糖以使其更容易使用，
+
+269
+00:15:59,370 --> 00:15:59,920
+right?
+是的，正确的。
+
+270
+00:16:00,490 --> 00:16:05,730
+Instead of having to instruction release and return,
+不需要执行释放和返回指令，
+
+271
+00:16:06,090 --> 00:16:07,640
+you are going to have,
+你将要拥有，
+
+272
+00:16:08,430 --> 00:16:10,870
+you are going to jump to another.
+你将要跳到另一个地方。
+
+273
+00:16:10,880 --> 00:16:16,030
+So you are going to release the lock and basically return.
+所以你要释放锁并基本上返回。
+
+274
+00:16:16,250 --> 00:16:16,440
+Right?
+对吗？
+
+275
+00:16:16,610 --> 00:16:23,760
+You can write only one instruction to release and release and return a lock.
+你可以写一条指令来释放并返回一个锁。
+
+276
+00:16:24,110 --> 00:16:27,630
+Now, the big obvious problem is that if you need to release two locks,
+现在，一个明显的大问题是，如果你需要释放两个锁，
+
+277
+00:16:27,640 --> 00:16:34,280
+you need to write another kind of instruction to release boss locks and so forth,
+你需要编写另一种指令来释放boss锁等等。
+
+278
+00:16:34,290 --> 00:16:34,600
+right?
+对的吗？
+
+279
+00:16:35,900 --> 00:16:42,160
+Or to organize a code so that when you jump to one and address,
+或者将代码组织起来，这样当你跳转到一个地址时，
+
+280
+00:16:42,890 --> 00:16:45,160
+you release both locks and you jump on another address,
+你释放了两个锁，并跳转到另一个地址。
+
+281
+00:16:45,170 --> 00:16:48,210
+release only one look is, again, very complicated.
+仅释放一个锁，再次说起来，非常复杂。
+
+282
+00:16:51,720 --> 00:16:52,980
+C plus,
+C plus是指C++，它是一种通用的编程语言，是C语言的扩展和改进版本。C++支持面向对象编程和泛型编程，具有更强大的功能和更高的抽象能力。它被广泛应用于软件开发、游戏开发、嵌入式系统等领域。
+
+283
+00:16:54,120 --> 00:16:55,270
+ac plus, again,
+再次加上
+
+284
+00:16:55,280 --> 00:16:56,950
+in her support for rocks.
+对于岩石的支持。
+
+285
+00:16:58,410 --> 00:16:59,830
+Now, we see plus, actually,
+现在，我们来看一下加号，实际上，
+
+286
+00:16:59,840 --> 00:17:04,110
+things are even a little bit even more complicated during your head locks.
+在你的头发纠结时，事情变得更加复杂了一点。
+
+287
+00:17:04,460 --> 00:17:04,520
+Why?
+为了方便中文用户理解和阅读，我将英文翻译成中文。这样可以提供更好的帮助和支持。
+
+288
+00:17:04,530 --> 00:17:06,440
+Because you have, if you remember,
+因为你有的话，如果你还记得的话，
+
+289
+00:17:06,450 --> 00:17:08,680
+in c plus, you have exceptions.
+在C++中，你可以使用异常（exceptions）。
+
+290
+00:17:13,400 --> 00:17:17,000
+If you get an exception during the critical section,
+如果在临界区发生异常，
+
+291
+00:17:17,730 --> 00:17:20,290
+you jump to treat the exception,
+你跳转到处理异常的部分，
+
+292
+00:17:20,810 --> 00:17:22,840
+but you still hold the lock.
+但是你仍然持有锁。
+
+293
+00:17:24,170 --> 00:17:25,780
+So you don't need a lock.
+所以你不需要锁。
+
+294
+00:17:26,440 --> 00:17:28,670
+So in order to release a lock,
+为了释放一个锁，
+
+295
+00:17:28,970 --> 00:17:35,580
+you need to catch every exception and release a lock explicitly.
+你需要捕获每个异常并显式释放锁。
+
+296
+00:17:36,670 --> 00:17:37,150
+Okay?
+好的？
+
+297
+00:17:37,440 --> 00:17:38,990
+Because if you don't do that again,
+因为如果你再不这样做的话，
+
+298
+00:17:39,210 --> 00:17:46,260
+you are going to go and attribute the exception And with while you
+你将要去处理异常，并且使用while循环来实现。
+
+299
+00:17:46,270 --> 00:17:46,940
+still have the law,
+仍然有法律存在
+
+300
+00:17:46,950 --> 00:17:48,250
+so you don't need the law.
+所以你不需要法律。
+
+301
+00:17:49,810 --> 00:17:50,190
+Okay.
+好的。
+
+302
+00:17:51,250 --> 00:17:52,790
+Now, fortunately,
+现在，幸运的是，
+
+303
+00:17:52,800 --> 00:17:55,150
+c plus is a new version of locks,
+C Plus是锁的一个新版本。
+
+304
+00:17:55,160 --> 00:17:57,070
+which is called lock guards.
+这被称为锁卫士。
+
+305
+00:17:57,990 --> 00:18:00,390
+You can think about this looks like a variable.
+你可以把这个看作是一个变量。
+
+306
+00:18:01,210 --> 00:18:06,120
+And the cool thing about that is that you acquire the lock when you declare
+而且这个很酷的地方是，当你声明时就获取了锁。
+
+307
+00:18:06,130 --> 00:18:07,040
+the variable.
+变量。
+
+308
+00:18:07,460 --> 00:18:10,950
+And whenever the variables is going to go out of scope,
+每当变量即将超出作用域时，
+
+309
+00:18:12,200 --> 00:18:13,960
+the lock is automatically released.
+锁会自动释放。
+
+310
+00:18:16,710 --> 00:18:22,530
+So you basically don't have an explicit instruction to release a lock.
+所以基本上你没有明确的指令来释放锁。
+
+311
+00:18:22,540 --> 00:18:26,660
+You just declare the lock as a variable.
+你只需要将锁声明为一个变量即可。
+
+312
+00:18:27,360 --> 00:18:29,940
+And in that function,
+在那个函数中，
+
+313
+00:18:31,890 --> 00:18:34,480
+everything gets under that lock in that function.
+在那个函数中，所有的东西都被锁定了。
+
+314
+00:18:35,090 --> 00:18:38,030
+And whenever eu or the method,
+每当你或者方法时，
+
+315
+00:18:38,040 --> 00:18:39,190
+because it's c plus,
+因为它是C++。
+
+316
+00:18:39,600 --> 00:18:43,270
+whenever you are going to go out of scope returning,
+每当你要退出作用域并返回时，
+
+317
+00:18:43,280 --> 00:18:49,720
+whether that's basically throw an exception or just turn,
+这是基本上抛出一个异常还是只是返回。
+
+318
+00:18:50,940 --> 00:18:54,220
+then the lockets automatically list.
+然后锁链自动排列。
+
+319
+00:18:58,370 --> 00:18:58,770
+Okay?
+好的？
+
+320
+00:19:01,400 --> 00:19:02,890
+With python,
+使用Python，
+
+321
+00:19:03,730 --> 00:19:06,280
+you have this other construct, which is pretty cool.
+你还有这个其他的结构，非常酷。
+
+322
+00:19:06,290 --> 00:19:11,750
+Again, you can declare lock like almost like a variable.
+你可以像声明变量一样声明锁。
+
+323
+00:19:12,130 --> 00:19:20,050
+And then you can use a statement with lock to basically declare a critical section.
+然后你可以使用带锁的语句来声明一个临界区。
+
+324
+00:19:20,490 --> 00:19:22,470
+So everything under the swiss lock,
+所以一切都在瑞士锁之下，
+
+325
+00:19:22,950 --> 00:19:23,970
+it's going to be locked.
+它将被锁定。
+
+326
+00:19:25,020 --> 00:19:27,090
+It's a critical section protected by the lock.
+这是由锁保护的临界区。
+
+327
+00:19:27,540 --> 00:19:28,680
+And again,
+再次，
+
+328
+00:19:28,690 --> 00:19:30,440
+when you are going to leave the block,
+当你打算离开这个区块时，
+
+329
+00:19:30,710 --> 00:19:32,880
+the release of the lock happens out an article.
+解锁的释放发生在一篇文章之外。
+
+330
+00:19:34,700 --> 00:19:36,290
+A little bit similar is bad locks.
+有一点类似的是糟糕的锁。
+
+331
+00:19:39,140 --> 00:19:44,010
+We java goes one step further and also provides you
+我们的Java更进一步，还为您提供了
+
+332
+00:19:49,270 --> 00:19:51,140
+what they call synchronized methods.
+他们称之为同步方法。
+
+333
+00:19:51,660 --> 00:19:52,090
+Right?
+对吗？
+
+334
+00:19:52,600 --> 00:19:55,190
+So basically, you can have synchronized methods,
+基本上，你可以有同步方法。
+
+335
+00:19:55,910 --> 00:19:57,420
+a in a class.
+一个在班级里的学生。
+
+336
+00:19:58,040 --> 00:19:58,490
+Basically,
+基本上，
+
+337
+00:19:58,500 --> 00:20:06,560
+the synchronized methods are think about that they protect all the variables,
+同步方法是考虑到保护所有变量的。
+
+338
+00:20:08,550 --> 00:20:10,300
+a in the class, in the object,
+在类中的a，在对象中的a
+
+339
+00:20:12,060 --> 00:20:13,890
+by a lock, by an implicit lock.
+通过一个锁，通过一个隐式锁。
+
+340
+00:20:15,090 --> 00:20:16,480
+So you can think about,
+所以你可以考虑一下，
+
+341
+00:20:16,490 --> 00:20:18,400
+when you say public synchronized,
+当你说"public synchronized"时，
+
+342
+00:20:18,780 --> 00:20:24,150
+then this method automatically acquires a lock,
+然后这个方法会自动获取一个锁，
+
+343
+00:20:24,450 --> 00:20:27,990
+and it leaves as a lock for everything what is happening
+它将作为一个锁定一切正在发生的事情的状态离开。
+
+344
+00:20:28,220 --> 00:20:29,420
+in this particular method.
+在这个特定的方法中。
+
+345
+00:20:31,620 --> 00:20:33,100
+So pretty cool.
+太酷了。
+
+346
+00:20:33,640 --> 00:20:35,510
+And java also support monitors.
+Java也支持监视器。
+
+347
+00:20:36,650 --> 00:20:37,870
+You can wait.
+你可以等待。
+
+348
+00:20:38,640 --> 00:20:45,900
+You can also have the notify and notify all for us to to notify
+你也可以使用notify和notifyAll来通知我们进行通知。
+
+349
+00:20:45,910 --> 00:20:46,740
+when an event happens.
+当事件发生时。
+
+350
+00:20:50,190 --> 00:20:51,190
+Any questions here?
+这里有什么问题吗？
+
+351
+00:21:05,570 --> 00:21:12,190
+So announcements tomorrow we have the meantime between
+明天的公告是我们之间的暂时时间
+
+352
+00:21:13,360 --> 00:21:20,210
+5:00 and 7:00 pm is will david a proctor of a zone?
+下午5点到7点，David会成为一个区域的监考员吗？
+
+353
+00:21:20,860 --> 00:21:23,690
+Please read the proctor in policies very carefully.
+请仔细阅读监考规定。
+
+354
+00:21:24,360 --> 00:21:28,040
+You can have a one handwritten cheat sheet.
+你可以准备一张手写的备忘单。
+
+355
+00:21:29,460 --> 00:21:31,070
+And in addition to that,
+除此之外，
+
+356
+00:21:32,050 --> 00:21:35,640
+upcoming deadlines at homework two is due on monday,
+即将到来的截止日期是作业二，截止日期是星期一。
+
+357
+00:21:36,320 --> 00:21:41,110
+next monday, and the project to first project with you next monday.
+下周一，我们将开始第一个项目。
+
+358
+00:21:48,750 --> 00:21:49,020
+Great.
+太好了。
+
+359
+00:21:49,210 --> 00:21:52,070
+So now let's switch the gears.
+现在让我们换个话题。
+
+360
+00:21:52,530 --> 00:21:56,850
+And next we are going to start talking about scheduling.
+接下来我们将开始讨论调度。
+
+361
+00:21:57,380 --> 00:21:57,830
+Okay.
+好的。
+
+362
+00:21:59,000 --> 00:22:00,790
+Before talking about scheduling,
+在讨论调度之前，
+
+363
+00:22:00,800 --> 00:22:04,150
+remember about why do we need scheduling?
+我们为什么需要调度？
+
+364
+00:22:04,910 --> 00:22:08,230
+And remember about the user kernel thread models.
+还要记住用户内核线程模型。
+
+365
+00:22:11,380 --> 00:22:15,440
+And for a very good question here,
+这是一个非常好的问题，
+
+366
+00:22:18,410 --> 00:22:24,910
+I79 it's 79.
+I79 是 79。
+
+367
+00:22:25,180 --> 00:22:25,900
+Thanks for,
+谢谢，
+
+368
+00:22:40,660 --> 00:22:41,240
+okay.
+好的。
+
+369
+00:22:42,330 --> 00:22:42,810
+Thank you.
+谢谢你。
+
+370
+00:22:47,330 --> 00:22:48,600
+In general, unless other.
+通常情况下，除非另有规定。
+
+371
+00:22:48,610 --> 00:22:50,600
+So you have user level threads,
+所以你有用户级线程，
+
+372
+00:22:51,300 --> 00:22:51,740
+right?
+对的？
+
+373
+00:22:52,130 --> 00:22:53,600
+Which are to be fine, say,
+哪些是可以的，比如说？
+
+374
+00:22:53,610 --> 00:22:54,850
+with ap thread library.
+使用AP线程库。
+
+375
+00:22:55,540 --> 00:22:56,920
+And then you have the kernel thread.
+然后你有内核线程。
+
+376
+00:22:57,400 --> 00:22:58,940
+And typically, unless,
+通常情况下，除非
+
+377
+00:22:59,650 --> 00:23:01,170
+as though I specified,
+就像我指定的那样，
+
+378
+00:23:01,440 --> 00:23:06,890
+we assume that one user level thread is going to be mapped in a kernel thread,
+我们假设一个用户级线程将被映射到一个内核线程中。
+
+379
+00:23:09,090 --> 00:23:10,320
+the kennel, this,
+狗舍，这个，
+
+380
+00:23:11,150 --> 00:23:13,070
+and they cannot only see kennel sets.
+他们不仅可以看到狗舍的设置。
+
+381
+00:23:14,170 --> 00:23:14,380
+Okay.
+好的。
+
+382
+00:23:15,860 --> 00:23:21,010
+And the kernel responsibility is to share the resources,
+内核的责任是共享资源。
+
+383
+00:23:21,240 --> 00:23:24,960
+the cpu resources across threads.
+线程之间的CPU资源分配。
+
+384
+00:23:28,550 --> 00:23:32,380
+There are a few others way to that you can also have
+还有其他几种方法可以实现这个。
+
+385
+00:23:32,390 --> 00:23:35,340
+many user threads mapping on the same kernel thread,
+多个用户线程映射到同一个内核线程上，
+
+386
+00:23:35,670 --> 00:23:40,300
+or many user threads mapping on many canon threads.
+或者许有许多用户线程映射到许多规范线程上。
+
+387
+00:23:40,750 --> 00:23:43,270
+But in this particular case, and again,
+但在这种特殊情况下，再次提醒，
+
+388
+00:23:43,280 --> 00:23:44,870
+for unless otherwise specified,
+除非另有规定，
+
+389
+00:23:45,550 --> 00:23:50,060
+we are assuming that it's unusual thread map to our calendar thread.
+我们假设将线程映射到我们的日历线程是不寻常的。
+
+390
+00:23:54,000 --> 00:23:55,010
+And for this thread,
+对于这个线程，
+
+391
+00:23:55,020 --> 00:23:56,170
+if you remember,
+如果你记得的话，
+
+392
+00:23:56,480 --> 00:23:59,310
+in a a process has at least one thread,
+一个进程至少有一个线程。
+
+393
+00:24:00,280 --> 00:24:02,790
+the kernel maintains a thread control block,
+内核维护一个线程控制块。
+
+394
+00:24:02,800 --> 00:24:11,680
+pcb what you have in the thread you have is a state of the thread when he suspended.
+在线程中，PCB（进程控制块）是指线程被挂起时的状态。
+
+395
+00:24:11,690 --> 00:24:13,280
+And that's the state,
+这就是现状，
+
+396
+00:24:13,290 --> 00:24:22,280
+which is enough to resume the thread execution from the.where it was suspended.
+这足以从暂停的位置恢复线程的执行。
+
+397
+00:24:23,420 --> 00:24:25,940
+And this means the content of the registers,
+这意味着寄存器的内容。
+
+398
+00:24:26,270 --> 00:24:28,920
+the program counter, and the stack..
+程序计数器和栈..
+
+399
+00:24:36,770 --> 00:24:37,760
+In addition,
+此外，
+
+400
+00:24:38,150 --> 00:24:44,450
+some kernels are only belongs to the some threads only belongs to the kernel.
+一些内核仅属于某些线程，而某些线程仅属于该内核。
+
+401
+00:24:45,180 --> 00:24:49,120
+This is for the kernel to do some work.
+这是为了内核执行一些工作。
+
+402
+00:24:49,560 --> 00:24:50,310
+In the background.
+在后台。
+
+403
+00:24:53,880 --> 00:24:57,710
+You can do some, maybe can do compaction of the file of things like that.
+你可以做一些事情，比如对文件进行压缩等操作。
+
+404
+00:25:03,670 --> 00:25:09,750
+Let's again look at this layout.
+让我们再次看一下这个布局。
+
+405
+00:25:10,940 --> 00:25:13,170
+We have two processes here and one kernel.
+我们这里有两个进程和一个内核。
+
+406
+00:25:13,530 --> 00:25:15,750
+A process, each process here has a thread.
+一个进程，每个进程都有一个线程。
+
+407
+00:25:15,760 --> 00:25:18,230
+Remember, a process has at least one thread.
+记住，一个进程至少有一个线程。
+
+408
+00:25:18,240 --> 00:25:23,220
+The thread is a unit of execution and concurrency.
+线程是执行和并发的基本单位。
+
+409
+00:25:24,410 --> 00:25:29,920
+And a process owns before the stack.
+在栈之前，有一个进程所拥有的内容。
+
+410
+00:25:29,930 --> 00:25:34,500
+It it's defines an address space,
+它定义了一个地址空间，
+
+411
+00:25:34,980 --> 00:25:38,180
+which contains the before besides the stack,
+除了栈之外，其中还包含了之前的内容。
+
+412
+00:25:38,190 --> 00:25:42,020
+it contains a code global variables and the hip.
+它包含了全局变量和堆的代码。
+
+413
+00:25:43,440 --> 00:25:48,520
+And if you look at what happens in the kernel,
+如果你看一下内核中发生的事情，
+
+414
+00:25:48,530 --> 00:25:54,670
+when what is what the kernel maintained for these processes?
+内核维护这些进程的是什么时候和什么？
+
+415
+00:25:55,930 --> 00:26:02,170
+It's going to maintain the pcb is a process control block.
+它将维护进程控制块（PCB）。
+
+416
+00:26:03,110 --> 00:26:04,440
+And the kernel,
+而内核，
+
+417
+00:26:04,740 --> 00:26:07,340
+the stack for the kernel stack for the process.
+内核栈用于进程的堆栈。
+
+418
+00:26:07,640 --> 00:26:09,370
+When you are going to execute,
+当你准备执行时，
+
+419
+00:26:12,310 --> 00:26:15,670
+you are going to run a say, for instance,
+你将要运行一个say命令，例如：
+
+420
+00:26:15,680 --> 00:26:23,690
+things like cisco on behalf of that process in the canon.
+在佳能中代表该过程的事物，例如思科。
+
+421
+00:26:25,230 --> 00:26:31,820
+Obviously, the kernel has its own code and global variables and the heap.
+显然，内核有自己的代码、全局变量和堆。
+
+422
+00:26:35,410 --> 00:26:36,880
+Now, as you know,
+现在，正如你所知道的，
+
+423
+00:26:38,030 --> 00:26:40,940
+like, with a process can have more than one threads.
+在操作系统中，一个进程可以拥有多个线程。
+
+424
+00:26:40,950 --> 00:26:42,340
+And here is a process one.
+这是一个进程一。
+
+425
+00:26:42,350 --> 00:26:43,620
+Now have two threads thread,
+现在有两个线程。
+
+426
+00:26:43,630 --> 00:26:46,240
+the thread b as you can see,
+线程 B，正如你所见，
+
+427
+00:26:46,490 --> 00:26:49,650
+the only thing which you are going to replicate is a stack.
+你需要复制的唯一东西是一个栈。
+
+428
+00:26:50,510 --> 00:26:51,160
+In this figure,
+在这个图中，
+
+429
+00:26:52,760 --> 00:26:54,630
+the thread had its own stack,
+线程有自己的堆栈。
+
+430
+00:26:54,800 --> 00:26:58,790
+but all threads in the same process,
+但是同一进程中的所有线程，
+
+431
+00:26:59,150 --> 00:27:02,510
+they share all the rest of the address space,
+它们共享剩余的地址空间。
+
+432
+00:27:02,850 --> 00:27:03,960
+which means a code,
+这意味着一个代码，
+
+433
+00:27:04,290 --> 00:27:05,750
+global variables and the ship.
+全局变量和飞船。
+
+434
+00:27:09,970 --> 00:27:12,000
+Remember, in our example,
+请记住，在我们的例子中，
+
+435
+00:27:12,330 --> 00:27:15,450
+in which in our model,
+在我们的模型中，
+
+436
+00:27:15,460 --> 00:27:20,410
+we have one user thread per kernel thread.
+我们每个内核线程有一个用户线程。
+
+437
+00:27:20,990 --> 00:27:22,820
+Basically, in the kernel,
+基本上，在内核中，
+
+438
+00:27:23,160 --> 00:27:25,150
+we are going to have now two threads.
+我们现在要创建两个线程。
+
+439
+00:27:25,500 --> 00:27:28,180
+Once for each a user threads,
+对于每个用户线程，
+
+440
+00:27:29,070 --> 00:27:35,240
+for processor ok and in addition like I mentioned,
+对于处理器来说没问题，另外就像我之前提到的一样，
+
+441
+00:27:35,250 --> 00:27:41,440
+the terminal itself can have as some threads on its own to do
+终端本身可以拥有一些自己的线程来执行任务。
+
+442
+00:27:41,450 --> 00:27:44,310
+some activities in the background.
+一些后台活动。
+
+443
+00:27:48,200 --> 00:27:48,460
+Okay?
+好的？
+
+444
+00:27:50,220 --> 00:27:52,420
+So these are using totally by the kernel.
+这些完全由内核使用。
+
+445
+00:27:52,430 --> 00:27:54,140
+They don't corresponds to any users such.
+它们不对应任何用户。
+
+446
+00:27:58,820 --> 00:27:59,240
+Okay.
+好的。
+
+447
+00:27:59,940 --> 00:28:02,370
+Now, this is any question here.
+现在，这里有任何问题吗？
+
+448
+00:28:12,650 --> 00:28:13,960
+The kernel thread,
+内核线程，
+
+449
+00:28:14,210 --> 00:28:16,560
+the question is kernel thread an actual thread,
+问题是内核线程是否是真正的线程。
+
+450
+00:28:16,570 --> 00:28:19,640
+or just a block of data in the kernel that store the stake.
+或者只是内核中存储股份的数据块。
+
+451
+00:28:21,980 --> 00:28:26,940
+Fundamentally, every strategy is just a block of data.
+从根本上讲，每个策略只是一块数据。
+
+452
+00:28:28,260 --> 00:28:29,290
+When it's not active,
+当它不活动时，
+
+453
+00:28:29,760 --> 00:28:30,870
+a bunch of pointers.
+一堆指针。
+
+454
+00:28:31,790 --> 00:28:33,010
+It's a data structure.
+这是一个数据结构。
+
+455
+00:28:33,610 --> 00:28:35,660
+A thread is a data structure they send,
+线程是一种数据结构，它们发送数据。
+
+456
+00:28:35,670 --> 00:28:37,420
+and they have some data associated with it.
+它们与一些数据相关联。
+
+457
+00:28:38,190 --> 00:28:38,470
+Right?
+对吗？
+
+458
+00:28:40,480 --> 00:28:42,910
+You have, in this particular case,
+在这种特殊情况下，你有
+
+459
+00:28:43,380 --> 00:28:53,520
+you have that in this particular case, again,
+在这个特定情况下，你再次拥有这个。
+
+460
+00:28:53,530 --> 00:28:57,240
+you have thread control block.
+你有线程控制块。
+
+461
+00:28:57,700 --> 00:29:00,210
+And that's what you have in the stack.
+这就是你在栈中拥有的内容。
+
+462
+00:29:05,340 --> 00:29:07,530
+When you run the threads, though,
+当你运行线程时，
+
+463
+00:29:07,910 --> 00:29:11,150
+okay, then when you run the thread, you activate the thread.
+好的，当你运行线程时，你激活了线程。
+
+464
+00:29:11,160 --> 00:29:13,920
+And now you have some active part of the thread,
+现在你有一些活跃的线程部分。
+
+465
+00:29:14,440 --> 00:29:15,120
+which is running,
+正在运行的是
+
+466
+00:29:15,630 --> 00:29:18,720
+executing the instructions on behalf of the thread,
+代表线程执行指令
+
+467
+00:29:20,340 --> 00:29:21,650
+pointed by the program counter.
+由程序计数器指示的位置。
+
+468
+00:29:27,700 --> 00:29:36,420
+So that's what why do we need us?
+那么我们为什么需要我们呢？
+
+469
+00:29:36,430 --> 00:29:37,140
+Another question.
+另一个问题。
+
+470
+00:29:37,150 --> 00:29:38,180
+It's a very good question.
+这是一个非常好的问题。
+
+471
+00:29:38,190 --> 00:29:40,220
+Why do we need multiple kernel threads?
+为什么我们需要多个内核线程？
+
+472
+00:29:40,750 --> 00:29:44,760
+What is the benefit of having my money over having one?
+拥有自己的钱相比于只有一个人的钱有什么好处？
+
+473
+00:29:46,250 --> 00:29:47,250
+It's, again,
+又是这个问题，
+
+474
+00:29:48,330 --> 00:29:56,560
+remember, i'm the kernel does not see user threads, right?
+记住，内核是看不到用户线程的，对吗？
+
+475
+00:29:56,690 --> 00:29:59,000
+The kernel only seek kernel threats.
+内核只寻找内核威胁。
+
+476
+00:30:00,180 --> 00:30:01,880
+If you cannot has only one,
+如果你不能只有一个，
+
+477
+00:30:01,890 --> 00:30:04,910
+there is only one kernel thread.
+只有一个内核线程。
+
+478
+00:30:04,920 --> 00:30:07,420
+The kennel only will schedule that thread.
+狗舍只会安排那个线程。
+
+479
+00:30:09,850 --> 00:30:15,570
+Now, if the user wants to have multiple user threads,
+现在，如果用户想要拥有多个用户线程，
+
+480
+00:30:16,670 --> 00:30:17,470
+the threads,
+线程
+
+481
+00:30:17,480 --> 00:30:22,280
+the only way for these threads to have threads running in turn,
+这些线程以轮流运行的方式是唯一的方法。
+
+482
+00:30:23,820 --> 00:30:26,500
+while there is only 1 kind of thread is for the threat
+当只有一种类型的线程用于威胁时
+
+483
+00:30:26,510 --> 00:30:30,240
+to voluntarily release acpu basically,
+主动释放CPU基本上是指在多任务操作系统中，进程或线程主动放弃对CPU的使用权，以便让其他进程或线程能够运行。这种行为通常是为了提高系统的效率和资源利用率。
+
+484
+00:30:30,250 --> 00:30:31,000
+say, yield,
+说，屈服，产出
+
+485
+00:30:34,540 --> 00:30:40,550
+then the yield will let another thread from the same processor.
+然后，yield操作会让同一处理器上的另一个线程执行。
+
+486
+00:30:45,950 --> 00:30:47,220
+In this particular case,
+在这种特殊情况下，
+
+487
+00:30:47,230 --> 00:30:53,740
+the application itself is responsible for allocating that time across threads.
+应用程序本身负责在线程之间分配时间。
+
+488
+00:30:55,510 --> 00:30:58,770
+If you map a user thread on a current thread and the operating system
+如果你将一个用户线程映射到当前线程和操作系统上
+
+489
+00:30:58,780 --> 00:31:04,140
+automatically make sure that allocates times superior times.
+自动确保分配的时间超过所需时间。
+
+490
+00:31:04,460 --> 00:31:07,080
+To each set, the application doesn't need to do anything.
+对于每个集合，应用程序不需要做任何操作。
+
+491
+00:31:16,260 --> 00:31:17,410
+Where are the pc bs?
+PC BS指的是个人电脑的基础知识。
+
+492
+00:31:17,420 --> 00:31:19,410
+And pc bs started in kernel,
+并且PC引导程序开始在内核中执行。
+
+493
+00:31:19,420 --> 00:31:21,170
+in the kernel datas,
+在内核数据中，
+
+494
+00:31:21,420 --> 00:31:22,930
+in the kernel data segments?
+在内核数据段中吗？
+
+495
+00:31:23,260 --> 00:31:23,390
+Typically,
+通常情况下，
+
+496
+00:31:24,380 --> 00:31:26,040
+they are going on hip,
+他们要去嘻哈。
+
+497
+00:31:27,270 --> 00:31:31,420
+because they are allocated at new and new processes and new threats are created.
+因为它们是在新的进程和新的线程中分配的。
+
+498
+00:31:38,650 --> 00:31:39,380
+Let me see.
+让我看看。
+
+499
+00:31:42,570 --> 00:31:46,570
+So now remember about the stack segment.
+现在记住栈段。
+
+500
+00:31:46,580 --> 00:31:49,270
+So you want to this and this actually has yelled.
+所以你想要这样做，而这实际上已经被喊出来了。
+
+501
+00:31:50,950 --> 00:31:56,910
+And you remember that you have this kind of to procedures.
+你记得你有这种类型的程序。
+
+502
+00:31:56,920 --> 00:31:59,790
+One procedure calls b and b is calling while.
+一个过程调用了b，而b又调用了while循环。
+
+503
+00:31:59,800 --> 00:32:01,310
+And from time to time yield,
+并且不时地让步，
+
+504
+00:32:02,060 --> 00:32:04,490
+what happens in this case when you call yield?
+在调用yield时会发生什么情况？
+
+505
+00:32:04,790 --> 00:32:06,120
+Then you relieves you.
+那么你就可以放心了。
+
+506
+00:32:06,430 --> 00:32:08,220
+And again, when I say, yell,
+再次强调，当我说“大声喊叫”时，
+
+507
+00:32:08,230 --> 00:32:10,020
+there are three implementation of yield,
+有三种yield的实现方式。
+
+508
+00:32:10,440 --> 00:32:12,030
+one implementation of yield,
+yield的一种实现方式是
+
+509
+00:32:12,270 --> 00:32:14,700
+which is gives a control.
+这提供了一种控制方式。
+
+510
+00:32:16,170 --> 00:32:18,200
+This is a yield here.
+这是一个让步点。
+
+511
+00:32:21,250 --> 00:32:22,170
+It's a cities call.
+这是城市的决定。
+
+512
+00:32:22,700 --> 00:32:25,460
+It's an operating system called kernel call.
+这是一个名为"内核调用"的操作系统。
+
+513
+00:32:26,150 --> 00:32:29,620
+But there has also yelled when you have only one single camera like we
+但是当你只有一个单独的摄像头时，也会有喊叫声
+
+514
+00:32:29,630 --> 00:32:30,740
+discussed in the past,
+过去讨论过的
+
+515
+00:32:31,060 --> 00:32:32,810
+which is only at the application level.
+这仅限于应用程序层级。
+
+516
+00:32:32,820 --> 00:32:34,490
+It's a library in the application.
+这是应用程序中的一个库。
+
+517
+00:32:34,920 --> 00:32:36,120
+And when you do the yield,
+当你执行yield时，
+
+518
+00:32:36,130 --> 00:32:38,550
+you just jump to another function,
+你只是跳转到另一个函数中，
+
+519
+00:32:38,560 --> 00:32:40,030
+in the application level,
+在应用层级上，
+
+520
+00:32:40,040 --> 00:32:41,230
+to another function,
+传递给另一个函数
+
+521
+00:32:41,240 --> 00:32:46,580
+in the same to another thread in the same process.
+在同一个进程中的另一个线程中相同。
+
+522
+00:32:47,280 --> 00:32:50,260
+In this case, I yield is basically operate.
+在这种情况下，"I yield" 基本上是指操作。
+
+523
+00:32:50,270 --> 00:32:51,760
+It's a kernel.
+这是一个内核。
+
+524
+00:32:52,770 --> 00:32:53,760
+It's accessible.
+它是可访问的。
+
+525
+00:32:54,430 --> 00:32:56,900
+And when you call yelled,
+当你大声喊叫时，
+
+526
+00:32:56,910 --> 00:33:00,450
+you basically tell to the kernel to run another thread.
+你基本上是告诉内核运行另一个线程。
+
+527
+00:33:00,970 --> 00:33:02,010
+As I said,
+正如我所说的，
+
+528
+00:33:02,020 --> 00:33:03,060
+in this case,
+在这种情况下，
+
+529
+00:33:03,770 --> 00:33:09,500
+it's going to be b and sorry,
+将会是 b，抱歉。
+
+530
+00:33:09,550 --> 00:33:13,660
+in the other side will continue to will run the same code.
+在另一边将继续运行相同的代码。
+
+531
+00:33:15,330 --> 00:33:17,360
+This is that code will, again,
+这是那段代码，再次，
+
+532
+00:33:17,370 --> 00:33:24,160
+run call a and a call bb starters to execute while.
+运行`call a`和`a call bb`启动器以执行`while`循环。
+
+533
+00:33:24,490 --> 00:33:26,240
+And then it calls yield.
+然后它调用了yield。
+
+534
+00:33:26,540 --> 00:33:34,120
+And then it relinquish the cpu then the caramel is going now
+然后它释放了CPU，然后焦糖现在开始运行。
+
+535
+00:33:34,130 --> 00:33:37,930
+to go and back to s right?
+是的，"to go and back to s" 的意思是"去s然后返回"。
+
+536
+00:33:38,940 --> 00:33:39,320
+Okay.
+好的。
+
+537
+00:33:40,480 --> 00:33:41,070
+Basically,
+基本上，
+
+538
+00:33:41,080 --> 00:33:44,830
+the important things to do to see here that when a yield happens,
+在这里要注意的重要事项是当发生yield时，
+
+539
+00:33:45,350 --> 00:33:47,810
+you ask the kernel,
+你向内核询问，
+
+540
+00:33:47,820 --> 00:33:51,180
+the red things start executed by the kernel.
+红色的东西由内核开始执行。
+
+541
+00:33:51,190 --> 00:33:53,380
+The blue things are executed by the application,
+蓝色的部分由应用程序执行。
+
+542
+00:33:53,720 --> 00:33:55,070
+but run your thread.
+但是运行你的线程。
+
+543
+00:33:55,080 --> 00:34:00,280
+You basically ask the kernel to find a new thread and run it.
+你基本上是要求内核找到一个新的线程并运行它。
+
+544
+00:34:03,620 --> 00:34:04,940
+If you don't have yield,
+如果你没有yield,
+
+545
+00:34:05,320 --> 00:34:07,230
+then if you remember,
+那么如果你还记得的话，
+
+546
+00:34:07,240 --> 00:34:16,220
+how do we make sure that we still share the cpu between different threads?
+我们如何确保在不同线程之间仍然共享CPU资源？
+
+547
+00:34:16,810 --> 00:34:22,890
+You have a timer and the timer after you devise a time in time slices.
+你有一个计时器，计时器在你设定的时间片后触发。
+
+548
+00:34:23,290 --> 00:34:26,370
+And every at the end of every time slices,
+在每个时间片的结束时，
+
+549
+00:34:26,700 --> 00:34:28,470
+you have this timer interrupt.
+你有这个定时器中断。
+
+550
+00:34:29,380 --> 00:34:32,050
+And this is stated by the operating system.
+这是由操作系统所声明的。
+
+551
+00:34:32,060 --> 00:34:33,410
+And as a result,
+作为结果，
+
+552
+00:34:33,650 --> 00:34:38,500
+it's, again, is looking is suspend the current thread which is executing.
+再次，它正在尝试挂起当前正在执行的线程。
+
+553
+00:34:38,750 --> 00:34:43,300
+And then it selects another thread to switch to a species to another thread.
+然后它选择另一个线程进行切换，以切换到另一个线程。
+
+554
+00:34:47,650 --> 00:34:48,760
+So you run a new thread.
+所以你启动了一个新的线程。
+
+555
+00:34:51,560 --> 00:34:59,080
+The same things happens when you are now call a sis aa system call,
+当你现在调用一个系统调用时，发生的事情是相同的。
+
+556
+00:34:59,360 --> 00:35:03,630
+say, for instance, to copy a file and io operation.
+比如说，复制文件和IO操作。
+
+557
+00:35:04,120 --> 00:35:06,270
+And that is a cisco.
+那是一台思科设备。
+
+558
+00:35:06,280 --> 00:35:08,670
+And if it's a waiting operation,
+如果是一个等待操作的话，
+
+559
+00:35:08,680 --> 00:35:15,300
+then the current thread is suspended and gain around a new thread
+那么当前线程将被挂起，并获得一个新的线程。
+
+560
+00:35:15,310 --> 00:35:16,180
+is selected to run.
+被选中运行。
+
+561
+00:35:17,310 --> 00:35:19,240
+So taking a step back,
+所以退一步说，
+
+562
+00:35:19,250 --> 00:35:25,300
+you've seen here a few years cases in which the thread voluntarily yield
+你在这里见过几年的情况，其中线程自愿让出执行权。
+
+563
+00:35:25,310 --> 00:35:27,970
+to the cpu another one,
+给CPU另一个
+
+564
+00:35:27,980 --> 00:35:33,720
+when you have the time mark the the system timer,
+当你有时间的时候，标记系统计时器。
+
+565
+00:35:34,600 --> 00:35:37,880
+forcing the suspension of the current thread.
+强制暂停当前线程。
+
+566
+00:35:38,530 --> 00:35:40,320
+Here, in the last case,
+在这里，最后一个情况下，
+
+567
+00:35:40,330 --> 00:35:43,200
+you have a cisco which is awaiting cisco,
+你有一台正在等待Cisco的设备。
+
+568
+00:35:43,210 --> 00:35:50,040
+which leads to the we do the celebrity involves are called waiting,
+这导致了我们所做的与名人有关的活动被称为等待。
+
+569
+00:35:50,050 --> 00:35:51,440
+so being suspended.
+被暂停。
+
+570
+00:35:51,860 --> 00:35:53,360
+So in all these cases,
+所以在所有这些情况下，
+
+571
+00:35:53,950 --> 00:35:57,150
+you need to look for a new thread to run.
+你需要寻找一个新的线程来运行。
+
+572
+00:35:59,120 --> 00:35:59,490
+Okay?
+好的？
+
+573
+00:36:01,440 --> 00:36:04,280
+And this is what the scheduling is about,
+这就是调度的内容。
+
+574
+00:36:05,520 --> 00:36:05,830
+right?
+对的？
+
+575
+00:36:06,390 --> 00:36:10,140
+Which thread you are going to pick if there are multiple threats which
+如果有多个线程，你打算选择哪个线程？
+
+576
+00:36:10,150 --> 00:36:12,100
+are going to be able to run,
+你将能够运行吗？
+
+577
+00:36:12,110 --> 00:36:14,170
+are ready to run,
+准备好运行了，
+
+578
+00:36:14,570 --> 00:36:15,830
+which one you are going to pick?
+你打算选择哪一个？
+
+579
+00:36:17,050 --> 00:36:17,480
+That's it.
+就这样。
+
+580
+00:36:18,740 --> 00:36:19,060
+Okay.
+好的。
+
+581
+00:36:28,800 --> 00:36:29,260
+Threats.
+威胁。
+
+582
+00:36:30,060 --> 00:36:31,410
+Scheduling is complicated.
+调度是复杂的。
+
+583
+00:36:32,410 --> 00:36:38,070
+And this is aaa comment from dennis rich chain.
+这是来自Dennis Rich Chain的aaa评论。
+
+584
+00:36:39,280 --> 00:36:44,070
+One of the inventors of unique sense, see.
+独特感知的发明者之一，看见了。
+
+585
+00:36:44,850 --> 00:36:52,300
+And it's a comment which is for a scheduling,
+这是一个关于调度的注释。
+
+586
+00:36:53,070 --> 00:36:55,050
+some scheduling functionality.
+一些调度功能。
+
+587
+00:36:55,500 --> 00:36:58,420
+The main.here, you are not expected to understand it,
+这里的main.h文件，你不需要理解它，
+
+588
+00:36:58,430 --> 00:36:59,340
+because it's too complicate.
+因为它太复杂了。
+
+589
+00:37:00,720 --> 00:37:01,580
+Scheduling is complicated.
+调度是复杂的。
+
+590
+00:37:01,590 --> 00:37:05,060
+And the reason it's complicated because it has a time they mentioned.
+原因之所以复杂是因为它涉及到了他们提到的时间。
+
+591
+00:37:05,530 --> 00:37:05,880
+Right?
+对吗？
+
+592
+00:37:06,200 --> 00:37:07,950
+You need to be careful about the time.
+你需要注意时间。
+
+593
+00:37:08,530 --> 00:37:12,330
+That's part of you need to integrating the scheduling,
+这是你需要整合调度的一部分。
+
+594
+00:37:16,500 --> 00:37:18,530
+but a new thread.
+但是一个新的线程。
+
+595
+00:37:19,990 --> 00:37:21,350
+And it's about,
+这是关于...
+
+596
+00:37:22,300 --> 00:37:25,830
+you look at the threads which are ready.
+你查看一下准备好的线程。
+
+597
+00:37:27,840 --> 00:37:32,830
+You select the next round to schedule and run the next lap around this.
+你选择下一轮进行安排，并继续进行下一圈。
+
+598
+00:37:34,270 --> 00:37:35,210
+Next they select this thread.
+接下来，他们选择了这个线程。
+
+599
+00:37:37,610 --> 00:37:38,210
+So that's it.
+就是这样了。
+
+600
+00:37:42,230 --> 00:37:43,420
+The rest of the lecture,
+剩下的讲座，
+
+601
+00:37:43,430 --> 00:37:46,640
+we are only going to focus on scheduling.
+我们只会专注于调度。
+
+602
+00:37:47,470 --> 00:37:47,970
+Again,
+请再说一遍。
+
+603
+00:37:47,980 --> 00:37:57,480
+the scheduling is selecting which thread to schedule out of all currently threads,
+调度是从当前所有线程中选择要调度的线程。
+
+604
+00:37:57,490 --> 00:37:58,440
+which are ready to run.
+已准备好运行的。
+
+605
+00:38:02,150 --> 00:38:02,520
+Now,
+现在，
+
+606
+00:38:07,100 --> 00:38:14,940
+this is basically a diagram About the flow in the scheduler,
+这基本上是一个关于调度器流程的图表。
+
+607
+00:38:15,560 --> 00:38:16,960
+flow diagram of the scheduler.
+调度器的流程图。
+
+608
+00:38:18,070 --> 00:38:22,220
+This is acpu we are running to the side of the cpu and it's a radical.
+这是一个我们正在运行的CPU，它是CPU侧面的一个部分，它是一个激进的设计。
+
+609
+00:38:22,930 --> 00:38:27,670
+The scheduler is going to pick one thread from the radical graph.
+调度器将从调度图中选择一个线程。
+
+610
+00:38:29,790 --> 00:38:31,380
+While the thread is running,
+当线程正在运行时，
+
+611
+00:38:32,250 --> 00:38:38,520
+the thread can go into have io request and it can wait for the io request
+线程可以执行I/O请求，并且可以等待I/O请求完成。
+
+612
+00:38:38,530 --> 00:38:39,120
+to complete.
+完成。
+
+613
+00:38:41,900 --> 00:38:44,460
+It can wait for the time slice to expire.
+它可以等待时间片过期。
+
+614
+00:38:44,470 --> 00:38:46,820
+This is going for the timer to kick in,
+这是为了启动定时器。
+
+615
+00:38:47,620 --> 00:38:49,090
+say, after 10 million seconds,
+说，经过1000万秒之后，
+
+616
+00:38:50,180 --> 00:38:51,780
+you can wait, for instance,
+你可以等一下，例如，
+
+617
+00:38:52,470 --> 00:38:54,380
+if you for a chilled child,
+如果你对一个冷静的孩子来说，
+
+618
+00:38:55,040 --> 00:38:56,850
+you wait for that child to finish,
+你等待那个孩子完成，
+
+619
+00:38:57,500 --> 00:39:00,670
+to execute or to execute.
+执行或执行。
+
+620
+00:39:02,240 --> 00:39:05,930
+And you can also be interrupted by an interrupt.
+而且你也可以被中断打断。
+
+621
+00:39:09,630 --> 00:39:10,500
+And then,
+然后，
+
+622
+00:39:11,380 --> 00:39:13,290
+once you are waiting, it's over.
+一旦你开始等待，一切就结束了。
+
+623
+00:39:13,300 --> 00:39:15,890
+You are going to be put back in the video.
+你将被重新放回视频中。
+
+624
+00:39:20,640 --> 00:39:24,510
+Again, scheduling is about deciding we spread from the radio to schedule.
+调度是关于决定我们如何分配无线电资源的过程。
+
+625
+00:39:28,500 --> 00:39:31,380
+And when you say automatically,
+当你说自动化时，
+
+626
+00:39:31,390 --> 00:39:34,180
+you say to the scheduling,
+你在说调度。
+
+627
+00:39:34,820 --> 00:39:38,040
+it's about which task to run.
+这是关于要运行哪个任务的问题。
+
+628
+00:39:38,990 --> 00:39:40,420
+If I have more than one task,
+如果我有多个任务，
+
+629
+00:39:40,430 --> 00:39:42,020
+then I automatically have a queue.
+那么我自动拥有一个队列。
+
+630
+00:39:44,350 --> 00:39:49,610
+So queues are integrate our fundamental part of the scheduling.
+队列是调度的基本组成部分。
+
+631
+00:39:50,210 --> 00:39:52,260
+You are waiting in a queue to be scheduled.
+你正在等待排队进行调度。
+
+632
+00:39:55,910 --> 00:40:00,700
+Cpo scheduling has been a big area of research since what?
+自从什么时候开始，CPO调度就成为了一个重要的研究领域？
+
+633
+00:40:01,460 --> 00:40:03,530
+50 years for 50 years.
+50年为50年。
+
+634
+00:40:05,840 --> 00:40:15,300
+And there are many implicit assumption and many kind of scheduling problems.
+还有许多隐含的假设和各种类型的调度问题。
+
+635
+00:40:17,110 --> 00:40:20,700
+Like you can have one program per users.
+就像你可以为每个用户拥有一个程序一样。
+
+636
+00:40:20,710 --> 00:40:24,140
+You can have one separate program or multiple threat programs.
+你可以拥有一个独立的程序或多个线程程序。
+
+637
+00:40:25,120 --> 00:40:26,730
+Programs are independent.
+程序是独立的。
+
+638
+00:40:27,200 --> 00:40:27,560
+Right?
+对吗？
+
+639
+00:40:28,460 --> 00:40:32,750
+And so in many, and this,
+因此，在许多情况下，以及这个情况下，
+
+640
+00:40:32,760 --> 00:40:35,740
+you make these assumptions to simplify the problem,
+你做这些假设是为了简化问题。
+
+641
+00:40:36,150 --> 00:40:37,430
+to make it more productive,
+为了提高生产效率，
+
+642
+00:40:38,090 --> 00:40:38,480
+right?
+是的，正确。
+
+643
+00:40:42,080 --> 00:40:43,440
+And therefore, to solve it.
+因此，要解决这个问题。
+
+644
+00:40:45,230 --> 00:40:47,920
+But this problem is much more complicated.
+但是这个问题要复杂得多。
+
+645
+00:40:48,230 --> 00:40:52,640
+That's why there are so much research in the 70s,
+这就是为什么在70年代有这么多的研究。
+
+646
+00:40:56,640 --> 00:40:58,480
+because there are different concepts.
+因为存在不同的概念。
+
+647
+00:40:58,490 --> 00:41:07,150
+So when you decide to run a new thread to pick a new threat to that,
+当你决定启动一个新线程来处理新的威胁时，
+
+648
+00:41:08,450 --> 00:41:09,360
+when you decide that,
+当你决定好的时候，
+
+649
+00:41:10,020 --> 00:41:14,100
+we said you are going to pick according to what the one is ahead of the cure.
+我们说的是根据前面的治疗方法来选择。
+
+650
+00:41:14,450 --> 00:41:15,180
+Is that fair?
+这公平吗？
+
+651
+00:41:15,860 --> 00:41:16,890
+What does the fairness mean?
+公平性是指在资源分配、决策制定或待遇分配等方面，对所有相关方平等对待的原则。它强调不偏不倚、不歧视、不偏袒，确保每个人都有公平的机会和待遇。公平性是社会正义的基本要求之一，旨在实现社会的平等和公正。
+
+652
+00:41:17,580 --> 00:41:17,910
+Right.
+好的。
+
+653
+00:41:20,400 --> 00:41:27,600
+I if you and for different programs,
+如果你对不同的程序进行了编程，
+
+654
+00:41:27,610 --> 00:41:31,200
+it's like for different user may be fairly that I get the same amount
+对于不同的用户来说，我可能会得到相同的数量。
+
+655
+00:41:31,210 --> 00:41:32,880
+of cpu like you get.
+像你这样获取的CPU。
+
+656
+00:41:33,760 --> 00:41:34,310
+Okay.
+好的。
+
+657
+00:41:34,570 --> 00:41:35,840
+But what about the applications?
+但是应用程序呢？
+
+658
+00:41:36,050 --> 00:41:40,480
+Because the applications that are application which are io heavy, right?
+因为这些应用程序是I/O密集型的，对吗？
+
+659
+00:41:40,490 --> 00:41:41,240
+Like an elite,
+像一个精英一样，
+
+660
+00:41:42,130 --> 00:41:45,200
+spend very little cpu right?
+占用很少的CPU资源，对吗？
+
+661
+00:41:45,210 --> 00:41:50,690
+Mostly, it's waiting for you to type in new characters.
+主要是等待您输入新的字符。
+
+662
+00:41:52,280 --> 00:41:53,960
+Or you can have like compilers.
+或者你可以像编译器一样。
+
+663
+00:41:54,260 --> 00:41:56,590
+If you do a run a computer compilation job,
+如果你运行一个计算机编译作业，
+
+664
+00:41:56,830 --> 00:41:59,450
+computers, and that's very cpu bounded.
+计算机，而且这非常受CPU限制。
+
+665
+00:41:59,670 --> 00:42:00,050
+Right?
+对吗？
+
+666
+00:42:00,420 --> 00:42:04,150
+So what does mean for to be fair between these 2 kinds of jobs?
+公平对待这两种工作意味着什么？
+
+667
+00:42:04,760 --> 00:42:04,960
+Right?
+对吗？
+
+668
+00:42:04,970 --> 00:42:05,040
+No.
+不。
+
+669
+00:42:06,160 --> 00:42:09,210
+Matter what is your answer there?
+无论你的答案是什么？
+
+670
+00:42:09,880 --> 00:42:11,110
+At the end of the day,
+一天结束时，
+
+671
+00:42:11,650 --> 00:42:15,550
+you need to allocate the cpu if you have one cpu,
+如果你只有一个 CPU，你需要分配给它 CPU 时间。
+
+672
+00:42:17,000 --> 00:42:18,270
+but we have fewer cp us.
+但是我们的 CPU 数量较少。
+
+673
+00:42:18,280 --> 00:42:22,530
+And so that's we need to allow to slice the cpo and allocate
+所以我们需要允许对CPO进行切片和分配
+
+674
+00:42:22,540 --> 00:42:23,850
+different time slices,
+不同的时间片
+
+675
+00:42:24,570 --> 00:42:26,980
+two different threads.
+两个不同的线程。
+
+676
+00:42:34,780 --> 00:42:35,300
+Now,
+现在，
+
+677
+00:42:39,860 --> 00:42:43,540
+there is another implicit assumption which is done by today's,
+今天的操作系统还有另一个隐含的假设。
+
+678
+00:42:43,590 --> 00:42:47,160
+but many of the today's schedulers operating system schedulers.
+但是现在的操作系统中有许多调度器。
+
+679
+00:42:49,500 --> 00:42:57,300
+That assumption is that many of the applications are reversed the applications.
+这个假设是许多应用程序是反向的应用程序。
+
+680
+00:42:58,880 --> 00:43:03,380
+This means that they use a cpu for a little bit,
+这意味着他们会使用CPU一小段时间，
+
+681
+00:43:04,610 --> 00:43:05,420
+and then wait,
+然后等待，
+
+682
+00:43:06,790 --> 00:43:08,870
+the news against the cpo for a little bit then, right?
+对，新闻对CPO有一点不利，对吗？
+
+683
+00:43:14,520 --> 00:43:18,370
+And like application,
+就像应用程序一样，
+
+684
+00:43:18,380 --> 00:43:21,690
+like user facing applications,
+像用户界面应用程序一样，
+
+685
+00:43:22,480 --> 00:43:27,590
+like editors, like anything you interact with your computer.
+像编辑器一样，像你与计算机进行交互的任何东西。
+
+686
+00:43:29,230 --> 00:43:29,720
+Web browsers.
+网络浏览器。
+
+687
+00:43:29,730 --> 00:43:31,370
+Any other thing like that?
+还有其他类似的事情吗？
+
+688
+00:43:32,480 --> 00:43:33,590
+Fit in this category?
+适合这个类别吗？
+
+689
+00:43:33,860 --> 00:43:34,040
+Right?
+对吗？
+
+690
+00:43:34,050 --> 00:43:36,970
+Because most of the time that program waits for your input.
+因为大部分时间程序都在等待你的输入。
+
+691
+00:43:36,980 --> 00:43:45,500
+And while it's wise, it doesn't need to use acpu again,
+虽然这是明智的做法，但它不需要再次使用 CPU。
+
+692
+00:43:45,510 --> 00:43:50,280
+this program satellite between cpo and io like we discussed.
+这个程序在CPO和IO之间进行卫星通信，就像我们讨论过的那样。
+
+693
+00:43:51,280 --> 00:43:58,190
+And this means that you want to prioritize, for short, worse, right?
+这意味着你想要优先考虑短期、较差的情况，对吗？
+
+694
+00:43:58,470 --> 00:44:00,700
+Because you want to be responsive the program.
+因为你想要让程序具有响应性。
+
+695
+00:44:02,830 --> 00:44:06,020
+This is one way to think about the scheduling.
+这是一种思考调度的方式。
+
+696
+00:44:06,030 --> 00:44:07,940
+If you think about scheduling discipline,
+如果你考虑调度纪律，
+
+697
+00:44:09,480 --> 00:44:11,510
+I want to prioritize a short burst,
+我想要优先处理一个短暂的突发任务。
+
+698
+00:44:12,200 --> 00:44:12,360
+right?
+对的？
+
+699
+00:44:12,370 --> 00:44:13,680
+Because the studies are facing,
+由于学业的压力，
+
+700
+00:44:14,090 --> 00:44:15,870
+they are going to be interactive.
+它们将是互动的。
+
+701
+00:44:16,110 --> 00:44:17,900
+I provide good experience to the user.
+我为用户提供良好的体验。
+
+702
+00:44:18,130 --> 00:44:19,900
+And if something is longer burst,
+如果某个事物持续时间更长的话，
+
+703
+00:44:20,150 --> 00:44:21,420
+it takes for a while.
+需要一段时间。
+
+704
+00:44:21,650 --> 00:44:25,620
+Like like a compilation job,
+就像编译工作一样，
+
+705
+00:44:25,630 --> 00:44:26,920
+it can be lower product.
+它可以是较低的产品。
+
+706
+00:44:28,080 --> 00:44:28,300
+Right?
+对吗？
+
+707
+00:44:28,310 --> 00:44:29,420
+So keep in mind that one.
+记住这一点。
+
+708
+00:44:30,890 --> 00:44:31,280
+Now,
+现在，
+
+709
+00:44:31,990 --> 00:44:35,470
+we move on what are the other possible policies?
+我们继续，还有哪些可能的政策？
+
+710
+00:44:35,960 --> 00:44:38,000
+What are the properties young for a scheduler?
+调度器的年轻属性是什么？
+
+711
+00:44:41,080 --> 00:44:43,290
+There are many of these properties.
+有许多这些属性。
+
+712
+00:44:43,530 --> 00:44:46,180
+Again, that's the reason or the many of these policies.
+再次强调，这就是这些政策的原因之一。
+
+713
+00:44:47,050 --> 00:44:48,430
+And there's a reason for it.
+这是有原因的。
+
+714
+00:44:48,440 --> 00:44:53,490
+You have a a lot of research in scheduling for decades.
+你在调度方面有几十年的研究经验。
+
+715
+00:44:55,520 --> 00:44:55,950
+So on.
+所以。
+
+716
+00:44:55,960 --> 00:44:57,710
+It's obviously minimize response time.
+显然是最小化响应时间。
+
+717
+00:44:58,140 --> 00:44:58,530
+Right?
+对吗？
+
+718
+00:44:58,830 --> 00:45:00,640
+You want to finish the task,
+你想完成这个任务。
+
+719
+00:45:01,270 --> 00:45:03,250
+the job as fast as possible.
+尽快完成工作。
+
+720
+00:45:06,880 --> 00:45:07,340
+Fair enough.
+好的，没问题。
+
+721
+00:45:09,630 --> 00:45:11,550
+Another one is maximize the soup,
+另一个问题是最大化汤的利用。
+
+722
+00:45:12,980 --> 00:45:13,290
+right?
+对的？
+
+723
+00:45:13,690 --> 00:45:16,780
+The soup with it's about the number of queries per second,
+这里说的是每秒查询的数量。
+
+724
+00:45:18,170 --> 00:45:18,520
+right?
+对的？
+
+725
+00:45:18,830 --> 00:45:20,390
+Number of transactions per second.
+每秒事务数。
+
+726
+00:45:21,760 --> 00:45:24,470
+Here, this is more complicated because there are two parts.
+这里更加复杂，因为有两个部分。
+
+727
+00:45:25,460 --> 00:45:28,100
+It's aio part and the cpo part.
+这是 aio 部分和 cpo 部分。
+
+728
+00:45:31,970 --> 00:45:34,040
+It's also, if you, in general,
+通常情况下，如果你也这样做的话
+
+729
+00:45:34,650 --> 00:45:40,770
+and it's also one way.
+而且这也是一种方式。
+
+730
+00:45:40,780 --> 00:45:44,500
+Typically, you maximize the throughput is batching,
+通常情况下，通过批处理来最大化吞吐量。
+
+731
+00:45:45,220 --> 00:45:48,090
+which her two is a elapse time.
+她的两个是经过的时间。
+
+732
+00:45:49,160 --> 00:45:51,590
+For instance, let me give you an example.
+例如，让我给你举个例子。
+
+733
+00:45:53,410 --> 00:46:01,560
+If I want to optimize each the response times the latency of each rip
+如果我想优化每个RIP的响应时间和延迟
+
+734
+00:46:01,570 --> 00:46:02,160
+to the disk,
+写入磁盘
+
+735
+00:46:03,980 --> 00:46:05,290
+it's one power problem.
+这是一个电源问题。
+
+736
+00:46:06,200 --> 00:46:13,130
+If I want to maximize the number of reads to the disk is another problem.
+如果我想最大化对磁盘的读取次数，那是另一个问题。
+
+737
+00:46:14,190 --> 00:46:16,060
+In the first case, for each read,
+在第一种情况下，对于每次读取，
+
+738
+00:46:16,070 --> 00:46:19,860
+i'm going to execute separately and trying to execute as fast as possible.
+我将分别执行并尽可能快地执行。
+
+739
+00:46:20,440 --> 00:46:23,520
+In the second case, instead of executing one read, at a time,
+在第二种情况下，不是一次执行一个读取操作，
+
+740
+00:46:23,530 --> 00:46:29,530
+I am going to batch the reads and send them to the disk and the risk,
+我将对读取操作进行批处理，并将它们发送到磁盘和风险中。
+
+741
+00:46:29,540 --> 00:46:39,490
+we can do a better job of serving these sleeves in a more intelligent way.
+我们可以更智能地为这些袖口提供更好的服务。
+
+742
+00:46:40,480 --> 00:46:45,760
+So it's going to increase a throughput to serve more risk per second.
+这将增加吞吐量，以每秒提供更多的风险服务。
+
+743
+00:46:47,430 --> 00:46:49,850
+But as the expense of the latency,
+但是以延迟为代价，
+
+744
+00:46:49,860 --> 00:46:55,920
+because now I need to wait for the batch to complete in order to get
+因为现在我需要等待批处理完成才能获取
+
+745
+00:46:55,930 --> 00:46:57,000
+the result for my reach.
+我的研究结果。
+
+746
+00:46:59,800 --> 00:47:01,500
+So typically, this is one,
+通常情况下，这是其中一个。
+
+747
+00:47:02,260 --> 00:47:06,490
+one trade off between the latency and the support.
+延迟和支持之间的一个权衡。
+
+748
+00:47:09,030 --> 00:47:11,260
+The other thing it's about,
+另一件事是关于
+
+749
+00:47:11,910 --> 00:47:13,220
+let me give you another example,
+让我给你举个例子，
+
+750
+00:47:13,230 --> 00:47:14,340
+just thought about it.
+刚刚想到了。
+
+751
+00:47:15,360 --> 00:47:17,550
+If you want you go to grocery,
+如果你想去杂货店，
+
+752
+00:47:17,560 --> 00:47:23,150
+I know that many of you you are now you are the buying online,
+我知道现在很多人都在网上购物。
+
+753
+00:47:25,630 --> 00:47:28,610
+but think about when you go to grocery.
+但是想想当你去杂货店的时候。
+
+754
+00:47:29,280 --> 00:47:30,560
+If I need something right now,
+如果我现在需要什么东西，
+
+755
+00:47:30,570 --> 00:47:35,400
+I need milk in order to reduce the latency by how when i'm going to get
+我需要牛奶来降低延迟，我什么时候能得到？
+
+756
+00:47:35,410 --> 00:47:35,880
+the milk.
+牛奶。
+
+757
+00:47:36,850 --> 00:47:37,280
+Okay?
+好的？
+
+758
+00:47:37,700 --> 00:47:39,990
+I'm going to go right away and get milk,
+我马上就去买牛奶。
+
+759
+00:47:41,600 --> 00:47:42,720
+but typically don't do that.
+但通常不会这样做。
+
+760
+00:47:43,510 --> 00:47:43,770
+Right?
+对吗？
+
+761
+00:47:43,780 --> 00:47:46,170
+And I I get the milk saying half an hour.
+我会在半小时内去买牛奶。
+
+762
+00:47:47,150 --> 00:47:48,670
+But typically we don't do that.
+但通常我们不这样做。
+
+763
+00:47:48,680 --> 00:47:50,770
+What we do is basically we batch.
+我们所做的基本上就是批处理。
+
+764
+00:47:51,070 --> 00:47:52,690
+And when we go to grocery,
+当我们去购物时，
+
+765
+00:47:52,700 --> 00:47:53,890
+we buy many things.
+我们购买了许多东西。
+
+766
+00:47:54,680 --> 00:47:55,110
+Right?
+对吗？
+
+767
+00:47:55,670 --> 00:47:57,740
+So like ambassador, instead of buying me today,
+就像大使一样，今天不要买给我，
+
+768
+00:47:57,750 --> 00:47:58,860
+i'm going to talk tomorrow.
+我明天要发言。
+
+769
+00:47:58,870 --> 00:48:00,420
+I'm going to go to grocery.
+我要去买菜。
+
+770
+00:48:01,270 --> 00:48:05,260
+I am going to wait until tomorrow because I have a lot of other things to do.
+我会等到明天，因为我还有很多其他事情要做。
+
+771
+00:48:05,710 --> 00:48:07,600
+And then I get them by tomorrow.
+然后我明天拿到它们。
+
+772
+00:48:07,610 --> 00:48:08,840
+So it's lower latency.
+所以它具有较低的延迟。
+
+773
+00:48:09,470 --> 00:48:11,060
+But in terms of the throughput,
+但就吞吐量而言，
+
+774
+00:48:11,310 --> 00:48:16,140
+i'm going to get a a lot of more things.
+我要买很多更多的东西。
+
+775
+00:48:18,060 --> 00:48:19,200
+At the same time,
+同时，
+
+776
+00:48:20,350 --> 00:48:21,620
+the circuit will be higher,
+电路将会更高。
+
+777
+00:48:21,630 --> 00:48:22,860
+but the latency will be lower.
+但延迟将会更低。
+
+778
+00:48:26,980 --> 00:48:30,040
+And another thing it's about policy could be failed,
+还有一件事，关于政策可能会失败的问题，
+
+779
+00:48:30,050 --> 00:48:32,120
+like we discuss in the past is fairness.
+就像我们之前讨论过的一样，公平性。
+
+780
+00:48:34,440 --> 00:48:37,920
+You want to share the cpu in some equity equitable way.
+你想以公平的方式分享 CPU 的使用权。
+
+781
+00:48:38,500 --> 00:48:38,920
+Okay.
+好的。
+
+782
+00:48:42,020 --> 00:48:42,370
+Good.
+好的。
+
+783
+00:48:42,380 --> 00:48:47,210
+So now next we are going to go through some first to go
+接下来，我们将逐步进行一些首要的步骤。
+
+784
+00:48:47,220 --> 00:48:51,090
+through some scheduling policies.
+通过一些调度策略。
+
+785
+00:48:51,100 --> 00:48:54,450
+And we are going to start from simple to more complex.
+我们将从简单到复杂开始。
+
+786
+00:48:55,400 --> 00:48:56,550
+For each of them,
+对于每一个人，
+
+787
+00:48:56,560 --> 00:49:02,800
+we are going to look at what properties they have and one or what we
+我们将要看一下它们具有的特性和其中的一个或多个。
+
+788
+00:49:02,810 --> 00:49:03,700
+are going to,
+你们打算去吗？
+
+789
+00:49:03,710 --> 00:49:04,000
+again,
+再次，
+
+790
+00:49:04,010 --> 00:49:05,800
+compare them based on some metric.
+根据某个度量标准进行比较。
+
+791
+00:49:06,620 --> 00:49:09,670
+And typically, the metric we are going to compare them.
+通常，我们要比较的指标是什么。
+
+792
+00:49:09,920 --> 00:49:12,940
+It's a response time, how long it takes to finish things.
+这是一个响应时间，即完成任务所需的时间。
+
+793
+00:49:13,530 --> 00:49:13,900
+Right?
+对吗？
+
+794
+00:49:13,910 --> 00:49:16,050
+This is what we are going to do now.
+这是我们现在要做的事情。
+
+795
+00:49:17,270 --> 00:49:21,890
+One of the first and the simplest scheduling discipline is first curved,
+最早和最简单的调度策略之一是先来先服务（FCFS）。
+
+796
+00:49:21,900 --> 00:49:23,570
+first come, first served,
+先来先服务
+
+797
+00:49:24,170 --> 00:49:25,960
+or first in, first out.
+先进先出，即先进入的先出去。
+
+798
+00:49:26,870 --> 00:49:27,240
+Right?
+对吗？
+
+799
+00:49:29,340 --> 00:49:31,270
+And a this is like,
+这个就像是，
+
+800
+00:49:31,780 --> 00:49:33,380
+you go to grocery everywhere.
+你到处都去杂货店。
+
+801
+00:49:33,390 --> 00:49:36,080
+This is exactly what it is, right?
+这就是它的确切含义，对吗？
+
+802
+00:49:36,550 --> 00:49:40,620
+People are served in the order in which they arrived to the queue.
+人们按照他们到达队列的顺序进行服务。
+
+803
+00:49:44,690 --> 00:49:45,760
+And now,
+现在，
+
+804
+00:49:47,080 --> 00:49:53,390
+let's assume that now we have three processes.
+假设现在我们有三个进程。
+
+805
+00:49:56,150 --> 00:49:59,390
+Let's assume that we first come first serve.
+假设我们采用先来先服务的方式。
+
+806
+00:49:59,710 --> 00:50:08,040
+Each process runs to completion is a reminding idea of this lecture.
+每个进程运行到完成是本讲座的一个重要概念。
+
+807
+00:50:08,050 --> 00:50:11,800
+I am a use processes and jobs interchangeable,
+我是一个用户，将进程和作业视为可互换的。
+
+808
+00:50:12,320 --> 00:50:14,190
+but it should be clear from context.
+但从上下文中应该能够清楚理解。
+
+809
+00:50:18,160 --> 00:50:19,770
+So now p one,
+现在是p one,
+
+810
+00:50:20,590 --> 00:50:22,510
+say it takes 24 time units.
+需要花费24个时间单位。
+
+811
+00:50:22,880 --> 00:50:24,920
+Let's say 24 seconds.
+假设是24秒。
+
+812
+00:50:25,810 --> 00:50:27,400
+B two takes 3 seconds,
+B two需要3秒钟。
+
+813
+00:50:27,940 --> 00:50:31,410
+and basically takes 3 seconds.
+基本上只需要3秒钟。
+
+814
+00:50:31,420 --> 00:50:31,610
+Now.
+现在。
+
+815
+00:50:32,710 --> 00:50:36,920
+Suppose the processes the expression is arriving in the queue in the order
+假设进程的表达式按照顺序到达队列中
+
+816
+00:50:36,930 --> 00:50:37,670
+of p one,
+p的一个例子，
+
+817
+00:50:37,680 --> 00:50:38,670
+p two, p three.
+p two, p three. (翻译成中文：p two, p three。)
+
+818
+00:50:39,560 --> 00:50:43,020
+With the first come for self scheduling discipline,
+使用首次来先服务的自调度策略，
+
+819
+00:50:43,680 --> 00:50:49,720
+we are going to serve to run the processing the same order for asp one,
+我们打算按照相同的顺序为ASP One运行处理。
+
+820
+00:50:50,170 --> 00:50:52,150
+then p two, then p three.
+然后 P2，然后 P3。
+
+821
+00:50:53,690 --> 00:50:57,910
+Now let's see when each of these processes finishes.
+现在让我们看看每个进程何时完成。
+
+822
+00:50:58,790 --> 00:50:59,250
+Right?
+对吗？
+
+823
+00:51:00,720 --> 00:51:01,630
+What is the waiting time?
+等待时间是多少？
+
+824
+00:51:01,640 --> 00:51:04,830
+The waiting time is how long you wait before being scheduled.
+等待时间是指在被安排之前等待的时间。
+
+825
+00:51:06,700 --> 00:51:09,290
+So, and when you complete,
+好的，完成后，
+
+826
+00:51:09,300 --> 00:51:14,970
+so the first process doesn't play it any time.
+所以第一个进程在任何时候都不播放它。
+
+827
+00:51:14,980 --> 00:51:16,570
+So starts immediately.
+所以立即开始。
+
+828
+00:51:16,960 --> 00:51:21,090
+The p two was 24 seconds for the p one to finish,
+p2完成所需的时间比p1多了24秒。
+
+829
+00:51:22,110 --> 00:51:25,910
+and p three ways for 27 seconds for p one and peter to finish.
+并且p三种方法需要27秒才能完成，p一和彼得一起完成。
+
+830
+00:51:26,710 --> 00:51:27,020
+Right?
+对吗？
+
+831
+00:51:28,680 --> 00:51:35,090
+And the average waiting time is 0+24+27/370.
+平均等待时间为0+24+27/370。
+
+832
+00:51:36,470 --> 00:51:38,340
+Now, if you look at completion down,
+现在，如果你看一下完成情况下降，
+
+833
+00:51:38,350 --> 00:51:42,020
+so the finishing time p one takes 24 seconds to finish b two.
+所以完成任务 P 需要 24 秒来完成任务 B。
+
+834
+00:51:43,430 --> 00:51:48,140
+27 seconds from the time was submitted and p three thirty seconds.
+从提交时间开始，到现在已经过去了27秒，还剩下3分钟30秒。
+
+835
+00:51:48,820 --> 00:51:50,290
+Again, in this particular case,
+再次，在这种特殊情况下，
+
+836
+00:51:51,620 --> 00:51:57,980
+we assume that all processes arrive basically the same time,
+我们假设所有进程基本上同时到达。
+
+837
+00:51:58,430 --> 00:52:01,930
+but that in certain in the queue,
+但是在队列中确实存在这个问题。
+
+838
+00:52:01,940 --> 00:52:04,010
+in the order p one, p two, and p three,
+按照顺序，p one，p two和p three，
+
+839
+00:52:07,630 --> 00:52:08,230
+let's say,
+假设，
+
+840
+00:52:10,600 --> 00:52:13,960
+cash, it's actually a very good question.
+现金，这实际上是一个非常好的问题。
+
+841
+00:52:14,450 --> 00:52:17,530
+Is there any way for the kernel to estimate,
+内核有没有办法估计
+
+842
+00:52:17,860 --> 00:52:22,590
+know the first time of for a job without actually running it?
+在不实际运行作业的情况下，如何知道作业的首次运行时间？
+
+843
+00:52:22,850 --> 00:52:23,900
+That's excellent question.
+这是一个很好的问题。
+
+844
+00:52:26,230 --> 00:52:26,710
+I think,
+我认为，
+
+845
+00:52:27,600 --> 00:52:28,610
+in general, now,
+一般来说，现在，
+
+846
+00:52:28,620 --> 00:52:31,890
+and you'll see this is one of the problem which is scheduling discipline,
+你会发现这是调度策略中的一个问题。
+
+847
+00:52:32,620 --> 00:52:42,400
+one of the many and the but you can, in some cases,
+在某些情况下，你可以是众多选择中的一个，但也有例外情况。
+
+848
+00:52:42,410 --> 00:52:44,200
+you can know it, for instance,
+你可以了解它，例如，
+
+849
+00:52:44,210 --> 00:52:45,700
+for its from historical data.
+这是根据历史数据得出的结论。
+
+850
+00:52:49,110 --> 00:52:50,700
+In some cases, it is possible.
+在某些情况下，这是可能的。
+
+851
+00:52:52,320 --> 00:52:53,560
+But in this case, again,
+在这种情况下，再次，
+
+852
+00:52:54,040 --> 00:52:56,880
+this killer doesn't even care about the running time of a job,
+这个杀手甚至不关心作业的运行时间。
+
+853
+00:52:58,630 --> 00:52:59,460
+a of a process.
+进程的一个属性。
+
+854
+00:53:00,130 --> 00:53:01,360
+It doesn't care, right?
+它不在乎，对吗？
+
+855
+00:53:01,370 --> 00:53:02,640
+It just executes them in the order.
+它只是按顺序执行它们。
+
+856
+00:53:02,650 --> 00:53:03,840
+That means they arrive with lecture.
+这意味着他们带着讲座到达。
+
+857
+00:53:04,200 --> 00:53:07,470
+But we are going to touch to go back and touch this very question
+但我们将要回到并深入探讨这个问题。
+
+858
+00:53:07,480 --> 00:53:10,680
+later in the lecture.
+在讲座的后面部分。
+
+859
+00:53:11,180 --> 00:53:11,510
+Good.
+好的。
+
+860
+00:53:12,670 --> 00:53:14,140
+Now, if you look at this one,
+现在，如果你看这个的话，
+
+861
+00:53:15,930 --> 00:53:17,070
+i'm just curious,
+我只是好奇，
+
+862
+00:53:19,580 --> 00:53:26,870
+can you think about a better way to schedule
+你能想出一个更好的调度方式吗？
+
+863
+00:53:29,630 --> 00:53:32,850
+these processes to have lower completion time?
+这些进程的完成时间更短吗？
+
+864
+00:53:42,050 --> 00:53:47,300
+Yeah, run p one after peter and after the p three to still a very good.
+是的，运行p one在peter之后，再在p three之后运行，仍然非常好。
+
+865
+00:53:48,040 --> 00:53:48,600
+That's very good.
+非常好。
+
+866
+00:53:49,030 --> 00:53:49,730
+Okay.
+好的。
+
+867
+00:53:50,990 --> 00:53:52,220
+You see, this is a problem.
+你看，这是一个问题。
+
+868
+00:53:52,230 --> 00:53:58,620
+It's exactly the problem with this kind of scheduler is very simple,
+这种调度器的问题非常简单，
+
+869
+00:53:58,940 --> 00:53:59,700
+very simple.
+非常简单。
+
+870
+00:54:00,450 --> 00:54:00,820
+Right?
+对吗？
+
+871
+00:54:01,700 --> 00:54:05,880
+But the problem is that if you have some short processes,
+但问题是，如果你有一些短进程，
+
+872
+00:54:06,780 --> 00:54:11,210
+they end, they can get stuck behind a long process.
+它们结束后，可能会被卡在一个长时间的过程中。
+
+873
+00:54:12,710 --> 00:54:15,030
+This is called convoy yet effort.
+这被称为护航效应。
+
+874
+00:54:15,730 --> 00:54:16,150
+Right?
+对吗？
+
+875
+00:54:16,520 --> 00:54:18,410
+Think about you go to the grocery,
+想象一下你去杂货店购物，
+
+876
+00:54:19,130 --> 00:54:28,910
+and you are going to be stuck behind someone which has100 items is a couch.
+而且你将会被卡在一个有100件物品的沙发后面。
+
+877
+00:54:29,730 --> 00:54:30,180
+Right?
+对吗？
+
+878
+00:54:32,010 --> 00:54:33,140
+You don't want that, right?
+你不想要那个，对吗？
+
+879
+00:54:34,630 --> 00:54:38,560
+You have only three or four items to do to buy.
+你只需要购买三到四件物品。
+
+880
+00:54:39,280 --> 00:54:41,240
+How do they solve the grocery this problem?
+他们是如何解决这个杂货问题的？
+
+881
+00:54:41,250 --> 00:54:43,200
+How they try to alleviate this problem?
+他们如何试图缓解这个问题？
+
+882
+00:54:50,540 --> 00:54:51,380
+Express lines.
+快速通道。
+
+883
+00:54:51,750 --> 00:54:52,910
+Yes, in the express line,
+是的，在快速通道中，
+
+884
+00:54:52,920 --> 00:54:57,680
+there is a cap on the size of the job of the size of the process, right?
+进程的大小是有限制的，对于作业的大小也是有限制的，对吗？
+
+885
+00:54:57,930 --> 00:55:00,100
+Because the capital like,
+因为资本喜欢，
+
+886
+00:55:00,890 --> 00:55:03,870
+you can only have 15 items, right?
+你只能拥有15个物品，对吗？
+
+887
+00:55:03,880 --> 00:55:06,180
+No more than 15 items, okay?
+不要超过15个物品，好吗？
+
+888
+00:55:06,480 --> 00:55:08,870
+To cap basically how long it takes the process.
+基本上，它用来限制进程所需的时间。
+
+889
+00:55:10,550 --> 00:55:11,120
+Indeed,
+确实，
+
+890
+00:55:11,650 --> 00:55:13,520
+a it should be a much better answer.
+这应该是一个更好的答案。
+
+891
+00:55:14,060 --> 00:55:16,000
+Now, the average waiting time is three.
+现在，平均等待时间为三。
+
+892
+00:55:16,010 --> 00:55:19,100
+Instead of I seen 24 and 13, I believe,
+我看到的是24和13，我相信，
+
+893
+00:55:19,110 --> 00:55:21,410
+instead of 27, let me.
+不要27，让我来。
+
+894
+00:55:23,160 --> 00:55:27,890
+So it's 3 and 10 instead of 17 and 2013 instead of 27.
+所以应该是3和10，而不是17和2013，27应该是2013。
+
+895
+00:55:28,440 --> 00:55:28,850
+Okay.
+好的。
+
+896
+00:55:31,560 --> 00:55:32,040
+Good.
+好的。
+
+897
+00:55:33,910 --> 00:55:36,020
+We learned that we know.
+我们学到了我们所知道的。
+
+898
+00:55:37,160 --> 00:55:39,660
+Now here is another one.
+现在这里又来了一个。
+
+899
+00:55:42,330 --> 00:55:46,390
+It's implemented by many schedulers,
+它被许多调度器实现。
+
+900
+00:55:46,400 --> 00:55:48,770
+this policy around robin.
+这是一个关于轮询的策略。
+
+901
+00:55:49,780 --> 00:55:50,060
+Right?
+对吗？
+
+902
+00:55:51,060 --> 00:55:52,840
+So around robin,
+轮询调度算法
+
+903
+00:55:53,420 --> 00:55:55,940
+for come first serve, depends on this.
+对于先来先服务（FCFS）算法，取决于这个因素。
+
+904
+00:55:55,950 --> 00:55:57,420
+When the order is submitted.
+当订单被提交时。
+
+905
+00:55:58,200 --> 00:56:00,680
+The round, robin uses this preemption,
+轮转调度算法使用了抢占机制。
+
+906
+00:56:01,030 --> 00:56:03,270
+which exactly we discussed as many times so far.
+我们迄今为止已经讨论过很多次的内容。
+
+907
+00:56:03,880 --> 00:56:08,020
+So basically, here, you do not wait for a process to finish execution.
+基本上，在这里，你不需要等待一个进程执行完毕。
+
+908
+00:56:08,600 --> 00:56:09,750
+Instead of preempted.
+而不是被抢占。
+
+909
+00:56:10,010 --> 00:56:12,230
+After you, let it run, say,
+在你之后，让它运行，比如说，
+
+910
+00:56:12,240 --> 00:56:14,350
+for until it blocks,
+直到它被阻塞为止。
+
+911
+00:56:14,360 --> 00:56:17,150
+because wait for something or until it runs for, say,
+因为等待某件事情或者直到它运行完成，比如说
+
+912
+00:56:17,410 --> 00:56:19,720
+10 millisecond and then preempted.
+10毫秒后被抢占。
+
+913
+00:56:20,120 --> 00:56:20,990
+You suspend it.
+你将它暂停。
+
+914
+00:56:21,540 --> 00:56:25,080
+And you run another process, right?
+你也运行另一个进程，对吗？
+
+915
+00:56:25,950 --> 00:56:27,050
+So this is a round robin.
+这是一个轮转调度算法。
+
+916
+00:56:27,540 --> 00:56:27,840
+Right?
+对吗？
+
+917
+00:56:29,020 --> 00:56:34,270
+And the reason is called round robin is because You take it 1 by 1,
+而之所以称之为轮询调度，是因为你一个接一个地进行调度。
+
+918
+00:56:34,280 --> 00:56:35,750
+you have ten processes.
+你有十个进程。
+
+919
+00:56:36,380 --> 00:56:41,490
+Now iii run for ten ten10 millisecond one process.
+现在我运行一个进程，每个进程运行10毫秒。
+
+920
+00:56:42,450 --> 00:56:47,040
+Ii run process two for 10 millisecond process three for 20 seconds and so forth.
+我运行进程二10毫秒，进程三20秒，以此类推。
+
+921
+00:56:47,050 --> 00:56:48,160
+After 100 millisecond,
+100毫秒后，
+
+922
+00:56:48,170 --> 00:56:49,520
+I am back to running processor.
+我已经重新开始运行处理器了。
+
+923
+00:56:51,960 --> 00:56:53,030
+In this case,
+在这种情况下，
+
+924
+00:56:53,040 --> 00:56:55,910
+each process get one over if there are n processes.
+如果有n个进程，每个进程都会得到一个over。
+
+925
+00:56:56,470 --> 00:56:59,530
+Each process gets n one over n of the cpu time.
+每个进程获得 n 分之一的 CPU 时间。
+
+926
+00:57:00,130 --> 00:57:05,750
+And if a time quanta is q then each time gets for q time contract.
+如果时间片的长度为q，那么每个进程都会获得q时间单位的时间片。
+
+927
+00:57:06,080 --> 00:57:13,830
+And each process has to write how long n minus one over q if you have ten processes,
+如果有十个进程，每个进程都需要写入 n 减一除以 q 的时间。
+
+928
+00:57:13,840 --> 00:57:16,670
+and each process takes the time quantize ten,
+每个进程占用时间片为十个单位。
+
+929
+00:57:17,140 --> 00:57:18,840
+nearly 10 million seconds,
+将近1000万秒
+
+930
+00:57:19,380 --> 00:57:22,660
+it takes for an entire round is take 100 million seconds.
+完成一个完整的循环需要花费1亿秒。
+
+931
+00:57:22,910 --> 00:57:26,580
+But for one processor for it transferred in the second and history
+但是对于一个处理器来说，它在第二个和历史中转移了。
+
+932
+00:57:26,590 --> 00:57:28,180
+for another 90 million seconds.
+再90百万秒。
+
+933
+00:57:28,480 --> 00:57:30,450
+To for his turns come,
+等待他的轮到到来，
+
+934
+00:57:31,160 --> 00:57:32,430
+it's n minus one.
+这是 n 减一。
+
+935
+00:57:32,440 --> 00:57:37,140
+In that case, n minus one nine times ten is nineteen eighty second.
+在这种情况下，n减去九乘以十等于一千九百八十二。
+
+936
+00:57:42,550 --> 00:57:42,780
+Here,
+在这里，
+
+937
+00:57:43,310 --> 00:57:47,380
+it's very interesting to look at and considering like what happens
+这非常有趣，可以考虑一下发生了什么。
+
+938
+00:57:47,390 --> 00:57:48,590
+when the queue is very large.
+当队列非常大时。
+
+939
+00:57:48,970 --> 00:57:49,430
+Right?
+对吗？
+
+940
+00:57:51,920 --> 00:57:57,190
+If the queue is larger than the largest running time of a process,
+如果队列的大小大于进程的最长运行时间，
+
+941
+00:57:58,620 --> 00:58:04,490
+then it's provides identical results,
+那么它提供相同的结果，
+
+942
+00:58:04,500 --> 00:58:05,650
+like first come first serve.
+先来先服务。
+
+943
+00:58:08,650 --> 00:58:10,390
+If q is very small,
+如果 q 非常小，
+
+944
+00:58:11,170 --> 00:58:13,730
+you have a lot of interleaving between the processes.
+你的进程之间有很多交错执行。
+
+945
+00:58:15,550 --> 00:58:16,060
+Okay?
+好的？
+
+946
+00:58:17,440 --> 00:58:19,110
+Now, there is a trade off here.
+现在，这里存在一个权衡。
+
+947
+00:58:19,120 --> 00:58:21,270
+Ideally, you want to be as small as possible.
+理想情况下，你希望尽可能地小。
+
+948
+00:58:21,890 --> 00:58:24,240
+However, remember about contact switching,
+然而，请记住关于上下文切换的问题，
+
+949
+00:58:25,240 --> 00:58:26,960
+there is an overhead of the complex switching.
+复杂的切换会带来额外的开销。
+
+950
+00:58:27,640 --> 00:58:32,340
+If the quanta is too small or time slice is too small,
+如果量子太小或时间片太小，
+
+951
+00:58:33,260 --> 00:58:36,970
+then you can spend more time in switching between the context
+那么你就可以花更多时间在上下文切换上了
+
+952
+00:58:36,980 --> 00:58:41,240
+than actually running the process.
+比起实际运行进程，这更多是指的是运行进程的过程。
+
+953
+00:58:41,250 --> 00:58:41,470
+Okay?
+好的？
+
+954
+00:58:51,770 --> 00:58:52,210
+Sounds good.
+好的。
+
+955
+00:58:59,620 --> 00:59:07,220
+So is that question here whether we can make the chat default instead of having the
+所以问题是我们是否可以将聊天设置为默认，而不是手动选择？
+
+956
+00:59:08,890 --> 00:59:14,280
+using the q and a i'm going to try to answer and I decided trying the past
+使用问答的方式，我将尝试回答并决定尝试过去的方法。
+
+957
+00:59:14,290 --> 00:59:16,430
+to answer both from q and a and the
+回答问题和答案的双重作用
+
+958
+00:59:16,440 --> 00:59:16,910
+chat.
+聊天。
+
+959
+00:59:17,490 --> 00:59:20,520
+But if people prefer to use chat,
+但是如果人们更喜欢使用聊天的话，
+
+960
+00:59:20,530 --> 00:59:29,710
+I am finding that here is an example time quanta,
+我发现这里有一个时间片的示例。
+
+961
+00:59:29,720 --> 00:59:30,950
+24 hour example.
+24小时示例。
+
+962
+00:59:31,510 --> 00:59:31,740
+Right?
+对吗？
+
+963
+00:59:31,750 --> 00:59:32,540
+So what will happen?
+那么会发生什么？
+
+964
+00:59:34,200 --> 00:59:35,950
+You first run p one,
+你首先运行 p one。
+
+965
+00:59:35,960 --> 00:59:39,310
+remember now and look at here.
+现在记住并看这里。
+
+966
+00:59:39,320 --> 00:59:40,430
+We take another example.
+我们来举个例子。
+
+967
+00:59:40,440 --> 00:59:43,160
+I you have four processes,
+如果你有四个进程，
+
+968
+00:59:43,770 --> 00:59:45,410
+p one, p two, p three,
+p one, p two, p three,
+
+p一，p二，p三，
+
+969
+00:59:45,420 --> 00:59:49,660
+before which takes 50 38, 68,
+在之前，它需要50、38和68。
+
+970
+00:59:49,670 --> 00:59:51,580
+and 24 seconds, respectively.
+分别为24秒。
+
+971
+00:59:54,330 --> 00:59:55,960
+Now save the time quantize trend.
+现在保存时间片趋势。
+
+972
+00:59:56,560 --> 00:59:58,750
+This is the order they arrive at the queue,
+这是它们到达队列的顺序。
+
+973
+00:59:59,640 --> 01:00:01,110
+b one, b two, b three, before.
+b 一，b 二，b 三，之前。
+
+974
+01:00:02,550 --> 01:00:03,340
+Let's see what happens.
+让我们看看会发生什么。
+
+975
+01:00:04,670 --> 01:00:06,930
+First, we start with the first process, b one.
+首先，我们从第一个进程 b one 开始。
+
+976
+01:00:09,050 --> 01:00:12,080
+It runs for 20 seconds, 20 seconds.
+它运行了20秒，20秒。
+
+977
+01:00:12,900 --> 01:00:14,970
+And then after 20 seconds, we interrupted,
+然后在20秒后，我们中断了。
+
+978
+01:00:15,720 --> 01:00:16,390
+we preempt it.
+我们抢占它。
+
+979
+01:00:18,440 --> 01:00:19,750
+We start running p two.
+我们开始运行进程 p two。
+
+980
+01:00:21,430 --> 01:00:22,960
+P two is only 8 seconds,
+P2只需要8秒。
+
+981
+01:00:22,970 --> 01:00:25,560
+so it's less than the time quanta soft 8 seconds finishes.
+所以它比时间片软件8秒的完成时间要短。
+
+982
+01:00:26,820 --> 01:00:27,610
+We are done.
+我们完成了。
+
+983
+01:00:27,620 --> 01:00:30,010
+And now we are moving to the next energy speech.
+现在我们要转移到下一个能源演讲了。
+
+984
+01:00:30,020 --> 01:00:30,290
+Three.
+三。
+
+985
+01:00:31,940 --> 01:00:34,450
+B three has 60, it takes 68 seconds.
+B三有60个，需要68秒。
+
+986
+01:00:35,380 --> 01:00:35,780
+Therefore,
+因此，
+
+987
+01:00:35,790 --> 01:00:39,720
+it transferred 20 seconds after which is preempted after iran
+它在之后的20秒进行了转移，之后被伊朗抢占。
+
+988
+01:00:39,730 --> 01:00:41,400
+before for 20 seconds,
+在之前的20秒内，
+
+989
+01:00:41,410 --> 01:00:42,560
+after which is preempted.
+之后会被抢占。
+
+990
+01:00:43,380 --> 01:00:45,960
+Now you come back for p one and p one.
+现在你回到了p one和p one。
+
+991
+01:00:45,970 --> 01:00:48,440
+You're the only one take 20 seconds out of p one.
+你是唯一一个从p one中抽出20秒的人。
+
+992
+01:00:48,450 --> 01:00:50,200
+So you have another 73 seats,
+所以你还有另外73个座位。
+
+993
+01:00:50,470 --> 01:00:52,100
+33 seconds to run.
+运行时间为33秒。
+
+994
+01:00:52,480 --> 01:00:54,680
+So you run 20 seconds for 20 seconds.
+所以你跑了20秒，跑了20秒。
+
+995
+01:00:55,580 --> 01:00:56,820
+And you preempt.
+并且你进行抢占。
+
+996
+01:00:57,460 --> 01:00:58,980
+Now b two is done.
+现在 b two 已经完成了。
+
+997
+01:00:59,790 --> 01:01:01,580
+No need to run it.
+不需要运行它。
+
+998
+01:01:02,180 --> 01:01:03,640
+And you are b to b three.
+而你是 b to b 三。
+
+999
+01:01:04,910 --> 01:01:06,630
+From p three, we already run it.
+从进程三开始，我们已经运行它了。
+
+1000
+01:01:07,160 --> 01:01:09,510
+We already run p three for 20 seconds.
+我们已经运行了p three 20秒。
+
+1001
+01:01:10,150 --> 01:01:11,810
+Now we have another 20 seconds.
+现在我们还有另外20秒。
+
+1002
+01:01:11,820 --> 01:01:18,100
+We take another 20 seconds for to run for peace three after each pre preempted.
+每次被抢占后，我们需要额外花费20秒来运行三个和平的任务。
+
+1003
+01:01:19,690 --> 01:01:22,320
+And then things continue like this.
+然后事情就这样继续下去。
+
+1004
+01:01:22,810 --> 01:01:25,930
+You can easily follow up on it.
+你可以轻松地跟进它。
+
+1005
+01:01:26,580 --> 01:01:26,980
+Okay?
+好的？
+
+1006
+01:01:28,530 --> 01:01:30,680
+The one interesting case is that at the end,
+有一个有趣的情况是，在最后，
+
+1007
+01:01:30,690 --> 01:01:32,400
+you have only pc remaining to run,
+你只剩下一台电脑可以使用了。
+
+1008
+01:01:32,410 --> 01:01:33,920
+so you are going to run.
+所以你要离开了。
+
+1009
+01:01:33,930 --> 01:01:36,520
+You have only one processing the queue.
+你只有一个处理队列。
+
+1010
+01:01:36,810 --> 01:01:38,920
+You are going to run the process over and over again.
+你将会一遍又一遍地运行这个进程。
+
+1011
+01:01:42,140 --> 01:01:43,370
+What is the waiting time here?
+这里的等待时间是多久？
+
+1012
+01:01:44,640 --> 01:01:47,470
+It's more complicated to look at the waiting time,
+观察等待时间会更加复杂。
+
+1013
+01:01:49,310 --> 01:01:50,630
+because for ap one,
+因为对于一个接入点（AP）来说，
+
+1014
+01:01:51,300 --> 01:01:52,490
+you have what is the waiting time?
+你有什么等待时间？
+
+1015
+01:01:52,500 --> 01:01:57,540
+You run p 13 times here at time zero,
+在时间零，你运行了p 13次。
+
+1016
+01:01:57,550 --> 01:01:58,740
+at time 68?
+在第68个时间点？
+
+1017
+01:02:00,330 --> 01:02:01,460
+At a time 1:12,
+在1:12的时候，
+
+1018
+01:02:02,660 --> 01:02:04,410
+the waiting time initially is zero.
+初始等待时间为零。
+
+1019
+01:02:06,520 --> 01:02:08,390
+The second time on your run at time 68,
+第二次在时间68时进行你的跑步。
+
+1020
+01:02:08,400 --> 01:02:10,710
+the waiting time or twelve sixty eight-20,
+等待时间为1268-20。
+
+1021
+01:02:10,720 --> 01:02:13,510
+because it finishes previously, p one finished,
+因为它之前已经完成了，p one已经完成了。
+
+1022
+01:02:14,160 --> 01:02:15,680
+finishes a cushion at time 20.
+在时间20完成一个坐垫。
+
+1023
+01:02:16,840 --> 01:02:17,880
+And for a pew on,
+对于一个新手来说，
+
+1024
+01:02:18,590 --> 01:02:20,750
+when the last time when pew on the grounds,
+最后一次pew在地面上的时间是什么时候？
+
+1025
+01:02:21,960 --> 01:02:23,840
+it started at 1:25,
+它开始于1:25。
+
+1026
+01:02:25,440 --> 01:02:28,690
+but the previously finished at time 88.
+但之前的任务在时间88结束。
+
+1027
+01:02:28,700 --> 01:02:31,690
+So it's 125 minus, sorry, 112.
+所以是125减去，对不起，是112。
+
+1028
+01:02:31,700 --> 01:02:32,530
+Sorry, i'm sorry.
+对不起，我很抱歉。
+
+1029
+01:02:32,980 --> 01:02:34,580
+P one starts at 112,
+P one从112开始。
+
+1030
+01:02:35,090 --> 01:02:37,140
+and previously finishes at time 88.
+之前在时间88结束。
+
+1031
+01:02:37,150 --> 01:02:38,980
+So it's 112-88.
+所以是112-88。
+
+1032
+01:02:39,430 --> 01:02:44,790
+The total waiting time is 72, right?
+总等待时间是72，对吗？
+
+1033
+01:02:47,500 --> 01:02:49,750
+P two at the time 20.
+一次最多两个人，共计20人。
+
+1034
+01:02:50,050 --> 01:02:58,010
+So it says there is only one time is 20 and so forth for the other processes.
+所以它说只有一个时间是20，其他进程也是如此。
+
+1035
+01:03:00,090 --> 01:03:01,880
+What is the average right waiting time?
+平均等待时间是多少？
+
+1036
+01:03:02,930 --> 01:03:06,470
+You are all the waiting times of all processes,
+你是所有进程的等待时间。
+
+1037
+01:03:06,480 --> 01:03:07,870
+and you divide by four.
+然后你除以四。
+
+1038
+01:03:08,160 --> 01:03:09,830
+It's 66.25.
+是66.25。
+
+1039
+01:03:11,170 --> 01:03:12,850
+The same completion by, right?
+是的，完成相同的任务，对吗？
+
+1040
+01:03:12,860 --> 01:03:18,660
+The p Sorry,
+抱歉，
+
+1041
+01:03:18,670 --> 01:03:20,820
+p one completes at time 1:25.
+一个任务在1:25完成。
+
+1042
+01:03:21,310 --> 01:03:21,790
+Sorry.
+对不起。
+
+1043
+01:03:22,650 --> 01:03:25,230
+P two, this is 125 here, p two complicit.
+P二，这里是125，P二配合。
+
+1044
+01:03:25,240 --> 01:03:33,390
+I'm 28, p three complicit time on 53 before complete the time on 12th.
+我今年28岁，在12号之前还有53个工作日完成三个项目。
+
+1045
+01:03:35,040 --> 01:03:37,270
+The average weighting completion time,
+平均加权完成时间
+
+1046
+01:03:37,280 --> 01:03:39,370
+it's 104 and1/2.
+是104又1/2。
+
+1047
+01:03:44,880 --> 01:03:47,530
+So around robin,
+轮询调度算法
+
+1048
+01:03:47,540 --> 01:03:51,650
+what are the pros and cons better for short jobs?
+短作业的优缺点是什么？
+
+1049
+01:03:52,160 --> 01:03:53,400
+If you are assured jobs,
+如果你有工作的保证，
+
+1050
+01:03:54,130 --> 01:03:56,280
+your turn will come faster,
+你的机会会更快到来，
+
+1051
+01:03:56,290 --> 01:04:00,030
+especially if you are at the end of the queue.
+尤其是当你处于队列的末尾时。
+
+1052
+01:04:01,500 --> 01:04:02,580
+But now it adds contact.
+但现在它添加了联系人。
+
+1053
+01:04:02,590 --> 01:04:04,420
+Switching is more contact switching overhead.
+切换会增加更多的上下文切换开销。
+
+1054
+01:04:12,260 --> 01:04:23,340
+It's again, if you have the the response time, right?
+是的，如果你有响应时间的话，对吗？
+
+1055
+01:04:23,350 --> 01:04:26,010
+Is like, is the can decrease.
+好的，理解了。这句话的意思是，是否可以减少。
+
+1056
+01:04:26,020 --> 01:04:31,000
+Here is an example to illustrate how you around robin decrease
+这里有一个例子来说明如何使用轮询减少算法。
+
+1057
+01:04:31,010 --> 01:04:35,710
+the response time and assume the duration of a task.
+响应时间和任务持续时间的假设。
+
+1058
+01:04:36,310 --> 01:04:39,090
+Now is then and of the other one, it's one,
+现在是过去，而另一个是一个。
+
+1059
+01:04:39,100 --> 01:04:40,170
+p two is one.
+P2是P1的备份。
+
+1060
+01:04:41,460 --> 01:04:44,660
+We are using the task and processes interchangeable.
+我们将任务和进程视为可互换使用的术语。
+
+1061
+01:04:45,900 --> 01:04:47,770
+And here, if you want,
+这里，如果你愿意的话，
+
+1062
+01:04:47,780 --> 01:04:49,650
+runs first and you do next,
+先运行它，然后再进行下一步操作。
+
+1063
+01:04:50,080 --> 01:04:52,140
+the average response time is 10.5.
+平均响应时间为10.5。
+
+1064
+01:04:53,530 --> 01:04:53,990
+Okay?
+好的？
+
+1065
+01:04:55,330 --> 01:04:57,480
+However, if you use a tanguette,
+然而，如果你使用一个小刀，
+
+1066
+01:04:58,630 --> 01:05:00,180
+that was a time quanta ten,
+这是一个时间片为十的时间单位。
+
+1067
+01:05:00,190 --> 01:05:02,020
+where is larger than any burst,
+大于任何突发的位置在哪里？
+
+1068
+01:05:02,030 --> 01:05:04,380
+if you lose a time quanta of ten of five,
+如果你失去了十分之五的时间量，
+
+1069
+01:05:05,170 --> 01:05:09,030
+t one will run only for 5 seconds.
+一个将只运行5秒钟的任务。
+
+1070
+01:05:09,340 --> 01:05:11,890
+Then you run t two after you run t one.
+在运行 t one 之后，你再运行 t two。
+
+1071
+01:05:12,570 --> 01:05:14,790
+They are very response time in this case,
+在这种情况下，它们的响应时间非常快。
+
+1072
+01:05:15,090 --> 01:05:16,260
+will be 8.5,
+将会是8.5。
+
+1073
+01:05:16,630 --> 01:05:20,260
+because t two finishes at time six.
+因为t2在时间六结束。
+
+1074
+01:05:20,600 --> 01:05:22,200
+What do you want finishes at time 11?
+你希望在11点完成什么任务？
+
+1075
+01:05:26,790 --> 01:05:32,730
+And so now think about,
+现在想一想，
+
+1076
+01:05:33,810 --> 01:05:35,500
+if you have two tasks,
+如果你有两个任务，
+
+1077
+01:05:35,510 --> 01:05:37,060
+but they are one time unit.
+但它们是一个时间单位。
+
+1078
+01:05:37,720 --> 01:05:42,150
+And you average the quantize,
+然后你对量化进行平均化处理，
+
+1079
+01:05:42,960 --> 01:05:46,030
+then it's obviously the average response time.
+那显然是平均响应时间。
+
+1080
+01:05:46,040 --> 01:05:47,270
+It's 1.5.
+这是1.5。
+
+1081
+01:05:49,110 --> 01:05:50,160
+If it's time quantitative,
+如果是时间定量的话，
+
+1082
+01:05:50,170 --> 01:05:52,120
+one is the same.
+一样的。
+
+1083
+01:05:52,900 --> 01:05:56,740
+The point here is that if the average,
+关键在于，如果平均值，
+
+1084
+01:05:57,390 --> 01:06:01,050
+if the time quanta is larger than the birds,
+如果时间片大于鸟的大小，
+
+1085
+01:06:01,060 --> 01:06:02,490
+like there is a time,
+就像有一个时间，
+
+1086
+01:06:02,500 --> 01:06:05,490
+it takes a task for a process to complete,
+一个进程完成一个任务需要一定的时间。
+
+1087
+01:06:07,760 --> 01:06:09,280
+then it doesn't matter.
+那就没关系了。
+
+1088
+01:06:10,580 --> 01:06:13,140
+There is no difference in the average response time.
+平均响应时间没有差异。
+
+1089
+01:06:19,640 --> 01:06:28,290
+Now, if the quanta girl is smaller than the time it
+现在，如果量子女孩比时间更小的话
+
+1090
+01:06:28,300 --> 01:06:32,800
+takes to complete or for a task or a process,
+完成一个任务或一个过程所需的时间
+
+1091
+01:06:33,330 --> 01:06:35,360
+then this is an interesting case.
+那么这是一个有趣的案例。
+
+1092
+01:06:35,370 --> 01:06:36,680
+Here is 0.5.
+这是0.5。
+
+1093
+01:06:37,010 --> 01:06:41,840
+So basically, you run t 140.5,
+所以基本上，你运行在140.5上。
+
+1094
+01:06:41,850 --> 01:06:43,280
+then t 240.5,
+然后 t 是 240.5。
+
+1095
+01:06:43,290 --> 01:06:44,600
+then t 140.5,
+那么 t 的值为 140.5。
+
+1096
+01:06:44,610 --> 01:06:45,920
+and t 240.5.
+和 t 240.5.
+
+1097
+01:06:46,440 --> 01:06:48,540
+If you look as they are very response time,
+如果你看一下它们的响应时间，
+
+1098
+01:06:48,770 --> 01:06:50,050
+it's 175.
+是175。
+
+1099
+01:06:52,060 --> 01:06:53,580
+So it's larger guess.
+所以这是一个更大的猜测。
+
+1100
+01:06:56,310 --> 01:06:57,710
+So that's kind of interesting, right?
+这个有点有趣，对吧？
+
+1101
+01:06:57,720 --> 01:06:59,110
+So we, at some point,
+所以在某个时候，我们
+
+1102
+01:06:59,120 --> 01:07:00,510
+at least in this scenario,
+至少在这种情况下，
+
+1103
+01:07:00,520 --> 01:07:04,290
+we reduce the time quanta.
+我们减少时间片。
+
+1104
+01:07:04,840 --> 01:07:09,150
+Instead of the response time to decrease.
+而不是响应时间减少。
+
+1105
+01:07:09,570 --> 01:07:10,680
+It's actually increase.
+实际上是增加了。
+
+1106
+01:07:15,060 --> 01:07:17,250
+It's very easy to see why this happens.
+很容易看出为什么会发生这种情况。
+
+1107
+01:07:17,740 --> 01:07:19,960
+And this happens when,
+这是什么时候发生的？
+
+1108
+01:07:20,590 --> 01:07:25,780
+in particular, when all task or processes take the same amount of time.
+特别是当所有任务或进程花费相同的时间时。
+
+1109
+01:07:26,970 --> 01:07:27,310
+Right?
+对吗？
+
+1110
+01:07:28,710 --> 01:07:30,750
+Because everyone takes the same amount of time.
+因为每个人花费的时间都是相同的。
+
+1111
+01:07:30,760 --> 01:07:32,710
+If you see one first come first set up,
+如果你看到一个先来先设置的情况，
+
+1112
+01:07:33,690 --> 01:07:38,890
+it's your first time you finish the first process and the second process
+这是你第一次完成第一个进程和第二个进程。
+
+1113
+01:07:38,900 --> 01:07:40,170
+and sub process and so forth.
+以及子进程等等。
+
+1114
+01:07:41,030 --> 01:07:44,990
+Clearly, the first process finishes earlier than the last process.
+显然，第一个进程比最后一个进程先完成。
+
+1115
+01:07:46,970 --> 01:07:52,300
+But now, if you have very small time quanta and you do round robin to exam,
+但是现在，如果你的时间量子非常小，并且你使用轮转法进行考试，
+
+1116
+01:07:52,930 --> 01:07:54,850
+you do a little bit of each of them, yourself,
+你需要自己做一点点每个任务。
+
+1117
+01:07:54,860 --> 01:07:55,970
+a little bit of each of them,
+每个都一点点。
+
+1118
+01:07:56,570 --> 01:08:01,260
+then all of them are going to finish almost at the same time,
+那么它们都几乎会同时完成。
+
+1119
+01:08:02,820 --> 01:08:08,960
+meaning that all of them are going to finish more or less when the last one
+意思是当最后一个完成时，所有人都会或多或少地完成。
+
+1120
+01:08:08,970 --> 01:08:09,360
+finishes.
+完成。
+
+1121
+01:08:10,140 --> 01:08:15,430
+That's why is the intuition why this the round robin
+这就是为什么轮转调度算法的直觉原因
+
+1122
+01:08:15,440 --> 01:08:17,710
+actually can also lead in some
+实际上，也可以在某些情况下引导。
+
+1123
+01:08:17,720 --> 01:08:20,640
+cases to increasing the response time,
+导致响应时间增加的情况有以下几种：
+
+1124
+01:08:20,650 --> 01:08:21,840
+not only decreasing it.
+不仅仅是减少它。
+
+1125
+01:08:26,000 --> 01:08:26,910
+How do we implement around?
+我们如何实现环绕（around）？
+
+1126
+01:08:26,920 --> 01:08:27,150
+Robin?
+是的，我是Robin。有什么我可以帮助您的吗？
+
+1127
+01:08:27,160 --> 01:08:27,990
+Is the kernel.
+是内核。
+
+1128
+01:08:28,560 --> 01:08:31,670
+It's using the time I interrupt.
+这是我打断的时间。
+
+1129
+01:08:32,940 --> 01:08:35,020
+Every time a quant expires,
+每当一个时间片过期时，
+
+1130
+01:08:35,440 --> 01:08:37,480
+you trigger a time interrupt.
+你触发了一个时间中断。
+
+1131
+01:08:38,470 --> 01:08:41,220
+This is what the pure project two is going to be about.
+这是纯净项目二的主题。
+
+1132
+01:08:46,240 --> 01:08:46,870
+In summary,
+总结一下，
+
+1133
+01:08:48,320 --> 01:08:49,450
+you've done robin.
+你已经完成了罗宾。
+
+1134
+01:08:50,000 --> 01:08:53,160
+If the time slice or quanta is too big,
+如果时间片或量子太大，
+
+1135
+01:08:53,900 --> 01:08:55,360
+the response time will suffer.
+响应时间将受到影响。
+
+1136
+01:08:56,040 --> 01:08:56,920
+If it's infinite,
+如果它是无限的，
+
+1137
+01:08:57,540 --> 01:09:02,160
+it's basically first come first or five.
+这基本上是先来先服务或者五个一。
+
+1138
+01:09:02,970 --> 01:09:06,280
+If the time slice is too small, the throughput my suffer.
+如果时间片太小，吞吐量可能会受到影响。
+
+1139
+01:09:06,290 --> 01:09:07,520
+And in some cases,
+在某些情况下，
+
+1140
+01:09:07,530 --> 01:09:09,380
+also the response time I suffer.
+我所遭受的响应时间也是一个问题。
+
+1141
+01:09:11,020 --> 01:09:17,170
+So it's the actual choice of time slice.
+所以这是实际的时间片选择。
+
+1142
+01:09:17,180 --> 01:09:22,140
+It has to be large enough.
+它必须足够大。
+
+1143
+01:09:23,130 --> 01:09:26,330
+So it amortizes, the context switch overhead.
+所以它会分摊上下文切换的开销。
+
+1144
+01:09:27,590 --> 01:09:30,410
+So stinky has to be a few times,
+所以臭味必须多次出现。
+
+1145
+01:09:30,420 --> 01:09:34,720
+maybe one order to order a magnitude larger than the context switch.
+也许有一个命令要执行的规模比上下文切换大一个数量级。
+
+1146
+01:09:35,100 --> 01:09:36,240
+That's basically what it is.
+基本上就是这样。
+
+1147
+01:09:37,470 --> 01:09:37,860
+Right?
+对吗？
+
+1148
+01:09:38,980 --> 01:09:40,130
+Basically, you want,
+基本上，你想要，
+
+1149
+01:09:41,630 --> 01:09:44,810
+if the typical the context switches 1 millisecond,
+如果典型的上下文切换时间为1毫秒，
+
+1150
+01:09:45,630 --> 01:09:48,810
+you want the time commander to be, say,
+你希望时间指挥官是什么样的，比如说，
+
+1151
+01:09:48,820 --> 01:09:51,250
+100 million seconds toward the romantic language.
+1亿秒走向浪漫的语言。
+
+1152
+01:09:53,960 --> 01:09:54,960
+That's a rule of town.
+这是城镇的规定。
+
+1153
+01:10:01,350 --> 01:10:07,540
+This is an example again to drive back home like assume that you were in ignore,
+这是一个再次回家的例子，假设你之前被忽略了。
+
+1154
+01:10:09,190 --> 01:10:15,320
+ignore the context switching overhead is round robin
+忽略上下文切换的开销是轮转调度算法。
+
+1155
+01:10:15,330 --> 01:10:18,150
+always better than first cast herself.
+总是比第一次自己尝试要好。
+
+1156
+01:10:19,080 --> 01:10:24,160
+Like we discussed the answer is now this drives home the point by having
+就像我们讨论过的那样，答案现在是通过这样做来强调这一点。
+
+1157
+01:10:24,170 --> 01:10:25,280
+another example,
+另一个例子，
+
+1158
+01:10:25,530 --> 01:10:33,630
+each we have ten jobs and each job or ten takes 100 seconds.
+每个人都有十个工作，每个工作需要十秒钟。
+
+1159
+01:10:34,670 --> 01:10:35,060
+Right?
+对吗？
+
+1160
+01:10:35,820 --> 01:10:40,100
+The round will be in caterpillar at the time quantize 1 second.
+这个轮次将在时间量化为1秒的毛毛虫中进行。
+
+1161
+01:10:40,600 --> 01:10:41,110
+Okay?
+好的？
+
+1162
+01:10:41,840 --> 01:10:45,510
+If this happens in the round robin in the five for kids or first come
+如果这种情况发生在轮转调度算法中，对于五个孩子或先来先服务的情况。
+
+1163
+01:10:45,520 --> 01:10:46,510
+for self case,
+对于自身情况，
+
+1164
+01:10:47,260 --> 01:10:50,330
+the first job finishes after 1 second 100 seconds,
+第一份工作在1秒钟后完成，总共需要100秒。
+
+1165
+01:10:50,340 --> 01:10:51,890
+the second after 200 seconds,
+200秒后的第二秒
+
+1166
+01:10:51,900 --> 01:10:53,570
+the last one after 1,000 seconds.
+1,000秒后的最后一个。
+
+1167
+01:10:54,140 --> 01:10:55,450
+While in the round robin case,
+在轮转调度的情况下，
+
+1168
+01:10:55,460 --> 01:10:58,970
+the further job finishes after 991 seconds,
+进一步的工作在991秒后完成。
+
+1169
+01:10:59,510 --> 01:11:03,940
+the second bar and after 992 seconds and so forth,
+第二个柱子在992秒后出现，以此类推。
+
+1170
+01:11:04,740 --> 01:11:05,110
+right?
+对的？
+
+1171
+01:11:05,610 --> 01:11:09,470
+Both round 3 time and first come first serve in each at the same time.
+同时进行第三轮时间片轮转和先来先服务调度算法。
+
+1172
+01:11:09,690 --> 01:11:12,660
+But the average response time is much worse for country time.
+但是对于国家时间来说，平均响应时间要差得多。
+
+1173
+01:11:14,640 --> 01:11:17,060
+Around 3 time that i'm sorry not around the time.
+大约有3次，我很抱歉，不在那个时间段内。
+
+1174
+01:11:17,380 --> 01:11:18,320
+Around robin,
+轮询调度
+
+1175
+01:11:18,850 --> 01:11:22,210
+it's bad when all jobs have the same length.
+当所有工作的长度都相同时，这是不好的。
+
+1176
+01:11:23,450 --> 01:11:23,930
+Remember.
+记住。
+
+1177
+01:11:26,480 --> 01:11:29,380
+And there are other reasons for each round robin may suffer.
+每个轮转调度算法可能遇到其他原因导致性能下降。
+
+1178
+01:11:29,900 --> 01:11:32,400
+With round robin, you can switch between processes.
+使用轮转调度算法，可以在进程之间进行切换。
+
+1179
+01:11:33,110 --> 01:11:34,730
+If you see between processes,
+如果你在进程之间进行观察，
+
+1180
+01:11:35,010 --> 01:11:36,160
+the casual suffer,
+短语 "the casual suffer" 可以翻译为 "普通人遭受苦难"。
+
+1181
+01:11:37,360 --> 01:11:37,730
+right?
+对的吗？
+
+1182
+01:11:38,260 --> 01:11:43,600
+Because each process can be a different program and is going to need
+因为每个进程可以是不同的程序，并且需要
+
+1183
+01:11:43,610 --> 01:11:44,530
+a different code.
+一个不同的代码。
+
+1184
+01:11:44,540 --> 01:11:50,510
+It's accessing different data is going to not benefit from the caching.
+访问不同的数据将无法从缓存中获益。
+
+1185
+01:11:50,680 --> 01:11:53,900
+From the previous process,
+从之前的过程中，
+
+1186
+01:11:54,330 --> 01:11:56,210
+you need to gain between everything into the cache.
+你需要将所有东西都放入缓存中。
+
+1187
+01:11:56,760 --> 01:12:01,720
+In the case of the first come for the set of then one program run
+对于先来先服务的进程调度算法，如果有多个程序同时运行，那么第一个到达的程序将先被执行。
+
+1188
+01:12:01,730 --> 01:12:04,610
+or one process run until finishes,
+或者一个进程运行直到完成，
+
+1189
+01:12:04,960 --> 01:12:07,650
+it's going to maximum to maximize the benefit of cash.
+这将最大化现金利益。
+
+1190
+01:12:10,470 --> 01:12:14,590
+This is another example here in our we have this one
+这是我们这里的另一个例子。
+
+1191
+01:12:14,600 --> 01:12:16,870
+of the previous examples and have three,
+在之前的例子中，我们有三个。
+
+1192
+01:12:17,450 --> 01:12:21,130
+four processes, which takes eight, 24, 53,
+四个进程，分别需要8、24、53、
+
+1193
+01:12:21,140 --> 01:12:22,890
+and 68 seconds,
+并且是 68 秒，
+
+1194
+01:12:23,440 --> 01:12:24,280
+respectively.
+分别地。
+
+1195
+01:12:25,910 --> 01:12:28,660
+He had the best first come, first serve.
+他是先到先得的最佳例子。
+
+1196
+01:12:29,090 --> 01:12:30,200
+What is the best order?
+什么是最佳顺序？
+
+1197
+01:12:31,080 --> 01:12:31,830
+P one,
+P one,
+
+1198
+01:12:36,140 --> 01:12:37,970
+b two, b three, and b four.
+b two, b three, 和 b four.
+
+1199
+01:12:37,980 --> 01:12:39,330
+And what is the way down?
+下降的方式是什么？
+
+1200
+01:12:40,250 --> 01:12:40,560
+Right?
+对吗？
+
+1201
+01:12:41,330 --> 01:12:42,480
+Is the best order,
+最佳顺序是，
+
+1202
+01:12:42,490 --> 01:12:44,400
+the best for comfort person, right?
+最适合舒适的人，对吗？
+
+1203
+01:12:45,500 --> 01:12:49,010
+You start with p two, then before, then p one, then p three.
+你先从p two开始，然后是before，接着是p one，最后是p three。
+
+1204
+01:12:49,020 --> 01:12:51,670
+So what is the wait time?
+那么等待时间是多久？
+
+1205
+01:12:52,300 --> 01:12:54,890
+For a week time for the p one is 32.
+p的一周时间是32。
+
+1206
+01:12:55,280 --> 01:12:56,400
+For p two is zero,
+对于p，两个是零。
+
+1207
+01:12:56,410 --> 01:12:57,750
+for p four is eight,
+对于p，四乘以八等于多少。
+
+1208
+01:12:57,760 --> 01:12:59,370
+and p three is 85.
+p三的值是85。
+
+1209
+01:12:59,650 --> 01:13:00,720
+You have 71.
+你有71个。
+
+1210
+01:13:00,970 --> 01:13:04,830
+And a quarter worse,
+比原来更糟糕了四分之一
+
+1211
+01:13:04,840 --> 01:13:05,990
+first come first serve.
+先来先服务。
+
+1212
+01:13:06,000 --> 01:13:07,830
+It's when does this happen?
+这是什么时候发生的？
+
+1213
+01:13:08,490 --> 01:13:09,980
+When you run firstly three,
+当你首次运行三个时，
+
+1214
+01:13:10,950 --> 01:13:11,930
+then p one,
+那么，请提供第一个问题。
+
+1215
+01:13:14,570 --> 01:13:16,220
+then before so reverse order.
+然后再按相反的顺序。
+
+1216
+01:13:17,600 --> 01:13:23,240
+And in that case, the worst case is 83 and 1/2.
+在这种情况下，最坏的情况是83和1/2。
+
+1217
+01:13:24,070 --> 01:13:27,750
+The corresponding completion times for the best first come for a service,
+最佳先来先服务的对应完成时间
+
+1218
+01:13:27,760 --> 01:13:31,590
+69.5 for the worst one.
+最差的得分是69.5。
+
+1219
+01:13:33,160 --> 01:13:34,240
+It's one,
+现在是一点钟。
+
+1220
+01:13:34,250 --> 01:13:36,600
+20:00 1 and 3/4.
+20:00 是指晚上8点。而 "1 and 3/4" 是指1又3/4，即1小时和3/4小时，合计1小时45分钟。所以，"20:00 1 and 3/4" 的意思是晚上8点加上1小时45分钟。
+
+1221
+01:13:40,350 --> 01:13:41,420
+In the meantime,
+与此同时，
+
+1222
+01:13:41,710 --> 01:13:42,900
+in between here,
+在这之间，
+
+1223
+01:13:43,700 --> 01:13:45,430
+you have four different bank want us.
+你们有四家不同的银行想要我们。
+
+1224
+01:13:46,170 --> 01:13:50,440
+For this is the result for the time qanta, one, time qantas, eight,
+这是时间片的结果，一个时间片为8。
+
+1225
+01:13:53,030 --> 01:13:54,390
+and one,
+还有一个，
+
+1226
+01:13:55,150 --> 01:13:56,550
+and five and ten.
+五和十。
+
+1227
+01:13:57,060 --> 01:13:59,490
+So please, as an exercise,
+所以，请作为一个练习，
+
+1228
+01:14:00,910 --> 01:14:02,300
+take a sheet of paper,
+拿一张纸。
+
+1229
+01:14:03,040 --> 01:14:07,690
+you can check the results for different time quanta.
+你可以检查不同时间片的结果。
+
+1230
+01:14:08,330 --> 01:14:13,910
+Great exercise to better understand about how round robin scheduling is working.
+这是一个很好的练习，可以更好地理解轮转调度算法的工作原理。
+
+1231
+01:14:14,660 --> 01:14:16,360
+And as you can see here,
+正如你在这里所看到的，
+
+1232
+01:14:19,350 --> 01:14:26,230
+the average waiting time for the round robin,
+轮转调度算法的平均等待时间
+
+1233
+01:14:26,660 --> 01:14:28,420
+it's between,
+这是一个介于之间的情况。
+
+1234
+01:14:29,140 --> 01:14:30,740
+as you might have expected,
+正如你可能已经预料到的，
+
+1235
+01:14:31,150 --> 01:14:36,280
+is between the first come first serve and the best first come, first serve,
+介于先来先服务和最佳先来先服务之间。
+
+1236
+01:14:36,290 --> 01:14:38,600
+and the worst was first come, first serve,
+最糟糕的是先来先服务。
+
+1237
+01:14:38,610 --> 01:14:40,160
+and the same for the completion time.
+同样适用于完成时间。
+
+1238
+01:14:45,950 --> 01:14:48,640
+Let me see is that a few questions here.
+让我看看这里有几个问题。
+
+1239
+01:14:52,050 --> 01:14:54,680
+Since we cannot estimate the run time of each burst,
+由于我们无法估计每个突发的运行时间，
+
+1240
+01:14:55,110 --> 01:14:57,500
+how can we schedule the order in each first count?
+我们如何安排每个首次计数的顺序？
+
+1241
+01:14:58,460 --> 01:14:59,450
+Scheduling is the best.
+调度是最好的。
+
+1242
+01:15:01,210 --> 01:15:02,670
+That's a very good question.
+这是一个非常好的问题。
+
+1243
+01:15:03,090 --> 01:15:06,770
+It's again, you can use historical data if available.
+可以使用历史数据（如果有的话）。
+
+1244
+01:15:07,110 --> 01:15:11,820
+But one reason we study the best first come first serve,
+但我们研究最佳先来先服务的原因之一是
+
+1245
+01:15:12,360 --> 01:15:18,600
+which is also called like you'll see shortage of first,
+这也被称为你将会看到的第一种短缺。
+
+1246
+01:15:20,260 --> 01:15:21,360
+for obvious reasons,
+出于明显的原因，
+
+1247
+01:15:21,720 --> 01:15:24,540
+is that this is like a baseline.
+这是一个基准。
+
+1248
+01:15:25,720 --> 01:15:28,240
+You can actually, as you'll see,
+实际上，你可以，正如你将会看到的，
+
+1249
+01:15:30,170 --> 01:15:34,750
+you can prove that running shortage of first,
+你可以证明先运行短缺的任务。
+
+1250
+01:15:35,110 --> 01:15:42,650
+using shortage of first leads to the lowest wait time or completion time.
+使用第一短缺策略可以实现最低的等待时间或完成时间。
+
+1251
+01:15:47,290 --> 01:15:49,280
+Another question is, the best first come,
+另一个问题是，最佳先来先服务算法。
+
+1252
+01:15:49,290 --> 01:15:51,990
+first serve order is shortest or longest.
+先到先服务（First-Come, First-Served）的顺序是按照最短或最长的方式进行。
+
+1253
+01:15:55,760 --> 01:15:58,280
+The best first come for self is a shortest,
+对于自己来说，最好的首选是最短的。
+
+1254
+01:15:58,900 --> 01:16:01,720
+is when you start with the shortest job first,
+是指当你从最短作业开始执行时，
+
+1255
+01:16:02,870 --> 01:16:05,430
+the world's first come for self is the longest.
+世界上第一个到来的自我是最长久的。
+
+1256
+01:16:06,180 --> 01:16:09,320
+And you start with the longest job for us.
+你从最长的任务开始。
+
+1257
+01:16:13,050 --> 01:16:13,500
+Okay?
+好的？
+
+1258
+01:16:17,760 --> 01:16:22,000
+You can see here about like p two.
+您可以在这里了解有关p two的信息。
+
+1259
+01:16:22,780 --> 01:16:26,920
+And we are PP two is we are all over.
+我们是PP二，我们无处不在。
+
+1260
+01:16:26,930 --> 01:16:28,270
+The place is very sensitive,
+这个地方非常敏感，
+
+1261
+01:16:29,010 --> 01:16:29,500
+right?
+对的？
+
+1262
+01:16:30,010 --> 01:16:31,740
+Depending of where,
+根据地点而定，
+
+1263
+01:16:32,560 --> 01:16:34,150
+depending when is scheduled,
+根据安排的时间而定，
+
+1264
+01:16:34,810 --> 01:16:35,160
+right?
+对的？
+
+1265
+01:16:35,170 --> 01:16:40,200
+You go from 0 to 145, right?
+你是指从0到145吗？
+
+1266
+01:16:41,820 --> 01:16:42,990
+Which is pretty bad.
+这很糟糕。
+
+1267
+01:16:44,010 --> 01:16:45,320
+While for p three,
+对于p三来说，
+
+1268
+01:16:45,330 --> 01:16:46,760
+which is the largest,
+哪个是最大的？
+
+1269
+01:16:47,080 --> 01:16:48,250
+hits more stable.
+更稳定的命中率。
+
+1270
+01:16:48,710 --> 01:16:49,070
+Right?
+对吗？
+
+1271
+01:16:49,510 --> 01:16:50,520
+And it's natural, right?
+这是自然的，对吗？
+
+1272
+01:16:50,530 --> 01:16:54,230
+Because the longer the bigger you are,
+因为越长越大，
+
+1273
+01:16:54,240 --> 01:16:55,830
+the more you are going to dominate,
+你越要主导，
+
+1274
+01:16:56,490 --> 01:16:57,710
+the wait time,
+等待时间
+
+1275
+01:16:57,960 --> 01:16:59,530
+and also the completion time.
+还有完成时间。
+
+1276
+01:17:02,360 --> 01:17:04,770
+This is p three, and this is p two.
+这是 p 三，这是 p 二。
+
+1277
+01:17:11,390 --> 01:17:13,090
+There are many other scheduling disciplines,
+还有许多其他的调度策略，
+
+1278
+01:17:13,100 --> 01:17:14,410
+another scheduling discipline here.
+这里是另一种调度策略。
+
+1279
+01:17:14,420 --> 01:17:18,780
+We are going to talk a little bit about this priority.
+我们将稍微谈一下这个优先级。
+
+1280
+01:17:19,540 --> 01:17:20,980
+You can have different jobs here,
+在这里你可以有不同的工作。
+
+1281
+01:17:20,990 --> 01:17:24,520
+and different jobs have different priorities, like, for instance,
+不同的工作有不同的优先级，比如，例如，
+
+1282
+01:17:24,530 --> 01:17:26,920
+jobs which are associated with interactive user interaction.
+与交互式用户交互相关的工作
+
+1283
+01:17:27,650 --> 01:17:32,840
+They can have higher priority than jobs who are doing compilation,
+它们可以具有比正在进行编译的作业更高的优先级。
+
+1284
+01:17:33,870 --> 01:17:39,490
+where our jobs which are going to process data you receive on the network
+我们的工作是处理您在网络上收到的数据。
+
+1285
+01:17:40,300 --> 01:17:42,870
+from the network that can have higher probability.
+从网络中可以具有更高概率的地方。
+
+1286
+01:17:47,330 --> 01:17:50,680
+With this scheduler,
+使用这个调度器，
+
+1287
+01:17:50,690 --> 01:17:52,960
+you assign a job of priority,
+你分配一个具有优先级的任务。
+
+1288
+01:17:53,640 --> 01:17:57,630
+then you always execute the highest priority job first.
+那么你总是首先执行最高优先级的任务。
+
+1289
+01:17:58,510 --> 01:17:59,780
+In this particular example,
+在这个特定的例子中，
+
+1290
+01:17:59,790 --> 01:18:03,620
+you are going to execute job one, job two, and job three.
+你将执行作业一、作业二和作业三。
+
+1291
+01:18:04,170 --> 01:18:05,970
+Before you execute job four,
+在执行作业四之前，
+
+1292
+01:18:07,190 --> 01:18:10,060
+you execute your four, before you execute your five, jobs six,
+在执行任务五之前，先执行任务四，然后执行任务六。
+
+1293
+01:18:10,070 --> 01:18:10,660
+and jobs seven.
+和工作七。
+
+1294
+01:18:13,310 --> 01:18:17,420
+So one of the biggest problem is this one is starvation.
+其中一个最大的问题是饥饿。
+
+1295
+01:18:18,260 --> 01:18:19,390
+What is starvation here?
+在这里，饥饿是指一个进程或线程由于无法获得所需的资源而无法继续执行的情况。当某些进程或线程优先级较低，而其他进程或线程持续占用资源或优先级较高时，可能会发生饥饿现象。这会导致优先级较低的进程或线程无法获得所需的资源，从而无法继续执行，进而影响系统的性能和公平性。
+
+1296
+01:18:20,470 --> 01:18:25,580
+Assume that you always have new jobs arriving with the highest priority.
+假设你总是有新的作业以最高优先级到达。
+
+1297
+01:18:27,540 --> 01:18:30,400
+So as long as you have jobs with the highest priority arriving,
+只要有最高优先级的作业到达，
+
+1298
+01:18:32,370 --> 01:18:35,710
+you cannot process jobs in lower products.
+你不能在低级产品中处理作业。
+
+1299
+01:18:38,780 --> 01:18:41,730
+You can also have this one is called propriety and version.
+你也可以选择这个，它被称为专有和版本。
+
+1300
+01:18:43,360 --> 01:18:47,040
+We talk a little bit about that in a different lecture.
+我们在另一堂课上稍微谈到了这个话题。
+
+1301
+01:18:48,050 --> 01:18:55,150
+But here is what assume that say job five owns a lock
+但是假设作业五拥有一个锁。
+
+1302
+01:18:56,630 --> 01:18:59,400
+after each job one waits.
+每个任务之后都要等待。
+
+1303
+01:19:01,570 --> 01:19:02,650
+So job five.
+所以是第五个任务。
+
+1304
+01:19:03,460 --> 01:19:04,060
+Okay?
+好的？
+
+1305
+01:19:04,310 --> 01:19:05,700
+It is a critical section.
+这是一个临界区。
+
+1306
+01:19:07,230 --> 01:19:11,010
+It was preempted by a higher priority job.
+它被一个优先级更高的任务抢占了。
+
+1307
+01:19:14,370 --> 01:19:19,130
+And then job one comes and wants to enter to critical section,
+然后作业一要进入临界区，
+
+1308
+01:19:19,890 --> 01:19:22,870
+but it cannot because the job five still owns a lock.
+但是它无法这样做，因为作业五仍然拥有一个锁。
+
+1309
+01:19:25,340 --> 01:19:27,330
+It cannot be scared before you go on.
+在你继续之前不能被吓到。
+
+1310
+01:19:28,220 --> 01:19:29,340
+So that's how you have a deadlock.
+这就是产生死锁的方式。
+
+1311
+01:19:31,550 --> 01:19:33,300
+There are many ways to fix a problem.
+解决问题有很多种方法。
+
+1312
+01:19:34,230 --> 01:19:37,450
+We are not going to talk about as much about this,
+我们不会谈论这个问题太多，
+
+1313
+01:19:38,750 --> 01:19:41,980
+but there are every single and dynamic priorities.
+但是有每个单独的和动态的优先级。
+
+1314
+01:19:41,990 --> 01:19:42,620
+If like,
+如果喜欢的话，
+
+1315
+01:19:42,630 --> 01:19:47,500
+you'll see if a job is too much at a high priorities and you
+如果一个工作的优先级太高，你会发现它是否太多了
+
+1316
+01:19:47,510 --> 01:19:50,180
+are going to push it down to a lower priority.
+将其降低到较低优先级。
+
+1317
+01:19:50,680 --> 01:19:53,110
+There are many other holistics, but it's important.
+还有许多其他的整体性方法，但这是重要的。
+
+1318
+01:19:53,320 --> 01:19:55,230
+You to know about this problem.
+你需要了解这个问题。
+
+1319
+01:19:55,240 --> 01:19:59,370
+The strict priority can lead to salvation and can lead to deadlock.
+严格优先级可以导致救赎，也可以导致死锁。
+
+1320
+01:20:02,350 --> 01:20:03,630
+Now, what about scheduling?
+现在，关于调度方面呢？
+
+1321
+01:20:03,640 --> 01:20:04,270
+Fairness?
+公平性？
+
+1322
+01:20:05,590 --> 01:20:06,340
+Oops, sorry.
+抱歉，对不起。
+
+1323
+01:20:10,720 --> 01:20:12,390
+So strict priority.
+严格优先级。
+
+1324
+01:20:12,400 --> 01:20:13,550
+What do you now solve?
+你现在在解决什么问题？
+
+1325
+01:20:13,790 --> 01:20:16,930
+What will the state priority clearly is not fair, right?
+状态优先级明显不公平，对吗？
+
+1326
+01:20:17,800 --> 01:20:20,540
+Because by definition,
+根据定义，
+
+1327
+01:20:20,550 --> 01:20:22,260
+priority is not fair, right?
+优先级不公平，对吗？
+
+1328
+01:20:22,510 --> 01:20:26,650
+You give priority to process is the highest priority.
+你给予的进程优先级是最高优先级。
+
+1329
+01:20:30,020 --> 01:20:31,610
+The fairness is at all,
+公平性是普遍存在的。
+
+1330
+01:20:31,620 --> 01:20:32,890
+so is a privatization,
+所以这是一种私有化的过程，
+
+1331
+01:20:33,740 --> 01:20:34,070
+right?
+对的？
+
+1332
+01:20:36,810 --> 01:20:40,220
+And around Robin, on the other hand, is fair,
+而轮转调度算法则是公平的，
+
+1333
+01:20:41,010 --> 01:20:41,290
+right?
+对的？
+
+1334
+01:20:41,300 --> 01:20:46,370
+Because there is no difference between the jobs you give to each
+因为你给每个人的工作没有任何区别。
+
+1335
+01:20:46,380 --> 01:20:48,800
+of the jobs that I'm quanta until it finishes.
+直到完成我所分配的所有工作。
+
+1336
+01:20:49,340 --> 01:20:52,880
+And you go round Robin across the jobs.
+你使用轮转调度算法处理作业。
+
+1337
+01:20:57,510 --> 01:21:03,830
+But you'll see that the tradeoff is like fairness,
+但你会发现这种权衡就像公平一样，
+
+1338
+01:21:03,840 --> 01:21:05,070
+which is round rock win.
+哪个是圆石胜利。
+
+1339
+01:21:06,150 --> 01:21:10,200
+One of the policies around Robin can hurt the average response.
+Robin的一个策略可能会影响平均响应时间。
+
+1340
+01:21:13,040 --> 01:21:14,870
+And how do you implement the fairness?
+你如何实现公平性？
+
+1341
+01:21:14,880 --> 01:21:17,150
+Again, you can do around Robin.
+你可以使用轮转调度算法。
+
+1342
+01:21:18,560 --> 01:21:22,340
+There are other ways to get some price,
+有其他方法可以获得一些价格优惠。
+
+1343
+01:21:22,350 --> 01:21:25,840
+even if you have priority scheduling.
+即使你使用了优先级调度。
+
+1344
+01:21:29,020 --> 01:21:35,390
+There is an article version in which if you wait,
+有一种文章版本，如果你等待的话，
+
+1345
+01:21:35,960 --> 01:21:39,270
+if you wait for too long on a lower priority queue,
+如果你在一个较低优先级队列上等待时间过长，
+
+1346
+01:21:40,410 --> 01:21:41,860
+your priority is bump up.
+你的优先级提高了。
+
+1347
+01:21:42,170 --> 01:21:44,230
+You do eventually get to the higher product you,
+你最终会成为更好的自己。
+
+1348
+01:21:44,240 --> 01:21:49,530
+and then you can get up now.
+然后你现在可以起床了。
+
+1349
+01:21:49,850 --> 01:21:51,630
+Let's go to answer the,
+让我们开始回答问题吧。
+
+1350
+01:21:58,850 --> 01:22:01,120
+let me answer this question before.
+让我先回答这个问题。
+
+1351
+01:22:01,550 --> 01:22:06,760
+And then I'm going to stop because you have done the best first conference,
+然后我就要停下来了，因为你已经做得非常出色了第一次会议。
+
+1352
+01:22:06,770 --> 01:22:07,180
+orderly,
+有序的，有条理的
+
+1353
+01:22:07,190 --> 01:22:08,440
+shortest to longest.
+从最短到最长。
+
+1354
+01:22:10,290 --> 01:22:13,410
+Sorry, it's yes,
+抱歉，是的。
+
+1355
+01:22:13,420 --> 01:22:15,740
+the best first come, first serve.
+先来先服务是最好的。
+
+1356
+01:22:15,750 --> 01:22:17,980
+Order is shortest, the longest.
+顺序是最短的，最长的。
+
+1357
+01:22:17,990 --> 01:22:18,580
+That's correct.
+没错。
+
+1358
+01:22:19,270 --> 01:22:22,660
+And we are over time.
+我们已经超时了。
+
+1359
+01:22:23,380 --> 01:22:25,290
+We are going to stop here.
+我们要停下来了。
+
+1360
+01:22:25,300 --> 01:22:28,490
+We are going to continue Thursday to talk about scheduling.
+我们将在周四继续讨论调度问题。
+
+1361
+01:22:30,240 --> 01:22:31,550
+If there are any other questions,
+如果有任何其他问题，
+
+1362
+01:22:31,560 --> 01:22:36,230
+i'll be happy to answer until then good luck at midterm.
+我很乐意回答，祝你期中考试好运。
+

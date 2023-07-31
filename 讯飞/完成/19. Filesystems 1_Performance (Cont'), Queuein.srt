@@ -1,0 +1,7151 @@
+1
+00:00:11,770 --> 00:00:12,530
+Hello, everyone.
+大家好。
+
+2
+00:00:13,180 --> 00:00:20,180
+So today we are going to continue the discussion about the storage devices.
+今天我们将继续讨论存储设备的话题。
+
+3
+00:00:20,190 --> 00:00:24,140
+In particular, we are going to talk about ss ds or solid state devices.
+具体而言，我们将讨论固态设备，也就是固态硬盘（SSD）。
+
+4
+00:00:25,040 --> 00:00:29,030
+We are going to start the discussion on queuing theory.
+我们将开始讨论排队理论。
+
+5
+00:00:31,760 --> 00:00:38,660
+Last time, we talked about this drives or the spinning disks.
+上次我们讨论了这些驱动器或旋转硬盘。
+
+6
+00:00:39,380 --> 00:00:44,590
+And these are the main technology used to store data
+以下是用于存储数据的主要技术：
+
+1. 硬盘驱动器（HDD）：硬盘驱动器是一种机械式存储设备，使用旋转磁盘和磁头来读取和写入数据。它具有较大的存储容量和较低的成本，适用于长期存储和大容量数据存储。
+
+2. 固态驱动器（SSD）：固态驱动器使用闪存存储技术，没有机械部件，因此读写速度更快，能耗更低。它适用于需要快速访问和高性能的应用，如操作系统和数据库。
+
+3. 光盘：光盘使用激光技术读取和写入数据。常见的光盘类型包括CD（音频和数据）、DVD（数字视频和数据）和蓝光光盘（高清视频和数据）。光盘适用于长期存储和传输数据，但读写速度较慢。
+
+4. 闪存驱动器：闪存驱动器是一种便携式存储设备，使用闪存存储技术。它具有较小的体积、较高的读写速度和较低的能耗，适用于个人文件存储和数据传输。
+
+5. 云存储：云存储是将数据存储在远程服务器上的技术。用户可以通过互联网访问和管理存储在云中的数据。云存储具有高可靠性、可扩展性和灵活性，适用于数据备份、共享和远程访问。
+
+这些技术在不同的应用场景中都有各自的优势和适用性。根据需求和预算，选择适合的存储技术非常重要。
+
+7
+00:00:45,260 --> 00:00:47,350
+for the first few decades of
+在最初的几十年中
+
+8
+00:00:47,360 --> 00:00:50,600
+personal computers and computers in general.
+个人电脑和一般的计算机。
+
+9
+00:00:51,860 --> 00:00:58,450
+And with starting with kind of two decades ago,
+从大约二十年前开始，
+
+10
+00:00:58,860 --> 00:01:00,020
+a little bit more than that.
+比那稍微多一点点。
+
+11
+00:01:01,330 --> 00:01:08,090
+It's we started to see the emergence of us another technology to start data
+我们开始看到另一种技术的出现，用于开始数据处理。
+
+12
+00:01:09,370 --> 00:01:10,480
+persistently.
+持久地。
+
+13
+00:01:11,080 --> 00:01:13,420
+That was memory based.
+那是基于内存的。
+
+14
+00:01:13,990 --> 00:01:23,690
+And the first efforts was in 1995 is the emergencies of you have d ram.
+1995年是你们开始努力的第一次，那时候出现了D RAM的紧急情况。
+
+15
+00:01:24,170 --> 00:01:25,690
+But how you make it persistent,
+但是你如何使其持久化？
+
+16
+00:01:26,000 --> 00:01:27,190
+you have a battery.
+你有一个电池。
+
+17
+00:01:28,490 --> 00:01:30,530
+You have been empowered by a battery.
+你已经被电池赋予了能量。
+
+18
+00:01:31,420 --> 00:01:33,390
+As long as a battery lasts,
+只要电池能持续使用，
+
+19
+00:01:33,400 --> 00:01:37,020
+you are going to store the data persistently in that memory.
+你将会将数据持久地存储在那块内存中。
+
+20
+00:01:38,270 --> 00:01:41,770
+Even when the computer or it's unplugged.
+即使计算机或者它被拔掉电源。
+
+21
+00:01:48,600 --> 00:01:49,750
+After that,
+之后，
+
+22
+00:01:50,220 --> 00:01:57,230
+things change with this new technology and multiple cells.
+随着这种新技术和多个单元的出现，事物发生了变化。
+
+23
+00:01:57,240 --> 00:02:02,890
+So basically, this allows you to store is like a memory,
+基本上，这允许你像存储器一样存储数据。
+
+24
+00:02:06,730 --> 00:02:14,540
+but it allows you to start data is to start information even when it's not power.
+但它允许你在没有电源的情况下启动数据和信息。
+
+25
+00:02:15,870 --> 00:02:16,300
+Okay?
+好的？
+
+26
+00:02:17,310 --> 00:02:20,860
+So that was kind of the key technology innovation.
+所以这就是关键的技术创新。
+
+27
+00:02:21,150 --> 00:02:21,860
+As a high level.
+作为一个高级别。
+
+28
+00:02:22,310 --> 00:02:23,400
+There are many tell us,
+有很多事情告诉我们，
+
+29
+00:02:23,410 --> 00:02:26,260
+we don't have a lot of time to go into it, tell us.
+我们没有太多时间来详细讨论，告诉我们吧。
+
+30
+00:02:26,730 --> 00:02:32,240
+But the big sink was about
+但是最大的问题是关于洗手池
+
+31
+00:02:34,470 --> 00:02:39,170
+having this commercially available the technology to store data
+将这项技术商业化，用于存储数据。
+
+32
+00:02:39,430 --> 00:02:42,450
+without in this kind of new kind of memories,
+在这种新型记忆体中没有
+
+33
+00:02:42,760 --> 00:02:46,950
+without needing to power them on.
+无需将其开机。
+
+34
+00:02:49,370 --> 00:02:53,590
+And this ss ds,
+这是什么东西？
+
+35
+00:02:53,600 --> 00:02:56,290
+these are going to,
+这些即将要做的事情。
+
+36
+00:02:56,300 --> 00:03:03,140
+they have they story information and gravity of a memory block and a memory
+它们具有存储块和内存的故事信息和重力。
+
+37
+00:03:03,150 --> 00:03:03,740
+block.
+阻塞。
+
+38
+00:03:04,250 --> 00:03:10,680
+It's consist of four kilobytes page of between 4and64 kilobytes pages.
+它由4KB大小的页面组成，每个页面的大小介于4KB到64KB之间。
+
+39
+00:03:12,890 --> 00:03:17,170
+Remember that 4 kilobytes pages is basically more or less like a sector
+请记住，4千字节的页面基本上可以看作是一个扇区。
+
+40
+00:03:17,610 --> 00:03:19,480
+on a disk describe.
+在磁盘上描述。
+
+41
+00:03:19,880 --> 00:03:27,200
+It's also may can be the size of the page for of a virtual memory
+这也可能是虚拟内存的页面大小。
+
+42
+00:03:29,130 --> 00:03:29,960
+implementation.
+实现。
+
+43
+00:03:31,330 --> 00:03:34,240
+You have virtual page, the pages of visual memory, the pages,
+你有虚拟页面，视觉内存的页面，页面。
+
+44
+00:03:34,250 --> 00:03:35,440
+individual memory,
+个体内存
+
+45
+00:03:35,910 --> 00:03:36,980
+typically four kilobytes.
+通常为四千字节。
+
+46
+00:03:36,990 --> 00:03:39,860
+The same, the size is a sector size.
+相同，大小是一个扇区大小。
+
+47
+00:03:40,190 --> 00:03:43,180
+And then when you translate those to this as these,
+然后当你将那些翻译成这些时，
+
+48
+00:03:43,430 --> 00:03:47,040
+you are going for this formula by stage are part of a memory block.
+你正在按阶段将这个公式分解成内存块的一部分。
+
+49
+00:03:47,050 --> 00:03:50,380
+And a memory block consist of four between four and cd four.
+一个内存块由四个字节到十六个字节之间的数据组成。
+
+50
+00:03:50,890 --> 00:03:51,290
+Vegas.
+维加斯。
+
+51
+00:03:51,300 --> 00:03:53,340
+This is an important detail.
+这是一个重要的细节。
+
+52
+00:03:55,110 --> 00:03:56,230
+There are no moving parts.
+没有任何可动部件。
+
+53
+00:03:56,240 --> 00:03:57,430
+We just like memory.
+我们就像内存一样。
+
+54
+00:03:58,790 --> 00:04:02,620
+This has a certain advantages,
+这有一定的优势，
+
+55
+00:04:02,630 --> 00:04:03,780
+big advantages.
+巨大的优势。
+
+56
+00:04:04,200 --> 00:04:07,020
+First of all, eliminate the sick and the rotational latency.
+首先，消除病态和旋转延迟。
+
+57
+00:04:07,030 --> 00:04:08,260
+Remember, from last time,
+记得，上次的内容是，
+
+58
+00:04:08,270 --> 00:04:10,120
+there's a sick and rotational latency,
+存在疾病和旋转延迟。
+
+59
+00:04:10,340 --> 00:04:17,190
+where the biggest culprits of a long latency to access data on the disk
+造成磁盘数据访问延迟最大的罪魁祸首在哪里？
+
+60
+00:04:17,500 --> 00:04:18,330
+that is randomly.
+这是随机的。
+
+61
+00:04:18,830 --> 00:04:23,300
+But that's why we have a huge difference between the throughput of a disk
+这就是为什么磁盘吞吐量之间存在巨大差异的原因。
+
+62
+00:04:23,310 --> 00:04:25,260
+when you access a data sequentially.
+当你按顺序访问数据时。
+
+63
+00:04:25,470 --> 00:04:27,080
+Because in that particular case,
+因为在那种特定情况下，
+
+64
+00:04:27,090 --> 00:04:31,450
+you do not need to pay for the sick and rotation delays,
+你不需要为病假和轮换延迟支付费用。
+
+65
+00:04:32,050 --> 00:04:35,210
+versus when you access the data randomly,
+相比于随机访问数据时，
+
+66
+00:04:35,220 --> 00:04:38,710
+when you need to pay for a boss of this delays,
+当你需要为这些延迟付出代价时，
+
+67
+00:04:39,140 --> 00:04:40,380
+six elevation,
+六个高度，
+
+68
+00:04:41,090 --> 00:04:45,380
+they also have requires even lower, very,
+它们还有更低的要求，非常低。
+
+69
+00:04:45,390 --> 00:04:46,980
+very low power and anything,
+非常低功耗和任何东西。
+
+70
+00:04:46,990 --> 00:04:48,260
+and they are liked wet.
+它们喜欢潮湿的环境。
+
+71
+00:04:50,180 --> 00:04:52,170
+This is not just memory.
+这不仅仅是内存。
+
+72
+00:04:52,180 --> 00:04:56,670
+It's not like a disk matter, always.
+并不总是像磁盘问题那样。
+
+73
+00:04:57,070 --> 00:05:03,250
+Bladder as soon as spinning and heads and things like that on the downside,
+当膀胱开始旋转并出现头部等问题时，情况就不太好了。
+
+74
+00:05:03,690 --> 00:05:05,930
+it does have limited right cycles.
+它确实有有限的权利循环。
+
+75
+00:05:06,370 --> 00:05:12,510
+This means that limited the right cycle is when you modify a sadly,
+这意味着有限的循环权是指当你修改一个遗憾时，
+
+76
+00:05:13,040 --> 00:05:14,330
+when you modify a bit,
+当你修改一个位时，
+
+77
+00:05:15,750 --> 00:05:16,140
+you cannot,
+你不能这样做。
+
+78
+00:05:16,750 --> 00:05:18,840
+if you modify it too many times,
+如果你修改它太多次，
+
+79
+00:05:18,850 --> 00:05:21,240
+if you write the same, but a bit,
+如果你写得一样，只是稍微改动一下，
+
+80
+00:05:21,250 --> 00:05:23,420
+too many times, then it works out.
+尝试了很多次，最终成功了。
+
+81
+00:05:23,780 --> 00:05:26,410
+You can no longer ride that bit reliably.
+你不能再可靠地使用那个位(bit)了。
+
+82
+00:05:29,560 --> 00:05:31,960
+And so that's one the challenge you need to deal with.
+这就是你需要应对的挑战之一。
+
+83
+00:05:32,670 --> 00:05:34,190
+And obviously,
+显然，
+
+84
+00:05:34,200 --> 00:05:36,750
+things are introduced their own rapid advantage,
+事物引入了自己的快速优势，
+
+85
+00:05:36,760 --> 00:05:38,350
+and the capacity have increased.
+容量也增加了。
+
+86
+00:05:38,360 --> 00:05:39,550
+And today,
+今天，
+
+87
+00:05:40,290 --> 00:05:41,780
+to give you a sense,
+给你一个概念，
+
+88
+00:05:42,390 --> 00:05:42,680
+obviously,
+显然，
+
+89
+00:05:42,930 --> 00:05:47,360
+today is that I am not sure any of your devices you are working
+今天是我不确定你正在使用的任何设备的一天。
+
+90
+00:05:47,370 --> 00:05:52,100
+with still has a disk unless you are working,
+只有在你工作时，计算机才会保持硬盘运转。
+
+91
+00:05:52,110 --> 00:05:56,180
+you have a big workstation home or you are using.
+你在家里有一台大型工作站或者你正在使用一台。
+
+92
+00:05:56,620 --> 00:05:58,060
+But certainly your laptops,
+但是当然你们的笔记本电脑，
+
+93
+00:05:58,860 --> 00:06:00,800
+obviously, the phones,
+显然，手机，
+
+94
+00:06:01,210 --> 00:06:02,560
+ipo ipad,
+IPO指的是首次公开募股（Initial Public Offering），是指公司首次向公众发行股票并在证券交易所上市交易的过程。
+
+iPad是由苹果公司开发和销售的一款平板电脑。
+
+95
+00:06:02,570 --> 00:06:11,990
+or they no longer have these drives as to start data persistently.
+或者他们不再拥有这些驱动器来持久保存数据。
+
+96
+00:06:12,560 --> 00:06:15,460
+They only have ss ds.
+他们只有SS和DS。
+
+97
+00:06:19,100 --> 00:06:23,530
+Here it's again how as the architecture look like,
+这是架构的外观如何看起来的描述。
+
+98
+00:06:23,940 --> 00:06:27,260
+this lands is where on the right hand side is a memory,
+这块土地上的右手边是一片内存区域。
+
+99
+00:06:27,590 --> 00:06:28,820
+the banks of memory.
+内存的银行。
+
+100
+00:06:29,110 --> 00:06:31,850
+And each of these could present a block.
+每个都可以表示为一个块。
+
+101
+00:06:33,730 --> 00:06:37,180
+And then you have a flash memory controller,
+然后你有一个闪存控制器，
+
+102
+00:06:37,400 --> 00:06:41,270
+which basically decides where to write and or to read the data from,
+这基本上决定了从哪里写入或读取数据。
+
+103
+00:06:42,670 --> 00:06:45,700
+you have a buffer manager and a softer queue.
+你有一个缓冲区管理器和一个软件队列。
+
+104
+00:06:46,450 --> 00:06:51,320
+This is about when this is where you buffer the reads and writes requests.
+这是关于在何时何地缓冲读写请求的问题。
+
+105
+00:06:51,690 --> 00:06:54,650
+Say we have many reads or write requests at the same time,
+假设我们同时有许多读取或写入请求，
+
+106
+00:06:54,660 --> 00:06:56,250
+and you cannot serve at the same time.
+你不能同时服务两个人。
+
+107
+00:06:56,530 --> 00:07:00,520
+You have to buffer them and it sell them1×1.
+你需要将它们缓冲并逐个出售。
+
+108
+00:07:01,030 --> 00:07:02,580
+It's also ad ram here.
+这里也是内存。
+
+109
+00:07:02,590 --> 00:07:05,720
+So when you cache some of the information, right?
+所以当你缓存一些信息时，对吗？
+
+110
+00:07:05,730 --> 00:07:08,440
+When you read, if I read only a few bites,
+当你阅读时，如果我只读了几个字节，
+
+111
+00:07:08,950 --> 00:07:10,690
+the granularity, if you remember,
+如果你还记得的话，粒度
+
+112
+00:07:12,850 --> 00:07:16,760
+to read and write from this ssd it is one of this memory blocks,
+要从这个SSD中读取和写入数据，需要选择其中一个内存块。
+
+113
+00:07:16,770 --> 00:07:20,960
+which can be between 16and256kilobytes.
+可以在16到256千字节之间。
+
+114
+00:07:21,730 --> 00:07:23,800
+You have to read the diagram of granularity.
+你需要阅读粒度图表。
+
+115
+00:07:23,810 --> 00:07:24,880
+And once you are reading it,
+当你阅读它的时候，
+
+116
+00:07:24,890 --> 00:07:26,000
+you are going to cash it.
+你打算兑现它。
+
+117
+00:07:26,420 --> 00:07:28,440
+If you are going to or write,
+如果你要去或写作，
+
+118
+00:07:29,320 --> 00:07:31,920
+if you are going to read again,
+如果你打算再次阅读，
+
+119
+00:07:34,190 --> 00:07:35,560
+the next few bytes,
+接下来的几个字节，
+
+120
+00:07:35,770 --> 00:07:37,410
+then it's already in the alarm.
+那么它已经处于警报状态了。
+
+121
+00:07:37,420 --> 00:07:39,930
+You don't need to go and fetch it, fetch it again.
+你不需要去取它，再去取一次。
+
+122
+00:07:41,490 --> 00:07:44,420
+Now, and this is the satire.
+现在，这就是讽刺之处。
+
+123
+00:07:44,430 --> 00:07:46,100
+It's a bus technology,
+这是一种总线技术，
+
+124
+00:07:46,640 --> 00:07:54,750
+and or can be bc bs which is connected to the through a bridge to the pci bus,
+and or 可以是 bc 或 bs，它们通过桥接到 PCI 总线。
+
+125
+00:07:54,760 --> 00:07:56,300
+like we discussed last time.
+就像我们上次讨论的那样。
+
+126
+00:07:56,570 --> 00:08:01,310
+And then it's connected to the processor and is a memory.
+然后它与处理器连接并作为内存使用。
+
+127
+00:08:06,740 --> 00:08:14,170
+Here are some numbers for you to read a four kilobyte page.
+这里有一些数字，用于读取一个四千字节的页面。
+
+128
+00:08:14,180 --> 00:08:15,890
+It takes around, say,
+大约需要，比如说，
+
+129
+00:08:17,700 --> 00:08:20,130
+between 10and25 micro seconds.
+在10到25微秒之间。
+
+130
+00:08:21,210 --> 00:08:23,520
+Again, there is no segal rotational latency.
+再次强调，不存在Segal旋转延迟。
+
+131
+00:08:25,050 --> 00:08:28,360
+Now, the transfer time for that four kilobytes page,
+现在，这个四千字节页面的传输时间是多少？
+
+132
+00:08:28,730 --> 00:08:32,380
+for the satire interface,
+对于Satire接口，
+
+133
+00:08:32,830 --> 00:08:36,240
+you have between three hundred six hundred megabytes per second.
+你的速度在每秒三百到六百兆字节之间。
+
+134
+00:08:36,530 --> 00:08:36,680
+Actually,
+实际上，
+
+135
+00:08:36,690 --> 00:08:42,220
+the best interface is today you have two gigabytes or mega two gigabytes
+最好的接口是今天你有两个千兆字节或两个兆字节。
+
+136
+00:08:42,230 --> 00:08:43,020
+per second.
+每秒。
+
+137
+00:08:43,030 --> 00:08:45,620
+So a few times larger than this.
+比这个大几倍。
+
+138
+00:08:46,160 --> 00:08:49,260
+But even for us for, say,
+但即使对于我们来说，比如说，
+
+139
+00:08:49,560 --> 00:08:52,050
+400 megabytes per second to take a number,
+每秒400兆字节的速度进行计算。
+
+140
+00:08:53,510 --> 00:08:54,570
+then the transfer time.
+然后是传输时间。
+
+141
+00:08:54,580 --> 00:08:58,470
+So the time to read 4 kilo by spade is send micro seconds.
+所以读取4千字节的数据需要发送的时间是以微秒计算的。
+
+142
+00:08:59,920 --> 00:09:02,640
+And the latency, if you remember,
+而且如果你还记得的话，延迟问题也是一个重要因素。
+
+143
+00:09:02,650 --> 00:09:05,610
+what is atlanta and latency is a queuing time.
+亚特兰大是一个城市，延迟是指排队时间。
+
+144
+00:09:05,960 --> 00:09:10,790
+So the time it the request has to wake in the cure for other requests
+所以请求需要在队列中等待的时间是为了处理其他请求。
+
+145
+00:09:10,800 --> 00:09:13,470
+to be satisfied plus a controller time,
+满足加上控制器时间，
+
+146
+00:09:13,480 --> 00:09:16,330
+whatever the controller needs to do and to make the decision.
+控制器需要做的事情以及做出决策。
+
+147
+00:09:16,340 --> 00:09:18,410
+It's a fixed time and the transfer time.
+这是一个固定的时间和传输时间。
+
+148
+00:09:19,310 --> 00:09:19,670
+Right?
+对吗？
+
+149
+00:09:20,450 --> 00:09:23,280
+Because this is a memory is basically around.
+因为这是一个基本上围绕着内存的问题。
+
+150
+00:09:23,290 --> 00:09:24,640
+You can randomly address.
+你可以随机访问。
+
+151
+00:09:25,060 --> 00:09:28,620
+There is not such a big difference between sequential and random reads.
+顺序读取和随机读取之间并没有太大的区别。
+
+152
+00:09:32,260 --> 00:09:33,800
+Now, this was about the read.
+现在，这是关于读取的内容。
+
+153
+00:09:34,430 --> 00:09:37,510
+Now the writing is much more complex.
+现在的写作更加复杂了。
+
+154
+00:09:39,220 --> 00:09:44,760
+And you can only write empty pages a in a block.
+而且你只能在一个块中写入空白页。
+
+155
+00:09:46,240 --> 00:09:46,700
+Right?
+对吗？
+
+156
+00:09:47,470 --> 00:09:52,390
+There is a there are three states of these pages.
+这些页面有三种状态。
+
+157
+00:09:52,400 --> 00:09:55,640
+It's written those two stages,
+这两个阶段被描述为：
+
+158
+00:09:55,650 --> 00:09:58,040
+whether it's redone and or it, whether it's erased,
+无论是重新做还是擦除，
+
+159
+00:09:58,460 --> 00:10:00,100
+and you can or empty.
+你可以选择留空或者清空。
+
+160
+00:10:00,540 --> 00:10:05,970
+And you can only write empty pages.
+而且你只能写空白页。
+
+161
+00:10:09,810 --> 00:10:11,350
+So if a page is,
+那么如果一个页面是，
+
+162
+00:10:11,520 --> 00:10:13,230
+you want to overwrite the page,
+你想要覆盖该页面。
+
+163
+00:10:14,400 --> 00:10:15,840
+then before doing that,
+在这之前，
+
+164
+00:10:15,850 --> 00:10:17,480
+you need to erase a page.
+你需要擦除一页。
+
+165
+00:10:18,170 --> 00:10:19,960
+Now the bait becomes empty,
+现在诱饵变空了，
+
+166
+00:10:19,970 --> 00:10:22,120
+and then you're overwrite it.
+然后你会覆盖它。
+
+167
+00:10:24,000 --> 00:10:24,420
+Now,
+现在，
+
+168
+00:10:25,560 --> 00:10:29,510
+the problem with that is that these operations are far more expensive,
+问题在于这些操作的成本要高得多，
+
+169
+00:10:29,520 --> 00:10:30,510
+far more expensive.
+远远更昂贵。
+
+170
+00:10:30,520 --> 00:10:34,060
+Remember, it's like the reader say 25microsecond.
+记住，这就像读者说的是25微秒。
+
+171
+00:10:34,070 --> 00:10:37,960
+The writing data on an empty page is 200microsecond.
+在空白页面上写入数据需要200微秒。
+
+172
+00:10:39,760 --> 00:10:44,060
+Right now, if you want to erase a page,
+现在，如果你想要擦除一页，
+
+173
+00:10:44,070 --> 00:10:46,940
+if you need to erase a page,
+如果你需要擦除一页，
+
+174
+00:10:47,390 --> 00:10:49,250
+if you don't have an empty page,
+如果你没有空白页，
+
+175
+00:10:49,480 --> 00:10:50,770
+they raise, they're raising.
+他们提高了，他们正在提高。
+
+176
+00:10:50,780 --> 00:10:52,770
+The page takes1.5millisecond.
+该页面需要1.5毫秒。
+
+177
+00:10:53,750 --> 00:10:54,210
+Okay?
+好的？
+
+178
+00:10:55,520 --> 00:10:58,660
+The rule of thumb you can think about the right is 10
+你可以将这个经验法则记住，即向右转动10次。
+
+179
+00:10:58,670 --> 00:11:00,950
+times more expensive than the reeds.
+比芦苇贵多少倍。
+
+180
+00:11:00,960 --> 00:11:05,800
+And the rangers are 10 times more expensive than the rights, right?
+是的，游侠比权利贵十倍，对吗？
+
+181
+00:11:05,810 --> 00:11:09,280
+So25 than 200microsecond,
+小于200微秒
+
+182
+00:11:09,290 --> 00:11:13,190
+it's around 8 times larger than 25microsecond,
+它大约比25微秒大8倍。
+
+183
+00:11:13,200 --> 00:11:16,180
+which is a time to takes to read a page.
+这是读取一页所需的时间。
+
+184
+00:11:16,740 --> 00:11:18,930
+Then1.5millisecond is what?
+1.5毫秒是多少？
+
+185
+00:11:18,940 --> 00:11:24,510
+7.5times larger than 200 microsecond is a time to read to do, right?
+7.5倍于200微秒的时间是读取所需的时间，对吗？
+
+186
+00:11:25,610 --> 00:11:26,440
+An empty page.
+一个空白页面。
+
+187
+00:11:27,290 --> 00:11:30,320
+So therefore, you need to be very careful about that, right?
+所以，你需要非常小心对待这个问题，对吗？
+
+188
+00:11:31,910 --> 00:11:33,380
+This is a thing that took constraints.
+这是一个有限制条件的事情。
+
+189
+00:11:33,390 --> 00:11:36,490
+You have to operate with the two constraints, which are different,
+你需要处理两个不同的约束条件。
+
+190
+00:11:36,500 --> 00:11:41,010
+make this ssd is different than the d ram,
+使这个固态硬盘与内存条不同。
+
+191
+00:11:41,020 --> 00:11:42,170
+the traditional memory.
+传统内存。
+
+192
+00:11:42,620 --> 00:11:43,640
+It's one.
+是的，已经完成了。
+
+193
+00:11:43,890 --> 00:11:48,920
+It's about, you can only write empty pages.
+这是关于只能写空白页的问题。
+
+194
+00:11:49,550 --> 00:11:51,980
+And breed and rights are asymmetric,
+繁殖和权利是不对称的。
+
+195
+00:11:51,990 --> 00:11:54,220
+are not taking the same amount of time,
+不需要花费相同的时间，
+
+196
+00:11:54,230 --> 00:11:55,940
+a range of the cuban one longer.
+一个范围的古巴人更长。
+
+197
+00:11:56,780 --> 00:11:57,890
+This is one then.
+这是一个例子。
+
+198
+00:11:58,340 --> 00:12:02,970
+And the other one is that you can only do a limited amount.
+另一个问题是你只能做有限的数量。
+
+199
+00:12:03,020 --> 00:12:04,210
+A number of rights,
+一些权利，
+
+200
+00:12:05,060 --> 00:12:07,950
+typically is like 10,000 rights or something like that.
+通常是大约10,000个权限或类似的数量。
+
+201
+00:12:09,000 --> 00:12:09,950
+So you need to be careful.
+所以你需要小心。
+
+202
+00:12:12,040 --> 00:12:15,960
+Now, in order to avoid the cost of eurasia,
+现在，为了避免欧亚大陆的成本，
+
+203
+00:12:16,830 --> 00:12:17,930
+when you need to write,
+当你需要写作时，
+
+204
+00:12:18,770 --> 00:12:22,910
+do you raise first before writing what the controller is doing?
+在编写控制器的功能之前，您是否首先提出问题？
+
+205
+00:12:22,920 --> 00:12:25,270
+It maintains a pool of empty blocks.
+它维护了一个空块的池子。
+
+206
+00:12:27,230 --> 00:12:28,540
+So you bring the use pages,
+所以你带来了使用页面，
+
+207
+00:12:28,550 --> 00:12:32,350
+put them in a put together in a blog.
+将它们整理在一个博客中。
+
+208
+00:12:32,850 --> 00:12:37,880
+And then you have these pulls of empty blocks.
+然后你会有一些空块的拉取。
+
+209
+00:12:38,190 --> 00:12:39,500
+And then you can write them,
+然后你可以将它们写下来，
+
+210
+00:12:39,510 --> 00:12:44,180
+and then you can pay only 200 microsecond per page instead of1.71millisecond.
+然后你只需要支付每页200微秒，而不是1.71毫秒。
+
+211
+00:12:48,160 --> 00:12:55,390
+Ss ds provide the same interface as hardly strives to the os the same api
+Ss ds 提供与操作系统相同的接口，并努力提供相同的 API。
+
+212
+00:12:56,220 --> 00:12:56,900
+which is great,
+这很棒，
+
+213
+00:12:56,910 --> 00:13:02,030
+because you can just swap and describe with an ssd and your computer will work,
+因为你只需要用固态硬盘进行交换和描述，你的计算机就能正常工作。
+
+214
+00:13:02,040 --> 00:13:03,190
+but will be much faster.
+但速度会更快。
+
+215
+00:13:03,600 --> 00:13:04,240
+Right?
+对吗？
+
+216
+00:13:04,550 --> 00:13:06,640
+Like I said, when you override the data,
+就像我说的，当你覆盖数据时，
+
+217
+00:13:06,650 --> 00:13:09,000
+when you the karanoid of writing,
+当你变得过于焦虑写作时，
+
+218
+00:13:10,730 --> 00:13:11,760
+a it's a block,
+这是一个块。
+
+219
+00:13:12,200 --> 00:13:15,830
+and the block can be 16 times larger than a page.
+每个块的大小可以是页面的16倍。
+
+220
+00:13:16,290 --> 00:13:17,440
+Sorry, 67,
+抱歉，67。
+
+221
+00:13:17,450 --> 00:13:19,360
+64times larger than a page.
+比一个页面大64倍。
+
+222
+00:13:19,370 --> 00:13:21,240
+So you have a pages four kilobytes,
+所以你有一个页面大小为四千字节，
+
+223
+00:13:21,250 --> 00:13:23,120
+and you have 64 pages in a block.
+每个块有64页。
+
+224
+00:13:23,580 --> 00:13:26,940
+Then 64 by time times 4is256kilobytes.
+64乘以时间乘以4等于256千字节。
+
+225
+00:13:27,230 --> 00:13:28,060
+This is what?
+这是什么？
+
+226
+00:13:28,070 --> 00:13:30,870
+The25060~50,
+这是一个不完整的句子，无法确定具体含义。请提供更多上下文或完整的句子。
+
+227
+00:13:31,290 --> 00:13:33,210
+256 kilobytes is coming from.
+256 kilobytes是从哪里来的。
+
+228
+00:13:36,850 --> 00:13:39,820
+So I will only discuss about it.
+所以我只会讨论它。
+
+229
+00:13:39,830 --> 00:13:44,730
+Why not erase and rewrite new version of the entire 256blocks,
+为什么不擦除并重写整个256个块的新版本呢？
+
+230
+00:13:45,200 --> 00:13:47,370
+because eurasia is extremely slow.
+因为欧亚大陆的网速非常慢。
+
+231
+00:13:48,020 --> 00:13:51,020
+And then each block has a finite lifetime,
+然后每个块都有有限的生命周期，
+
+232
+00:13:51,030 --> 00:13:52,340
+like I mentioned to you,
+就像我之前跟你提到的一样，
+
+233
+00:13:52,700 --> 00:13:57,350
+you cannot, you erase and rewrite all the time.
+你不能这样做，你一直在擦除和重写。
+
+234
+00:13:58,330 --> 00:14:00,520
+You can only do that for, say, ten,
+你只能这样做，比如说十个。
+
+235
+00:14:00,530 --> 00:14:02,840
+a few tens of the 10,000 of times.
+几十万次中的几十次。
+
+236
+00:14:04,760 --> 00:14:07,130
+Therefore, if you have heavily used blocks,
+因此，如果你使用的块非常频繁，
+
+237
+00:14:07,470 --> 00:14:08,920
+you do a lot of rights.
+你做了很多正确的事情。
+
+238
+00:14:09,310 --> 00:14:11,020
+They are going to wear out quickly.
+它们会很快磨损。
+
+239
+00:14:13,160 --> 00:14:14,430
+Now you have this problem, right?
+现在你遇到这个问题了，对吗？
+
+240
+00:14:14,440 --> 00:14:14,910
+It's like,
+就像是，
+
+241
+00:14:17,130 --> 00:14:18,000
+if you have,
+如果你有的话，
+
+242
+00:14:19,370 --> 00:14:20,760
+how do you are going to solve it?
+你打算如何解决这个问题？
+
+243
+00:14:20,770 --> 00:14:20,960
+Right?
+对吗？
+
+244
+00:14:20,970 --> 00:14:27,820
+And against the problem is that I I can do iii am allowed to do
+而且问题是，我可以做的事情我都可以做。
+
+245
+00:14:27,830 --> 00:14:29,540
+only a limited number of rights.
+只有有限的权利。
+
+246
+00:14:30,100 --> 00:14:31,340
+Now I have some heavy blocks.
+现在我有一些重的方块。
+
+247
+00:14:31,350 --> 00:14:33,100
+So what i'm going to do about it,
+那么我该怎么办呢？
+
+248
+00:14:34,000 --> 00:14:35,200
+do you have any suggestions here?
+你有什么建议吗？
+
+249
+00:14:45,020 --> 00:14:45,600
+Remap?
+重新映射？
+
+250
+00:14:46,200 --> 00:14:47,500
+That's exactly.
+没错。
+
+251
+00:14:47,510 --> 00:14:49,500
+So that's very good.
+那太好了。
+
+252
+00:14:50,660 --> 00:14:52,920
+So basically, when you are going to the right,
+基本上，当你向右走时，
+
+253
+00:14:53,850 --> 00:14:55,760
+you are not going to write in the same place.
+你不会在同一个地方写。
+
+254
+00:14:55,770 --> 00:14:57,800
+You are going to write to another page,
+你将要写入另一页。
+
+255
+00:14:58,210 --> 00:15:00,830
+which was not so used in the past.
+在过去并不常用的。
+
+256
+00:15:01,390 --> 00:15:08,530
+And then you are going to remap the page to the new block.
+然后你将重新映射页面到新的块中。
+
+257
+00:15:10,060 --> 00:15:13,580
+You used to write the new information.
+你过去常常写新的信息。
+
+258
+00:15:14,520 --> 00:15:15,950
+This is a layer of indirection.
+这是一层间接性。
+
+259
+00:15:15,960 --> 00:15:21,870
+It is called flash translation layer or fdl in sst I see your map,
+在SST中，它被称为闪存转换层或FDL。我看到了你的地图。
+
+260
+00:15:21,880 --> 00:15:23,670
+the virtual block numbers,
+虚拟块号
+
+261
+00:15:24,220 --> 00:15:25,220
+which is uses.
+这是使用的哪个？
+
+262
+00:15:25,230 --> 00:15:28,100
+These are the blocks actually said the patient numbers,
+这些是实际上所说的病人编号的块。
+
+263
+00:15:28,110 --> 00:15:29,380
+the physical patient numbers,
+物理患者人数
+
+264
+00:15:29,390 --> 00:15:30,660
+which flash memory contributes.
+哪种闪存起到了贡献。
+
+265
+00:15:34,300 --> 00:15:37,300
+That's the way it's working.
+就是这样运作的。
+
+266
+00:15:38,620 --> 00:15:39,260
+Right?
+对吗？
+
+267
+00:15:40,170 --> 00:15:41,880
+From the is perspective,
+从操作系统的角度来看，
+
+268
+00:15:41,890 --> 00:15:45,850
+you still have the same page as the same page numbers and everything.
+你仍然拥有相同的页面，包括相同的页码和所有内容。
+
+269
+00:15:46,500 --> 00:15:48,140
+But now on the physical pages,
+但是现在在物理页面上，
+
+270
+00:15:48,150 --> 00:15:49,420
+you have a map.
+你有一张地图。
+
+271
+00:15:50,140 --> 00:15:56,270
+And the page number as seen by the cpo is going to map to a physical page number.
+而操作系统中的页号将会映射到物理页号。
+
+272
+00:15:56,700 --> 00:15:57,940
+And the mapping is this,
+而映射关系如下：
+
+273
+00:15:58,270 --> 00:15:59,300
+it's handled by the car.
+由汽车处理。
+
+274
+00:16:01,360 --> 00:16:03,450
+It's managed by the controller.
+它由控制器管理。
+
+275
+00:16:04,050 --> 00:16:09,720
+So the controller can remap and basically say page number one is go to fit
+所以控制器可以重新映射，基本上可以说页码一是指向适配的位置。
+
+276
+00:16:09,730 --> 00:16:11,520
+to physical page number ten.
+到物理页号为十的页面。
+
+277
+00:16:11,980 --> 00:16:16,010
+Next is going to go to physical page number15.
+接下来要访问物理页号为15。
+
+278
+00:16:16,750 --> 00:16:24,230
+That's how i'm going to load balance the rights for the same page as seen
+这是我将要实现的同一页面的负载均衡策略。
+
+279
+00:16:24,760 --> 00:16:25,830
+by the cpu
+通过CPU
+
+280
+00:16:32,610 --> 00:16:33,640
+this is pretty much,
+这基本上是这样的，
+
+281
+00:16:34,970 --> 00:16:36,520
+it's, again, copy on the right.
+这是右边的复制品。
+
+282
+00:16:36,790 --> 00:16:38,810
+This is or should be obvious, right?
+这是显而易见的，对吗？
+
+283
+00:16:38,820 --> 00:16:45,520
+Again, I do not want to copy to rewrite the same page.
+再次强调，我不想复制重写同一页的内容。
+
+284
+00:16:45,810 --> 00:16:47,400
+Even if I want to modify a page,
+即使我想修改一个页面，
+
+285
+00:16:47,410 --> 00:16:50,000
+I don't rewrite it because I need to erase it first.
+我不会重写它，因为我需要先擦除它。
+
+286
+00:16:50,900 --> 00:16:52,850
+If I need to erase it, first is expensive.
+如果我需要擦除它，首先是昂贵的。
+
+287
+00:16:52,860 --> 00:16:53,890
+So what i'm doing,
+所以我在做什么，
+
+288
+00:16:53,900 --> 00:16:57,650
+i'm going to just create a new version of the page and then i'm going to remap
+我将创建一个新版本的页面，然后重新映射。
+
+289
+00:17:07,220 --> 00:17:10,980
+Isn't the lifetime of ten ka ratio rights quite small?
+十卡比例权益的生命周期不是很短吗？
+
+290
+00:17:10,990 --> 00:17:14,080
+Consider that we can use a laptop for for multiple years.
+考虑到我们可以使用一台笔记本电脑多年。
+
+291
+00:17:16,310 --> 00:17:20,750
+It's not really I because if you really do load balancing,
+这并不完全是我，因为如果你真的进行负载均衡，
+
+292
+00:17:21,250 --> 00:17:22,290
+really loud balancing,
+非常大声的平衡，
+
+293
+00:17:22,300 --> 00:17:24,610
+this means that you need to write or update.
+这意味着你需要编写或更新。
+
+294
+00:17:25,320 --> 00:17:32,230
+You can read and wrap and update like say you have one one terabyte of disk.
+你可以读取、包装和更新，就像你拥有一台一TB的硬盘一样。
+
+295
+00:17:32,770 --> 00:17:33,190
+Right?
+对吗？
+
+296
+00:17:33,760 --> 00:17:36,280
+So one terabyte of disk then you can write,
+所以一台拥有一TB硬盘的计算机，你可以进行写入操作。
+
+297
+00:17:37,000 --> 00:17:41,830
+they are equivalent of 10,000 multiply with one terabyte,
+它们相当于10,000乘以一太字节。
+
+298
+00:17:43,090 --> 00:17:44,410
+so 10 better bytes.
+所以10个更好的字节。
+
+299
+00:17:45,290 --> 00:17:45,530
+Right?
+对吗？
+
+300
+00:17:45,540 --> 00:17:46,530
+I think it's so mad.
+我觉得这太疯狂了。
+
+301
+00:17:46,540 --> 00:17:47,050
+This is right.
+没问题。
+
+302
+00:17:47,670 --> 00:17:49,020
+I can write and better bytes,
+我可以写入和读取字节。
+
+303
+00:17:49,470 --> 00:17:51,720
+and it's hard to write and better bytes.
+而且很难编写更好的字节。
+
+304
+00:17:57,340 --> 00:17:58,960
+But it's, again, this works.
+但是，再次强调，这是有效的。
+
+305
+00:17:59,330 --> 00:18:03,180
+If you are going to be able to load balance, right?
+如果你要实现负载均衡，对吗？
+
+306
+00:18:03,190 --> 00:18:05,920
+And these rights.
+以及这些权利。
+
+307
+00:18:06,380 --> 00:18:06,780
+Right?
+对吗？
+
+308
+00:18:09,270 --> 00:18:11,080
+This is what the controller is doing.
+这是控制器正在做的事情。
+
+309
+00:18:22,800 --> 00:18:25,790
+The flash translation layer also ensure that there is no need
+闪存转换层还确保不需要
+
+310
+00:18:25,800 --> 00:18:30,750
+to erase and rewrite the entire 256 blocks when making small modification
+在进行小的修改时，需要擦除并重写所有256个块。
+
+311
+00:18:30,760 --> 00:18:31,510
+or changes.
+或更改。
+
+312
+00:18:32,380 --> 00:18:37,090
+Ssd controller can assign mapping to spread or notice or to talk about you
+SSD控制器可以分配映射以扩展、通知或讨论你。
+
+313
+00:18:37,100 --> 00:18:39,610
+want basically to load balance the rights.
+基本上想要负载均衡权利。
+
+314
+00:18:39,620 --> 00:18:41,770
+This is called world level ink.
+这被称为世界级墨水。
+
+315
+00:18:42,260 --> 00:18:46,010
+And you are doing that by the mapping and doing copy and write creating
+你可以通过映射和复制写来实现这个功能。
+
+316
+00:18:46,020 --> 00:18:47,570
+new versions of the page,
+页面的新版本
+
+317
+00:18:48,300 --> 00:18:50,610
+or hopefully using a page of physical page,
+或者希望使用一个物理页面，
+
+318
+00:18:50,620 --> 00:18:52,350
+which was not written many times.
+这个没有被写过很多次。
+
+319
+00:18:54,320 --> 00:18:56,470
+If your old version of the pages,
+如果你的页面是旧版本的话，
+
+320
+00:18:56,480 --> 00:18:58,870
+which are you delete a file, what happened?
+当你删除一个文件时，会发生什么？
+
+321
+00:18:59,500 --> 00:19:01,380
+Then they are very garbage collected in the background.
+然后它们会在后台进行垃圾回收。
+
+322
+00:19:01,390 --> 00:19:04,740
+And in the background, you are going to raise them, so to make it,
+在后台，你将抬高它们，以使其达到目标。
+
+323
+00:19:05,120 --> 00:19:06,640
+prepare them to be written again.
+准备将它们重新写入。
+
+324
+00:19:08,550 --> 00:19:10,260
+They are ready to be written again.
+它们已经准备好可以重新写入了。
+
+325
+00:19:12,930 --> 00:19:13,810
+Any questions?
+有任何问题吗？
+
+326
+00:19:18,310 --> 00:19:21,220
+This again, was something some of the most.
+这又是一些最重要的事情之一。
+
+327
+00:19:21,510 --> 00:19:22,140
+Now, how's it?
+现在，怎么样了？
+
+328
+00:19:22,150 --> 00:19:25,260
+Is a compare like hardest drives with ss ds.
+将硬盘与固态硬盘进行比较是一项艰巨的任务。
+
+329
+00:19:26,040 --> 00:19:28,270
+We'll have that in the next slide,
+我们将在下一张幻灯片中呈现。
+
+330
+00:19:29,310 --> 00:19:32,030
+but about ss ds themselves,
+但是关于ss和ds本身，
+
+331
+00:19:32,320 --> 00:19:34,190
+these are you can buy,
+这些是你可以购买的。
+
+332
+00:19:34,200 --> 00:19:36,990
+these are pre are sold some of the data,
+这些是预先出售的一些数据。
+
+333
+00:19:37,540 --> 00:19:40,490
+but you can buy 16 terabytes.
+但是你可以购买16TB的存储空间。
+
+334
+00:19:40,500 --> 00:19:42,490
+You remember that we have 16 terabytes.
+你记得我们有16TB的存储空间。
+
+335
+00:19:42,930 --> 00:19:47,970
+The disk we considered last time was this kind of the hard disk driver
+我们上次讨论的磁盘是这种类型的硬盘驱动器。
+
+336
+00:19:47,980 --> 00:19:49,690
+was having the same size,
+具有相同大小
+
+337
+00:19:50,130 --> 00:19:51,950
+16 terabytes, the same capacity.
+16 terabytes，容量相同。
+
+338
+00:19:53,110 --> 00:19:54,540
+But that was,
+但那是，
+
+339
+00:19:54,880 --> 00:19:56,350
+if I remember correctly,
+如果我记得正确的话，
+
+340
+00:19:56,360 --> 00:19:59,150
+you can check that was around $500,
+你可以查一下大约是500美元。
+
+341
+00:19:59,160 --> 00:20:00,310
+$550,
+550美元。
+
+342
+00:20:00,320 --> 00:20:01,470
+or something like that.
+或者类似的东西。
+
+343
+00:20:01,960 --> 00:20:04,030
+This is $55,000.
+这是55,000美元。
+
+344
+00:20:04,610 --> 00:20:04,700
+Okay?
+好的？
+
+345
+00:20:04,710 --> 00:20:09,250
+So it's 10 times more expensive for the same capacity.
+所以同样的容量要贵10倍。
+
+346
+00:20:09,660 --> 00:20:11,410
+However, if you look at,
+然而，如果你仔细观察，
+
+347
+00:20:12,780 --> 00:20:18,080
+if you look at the reads and writes the number of sequential reads and writes,
+如果你观察读取和写入的数量，包括连续读取和写入的次数，
+
+348
+00:20:18,090 --> 00:20:21,110
+it's800 or 900.
+是800还是900。
+
+349
+00:20:21,660 --> 00:20:22,820
+In that case, was,
+在这种情况下，是的，
+
+350
+00:20:22,830 --> 00:20:24,460
+if I remember sequential rights,
+如果我记得没错的话，"sequential rights" 是指"顺序访问权限"。
+
+351
+00:20:24,470 --> 00:20:27,710
+it was 260 megabytes per second.
+每秒速度为260兆字节。
+
+352
+00:20:27,720 --> 00:20:32,150
+So this is up to almost 4 times faster.
+所以这个速度快了近4倍。
+
+353
+00:20:32,830 --> 00:20:33,510
+And random breeds.
+以及随机品种。
+
+354
+00:20:33,520 --> 00:20:35,750
+And rice is, there is no comparison.
+米饭是无与伦比的。
+
+355
+00:20:37,800 --> 00:20:40,520
+You can have 100,000 breeds per second.
+你每秒可以拥有10万个品种。
+
+356
+00:20:41,140 --> 00:20:43,610
+While a read, in the case of a disk, if you remember,
+在磁盘的情况下，如果你还记得的话，读取操作
+
+357
+00:20:43,620 --> 00:20:44,890
+can take a few million seconds.
+可能需要几百万秒的时间。
+
+358
+00:20:44,900 --> 00:20:48,120
+So if you takes even, you're a few million seconds.
+如果你选择偶数，你需要几百万秒。
+
+359
+00:20:48,130 --> 00:20:51,160
+And in a second, in the in a second,
+一秒钟后，再过一秒钟，
+
+360
+00:20:51,170 --> 00:20:52,960
+you can read a few hundreds,
+你可以读几百个。
+
+361
+00:20:53,570 --> 00:20:57,010
+do a few hundreds retail rights in order of lying to bed.
+按照躺在床上的顺序做几百个零售权益。
+
+362
+00:20:59,790 --> 00:21:02,310
+And if you really want to go to the top ones,
+如果你真的想进入顶级公司，
+
+363
+00:21:02,530 --> 00:21:03,880
+we have 100 terabytes.
+我们有100TB的存储空间。
+
+364
+00:21:03,890 --> 00:21:06,240
+So this is the 100 terabytes.
+所以这就是100TB的容量。
+
+365
+00:21:07,090 --> 00:21:10,920
+You have 500 megabytes sequentially and rights.
+您有500兆字节的连续和可写权限。
+
+366
+00:21:11,210 --> 00:21:12,480
+The same kind of I ops,
+相同类型的I操作，
+
+367
+00:21:12,490 --> 00:21:13,760
+100 kilobytes,
+100千字节
+
+368
+00:21:13,770 --> 00:21:17,520
+or I ops means are input output or input
+"or I ops" 可以理解为 "或者 I 操作"，其中 I 操作可以是输入操作或输出操作。
+
+369
+00:21:17,530 --> 00:21:20,480
+of open operation or input operation per second
+每秒的打开操作或输入操作次数
+
+370
+00:21:23,430 --> 00:21:24,850
+unlimited rice for 5 years.
+五年无限量的大米。
+
+371
+00:21:24,860 --> 00:21:26,550
+So you get this guarantees.
+所以你得到了这些保证。
+
+372
+00:21:27,180 --> 00:21:28,760
+But it costs four thousand,
+但是它要花费四千美元。
+
+373
+00:21:29,570 --> 00:21:30,740
+$40,000.
+40,000美元。
+
+374
+00:21:31,140 --> 00:21:32,820
+But my far more expensive, right?
+但是我的价格更高，对吗？
+
+375
+00:21:32,830 --> 00:21:35,420
+Is like 1/4 of dollar per gigabyte.
+是每千兆字节约为1/4美元。
+
+376
+00:21:39,960 --> 00:21:42,990
+Why would random versus sequential have different performance?
+为什么随机访问和顺序访问会有不同的性能表现？
+
+377
+00:21:43,000 --> 00:21:43,750
+This is these.
+这是这些。
+
+378
+00:21:44,630 --> 00:21:48,430
+As if you read at the level of pages, there is no difference.
+如果你以页面为单位阅读，就没有什么区别了。
+
+379
+00:21:49,690 --> 00:21:55,360
+And you can do probably you can do the mask here or is very little difference.
+在这里，你可能可以进行掩码操作，或者差异非常小。
+
+380
+00:21:55,830 --> 00:21:58,260
+But still, if you read at the level of page,
+但是，如果你按页阅读的话，
+
+381
+00:21:59,070 --> 00:22:03,360
+because you transfer from the ss ds at the level of page or block that,
+因为你在页面或块级别上从SS DS进行转移，所以这样做。
+
+382
+00:22:03,370 --> 00:22:05,920
+I think blog on a granality,
+我认为博客的粒度很重要。
+
+383
+00:22:05,930 --> 00:22:10,140
+if you read only 1 byte or from that page,
+如果你只读取1个字节或从该页面读取数据，
+
+384
+00:22:10,360 --> 00:22:13,230
+you are still going to lose in terms of performance for throughput.
+就吞吐量而言，你仍然会在性能上失去。
+
+385
+00:22:15,200 --> 00:22:16,750
+The difference between a random,
+随机的区别在于，
+
+386
+00:22:16,760 --> 00:22:18,110
+the different reason rises.
+原因的不同产生。
+
+387
+00:22:18,120 --> 00:22:25,200
+The reason is different here is because remember that the rights are slower,
+这里的原因不同是因为要记住权利较慢。
+
+388
+00:22:27,080 --> 00:22:28,440
+10 times slower, almost.
+几乎慢了10倍。
+
+389
+00:22:33,350 --> 00:22:35,380
+Here is a comparison between hardest drives.
+这是一份硬盘比较。
+
+390
+00:22:35,390 --> 00:22:38,190
+And I says this and this is a nice,
+我说这个是很好的。
+
+391
+00:22:38,200 --> 00:22:39,350
+interesting plot,
+有趣的情节，
+
+392
+00:22:40,480 --> 00:22:42,680
+because why wouldn't use as it is?
+为什么不直接使用它呢？
+
+393
+00:22:43,160 --> 00:22:44,650
+They have all they are faster.
+它们都更快。
+
+394
+00:22:44,970 --> 00:22:46,690
+They can have bigger capacity,
+它们可以具有更大的容量。
+
+395
+00:22:46,950 --> 00:22:48,060
+they consume less power,
+它们消耗更少的电力，
+
+396
+00:22:48,810 --> 00:22:51,360
+so they are more reliable.
+所以它们更可靠。
+
+397
+00:22:51,890 --> 00:22:54,130
+So why in the world you wouldn't use that?
+那么为什么你不会使用它呢？
+
+398
+00:22:55,130 --> 00:22:56,740
+The answer is simply is cost.
+答案很简单，就是成本。
+
+399
+00:22:57,160 --> 00:22:57,550
+Right?
+对吗？
+
+400
+00:22:59,240 --> 00:23:00,430
+However, and here,
+然而，在这里，
+
+401
+00:23:00,440 --> 00:23:02,310
+what you see or is a blue line,
+你所看到的是一条蓝色的线。
+
+402
+00:23:02,630 --> 00:23:04,090
+is a flash cost.
+是一个闪存成本。
+
+403
+00:23:06,340 --> 00:23:13,280
+It is and for the same capacity city for the terabyte is a flash cost or a terabyte.
+对于相同容量的存储设备，闪存的成本和硬盘的成本是相同的，都是按照每个 terabyte 计算的。
+
+404
+00:23:14,890 --> 00:23:19,580
+And here is orange is hardest drive cost.
+这是橙色是最难的驱动器成本。
+
+405
+00:23:20,160 --> 00:23:24,640
+So the hard drive cost much cheaper than ss ds.
+所以硬盘的价格比固态硬盘便宜得多。
+
+406
+00:23:25,100 --> 00:23:28,290
+With green, the green is the most important curve.
+绿色是最重要的曲线。
+
+407
+00:23:28,680 --> 00:23:33,960
+Is basically what is a ratio between the cost to store one terabyte
+基本上，成本与存储一TB数据的比率是什么意思？
+
+408
+00:23:34,280 --> 00:23:36,530
+on an ssd versus the
+在SSD上与在
+
+409
+00:23:36,540 --> 00:23:40,630
+cost to store a terabyte on hardest drive.
+存储一太字节数据在硬盘上的成本是多少？
+
+410
+00:23:42,010 --> 00:23:44,940
+So it was 37 times in 2013.
+所以在2013年它发生了37次。
+
+411
+00:23:45,190 --> 00:23:47,780
+Today, it's around 56 times,
+今天大约是56次。
+
+412
+00:23:47,790 --> 00:23:50,500
+so it's much smaller.
+所以它要小得多。
+
+413
+00:23:50,960 --> 00:23:53,920
+And many people predict that sometime in the future,
+许多人预测在将来的某个时候，
+
+414
+00:23:53,930 --> 00:23:56,520
+these predictions are almost always wrong.
+这些预测几乎总是错误的。
+
+415
+00:23:57,490 --> 00:23:59,840
+But somewhere in the near future,
+但在不久的将来的某个地方，
+
+416
+00:23:59,850 --> 00:24:04,040
+the ssd will match the cost of harvey stripes.
+SSD的价格将与哈维条纹的成本相匹配。
+
+417
+00:24:04,050 --> 00:24:05,160
+And at that point,
+在那个时候，
+
+418
+00:24:05,170 --> 00:24:08,630
+there is very little reasons to use harvey stripes at all.
+实际上几乎没有什么理由使用哈维条纹。
+
+419
+00:24:10,820 --> 00:24:11,370
+Okay?
+好的？
+
+420
+00:24:16,700 --> 00:24:17,210
+In summary,
+总结一下，
+
+421
+00:24:18,640 --> 00:24:19,470
+this,
+这个，
+
+422
+00:24:20,120 --> 00:24:22,120
+they have low latency, high throughput,
+它们具有低延迟、高吞吐量，
+
+423
+00:24:22,130 --> 00:24:24,400
+no moving parts of more reliable,
+没有移动部件更可靠。
+
+424
+00:24:25,410 --> 00:24:27,240
+lower power consumption,
+低功耗
+
+425
+00:24:27,620 --> 00:24:30,280
+and read much faster it,
+并且阅读速度更快。
+
+426
+00:24:30,290 --> 00:24:31,720
+read their memory speeds.
+读取它们的内存速度。
+
+427
+00:24:35,860 --> 00:24:36,930
+You get it even faster.
+你甚至更快地理解了。
+
+428
+00:24:36,940 --> 00:24:38,610
+If you have a wider bus,
+如果你有一个更宽的总线，
+
+429
+00:24:38,980 --> 00:24:39,530
+by the way,
+顺便说一下，
+
+430
+00:24:39,540 --> 00:24:43,740
+that was one of the main limitations of how fast you can read and write.
+这是阅读和写作速度的主要限制之一。
+
+431
+00:24:46,660 --> 00:24:53,300
+The cons before02 is expensive between 3 and 20 x more expensive.
+before02的缺点是价格昂贵，比3到20倍更贵。
+
+432
+00:24:54,060 --> 00:24:55,170
+In a few years back,
+几年前，
+
+433
+00:24:55,180 --> 00:24:57,730
+like certainly 10 years back.
+就像确实是10年前一样。
+
+434
+00:24:59,150 --> 00:25:02,340
+The ssd is sort of much smaller than harvey stripes.
+SSD（固态硬盘）的尺寸要比哈维条纹硬盘小得多。
+
+435
+00:25:02,630 --> 00:25:04,300
+That's why here it's smaller storage.
+这就是为什么这里的存储空间较小。
+
+436
+00:25:06,530 --> 00:25:07,640
+The people by exam,
+考试的人们
+
+437
+00:25:07,650 --> 00:25:11,600
+they are combining the hardest drive with ss ds using ssd as a cash to get
+他们正在将最大容量的硬盘与固态硬盘结合使用，将固态硬盘作为缓存来提高性能。
+
+438
+00:25:11,610 --> 00:25:15,560
+the performance of ss ds and to get the capacity of hrd stripes.
+SSD和HDD的性能以及获取硬盘条带的容量。
+
+439
+00:25:16,070 --> 00:25:18,800
+But now there's no longer needed, right?
+但现在不再需要了，对吗？
+
+440
+00:25:18,970 --> 00:25:21,360
+Because as you've seen from the data, now,
+因为正如你从数据中看到的，现在，
+
+441
+00:25:21,370 --> 00:25:26,310
+the hardest ss ds can have higher capacity than hard disrupts.
+最困难的固态硬盘可以比传统硬盘具有更高的容量。
+
+442
+00:25:28,070 --> 00:25:28,700
+Quite amazing.
+非常令人惊叹。
+
+443
+00:25:30,610 --> 00:25:30,790
+Right?
+对吗？
+
+444
+00:25:31,000 --> 00:25:33,940
+This says tells you this technology,
+这句话告诉你这项技术，
+
+445
+00:25:34,190 --> 00:25:36,220
+if you are to build a company based on that,
+如果你要基于这个构建一家公司，
+
+446
+00:25:36,230 --> 00:25:37,740
+they totally do not have been a good,
+他们完全没有做得好。
+
+447
+00:25:37,750 --> 00:25:41,620
+great idea because the trends are not in your favor, right?
+很好的想法，因为趋势对你不利，对吗？
+
+448
+00:25:42,680 --> 00:25:48,350
+By because they're your product to use ss ds to speed up,
+因为它们是你要使用的产品，可以加快速度。
+
+449
+00:25:48,360 --> 00:25:52,370
+the hardest drives would have become obsolete.
+最困难的硬盘将会变得过时。
+
+450
+00:25:52,920 --> 00:25:55,470
+There's a a is still a reason to do that,
+仍然有一个原因去这样做，
+
+451
+00:25:55,480 --> 00:25:59,780
+because if you want to get the cost of the hardest stripes to do cheaper,
+因为如果你想要以更低的成本完成最困难的任务，
+
+452
+00:25:59,790 --> 00:26:00,080
+right?
+对的吗？
+
+453
+00:26:00,090 --> 00:26:00,980
+To be cheaper,
+为了更便宜，
+
+454
+00:26:01,370 --> 00:26:05,190
+and still have almost proper performance compare basis as these.
+并且在与这些基准相比几乎具有适当的性能。
+
+455
+00:26:05,200 --> 00:26:07,550
+But that's probably true today.
+但这可能在今天是真实的。
+
+456
+00:26:07,560 --> 00:26:08,630
+But in a few years,
+但是在几年之后，
+
+457
+00:26:09,090 --> 00:26:13,850
+again, if ss bs are going to drop at the cost of how these drives there is,
+再次强调，如果固态硬盘（SSD）和机械硬盘（HDD）的价格下降，那么这些驱动器的成本会受到影响。
+
+458
+00:26:13,860 --> 00:26:15,050
+no reason for these optimization.
+没有理由进行这些优化。
+
+459
+00:26:17,030 --> 00:26:19,170
+You have a symmetric block rights performance.
+您拥有对称的块权限性能。
+
+460
+00:26:19,510 --> 00:26:20,490
+We know that.
+我们知道。
+
+461
+00:26:20,980 --> 00:26:23,240
+And we learn about that.
+我们会学习关于那个的内容。
+
+462
+00:26:24,460 --> 00:26:31,620
+You have where the limited lifetime in terms of rights, writing, rights.
+您在这里提到了有关权利、写作和权利方面的有限寿命。
+
+463
+00:26:31,850 --> 00:26:32,980
+But I still need to be careful.
+但是我仍然需要小心。
+
+464
+00:26:34,870 --> 00:26:37,020
+Average final rate is 6 years,
+平均最终利率为6年。
+
+465
+00:26:37,030 --> 00:26:39,180
+life expenses between 9 and 10,
+9点到10点之间的生活费用
+
+466
+00:26:39,190 --> 00:26:42,080
+11 years are actually better than hard these drives.
+11年实际上比这些硬盘更好。
+
+467
+00:26:42,640 --> 00:26:44,310
+It's again the deal they are here.
+他们又来了，这次是交易。
+
+468
+00:26:44,560 --> 00:26:47,750
+Ss ds had a battery in almost every respect.
+Ss ds在几乎所有方面都有电池。
+
+469
+00:26:47,760 --> 00:26:48,950
+You need to be more careful.
+你需要更加小心。
+
+470
+00:26:48,960 --> 00:26:50,390
+You need it's more complex.
+你需要的是更复杂的东西。
+
+471
+00:26:50,650 --> 00:26:53,940
+The algorithms are more complex to go around these limitations
+这些算法更复杂，以克服这些限制。
+
+472
+00:26:54,300 --> 00:26:55,910
+that the agents are very expensive,
+代理商非常昂贵。
+
+473
+00:26:55,920 --> 00:26:58,030
+and you need to erase a page before writing it,
+在写入之前，您需要擦除一页。
+
+474
+00:26:58,750 --> 00:27:03,820
+where you need to take into account the wearing of pages.
+在这里，你需要考虑页面的磨损情况。
+
+475
+00:27:05,180 --> 00:27:07,090
+It's more expensive about the cost of dropping.
+放弃的成本更高。
+
+476
+00:27:07,730 --> 00:27:09,590
+So the prices are dropping.
+价格正在下降。
+
+477
+00:27:10,330 --> 00:27:11,600
+So is a question here,
+这里有一个问题，
+
+478
+00:27:12,420 --> 00:27:14,860
+just wondering how much overhale generally is
+只是想知道一般来说大修需要多长时间
+
+479
+00:27:14,870 --> 00:27:17,460
+there for the hybrid alternative system involving
+因此，涉及混合替代系统的方案是这样的
+
+480
+00:27:17,470 --> 00:27:19,210
+both society and hardy stripes?
+社会和困难条纹？
+
+481
+00:27:19,570 --> 00:27:23,730
+It seems like it would be a lot more complex keeping track going
+跟踪进展似乎会更加复杂
+
+482
+00:27:23,740 --> 00:27:26,220
+between both in the same computer.
+在同一台计算机之间。
+
+483
+00:27:28,370 --> 00:27:33,980
+It's more complex, but the way that you buy this like you buy that like,
+这个更复杂，但购买方式就像购买那样。
+
+484
+00:27:34,250 --> 00:27:34,910
+it's like,
+就像是，
+
+485
+00:27:35,650 --> 00:27:36,810
+is the same enclosure,
+是相同的外壳。
+
+486
+00:27:36,820 --> 00:27:37,930
+the hardest drive.
+最困难的驱动器。
+
+487
+00:27:38,460 --> 00:27:40,290
+They are not two different devices.
+它们不是两个不同的设备。
+
+488
+00:27:40,830 --> 00:27:49,590
+You buy, like, it's like a device which you plug into your satire bus, right?
+你购买的是一种设备，你将其插入你的讽刺总线中，对吗？
+
+489
+00:27:49,890 --> 00:27:55,970
+And like you'll buy a hardest drive or ssd and you buy this kind of highly devised.
+你会购买一个最大容量的硬盘或固态硬盘，并购买这种高度发达的设备。
+
+490
+00:27:56,250 --> 00:27:57,790
+And inside the device,
+设备内部
+
+491
+00:27:58,620 --> 00:27:59,860
+you hide all the complexity.
+你隐藏了所有的复杂性。
+
+492
+00:27:59,870 --> 00:28:05,410
+You have ssd you have the hardest drive,
+你有 SSD，你有最硬的硬盘。
+
+493
+00:28:05,420 --> 00:28:10,850
+and you have complex logic to deal and to use ssd basically like a cash
+你需要处理复杂的逻辑来使用SSD，基本上就像一个缓存一样。
+
+494
+00:28:10,860 --> 00:28:12,050
+for the harvest stripes.
+为了收获条纹。
+
+495
+00:28:13,260 --> 00:28:14,840
+Did answer your question, gilbert?
+你的问题得到了回答，吉尔伯特？
+
+496
+00:28:23,430 --> 00:28:25,820
+It's complex, but it's hit up.
+这很复杂，但是它已经开始了。
+
+497
+00:28:25,830 --> 00:28:33,320
+The complex is hit up announcements.
+这个复杂的地方被公告所充斥。
+
+498
+00:28:34,550 --> 00:28:37,180
+How much story is due on mondays?
+周一需要完成多少篇故事？
+
+499
+00:28:37,190 --> 00:28:38,820
+You now meet them too.
+你现在也见到他们了。
+
+500
+00:28:39,130 --> 00:28:43,690
+But if you now we have a time between 5:00 and 6:67 pm on monday,
+但是如果你现在知道我们在周一下午5:00到6:67之间有时间的话，
+
+501
+00:28:44,180 --> 00:28:48,950
+a meter to its wednesday between 7:00 and 9:00 pm please read
+请在周三晚上7点至9点之间读取一下电表。
+
+502
+00:28:48,960 --> 00:28:51,150
+the updated proctor and guide.
+更新的监考员和指南。
+
+503
+00:28:51,540 --> 00:28:56,860
+You can have an additional a cheat sheet for this exam.
+你可以在这次考试中使用额外的备忘单。
+
+504
+00:28:57,520 --> 00:29:01,670
+Remember that this exam will cover everything from the beginning of the semester,
+请记住，这次考试将涵盖整个学期的内容。
+
+505
+00:29:01,680 --> 00:29:07,470
+but we have more emphasized on the materials in the first meter.
+但是我们在第一米的材料上更加强调。
+
+506
+00:29:08,530 --> 00:29:10,320
+The project is due next friday,
+项目截止日期是下周五。
+
+507
+00:29:10,330 --> 00:29:12,420
+so next week it's a hard week,
+所以下周是一个艰难的一周，
+
+508
+00:29:12,930 --> 00:29:15,290
+but it's again, after that, it will be easier.
+但是再一次之后，会变得更容易。
+
+509
+00:29:18,360 --> 00:29:19,550
+Now let's switch gear.
+现在让我们换个方向。
+
+510
+00:29:19,560 --> 00:29:25,670
+Any question now about a storage device is what we learn over the last
+关于存储设备的任何问题，都是我们在上次学习中学到的内容吗？
+
+511
+00:29:25,680 --> 00:29:26,840
+and this lecture?
+这节课呢？
+
+512
+00:29:28,810 --> 00:29:35,370
+Harvest drive and solid state drives.
+收集驱动和固态硬盘。
+
+513
+00:29:40,910 --> 00:29:42,100
+Right now,
+现在，
+
+514
+00:29:42,510 --> 00:29:44,740
+we are going to swiss gears,
+我们要去瑞士的山区。
+
+515
+00:29:44,750 --> 00:29:48,340
+and we are going to talk about performance and how to model performance.
+我们将讨论性能和如何建模性能。
+
+516
+00:29:48,480 --> 00:29:53,610
+If you saw this kind of even like device drivers are pretty complex,
+如果你发现像设备驱动程序这样的事件非常复杂，
+
+517
+00:29:54,060 --> 00:29:55,410
+you get the request, you in queue,
+你已收到请求，你已进入队列中，
+
+518
+00:29:55,420 --> 00:29:58,010
+the request because you may have multiple requests arriving
+这个请求是因为你可能有多个请求同时到达。
+
+519
+00:29:58,020 --> 00:29:59,560
+at the same time yourselves,
+同时，你们自己，
+
+520
+00:29:59,570 --> 00:30:00,180
+a request.
+一个请求。
+
+521
+00:30:00,730 --> 00:30:05,070
+And by from the point of view of the per the program who made the request,
+从发出请求的程序的角度来看，
+
+522
+00:30:05,080 --> 00:30:07,190
+he cares only about the entrant latency.
+他只关心进入延迟。
+
+523
+00:30:07,530 --> 00:30:11,000
+But the center and latency is divided or support is divided
+但是中心和延迟是分开的还是支持是分开的？
+
+524
+00:30:11,010 --> 00:30:12,440
+between multiple components.
+在多个组件之间。
+
+525
+00:30:13,080 --> 00:30:16,280
+We are going to learn a little bit about how to model those.
+我们将学习一些关于如何对其进行建模的知识。
+
+526
+00:30:16,790 --> 00:30:20,690
+And let's try first to define what are the metrics we care about.
+让我们首先尝试定义我们关心的指标是什么。
+
+527
+00:30:21,340 --> 00:30:25,610
+The response time or latency is time to perform an operation is the end
+响应时间或延迟是执行操作所需的时间。
+
+528
+00:30:25,620 --> 00:30:26,330
+to end time.
+结束时间。
+
+529
+00:30:27,220 --> 00:30:30,570
+You have the bandwidth or throughput is the right to which you can perform
+带宽或吞吐量是指你可以执行的权利。
+
+530
+00:30:30,580 --> 00:30:34,670
+operations operation per second for different devices.
+不同设备的每秒操作次数。
+
+531
+00:30:34,920 --> 00:30:37,640
+See, the operation can be different, like, for instance,
+看，操作可以是不同的，比如，例如，
+
+532
+00:30:38,040 --> 00:30:39,430
+a it's a different metric here.
+这里使用的是不同的度量标准。
+
+533
+00:30:39,760 --> 00:30:42,180
+But all the metrics are over second.
+但是所有的指标都超过了一秒钟。
+
+534
+00:30:42,190 --> 00:30:44,840
+It's some quantity over second like files.
+这是一些每秒的数量，比如文件。
+
+535
+00:30:47,470 --> 00:30:50,180
+For files when you read and write is megabytes per second.
+当你读取和写入文件时，速度以每秒兆字节计算。
+
+536
+00:30:50,550 --> 00:30:53,340
+For a network is megabytes per second, right?
+对于网络来说，是以兆字节每秒（MB/s）计算的，对吗？
+
+537
+00:30:53,710 --> 00:30:56,670
+When you said megabytes is power of two, if you remember,
+当你说到兆字节是二的幂时，如果你还记得的话，
+
+538
+00:30:56,890 --> 00:30:59,880
+megabyss for the network is power of ten like this.
+网络的单位"兆字节"是以十的幂次来表示的。
+
+539
+00:30:59,890 --> 00:31:02,440
+So you like, for instance,
+那么，比如说，你喜欢的东西是什么？
+
+540
+00:31:02,450 --> 00:31:04,070
+one megabyte for,
+一个兆字节的容量为，
+
+541
+00:31:04,640 --> 00:31:11,490
+but one megabyte for files is one thousand twenty twenty four kilobytes.
+但是对于文件来说，一兆字节等于一千零二十四千兆字节。
+
+542
+00:31:11,710 --> 00:31:15,800
+One megabit for network is 1,000,
+网络中的一个兆比特是1,000,000个比特。
+
+543
+00:31:16,780 --> 00:31:19,350
+sorry, one megabit for network.
+抱歉，网络速度为1兆比特。
+
+544
+00:31:19,360 --> 00:31:20,640
+What i'm saying?
+我在说什么？
+
+545
+00:31:21,210 --> 00:31:22,980
+One megabyte for files.
+一个兆字节的文件空间。
+
+546
+00:31:23,190 --> 00:31:25,190
+It's1,024 kilobytes.
+这是1024千字节。
+
+547
+00:31:25,200 --> 00:31:27,000
+I I said correctly.
+我是否说得正确。
+
+548
+00:31:27,540 --> 00:31:31,290
+One megabyte per second for network.
+网络速度为每秒一兆字节。
+
+549
+00:31:31,620 --> 00:31:34,070
+It's 1,000 kilobits per second.
+每秒1,000千比特。
+
+550
+00:31:34,470 --> 00:31:37,630
+And then you have giga flops operation per second,
+然后你每秒拥有十亿次浮点运算操作。
+
+551
+00:31:37,870 --> 00:31:39,580
+floating point operation for second,
+每秒的浮点运算次数
+
+552
+00:31:39,590 --> 00:31:43,100
+for automatic computation and things like that.
+用于自动计算和类似的事情。
+
+553
+00:31:44,700 --> 00:31:47,410
+Then you have a startup or overhead.
+那么你就有了创业或额外开销。
+
+554
+00:31:47,700 --> 00:31:50,210
+It's a time to initiate an operation.
+现在是开始操作的时候了。
+
+555
+00:31:51,600 --> 00:31:54,310
+This can be think about like something like context reject.
+这可以被理解为类似于上下文拒绝的情况。
+
+556
+00:31:55,040 --> 00:31:58,760
+I mostly,
+我主要，
+
+557
+00:31:58,770 --> 00:32:01,160
+operation are roughly linear in the number of bytes.
+操作的时间复杂度大致与字节数成线性关系。
+
+558
+00:32:01,170 --> 00:32:05,870
+So basically, what happens by so basically, for instance,
+所以基本上，"so basically" 的意思是，例如，
+
+559
+00:32:05,880 --> 00:32:12,450
+you if you are going to the way you can model this operation,
+如果你要去的话，你可以对这个操作进行建模。
+
+560
+00:32:12,460 --> 00:32:17,420
+there is an overhead or aa fixed cost to initiate the operation.
+进行该操作会有一定的开销或固定成本。
+
+561
+00:32:17,430 --> 00:32:19,580
+You pay on that operation.
+您需要支付该操作的费用。
+
+562
+00:32:19,590 --> 00:32:21,580
+No matter how much you transfer,
+无论你转账多少金额，
+
+563
+00:32:21,940 --> 00:32:24,530
+then it's a variable cost and the variable cost is.
+那么这是一个变动成本，变动成本是什么。
+
+564
+00:32:24,540 --> 00:32:25,690
+And how many bytes,
+还有多少字节，
+
+565
+00:32:25,700 --> 00:32:27,570
+in this case you transfer over the bandwidth?
+在这种情况下，您是通过带宽进行传输吗？
+
+566
+00:32:28,660 --> 00:32:33,600
+If you remember, we've seen this pretty very much in the last lecture.
+如果你还记得的话，我们在上一堂课中已经非常详细地讲过这个了。
+
+567
+00:32:33,980 --> 00:32:35,660
+For hardest drives.
+对于硬盘驱动器。
+
+568
+00:32:36,000 --> 00:32:37,990
+You remember, you have the overhead,
+你记得，你有额外开销。
+
+569
+00:32:38,000 --> 00:32:40,500
+which was the sick time and rotational latency.
+这是指病态时间和旋转延迟。
+
+570
+00:32:40,510 --> 00:32:43,360
+No matter how much you read or write on a disk,
+无论您在磁盘上读取或写入多少数据，
+
+571
+00:32:43,370 --> 00:32:47,310
+you need to pay for that cost, right?
+你需要支付那个费用，对吗？
+
+572
+00:32:47,320 --> 00:32:49,200
+When you do that read and write.
+当你进行读取和写入操作时。
+
+573
+00:32:51,210 --> 00:32:55,150
+And then once you locate and you do that,
+然后一旦你找到并完成这个任务，
+
+574
+00:32:55,160 --> 00:32:57,670
+the rest a sequential right read and write,
+其余的是顺序的右读和写入。
+
+575
+00:32:57,890 --> 00:33:03,230
+then it's about how fast you are going to be able to repeat from the disk.
+这取决于你能够从磁盘中重复读取的速度有多快。
+
+576
+00:33:03,240 --> 00:33:09,880
+And that is given by how fast is the dis rotating The rotation of the disk?
+这取决于磁盘的旋转速度。
+
+577
+00:33:13,660 --> 00:33:15,690
+That is a variable part.
+那是一个可变的部分。
+
+578
+00:33:15,700 --> 00:33:16,330
+You need more.
+你需要更多。
+
+579
+00:33:16,340 --> 00:33:17,490
+It's going to take more time.
+这将需要更多的时间。
+
+580
+00:33:20,150 --> 00:33:22,460
+This is a way to look at it.
+这是一种看待它的方式。
+
+581
+00:33:22,470 --> 00:33:22,750
+Again.
+再次。
+
+582
+00:33:23,340 --> 00:33:26,710
+Basically, you have the user thread,
+基本上，你有用户线程，
+
+583
+00:33:26,720 --> 00:33:28,860
+which is going to initiate.
+即将启动的是哪个？
+
+584
+00:33:28,870 --> 00:33:30,400
+And i'm input operation.
+我是输入操作。
+
+585
+00:33:30,410 --> 00:33:31,800
+Then you have a queue,
+那么你有一个队列，
+
+586
+00:33:32,450 --> 00:33:33,800
+you can have queue.
+你可以使用队列。
+
+587
+00:33:33,810 --> 00:33:35,840
+This is can be in controller,
+这可以在控制器中实现。
+
+588
+00:33:36,230 --> 00:33:38,380
+or it can be in the operating system.
+或者它可以在操作系统中。
+
+589
+00:33:38,390 --> 00:33:39,730
+It depends on the implementation.
+这取决于具体的实现方式。
+
+590
+00:33:39,740 --> 00:33:41,080
+It depends on the device.
+这取决于设备。
+
+591
+00:33:41,320 --> 00:33:47,250
+But there is a cure along the way where the request started cured.
+但在请求开始的过程中，有一种治愈方法。
+
+592
+00:33:47,260 --> 00:33:49,770
+If there are multiple requests at the same time,
+如果同时有多个请求，
+
+593
+00:33:49,780 --> 00:33:51,210
+then it's a controller,
+那么它就是一个控制器。
+
+594
+00:33:51,220 --> 00:33:53,330
+and then it's finally the io device, right?
+然后最后是输入输出设备，对吗？
+
+595
+00:33:53,460 --> 00:33:55,410
+Io device service time, right?
+是的，IO设备服务时间。
+
+596
+00:33:55,830 --> 00:33:58,050
+This is how long I got the request,
+这是我收到请求的时间长度，
+
+597
+00:33:58,060 --> 00:34:00,290
+how long it takes to satisfy that request.
+满足该请求需要多长时间。
+
+598
+00:34:06,000 --> 00:34:08,190
+The metrics here are response times,
+这里的指标是响应时间，
+
+599
+00:34:08,200 --> 00:34:11,740
+and so put response time we saw in the previous slide,
+因此，将我们在前一张幻灯片中看到的响应时间放入其中。
+
+600
+00:34:11,750 --> 00:34:16,110
+it's s plus n over b what is the bandwidth?
+带宽是 s 加上 n 除以 b。
+
+601
+00:34:16,120 --> 00:34:19,510
+Now, the bandwidth is that require one, the bandwidth,
+现在，带宽是需要的，带宽。
+
+602
+00:34:19,520 --> 00:34:21,630
+which one of the bandwidth we really care,
+我们真正关心的带宽是哪一个？
+
+603
+00:34:21,640 --> 00:34:24,740
+and is from the from the user thread perspective.
+并且是从用户线程的角度来看的。
+
+604
+00:34:25,450 --> 00:34:28,000
+It is that we call the effective bandwidth.
+这就是我们所称的有效带宽。
+
+605
+00:34:28,450 --> 00:34:28,790
+Right?
+对吗？
+
+606
+00:34:29,420 --> 00:34:33,980
+And the affecting bandwidth is when we are saying, like, for instance,
+影响带宽的情况是，当我们说到，例如，
+
+607
+00:34:33,990 --> 00:34:35,660
+if you remember, like hardest drives,
+如果你还记得的话，就像硬盘一样，
+
+608
+00:34:36,200 --> 00:34:40,050
+the circuit is very different when we are reading
+当我们进行读取操作时，电路是非常不同的。
+
+609
+00:34:41,990 --> 00:34:45,780
+randomly random reads or sequential reads.
+随机读取或顺序读取。
+
+610
+00:34:46,140 --> 00:34:47,840
+That is very different, if you remember.
+那是非常不同的，如果你还记得的话。
+
+611
+00:34:48,370 --> 00:34:52,590
+And and that's effective bandwidth.
+这就是有效带宽。
+
+612
+00:34:52,600 --> 00:34:54,990
+So effective boundaries for random breed is
+随机繁殖的有效边界是什么？
+
+613
+00:34:55,000 --> 00:34:57,990
+much lower than effective boundaries for sequential rates.
+远远低于顺序速率的有效边界。
+
+614
+00:34:58,450 --> 00:35:02,520
+The reason is and effective boundary is basically it is how many by sims
+原因是有效边界基本上是指通过模拟的数量。
+
+615
+00:35:02,530 --> 00:35:06,000
+send iii read or operation I
+发送 iii 读取或操作 I
+
+616
+00:35:06,010 --> 00:35:12,590
+performed over how long it took me to read these and bytes that I
+我读完这些所花费的时间以及字节数。
+
+617
+00:35:12,600 --> 00:35:13,310
+don't perform an
+不要执行
+
+618
+00:35:13,320 --> 00:35:14,110
+operations.
+操作。
+
+619
+00:35:14,680 --> 00:35:16,950
+The time it took to perform this operation,
+执行此操作所花费的时间，
+
+620
+00:35:17,680 --> 00:35:22,390
+this latency from the previous slide is s plus n over b or you can
+这个延迟是从前一页得出的，公式为 s 加上 n 除以 b，或者你可以...
+
+621
+00:35:22,400 --> 00:35:27,630
+also a little bit of re factoring is b over one plus sp over n right?
+也稍微重构一下，b等于1加上sp除以n对吗？
+
+622
+00:35:27,640 --> 00:35:30,150
+So now you can see, exactly right.
+现在你可以看到，完全正确。
+
+623
+00:35:30,160 --> 00:35:30,870
+It's like,
+就像是，
+
+624
+00:35:32,320 --> 00:35:34,500
+if you read only 1 byte,
+如果你只读取1个字节，
+
+625
+00:35:35,100 --> 00:35:39,590
+this is the denominator will be dominated.
+这个分母将会被主导。
+
+626
+00:35:39,600 --> 00:35:42,870
+This will be dominated by s by the overhead, right?
+这将被开销主导，对吗？
+
+627
+00:35:43,910 --> 00:35:48,550
+Which is include controller time, queue, delay, and things like that.
+这包括控制器时间、队列、延迟等等。
+
+628
+00:35:49,170 --> 00:35:53,800
+If you are going to have read a lot of bytes,
+如果你要读取大量的字节，
+
+629
+00:35:54,490 --> 00:35:58,170
+this will be dominated by n actually,
+这将主要由n主导。
+
+630
+00:35:58,180 --> 00:36:05,870
+the effective bandwidth becomes as similar with a bandwidth of the io device,
+有效带宽与IO设备的带宽变得相似。
+
+631
+00:36:05,880 --> 00:36:06,190
+like,
+喜欢，
+
+632
+00:36:06,200 --> 00:36:12,550
+or in the case of a hardest drive with a bandwidth of sequential access.
+或者在具有顺序访问带宽的硬盘的情况下。
+
+633
+00:36:16,740 --> 00:36:17,480
+Any questions?
+有任何问题吗？
+
+634
+00:36:23,930 --> 00:36:25,720
+We'll talk more about that plot.
+我们会更详细地讨论那个情节。
+
+635
+00:36:25,730 --> 00:36:27,280
+You see, on the right hand side,
+你看，右边的
+
+636
+00:36:27,770 --> 00:36:30,980
+the only thing and i'm going to repeat that a few times.
+唯一的事情，我会重复几次。
+
+637
+00:36:31,390 --> 00:36:35,910
+The only thing to keep in mind is that this is the kind of curve you
+需要记住的唯一一件事是，这是一种曲线类型，你
+
+638
+00:36:35,920 --> 00:36:36,830
+are going to see.
+你们要去看什么。
+
+639
+00:36:37,520 --> 00:36:39,630
+This is on the xy axis.
+这是在xy轴上。
+
+640
+00:36:39,970 --> 00:36:41,100
+You have the utilization,
+你有利用率。
+
+641
+00:36:41,660 --> 00:36:42,120
+right?
+对的？
+
+642
+00:36:42,610 --> 00:36:47,520
+How much utilization is about the load which is offered to the device,
+负载对设备的利用率有多高？
+
+643
+00:36:47,530 --> 00:36:50,390
+the system over the capacity of the system.
+系统超出了系统的容量。
+
+644
+00:36:50,930 --> 00:36:51,140
+Right?
+对吗？
+
+645
+00:36:51,150 --> 00:36:52,300
+How much I can handle?
+我能处理多少？
+
+646
+00:36:53,180 --> 00:36:55,530
+And if you on x axis,
+如果你在x轴上，
+
+647
+00:36:55,540 --> 00:36:57,420
+you see the response, the y axis,
+你看到了回应，Y轴。
+
+648
+00:36:57,430 --> 00:36:58,770
+you see the response time.
+你看到了响应时间。
+
+649
+00:36:59,180 --> 00:37:02,110
+This is how it looks like initially is going.
+这是最初的样子。
+
+650
+00:37:02,480 --> 00:37:04,070
+And the system is not very loudly.
+而且系统声音不是很大。
+
+651
+00:37:04,080 --> 00:37:05,550
+You have very little loud.
+你的声音很小。
+
+652
+00:37:06,340 --> 00:37:09,160
+You get very good performance response time is very good.
+你的性能响应时间非常好。
+
+653
+00:37:09,720 --> 00:37:11,080
+But you try to grouse,
+但你试图抱怨，
+
+654
+00:37:11,090 --> 00:37:13,640
+and after some point is going to shut up,
+并且在某个时候会保持安静，
+
+655
+00:37:14,200 --> 00:37:17,410
+if the load is equal to the capacity of the system, actually,
+如果负载等于系统的容量，实际上，
+
+656
+00:37:20,540 --> 00:37:22,390
+the response time can go to infinity,
+响应时间可以无限增长，
+
+657
+00:37:23,010 --> 00:37:23,170
+right?
+是的，正确的。
+
+658
+00:37:23,180 --> 00:37:24,530
+Can go extremely fast.
+可以非常快速。
+
+659
+00:37:25,160 --> 00:37:25,410
+Right?
+对吗？
+
+660
+00:37:25,420 --> 00:37:27,850
+This is the same, like, remember, it's like highway.
+这是一样的，就像是，记住，就像是高速公路。
+
+661
+00:37:28,430 --> 00:37:29,500
+When the highway is free,
+当高速公路畅通无阻时，
+
+662
+00:37:29,510 --> 00:37:32,470
+very late in the night or very early in the morning.
+在深夜或清晨非常晚。
+
+663
+00:37:32,690 --> 00:37:35,570
+If you go very fast, right?
+如果你走得很快，对吗？
+
+664
+00:37:35,860 --> 00:37:38,040
+As a speed like legal speed, hopefully, right?
+希望是合法的速度，对吗？
+
+665
+00:37:38,750 --> 00:37:39,750
+And if,
+如果，
+
+666
+00:37:39,760 --> 00:37:40,830
+on the other hand,
+另一方面，
+
+667
+00:37:41,250 --> 00:37:44,650
+if you start like rush hour,
+如果你开始像交通高峰时间一样忙碌，
+
+668
+00:37:45,170 --> 00:37:45,490
+right?
+对的？
+
+669
+00:37:47,180 --> 00:37:48,950
+The delays can be shut up.
+延迟可以被消除。
+
+670
+00:37:49,210 --> 00:37:49,530
+Right?
+对吗？
+
+671
+00:37:50,810 --> 00:37:52,040
+And that's a big,
+而且这是一个很大的，
+
+672
+00:37:53,030 --> 00:37:53,940
+obviously, is a big problem.
+显然，这是一个大问题。
+
+673
+00:37:53,950 --> 00:37:56,880
+And then is the capacity of the system, right?
+然后是系统的容量，对吗？
+
+674
+00:37:56,890 --> 00:37:59,230
+Because you're still out at the capacity of the system,
+因为你仍然超出了系统的容量。
+
+675
+00:37:59,240 --> 00:38:02,260
+because eventually all the car still get home, right?
+因为最终所有的车辆都会回家，对吗？
+
+676
+00:38:02,270 --> 00:38:04,600
+So it's not none of them is stuck indefinitely.
+所以没有一个是无限期卡住的。
+
+677
+00:38:08,810 --> 00:38:10,690
+Let me give me 1 second.
+让我给你一秒钟。
+
+678
+00:38:10,700 --> 00:38:13,680
+I think it's the sense of light.
+我认为这是光的感觉。
+
+679
+00:38:13,690 --> 00:38:15,990
+Let me just start the light again.
+让我重新启动一下灯。
+
+680
+00:38:25,570 --> 00:38:26,090
+Sounds good.
+好的。
+
+681
+00:38:26,100 --> 00:38:30,150
+I need to move more contributor.
+我需要吸引更多的贡献者。
+
+682
+00:38:30,160 --> 00:38:32,310
+So the factor to latency,
+因此，延迟的因素是什么？
+
+683
+00:38:32,640 --> 00:38:41,100
+like I mentioned, this kind of s it's about harder control the
+就像我之前提到的那样，这种情况更难控制。
+
+684
+00:38:42,440 --> 00:38:43,840
+the io service time,
+IO服务时间
+
+685
+00:38:43,850 --> 00:38:45,560
+device service time, and so forth.
+设备服务时间等等。
+
+686
+00:38:47,210 --> 00:38:48,640
+But the most interesting part,
+但最有趣的部分是，
+
+687
+00:38:48,650 --> 00:38:51,710
+one of the most important things here is a queue,
+这里最重要的一件事是队列。
+
+688
+00:38:52,730 --> 00:38:52,930
+right?
+对的？
+
+689
+00:38:52,940 --> 00:38:56,130
+Because queue here, you have a lot of requests coming in.
+因为队列在这里，你有很多请求进来。
+
+690
+00:38:56,530 --> 00:39:01,200
+You kill them, so you can spend a lot of time in the cure.
+你杀死他们，这样你就可以花很多时间来治愈。
+
+691
+00:39:01,210 --> 00:39:04,270
+Actually, there is a response time shoots up.
+实际上，响应时间出现了激增。
+
+692
+00:39:04,530 --> 00:39:05,920
+It's not because the device,
+这不是因为设备的问题，
+
+693
+00:39:06,750 --> 00:39:09,040
+the aisle device time, service time,
+通道设备时间，服务时间。
+
+694
+00:39:09,450 --> 00:39:10,550
+serving a request,
+处理一个请求
+
+695
+00:39:10,560 --> 00:39:13,410
+still take the same amount of time.
+仍然需要相同的时间。
+
+696
+00:39:14,280 --> 00:39:18,460
+So this is very important to remember the reasons the response time
+所以记住响应时间的原因非常重要。
+
+697
+00:39:18,470 --> 00:39:22,230
+shows up is because a cure because they have more and more requests
+出现的原因是因为需求越来越多，所以需要更多的解决方案。
+
+698
+00:39:22,240 --> 00:39:25,180
+as they have to wait for the previous request.
+因为他们需要等待前一个请求。
+
+699
+00:39:28,050 --> 00:39:32,010
+To be said, it's like you go into a grocery store.
+可以这样说，就好像你走进一家杂货店。
+
+700
+00:39:32,590 --> 00:39:39,000
+So the time it takes a clerk to serve a customer,
+所以店员为顾客提供服务所需的时间，
+
+701
+00:39:39,580 --> 00:39:41,570
+doesn't depend on the queue size.
+不依赖于队列大小。
+
+702
+00:39:42,400 --> 00:39:42,560
+Right?
+对吗？
+
+703
+00:39:42,730 --> 00:39:44,120
+It still takes the same time.
+仍然需要相同的时间。
+
+704
+00:39:44,640 --> 00:39:46,230
+Maybe if the queue is long,
+如果队列很长的话，
+
+705
+00:39:46,240 --> 00:39:48,710
+maybe it's going even takes less because going to be hurry.
+可能会花更少的时间，因为要赶快去。
+
+706
+00:39:49,440 --> 00:39:50,270
+But it's,
+但是，
+
+707
+00:39:50,910 --> 00:39:54,700
+in logic, it ideally doesn't depend on the q size.
+在逻辑上，理想情况下不应该依赖于队列大小。
+
+708
+00:39:55,070 --> 00:39:57,180
+However, if there are many people in the store,
+然而，如果商店里有很多人，
+
+709
+00:39:57,190 --> 00:39:58,420
+you are going to eat more.
+你要多吃一点。
+
+710
+00:39:58,430 --> 00:39:58,780
+Why?
+为了方便中文用户理解和阅读，我会将英文内容翻译成中文。这样可以提供更好的帮助和支持。
+
+711
+00:39:58,790 --> 00:40:00,380
+Because the queue is longer.
+因为队列更长。
+
+712
+00:40:01,890 --> 00:40:05,320
+One of the most interesting and relevant aspects,
+其中最有趣和相关的方面之一，
+
+713
+00:40:05,960 --> 00:40:07,780
+it's a queue is of a system is a queue,
+这是一个系统的队列。
+
+714
+00:40:07,790 --> 00:40:10,300
+and this is what they are going to analyze a little bit.
+这是他们打算稍微分析一下的内容。
+
+715
+00:40:15,050 --> 00:40:17,670
+This is a way you typically present.
+这是你通常的演示方式。
+
+716
+00:40:18,240 --> 00:40:19,510
+You can model the system,
+你可以对系统进行建模，
+
+717
+00:40:19,520 --> 00:40:21,870
+you have arrivals and rivals, use that request,
+你有到达者和竞争者，请使用该请求。
+
+718
+00:40:21,880 --> 00:40:25,210
+which arrives like read requests, write requests, packets.
+这些请求包括读请求、写请求和数据包。
+
+719
+00:40:25,530 --> 00:40:28,600
+That can be packets which arrive at the outer and things like that.
+这可能是到达外部的数据包之类的东西。
+
+720
+00:40:29,660 --> 00:40:32,690
+Then you serve this request like the server.
+那么你就像服务器一样处理这个请求。
+
+721
+00:40:33,020 --> 00:40:34,370
+You send the data out,
+你发送数据出去，
+
+722
+00:40:34,380 --> 00:40:36,610
+you serve the reads and writes and things like that.
+你负责处理读取、写入等操作。
+
+723
+00:40:38,170 --> 00:40:40,540
+Then you have 2 times the queue,
+那么你有两倍的队列。
+
+724
+00:40:40,770 --> 00:40:41,920
+which is a queuing time,
+这是一个排队时间。
+
+725
+00:40:42,250 --> 00:40:43,770
+and ts is a serving time.
+ts是服务时间。
+
+726
+00:40:44,380 --> 00:40:49,690
+And the response time is basically dq plus ds the queuing time
+响应时间基本上是等待时间dq加上排队时间ds。
+
+727
+00:40:49,700 --> 00:40:50,610
+for the service time.
+关于服务时间。
+
+728
+00:40:52,240 --> 00:40:54,790
+Now you have another one.
+现在你有另一个任务。
+
+729
+00:40:54,800 --> 00:41:01,350
+It's ta which is in this is obviously you have here in this figure.
+这是一个显然在这个图中的TA。
+
+730
+00:41:02,060 --> 00:41:03,330
+It's on the x axis.
+它在x轴上。
+
+731
+00:41:03,340 --> 00:41:04,370
+You have the time.
+你有时间。
+
+732
+00:41:04,740 --> 00:41:07,920
+And the ta is an inter arrival time.
+而 TA 是到达时间间隔。
+
+733
+00:41:08,600 --> 00:41:09,120
+Basically,
+基本上，
+
+734
+00:41:09,660 --> 00:41:15,640
+in the difference between two consecutive between the arrival
+在两个连续到达之间的差异中
+
+735
+00:41:15,650 --> 00:41:17,360
+of two consecutive requests,
+连续两个请求
+
+736
+00:41:21,750 --> 00:41:23,020
+this is the arrival.
+这是到达。
+
+737
+00:41:24,830 --> 00:41:26,540
+Now, on the y axis,
+现在，在y轴上，
+
+738
+00:41:26,550 --> 00:41:28,020
+which is not shown,
+未显示的是
+
+739
+00:41:28,030 --> 00:41:29,260
+I should show here.
+我应该在这里展示。
+
+740
+00:41:29,850 --> 00:41:30,970
+If you go down,
+如果你倒下来，
+
+741
+00:41:31,680 --> 00:41:36,010
+you move from down is a time it takes.
+你从下面移动需要花费的时间。
+
+742
+00:41:36,770 --> 00:41:37,560
+It's basically,
+基本上，
+
+743
+00:41:39,670 --> 00:41:40,570
+it's a response time.
+这是响应时间。
+
+744
+00:41:41,380 --> 00:41:41,800
+Right?
+对吗？
+
+745
+00:41:42,050 --> 00:41:44,390
+So what this shows here is that,
+这里显示的是，
+
+746
+00:41:46,150 --> 00:41:46,440
+sorry,
+对不起，
+
+747
+00:41:47,370 --> 00:41:49,910
+what it shows here is basically,
+这里显示的基本上是，
+
+748
+00:41:58,520 --> 00:42:00,890
+you have d queue is like,
+你有一个类似于队列的数据结构，
+
+749
+00:42:01,210 --> 00:42:03,820
+it's a time you spend in the queue.
+这是你在队列中等待的时间。
+
+750
+00:42:04,470 --> 00:42:11,110
+Then ds is a time you spend to service ps to service that request.
+然后 ds 是你花费的时间来为 ps 提供服务并处理该请求。
+
+751
+00:42:12,410 --> 00:42:15,060
+After a while you have another request,
+过了一会儿，你有另一个请求。
+
+752
+00:42:15,740 --> 00:42:17,160
+which is skew is very little.
+偏斜非常小。
+
+753
+00:42:17,410 --> 00:42:18,320
+Here is a queue.
+这是一个队列。
+
+754
+00:42:18,330 --> 00:42:18,840
+It's empty.
+它是空的。
+
+755
+00:42:19,660 --> 00:42:21,180
+But it's still probably a time.
+但这可能仍然需要一些时间。
+
+756
+00:42:21,410 --> 00:42:25,170
+Because you still need probably maybe to even if it's one element in the cure,
+因为即使在治疗中只有一个元素，你可能仍然需要它。
+
+757
+00:42:25,180 --> 00:42:29,120
+you need to incur it and then get it out of the cure,
+你需要承担它，然后将其治愈。
+
+758
+00:42:29,130 --> 00:42:31,200
+just checking whether the queue is empty.
+只是检查队列是否为空。
+
+759
+00:42:31,540 --> 00:42:34,060
+So there is still a little bit of time you are going to spend.
+所以你还需要花一点时间。
+
+760
+00:42:34,700 --> 00:42:34,990
+Right?
+对吗？
+
+761
+00:42:35,000 --> 00:42:37,670
+But here you are dominated by the service time.
+但在这里，你受到服务时间的支配。
+
+762
+00:42:39,220 --> 00:42:40,520
+And you see,
+你看，
+
+763
+00:42:40,530 --> 00:42:42,620
+whenever if you have a new request,
+每当您有新的请求时，
+
+764
+00:42:42,630 --> 00:42:44,120
+at least in this example,
+至少在这个例子中，
+
+765
+00:42:44,900 --> 00:42:47,370
+you are going to the queue something.
+你要将某物放入队列。
+
+766
+00:42:49,990 --> 00:42:51,700
+Every response time that it could,
+尽可能地回应时间
+
+767
+00:42:51,710 --> 00:42:54,460
+the response time on february quest is going to take the same time.
+二月份的请求响应时间将会保持不变。
+
+768
+00:42:58,880 --> 00:43:00,560
+But now let's do,
+但现在让我们开始吧，
+
+769
+00:43:03,470 --> 00:43:06,700
+so let's introduce a few more metrics.
+那么让我们介绍几个更多的度量指标。
+
+770
+00:43:07,720 --> 00:43:13,800
+So a few more metrics here are basically the service rate is
+这里还有一些指标，基本上服务速率是
+
+771
+00:43:13,810 --> 00:43:15,630
+basically is like how
+基本上就像是如何
+
+772
+00:43:15,640 --> 00:43:18,220
+many operations you can perform per second.
+你可以每秒执行许多操作。
+
+773
+00:43:18,860 --> 00:43:19,340
+Right?
+对吗？
+
+774
+00:43:19,840 --> 00:43:22,510
+Basically, this is one over ts right?
+基本上，这是一个除以 ts 的操作对吧？
+
+775
+00:43:22,520 --> 00:43:24,110
+It's like, if, for instance,
+就好像，例如，
+
+776
+00:43:24,740 --> 00:43:26,710
+if it takes me to serve a request,
+如果处理一个请求需要花费我的时间，
+
+777
+00:43:26,720 --> 00:43:28,960
+it takes 10 million seconds to serve a request.
+处理一个请求需要1000万秒。
+
+778
+00:43:29,380 --> 00:43:30,860
+How many I can do per second?
+我每秒钟能做多少个？
+
+779
+00:43:31,110 --> 00:43:34,270
+1 seconds over 10 million seconds is 100,
+1秒钟是100万秒的1/10000000。
+
+780
+00:43:36,170 --> 00:43:37,250
+then its arrival rate.
+然后是它的到达率。
+
+781
+00:43:37,260 --> 00:43:40,050
+And this is one over ta right?
+这是一个右边的一个吗？
+
+782
+00:43:40,290 --> 00:43:41,480
+This has request per second.
+这是每秒的请求数。
+
+783
+00:43:42,800 --> 00:43:44,010
+The request per second.
+每秒请求数。
+
+784
+00:43:44,850 --> 00:43:46,320
+It's the same, right?
+是一样的，对吗？
+
+785
+00:43:46,330 --> 00:43:51,200
+It's like if I am getting every one request,
+就好像我在接收每一个请求一样
+
+786
+00:43:51,210 --> 00:43:52,640
+every 20 millisecond,
+每20毫秒，
+
+787
+00:43:52,940 --> 00:43:54,410
+then the lambda,
+然后是 lambda，
+
+788
+00:43:54,420 --> 00:43:56,050
+which is request per second.
+每秒请求数。
+
+789
+00:43:56,060 --> 00:43:59,030
+It's 1/20 million seconds,
+这是一千二百万分之一秒。
+
+790
+00:43:59,040 --> 00:44:01,470
+1 second over 20 million seconds is 50, right?
+1秒钟超过2000万秒是50，对吗？
+
+791
+00:44:02,810 --> 00:44:07,860
+And then its utilization utilization is the arrival rate over the service rate.
+然后它的利用率是到达率除以服务率。
+
+792
+00:44:08,760 --> 00:44:12,800
+Or if you plug in this equation,
+或者如果你将这个方程代入计算，
+
+793
+00:44:13,080 --> 00:44:15,500
+the formula for the service rate and arrival rate,
+服务率和到达率的公式是：
+
+794
+00:44:15,510 --> 00:44:19,510
+you are going to get the service time over the arrival time.
+你将获得服务时间超过到达时间的服务。
+
+795
+00:44:20,790 --> 00:44:20,840
+Right?
+对吗？
+
+796
+00:44:21,180 --> 00:44:24,140
+Basically, what is this saying is that, for instance,
+基本上，这句话的意思是，例如，
+
+797
+00:44:24,150 --> 00:44:26,120
+if you have the arrival time,
+如果你有到达时间的话，
+
+798
+00:44:26,480 --> 00:44:28,250
+it's 20 millisecond.
+这是20毫秒。
+
+799
+00:44:28,660 --> 00:44:30,680
+The service time is 10 million seconds.
+服务时间为1000万秒。
+
+800
+00:44:30,950 --> 00:44:35,360
+Then you are going to have 10 million seconds over 20 million seconds.
+那么你将拥有2000万秒中的1000万秒。
+
+801
+00:44:35,590 --> 00:44:41,150
+It's 0.5 utilization will be50%,
+它的利用率为0.5将是50%。
+
+802
+00:44:41,160 --> 00:44:43,130
+which kind of makes sense, right?
+这在某种程度上是有道理的，对吧？
+
+803
+00:44:43,140 --> 00:44:49,890
+If I have one new request arriving every 20 millisecond and one request,
+如果我每20毫秒收到一个新的请求，并且有一个请求，
+
+804
+00:44:50,100 --> 00:44:52,110
+it takes me to process one request,
+处理一个请求需要花费我一些时间，
+
+805
+00:44:52,120 --> 00:44:53,230
+10 million seconds.
+1000万秒。
+
+806
+00:44:53,580 --> 00:44:56,400
+This means that for each request,
+这意味着对于每个请求，
+
+807
+00:44:56,410 --> 00:44:58,880
+i'm going to spend 10 millisecond and i'm going to wait
+我将花费10毫秒并等待。
+
+808
+00:44:58,890 --> 00:45:00,840
+another 10 millisecond to get the new request.
+再等待10毫秒来获取新的请求。
+
+809
+00:45:01,660 --> 00:45:04,610
+And I am going to be free half of my time.
+我将有一半的时间是空闲的。
+
+810
+00:45:09,890 --> 00:45:10,560
+Make sense?
+有意义吗？
+
+811
+00:45:18,700 --> 00:45:21,050
+What happens on lambda is greater than the mu,
+当λ大于μ时会发生什么？
+
+812
+00:45:21,060 --> 00:45:23,630
+and the arrival rate is greater than the survey.
+到达率大于调查的情况。
+
+813
+00:45:23,640 --> 00:45:24,190
+The rate.
+速率。
+
+814
+00:45:24,200 --> 00:45:25,870
+What do you think it happens?
+你认为会发生什么？
+
+815
+00:45:26,130 --> 00:45:26,900
+It's a good question.
+这是一个很好的问题。
+
+816
+00:45:33,160 --> 00:45:36,040
+If it's a for short interval of time, what is a burst?
+如果是指短时间间隔，"burst" 是什么意思？
+
+817
+00:45:36,050 --> 00:45:38,600
+Then you are going to have the cure to absorb that burst.
+那么你将会有解决办法来吸收那个突发情况。
+
+818
+00:45:39,130 --> 00:45:40,840
+The q delay were going to increase.
+q的延迟将会增加。
+
+819
+00:45:41,680 --> 00:45:43,640
+If it's longer is for a long time,
+如果它更长时间，则表示很长时间了。
+
+820
+00:45:43,650 --> 00:45:50,010
+is it just average arrival rate is greater than the average service rate?
+这是指平均到达率是否大于平均服务率？
+
+821
+00:45:50,920 --> 00:45:54,860
+Then the queue will grow indefinitely.
+那么队列将无限增长。
+
+822
+00:45:56,700 --> 00:45:59,020
+The system is called to be in a stable state.
+系统被称为处于稳定状态。
+
+823
+00:46:00,280 --> 00:46:00,770
+In general,
+一般来说，
+
+824
+00:46:00,780 --> 00:46:05,970
+what we are going to analyze now in this lecture are our systems which are
+在本课程中，我们将要分析的是我们的系统，这些系统是
+
+825
+00:46:05,980 --> 00:46:08,440
+a stable means
+一个稳定的手段
+
+826
+00:46:08,450 --> 00:46:12,680
+that the arrival rate is not greater than the service rate.
+到达率不应大于服务率。
+
+827
+00:46:17,910 --> 00:46:18,110
+Good.
+好的。
+
+828
+00:46:18,320 --> 00:46:25,850
+This is basically tells you is about if ds over
+这基本上是在告诉你如果ds超过了什么
+
+829
+00:46:25,860 --> 00:46:28,690
+da it's small,
+嗒，这很小。
+
+830
+00:46:29,240 --> 00:46:30,770
+then we are fine.
+那我们没问题了。
+
+831
+00:46:32,590 --> 00:46:33,710
+And the queue time,
+还有队列时间，
+
+832
+00:46:35,430 --> 00:46:37,050
+the queuing delay is slow.
+排队延迟较慢。
+
+833
+00:46:37,460 --> 00:46:38,890
+But after some.,
+但是经过一段时间后，
+
+834
+00:46:39,350 --> 00:46:41,860
+if you are going to get one, this is loud.
+如果你打算买一个，这个会很吵。
+
+835
+00:46:41,870 --> 00:46:44,740
+You see, the loud is for this plot from 0 to 1.
+你看，这个图表的横轴是从0到1。
+
+836
+00:46:45,030 --> 00:46:47,150
+This is the sa over da right?
+这是源地址覆盖目的地址对吗？
+
+837
+00:46:47,420 --> 00:46:48,450
+Before one is fine.
+之前一个就可以了。
+
+838
+00:46:49,930 --> 00:46:51,680
+It grows, but it grows a little bit.
+它在增长，但增长得很少。
+
+839
+00:46:52,030 --> 00:46:55,740
+But if you are going to go over one,
+但是如果你要超过一个，
+
+840
+00:46:56,050 --> 00:46:57,230
+then it's going to shut up.
+那么它就会安静下来。
+
+841
+00:46:57,660 --> 00:46:58,040
+Right?
+对吗？
+
+842
+00:46:58,430 --> 00:46:59,410
+This is a cure delay.
+这是一个治疗延迟。
+
+843
+00:47:03,090 --> 00:47:04,080
+It can be unbounded.
+它可以是无界的。
+
+844
+00:47:09,850 --> 00:47:11,460
+This is the answer to your question.
+这是对你问题的答案。
+
+845
+00:47:15,510 --> 00:47:16,140
+Gilbert,
+吉尔伯特，
+
+846
+00:47:19,340 --> 00:47:24,610
+if the arrival rate is greater than the service rate,
+如果到达率大于服务率，
+
+847
+00:47:24,920 --> 00:47:27,690
+then the cure will grow unbounded.
+那么治愈将无限增长。
+
+848
+00:47:30,950 --> 00:47:33,100
+Now, let's see how the requests that i've been abused.
+现在，让我们看一下我所受到的滥用请求。
+
+849
+00:47:33,110 --> 00:47:34,340
+And let's see what happens.
+让我们看看会发生什么。
+
+850
+00:47:34,780 --> 00:47:36,270
+Here on the vertical axis,
+这里是纵轴，
+
+851
+00:47:36,280 --> 00:47:39,570
+I have q depths on the horizontal axis against the time.
+我在水平轴上有q个深度随时间变化。
+
+852
+00:47:43,060 --> 00:47:46,220
+Here, basically, ii see here the queue depth.
+这里，基本上，我在这里看到了队列深度。
+
+853
+00:47:46,230 --> 00:47:50,030
+I'm going to have the first requesting the queue.
+我将会将第一个请求放入请求队列中。
+
+854
+00:47:50,650 --> 00:47:51,280
+It's empty.
+它是空的。
+
+855
+00:47:51,290 --> 00:47:52,960
+It's going to be service immediately.
+将立即提供服务。
+
+856
+00:47:53,290 --> 00:47:54,520
+This is where it's going to be.
+这就是它将要放置的地方。
+
+857
+00:47:54,530 --> 00:47:55,800
+Server is the server,
+服务器是指服务器，
+
+858
+00:47:55,810 --> 00:47:57,280
+the timeline for the server.
+服务器的时间线。
+
+859
+00:47:57,840 --> 00:48:00,350
+It's a rather, I get the queue, I get the request,
+这是一个相当简单的问题，我已经理解了队列和请求。
+
+860
+00:48:00,360 --> 00:48:01,670
+i'm going to serve it here.
+我会在这里为您服务。
+
+861
+00:48:02,020 --> 00:48:03,390
+But now I get the second request.
+但是现在我收到了第二个请求。
+
+862
+00:48:03,630 --> 00:48:05,000
+If i'm getting the second request,
+如果我收到第二个请求，
+
+863
+00:48:05,010 --> 00:48:12,040
+I am going to have to cure and cure it because the survey is already
+我将不得不治疗和治愈它，因为调查已经进行了。
+
+864
+00:48:12,630 --> 00:48:16,330
+it's satisfying the previous request.
+已满足之前的请求。
+
+865
+00:48:16,340 --> 00:48:17,870
+And now I get a new request.
+现在我收到了一个新的请求。
+
+866
+00:48:17,880 --> 00:48:18,970
+So a new request, again,
+所以又有一个新的请求，再次。
+
+867
+00:48:18,980 --> 00:48:20,070
+I need to cure it.
+我需要治疗它。
+
+868
+00:48:20,670 --> 00:48:26,690
+Right now, I have two requests in the cure again on the vertical axis down.
+现在，我有两个请求在垂直轴向下方进行治疗。
+
+869
+00:48:27,000 --> 00:48:28,820
+You have the size of the cure.
+你有治愈的尺寸。
+
+870
+00:48:29,050 --> 00:48:31,080
+Also I have two in the cure right now.
+我现在有两个正在治疗中。
+
+871
+00:48:32,130 --> 00:48:33,560
+Now I get another one.
+现在我又收到另一个。
+
+872
+00:48:33,570 --> 00:48:37,860
+So it's again the first request hasn't finished, being serviced.
+所以第一个请求还没有完成，正在被处理。
+
+873
+00:48:37,870 --> 00:48:41,290
+So the cure is increasing by another.
+所以治愈人数又增加了。
+
+874
+00:48:42,020 --> 00:48:43,100
+Her one request.
+她的一个请求。
+
+875
+00:48:43,360 --> 00:48:45,100
+I have three requests in the queue.
+我有三个请求在队列中。
+
+876
+00:48:45,110 --> 00:48:47,300
+Now I don't get anything more.
+现在我什么都不明白了。
+
+877
+00:48:47,570 --> 00:48:47,790
+Right?
+对吗？
+
+878
+00:48:48,000 --> 00:48:49,110
+If I don't anything more,
+如果我没有其他要做的事情，
+
+879
+00:48:49,120 --> 00:48:54,030
+i'm going to start the set of being say it's a fivefold.
+我将开始这一系列的说法，它是五倍的。
+
+880
+00:48:54,040 --> 00:48:57,350
+So i'm going to sell the first requesting the queues a wide request.
+所以我要将第一个请求队列中的一个宽请求出售。
+
+881
+00:48:58,010 --> 00:49:00,820
+While I serve the wide request like you,
+当我像你一样服务广大的请求时，
+
+882
+00:49:00,830 --> 00:49:02,740
+I still have two requests in the queue.
+我还有两个请求在队列中。
+
+883
+00:49:02,750 --> 00:49:06,600
+The light blew on,
+灯亮了，
+
+884
+00:49:06,950 --> 00:49:08,380
+and they're all ranger on.
+他们都穿上了护林员制服。
+
+885
+00:49:08,810 --> 00:49:12,520
+Then when I say I when I finish serving this request,
+那么当我完成处理这个请求时，
+
+886
+00:49:12,530 --> 00:49:14,900
+i'm going to serve the orange request.
+我将处理橙色请求。
+
+887
+00:49:15,300 --> 00:49:17,090
+Finally is a light blue request.
+最后是一个浅蓝色的请求。
+
+888
+00:49:17,860 --> 00:49:18,770
+This is what happens.
+这是发生的情况。
+
+889
+00:49:20,750 --> 00:49:22,520
+And I have a new request and things like that.
+我有一个新的请求和类似的事情。
+
+890
+00:49:24,070 --> 00:49:24,870
+Any questions?
+有任何问题吗？
+
+891
+00:49:26,200 --> 00:49:29,090
+The point here is that even the utilization is slow,
+这里的重点是即使利用率很低，
+
+892
+00:49:29,100 --> 00:49:30,830
+even in the average arrival rate,
+即使在平均到达率下，
+
+893
+00:49:31,230 --> 00:49:34,830
+is lower than the service rate,
+低于服务速率
+
+894
+00:49:34,840 --> 00:49:36,390
+much lower level.
+更低层次的。
+
+895
+00:49:36,670 --> 00:49:39,190
+You can still have occasional burst.
+你仍然可以偶尔有爆发。
+
+896
+00:49:39,880 --> 00:49:41,950
+A lot of events,
+很多事件，
+
+897
+00:49:42,710 --> 00:49:45,420
+a lot of operation alive at the same time.
+同时有很多操作正在进行。
+
+898
+00:49:45,430 --> 00:49:46,460
+It's like rush hour,
+就像是高峰时间，
+
+899
+00:49:46,470 --> 00:49:49,020
+right over the entire duration of a day.
+在整个一天的时间内。
+
+900
+00:49:49,540 --> 00:49:53,750
+The arrival of the number of cars on the highway is
+公路上汽车数量的到达
+
+901
+00:49:53,760 --> 00:49:55,990
+significantly lower than the capacity of the highway.
+远远低于高速公路的容量。
+
+902
+00:49:56,730 --> 00:50:01,660
+There are some bursts in rush hours is a number of cars.
+在高峰时段会有一些车辆的突发增加。
+
+903
+00:50:01,970 --> 00:50:03,860
+It's almost at capacity.
+它快要达到容量上限了。
+
+904
+00:50:04,870 --> 00:50:06,560
+And then you experience large effects.
+然后你会经历很大的影响。
+
+905
+00:50:09,070 --> 00:50:11,020
+How do you model the birthday arrival?
+你如何建模生日到达的情况？
+
+906
+00:50:11,030 --> 00:50:14,100
+Now, there is a lot of mathematical models,
+现在有很多数学模型，
+
+907
+00:50:14,110 --> 00:50:15,780
+but one of the most elegant one,
+但其中最优雅的一个，
+
+908
+00:50:15,790 --> 00:50:21,030
+it's is poisson distribution or distribution.
+这是泊松分布还是其他分布？
+
+909
+00:50:21,930 --> 00:50:23,300
+Exponential distribution.
+指数分布。
+
+910
+00:50:23,510 --> 00:50:29,820
+This is f of x is slumber where lambda is the average arrival rate,
+这里的 f(x) 是一个休眠函数，其中 lambda 是平均到达率。
+
+911
+00:50:29,830 --> 00:50:30,900
+in this case,
+在这种情况下，
+
+912
+00:50:31,550 --> 00:50:38,930
+or an average mean for that distribution times e power minus
+该分布的平均值乘以e的负次幂
+
+913
+00:50:38,940 --> 00:50:44,780
+lx this is how it looks like.
+lx 这是它的外观。
+
+914
+00:50:45,380 --> 00:50:50,040
+This f of fx and this is a lambda.
+这是 f 的 fx，这是一个 lambda。
+
+915
+00:50:50,730 --> 00:50:55,580
+It's actually the mean arrival rate.
+实际上是平均到达率。
+
+916
+00:50:56,870 --> 00:51:02,820
+So the mean arrival rate for this distribution,
+这个分布的平均到达率是多少？
+
+917
+00:51:02,830 --> 00:51:04,140
+it's one over lambda.
+它是 lambda 的倒数。
+
+918
+00:51:06,670 --> 00:51:08,870
+I'm actually lambda.
+我实际上是lambda。
+
+919
+00:51:09,260 --> 00:51:10,270
+I'm taking back.
+我收回了。
+
+920
+00:51:10,280 --> 00:51:15,690
+The lambda represent the inter arrival time between the events I
+lambda代表了事件之间的到达时间间隔
+
+921
+00:51:16,020 --> 00:51:17,610
+arrival time in sandova lambda.
+到达时间在桑多瓦的λ。
+
+922
+00:51:19,560 --> 00:51:23,630
+And is a nice thing about this.
+这是一个很好的事情。
+
+923
+00:51:24,330 --> 00:51:30,040
+The exponential distribution is it is what is called memory less.
+指数分布被称为"无记忆性"分布。
+
+924
+00:51:31,330 --> 00:51:36,710
+Memory less means that the future doesn't depend on the past,
+"Memoryless"在计算机操作系统中意味着未来的情况不依赖于过去的情况。
+
+925
+00:51:37,460 --> 00:51:37,710
+right?
+对的？
+
+926
+00:51:37,720 --> 00:51:39,230
+And is counter intuitive,
+这是一个反直觉的事情。
+
+927
+00:51:39,800 --> 00:51:42,050
+because you are not used with that.
+因为你不习惯那样做。
+
+928
+00:51:42,300 --> 00:51:44,970
+This will say, and maybe sometime this happens,
+这句话的意思是，也许有时候会发生这种情况。
+
+929
+00:51:44,980 --> 00:51:46,290
+if you go,
+如果你走了，
+
+930
+00:51:46,300 --> 00:51:51,070
+if you arrive at the station like bus station,
+如果你到达车站，比如公交车站，
+
+931
+00:51:52,560 --> 00:51:58,890
+how long it takes for the next train to arrive doesn't depend
+下一班火车到达需要多长时间并不取决于
+
+932
+00:51:59,270 --> 00:52:01,260
+of when the previous train arrived,
+关于前一班火车到达的时间，
+
+933
+00:52:01,830 --> 00:52:02,850
+whether it arrived.
+是否已经到达。
+
+934
+00:52:03,110 --> 00:52:09,380
+The last minute was that he just leaves the station where it was 15 minutes
+最后一分钟是他刚离开车站，而那个车站停留了15分钟。
+
+935
+00:52:09,390 --> 00:52:09,820
+ago.
+之前。
+
+936
+00:52:11,590 --> 00:52:12,810
+This is what?
+这是什么？
+
+937
+00:52:13,050 --> 00:52:14,250
+But because it's memorized,
+但是因为它是被记住的，
+
+938
+00:52:14,260 --> 00:52:15,530
+it's much easier to model.
+这个模型要简单得多。
+
+939
+00:52:16,310 --> 00:52:16,640
+Right?
+对吗？
+
+940
+00:52:16,650 --> 00:52:17,680
+It also says,
+它还说，
+
+941
+00:52:17,690 --> 00:52:18,920
+if you look at this plot,
+如果你看一下这个图表，
+
+942
+00:52:19,210 --> 00:52:25,620
+that this means that a lot of events which are arriving in burst,
+这意味着很多事件会以突发方式到达。
+
+943
+00:52:25,630 --> 00:52:27,700
+rise at interval between them is short.
+它们之间的间隔很短。
+
+944
+00:52:28,130 --> 00:52:31,180
+There are some also very long intervals between events.
+事件之间也有一些非常长的间隔。
+
+945
+00:52:31,590 --> 00:52:35,990
+So if you look at the events on the timeline that are burst of events
+所以如果你看一下时间线上的事件，它们是一系列事件的爆发。
+
+946
+00:52:36,000 --> 00:52:36,870
+arriving together,
+一起到达，
+
+947
+00:52:37,040 --> 00:52:39,430
+inter arrival between these event is small,
+这些事件之间的到达间隔很短，
+
+948
+00:52:39,440 --> 00:52:41,170
+and then you have long pauses,
+然后你会有很长的停顿，
+
+949
+00:52:43,370 --> 00:52:43,730
+right?
+对的？
+
+950
+00:52:43,970 --> 00:52:44,580
+Long gaps.
+长时间间隔。
+
+951
+00:52:45,890 --> 00:52:46,710
+Any questions?
+有任何问题吗？
+
+952
+00:52:48,790 --> 00:52:50,830
+You did learn an exponential distribution?
+你学过指数分布吗？
+
+953
+00:52:51,870 --> 00:52:54,420
+Ii hope in some of your math classes,
+我希望在你的一些数学课程中，
+
+954
+00:52:55,140 --> 00:52:55,340
+right?
+对的？
+
+955
+00:52:55,350 --> 00:52:56,500
+Or statistic classes.
+或者统计课程。
+
+956
+00:52:58,610 --> 00:52:59,280
+Okay?
+好的？
+
+957
+00:52:59,290 --> 00:53:01,120
+And now,
+现在，
+
+958
+00:53:01,400 --> 00:53:03,150
+with this distribution is,
+使用这个分发版本，
+
+959
+00:53:03,160 --> 00:53:04,830
+what are the main mode matrix?
+主模式矩阵是什么？
+
+960
+00:53:04,840 --> 00:53:07,550
+My one of the most important matrix is a mean.
+我最重要的矩阵之一是均值矩阵。
+
+961
+00:53:07,560 --> 00:53:09,390
+Obviously, the mean of the distribution,
+显然，分布的均值是指数据的平均值。
+
+962
+00:53:10,320 --> 00:53:11,560
+how to compute them in,
+如何进行计算？
+
+963
+00:53:11,980 --> 00:53:12,410
+like,
+喜欢，
+
+964
+00:53:12,420 --> 00:53:15,730
+it's an integral or the sound you pay for the discrete distribution
+这是一个离散分布中所支付的声音的积分。
+
+965
+00:53:16,060 --> 00:53:19,730
+of the p of t what is the probability that
+在给定条件下，t的概率是多少？
+
+966
+00:53:19,740 --> 00:53:27,520
+event happens that time at t what is the probability that you
+在时间t发生的事件的概率是多少？
+
+967
+00:53:27,530 --> 00:53:28,800
+are going to have?
+你们要开会吗？
+
+968
+00:53:28,810 --> 00:53:29,760
+In this case?
+在这种情况下？
+
+969
+00:53:29,770 --> 00:53:36,510
+For instance, an arrival after exact in exactly titan units.
+例如，一个在恰好在恰好的titan单位之后到达的事件。
+
+970
+00:53:36,730 --> 00:53:40,140
+And then you are going to multiply with the t because the inter arrival time.
+然后你将与t相乘，因为这是到达时间间隔。
+
+971
+00:53:40,560 --> 00:53:40,980
+Right?
+对吗？
+
+972
+00:53:42,090 --> 00:53:46,910
+This is the mean.
+这是平均值。
+
+973
+00:53:47,790 --> 00:53:48,510
+Right?
+对吗？
+
+974
+00:53:48,750 --> 00:53:52,560
+If you have this variance of the square of the standard deviation,
+如果你有标准差的平方的方差，
+
+975
+00:53:52,950 --> 00:54:00,140
+which is you multiply its sum of p of t multiplied by t squared minus m squared.
+这是将t的p的和乘以t的平方减去m的平方。
+
+976
+00:54:00,660 --> 00:54:02,610
+And m is against the mean.
+而 m 是指反对平均值。
+
+977
+00:54:03,050 --> 00:54:10,780
+P is about how long the entire arrival p which
+P是关于整个到达过程的时间长度。
+
+978
+00:54:10,790 --> 00:54:15,390
+happen is probability p of t and then you square coefficient of variance,
+发生的概率是p，然后将方差系数平方。
+
+979
+00:54:15,400 --> 00:54:18,870
+which is a sigma squared by the mean square.
+这是方差除以均方的结果。
+
+980
+00:54:21,210 --> 00:54:22,750
+I'm not going to derive this to you.
+我不会为你推导这个。
+
+981
+00:54:22,760 --> 00:54:26,160
+I'm going to derive something more interesting to you.
+我将为您推导出更有趣的内容。
+
+982
+00:54:27,210 --> 00:54:30,710
+You are supposed to know from some of your previous classes.
+你应该从你之前的一些课程中知道。
+
+983
+00:54:31,200 --> 00:54:31,670
+If not.
+如果不是的话。
+
+984
+00:54:32,080 --> 00:54:35,270
+This are just the formula you can write on your cheat sheet.
+这些只是你可以写在作弊纸上的公式。
+
+985
+00:54:35,280 --> 00:54:37,550
+But typically we are going to give you, if I am going,
+但通常情况下，如果我去的话，我们会给你
+
+986
+00:54:37,680 --> 00:54:39,390
+we are going to ask you in a problem.
+我们将在一个问题中向您提问。
+
+987
+00:54:41,170 --> 00:54:44,500
+But the most important things here is to look at the value of sea,
+但这里最重要的是看海的价值。
+
+988
+00:54:44,510 --> 00:54:46,540
+the sea capture, the burst mess.
+海洋的捕获，爆发的混乱。
+
+989
+00:54:46,850 --> 00:54:50,360
+It turns out if c is zero,
+原来如果c为零，
+
+990
+00:54:53,430 --> 00:54:54,570
+there is no variance.
+没有差异。
+
+991
+00:54:54,580 --> 00:55:00,390
+This also means the variance is zero square squared of standard deviation,
+这也意味着方差是标准差的平方的平方。
+
+992
+00:55:01,060 --> 00:55:08,470
+which means that you have the inter arrival between two events,
+这意味着你有两个事件之间的到达间隔时间。
+
+993
+00:55:08,480 --> 00:55:11,480
+between two requests is the same.
+两个请求之间的时间间隔是相同的。
+
+994
+00:55:13,610 --> 00:55:15,290
+Then if c is one,
+那么如果 c 是一个的话，
+
+995
+00:55:15,920 --> 00:55:19,010
+this means that you have exponential distribution.
+这意味着你有指数分布。
+
+996
+00:55:20,850 --> 00:55:22,320
+Is a memory less distribution.
+这是一个无记忆分布。
+
+997
+00:55:23,150 --> 00:55:25,480
+Completely random, doesn't depend on the past.
+完全随机，不依赖于过去。
+
+998
+00:55:26,780 --> 00:55:28,400
+If c is 1.5,
+如果c是1.5，
+
+999
+00:55:28,780 --> 00:55:31,650
+you have even adversarial distributions.
+你甚至有对抗性分布。
+
+1000
+00:55:31,660 --> 00:55:34,130
+The majority of sikhs say, for instance,
+大多数锡克教徒表示，例如，
+
+1001
+00:55:34,140 --> 00:55:40,150
+or the majority of the inter arrival times are much smaller than the average.
+或者大多数的到达间隔时间远小于平均值。
+
+1002
+00:55:40,930 --> 00:55:42,720
+The more c increases,
+c增加的越多，
+
+1003
+00:55:42,990 --> 00:55:44,230
+the more birthday.
+越多的生日。
+
+1004
+00:55:45,170 --> 00:55:46,390
+You have the distribution,
+你已经获得了分发版本。
+
+1005
+00:55:48,180 --> 00:55:50,290
+meaning a lot of events coming,
+意思是有很多事件即将发生。
+
+1006
+00:55:50,300 --> 00:55:51,770
+a lot of requests coming together,
+同时出现了很多请求。
+
+1007
+00:55:51,780 --> 00:55:53,440
+and then long gaps.
+然后是长时间的间隔。
+
+1008
+00:55:56,440 --> 00:56:00,090
+And a fuel is obviously the more person, as you have,
+燃料显然是更多的人，就像你一样，
+
+1009
+00:56:00,100 --> 00:56:01,850
+the larger the cube will be.
+立方体越大。
+
+1010
+00:56:02,690 --> 00:56:03,850
+That is during these events.
+那是在这些事件发生期间。
+
+1011
+00:56:04,630 --> 00:56:04,900
+Right?
+对吗？
+
+1012
+00:56:04,910 --> 00:56:07,420
+If there is no variance,
+如果没有方差，
+
+1013
+00:56:07,760 --> 00:56:13,230
+and if your third load is lower than the service capacity,
+如果你的第三次负载低于服务能力，
+
+1014
+00:56:13,650 --> 00:56:16,810
+than you have no cure,
+那你就无法治愈了。
+
+1015
+00:56:23,280 --> 00:56:26,830
+let's talk more about king's theory.
+让我们更多地谈谈金斯理论。
+
+1016
+00:56:27,880 --> 00:56:29,870
+The queuing theory is very simple.
+排队论非常简单。
+
+1017
+00:56:29,880 --> 00:56:32,790
+You have to make some assumption about the distributions.
+你需要对分布做一些假设。
+
+1018
+00:56:34,180 --> 00:56:39,440
+You have to make some assumptions about how long it takes to serve the request.
+你需要对请求的处理时间做一些假设。
+
+1019
+00:56:39,450 --> 00:56:41,360
+What is the distribution to serve a request?
+什么是用于处理请求的分发方式？
+
+1020
+00:56:42,050 --> 00:56:44,630
+What is the distribution of arrivals?
+到达的分布是什么？
+
+1021
+00:56:45,660 --> 00:56:46,910
+And based on this,
+根据这个，
+
+1022
+00:56:49,140 --> 00:56:54,200
+then you are going to get some formula which will give you
+然后你将得到一些公式，这些公式将给出你
+
+1023
+00:56:54,210 --> 00:56:57,990
+the service response time as a change between delay.
+服务响应时间是延迟变化的一种表现形式。
+
+1024
+00:56:58,410 --> 00:56:59,110
+That's what it is.
+就是这样。
+
+1025
+00:57:00,700 --> 00:57:01,140
+Okay.
+好的。
+
+1026
+00:57:04,500 --> 00:57:09,060
+Before talking more about this queuing and giving results
+在进一步讨论这个排队和给出结果之前
+
+1027
+00:57:09,070 --> 00:57:11,500
+formulas about response time and everything,
+关于响应时间和其他方面的公式，
+
+1028
+00:57:12,330 --> 00:57:15,610
+let's go through this law.
+让我们来仔细阅读这个法律。
+
+1029
+00:57:15,620 --> 00:57:17,010
+Little law is called,
+Little定律被称为
+
+1030
+00:57:18,510 --> 00:57:21,400
+it's a very powerful law.
+这是一项非常强大的法律。
+
+1031
+00:57:21,890 --> 00:57:24,030
+It's very simple, deceptive, simple,
+这非常简单，具有欺骗性，简单。
+
+1032
+00:57:24,040 --> 00:57:25,320
+and very general.
+非常普遍的。
+
+1033
+00:57:26,420 --> 00:57:27,680
+This is what it says.
+这是它的内容。
+
+1034
+00:57:27,690 --> 00:57:29,760
+He says you have a bunch of arrivals,
+他说你有一大堆到达的人。
+
+1035
+00:57:31,700 --> 00:57:34,200
+and which are served by a system,
+以及由系统提供的服务，
+
+1036
+00:57:34,210 --> 00:57:35,960
+a bunch of requests coming to a system.
+一堆请求发送到系统中。
+
+1037
+00:57:35,970 --> 00:57:37,200
+They are serving the system.
+他们正在为系统提供服务。
+
+1038
+00:57:38,820 --> 00:57:41,990
+And what is the average mean of?
+这里的"average mean"是指什么的平均值？
+
+1039
+00:57:42,930 --> 00:57:47,300
+What is the average arrivals for the request?
+请求的平均到达次数是多少？
+
+1040
+00:57:47,690 --> 00:57:50,000
+What is the average service for the requests?
+请求的平均服务时间是多少？
+
+1041
+00:57:51,400 --> 00:57:54,310
+And what little law is giving you is how many,
+而法律给予你的只是多少，
+
+1042
+00:57:54,900 --> 00:57:55,970
+on the average,
+平均而言，
+
+1043
+00:57:56,240 --> 00:57:58,820
+how many requests are waiting in the queue to be set?
+队列中有多少个请求正在等待被处理？
+
+1044
+00:57:59,730 --> 00:58:00,090
+That's all.
+就这些。
+
+1045
+00:58:01,840 --> 00:58:04,270
+And the formula is a number of requests.
+公式是请求的数量。
+
+1046
+00:58:04,280 --> 00:58:05,590
+Here I pick jobs.
+这里我选择工作。
+
+1047
+00:58:06,330 --> 00:58:09,410
+It's sequel to the mean arrival time,
+这是到达时间的续集。
+
+1048
+00:58:09,420 --> 00:58:11,500
+lambda time,
+lambda time,
+
+1049
+00:58:11,510 --> 00:58:12,740
+the response time,
+响应时间
+
+1050
+00:58:12,750 --> 00:58:13,780
+mean response time.
+平均响应时间。
+
+1051
+00:58:17,730 --> 00:58:18,480
+This is what it is.
+就是这样。
+
+1052
+00:58:18,980 --> 00:58:19,410
+That's it.
+就是这样。
+
+1053
+00:58:21,370 --> 00:58:27,170
+And the beauty of it is that this is true regardless of the structure
+而且美妙的是，无论结构如何，这都是真实的。
+
+1054
+00:58:27,180 --> 00:58:28,250
+of the arrivals.
+到达的人数。
+
+1055
+00:58:28,830 --> 00:58:32,710
+How it is a burst doesn't depend on the distribution.
+一个进程的执行时间不取决于其分布情况。
+
+1056
+00:58:34,550 --> 00:58:36,390
+Doesn't depend on the distribution of the arrival.
+不依赖于到达的分布。
+
+1057
+00:58:36,400 --> 00:58:38,950
+Doesn't it depends on distribution of the service style,
+这不是取决于服务风格的分布吗？
+
+1058
+00:58:41,230 --> 00:58:43,450
+because the results hold for the means.
+因为这些结果适用于平均值。
+
+1059
+00:58:46,240 --> 00:58:46,560
+Right?
+对吗？
+
+1060
+00:58:47,520 --> 00:58:48,840
+It does assume, though,
+尽管如此，它确实假设了
+
+1061
+00:58:49,150 --> 00:58:51,720
+that their rivals are not larger,
+他们的竞争对手并不更大，
+
+1062
+00:58:51,730 --> 00:58:55,600
+the arrival rate is no larger than mean arrival rate is not larger than this.
+到达率不会超过平均到达率。
+
+1063
+00:58:55,850 --> 00:58:57,990
+Mean service right here.
+这里提供的是优质的服务。
+
+1064
+00:58:58,000 --> 00:58:58,830
+It's an example.
+这是一个例子。
+
+1065
+00:58:59,420 --> 00:59:05,250
+Just to give you the to capture that intuition on x you have times,
+只是为了让你能够捕捉到关于x的直觉，你需要乘以多少次。
+
+1066
+00:59:06,260 --> 00:59:09,390
+let's say you have a new job or request.
+假设你有一份新的工作或请求。
+
+1067
+00:59:09,890 --> 00:59:11,050
+For some reason here,
+由于某种原因，这里
+
+1068
+00:59:11,380 --> 00:59:15,010
+iii put jobs coming to the system and being serviced.
+我将作业放入系统并进行服务。
+
+1069
+00:59:16,690 --> 00:59:18,720
+You have one job every second,
+你每秒钟有一个工作任务。
+
+1070
+00:59:18,730 --> 00:59:21,250
+so this is deterministic arrival.
+所以这是确定性到达。
+
+1071
+00:59:22,100 --> 00:59:24,210
+Everyone, every second, you have a new job.
+每个人，每一秒钟，你都有一个新的工作。
+
+1072
+00:59:24,710 --> 00:59:24,890
+Exactly.
+没错。
+
+1073
+00:59:24,900 --> 00:59:25,810
+Every second.
+每秒钟。
+
+1074
+00:59:26,980 --> 00:59:28,630
+Any jobs takes to serve.
+任何工作都需要服务。
+
+1075
+00:59:29,620 --> 00:59:32,900
+5 seconds is what you have, right?
+你有5秒钟的时间，对吗？
+
+1076
+00:59:33,380 --> 00:59:35,660
+You have the first job starts here, you set 5 seconds,
+你有第一个任务从这里开始，你设置了5秒。
+
+1077
+00:59:35,670 --> 00:59:39,020
+the second job starts set 5 seconds and so forth.
+第二个任务开始设置为5秒，以此类推。
+
+1078
+00:59:40,450 --> 00:59:48,790
+Now, how many of the jobs you have in the system at any given time?
+现在，在系统中您有多少个作业？
+
+1079
+00:59:49,160 --> 00:59:52,680
+You can draw a line and the number of jobs you have in the system.
+你可以画一条线来表示系统中的作业数量。
+
+1080
+00:59:53,150 --> 00:59:56,320
+It's the number of jobs this line is going to intersect.
+这是该线将要相交的作业数量。
+
+1081
+00:59:57,660 --> 00:59:59,050
+And how many have five?
+有多少个是五个？
+
+1082
+01:00:02,270 --> 01:00:03,660
+What is the formula saying?
+这个公式在说什么？
+
+1083
+01:00:05,490 --> 01:00:08,060
+Number of jobs, a very number of jobs in the system.
+系统中的作业数量非常多。
+
+1084
+01:00:08,430 --> 01:00:12,540
+It's equal with the average or the mean arrival rate to just 1 times
+这等于平均到达率或平均到达次数的1倍。
+
+1085
+01:00:12,550 --> 01:00:14,540
+the mean service response time,
+平均服务响应时间
+
+1086
+01:00:14,550 --> 01:00:15,500
+which is five.
+这是五。
+
+1087
+01:00:17,290 --> 01:00:17,880
+It's fine.
+没问题。
+
+1088
+01:00:21,580 --> 01:00:23,690
+Let me try to derive this formula for you.
+让我试着为您推导这个公式。
+
+1089
+01:00:24,550 --> 01:00:24,990
+Okay.
+好的。
+
+1090
+01:00:26,640 --> 01:00:29,240
+Let's say now we are going to be general,
+假设现在我们要进行一般性的讨论，
+
+1091
+01:00:30,040 --> 01:00:30,430
+right?
+对的？
+
+1092
+01:00:31,490 --> 01:00:34,160
+The jobs can arrive at any time.
+作业可以随时到达。
+
+1093
+01:00:34,430 --> 01:00:40,920
+They can take any amount of time to be into that are going to be in the system.
+它们可能需要任意长的时间才能进入系统。
+
+1094
+01:00:44,130 --> 01:00:44,560
+Let's talk.
+让我们聊聊吧。
+
+1095
+01:00:44,570 --> 01:00:49,560
+L of I is the response time of job I and n of t is a number of jobs
+L of I 是作业 I 的响应时间，n of t 是作业的数量
+
+1096
+01:00:49,570 --> 01:00:50,760
+in the system at time t
+在时间t的系统中
+
+1097
+01:00:56,440 --> 01:00:59,350
+this is n of t at this particular time.
+这是在特定时间的第n个t。
+
+1098
+01:01:01,630 --> 01:01:03,700
+You want to see what is the system occupancy?
+您想查看系统的占用情况吗？
+
+1099
+01:01:03,710 --> 01:01:05,220
+How many, on the average,
+平均来说，有多少个？
+
+1100
+01:01:05,230 --> 01:01:07,180
+what is the number of jobs in the system?
+系统中的作业数量是多少？
+
+1101
+01:01:07,190 --> 01:01:11,450
+This n the average of n and n of d this is what you want to compute.
+这是你想要计算的 n 和 d 的平均值。
+
+1102
+01:01:11,910 --> 01:01:21,490
+The average of n of d before this, remember, is what I want to get.
+我想要得到的是之前的 n 个 d 的平均值。
+
+1103
+01:01:22,830 --> 01:01:24,830
+Now, let's do some a little bit of math.
+现在，让我们做一些简单的数学题。
+
+1104
+01:01:26,030 --> 01:01:27,080
+Let's assume,
+假设我们
+
+1105
+01:01:27,920 --> 01:01:32,830
+for the simplicity that the height of one of these things, jobs,
+为了简单起见，我们将这些事物中的一个称为"作业"，
+
+1106
+01:01:32,840 --> 01:01:34,270
+which I represented here, each one,
+我在这里代表的是每一个。
+
+1107
+01:01:36,500 --> 01:01:43,620
+really, the n of t zero n is represents the height of this shape,
+实际上，t零n的n代表了这个形状的高度。
+
+1108
+01:01:44,410 --> 01:01:45,040
+the blue shape.
+蓝色的形状。
+
+1109
+01:01:46,000 --> 01:01:47,170
+Let's say, in this case,
+假设，在这种情况下，
+
+1110
+01:01:47,410 --> 01:01:49,240
+the hype is forced.
+这种炒作是被迫的。
+
+1111
+01:01:49,250 --> 01:01:51,230
+You have four jobs in the system.
+你在系统中有四个任务。
+
+1112
+01:01:52,220 --> 01:01:52,630
+Right?
+对吗？
+
+1113
+01:01:53,730 --> 01:01:59,220
+Now, the area of each of these boxes is what?
+现在，这些盒子的面积是多少？
+
+1114
+01:02:00,150 --> 01:02:02,820
+I so phi, its ally, the length,
+我很抱歉，我无法理解你的问题。请提供更多的上下文或详细说明你需要翻译的英文句子。
+
+1115
+01:02:03,280 --> 01:02:04,580
+is how long it takes.
+需要多长时间。
+
+1116
+01:02:06,040 --> 01:02:08,540
+The job responds time for that particular job.
+该特定作业的响应时间。
+
+1117
+01:02:08,920 --> 01:02:11,300
+I times one,
+我乘以一，
+
+1118
+01:02:11,310 --> 01:02:13,180
+because we said that by convention,
+因为我们说过，按照惯例，
+
+1119
+01:02:13,470 --> 01:02:15,660
+we say that the height is one.
+我们说高度为一。
+
+1120
+01:02:16,820 --> 01:02:18,850
+The area s is s one,
+面积 s 是 s 的一个单位。
+
+1121
+01:02:18,860 --> 01:02:20,490
+the total area here,
+这里的总面积是多少？
+
+1122
+01:02:21,270 --> 01:02:25,810
+for these all the jobs within the time capital t it's s one plus s
+对于在时间t内的所有工作，s是一个加一的值。
+
+1123
+01:02:25,820 --> 01:02:27,530
+two plus csk
+两加 csk
+
+1124
+01:02:30,320 --> 01:02:36,580
+it's equal to its l one plus l two plus lk because si it's equal is
+它等于它的L1加上L2再加上LK，因为SI等于它相等。
+
+1125
+01:02:36,590 --> 01:02:38,020
+li times one.
+li times one. 
+
+李乘以一。
+
+1126
+01:02:38,030 --> 01:02:44,110
+It's equal is li and why do I do this?
+它的等于是li，为什么我要这样做？
+
+1127
+01:02:44,840 --> 01:02:45,180
+Right?
+对吗？
+
+1128
+01:02:45,820 --> 01:02:46,000
+Now?
+现在吗？
+
+1129
+01:02:46,010 --> 01:02:48,440
+What I want to compute this to cure?
+我想计算这个来治愈什么？
+
+1130
+01:02:48,450 --> 01:02:51,940
+Remember that our average pure copenhacy is, what is this?
+请记住，我们的平均纯酸度是什么意思？
+
+1131
+01:02:52,110 --> 01:02:55,900
+It's this area over t that is not ending.
+这个区域在 t 上没有结束。
+
+1132
+01:02:55,910 --> 01:02:58,510
+I have this shape which I have this area.
+我有一个形状，它有这个面积。
+
+1133
+01:02:59,140 --> 01:03:01,680
+And I need to divide on the length of the area,
+我需要根据区域的长度进行划分。
+
+1134
+01:03:02,320 --> 01:03:03,840
+which is still, in this case,
+在这种情况下，仍然是
+
+1135
+01:03:04,480 --> 01:03:06,630
+to get to the average height of the area.
+计算该地区的平均身高。
+
+1136
+01:03:09,300 --> 01:03:10,680
+The n average,
+平均值 n
+
+1137
+01:03:11,110 --> 01:03:16,710
+the average number of jobs in the system is the average height of the shape,
+系统中作业的平均数量是形状的平均高度。
+
+1138
+01:03:17,270 --> 01:03:24,030
+which is s over p but now we know that s is l of one plus l of two plus l
+现在我们知道s是l1加上l2加上l3。
+
+1139
+01:03:24,040 --> 01:03:25,510
+of k over d now,
+现在的 k 除以 d。
+
+1140
+01:03:26,460 --> 01:03:27,770
+now is the beauty of it.
+现在就是它的美妙之处。
+
+1141
+01:03:27,780 --> 01:03:32,800
+I need to do only the one thing I need to divide by n total and
+我只需要做一件事，就是将总数除以n。
+
+1142
+01:03:32,810 --> 01:03:34,040
+multiply with n total.
+乘以n的总和。
+
+1143
+01:03:35,810 --> 01:03:36,130
+Right?
+对吗？
+
+1144
+01:03:36,600 --> 01:03:43,170
+And total is another number of jobs which arrived during this time being
+总数是在此期间到达的另一个作业数量。
+
+1145
+01:03:45,930 --> 01:03:47,480
+our service during this time.
+在这段时间内，我们的服务。
+
+1146
+01:03:49,870 --> 01:03:50,900
+It's the same equation,
+这是同一个方程。
+
+1147
+01:03:50,910 --> 01:03:52,780
+the equation from the previous one.
+从前一个方程式中得出的方程式。
+
+1148
+01:03:53,000 --> 01:03:54,830
+But i'm going to divide by n total.
+但是我要总共除以n。
+
+1149
+01:03:54,960 --> 01:03:58,070
+I'm now going to multiply by n total and total.
+我现在要将总数乘以n。
+
+1150
+01:03:58,080 --> 01:03:58,870
+In this example.
+在这个例子中。
+
+1151
+01:03:58,880 --> 01:04:00,140
+It will be k right?
+没问题，没关系。
+
+1152
+01:04:00,150 --> 01:04:02,480
+Because what I showed here like it.
+因为我展示的东西很喜欢。
+
+1153
+01:04:04,590 --> 01:04:08,970
+But now I just reverted one,
+但是现在我只是撤销了一个。
+
+1154
+01:04:08,980 --> 01:04:10,220
+but is the same thing,
+但是这是同样的事情。
+
+1155
+01:04:10,230 --> 01:04:13,720
+is n total over p plus l one plus lk over n total.
+n总数超过p加l再加lk除以n总数。
+
+1156
+01:04:14,970 --> 01:04:16,450
+But here is the things right now.
+但是现在的情况是这样的。
+
+1157
+01:04:17,050 --> 01:04:25,010
+What is n total over t I have
+n总数是多少，t是我拥有的数量。
+
+1158
+01:04:25,350 --> 01:04:33,040
+n total jobs arriving during their time t in total over t it's the average.
+在时间t内总共到达的作业数量n，总共花费的时间t，那么平均每个作业的到达速率为n/t。
+
+1159
+01:04:35,060 --> 01:04:39,290
+It's how many?
+这是多少？
+
+1160
+01:04:39,600 --> 01:04:45,830
+It's n total over t it's arrival rate mean arrival rate.
+这是关于到达率的信息，n是总数，t是时间，它表示平均到达率。
+
+1161
+01:04:46,790 --> 01:04:53,450
+If I have one, if I tell you I have 100 jobs and they arrived in10 seconds,
+如果我有一个问题，如果我告诉你我有100个任务，并且它们在10秒内到达，
+
+1162
+01:04:54,790 --> 01:04:54,980
+right?
+对的？
+
+1163
+01:04:54,990 --> 01:04:55,860
+And I ask you,
+我问你，
+
+1164
+01:04:56,950 --> 01:04:57,980
+what is the rivalry?
+竞争是什么？
+
+1165
+01:04:59,270 --> 01:05:00,480
+What do you say?
+你说什么？
+
+1166
+01:05:00,490 --> 01:05:05,350
+100 over 10 seconds is ten jobs per second.
+100个任务在10秒内是每秒10个任务。
+
+1167
+01:05:07,130 --> 01:05:07,900
+This is lambda.
+这是 lambda。
+
+1168
+01:05:09,510 --> 01:05:12,400
+What is l one plus lk over n dot?
+l one plus lk over n dot 是什么意思？
+
+1169
+01:05:17,290 --> 01:05:19,860
+L one is the average response time for a job.
+L1是作业的平均响应时间。
+
+1170
+01:05:21,820 --> 01:05:24,330
+L two is a very response time of the second job.
+L2是第二个作业的响应时间非常短。
+
+1171
+01:05:24,340 --> 01:05:26,170
+If I had all these jobs up,
+如果我把所有这些工作加起来，
+
+1172
+01:05:27,160 --> 01:05:28,700
+the response time of all the jobs,
+所有作业的响应时间
+
+1173
+01:05:28,710 --> 01:05:31,230
+if I sum up the average response time of all jobs,
+如果我将所有作业的平均响应时间相加，
+
+1174
+01:05:31,570 --> 01:05:33,290
+and I divide by the number of jobs,
+然后我除以作业的数量，
+
+1175
+01:05:34,150 --> 01:05:34,800
+what do I get?
+我能得到什么？
+
+1176
+01:05:35,790 --> 01:05:36,910
+The average response time?
+平均响应时间是多少？
+
+1177
+01:05:37,910 --> 01:05:43,840
+Here you are the average occupancy or the average number of jobs in the system.
+这里是系统的平均占用率或平均作业数量。
+
+1178
+01:05:44,300 --> 01:05:51,050
+It's equal with the average arrival rate of the jobs plus at times, sorry,
+这等于作业的平均到达率加上时间的和，抱歉，
+
+1179
+01:05:51,690 --> 01:05:54,670
+the average response time of a job.
+作业的平均响应时间。
+
+1180
+01:05:56,770 --> 01:05:57,200
+Make sense?
+有意义吗？
+
+1181
+01:05:57,210 --> 01:05:58,160
+Any questions?
+有任何问题吗？
+
+1182
+01:06:14,310 --> 01:06:15,270
+Okay.
+好的。
+
+1183
+01:06:15,280 --> 01:06:19,150
+So again, I ii want to emphasize like this is a great,
+所以再次强调，这是一个很棒的，
+
+1184
+01:06:19,890 --> 01:06:21,760
+a very elegant law,
+一个非常优雅的法律
+
+1185
+01:06:22,310 --> 01:06:24,140
+because it's so simple.
+因为它非常简单。
+
+1186
+01:06:24,690 --> 01:06:26,760
+And yet is so general.
+然而，"And yet" 是如此泛泛而言。
+
+1187
+01:06:27,720 --> 01:06:30,730
+Again, doesn't make any assumption of distribution.
+再次强调，不对分布做任何假设。
+
+1188
+01:06:32,020 --> 01:06:37,380
+You need only to know the average arrival rate and average response time.
+你只需要知道平均到达率和平均响应时间。
+
+1189
+01:06:45,080 --> 01:06:52,480
+Any questions?
+有任何问题吗？
+
+1190
+01:06:52,490 --> 01:06:53,400
+Okay?
+好的？
+
+1191
+01:06:54,260 --> 01:06:56,090
+Now let's do a little bit of hearing theory.
+现在让我们来了解一些听觉理论。
+
+1192
+01:06:56,100 --> 01:06:58,130
+And unfortunately, and I apologize here.
+很不幸，我在这里向您道歉。
+
+1193
+01:06:58,140 --> 01:07:00,010
+I am going to give you some results.
+我将给你一些结果。
+
+1194
+01:07:00,560 --> 01:07:02,530
+I'm not going to derive anymore.
+我不会再推导了。
+
+1195
+01:07:02,540 --> 01:07:04,840
+So hopefully you enjoy the previous derivation.
+希望你喜欢之前的推导过程。
+
+1196
+01:07:06,570 --> 01:07:14,410
+But let's talk a little bit about that about this to give you some queuing results,
+但是让我们稍微谈谈这个，以给你一些排队的结果。
+
+1197
+01:07:14,630 --> 01:07:15,530
+queuing theory results.
+排队论的结果。
+
+1198
+01:07:16,100 --> 01:07:17,660
+First of all, like I mentioned,
+首先，就像我之前提到的，
+
+1199
+01:07:18,680 --> 01:07:23,470
+here, we only assume that the system is what we call in equilibrium,
+在这里，我们只假设系统处于我们所称的平衡状态下，
+
+1200
+01:07:23,840 --> 01:07:30,930
+which is Basically the number the arrival rate is not larger,
+基本上，到达率不会太大。
+
+1201
+01:07:30,940 --> 01:07:32,650
+is no larger than the service site.
+不超过服务站点的大小。
+
+1202
+01:07:33,470 --> 01:07:37,150
+We also assume that the cure has no limits.
+我们还假设治愈没有限制。
+
+1203
+01:07:37,370 --> 01:07:39,880
+So therefore, we don't rob requests.
+因此，我们不会拦截请求。
+
+1204
+01:07:41,630 --> 01:07:42,050
+Okay?
+好的？
+
+1205
+01:07:43,660 --> 01:07:48,710
+Let's assume that the time between two arrivals is random and is memorabulous,
+假设两次到达之间的时间是随机的，并且是不可预测的。
+
+1206
+01:07:49,410 --> 01:07:56,570
+it's exponentially distributed when the time inter arrival time between
+当到达时间间隔之间的时间间隔呈指数分布时
+
+1207
+01:07:58,780 --> 01:08:00,570
+successive requests,
+连续的请求
+
+1208
+01:08:01,650 --> 01:08:02,630
+it's exponentially distributed.
+它是指数分布的。
+
+1209
+01:08:02,640 --> 01:08:06,460
+We are saying that arrival is for us all.
+我们在说到达对我们所有人来说都是必然的。
+
+1210
+01:08:07,420 --> 01:08:07,760
+By the way,
+顺便说一下，
+
+1211
+01:08:08,530 --> 01:08:11,920
+if you hear that arrival rate,
+如果你听到到达率，
+
+1212
+01:08:12,370 --> 01:08:16,270
+lambda service rate is mu one over the t survey.
+Lambda服务率是mu除以t的倒数。
+
+1213
+01:08:16,280 --> 01:08:22,150
+This is ATS previously we thoughts denoted by ps is that time yourself,
+这是 ATS，之前我们认为用 ps 表示的是时间自身。
+
+1214
+01:08:23,560 --> 01:08:24,190
+the request.
+请求。
+
+1215
+01:08:28,200 --> 01:08:32,260
+So you have lambda mean number of arriving request,
+所以你有一个表示到达请求的平均值的 λ 值。
+
+1216
+01:08:32,270 --> 01:08:33,940
+customer jobs per second.
+每秒的客户作业数。
+
+1217
+01:08:34,330 --> 01:08:36,080
+Meantime to serve as a customer,
+同时作为一名顾客服务。
+
+1218
+01:08:38,080 --> 01:08:42,320
+it's say, m squared coefficient of areas of variance.
+这句话的意思是，m的平方是方差的系数。
+
+1219
+01:08:42,330 --> 01:08:43,040
+This is one.
+这是一个。
+
+1220
+01:08:43,050 --> 01:08:43,640
+In the case.
+在这种情况下。
+
+1221
+01:08:43,650 --> 01:08:47,310
+Remember, in the case of exponential distribution,
+请记住，在指数分布的情况下，
+
+1222
+01:08:47,320 --> 01:08:55,020
+mu is a service rate that one of the TS time to service at request.
+mu是一个服务速率，表示TS时间内处理请求的速度。
+
+1223
+01:08:55,960 --> 01:08:57,070
+Utilization again,
+再次提到利用率，
+
+1224
+01:08:57,440 --> 01:09:00,590
+that you saw the formula is a number is arrival rate
+你看到的公式是一个数字，表示到达率。
+
+1225
+01:09:00,600 --> 01:09:03,630
+over the mean arrival rate over mean service rate,
+平均到达率除以平均服务率
+
+1226
+01:09:05,450 --> 01:09:08,380
+which is lambda over mu or lambda time.
+是lambda除以mu还是lambda乘以mu？
+
+1227
+01:09:09,270 --> 01:09:10,420
+Deserve I hear?
+我值得听吗？
+
+1228
+01:09:10,430 --> 01:09:14,630
+I just replace mere definition,
+我只是替换了简单的定义。
+
+1229
+01:09:14,640 --> 01:09:17,430
+which is one of the over the service time.
+这是超过服务时间的其中之一。
+
+1230
+01:09:18,190 --> 01:09:20,700
+Now, and if you do that,
+现在，如果你这样做的话，
+
+1231
+01:09:20,710 --> 01:09:27,920
+you get the utilization its arrival rate times I service time.
+你可以通过将到达率乘以服务时间来计算利用率。
+
+1232
+01:09:30,250 --> 01:09:31,410
+What do you want to compute?
+你想要计算什么？
+
+1233
+01:09:32,820 --> 01:09:34,210
+Time is spending the queue.
+时间在队列中消耗。
+
+1234
+01:09:34,580 --> 01:09:35,760
+That's what I want to compute.
+这就是我想要计算的。
+
+1235
+01:09:36,880 --> 01:09:39,600
+We also want to compute the length of the queue.
+我们还想计算队列的长度。
+
+1236
+01:09:43,380 --> 01:09:44,470
+What is the length of the queue?
+队列的长度是多少？
+
+1237
+01:09:45,930 --> 01:09:51,760
+The length of the cure is lambda of QQ because the system here is a cure.
+治愈的长度是QQ的lambda，因为这里的系统是一个治愈。
+
+1238
+01:09:51,770 --> 01:09:53,410
+This is what I'm saying.
+这就是我要说的。
+
+1239
+01:09:53,670 --> 01:09:54,790
+The system here is a cure,
+这里的系统是一种治疗方法，
+
+1240
+01:09:55,900 --> 01:09:56,260
+right?
+对的？
+
+1241
+01:09:56,750 --> 01:10:02,140
+You can apply little law to the cure itself,
+你可以将小定律应用于治疗本身。
+
+1242
+01:10:03,090 --> 01:10:04,850
+or you can apply to the entire system.
+或者你可以应用到整个系统。
+
+1243
+01:10:06,080 --> 01:10:07,930
+Here is for the cure yourself.
+这是为了自我治愈。
+
+1244
+01:10:10,400 --> 01:10:10,790
+Okay.
+好的。
+
+1245
+01:10:12,440 --> 01:10:13,030
+Let's see.
+让我们看看。
+
+1246
+01:10:14,690 --> 01:10:18,740
+Like I said, when you have exponential distribution for the arrival rates,
+就像我说的，当到达率服从指数分布时，
+
+1247
+01:10:18,750 --> 01:10:20,620
+inter arrival rates for the requests,
+请求的到达间隔率
+
+1248
+01:10:21,890 --> 01:10:24,950
+this is also called poisson arrival process.
+这也被称为泊松到达过程。
+
+1249
+01:10:25,810 --> 01:10:27,730
+We assume here that we have one server,
+我们在这里假设我们有一个服务器，
+
+1250
+01:10:28,830 --> 01:10:29,260
+right?
+对的？
+
+1251
+01:10:29,270 --> 01:10:31,260
+We can have us, there are scenarios,
+我们可以有我们自己的情景。
+
+1252
+01:10:31,270 --> 01:10:32,620
+and you have multiple servers,
+而且你有多个服务器，
+
+1253
+01:10:32,630 --> 01:10:37,400
+and you send the request to if one server sells a request to consider it,
+并且你发送请求给一个服务器，如果有一个服务器接受请求，则将其视为销售请求。
+
+1254
+01:10:37,410 --> 01:10:39,080
+send a request, another server.
+发送一个请求到另一个服务器。
+
+1255
+01:10:42,650 --> 01:10:44,890
+And it's memorized service.
+这是一个记忆化的服务。
+
+1256
+01:10:44,900 --> 01:10:45,570
+So again,
+所以，再次，
+
+1257
+01:10:46,330 --> 01:10:50,050
+let's assume that the service distribution,
+假设服务分布，
+
+1258
+01:10:50,060 --> 01:10:51,650
+it's also exponential.
+这也是指数级的。
+
+1259
+01:10:51,780 --> 01:10:52,770
+It's memory bus.
+这是内存总线。
+
+1260
+01:10:55,560 --> 01:10:58,590
+This system with poisson arrival process,
+这个系统具有泊松到达过程，
+
+1261
+01:10:59,450 --> 01:11:01,570
+memory said memory less, service time,
+内存说内存不足，服务时间。
+
+1262
+01:11:02,550 --> 01:11:05,930
+and one server is called mm one cure.
+其中一个服务器被称为mm one cure。
+
+1263
+01:11:09,820 --> 01:11:11,060
+It's again, one server,
+又是一个服务器，
+
+1264
+01:11:11,070 --> 01:11:15,480
+inter arrival times are exponentially distributed.
+到达时间间隔服从指数分布。
+
+1265
+01:11:16,150 --> 01:11:17,990
+Service time are exponentially distributed.
+服务时间服从指数分布。
+
+1266
+01:11:21,380 --> 01:11:22,650
+In this case,
+在这种情况下，
+
+1267
+01:11:25,040 --> 01:11:26,290
+the queuing time,
+排队时间
+
+1268
+01:11:27,460 --> 01:11:33,860
+it's equal with the service time
+它等于服务时间
+
+1269
+01:11:34,850 --> 01:11:38,910
+times u over one minus u what u is activation.
+u是激活函数的输入，times u over one minus u可以翻译为u除以1减去u。
+
+1270
+01:11:41,430 --> 01:11:43,420
+Now, for general distribution,
+现在，为了普遍分发，
+
+1271
+01:11:43,430 --> 01:11:45,260
+if you have the service distribution,
+如果你有服务分发，
+
+1272
+01:11:45,430 --> 01:11:48,280
+if the service time is a general distribution.
+如果服务时间是一个一般分布。
+
+1273
+01:11:48,290 --> 01:11:50,230
+And for that,
+为此，
+
+1274
+01:11:50,240 --> 01:11:52,600
+one only the variance,
+只有方差。
+
+1275
+01:11:52,730 --> 01:11:54,240
+the square root of variance,
+方差的平方根
+
+1276
+01:11:54,250 --> 01:11:59,340
+the c then this is a formula.
+这是一个公式，其中的"c"表示某个变量。
+
+1277
+01:11:59,650 --> 01:12:01,180
+It's very similar formula.
+这是非常相似的公式。
+
+1278
+01:12:06,630 --> 01:12:09,290
+One over, let me just move.
+一会儿，让我先移动一下。
+
+1279
+01:12:13,340 --> 01:12:21,750
+It's service time times one over two plus one one plus c this is, again,
+这是服务时间的一半加上1再加上c，再重复一次。
+
+1280
+01:12:22,870 --> 01:12:29,200
+square root of a square of variance times 11 over 1 minus 2.
+方差的平方根乘以11除以1减2。
+
+1281
+01:12:36,810 --> 01:12:42,000
+Is it important?
+这个重要吗？
+
+1282
+01:12:42,390 --> 01:12:43,470
+Take away from here.
+离开这里。
+
+1283
+01:12:43,480 --> 01:12:46,470
+This equation is a very important aspect here.
+这个方程在这里是一个非常重要的方面。
+
+1284
+01:12:49,000 --> 01:12:50,070
+Is this fact?
+这是事实吗？
+
+1285
+01:12:50,080 --> 01:12:52,150
+Is this 1 over 1 minus you?
+这是 1 除以 (1 减去你) 吗？
+
+1286
+01:12:52,590 --> 01:12:53,490
+Why it is important?
+为什么这很重要？
+
+1287
+01:12:54,700 --> 01:12:58,170
+Because this tells you when the utilization is small,
+因为这告诉你当利用率很低时，
+
+1288
+01:12:59,840 --> 01:13:01,280
+this factory is small, right?
+这个工厂很小，对吗？
+
+1289
+01:13:01,690 --> 01:13:07,330
+It's it's basically one u over one if u is very small.
+如果u非常小，那么它基本上是1除以u。
+
+1290
+01:13:10,070 --> 01:13:12,660
+But what happens to the utilization approach is what?
+利用率方法是什么意思？
+
+1291
+01:13:13,610 --> 01:13:16,460
+Which is a kiva land with a service, right?
+这是一个有服务的基地，对吗？
+
+1292
+01:13:16,470 --> 01:13:18,580
+A several arrival, right?
+是多个到达吗？
+
+1293
+01:13:18,990 --> 01:13:20,250
+Approaching the service, right?
+是要接近服务吗？
+
+1294
+01:13:21,060 --> 01:13:21,480
+What happens?
+发生了什么事情？
+
+1295
+01:13:21,490 --> 01:13:21,830
+It
+这是一个不完整的句子，请提供更多的上下文。
+
+1296
+01:13:34,000 --> 01:13:35,160
+gets very large.
+变得非常大。
+
+1297
+01:13:35,170 --> 01:13:36,560
+The cube becomes very large.
+这个立方体变得非常大。
+
+1298
+01:13:38,390 --> 01:13:40,260
+Another important aspect here,
+这里还有另一个重要方面，
+
+1299
+01:13:41,640 --> 01:13:43,230
+this is food for thought,
+这是一种值得思考的食物。
+
+1300
+01:13:43,240 --> 01:13:45,470
+is something which is not intuitive, either.
+这也是一件不直观的事情。
+
+1301
+01:13:48,190 --> 01:13:50,650
+If you goes close to one,
+如果你靠近其中一个，
+
+1302
+01:13:51,000 --> 01:13:52,150
+although it's not yet one,
+尽管现在还不是一个
+
+1303
+01:13:53,750 --> 01:13:55,590
+the queuing time goes to infinity.
+排队时间趋近于无穷大。
+
+1304
+01:13:58,080 --> 01:14:00,080
+And they may ask, well, but, hey,
+他们可能会问，嗯，但是，嘿，
+
+1305
+01:14:00,090 --> 01:14:02,320
+wait a minute.
+等一下。
+
+1306
+01:14:02,330 --> 01:14:06,640
+The you if you eat swan, we should be fine,
+如果你吃天鹅，我们应该没问题。
+
+1307
+01:14:07,310 --> 01:14:11,460
+because the arrival rate is not greater than the service rate.
+因为到达率不大于服务率。
+
+1308
+01:14:12,250 --> 01:14:14,390
+But if you is one, the queen is infinite.
+但如果你是一个，那么女王就是无限的。
+
+1309
+01:14:16,090 --> 01:14:16,650
+Why is that?
+为什么这样做？
+
+1310
+01:14:28,840 --> 01:14:30,040
+We'll talk more next lecture,
+我们下一堂课会再详细讨论。
+
+1311
+01:14:30,050 --> 01:14:31,080
+and you don't need,
+而且你不需要，
+
+1312
+01:14:31,570 --> 01:14:33,960
+we are not going to be asked this during the exam.
+在考试中我们不会被问到这个问题。
+
+1313
+01:14:36,790 --> 01:14:40,860
+But if the system is very bursting,
+但如果系统非常繁忙，
+
+1314
+01:14:42,180 --> 01:14:43,390
+there can be gaps.
+可能会有间隙。
+
+1315
+01:14:45,430 --> 01:14:46,820
+And during these gaps,
+在这些间隙期间，
+
+1316
+01:14:47,370 --> 01:14:48,620
+there is nothing in system.
+系统中没有任何内容。
+
+1317
+01:14:51,170 --> 01:14:53,000
+You lose that time, you lost,
+你浪费了那个时间，你输了。
+
+1318
+01:14:53,010 --> 01:14:56,270
+you never comes back because of births,
+你再也没有回来，因为有了新生儿。
+
+1319
+01:14:57,750 --> 01:14:59,300
+you are going to get in the future,
+你将来会得到的。
+
+1320
+01:15:00,860 --> 01:15:01,940
+are going to,
+你们打算去吗？
+
+1321
+01:15:02,640 --> 01:15:04,440
+then if you eliminate that gap,
+那么如果你消除了那个间隙，
+
+1322
+01:15:04,960 --> 01:15:07,740
+the number of arrival you are going to get in the future is going to be
+你将来将会收到的到达数量将会是
+
+1323
+01:15:07,750 --> 01:15:10,490
+greater than the server capacity,
+超过服务器容量
+
+1324
+01:15:14,470 --> 01:15:20,790
+because it's kind of these gaps where the system doesn't do anything.
+因为这些间隙是系统不执行任何操作的时候。
+
+1325
+01:15:21,030 --> 01:15:22,900
+When you have a very bursting arrival.
+当你有一个非常繁忙的到达时。
+
+1326
+01:15:23,970 --> 01:15:25,040
+This is a wasted time.
+这是浪费时间。
+
+1327
+01:15:25,050 --> 01:15:26,240
+It's a wasted capacity.
+这是一种浪费的能力。
+
+1328
+01:15:27,180 --> 01:15:28,780
+So that capacity cannot get back.
+这样就无法恢复容量了。
+
+1329
+01:15:30,260 --> 01:15:34,590
+That's why you can you fall behind in terms of capacity,
+这就是为什么你在容量方面会落后的原因。
+
+1330
+01:15:34,920 --> 01:15:36,360
+and you remain always behind.
+而你始终保持在后面。
+
+1331
+01:15:51,140 --> 01:15:54,700
+I I'm trying to give you an intuition,
+我正在尝试给你一个直观的理解。
+
+1332
+01:15:54,710 --> 01:15:55,860
+so it's like,
+所以就像是，
+
+1333
+01:15:58,740 --> 01:16:00,410
+it's not easy to get the intuition,
+理解起来并不容易，
+
+1334
+01:16:02,690 --> 01:16:03,370
+but this is good.
+但这很好。
+
+1335
+01:16:09,450 --> 01:16:10,030
+Okay.
+好的。
+
+1336
+01:16:12,640 --> 01:16:14,940
+What else I wanted to say here,
+我还想在这里说的是，
+
+1337
+01:16:15,590 --> 01:16:20,450
+by the way, you notice that for the general service time distribution,
+顺便提一下，你注意到一般服务时间分布的情况。
+
+1338
+01:16:21,010 --> 01:16:22,890
+the formula for the queuing delay,
+排队延迟的公式是：
+
+1339
+01:16:25,110 --> 01:16:27,600
+if exponential, you remember for exponential distribution,
+如果是指指数分布，你应该记得指数分布的特征。
+
+1340
+01:16:29,310 --> 01:16:31,140
+what was c one.
+C One 是指 C 语言的第一个版本。C 语言是一种通用的高级编程语言，由贝尔实验室的丹尼斯·里奇在 1972 年至 1973 年间开发。C 语言在计算机科学和软件开发领域广泛应用，被认为是现代编程语言的基础。
+
+1341
+01:16:32,250 --> 01:16:33,280
+If c is one,
+如果c是1，
+
+1342
+01:16:33,800 --> 01:16:35,700
+the equation,
+方程式，
+
+1343
+01:16:35,710 --> 01:16:39,930
+the queuing time for the general service distribution,
+一般服务分布的排队时间
+
+1344
+01:16:40,790 --> 01:16:46,060
+is going to reduce to the formula which you should expect
+将会简化为你所期望的公式
+
+1345
+01:16:46,650 --> 01:16:48,430
+for the exponential distribution.
+指数分布
+
+1346
+01:16:51,360 --> 01:16:53,120
+Let's take now our simple examples,
+现在让我们来看一下我们的简单示例，
+
+1347
+01:16:53,130 --> 01:16:55,200
+and then we are going to conclude the lecturers.
+然后我们将总结讲座内容。
+
+1348
+01:16:56,790 --> 01:16:58,410
+Let's say the user request.
+假设用户发出了请求。
+
+1349
+01:16:58,420 --> 01:17:04,340
+You have ten requests of you want to want a kilobytes disk,
+您有十个请求，您希望获得一个千字节的磁盘。
+
+1350
+01:17:05,370 --> 01:17:10,820
+write that request of each or 48 kilobytes data,
+请求每次或48千字节的数据。
+
+1351
+01:17:11,560 --> 01:17:12,420
+and the request.
+和请求。
+
+1352
+01:17:12,430 --> 01:17:14,700
+And the service are exponentially distributed.
+而且服务时间是指数分布的。
+
+1353
+01:17:15,890 --> 01:17:18,200
+Average service says 20 millisecond.
+平均服务时间为20毫秒。
+
+1354
+01:17:19,180 --> 01:17:23,570
+This is controller six time rotation latency and transfer time.
+这是控制器的六次旋转延迟和传输时间。
+
+1355
+01:17:24,780 --> 01:17:26,680
+And how utilize is a risk?
+风险的利用程度如何？
+
+1356
+01:17:30,830 --> 01:17:33,460
+Utilization is a formula, remember,
+利用率是一个公式，记住。
+
+1357
+01:17:33,470 --> 01:17:35,940
+is lambda times the service time.
+是指每个任务的服务时间乘以λ。
+
+1358
+01:17:36,250 --> 01:17:40,040
+Besides a formula average time to spending the qdq average the number
+除了计算平均等待时间的公式之外，还有一种方法是计算平均等待时间的平均数。
+
+1359
+01:17:40,050 --> 01:17:42,300
+of requesting the q now,
+现在请求队列的操作。
+
+1360
+01:17:42,310 --> 01:17:43,740
+this is a cure,
+这是一种治疗方法，
+
+1361
+01:17:43,750 --> 01:17:45,180
+not be noted here.
+不在此处记录。
+
+1362
+01:17:45,190 --> 01:17:48,880
+What is the average response time for this request?
+这个请求的平均响应时间是多少？
+
+1363
+01:17:49,910 --> 01:17:51,900
+This is the average response time.
+这是平均响应时间。
+
+1364
+01:17:52,210 --> 01:17:55,770
+It's very simple that the sum between the time is spending
+时间之间的总和是很简单的。
+
+1365
+01:17:55,780 --> 01:17:57,930
+the queue and time to service the request.
+队列和处理请求的时间。
+
+1366
+01:18:00,990 --> 01:18:02,180
+Let's do the computation.
+让我们进行计算。
+
+1367
+01:18:02,580 --> 01:18:03,310
+Lambda.
+Lambda（拉姆达）是一种匿名函数的概念，它可以在编程语言中使用。Lambda函数通常用于简化代码，特别是在需要传递函数作为参数的情况下。Lambda函数可以在定义时直接使用，而不需要为其命名。在许多编程语言中，Lambda函数可以用于函数式编程和高阶函数的实现。
+
+1368
+01:18:03,840 --> 01:18:09,350
+It's you have ten requests of a kilobytes,
+您有十个请求，每个请求大小为一千字节。
+
+1369
+01:18:09,360 --> 01:18:10,390
+this per second.
+每秒钟。
+
+1370
+01:18:11,270 --> 01:18:11,970
+So lambda,
+所以lambda，
+
+1371
+01:18:11,980 --> 01:18:19,460
+you have a very driving number of customers or request is ten per second.
+你有非常高的客户数量或者请求量，每秒达到十个。
+
+1372
+01:18:20,590 --> 01:18:25,280
+Ever, it's time to service the customers or a request 10 millisecond.
+Ever，现在是时候为客户提供服务或处理一个请求了，每个请求需要10毫秒。
+
+1373
+01:18:26,020 --> 01:18:27,020
+It was given here.
+这里已经给出了。
+
+1374
+01:18:27,030 --> 01:18:27,980
+If you remember,
+如果你还记得的话，
+
+1375
+01:18:28,510 --> 01:18:30,910
+this is one that I have a very selfish time.
+这是一个我非常自私的时刻。
+
+1376
+01:18:32,340 --> 01:18:35,010
+Server utilization is lambda times the service time,
+服务器利用率是 λ 倍的服务时间。
+
+1377
+01:18:35,020 --> 01:18:37,570
+is 0.2 queuing time.
+0.2是排队时间。
+
+1378
+01:18:37,580 --> 01:18:40,970
+Now you are going to apply because everything is exponentially distributed.
+现在你要进行应用，因为一切都是指数分布的。
+
+1379
+01:18:41,460 --> 01:18:43,490
+Then you use a formula which is
+然后你使用一个公式，该公式是
+
+1380
+01:18:43,500 --> 01:18:49,100
+ATS service standard service time utilization over one minor stabilization.
+ATS服务标准服务时间利用率在一次较小的稳定期间内。
+
+1381
+01:18:49,110 --> 01:18:51,880
+And you get 5 million seconds.
+你将获得500万秒。
+
+1382
+01:18:52,360 --> 01:18:59,900
+Average length of the q is lambda times TQ is 0.05 seconds.
+队列的平均长度 q 是 λ 倍的 TQ，即 0.05 秒。
+
+1383
+01:19:00,740 --> 01:19:03,080
+Average time, the customer spending,
+平均时间，顾客消费时间。
+
+1384
+01:19:03,090 --> 01:19:07,690
+the sister sister system is a queuing time plus a service time.
+姐妹系统是排队时间加上服务时间。
+
+1385
+01:19:07,910 --> 01:19:12,800
+So it's through 20 million seconds plus5 million seconds.
+所以是通过2000万秒加上500万秒。
+
+1386
+01:19:13,330 --> 01:19:15,080
+Here is 25 million seconds.
+这是2500万秒。
+
+1387
+01:19:17,500 --> 01:19:19,330
+There are a lot of materials.
+有很多材料。
+
+1388
+01:19:19,340 --> 01:19:20,570
+Here you have some pointers.
+这里有一些指针。
+
+1389
+01:19:20,580 --> 01:19:22,730
+If you are interested more in the queuing theory,
+如果你对排队理论更感兴趣的话，
+
+1390
+01:19:23,740 --> 01:19:24,570
+is great.
+很棒。
+
+1391
+01:19:27,680 --> 01:19:28,630
+This is a fair game.
+这是一场公平的游戏。
+
+1392
+01:19:28,640 --> 01:19:29,950
+This is a mistake.
+这是一个错误。
+
+1393
+01:19:30,490 --> 01:19:33,190
+You are going to get this in meter two, not three.
+你将会得到两米的长度，而不是三米。
+
+1394
+01:19:33,570 --> 01:19:34,770
+Sorry, for the Tai Po.
+对不起，关于大埔的问题。
+
+1395
+01:19:35,880 --> 01:19:39,100
+This lecture is included for me to do.
+这个讲座是为了我来做的。
+
+1396
+01:19:40,210 --> 01:19:41,340
+And with that,
+就这样，
+
+1397
+01:19:41,350 --> 01:19:42,830
+I am done.
+我完成了。
+
+1398
+01:19:43,650 --> 01:19:47,240
+So in summary and remember about,
+总结一下并记住以下内容：
+
+1399
+01:19:47,740 --> 01:19:49,500
+we look at this,
+我们来看一下这个。
+
+1400
+01:19:49,930 --> 01:19:51,950
+how we are going to model the systems.
+我们将如何对系统进行建模。
+
+1401
+01:19:52,840 --> 01:19:56,790
+And these systems are modeled are they have a cure?
+这些系统被建模的目的是为了找到解决方案吗？
+
+1402
+01:19:57,200 --> 01:20:00,970
+He said, you spend some time in the cure plus have a speaks overhead,
+他说，你需要花一些时间进行治疗，并且还有额外的演讲开销。
+
+1403
+01:20:02,530 --> 01:20:04,960
+like rotational latency and so forth,
+如旋转延迟等等，
+
+1404
+01:20:04,970 --> 01:20:06,240
+and you have a transfer.
+你有一次转账。
+
+1405
+01:20:06,540 --> 01:20:08,930
+Then this will impact the effective bandwidth.
+那么这将影响有效带宽。
+
+1406
+01:20:08,940 --> 01:20:11,890
+Effective bandwidth is not like the device bandwidth,
+有效带宽与设备带宽不同，
+
+1407
+01:20:12,580 --> 01:20:15,730
+because of this fix overhead.
+由于这个修复的开销。
+
+1408
+01:20:16,160 --> 01:20:22,400
+And with then we learn a little bit about this skewing theory.
+然后我们会稍微了解一下这个偏斜理论。
+
+1409
+01:20:22,410 --> 01:20:23,450
+And in particular,
+特别是，
+
+1410
+01:20:23,460 --> 01:20:29,260
+I gave you the day as a the formulas for the queuing delay,
+我给你提供了排队延迟的公式。
+
+1411
+01:20:29,710 --> 01:20:31,280
+for mm one cures,
+对于毫米来说，有一种治疗方法。
+
+1412
+01:20:31,290 --> 01:20:33,870
+everything is exponentially distributed into arrival time.
+所有事物的到达时间都服从指数分布。
+
+1413
+01:20:33,880 --> 01:20:38,550
+And the service time and MG one q arrival times are still,
+服务时间和MG一个队列的到达时间仍然是不变的。
+
+1414
+01:20:38,560 --> 01:20:41,030
+inter arrival times are still exponentially distributed,
+到达时间仍然服从指数分布，
+
+1415
+01:20:41,040 --> 01:20:46,550
+but the but the service time has a general distribution.
+但是服务时间具有一般分布。
+
+1416
+01:20:47,420 --> 01:20:49,270
+And remember,
+记住，
+
+1417
+01:20:49,280 --> 01:20:51,590
+this is a formula for the queuing time,
+这是一个计算排队时间的公式。
+
+1418
+01:20:51,890 --> 01:20:54,390
+for the general distribution of the service time.
+对于服务时间的一般分布。
+
+1419
+01:20:54,610 --> 01:21:00,480
+And remember that in both cases was 71 and MD one q John cues is asking
+请记住，在这两种情况下，71和MD都是John提出的问题。
+
+1420
+01:21:00,490 --> 01:21:03,430
+for the when the utilization approaches one,
+当利用率接近1时，
+
+1421
+01:21:03,440 --> 01:21:07,470
+then the latency goes to infinity, the queuing delay, and therefore,
+然后延迟变为无穷大，排队延迟也因此变大。
+
+1422
+01:21:07,480 --> 01:21:08,950
+the response time goes to infinity.
+响应时间趋向无穷大。
+
+1423
+01:21:10,560 --> 01:21:11,710
+I'm stopping here.
+我到这里停下来。
+
+1424
+01:21:12,080 --> 01:21:17,500
+Good luck to at the midterm and really good luck for the next week.
+祝你期中考试好运，下周也祝你好运。
+
+1425
+01:21:17,510 --> 01:21:18,940
+If you have any questions,
+如果你有任何问题，
+
+1426
+01:21:19,130 --> 01:21:21,200
+please don't hesitate to ask on piazza.
+请不要犹豫在 Piazza 上提问。
+
+1427
+01:21:21,470 --> 01:21:24,480
+And i'll see you next week.
+我下周会见到你。
+

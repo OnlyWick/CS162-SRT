@@ -1,0 +1,6509 @@
+1
+00:00:10,170 --> 00:00:11,080
+Hello, everyone.
+大家好。
+
+2
+00:00:11,130 --> 00:00:16,320
+So today we are going to continue our discussion on a file system,
+今天我们将继续讨论文件系统。
+
+3
+00:00:16,750 --> 00:00:17,820
+reliability.
+可靠性。
+
+4
+00:00:17,830 --> 00:00:24,540
+And we are going to talk a little bit about transactions and start talking
+我们要谈一下事务，并开始讨论。
+
+5
+00:00:24,550 --> 00:00:25,460
+about networking.
+关于网络。
+
+6
+00:00:28,230 --> 00:00:30,180
+If you remember, from last time,
+如果你还记得的话，上次我们讨论了
+
+7
+00:00:30,310 --> 00:00:39,700
+these are the three notions which are characterizing a system ability to function.
+这三个概念是描述系统功能的特征。
+
+8
+00:00:40,990 --> 00:00:48,390
+One is availability and refers to the system ability to respond to the
+一个是可用性，指的是系统响应的能力
+
+9
+00:00:48,400 --> 00:00:51,190
+request process and response to the requests.
+请求处理和对请求的响应。
+
+10
+00:00:52,990 --> 00:01:00,540
+Durability refers to the fact that is reflected the storage means it means that
+持久性指的是存储介质所反映的事实，即数据在存储介质上的持久存在性。
+
+11
+00:01:01,380 --> 00:01:04,690
+if you successfully start a piece of data,
+如果您成功启动一段数据，
+
+12
+00:01:06,200 --> 00:01:10,780
+you are going to be able to later retrieve the piece of data,
+你将能够稍后检索到这个数据。
+
+13
+00:01:10,790 --> 00:01:12,020
+that piece of data.
+那个数据。
+
+14
+00:01:13,320 --> 00:01:18,040
+He's not going to disappear or is going to be lost
+他不会消失或迷失。
+
+15
+00:01:18,050 --> 00:01:23,150
+despite maybe some the storage device failures,
+尽管可能会有一些存储设备故障，
+
+16
+00:01:25,030 --> 00:01:26,740
+and then reliability.
+然后是可靠性。
+
+17
+00:01:26,750 --> 00:01:30,030
+It's puts the two together,
+它将两者结合在一起，
+
+18
+00:01:30,640 --> 00:01:32,590
+both availability and your ability,
+可用性和您的能力
+
+19
+00:01:32,600 --> 00:01:41,470
+and basically the ability of the system to perform the required function,
+基本上是指系统执行所需功能的能力。
+
+20
+00:01:45,070 --> 00:01:48,890
+according to some specification during the space.
+根据空间中的某些规范。
+
+21
+00:01:49,220 --> 00:01:51,770
+For instance, if you are going to send the request,
+例如，如果你要发送请求，
+
+22
+00:01:52,040 --> 00:01:55,800
+you are going to get a response within a specified time period.
+您将在指定的时间段内收到回复。
+
+23
+00:01:57,880 --> 00:02:00,390
+And obviously, that should be correct.
+显然，那应该是正确的。
+
+24
+00:02:01,410 --> 00:02:05,840
+Last time, we discussed little about a durability.
+上次，我们稍微讨论了一下持久性。
+
+25
+00:02:06,620 --> 00:02:08,570
+Let's go again back.
+让我们再回去一次。
+
+26
+00:02:09,650 --> 00:02:14,820
+And we discuss about this is basically a summary of the last few slides
+我们讨论的内容基本上是对前几张幻灯片的总结。
+
+27
+00:02:15,690 --> 00:02:17,170
+from the last lecture.
+从上一堂课开始。
+
+28
+00:02:18,150 --> 00:02:19,620
+I know you could provide your ability.
+我知道你能够发挥你的能力。
+
+29
+00:02:19,870 --> 00:02:23,540
+It's again, the ability that once you start a piece of data,
+再次强调的是，一旦你开始处理一段数据，
+
+30
+00:02:23,550 --> 00:02:25,940
+you can later retrieve that piece of data.
+你可以稍后检索到那个数据。
+
+31
+00:02:26,650 --> 00:02:28,690
+It's basically replicating the data.
+这基本上是数据的复制。
+
+32
+00:02:29,240 --> 00:02:29,580
+Right?
+对吗？
+
+33
+00:02:30,240 --> 00:02:32,080
+And if you replicate the data,
+如果你复制数据，
+
+34
+00:02:32,320 --> 00:02:38,690
+then it provides you the ability to survive to one this failure.
+然后它提供了你在这种故障中存活的能力。
+
+35
+00:02:38,700 --> 00:02:40,790
+Because if one this failed,
+因为如果其中一个失败了，
+
+36
+00:02:41,060 --> 00:02:45,770
+you still have the other these storing the epitope of the data.
+你仍然有另外一个存储数据表位点的这些。
+
+37
+00:02:45,980 --> 00:02:47,130
+The data is not lost.
+数据没有丢失。
+
+38
+00:02:49,240 --> 00:02:50,070
+We also discuss.
+我们也讨论。
+
+39
+00:02:50,080 --> 00:02:55,030
+So what are the characteristics of this system of this red one where you
+这个红色系统的特点是什么？
+
+40
+00:02:55,040 --> 00:02:58,300
+replicate any piece of data on two different disks?
+在两个不同的磁盘上复制任何数据？
+
+41
+00:02:59,680 --> 00:03:02,390
+One is that when you write a date, a piece of data,
+其中一个是当你写日期时，是一条数据，
+
+42
+00:03:02,400 --> 00:03:03,990
+you need to write on both disks.
+你需要在两个磁盘上都写入数据。
+
+43
+00:03:04,320 --> 00:03:08,670
+Therefore, you sacrifice the bandwidth of the right,
+因此，你牺牲了右侧的带宽。
+
+44
+00:03:08,680 --> 00:03:12,820
+because each right now becomes two rights to different disks.
+因为现在每个权利都变成了对不同磁盘的两个权利。
+
+45
+00:03:14,240 --> 00:03:16,830
+It's also, you need to wait for the slower,
+还有，你需要等待慢一点。
+
+46
+00:03:16,840 --> 00:03:18,830
+slow as this to do the right.
+做正确的事情很慢。
+
+47
+00:03:19,900 --> 00:03:24,890
+If you want to really optimize of how long this right latency,
+如果你想真正优化这个正确延迟的时间，
+
+48
+00:03:25,250 --> 00:03:27,580
+you probably want to synchronize a disk.
+你可能想要对磁盘进行同步操作。
+
+49
+00:03:27,590 --> 00:03:29,060
+So therefore, both rise,
+因此，两者都上升。
+
+50
+00:03:29,070 --> 00:03:32,170
+take the same amount of time, more or less.
+大致需要相同的时间，多或少一些。
+
+51
+00:03:33,970 --> 00:03:35,000
+On the other hand,
+另一方面，
+
+52
+00:03:35,010 --> 00:03:37,920
+for real things are a little bit different and are better.
+实际情况有些不同，而且更好。
+
+53
+00:03:38,450 --> 00:03:41,050
+Because now you have two replicas, and you need, when you read,
+因为现在你有两个副本，当你读取时，你需要
+
+54
+00:03:41,060 --> 00:03:43,210
+you need us to get a piece of data.
+你需要我们获取一份数据。
+
+55
+00:03:43,740 --> 00:03:45,980
+So you can get from either disk.
+所以你可以从任何一个磁盘获取数据。
+
+56
+00:03:46,600 --> 00:03:51,940
+So actually, you can improve or can even double the throughput.
+实际上，你可以提高吞吐量，甚至可以翻倍。
+
+57
+00:03:52,550 --> 00:03:53,450
+In this case,
+在这种情况下，
+
+58
+00:03:55,830 --> 00:03:56,830
+finally, if you remember,
+最后，如果你还记得的话，
+
+59
+00:03:56,840 --> 00:03:57,870
+when it is fair,
+当它是公平的时候，
+
+60
+00:03:57,880 --> 00:03:59,690
+is what you are going to do.
+你要做的是什么。
+
+61
+00:03:59,700 --> 00:04:01,510
+You are going to buy another one,
+你打算再买一个。
+
+62
+00:04:01,620 --> 00:04:06,810
+and then you are going to copy all the data from the primary
+然后你将从主要位置复制所有数据。
+
+63
+00:04:06,820 --> 00:04:09,250
+now from primary disk to the secondary,
+现在从主磁盘复制到次要磁盘。
+
+64
+00:04:09,740 --> 00:04:10,610
+to the new disk.
+将数据复制到新的磁盘中。
+
+65
+00:04:10,620 --> 00:04:12,490
+And now you have a game to a rebel class.
+现在你有一个针对叛逆班级的游戏。
+
+66
+00:04:13,940 --> 00:04:14,130
+Now,
+现在，
+
+67
+00:04:14,140 --> 00:04:17,490
+this assumes that while you're doing these recoveries
+这假设在你进行这些恢复操作时
+
+68
+00:04:17,500 --> 00:04:19,330
+of primary disk doesn't fail.
+主要磁盘不会发生故障。
+
+69
+00:04:20,030 --> 00:04:22,190
+And that's something to keep in mind.
+这是需要记住的一点。
+
+70
+00:04:25,040 --> 00:04:27,700
+And actually, this is a problem, in general,
+实际上，这是一个普遍存在的问题。
+
+71
+00:04:27,710 --> 00:04:36,250
+because this is if you do this right one,
+因为这是如果你做对的话，
+
+72
+00:04:36,260 --> 00:04:38,930
+and you do you build the right one and your application,
+你需要构建正确的应用程序吗？
+
+73
+00:04:39,260 --> 00:04:44,760
+presumably, what you want this to be from different batches of production.
+可以推测，您希望这来自不同批次的生产。
+
+74
+00:04:45,600 --> 00:04:48,660
+Because if you and this,
+因为如果你和这个一起，
+
+75
+00:04:48,670 --> 00:04:50,160
+you need to be careful, right?
+你需要小心，对吗？
+
+76
+00:04:50,170 --> 00:04:51,400
+Because when you buy this,
+因为当你购买这个时，
+
+77
+00:04:51,410 --> 00:04:55,070
+you buy all the disk at the same time to build this system.
+您同时购买了所有磁盘来构建这个系统。
+
+78
+00:04:55,530 --> 00:05:00,530
+But then if this guy from the same batches batch of production,
+但是如果这个人来自同一批次的生产批次，
+
+79
+00:05:00,810 --> 00:05:05,180
+they tend to have the same failures and the same kind of failure pattern.
+它们往往会出现相同的故障和相同类型的故障模式。
+
+80
+00:05:05,560 --> 00:05:08,470
+And then when one this fails is pretty likely than other,
+当一个失败时，另一个失败的可能性就很大。
+
+81
+00:05:08,480 --> 00:05:10,500
+is also from the same bachelor fail.
+也是同一个学士学位失败的人。
+
+82
+00:05:11,180 --> 00:05:12,830
+So you don't want to do that,
+所以你不想这样做，
+
+83
+00:05:13,430 --> 00:05:16,620
+because you want to reduce apps as a minimum,
+因为你想要将应用程序减少到最低限度，
+
+84
+00:05:16,630 --> 00:05:18,140
+the risk that during the recovery,
+在恢复过程中的风险
+
+85
+00:05:18,150 --> 00:05:19,340
+another disposal.
+另一个处置方法。
+
+86
+00:05:19,960 --> 00:05:24,010
+So that's how you use different product batches or you receive and may be
+这就是如何使用不同的产品批次，或者你收到并可能使用它们的方式。
+
+87
+00:05:24,020 --> 00:05:26,760
+different disk manufacturers.
+不同的磁盘制造商。
+
+88
+00:05:30,730 --> 00:05:34,960
+The problem with red wine is very expensive and so far so high overhead.
+红酒的问题在于价格非常昂贵，而且开销也很高。
+
+89
+00:05:35,570 --> 00:05:37,520
+We discuss about this straight, right?
+我们是在直接讨论这个问题，对吗？
+
+90
+00:05:37,530 --> 00:05:40,570
+Five and more your stripes, the data.
+五条及以上的条纹，数据。
+
+91
+00:05:40,580 --> 00:05:42,170
+So you have a parity block.
+所以你有一个奇偶校验块。
+
+92
+00:05:43,380 --> 00:05:44,480
+In this case,
+在这种情况下，
+
+93
+00:05:48,340 --> 00:05:54,440
+you take the blocks out of,
+你将块取出来，
+
+94
+00:05:56,050 --> 00:05:57,960
+you start successively, in this case,
+在这种情况下，你连续启动。
+
+95
+00:05:57,970 --> 00:06:00,100
+for blocks on four disks.
+对于四个磁盘上的块。
+
+96
+00:06:00,110 --> 00:06:02,550
+And then on the five disk here,
+然后在这里的五个磁盘上，
+
+97
+00:06:02,850 --> 00:06:06,380
+you are going to have computer parity block,
+你将要有计算机奇偶校验块。
+
+98
+00:06:11,310 --> 00:06:12,350
+the parity block.
+奇偶校验块。
+
+99
+00:06:12,650 --> 00:06:14,870
+One way to compute its excellent,
+计算其优秀的一种方法是，
+
+100
+00:06:14,880 --> 00:06:16,470
+like we discussed last time,
+就像我们上次讨论的那样，
+
+101
+00:06:17,730 --> 00:06:19,570
+d zero here is d zero,
+d zero 这里是 d zero,
+
+102
+00:06:20,170 --> 00:06:23,040
+x or d one, x or d two x or d three.
+x或d一，x或d二，x或d三。
+
+103
+00:06:24,430 --> 00:06:25,510
+Here is an example.
+这是一个例子。
+
+104
+00:06:26,200 --> 00:06:27,210
+If you want,
+如果你愿意的话，
+
+105
+00:06:27,220 --> 00:06:29,250
+if one biscuits it's destroyed,
+如果一个饼干被弄碎了，它就被毁坏了。
+
+106
+00:06:29,610 --> 00:06:31,110
+you can still recover.
+你仍然可以恢复过来。
+
+107
+00:06:32,400 --> 00:06:33,640
+This is an example.
+这是一个例子。
+
+108
+00:06:34,020 --> 00:06:35,090
+Here is an example.
+这是一个例子。
+
+109
+00:06:35,100 --> 00:06:35,450
+Here.
+在这里。
+
+110
+00:06:35,460 --> 00:06:36,890
+Each block is 1 bit,
+每个块是1位。
+
+111
+00:06:37,440 --> 00:06:38,750
+let's say, d zero, it's zero,
+假设d为零，那么它就是零。
+
+112
+00:06:38,760 --> 00:06:41,110
+then d one 1, d 20,
+然后是第一个1，第20个。
+
+113
+00:06:41,120 --> 00:06:42,150
+d 31.
+d 31. 
+
+d 31 表示删除第 31 行的命令。
+
+114
+00:06:42,520 --> 00:06:44,050
+If you do the x or here,
+如果你在这里做x或者这样做的话，
+
+115
+00:06:44,060 --> 00:06:45,370
+you are going to get zero.
+你将得到零分。
+
+116
+00:06:45,380 --> 00:06:49,870
+This is a parity on the content of the parity block.
+这是对奇偶校验块内容的校验。
+
+117
+00:06:50,540 --> 00:06:52,930
+Now, suppose this to fail.
+现在，假设这个失败了。
+
+118
+00:06:53,860 --> 00:06:55,730
+If you do this to fail,
+如果你这样做就会失败，
+
+119
+00:06:55,950 --> 00:06:56,960
+then what you do,
+作为CS162计算机操作系统的助教，我的主要工作是帮助学生理解课程内容，解答他们的问题，批改作业和实验报告，并提供必要的支持和指导。我还可能参与课程的讨论和辅导学生进行项目开发。
+
+120
+00:06:56,970 --> 00:07:00,730
+you are going to do the x or everything,
+你将要做x或者一切。
+
+121
+00:07:02,230 --> 00:07:05,020
+which is, including the parity block.
+其中包括奇偶校验块。
+
+122
+00:07:05,450 --> 00:07:08,330
+And then you are going to get the content of the lost block.
+然后你将获取丢失块的内容。
+
+123
+00:07:08,340 --> 00:07:10,960
+So in this case, we do was zero.
+在这种情况下，我们所做的是将其归零。
+
+124
+00:07:11,340 --> 00:07:13,550
+You get deal with the zero,
+你需要处理零,
+
+125
+00:07:14,100 --> 00:07:15,340
+x or v one,
+x或v之一，
+
+126
+00:07:15,630 --> 00:07:18,210
+x or b three, x or p zero, the parity block.
+x或b三，x或p零，奇偶校验块。
+
+127
+00:07:18,220 --> 00:07:19,960
+And you get zero, you recover.
+而你得到零分，你可以恢复。
+
+128
+00:07:27,030 --> 00:07:28,610
+It's a great question.
+这是一个很好的问题。
+
+129
+00:07:30,620 --> 00:07:32,910
+Why do we start parody staggered?
+为什么我们要采用交错的方式开始模仿？
+
+130
+00:07:38,680 --> 00:07:40,190
+Gilbert, he says,
+吉尔伯特，他说，
+
+131
+00:07:40,200 --> 00:07:43,110
+answer that if they are in the same row columns and we
+回答是，如果它们在同一行和列中，那么它们是在同一位置。
+
+132
+00:07:43,120 --> 00:07:47,120
+might have to trouble recovering if that specific route column got lost.
+如果特定的路由列丢失，可能会导致恢复过程出现问题。
+
+133
+00:07:52,300 --> 00:07:59,260
+So basically, it's about load balancing the load when you have failures.
+基本上，它是关于在出现故障时进行负载均衡的问题。
+
+134
+00:07:59,270 --> 00:07:59,620
+Right?
+对吗？
+
+135
+00:07:59,630 --> 00:08:02,140
+For instance, if the parity block fails,
+例如，如果奇偶校验块发生故障，
+
+136
+00:08:02,510 --> 00:08:04,240
+then both the readers,
+然后两个读者，
+
+137
+00:08:04,910 --> 00:08:06,550
+the disposal parity block fails.
+可用的奇偶校验块失效。
+
+138
+00:08:06,880 --> 00:08:08,840
+At least the reels will not be affected,
+至少卷轴不会受到影响。
+
+139
+00:08:09,720 --> 00:08:12,200
+because all the blocks are there, right?
+因为所有的块都在那里，对吗？
+
+140
+00:08:13,520 --> 00:08:15,670
+The data blocks in the background,
+后台中的数据块
+
+141
+00:08:15,680 --> 00:08:17,590
+you are going to reconstruct the parity block.
+你将要重建奇偶校验块。
+
+142
+00:08:19,670 --> 00:08:21,760
+So that's 111 reason.
+所以这是111个理由。
+
+143
+00:08:22,090 --> 00:08:22,300
+Right?
+对吗？
+
+144
+00:08:23,310 --> 00:08:23,980
+It's a game.
+这是一个游戏。
+
+145
+00:08:23,990 --> 00:08:28,180
+It's like, if you put all the parity blocks on a disk,
+就好像，如果你把所有的奇偶校验块放在一个磁盘上，
+
+146
+00:08:28,930 --> 00:08:33,610
+then if any other disks goes away,
+那么如果其他任何磁盘消失，
+
+147
+00:08:33,620 --> 00:08:38,220
+then all the reads have to reconstruct using the parity block.
+那么所有的读取操作都必须使用奇偶校验块进行重建。
+
+148
+00:08:38,480 --> 00:08:39,400
+So it's expensive.
+所以它很贵。
+
+149
+00:08:41,590 --> 00:08:43,770
+All there is for the data, from the failures.
+所有的数据都来自于故障。
+
+150
+00:08:44,780 --> 00:08:48,070
+If the parity blocks are staggered,
+如果奇偶校验块是交错的，
+
+151
+00:08:48,510 --> 00:08:49,690
+then again,
+再说一遍，
+
+152
+00:08:49,700 --> 00:08:52,090
+when the disk is a parity,
+当磁盘处于奇偶校验状态时，
+
+153
+00:08:53,250 --> 00:08:58,930
+when you access the data whose parity block was on a failed disk,
+当您访问数据时，其奇偶校验块位于故障磁盘上时，
+
+154
+00:08:59,650 --> 00:09:01,980
+you don't need to do anything because the data is available.
+你不需要做任何事情，因为数据已经可用。
+
+155
+00:09:10,910 --> 00:09:13,580
+This is I the same solution,
+这是我相同的解决方案。
+
+156
+00:09:16,190 --> 00:09:18,030
+in principle, is going to recover.
+原则上，将会恢复。
+
+157
+00:09:18,040 --> 00:09:18,510
+Also.
+另外。
+
+158
+00:09:18,520 --> 00:09:19,310
+What is the internet?
+互联网是一个全球性的计算机网络，它连接了世界各地的计算机和设备。通过互联网，人们可以共享信息、交流、进行在线购物、观看视频、玩游戏等。互联网使用一种称为互联网协议（IP）的通信协议来传输数据。它是一个开放的网络，没有中央控制机构，而是由许多互联网服务提供商和网络运营商共同维护和管理。
+
+159
+00:09:19,320 --> 00:09:19,750
+Right?
+对吗？
+
+160
+00:09:19,760 --> 00:09:21,530
+It's like, not there.
+就好像，不存在一样。
+
+161
+00:09:21,540 --> 00:09:25,950
+It doesn't need to be in the same data center or in the same rack.
+它不需要在同一个数据中心或同一个机架中。
+
+162
+00:09:29,350 --> 00:09:32,140
+And then it's, again,
+然后，再次，
+
+163
+00:09:32,150 --> 00:09:33,380
+this straight five.
+这是直接的五。
+
+164
+00:09:34,150 --> 00:09:40,570
+It's provides your ability in the presence of one this failure.
+在出现这种故障时，它提供了您的能力。
+
+165
+00:09:41,460 --> 00:09:43,610
+What if you want to have more these failures?
+如果你想要更多这样的故障，该怎么办？
+
+166
+00:09:44,130 --> 00:09:46,630
+There are, as a version of ride back,
+作为回溯的一个版本，有以下几点：
+
+167
+00:09:46,640 --> 00:09:48,450
+ride x instead of parity blocks,
+使用X替代奇偶校验块
+
+168
+00:09:48,460 --> 00:09:49,750
+there is your asian code.
+这是您的亚洲代码。
+
+169
+00:09:51,580 --> 00:09:52,230
+For instance,
+例如，
+
+170
+00:09:52,240 --> 00:09:56,730
+rate six allowed to disk and replicate to fail in the replication,
+允许将六个副本写入磁盘并在复制过程中发生故障。
+
+171
+00:09:57,330 --> 00:09:58,040
+strive to fail.
+努力去失败。
+
+172
+00:09:58,540 --> 00:10:02,010
+Many of these are the three solomon codes of the radio codes.
+其中许多是无线电代码的三个所罗门码。
+
+173
+00:10:02,690 --> 00:10:04,800
+In this case, you have m data fragments.
+在这种情况下，你有m个数据片段。
+
+174
+00:10:05,390 --> 00:10:06,730
+You can think about blocks,
+你可以考虑块，
+
+175
+00:10:06,940 --> 00:10:10,820
+and you generate n minus m extra fragments.
+而且你生成了n减m个额外的碎片。
+
+176
+00:10:11,070 --> 00:10:15,010
+Now, to start m blocks of m fragments of data or blocks of data,
+现在，要开始m个数据片段或数据块的m个块。
+
+177
+00:10:15,260 --> 00:10:19,800
+you are going to need and blocks out of which n minus rm
+你需要n减去rm个块。
+
+178
+00:10:19,810 --> 00:10:21,200
+are newly generated blocks.
+是新生成的块。
+
+179
+00:10:21,830 --> 00:10:23,920
+This can generate n minus m failures.
+这可以生成 n 减去 m 个故障。
+
+180
+00:10:23,930 --> 00:10:25,120
+So basically, you can,
+基本上，你可以，
+
+181
+00:10:26,040 --> 00:10:28,430
+if, as long as you have,
+只要你拥有的话，
+
+182
+00:10:28,800 --> 00:10:31,960
+m in, the m disks are still up,
+m在，m个磁盘仍然正常运行。
+
+183
+00:10:32,490 --> 00:10:36,750
+then you can reconstruct nemd scout of n are up.
+那么你可以重建N个NEMD侦察者。
+
+184
+00:10:37,120 --> 00:10:42,260
+You can reconstruct all the pieces of it, right?
+你可以重新组装它的所有部件，对吗？
+
+185
+00:10:44,490 --> 00:10:44,930
+It's again.
+又是你。
+
+186
+00:10:44,940 --> 00:10:46,090
+So like, for instance,
+例如，
+
+187
+00:10:46,100 --> 00:10:49,820
+if you want really to have extremely,
+如果你真的想要非常地拥有，
+
+188
+00:10:51,080 --> 00:10:52,750
+something extremely resilient,
+非常坚韧的东西，
+
+189
+00:10:53,440 --> 00:10:56,350
+extremely durable, you can have, like, in this example,
+非常耐用，就像在这个例子中，你可以拥有的那样。
+
+190
+00:10:56,360 --> 00:11:01,520
+you can have m is for fragments or blocks and in 16.
+你可以将m用于表示片段或块，并且它的值为16。
+
+191
+00:11:01,980 --> 00:11:04,550
+So then you are going,
+那么你要走了吗？
+
+192
+00:11:04,910 --> 00:11:06,470
+the overhead is quite high.
+开销相当高。
+
+193
+00:11:07,880 --> 00:11:10,310
+And by this system will be extremely durable.
+通过这个系统，它将变得非常耐用。
+
+194
+00:11:12,260 --> 00:11:13,450
+And like mentioning,
+还有一点要提到的是，
+
+195
+00:11:13,460 --> 00:11:15,900
+you can have the device.
+你可以拥有这个设备。
+
+196
+00:11:16,210 --> 00:11:19,720
+All the disk drives in the same a room,
+同一个房间内的所有磁盘驱动器，
+
+197
+00:11:19,730 --> 00:11:21,600
+or you can have them across the internet.
+或者你可以通过互联网进行传输。
+
+198
+00:11:21,610 --> 00:11:23,680
+And obviously, when they are across the internet,
+当它们通过互联网连接时，显然，
+
+199
+00:11:24,020 --> 00:11:32,530
+you are going to have a much more durable system because the correlation
+你将拥有一个更持久的系统，因为相关性更高。
+
+200
+00:11:32,540 --> 00:11:33,570
+of failure is lower,
+故障率更低，
+
+201
+00:11:33,580 --> 00:11:33,850
+right?
+对的？
+
+202
+00:11:33,860 --> 00:11:35,610
+If all the discard in the same room,
+如果所有的废弃物都放在同一个房间里，
+
+203
+00:11:35,620 --> 00:11:40,040
+if you have an earthquake or you have a fire,
+如果发生地震或火灾，
+
+204
+00:11:40,330 --> 00:11:41,640
+or that this may be destroyed.
+或者这可能会被摧毁。
+
+205
+00:11:44,630 --> 00:11:49,600
+Here a a it's a very interesting aspect.
+这是一个非常有趣的方面。
+
+206
+00:11:49,940 --> 00:11:53,630
+And at the high level,
+在高层次上，
+
+207
+00:11:55,690 --> 00:11:58,080
+so one is so say you want to do,
+所以，一个是你想要做的事情。
+
+208
+00:11:58,090 --> 00:12:01,730
+you are prepared to pay an overhead here.
+你准备在这里支付额外开销。
+
+209
+00:12:01,740 --> 00:12:02,930
+In this example,
+在这个例子中，
+
+210
+00:12:02,940 --> 00:12:07,520
+you say an overhead of forex.
+你说外汇的开销。
+
+211
+00:12:07,530 --> 00:12:09,680
+So for each piece of data,
+所以对于每个数据片段，
+
+212
+00:12:10,000 --> 00:12:14,460
+I am not going to require 4 time storage.
+我不需要占用4倍的存储空间。
+
+213
+00:12:14,470 --> 00:12:18,390
+Like if I start one gigabyte of data,
+如果我开始传输一千兆字节的数据，
+
+214
+00:12:18,730 --> 00:12:20,930
+I am going to use four gigabytes of storage.
+我将使用四千兆字节的存储空间。
+
+215
+00:12:22,810 --> 00:12:25,300
+And one thing is to have for a wise replication,
+而一个明智的复制的一个要点是，
+
+216
+00:12:25,620 --> 00:12:26,850
+each piece of data,
+每个数据片段，
+
+217
+00:12:28,250 --> 00:12:30,290
+I am going to replicate on four different pieces.
+我将在四个不同的部分进行复制。
+
+218
+00:12:31,600 --> 00:12:34,410
+And then you compute here,
+然后你在这里进行计算，
+
+219
+00:12:34,420 --> 00:12:36,570
+this is fraction block loss per year.
+这是每年的分数块损失。
+
+220
+00:12:37,370 --> 00:12:40,120
+This is on the y axis,
+这是在y轴上。
+
+221
+00:12:40,130 --> 00:12:41,720
+the x axis,
+x轴
+
+222
+00:12:41,730 --> 00:12:43,360
+the repair time of algorithm,
+算法的修复时间
+
+223
+00:12:43,370 --> 00:12:51,360
+or but then in your computer probably is that you lose all the data, right?
+或者但是在你的电脑上可能是你会丢失所有的数据，对吗？
+
+224
+00:12:52,670 --> 00:12:56,890
+This means all 4 days start going to fail before you have a chance to rebel.
+这意味着在你有机会反抗之前，所有4天都会开始失败。
+
+225
+00:13:00,780 --> 00:13:04,260
+Now, the other way you can do it is the following thing.
+现在，你可以采取另一种方法，具体如下。
+
+226
+00:13:04,270 --> 00:13:05,820
+And that's why it's called fragments.
+这就是为什么它被称为碎片。
+
+227
+00:13:05,830 --> 00:13:06,260
+I'm saying,
+我是说，
+
+228
+00:13:06,840 --> 00:13:14,370
+i'm taking a block and instead of replicating four time for on four beasts,
+我正在使用一个块，而不是为四个野兽复制四次。
+
+229
+00:13:15,210 --> 00:13:19,170
+I am going to take assume that I have,
+我假设我已经理解了。
+
+230
+00:13:19,660 --> 00:13:21,870
+say, 64 disk,
+说，64个磁盘。
+
+231
+00:13:21,880 --> 00:13:25,440
+smaller disks that are the total story is the same.
+较小的磁盘，总体故事是相同的。
+
+232
+00:13:27,080 --> 00:13:28,900
+But then i'm taking a block,
+但是我正在占用一个块。
+
+233
+00:13:29,260 --> 00:13:32,750
+and i'm going to divide it into 6, 16 fragments.
+我将把它分成6个16个片段。
+
+234
+00:13:33,870 --> 00:13:36,220
+And for each fragment, I am going.
+对于每个片段，我都会进行处理。
+
+235
+00:13:37,130 --> 00:13:38,920
+And then for the 16 fragments,
+然后对于这16个片段，
+
+236
+00:13:38,930 --> 00:13:41,320
+and i'm going to compute using gradient codes.
+我将使用梯度代码进行计算。
+
+237
+00:13:44,290 --> 00:13:46,450
+Another 64-16,
+另一个是64减去16，
+
+238
+00:13:46,460 --> 00:13:48,400
+48 fragment, right?
+48个片段，对吗？
+
+239
+00:13:48,700 --> 00:13:50,140
+The overhead is the same.
+开销是相同的。
+
+240
+00:13:51,070 --> 00:13:52,630
+But now I have a lot of more fuel,
+但是现在我有更多的燃料了，
+
+241
+00:13:52,640 --> 00:13:54,150
+a lot of more fragments.
+更多的碎片。
+
+242
+00:13:55,410 --> 00:13:57,400
+And in this particular case,
+在这种特殊情况下，
+
+243
+00:13:57,410 --> 00:14:00,700
+this will be a much more durable system.
+这将是一个更持久耐用的系统。
+
+244
+00:14:02,820 --> 00:14:04,490
+Let me say a little bit about this plot.
+让我简单介绍一下这个情节。
+
+245
+00:14:04,500 --> 00:14:05,690
+Now, on the x axis,
+现在，在x轴上，
+
+246
+00:14:05,700 --> 00:14:10,750
+you have repair time on the y axis.
+你在y轴上有修复时间。
+
+247
+00:14:11,100 --> 00:14:14,830
+Here you are going to have probability of block failure period.
+在这里，您将获得块故障发生的概率周期。
+
+248
+00:14:17,910 --> 00:14:22,060
+This basically says that, as you expect,
+这基本上是说，正如你所预期的那样，
+
+249
+00:14:22,070 --> 00:14:24,940
+and different lines are for the number of fragments,
+不同的行表示片段的数量，
+
+250
+00:14:25,910 --> 00:14:27,530
+for 8, 16, 72,
+对于8、16、72，
+
+251
+00:14:27,540 --> 00:14:29,430
+64 for four fragments.
+64 表示有四个片段。
+
+252
+00:14:29,840 --> 00:14:34,300
+Is basically you have a replication on,
+基本上，你开启了复制功能。
+
+253
+00:14:35,090 --> 00:14:36,310
+basically, on for,
+基本上，关于for循环，
+
+254
+00:14:36,320 --> 00:14:40,640
+as you can see this way on for the or for devices.
+正如你所看到的，这种方式适用于设备的运行。
+
+255
+00:14:41,570 --> 00:14:45,240
+Obviously, you can expect that the repair time increases,
+显然，你可以预期修复时间会增加。
+
+256
+00:14:47,170 --> 00:14:53,340
+then the probability of failure will increase,
+那么故障的概率将会增加。
+
+257
+00:14:55,070 --> 00:14:55,460
+right?
+对的？
+
+258
+00:14:55,850 --> 00:14:59,510
+Because if it takes one day to repair,
+因为如果修理需要一天的时间，
+
+259
+00:14:59,520 --> 00:15:03,110
+that is a chance that other bees will fail within one day,
+这意味着其他蜜蜂在一天内可能会失败。
+
+260
+00:15:03,210 --> 00:15:06,760
+is much smaller than if the repair takes 6 months.
+如果修理需要6个月，那么时间要小得多。
+
+261
+00:15:07,200 --> 00:15:09,760
+Then now you have seen 6 months have already, obviously,
+那么现在你已经看到了6个月的时间，显然，
+
+262
+00:15:09,770 --> 00:15:12,100
+the point that is to fail is much higher.
+失败的点要高得多。
+
+263
+00:15:17,430 --> 00:15:18,650
+But this, basically,
+但是，基本上，
+
+264
+00:15:22,900 --> 00:15:24,690
+again, this is simple probability.
+这是简单的概率问题。
+
+265
+00:15:26,450 --> 00:15:31,680
+This basically tells you that the probability to have,
+这基本上告诉你有...的概率。
+
+266
+00:15:32,000 --> 00:15:37,840
+say, in this case to have for this,
+在这种情况下，为了获得这个，
+
+267
+00:15:37,850 --> 00:15:40,160
+so for this to fail,
+所以要使其失败，
+
+268
+00:15:40,170 --> 00:15:44,210
+so you lose all the copies is much higher.
+因此，你丢失所有副本的风险要高得多。
+
+269
+00:15:44,480 --> 00:15:48,600
+Then they probably to have all for this to fail to have.
+那么他们可能需要所有这些才能失败。
+
+270
+00:15:49,270 --> 00:15:52,820
+In this case, 49 of these of 64,
+在这种情况下，64个中的49个。
+
+271
+00:15:52,830 --> 00:15:59,630
+these two facts.
+这两个事实。
+
+272
+00:16:05,690 --> 00:16:08,440
+Michael asked this question in practice, are error codes.
+迈克尔在练习中提出了一个问题，关于错误代码。
+
+273
+00:16:08,450 --> 00:16:12,080
+I the parity codes ever used instead of eraser codes.
+奇偶校验码有没有被用来替代纠错码？
+
+274
+00:16:15,340 --> 00:16:17,490
+If you have only to tolerate a failure,
+如果你只需要容忍一个失败，
+
+275
+00:16:17,500 --> 00:16:21,210
+I think you are still going to use the priority codes.
+我认为你仍然会使用优先级代码。
+
+276
+00:16:22,480 --> 00:16:23,550
+It's just easier,
+这样更简单。
+
+277
+00:16:23,560 --> 00:16:25,900
+or you are going to use replication.
+或者你将使用复制。
+
+278
+00:16:28,040 --> 00:16:29,230
+The other one.
+另一个。
+
+279
+00:16:32,110 --> 00:16:34,970
+But in general, you do is erasure codes and erasure codes.
+但总的来说，你所做的是纠删码和纠删码。
+
+280
+00:16:34,980 --> 00:16:37,570
+Actually, they are using all these distributed file systems,
+实际上，他们正在使用所有这些分布式文件系统，
+
+281
+00:16:37,950 --> 00:16:41,220
+also like how to distribute file systems that are version,
+还有如何分发版本化的文件系统。
+
+282
+00:16:41,230 --> 00:16:42,860
+which are using erasal codes.
+正在使用纠删码的是哪些？
+
+283
+00:16:43,460 --> 00:16:48,180
+They actually exactly to improve reliability.
+它们实际上是为了提高可靠性而存在的。
+
+284
+00:16:49,600 --> 00:16:50,960
+But I will ask a question,
+Sure, go ahead and ask your question. I'll be happy to help you.
+
+285
+00:16:50,970 --> 00:16:53,320
+what does it mean to repair for 6 months?
+"repair for 6 months" means that a product or service is guaranteed to be repaired free of charge within a period of 6 months from the date of purchase or initial repair. During this time, any issues or defects with the product or service will be fixed by the manufacturer or service provider at no additional cost to the customer.
+
+286
+00:16:54,980 --> 00:17:00,530
+So think about this is depends of how difficult is to repair,
+所以这取决于修复的难度。
+
+287
+00:17:00,540 --> 00:17:02,210
+but in the past,
+但是在过去，
+
+288
+00:17:03,970 --> 00:17:05,640
+you have the discounts,
+您有折扣。
+
+289
+00:17:05,650 --> 00:17:08,020
+and you lost some disks.
+你丢失了一些磁盘。
+
+290
+00:17:08,030 --> 00:17:09,940
+So now you need to order those disks.
+所以现在你需要订购这些磁盘。
+
+291
+00:17:12,020 --> 00:17:13,130
+The delivery,
+交付，
+
+292
+00:17:13,460 --> 00:17:14,850
+it may take 3 months, right?
+是的，可能需要3个月。
+
+293
+00:17:14,860 --> 00:17:18,090
+Because in your order to be approved,
+因为为了批准您的订单，
+
+294
+00:17:18,460 --> 00:17:21,900
+if you are at a company and all of these things, right?
+如果你在一家公司，并且所有这些事情都是真的，对吗？
+
+295
+00:17:21,910 --> 00:17:24,940
+And then your disk have to be shipped.
+然后你的硬盘必须被运送。
+
+296
+00:17:27,660 --> 00:17:31,050
+Maybe you have all the disk and your similar disk,
+也许你有所有的磁盘和类似的磁盘，
+
+297
+00:17:31,060 --> 00:17:32,610
+so it just takes time.
+所以这只是需要时间。
+
+298
+00:17:33,530 --> 00:17:34,880
+The time is a mean,
+时间是一种平均值，
+
+299
+00:17:34,890 --> 00:17:37,120
+repair time is a time it takes.
+修复时间是完成修复所需的时间。
+
+300
+00:17:37,680 --> 00:17:39,950
+If you lost some cop,
+如果你丢失了一些副本，
+
+301
+00:17:39,960 --> 00:17:43,380
+you lost some copies to recover these copies.
+你丢失了一些副本，需要恢复这些副本。
+
+302
+00:17:43,680 --> 00:17:44,830
+Because and for that,
+因此，为此，
+
+303
+00:17:44,840 --> 00:17:49,690
+you may need to buy additional hardware to replace the one which has failed.
+你可能需要购买额外的硬件来替换故障的硬件。
+
+304
+00:17:55,410 --> 00:17:55,930
+Make sense?
+有意义吗？
+
+305
+00:18:01,530 --> 00:18:08,430
+Here it's an example about using and studying the fragments over over the internet.
+这是一个关于如何使用和研究互联网上的片段的示例。
+
+306
+00:18:13,490 --> 00:18:14,010
+So again,
+所以再次，
+
+307
+00:18:14,020 --> 00:18:17,490
+just wanted to make sure here to go back that what we are saying here is
+只是想确认一下，我们在这里所说的是返回到我们现在讨论的内容。
+
+308
+00:18:17,500 --> 00:18:18,850
+when you do that application,
+当你完成那个应用程序时，
+
+309
+00:18:19,210 --> 00:18:20,300
+again, you have one block,
+再次提醒，你只有一个块。
+
+310
+00:18:20,310 --> 00:18:22,190
+so say one block is one kilobyte.
+所以一个块是一千字节。
+
+311
+00:18:22,500 --> 00:18:23,410
+You replicate.
+你复制。
+
+312
+00:18:23,860 --> 00:18:26,600
+You have4 copies, one kilobyte,
+你有4份副本，每个副本一千字节。
+
+313
+00:18:26,610 --> 00:18:28,120
+only on different amounts.
+仅仅在不同的数量上。
+
+314
+00:18:29,420 --> 00:18:30,940
+When you lose a fragmentation, here,
+当你失去了一个碎片时，这里指的是什么？
+
+315
+00:18:30,950 --> 00:18:32,180
+you take one kilobyte,
+你取一个千字节。
+
+316
+00:18:32,190 --> 00:18:37,580
+and the divide is out blocked divided in 16 fragments.
+并且划分为16个片段的除法被阻塞了。
+
+317
+00:18:38,720 --> 00:18:42,020
+For 16 fragments, you are going to have what?
+对于16个片段，你会得到什么？
+
+318
+00:18:42,030 --> 00:18:43,500
+It's to power.
+这是为了供电。
+
+319
+00:18:45,110 --> 00:18:48,640
+It's one kilobyte divided by 16,
+这是一千字节除以16，
+
+320
+00:18:49,600 --> 00:18:49,900
+right?
+对的吗？
+
+321
+00:18:50,440 --> 00:18:52,410
+And I believe it's what 128,
+我相信这是指128。
+
+322
+00:18:52,420 --> 00:18:54,380
+something like that bytes.
+类似于那样的字节。
+
+323
+00:18:55,180 --> 00:18:56,490
+Now you have this kind of.
+现在你有这样的东西。
+
+324
+00:18:59,390 --> 00:19:01,240
+It's now you have,
+现在是你的回合了。
+
+325
+00:19:01,870 --> 00:19:04,020
+sorry, you have 64, right?
+对不起，你是说你有64个吗？
+
+326
+00:19:04,030 --> 00:19:05,460
+16×64.
+16×64等于1024。
+
+327
+00:19:14,470 --> 00:19:14,870
+Yep.
+是的。
+
+328
+00:19:15,840 --> 00:19:20,550
+So divided one kilobyte is 16 fragments.
+所以一个千字节被分成16个片段。
+
+329
+00:19:20,560 --> 00:19:27,900
+And then you are going to each fragment now is going to have 64 bytes.
+然后，现在每个片段都将有64字节。
+
+330
+00:19:28,780 --> 00:19:32,210
+Now you are going to generate another 48 fragments.
+现在你要生成另外48个片段。
+
+331
+00:19:32,220 --> 00:19:36,450
+Each of them are 64 bytes using greater products.
+每个使用更大的产品的字节为64个。
+
+332
+00:19:38,240 --> 00:19:42,070
+Now, in order to read the data,
+现在，为了读取数据，
+
+333
+00:19:42,080 --> 00:19:44,350
+you need to read 16 fragments.
+你需要阅读16个片段。
+
+334
+00:19:44,740 --> 00:19:46,020
+Any of these 64 drag,
+任何一个都可以拖动。
+
+335
+00:19:46,030 --> 00:19:48,880
+any 16 fragments out of 64 fragments will do it.
+任意选择16个片段中的64个片段都可以完成任务。
+
+336
+00:19:49,660 --> 00:19:52,090
+And you can construct and construct the original block.
+你可以构建和重建原始块。
+
+337
+00:19:53,690 --> 00:19:54,130
+Make sense?
+有意义吗？
+
+338
+00:19:55,850 --> 00:19:59,340
+I need to make sure we are on the same page.
+我需要确保我们在同一个页面上。
+
+339
+00:20:02,650 --> 00:20:04,000
+This is about your ability.
+这是关于你的能力。
+
+340
+00:20:05,390 --> 00:20:07,830
+But this is not enough the fact that the disk,
+但仅仅有磁盘还不够，
+
+341
+00:20:07,840 --> 00:20:09,630
+the data is still on the disk.
+数据仍然存储在磁盘上。
+
+342
+00:20:10,850 --> 00:20:14,050
+It doesn't mean that you can access it.
+这并不意味着你可以访问它。
+
+343
+00:20:15,020 --> 00:20:23,440
+Also, it doesn't mean that you are also able to write the data on
+此外，并不意味着你也能够写入数据。
+
+344
+00:20:23,450 --> 00:20:26,600
+the disk in the first place.
+首先是磁盘。
+
+345
+00:20:27,120 --> 00:20:27,590
+Right?
+对吗？
+
+346
+00:20:28,220 --> 00:20:30,320
+So that's why we care about reliability.
+这就是为什么我们关注可靠性的原因。
+
+347
+00:20:30,330 --> 00:20:32,440
+Reality is looking at the end to end.
+现实是从头到尾看待问题。
+
+348
+00:20:32,450 --> 00:20:35,710
+It is not doesn't care only what the data is on the disk,
+它并不仅仅关心磁盘上的数据是什么，
+
+349
+00:20:36,020 --> 00:20:40,610
+but whether you can put the data on the disk and you can retrieve the data
+但是你是否能将数据存储到磁盘上并且能够检索数据。
+
+350
+00:20:40,620 --> 00:20:41,410
+from the disk.
+从磁盘中。
+
+351
+00:20:43,070 --> 00:20:45,070
+So next we are going to talk about reliability,
+接下来我们要讨论可靠性。
+
+352
+00:20:46,490 --> 00:20:50,840
+but let's talk about what can go wrong, right?
+但是让我们来谈谈可能出现的问题，对吗？
+
+353
+00:20:51,660 --> 00:20:53,600
+Which is orthogonal to durability.
+耐久性的对立面是什么？
+
+354
+00:20:55,180 --> 00:20:58,410
+So say a disk loses power or you have a software crash.
+假设磁盘失去电源或发生软件崩溃。
+
+355
+00:21:00,030 --> 00:21:02,190
+Now you have a read operation or write operation.
+现在你有一个读操作或写操作。
+
+356
+00:21:03,020 --> 00:21:05,440
+What happens is that route operation, which is in progress,
+发生的情况是正在进行的路由操作。
+
+357
+00:21:07,470 --> 00:21:12,860
+maybe can be lost, right?
+可能会丢失，对吗？
+
+358
+00:21:14,960 --> 00:21:18,270
+Or maybe it's interrupted in the middle.
+或者可能是在中途被中断了。
+
+359
+00:21:19,130 --> 00:21:23,250
+You just wrote half a block, not the entire block.
+你只写了半个块，没有写完整个块。
+
+360
+00:21:25,170 --> 00:21:31,310
+So raid doesn't protect against any of such failures, right?
+所以RAID不能防止任何这样的故障，对吗？
+
+361
+00:21:32,000 --> 00:21:33,160
+Raid basically says,
+RAID基本上是指
+
+362
+00:21:33,570 --> 00:21:37,940
+if you are successful to write data and you have so many replicas,
+如果你成功写入数据并且有很多副本，
+
+363
+00:21:39,310 --> 00:21:40,720
+if you once you've done that,
+如果你完成了那个任务，
+
+364
+00:21:41,450 --> 00:21:42,970
+I guarantee that you find the data.
+我保证你会找到数据。
+
+365
+00:21:43,940 --> 00:21:44,880
+When you come next time,
+下次你来的时候，
+
+366
+00:21:46,050 --> 00:21:47,060
+it'll be store.
+它将被存储。
+
+367
+00:21:48,140 --> 00:21:48,430
+Right?
+对吗？
+
+368
+00:21:50,130 --> 00:21:51,520
+So, yes,
+所以，是的，
+
+369
+00:21:51,530 --> 00:21:52,680
+you need your ability.
+你需要发挥你的能力。
+
+370
+00:21:53,190 --> 00:21:54,640
+But this is not the entire story.
+但这并不是整个故事的全部。
+
+371
+00:21:56,300 --> 00:21:59,560
+So this is what we are going to talk next.
+接下来我们要讨论的是这个问题。
+
+372
+00:22:00,070 --> 00:22:00,310
+Right?
+对吗？
+
+373
+00:22:03,490 --> 00:22:05,940
+Why is this a bigger problem?
+为什么这是一个更大的问题？
+
+374
+00:22:06,330 --> 00:22:07,820
+This is a bigger problem,
+这是一个更大的问题，
+
+375
+00:22:08,310 --> 00:22:10,990
+because when you write data on a disk,
+因为当你在磁盘上写入数据时，
+
+376
+00:22:11,290 --> 00:22:13,550
+when you write a block of data in a disk,
+当你在磁盘上写入一块数据时，
+
+377
+00:22:14,750 --> 00:22:16,570
+it's not only that piece of data.
+不仅仅是那个数据。
+
+378
+00:22:18,300 --> 00:22:19,100
+You need maybe to,
+也许你需要，
+
+379
+00:22:21,270 --> 00:22:24,680
+you need to update the I note data, right?
+你需要更新I笔记数据，对吗？
+
+380
+00:22:24,690 --> 00:22:25,800
+Because you have a new block.
+因为你有一个新的块。
+
+381
+00:22:25,810 --> 00:22:26,120
+Now,
+现在，
+
+382
+00:22:26,890 --> 00:22:28,380
+maybe it's an indirect block.
+可能是一个间接块。
+
+383
+00:22:28,670 --> 00:22:30,230
+The.up to the indirect block,
+直到间接块。
+
+384
+00:22:30,600 --> 00:22:32,510
+the indirect indirection pointer.
+间接间接指针。
+
+385
+00:22:34,040 --> 00:22:40,700
+You need to update the bid map of the which files are now available,
+您需要更新出价地图，以标明哪些文件现在可用。
+
+386
+00:22:41,170 --> 00:22:43,460
+sorry, which blocks are available.
+抱歉，哪些块是可用的？
+
+387
+00:22:44,400 --> 00:22:45,820
+Availability bit, mark, right?
+可用位，标记，对吗？
+
+388
+00:22:45,830 --> 00:22:47,740
+If you write in a blog on a block,
+如果你在一个区块上写博客，
+
+389
+00:22:47,750 --> 00:22:49,180
+that block is no longer available.
+该块不再可用。
+
+390
+00:22:49,190 --> 00:22:51,100
+So I need to update a bit much.
+所以我需要更新很多东西。
+
+391
+00:22:53,110 --> 00:22:56,030
+So for each of these riots,
+所以针对这些骚乱，
+
+392
+00:22:56,040 --> 00:22:58,710
+you need actually to touch and multiple.
+你实际上需要触摸和乘法操作。
+
+393
+00:23:01,020 --> 00:23:05,260
+You need to touch multiple pieces of information from the risk.
+你需要获取风险中的多个信息。
+
+394
+00:23:06,390 --> 00:23:09,860
+And if some of them made to the disk,
+如果其中一些被写入磁盘，
+
+395
+00:23:09,870 --> 00:23:12,700
+but some of them do not make the disk.
+但其中一些并没有制作磁盘。
+
+396
+00:23:12,710 --> 00:23:15,340
+You are going to leave the disk in an inconsistent state.
+你将会使磁盘处于不一致的状态。
+
+397
+00:23:19,450 --> 00:23:20,590
+So that's a problem, right?
+那么这是一个问题，对吗？
+
+398
+00:23:20,600 --> 00:23:21,670
+How do you do that?
+你是如何做到的？
+
+399
+00:23:22,010 --> 00:23:25,900
+Not only when you have this kind of multiple operations,
+不仅仅是在你有这种多个操作的时候，
+
+400
+00:23:25,910 --> 00:23:29,920
+which means all to succeed in order for the right to succeed.
+这意味着为了成功，一切都需要成功。
+
+401
+00:23:34,140 --> 00:23:40,040
+And by the so that's kind of the problem.
+所以这就是问题所在。
+
+402
+00:23:40,610 --> 00:23:40,770
+Right?
+对吗？
+
+403
+00:23:40,780 --> 00:23:46,440
+And you also there are other complication because if you want a concurrency
+还有其他的复杂因素，因为如果你想要并发操作的话。
+
+404
+00:23:46,730 --> 00:23:48,400
+for improving throughput,
+为了提高吞吐量，
+
+405
+00:23:48,410 --> 00:23:54,330
+so you want to to perform this operation in parallel and sing
+所以你想要并行执行这个操作并唱歌
+
+406
+00:23:54,540 --> 00:23:55,650
+in sensing like that.
+在这样的感知中。
+
+407
+00:23:58,220 --> 00:23:59,110
+Make sure it makes sense.
+确保它是有意义的。
+
+408
+00:23:59,120 --> 00:24:00,110
+Any questions?
+有任何问题吗？
+
+409
+00:24:07,840 --> 00:24:10,630
+What are the stress to threats to reliability?
+可靠性的压力和威胁有哪些？
+
+410
+00:24:10,640 --> 00:24:13,390
+Like we discuss its interrupted operation?
+我们讨论过中断操作吗？
+
+411
+00:24:14,330 --> 00:24:17,440
+Crash of software crashes,
+软件崩溃的崩溃情况，
+
+412
+00:24:18,410 --> 00:24:19,600
+power failures.
+电力故障。
+
+413
+00:24:20,230 --> 00:24:22,440
+And when this happens,
+而当这种情况发生时，
+
+414
+00:24:22,810 --> 00:24:24,690
+then you can get into trouble.
+那么你可能会陷入麻烦中。
+
+415
+00:24:25,010 --> 00:24:28,860
+This is a classical canonical example about the bank transfer.
+这是一个关于银行转账的经典典型例子。
+
+416
+00:24:29,700 --> 00:24:32,140
+You transfer from one bank to another,
+你从一家银行转账到另一家银行，
+
+417
+00:24:32,150 --> 00:24:34,240
+to from one account to another.
+从一个账户转到另一个账户。
+
+418
+00:24:34,470 --> 00:24:41,610
+What happens if you have a failures after you withdraw the sum of money?
+如果您在取款后遇到故障，会发生什么情况？
+
+419
+00:24:41,890 --> 00:24:47,810
+But before you have a chance to deposit the sum of money,
+但在你有机会存入这笔钱之前，
+
+420
+00:24:48,500 --> 00:24:49,610
+a in a different account,
+在一个不同的账户中，
+
+421
+00:24:51,000 --> 00:24:53,140
+then you lost that those fun if you are not careful.
+如果你不小心的话，你就会失去那些乐趣。
+
+422
+00:24:59,090 --> 00:25:04,290
+It's also this one failure of nonvolatile storage, right?
+这也是非易失性存储的一个故障，对吗？
+
+423
+00:25:04,820 --> 00:25:10,630
+Storage media may cause previous store data to disappear or be corrupted,
+存储介质可能导致先前存储的数据消失或损坏，
+
+424
+00:25:12,130 --> 00:25:14,480
+like we are going to see.
+就像我们即将要看到的那样。
+
+425
+00:25:18,310 --> 00:25:22,560
+Any questions about what problems you are trying to solve here?
+你对于这里你要解决的问题有任何疑问吗？
+
+426
+00:25:29,820 --> 00:25:30,970
+You're trying to solve here.
+你在这里尝试解决问题。
+
+427
+00:25:30,980 --> 00:25:34,930
+The biggest problem is that when you are going to write the data on the disk,
+最大的问题是当你要将数据写入磁盘时，
+
+428
+00:25:36,240 --> 00:25:42,800
+the biggest problem you do not want in the presence of failures to leave
+在出现故障时，你不希望出现的最大问题是离开。
+
+429
+00:25:42,810 --> 00:25:44,040
+the data on the disk
+磁盘上的数据
+
+430
+00:25:44,770 --> 00:25:46,380
+in an inconsistent state.
+处于不一致的状态。
+
+431
+00:25:49,850 --> 00:25:50,520
+That's a problem.
+这是个问题。
+
+432
+00:25:54,920 --> 00:25:56,280
+There are two ways to do it.
+有两种方法可以做到这一点。
+
+433
+00:25:56,290 --> 00:25:57,320
+Two general ways.
+两种一般的方式。
+
+434
+00:25:57,330 --> 00:25:57,960
+One,
+一,
+
+435
+00:25:58,480 --> 00:26:05,560
+you are just careful in you carefully are ordered your
+你只是小心地按照指令仔细地完成任务。
+
+436
+00:26:05,570 --> 00:26:11,370
+operations such that if you have failures,
+操作，以便在发生故障时，
+
+437
+00:26:12,110 --> 00:26:12,980
+when you restart,
+当你重新启动时，
+
+438
+00:26:14,080 --> 00:26:19,730
+you can clean up the mess and leaves a disk in a consistent state.
+你可以清理混乱并使磁盘保持一致状态。
+
+439
+00:26:22,640 --> 00:26:28,720
+That's why the other one is copy and write.
+这就是为什么另一个是复制并写入的原因。
+
+440
+00:26:29,750 --> 00:26:30,700
+The copy on write.
+写时复制（Copy-on-Write）。
+
+441
+00:26:30,710 --> 00:26:33,700
+You can think about the data you wrote is immutable.
+你可以将你写的数据视为不可变的。
+
+442
+00:26:35,850 --> 00:26:38,800
+When you try to modify some piece of data,
+当你尝试修改某个数据时，
+
+443
+00:26:40,240 --> 00:26:44,750
+you basically create another copy,
+你基本上创建了另一个副本，
+
+444
+00:26:46,350 --> 00:26:47,620
+and you modify the copies,
+并且你修改了这些副本，
+
+445
+00:26:47,630 --> 00:26:49,740
+you don't modify the original so original.
+你不要修改原始的东西，保持原样即可。
+
+446
+00:26:49,750 --> 00:26:50,660
+It's always there.
+它总是在那里。
+
+447
+00:26:52,570 --> 00:26:55,080
+When you are done, you are pointing to the modified copy,
+当你完成后，你指向的是修改后的副本。
+
+448
+00:26:55,090 --> 00:26:57,280
+and maybe you can garbage for like the original.
+也许你可以把原始的垃圾处理掉。
+
+449
+00:27:00,180 --> 00:27:00,610
+Okay?
+好的？
+
+450
+00:27:04,560 --> 00:27:05,270
+This is what it is.
+这就是它的样子。
+
+451
+00:27:05,280 --> 00:27:06,470
+So the left hand side,
+所以左边部分，
+
+452
+00:27:06,480 --> 00:27:09,070
+the careful ordering of recovery is used, by fact,
+事实上，使用了谨慎的恢复顺序。
+
+453
+00:27:10,010 --> 00:27:11,880
+and fast file system, the unix,
+快速文件系统（Fast File System），Unix中的一种文件系统。
+
+454
+00:27:13,870 --> 00:27:17,610
+this is file system check.
+这是文件系统检查。
+
+455
+00:27:17,620 --> 00:27:18,650
+It's a command iran.
+这是一个伊朗的命令。
+
+456
+00:27:18,660 --> 00:27:20,490
+When you reboot the system,
+当您重新启动系统时，
+
+457
+00:27:21,860 --> 00:27:24,610
+this command runs to clean up the disk.
+这个命令用于清理磁盘。
+
+458
+00:27:24,620 --> 00:27:25,690
+If there are problems,
+如果有问题，
+
+459
+00:27:27,590 --> 00:27:28,640
+inconsistent data.
+不一致的数据。
+
+460
+00:27:29,440 --> 00:27:29,870
+Really,
+真的吗？
+
+461
+00:27:29,880 --> 00:27:33,350
+you are carefully about the order in which are doing these operations,
+你需要小心执行这些操作的顺序。
+
+462
+00:27:33,360 --> 00:27:33,790
+right?
+对的？
+
+463
+00:27:34,190 --> 00:27:34,680
+Like for instance,
+例如，
+
+464
+00:27:34,690 --> 00:27:37,560
+you create a new file is you need to update the directory.
+如果你创建了一个新文件，你需要更新目录。
+
+465
+00:27:38,210 --> 00:27:40,160
+You need to update the 3 bit map,
+你需要更新3位图。
+
+466
+00:27:41,100 --> 00:27:43,970
+the updates, I know to update the data book.
+更新，我知道如何更新数据手册。
+
+467
+00:27:48,000 --> 00:27:49,590
+So this is a careful ordering couple.
+这是一个谨慎的排序对。
+
+468
+00:27:51,900 --> 00:27:55,090
+So at the high level is, again,
+所以在高层次上，再次，
+
+469
+00:27:56,490 --> 00:27:57,700
+problem I want to solve.
+我想要解决的问题。
+
+470
+00:27:58,570 --> 00:28:03,930
+A failure shouldn't result in the data that this being inconsistent.
+一个故障不应导致数据不一致。
+
+471
+00:28:07,760 --> 00:28:12,830
+The solution you need to order carefully,
+你需要仔细考虑的解决方案。
+
+472
+00:28:13,780 --> 00:28:15,100
+all the rise to the disk,
+所有的数据写入磁盘。
+
+473
+00:28:16,540 --> 00:28:19,140
+which are needed to store that.
+需要存储这些的东西。
+
+474
+00:28:19,410 --> 00:28:27,610
+But the piece of data such that when you are going to restart,
+但是当你要重新启动时，那个数据片段
+
+475
+00:28:27,620 --> 00:28:30,130
+you have enough information.
+你已经有足够的信息了。
+
+476
+00:28:30,140 --> 00:28:35,250
+So you can clean up the disk from any partial and wrong.
+因此，您可以清理磁盘上的任何部分和错误。
+
+477
+00:28:39,150 --> 00:28:41,550
+Information is also used at the application level,
+信息也在应用层级上使用，
+
+478
+00:28:43,590 --> 00:28:45,970
+say, editors like or emails.
+说，编辑们喜欢邮件还是编辑器？
+
+479
+00:28:49,290 --> 00:28:51,000
+So let me ask you this question,
+那么让我问你这个问题，
+
+480
+00:28:51,270 --> 00:28:54,350
+because this is the court to understand this technique.
+因为这是法庭了解这项技术的过程。
+
+481
+00:28:56,540 --> 00:29:03,360
+I assume you need to store a piece of data and the directory entry point
+我理解你需要存储一段数据和目录的入口点
+
+482
+00:29:03,370 --> 00:29:05,080
+to the data or the pointer to the data,
+对于数据或指向数据的指针，
+
+483
+00:29:11,380 --> 00:29:13,730
+and assume that each of this operation is atomic,
+并假设每个操作都是原子的，
+
+484
+00:29:13,740 --> 00:29:15,250
+but there are two different rights,
+但是有两种不同的权利，
+
+485
+00:29:15,260 --> 00:29:18,410
+one to update to put the data on the disk.
+更新是将数据写入磁盘的过程之一。
+
+486
+00:29:18,420 --> 00:29:26,360
+And the other one is to put to update the director.
+另一个是将导演进行更新。
+
+487
+00:29:30,950 --> 00:29:32,900
+Tell me now this a question is the following.
+请告诉我现在有一个问题，问题如下。
+
+488
+00:29:34,260 --> 00:29:35,150
+Which one you should write?
+你应该写哪一个？
+
+489
+00:29:35,160 --> 00:29:35,590
+First?
+第一？
+
+490
+00:29:36,360 --> 00:29:37,490
+The data of the point
+点的数据
+
+491
+00:29:48,230 --> 00:29:48,790
+data,
+数据
+
+492
+00:29:49,760 --> 00:29:50,990
+why that's very good.
+为什么这样很好呢？
+
+493
+00:29:51,770 --> 00:29:52,520
+Why is the data?
+数据为什么存在？
+
+494
+00:30:01,640 --> 00:30:02,360
+It's exact.
+没问题，这是准确的。
+
+495
+00:30:02,370 --> 00:30:03,840
+You don't want the pointer.
+你不需要指针。
+
+496
+00:30:03,850 --> 00:30:06,190
+The point is about the state.
+重点是关于状态。
+
+497
+00:30:06,200 --> 00:30:07,950
+I don't want dangling pointers.
+我不想要悬空指针。
+
+498
+00:30:12,910 --> 00:30:13,400
+Excellent.
+非常好。
+
+499
+00:30:14,750 --> 00:30:15,110
+Right?
+对吗？
+
+500
+00:30:16,750 --> 00:30:20,110
+And then say this is correct.
+然后说这是正确的。
+
+501
+00:30:20,800 --> 00:30:22,120
+First, you write the data,
+首先，你要写入数据。
+
+502
+00:30:22,130 --> 00:30:23,360
+and then you write the pointer.
+然后你写入指针。
+
+503
+00:30:25,140 --> 00:30:26,540
+Now say you have a failure.
+现在假设你遇到了一个故障。
+
+504
+00:30:27,220 --> 00:30:29,630
+You are successful to write the data, but not the pointer.
+你成功地写入了数据，但没有写入指针。
+
+505
+00:30:30,450 --> 00:30:31,100
+What do you do?
+你做什么工作？
+
+506
+00:30:33,740 --> 00:30:35,150
+When you restart the system?
+你什么时候重新启动系统？
+
+507
+00:30:39,330 --> 00:30:40,850
+Because now you have inconsistent state,
+因为现在你的状态不一致，
+
+508
+00:30:48,340 --> 00:30:52,130
+you need to garbage collection collect somehow.
+你需要以某种方式进行垃圾回收。
+
+509
+00:30:52,630 --> 00:30:55,620
+Basically, you look at all the data on the disk,
+基本上，你需要查看磁盘上的所有数据。
+
+510
+00:30:56,600 --> 00:30:57,440
+all the blocks.
+所有的块。
+
+511
+00:30:57,980 --> 00:31:01,020
+And you see whether there is a pointer,
+你可以检查是否存在一个指针。
+
+512
+00:31:01,030 --> 00:31:02,220
+there is a directory entry,
+有一个目录条目，
+
+513
+00:31:02,230 --> 00:31:03,420
+in this case for them.
+对于他们来说，在这种情况下。
+
+514
+00:31:04,860 --> 00:31:07,240
+If it's not, you are garbage collecting it.
+如果不是的话，你就进行垃圾回收。
+
+515
+00:31:09,290 --> 00:31:16,690
+This will appear like the right has failed in the first place didn't happen,
+这将使得一开始发生的错误好像从未发生过一样。
+
+516
+00:31:18,790 --> 00:31:19,410
+which is okay.
+没问题。
+
+517
+00:31:27,730 --> 00:31:29,200
+If we write beta,
+如果我们写成β，
+
+518
+00:31:29,210 --> 00:31:30,840
+but no pointer,
+但是没有指针，
+
+519
+00:31:33,170 --> 00:31:35,080
+michael is asking if we write data,
+迈克尔在询问我们是否写入数据。
+
+520
+00:31:35,090 --> 00:31:38,560
+but no pointer isn't that the same as writing mask at all?
+但是没有指针和完全不写掩码不是一样的吗？
+
+521
+00:31:39,570 --> 00:31:40,240
+It is.
+是的。
+
+522
+00:31:40,780 --> 00:31:45,560
+But now that space may be used,
+但现在可能会使用该空间，
+
+523
+00:31:45,570 --> 00:31:46,960
+so you need to garbage collect.
+所以你需要进行垃圾回收。
+
+524
+00:31:50,290 --> 00:31:52,640
+Yeah, this assume that it's very good..
+是的，这假设它非常好。
+
+525
+00:31:52,650 --> 00:31:55,760
+It's assume that you also update the three maps.
+假设你也更新了这三个映射。
+
+526
+00:31:55,770 --> 00:31:58,800
+That's why iiii make I simplify the example.
+这就是为什么我要简化这个例子的原因。
+
+527
+00:31:59,830 --> 00:32:01,550
+In general, you need to obey the three map.
+一般来说，你需要遵守三张地图。
+
+528
+00:32:01,560 --> 00:32:02,830
+You need to obey the I node, like,
+你需要遵守I节点的规定，例如，
+
+529
+00:32:02,840 --> 00:32:06,080
+what's your next?
+你接下来打算做什么？
+
+530
+00:32:06,090 --> 00:32:06,290
+Right?
+对吗？
+
+531
+00:32:06,300 --> 00:32:09,920
+But in this case, I assume that when you write a piece of data that block,
+但在这种情况下，我假设当您写入一个数据块时，
+
+532
+00:32:09,930 --> 00:32:11,280
+it's our already allocated.
+这已经是我们已经分配的了。
+
+533
+00:32:12,060 --> 00:32:13,460
+So therefore, you need to garbage fund.
+因此，你需要进行垃圾回收资金。
+
+534
+00:32:17,100 --> 00:32:19,130
+So now it's very easy for you to understand.
+现在你应该很容易理解了。
+
+535
+00:32:20,430 --> 00:32:24,110
+Here are the normal operations for berkeley,
+以下是伯克利算法的常规操作：
+
+536
+00:32:24,600 --> 00:32:26,590
+for fast file system.
+快速文件系统（Fast File System）。
+
+537
+00:32:26,960 --> 00:32:28,040
+You allocate a data block,
+你分配了一个数据块。
+
+538
+00:32:28,050 --> 00:32:29,120
+you write a data block,
+你需要写一个数据块。
+
+539
+00:32:29,130 --> 00:32:30,360
+you allocate and I node,
+你分配了一个 I 节点。
+
+540
+00:32:30,720 --> 00:32:33,420
+your ici node, which is pointing to that data block.
+你的ICI节点，它指向那个数据块。
+
+541
+00:32:33,930 --> 00:32:37,490
+You update the big map of three blocks and I nodes,
+你需要更新三个块和I节点的大地图。
+
+542
+00:32:38,390 --> 00:32:40,690
+and update the directory with a file name,
+并更新目录中的文件名，
+
+543
+00:32:41,320 --> 00:32:42,780
+pointing to the I note number.
+指向I笔记编号。
+
+544
+00:32:44,420 --> 00:32:46,790
+And then you update modified time for directory.
+然后你更新目录的修改时间。
+
+545
+00:32:46,800 --> 00:32:50,090
+And what do you update the modified time for the director?
+你是指在更新目录的修改时间时，是如何进行的吗？
+
+546
+00:32:50,650 --> 00:32:51,000
+It's like,
+就像是，
+
+547
+00:32:52,410 --> 00:32:52,750
+right?
+对的？
+
+548
+00:32:53,120 --> 00:32:57,860
+You start from the data and you go backwards all the way to the directory.
+你从数据开始，一直向后追溯到目录。
+
+549
+00:32:59,870 --> 00:33:00,980
+What do you do on recovery?
+在恢复过程中，您需要执行以下操作：
+
+1. 检查和修复文件系统：在恢复过程中，您可能需要运行文件系统检查工具（如fsck）来检查和修复文件系统中的错误。
+
+2. 恢复损坏的数据：如果您的系统或存储介质损坏，您可能需要使用数据恢复工具来尝试恢复丢失的数据。
+
+3. 修复引导问题：如果您的系统无法启动，您可能需要修复引导问题。这可能涉及修复引导记录（boot record）或重新安装引导加载程序（bootloader）。
+
+4. 恢复备份：如果您有备份，您可以使用备份来恢复系统和数据。这可能涉及恢复整个系统镜像或选择性地恢复文件和文件夹。
+
+5. 修复硬件问题：如果恢复问题与硬件相关，您可能需要修复或更换损坏的硬件组件。
+
+请注意，恢复过程可能因具体情况而异。在执行任何恢复操作之前，请确保您了解所需的步骤，并在可能的情况下备份重要数据。
+
+550
+00:33:00,990 --> 00:33:03,260
+Like we discussed the scans, I know, table.
+就像我们讨论的那样，我知道，表格。
+
+551
+00:33:05,530 --> 00:33:07,460
+And there is any only files,
+而且只有一个文件。
+
+552
+00:33:07,470 --> 00:33:08,940
+not in any directory.
+不在任何目录中。
+
+553
+00:33:09,420 --> 00:33:09,980
+You delete it,
+你删除它了。
+
+554
+00:33:11,650 --> 00:33:12,010
+right?
+对的？
+
+555
+00:33:12,020 --> 00:33:15,360
+Or maybe you put in lost and found directory.
+或者你把它放到失物招领目录里。
+
+556
+00:33:15,370 --> 00:33:16,000
+If you have one,
+如果你有的话，
+
+557
+00:33:17,930 --> 00:33:24,540
+then you compare the free block bit map against I naughty and to see
+然后你将空闲块位图与I naughty进行比较，看看情况如何。
+
+558
+00:33:24,550 --> 00:33:25,820
+whether they are consistent.
+它们是否一致。
+
+559
+00:33:28,330 --> 00:33:28,760
+Right?
+对吗？
+
+560
+00:33:29,090 --> 00:33:33,520
+It's again, we just can't elect or they are missing from the big map.
+又是这样，我们无法选举，或者他们在大地图上找不到。
+
+561
+00:33:34,130 --> 00:33:36,860
+They are not reflected in the free map to garbage collector.
+它们不会在垃圾回收器的空闲映射中反映出来。
+
+562
+00:33:41,610 --> 00:33:43,920
+Then you scan directory for missing updated access.
+然后你扫描目录以查找缺失的更新访问权限。
+
+563
+00:33:44,640 --> 00:33:46,430
+Now, you do all of these things.
+现在，你要做所有这些事情。
+
+564
+00:33:46,640 --> 00:33:50,330
+Again, a it's a mode involving procedure,
+再次，这是一个涉及过程的模式，
+
+565
+00:33:50,340 --> 00:33:51,890
+because you are here,
+因为你在这里，
+
+566
+00:33:51,900 --> 00:33:56,330
+you have to write more pieces of data which are associated or linked
+你需要写入更多与之关联或链接的数据。
+
+567
+00:33:56,340 --> 00:33:59,070
+with a data block when you write a data block.
+当你写入一个数据块时，会使用一个数据块。
+
+568
+00:33:59,970 --> 00:34:00,770
+But fundamentally,
+但从根本上说，
+
+569
+00:34:00,780 --> 00:34:06,270
+the same idea like we discussed earlier on when you have only data block
+这个想法和我们之前讨论的一样，当你只有数据块时。
+
+570
+00:34:06,280 --> 00:34:07,470
+and a pointer to the data.
+以及指向数据的指针。
+
+571
+00:34:09,020 --> 00:34:11,300
+Obviously, the problem with this, and if you want to do it,
+显然，这个问题存在的困难，如果你想要解决它，
+
+572
+00:34:11,310 --> 00:34:13,740
+is the time is proportional to the disk size,
+时间与磁盘大小成正比吗？
+
+573
+00:34:14,700 --> 00:34:16,310
+because you need to look at all blocks.
+因为你需要查看所有的块。
+
+574
+00:34:20,080 --> 00:34:20,760
+Any questions?
+有任何问题吗？
+
+575
+00:34:20,850 --> 00:34:23,230
+This was the first solution.
+这是第一个解决方案。
+
+576
+00:34:34,510 --> 00:34:36,670
+How do you recover a failed recovery?
+如何恢复一个失败的恢复过程？
+
+577
+00:34:37,760 --> 00:34:38,390
+For the failure?
+对于失败？
+
+578
+00:34:38,400 --> 00:34:39,790
+That's a great question.
+这是一个很好的问题。
+
+579
+00:34:40,000 --> 00:34:41,070
+For a failed recovery.
+对于一个失败的恢复。
+
+580
+00:34:41,080 --> 00:34:43,750
+You make sure that when you are going to take the actions,
+你要确保在采取行动时，
+
+581
+00:34:44,400 --> 00:34:48,170
+you are taking the same action that when you recover next,
+你正在执行与下一次恢复时相同的操作。
+
+582
+00:34:48,810 --> 00:34:52,130
+you can still clear clean up everything.
+你仍然可以清理干净一切。
+
+583
+00:34:54,680 --> 00:34:55,150
+Okay?
+好的？
+
+584
+00:34:56,600 --> 00:34:57,960
+That's what it is.
+就是这样。
+
+585
+00:34:57,970 --> 00:35:00,930
+You apply recursive with the same idea.
+你可以使用相同的思路来应用递归。
+
+586
+00:35:07,700 --> 00:35:09,320
+The second one is copy on the right.
+第二个是右侧复制。
+
+587
+00:35:14,750 --> 00:35:16,770
+This is also called cow.
+这也被称为cow。
+
+588
+00:35:17,590 --> 00:35:23,520
+And you fundamentally create a new version of the file.
+你基本上创建了一个新版本的文件。
+
+589
+00:35:23,530 --> 00:35:25,200
+This is a simple version.
+这是一个简化版本。
+
+590
+00:35:25,210 --> 00:35:31,260
+The simple the simple implementation of this is that if i'm going to update
+简单的实现方法是，如果我要进行更新操作。
+
+591
+00:35:31,270 --> 00:35:32,100
+a piece of beta,
+一个测试版本的一部分
+
+592
+00:35:32,110 --> 00:35:34,060
+if I want to update a piece of beta,
+如果我想更新一个测试版的组件，
+
+593
+00:35:34,390 --> 00:35:35,500
+I don't update in place.
+我不进行原地更新。
+
+594
+00:35:35,510 --> 00:35:37,750
+I create a copy, and I update the copy.
+我创建了一个副本，并且我更新了这个副本。
+
+595
+00:35:37,760 --> 00:35:39,500
+And later I can believe the origin.
+之后我可以相信这个起源。
+
+596
+00:35:45,690 --> 00:35:47,840
+It seems expensive,
+看起来很贵。
+
+597
+00:35:47,850 --> 00:35:49,680
+but the updates can be back.
+但是更新可以被撤销。
+
+598
+00:35:49,690 --> 00:35:50,880
+If you have multiple updates,
+如果你有多个更新，
+
+599
+00:35:50,890 --> 00:35:52,000
+you can do at the same time.
+你可以同时进行。
+
+600
+00:35:57,130 --> 00:35:59,640
+Which, so you remember,
+你记得的话，
+
+601
+00:35:59,650 --> 00:36:01,720
+if you send a batch of rice to the beast,
+如果你把一批米送给野兽，
+
+602
+00:36:02,120 --> 00:36:03,290
+the disk can be smart.
+磁盘可以是智能的。
+
+603
+00:36:03,300 --> 00:36:05,610
+This controller can be smart to reorder them.
+这个控制器可以智能地重新排序它们。
+
+604
+00:36:05,890 --> 00:36:09,460
+So to minimize the c latency and even the rotation latency,
+为了最小化C延迟甚至旋转延迟，
+
+605
+00:36:12,200 --> 00:36:13,430
+this is a method.
+这是一个方法。
+
+606
+00:36:13,440 --> 00:36:15,310
+This a is approach,
+这是一种方法，
+
+607
+00:36:15,770 --> 00:36:20,940
+copy and write is taken by a few other systems.
+复制和写入操作已经被其他几个系统占用。
+
+608
+00:36:21,300 --> 00:36:22,840
+Zfs is oracle.
+ZFS 是 Oracle 公司的产品。
+
+609
+00:36:22,850 --> 00:36:23,360
+Now,
+现在，
+
+610
+00:36:24,350 --> 00:36:30,370
+There is also an open dfs and that appliance has its right anywhere file
+还有一个开放的分布式文件系统，该应用程序可以在任何地方使用其正确的文件。
+
+611
+00:36:30,380 --> 00:36:32,070
+layout or waffle.
+布局或华夫饼
+
+612
+00:36:32,600 --> 00:36:38,920
+They use the same this technique.
+他们使用相同的技术。
+
+613
+00:36:40,000 --> 00:36:47,270
+And here how it is assume that you have the file is represented as a three
+假设文件是以三元组表示的情况下，以下是其表示方式。
+
+614
+00:36:47,280 --> 00:36:47,950
+of blocks.
+块的数量。
+
+615
+00:36:48,850 --> 00:36:49,300
+Right?
+对吗？
+
+616
+00:36:50,940 --> 00:36:52,650
+You are just updating.
+你只是在更新。
+
+617
+00:36:55,140 --> 00:36:57,010
+What is called here is a fringe block.
+这里所称之为边缘块。
+
+618
+00:36:57,020 --> 00:36:59,970
+The block at the end, you started all you,
+最后的这个块，你全部开始了。
+
+619
+00:36:59,980 --> 00:37:06,110
+and you are adding more blocks to this file structure.
+而且你正在向这个文件结构中添加更多的块。
+
+620
+00:37:09,000 --> 00:37:14,230
+Now, assume that you update these blocks on the right hand side,
+现在假设你更新右侧的这些块，
+
+621
+00:37:14,910 --> 00:37:15,990
+the one, which is,
+那个，也就是，
+
+622
+00:37:16,320 --> 00:37:18,040
+it's half blue.
+它是半蓝色的。
+
+623
+00:37:18,990 --> 00:37:19,350
+Right?
+对吗？
+
+624
+00:37:23,620 --> 00:37:25,090
+What you do, actually,
+你实际上在做什么？
+
+625
+00:37:25,100 --> 00:37:26,250
+in this particular case,
+在这种特殊情况下，
+
+626
+00:37:26,260 --> 00:37:29,410
+you write in a new block,
+你在一个新的块中写入。
+
+627
+00:37:31,410 --> 00:37:31,990
+a copy.
+一份复制品。
+
+628
+00:37:32,390 --> 00:37:33,340
+That's all you write.
+这是你写的全部内容。
+
+629
+00:37:37,290 --> 00:37:38,380
+You took this block,
+你拿了这个块。
+
+630
+00:37:40,450 --> 00:37:41,460
+you replicate it,
+你复制它，
+
+631
+00:37:42,210 --> 00:37:43,300
+and your updates are bigger.
+而且你的更新更大。
+
+632
+00:37:44,920 --> 00:37:47,890
+The regional block remains untouched.
+地区封锁保持不变。
+
+633
+00:37:52,940 --> 00:38:00,260
+So now what you do, you just basically generate a new bunch of pointers,
+现在你要做的是生成一组新的指针。
+
+634
+00:38:01,600 --> 00:38:02,520
+a sub three.
+一个减去三。
+
+635
+00:38:03,380 --> 00:38:11,360
+And then you are going to connect these new notes in the new
+然后你将会把这些新的笔记连接在一起。
+
+636
+00:38:11,370 --> 00:38:18,570
+version of the tree to the corresponding existing tree
+将树的版本转换为相应的现有树
+
+637
+00:38:19,340 --> 00:38:19,820
+notes.
+笔记。
+
+638
+00:38:23,710 --> 00:38:24,100
+Right?
+对吗？
+
+639
+00:38:25,470 --> 00:38:26,040
+Now,
+现在，
+
+640
+00:38:27,130 --> 00:38:31,500
+if you are successful in updating all these pointers,
+如果您成功更新了所有这些指针，
+
+641
+00:38:33,010 --> 00:38:34,750
+after you updated the data,
+在您更新数据之后，
+
+642
+00:38:36,740 --> 00:38:42,110
+then the version of the tree and of the file moved from the old version
+然后树的版本和文件的版本从旧版本移动了。
+
+643
+00:38:42,120 --> 00:38:42,790
+to the new version.
+升级到新版本。
+
+644
+00:38:47,590 --> 00:38:49,380
+Once you do that, you can do garbage,
+一旦你完成这个，你就可以进行垃圾回收。
+
+645
+00:38:49,390 --> 00:38:51,550
+collect the rest.
+收集剩下的。
+
+646
+00:38:51,560 --> 00:38:53,670
+You see all the blocks,
+你可以看到所有的块。
+
+647
+00:38:53,680 --> 00:38:58,050
+data blocks from the all version of the file,
+文件的所有版本的数据块
+
+648
+00:38:58,930 --> 00:39:03,990
+as well as interior nodes in the tree,
+以及树中的内部节点，
+
+649
+00:39:05,680 --> 00:39:09,590
+again, which are not pointed by the new version.
+再次强调，这些都不是新版本所指出的问题。
+
+650
+00:39:11,220 --> 00:39:12,270
+They've been garbage for that.
+他们在这方面做得很糟糕。
+
+651
+00:39:14,520 --> 00:39:15,590
+Any block,
+任何块，
+
+652
+00:39:15,600 --> 00:39:16,950
+any interior node,
+任何内部节点，
+
+653
+00:39:17,860 --> 00:39:21,360
+to which there is no black arrow pointing.
+没有指向的黑箭头。
+
+654
+00:39:22,130 --> 00:39:23,500
+This can be garbage collective.
+这可以是垃圾收集器。
+
+655
+00:39:27,340 --> 00:39:28,540
+And now you have a new version.
+现在你有一个新版本。
+
+656
+00:39:32,860 --> 00:39:33,450
+This, again,
+再次，
+
+657
+00:39:33,460 --> 00:39:36,530
+is like you are going to move from all version to the new version
+好像你要从所有版本迁移到新版本。
+
+658
+00:39:36,540 --> 00:39:37,770
+only in the last moment.
+只在最后一刻。
+
+659
+00:39:38,250 --> 00:39:41,370
+Once you update all the interior nouns of the tree,
+一旦你更新了树的所有内部名词，
+
+660
+00:39:41,380 --> 00:39:46,330
+and obviously the day you created the new, you update is a blog.
+显然，当你创建了新的更新时，你会更新博客。
+
+661
+00:39:47,610 --> 00:39:48,470
+After you copy it.
+复制完成后。
+
+662
+00:39:51,960 --> 00:39:53,030
+If you are not successful,
+如果你没有成功，
+
+663
+00:39:53,040 --> 00:39:55,190
+if you fail during this process, it's okay.
+如果你在这个过程中失败了，没关系。
+
+664
+00:39:55,200 --> 00:39:56,190
+You have the old version.
+你使用的是旧版本。
+
+665
+00:39:56,200 --> 00:39:57,510
+The old version is still consistent.
+旧版本仍然保持一致。
+
+666
+00:39:59,300 --> 00:40:00,900
+It only reflects a new update.
+这只是反映了一个新的更新。
+
+667
+00:40:01,840 --> 00:40:02,800
+But again, that's okay.
+但是再说一遍，没关系。
+
+668
+00:40:02,810 --> 00:40:08,030
+The main problem we try to solve here is to not leave the storage system
+我们在这里试图解决的主要问题是不要离开存储系统。
+
+669
+00:40:08,040 --> 00:40:08,730
+in inconsistency.
+不一致性。
+
+670
+00:40:11,900 --> 00:40:12,750
+Any questions?
+有任何问题吗？
+
+671
+00:40:27,300 --> 00:40:32,290
+Is this better or worse on ssd it seems like we are writing a lot more,
+在SSD上是更好还是更差呢？看起来我们写入的数据量更多了。
+
+672
+00:40:33,510 --> 00:40:36,770
+but don't have to erase as often.
+但不需要经常擦除。
+
+673
+00:40:38,320 --> 00:40:41,240
+Well, yeah, it's worse for us at this,
+是的，对我们来说这更糟糕。
+
+674
+00:40:41,250 --> 00:40:44,040
+because you are going to wear is this small.
+因为你要穿的是这个小号的。
+
+675
+00:40:47,470 --> 00:40:49,530
+And but again,
+然而，再次提到，
+
+676
+00:40:49,540 --> 00:40:51,090
+we have other solutions like we'll see.
+我们还有其他解决方案，比如我们会再看看。
+
+677
+00:40:52,950 --> 00:40:54,360
+But in general, this is worse.
+但总的来说，这更糟糕。
+
+678
+00:40:57,250 --> 00:41:00,730
+You still need to erase because you need to garbage for like,
+你仍然需要进行擦除操作，因为你需要清除垃圾数据。
+
+679
+00:41:02,120 --> 00:41:03,810
+garbage collection means you later.
+垃圾回收意味着你以后。
+
+680
+00:41:06,710 --> 00:41:07,580
+But a great question.
+但是一个很好的问题。
+
+681
+00:41:11,410 --> 00:41:12,050
+This is,
+这是，
+
+682
+00:41:13,850 --> 00:41:14,900
+like I mentioned to you,
+就像我之前提到的，
+
+683
+00:41:14,910 --> 00:41:18,100
+the fs of the fs is variable size blocks.
+文件系统的文件系统是可变大小的块。
+
+684
+00:41:18,600 --> 00:41:19,910
+It's a symmetric tree.
+这是一棵对称的树。
+
+685
+00:41:20,120 --> 00:41:24,420
+Basically, the tree you are building is symmetric of a certain depth.
+基本上，你正在构建的树是某个深度的对称树。
+
+686
+00:41:24,430 --> 00:41:25,500
+So basically,
+基本上，
+
+687
+00:41:25,990 --> 00:41:32,190
+it because you might be dislike how large or small is.
+这可能是因为你可能不喜欢它的大小是大还是小。
+
+688
+00:41:33,020 --> 00:41:36,760
+If the depths of the tree and what leave the need for you are at,
+如果你需要知道树的深度以及你所需要的叶子节点，
+
+689
+00:41:37,360 --> 00:41:39,940
+you can estimate that side of the triplet they are, correct.
+你可以估计他们是三元组中的哪一边，对吗？
+
+690
+00:41:40,710 --> 00:41:41,610
+If it's balanced, right?
+如果它是平衡的，对吗？
+
+691
+00:41:41,620 --> 00:41:42,370
+If it is symmetric,
+如果它是对称的，
+
+692
+00:41:43,520 --> 00:41:45,640
+if it's not symmetric, then you cannot do that.
+如果它不是对称的，那么你就不能这样做。
+
+693
+00:41:47,940 --> 00:41:50,650
+You store the version number in the pointers.
+你将版本号存储在指针中。
+
+694
+00:41:52,080 --> 00:41:54,430
+The pointer to inspiration number belongs to,
+指向灵感编号的指针所属
+
+695
+00:41:56,980 --> 00:41:58,090
+like we saw before,
+就像我们之前看到的一样，
+
+696
+00:41:58,100 --> 00:42:01,250
+you can create a new version by adding new blocks and new pointers.
+你可以通过添加新的块和新的指针来创建一个新版本。
+
+697
+00:42:06,140 --> 00:42:07,380
+As a tree expand,
+随着树的扩展，
+
+698
+00:42:07,390 --> 00:42:08,940
+you are going to garbage for like,
+你要去垃圾桶里待一会儿，就像这样，
+
+699
+00:42:09,810 --> 00:42:13,660
+the all day does all pointers to make room for the new date.
+整天都在做指针的调整，为新的数据腾出空间。
+
+700
+00:42:22,170 --> 00:42:24,280
+In this case, is you try to batch everything,
+在这种情况下，你试图批处理所有事情。
+
+701
+00:42:24,290 --> 00:42:26,790
+you try to batch the rights,
+你试图批量处理权限。
+
+702
+00:42:26,800 --> 00:42:36,040
+you try to batch the updates to the free space and so forth.
+你尝试将空闲空间等更新批量处理。
+
+703
+00:42:44,590 --> 00:42:49,230
+Now, let's talk about more a general solutions,
+现在，让我们来讨论一些更一般的解决方案。
+
+704
+00:42:50,580 --> 00:42:53,930
+one solution, which are going to talk also next time.
+一个解决方案，我们下次也会讨论。
+
+705
+00:42:53,940 --> 00:42:55,290
+Now it's just briefly,
+现在只是简要地说明一下，
+
+706
+00:42:55,980 --> 00:42:56,940
+is transaction.
+是事务。
+
+707
+00:42:58,470 --> 00:42:59,580
+Fundamentally,
+从根本上说，
+
+708
+00:43:00,910 --> 00:43:02,540
+what do you want here is remember,
+你在这里想要的是记住什么。
+
+709
+00:43:03,730 --> 00:43:07,970
+we want to avoid to have to remain in an inconsistent state
+我们希望避免保持在不一致的状态下。
+
+710
+00:43:09,070 --> 00:43:10,880
+and the remaining an inconsistent state,
+而剩下的则处于不一致的状态，
+
+711
+00:43:11,940 --> 00:43:14,270
+because they have multiple related updates.
+因为它们有多个相关的更新。
+
+712
+00:43:15,360 --> 00:43:17,590
+If only part of the updates happen,
+如果只有部分更新发生了，
+
+713
+00:43:18,090 --> 00:43:19,450
+then you have in western state.
+那你在西部州。
+
+714
+00:43:21,120 --> 00:43:23,090
+So we had this problem before.
+我们之前遇到过这个问题。
+
+715
+00:43:23,980 --> 00:43:25,080
+If you remember,
+如果你还记得的话，
+
+716
+00:43:25,640 --> 00:43:27,990
+and we talk about critical section,
+我们现在讨论关键区域（critical section）。
+
+717
+00:43:28,000 --> 00:43:30,070
+we talk about that when I talk about atoms.
+当我谈到原子时，我们正在讨论这个话题。
+
+718
+00:43:31,320 --> 00:43:31,720
+Right?
+对吗？
+
+719
+00:43:31,990 --> 00:43:33,140
+With atomic operation,
+使用原子操作，
+
+720
+00:43:33,150 --> 00:43:35,900
+we want all of the operation to happen or none of sort.
+我们希望所有操作要么全部发生，要么全部不发生。
+
+721
+00:43:37,070 --> 00:43:40,350
+The same idea is this transaction for the storage system.
+对于存储系统来说，这个想法是一样的。
+
+722
+00:43:40,360 --> 00:43:43,160
+This is called in some transactions.
+这在一些交易中被称为。
+
+723
+00:43:43,990 --> 00:43:47,500
+There are more than atomic operation because they also required durability
+原子操作不仅仅需要原子性，还需要持久性。
+
+724
+00:43:48,840 --> 00:43:50,410
+and other properties.
+和其他属性。
+
+725
+00:43:50,780 --> 00:43:55,930
+But the idea is the same a transaction contained multiple operations,
+但是思想是相同的，一个事务包含多个操作。
+
+726
+00:43:57,480 --> 00:43:59,110
+and the semantics should be,
+语义应该是，
+
+727
+00:44:00,260 --> 00:44:05,970
+these are all the operation in a transaction are going to happen to be successful,
+这些是一个事务中要成功执行的所有操作。
+
+728
+00:44:06,800 --> 00:44:08,670
+or none of them will happen.
+否则，其中任何一个都不会发生。
+
+729
+00:44:15,470 --> 00:44:18,300
+If you're a failure in the middle of the transaction,
+如果在交易过程中出现失败，
+
+730
+00:44:18,760 --> 00:44:24,500
+then it looks like none of the updates is the transaction ever happened.
+那么看起来没有任何更新是事务发生的。
+
+731
+00:44:24,920 --> 00:44:26,200
+The entire transaction failed.
+整个交易失败了。
+
+732
+00:44:27,430 --> 00:44:27,920
+Okay?
+好的？
+
+733
+00:44:30,560 --> 00:44:34,530
+We discuss about this and it's again,
+我们讨论了这个问题，而且又是这样的情况。
+
+734
+00:44:34,540 --> 00:44:38,970
+closely related to its critical section and with the concept
+与其关键部分密切相关，并且与概念有关
+
+735
+00:44:38,980 --> 00:44:40,610
+of atomic update for member.
+对成员进行原子更新的操作。
+
+736
+00:44:47,930 --> 00:44:49,130
+In some sense,
+从某种意义上说，
+
+737
+00:44:51,860 --> 00:44:55,010
+the file for fast file system,
+快速文件系统的文件
+
+738
+00:44:55,560 --> 00:45:01,700
+the witch approach to carefully ordering the sequence of updates,
+巫师方法是谨慎地对更新序列进行排序的方法。
+
+739
+00:45:02,260 --> 00:45:07,850
+and then recover from inconsistent state.
+然后从不一致的状态中恢复。
+
+740
+00:45:08,740 --> 00:45:16,840
+When you restart a it's a primitive form of implementing this idea.
+当你重新启动一个计算机时，这是一种实现这个想法的原始形式。
+
+741
+00:45:25,340 --> 00:45:31,640
+Again, we discussed that just to draw home the.,
+再次强调，我们讨论的重点是回到家中。
+
+742
+00:45:31,650 --> 00:45:35,620
+a transaction is a bunch of operations,
+一个事务是一组操作，
+
+743
+00:45:36,460 --> 00:45:40,260
+which state a system from a consistent state to another consistent state.
+将系统从一个一致状态转移到另一个一致状态的过程。
+
+744
+00:45:43,250 --> 00:45:44,450
+And therefore,
+因此，
+
+745
+00:45:45,830 --> 00:45:48,700
+we want all the operation in the transaction to happen,
+我们希望事务中的所有操作都能发生。
+
+746
+00:45:48,710 --> 00:45:49,700
+or none of them to happen.
+或者没有一个发生。
+
+747
+00:45:50,740 --> 00:45:51,960
+If none of them will happen,
+如果没有一个会发生，
+
+748
+00:45:51,970 --> 00:45:54,710
+you remain in the previous state, which is consistent, by definition,
+根据定义，你保持在先前的状态中，这是一致的。
+
+749
+00:45:54,720 --> 00:45:55,710
+if all will happen,
+如果一切都会发生，
+
+750
+00:45:56,760 --> 00:45:58,390
+you are going to move to a new state,
+你将要搬到一个新的州。
+
+751
+00:45:59,500 --> 00:46:00,780
+which is, again, will be consistent.
+这将再次保持一致。
+
+752
+00:46:06,400 --> 00:46:07,120
+So in one way,
+从某种程度上说，
+
+753
+00:46:07,130 --> 00:46:11,860
+transaction extends the concept of atomic updates
+事务扩展了原子更新的概念
+
+754
+00:46:12,150 --> 00:46:14,610
+to multiple data structures for a
+对于多个数据结构来说，
+
+755
+00:46:14,620 --> 00:46:17,610
+memory to persistent storage.
+将内存存储到持久存储设备中。
+
+756
+00:46:21,390 --> 00:46:23,940
+What is the typical structure of the transaction?
+事务的典型结构是什么？
+
+757
+00:46:24,350 --> 00:46:26,030
+You have a begin transaction,
+你有一个开始事务的操作。
+
+758
+00:46:26,040 --> 00:46:27,070
+you have a for me,
+你有一个给我的任务。
+
+759
+00:46:27,080 --> 00:46:29,310
+transaction or end of the transaction.
+事务或事务结束。
+
+760
+00:46:29,780 --> 00:46:31,900
+And then you do a bunch of operations.
+然后你进行一系列的操作。
+
+761
+00:46:33,060 --> 00:46:35,380
+If you fail during these operations,
+如果在这些操作过程中失败了，
+
+762
+00:46:35,820 --> 00:46:40,920
+you are going to roll back to undo the effect of the operation have succeeded.
+你将要回滚以撤销已成功执行的操作的影响。
+
+763
+00:46:43,780 --> 00:46:47,500
+So this way, you are guaranteed that if you fail during a transaction,
+这样，您就可以确保如果在事务过程中发生故障，
+
+764
+00:46:47,840 --> 00:46:49,490
+then all the operation will be undued.
+那么所有的操作都将被撤销。
+
+765
+00:46:50,360 --> 00:46:51,910
+From an external observer.
+从外部观察者的角度。
+
+766
+00:46:51,920 --> 00:46:53,860
+It appears that the transaction,
+看起来这个交易，
+
+767
+00:46:53,870 --> 00:46:55,810
+nothing from the transaction happened.
+交易没有发生任何事情。
+
+768
+00:47:00,020 --> 00:47:00,480
+Okay?
+好的？
+
+769
+00:47:01,860 --> 00:47:07,970
+These are examples in which are going to transfer $100 from alice account
+以下是将从Alice账户转账100美元的示例：
+
+1. 从Alice账户转账100美元。
+2. 将100美元从Alice账户转入另一个账户。
+3. Alice账户向另一个账户转账100美元。
+4. 转账100美元从Alice账户到另一个账户。
+
+770
+00:47:08,300 --> 00:47:11,490
+to bob accounts.
+给Bob的账户。
+
+771
+00:47:13,250 --> 00:47:17,810
+There are a bunch of operations here to update the account of alice and bob
+这里有一系列操作来更新Alice和Bob的账户。
+
+772
+00:47:17,820 --> 00:47:19,370
+went to account the branch,
+去办理分行业务
+
+773
+00:47:19,380 --> 00:47:20,370
+how many money,
+多少钱？
+
+774
+00:47:20,380 --> 00:47:22,170
+how much monies are in the branch?
+分行里有多少钱？
+
+775
+00:47:22,540 --> 00:47:25,980
+Assuming that alice and bob are in different,
+假设Alice和Bob在不同的地方，
+
+776
+00:47:25,990 --> 00:47:28,940
+their accounts are in different branches of the same bank.
+他们的账户在同一家银行的不同分支机构。
+
+777
+00:47:30,380 --> 00:47:31,930
+There are four operations.
+有四个操作。
+
+778
+00:47:32,550 --> 00:47:37,060
+All of them should happen in a transaction to be able.
+所有这些操作都应该在一个事务中发生才能生效。
+
+779
+00:47:41,760 --> 00:47:42,870
+This is what you do.
+这是你要做的事情。
+
+780
+00:47:42,880 --> 00:47:47,590
+You have these operations here is on the exercises at that time.
+你在那个时候有这些操作练习。
+
+781
+00:47:48,750 --> 00:47:49,980
+This is how it appears.
+这是它的外观。
+
+782
+00:47:49,990 --> 00:47:54,420
+And then there are these operations that can be interleaved this operation
+然后还有这些操作，可以交错执行这个操作。
+
+783
+00:47:54,430 --> 00:47:55,740
+from other transactions.
+来自其他交易。
+
+784
+00:47:55,750 --> 00:47:57,220
+So there are transaction, actually,
+所以有交易，实际上，
+
+785
+00:47:57,230 --> 00:47:59,100
+like we are going to see next time,
+就像我们下次要看到的那样，
+
+786
+00:47:59,470 --> 00:48:00,530
+can overlap.
+可以重叠。
+
+787
+00:48:01,520 --> 00:48:04,340
+And then you have starter transaction and commit
+然后你有启动事务和提交事务
+
+788
+00:48:12,000 --> 00:48:12,440
+transaction.
+事务。
+
+789
+00:48:14,850 --> 00:48:15,650
+Any questions?
+有任何问题吗？
+
+790
+00:48:23,890 --> 00:48:27,860
+Let's see how transactions are used for file systems.
+让我们来看看事务是如何在文件系统中使用的。
+
+791
+00:48:28,710 --> 00:48:31,390
+You can see a little bit about how they could be used.
+您可以稍微了解一下它们的使用方式。
+
+792
+00:48:35,450 --> 00:48:38,650
+Basically, the chain changes are treated as transactions.
+基本上，链上的更改被视为交易。
+
+793
+00:48:39,550 --> 00:48:41,720
+And there are 2 kinds of file systems here,
+这里有两种类型的文件系统，
+
+794
+00:48:41,730 --> 00:48:42,920
+2 types of file system,
+文件系统的两种类型：
+
+795
+00:48:44,170 --> 00:48:45,890
+log structure and journal.
+日志结构和日志文件。
+
+796
+00:48:47,810 --> 00:48:49,510
+In a log structure,
+在日志结构中，
+
+797
+00:48:49,520 --> 00:48:51,150
+the data stays in the log.
+数据保留在日志中。
+
+798
+00:48:52,760 --> 00:48:55,440
+And locks are updated using transactions.
+并且使用事务来更新锁定。
+
+799
+00:48:57,310 --> 00:48:59,110
+In a journal file system.
+在日志文件系统中。
+
+800
+00:49:00,190 --> 00:49:02,200
+Log is used only for recovery.
+日志仅用于恢复。
+
+801
+00:49:03,730 --> 00:49:08,710
+The data is still in the traditional data format on the disk.
+数据仍然以传统数据格式存储在磁盘上。
+
+802
+00:49:12,300 --> 00:49:16,760
+We are going to look to journal file system in the next couple of slides.
+接下来的几张幻灯片中，我们将介绍日志文件系统。
+
+803
+00:49:21,260 --> 00:49:22,490
+It's the same idea.
+这是相同的想法。
+
+804
+00:49:22,500 --> 00:49:27,090
+A little bit always like is that you don't modify data structure on the disk,
+一点点总是喜欢的是你不要修改磁盘上的数据结构。
+
+805
+00:49:27,100 --> 00:49:28,700
+direct this idea,
+引导这个想法，
+
+806
+00:49:30,120 --> 00:49:32,680
+you will put them on the changes on the log.
+你会将它们记录在变更日志上。
+
+807
+00:49:34,840 --> 00:49:36,820
+And only after you are done,
+完成后，只需要告诉我一声。
+
+808
+00:49:37,600 --> 00:49:40,660
+we saw to speak, the transaction is all the changes.
+我们所说的交易是指所有的变化。
+
+809
+00:49:41,070 --> 00:49:42,800
+You push the changes to the risk.
+你将更改推送到风险中。
+
+810
+00:49:44,260 --> 00:49:47,610
+It turns out that as long as long as along is persistent,
+事实证明，只要持续下去，
+
+811
+00:49:48,660 --> 00:49:50,220
+even if you have failures,
+即使你遭遇失败，
+
+812
+00:49:50,950 --> 00:49:52,170
+you can always recover.
+你总是可以恢复过来的。
+
+813
+00:49:53,070 --> 00:49:54,660
+We'll see how to say that on the show of amygdav.
+我们将在amygdav的节目中看到如何表达这个意思。
+
+814
+00:49:56,550 --> 00:49:57,020
+Okay.
+好的。
+
+815
+00:50:01,190 --> 00:50:02,740
+This is exactly what I said.
+这正是我所说的。
+
+816
+00:50:03,360 --> 00:50:04,050
+You're right.
+你是对的。
+
+817
+00:50:04,250 --> 00:50:06,740
+The updates of the as a transaction,
+作为一个事务的更新
+
+818
+00:50:06,750 --> 00:50:09,530
+the related updates as a transaction in the law.
+将相关更新作为法律中的一项交易。
+
+819
+00:50:11,380 --> 00:50:13,480
+Once the transaction is committed in the log,
+一旦事务在日志中提交完成，
+
+820
+00:50:14,130 --> 00:50:19,330
+you can now start applying those operation in the transaction on the storage.
+你现在可以开始在存储中应用这些操作到事务中了。
+
+821
+00:50:21,890 --> 00:50:24,700
+If you, if you fail in between, it's okay,
+如果你，在途中失败了，没关系，
+
+822
+00:50:24,710 --> 00:50:26,250
+because when you come back,
+因为当你回来的时候，
+
+823
+00:50:26,260 --> 00:50:31,610
+you have enough information to continue to update the disk.
+你已经有足够的信息来继续更新磁盘。
+
+824
+00:50:33,120 --> 00:50:34,060
+The data on the disk.
+磁盘上的数据。
+
+825
+00:50:37,820 --> 00:50:39,580
+Once along all the operate,
+一旦在所有操作中，
+
+826
+00:50:39,590 --> 00:50:46,270
+all the updates in a transaction are successfully applied to the disk.
+所有事务中的更新都成功应用到磁盘上。
+
+827
+00:50:46,980 --> 00:50:48,180
+You are going to remove the log.
+你要删除日志。
+
+828
+00:50:51,100 --> 00:50:56,390
+So this is linux use journal file system,
+所以这是使用日志文件系统的Linux系统。
+
+829
+00:50:56,970 --> 00:51:01,450
+and basically took of ffs like file system and apply jam.
+然后基本上去掉了像文件系统这样的ffs，并应用了jam。
+
+830
+00:51:05,510 --> 00:51:06,900
+There are many systems.
+有许多系统。
+
+831
+00:51:06,910 --> 00:51:08,340
+There is a journaling file system.
+有一个日志文件系统。
+
+832
+00:51:11,450 --> 00:51:11,810
+Okay.
+好的。
+
+833
+00:51:11,820 --> 00:51:19,110
+So let's it before to see to get a sense about how journaling is working.
+所以在我们开始之前，让我们先了解一下日志记录是如何工作的，以便对其有一个概念。
+
+834
+00:51:19,390 --> 00:51:20,740
+Let's look, again,
+让我们再次看一下，
+
+835
+00:51:20,930 --> 00:51:27,870
+what are the typical updates you need to do when you are going to write
+当你准备写作时，你通常需要进行哪些常见的更新呢？
+
+836
+00:51:27,880 --> 00:51:28,950
+data on the disk.
+磁盘上的数据。
+
+837
+00:51:31,320 --> 00:51:33,130
+For now, there is no journal.
+目前还没有日志。
+
+838
+00:51:35,140 --> 00:51:37,740
+So you need to do what you need to find a free block.
+所以你需要做的是找到一个空闲的块。
+
+839
+00:51:37,970 --> 00:51:40,130
+The yellow block, there is a free block.
+黄色的方块，有一个空闲块。
+
+840
+00:51:40,140 --> 00:51:40,420
+Good.
+好的。
+
+841
+00:51:41,320 --> 00:51:43,090
+You need to find a free entry.
+你需要找到一个空闲的入口。
+
+842
+00:51:43,100 --> 00:51:43,970
+I know the entry.
+我知道这个条目。
+
+843
+00:51:46,400 --> 00:51:49,460
+You need to find where you are going to insert.
+你需要找到你要插入的位置。
+
+844
+00:51:50,120 --> 00:51:57,770
+And the in the file directory where you are going to insert the entry,
+在你要插入条目的文件目录中，
+
+845
+00:51:57,780 --> 00:52:01,080
+which associate the file with the I node,
+将文件与I节点关联起来的操作
+
+846
+00:52:01,660 --> 00:52:02,580
+file language, I know.
+文件语言，我知道。
+
+847
+00:52:04,590 --> 00:52:06,060
+And then once you're update,
+然后一旦你更新完成，
+
+848
+00:52:06,510 --> 00:52:11,030
+you find all these free available spaces.
+你找到了所有这些可用的免费空间。
+
+849
+00:52:11,740 --> 00:52:12,540
+You start to write,
+你开始写作，
+
+850
+00:52:13,690 --> 00:52:19,240
+you write the in the free map space.
+你将信息写入了空闲内存空间中。
+
+851
+00:52:19,250 --> 00:52:25,170
+You say you mark that you allocate the data, you're right.
+你说你标记了你分配的数据，你是对的。
+
+852
+00:52:25,180 --> 00:52:30,740
+And I note entry to point is a block you're out and derive
+我注意到你提到的"entry to point"是一个块，你已经退出并派生出来了。
+
+853
+00:52:30,750 --> 00:52:33,620
+that the director directory entry to point to the item.
+将目录项的指针指向该项的目录入口。
+
+854
+00:52:34,010 --> 00:52:34,650
+This article.
+这篇文章。
+
+855
+00:52:35,260 --> 00:52:35,580
+Right?
+对吗？
+
+856
+00:52:37,180 --> 00:52:39,830
+And remember, if something happens, wrong happens,
+记住，如果发生了什么事情，出现了错误，
+
+857
+00:52:40,410 --> 00:52:43,370
+it can leave the disk in the inconsistent state.
+它可能会使磁盘处于不一致的状态。
+
+858
+00:52:45,890 --> 00:52:48,680
+Now, let's see how we address this problem in journal.
+现在，让我们看看如何在论文中解决这个问题。
+
+859
+00:52:50,720 --> 00:52:51,840
+A german is locked.
+一个德国人被锁住了。
+
+860
+00:52:51,850 --> 00:52:53,040
+So instead or when,
+所以，而不是或者当
+
+861
+00:52:53,050 --> 00:52:55,000
+instead of writing directly to the disk,
+不直接写入磁盘，
+
+862
+00:52:55,830 --> 00:52:57,470
+you start you write to the lock.
+你开始写入锁。
+
+863
+00:52:59,530 --> 00:53:00,610
+It's not volatile.
+它不是易失性的。
+
+864
+00:53:00,620 --> 00:53:02,130
+It's on flash or on the disk.
+它在闪存上还是在磁盘上。
+
+865
+00:53:04,610 --> 00:53:11,410
+What do you find the free data block?
+你是在问如何找到空闲的数据块吗？
+
+866
+00:53:14,670 --> 00:53:16,910
+Again, like these are the operations, right?
+再次确认，这些是操作吗？
+
+867
+00:53:17,680 --> 00:53:20,280
+Find free data block, find 39 or 90,
+查找空闲数据块，查找39或90。
+
+868
+00:53:20,630 --> 00:53:27,970
+find a directory and insertion pointing directory for adding the directory
+找到一个目录和插入指向目录，以便添加该目录。
+
+869
+00:53:27,980 --> 00:53:31,780
+entry to map the file name to the island.
+将文件名映射到岛屿的条目。
+
+870
+00:53:33,640 --> 00:53:34,390
+It's what you do.
+这是你所做的事情。
+
+871
+00:53:35,010 --> 00:53:36,170
+You start the transaction,
+您开始了事务，
+
+872
+00:53:38,360 --> 00:53:39,680
+and you write this operation.
+而且你编写这个操作。
+
+873
+00:53:41,760 --> 00:53:42,270
+Now,
+现在，
+
+874
+00:53:42,820 --> 00:53:46,730
+you don't write directly to update the free space map.
+你不能直接写入来更新空闲空间映射表。
+
+875
+00:53:47,870 --> 00:53:49,670
+You put the operation to the updates,
+你将操作放在了更新中。
+
+876
+00:53:49,680 --> 00:53:51,230
+a free space map in the law.
+法律中的空闲空间图
+
+877
+00:53:54,780 --> 00:54:01,470
+You don't write the you don't update the iron ore table to point
+你没有编写代码，也没有更新铁矿石表的指针。
+
+878
+00:54:01,480 --> 00:54:02,630
+to the new block.
+到新的块。
+
+879
+00:54:03,540 --> 00:54:07,130
+You write that operation in the lock,
+你写的是在锁中执行的操作。
+
+880
+00:54:08,610 --> 00:54:09,080
+the same.
+相同的。
+
+881
+00:54:09,770 --> 00:54:12,180
+The operation to update the directory entry,
+更新目录项的操作
+
+882
+00:54:12,190 --> 00:54:14,720
+you are going to write in the log.
+你将要在日志中写入信息。
+
+883
+00:54:15,860 --> 00:54:17,130
+Now, you're committed.
+现在，你已经承诺了。
+
+884
+00:54:20,390 --> 00:54:21,720
+So all updates,
+所以所有的更新，
+
+885
+00:54:24,320 --> 00:54:29,320
+all operation to update information on the disks are in the lock.
+所有更新磁盘信息的操作都处于锁定状态。
+
+886
+00:54:30,090 --> 00:54:33,890
+Nothing happened so far on the disk.
+目前为止，磁盘上没有发生任何事情。
+
+887
+00:54:39,790 --> 00:54:42,310
+And then once you are done,
+完成后，
+
+888
+00:54:42,630 --> 00:54:45,470
+you are going to go through all the operations, the logs.
+你将会浏览所有的操作和日志。
+
+889
+00:54:45,910 --> 00:54:48,870
+And you are going to update now,
+你现在要更新了，
+
+890
+00:54:49,110 --> 00:54:51,180
+the data or the information on the disk.
+磁盘上的数据或信息。
+
+891
+00:54:54,210 --> 00:54:55,910
+So you copy all the changes,
+所以你复制了所有的更改，
+
+892
+00:54:56,800 --> 00:54:59,820
+you advance a tale of the log.
+你提到了一个日志的故事。
+
+893
+00:55:00,840 --> 00:55:01,410
+And now,
+现在，
+
+894
+00:55:02,110 --> 00:55:08,820
+when the tail goes over the commit or executed, all you,
+当尾部超过提交或执行时，你需要
+
+895
+00:55:08,830 --> 00:55:11,220
+after you execute all the operations,
+在执行完所有操作之后，
+
+896
+00:55:11,230 --> 00:55:15,560
+apply all the operation from the log on the file system.
+将日志中的所有操作应用于文件系统。
+
+897
+00:55:16,260 --> 00:55:17,370
+You can discard that log,
+你可以丢弃那个日志。
+
+898
+00:55:20,160 --> 00:55:21,190
+that transaction in the log.
+在日志中的那个事务。
+
+899
+00:55:34,680 --> 00:55:44,400
+Let's say that I was only successful to write to the logs,
+假设我只成功写入了日志，
+
+900
+00:55:46,930 --> 00:55:54,240
+only this
+只需要这个。
+
+901
+00:55:55,840 --> 00:56:01,380
+do the operation to get to the free space,
+执行操作以获取空闲空间。
+
+902
+00:56:02,880 --> 00:56:04,110
+to modify the bit map,
+修改位图
+
+903
+00:56:04,120 --> 00:56:05,440
+to the space bit map,
+到空间位图中，
+
+904
+00:56:06,180 --> 00:56:10,300
+and the pointer to the item.
+和指向该项的指针。
+
+905
+00:56:13,360 --> 00:56:14,370
+In this case,
+在这种情况下，
+
+906
+00:56:14,880 --> 00:56:16,110
+if I am coming back,
+如果我回来的话，
+
+907
+00:56:17,480 --> 00:56:20,830
+and I assume that after these operations are written in the law,
+我假设这些操作被写入法律后，
+
+908
+00:56:21,850 --> 00:56:25,580
+but before the transaction ended, I have a failure.
+但在交易结束之前，我遇到了一个故障。
+
+909
+00:56:29,000 --> 00:56:30,470
+At this point, in this case,
+在这种情况下，此时，
+
+910
+00:56:31,500 --> 00:56:32,610
+if I come back,
+如果我回来的话，
+
+911
+00:56:36,410 --> 00:56:41,600
+like the only thing I need to do is to remove this operation to remove
+我需要做的唯一事情就是删除这个操作来移除它。
+
+912
+00:56:41,610 --> 00:56:42,520
+from the lock,
+从锁中，
+
+913
+00:56:43,010 --> 00:56:47,910
+because it spines point still nothing has been applied on the disk.
+因为它还没有将任何内容写入磁盘上的扇区。
+
+914
+00:56:49,280 --> 00:56:50,880
+You apply the changes on the disk,
+你将更改应用到磁盘上，
+
+915
+00:56:51,270 --> 00:56:56,420
+only after the transaction is succeeded on the lock.
+只有在锁定成功的情况下才能进行事务。
+
+916
+00:56:57,990 --> 00:57:01,560
+After the committee,
+会议结束后，
+
+917
+00:57:01,570 --> 00:57:02,760
+there are two questions here.
+这里有两个问题。
+
+918
+00:57:06,160 --> 00:57:09,030
+Can you have a fail when while writing the log?
+在写日志时可能会发生失败吗？
+
+919
+00:57:10,380 --> 00:57:11,020
+Absolutely.
+当然可以。
+
+920
+00:57:11,780 --> 00:57:14,620
+But then everything will be clean up.
+但是之后一切都会被清理干净。
+
+921
+00:57:15,590 --> 00:57:18,400
+Like, in this case, you can fail while you're writing on the log.
+在这种情况下，你在写日志时可能会失败。
+
+922
+00:57:19,380 --> 00:57:20,410
+When you come back,
+当你回来的时候，
+
+923
+00:57:20,420 --> 00:57:22,410
+you look at the incompetent transaction,
+你看看这个无能的交易。
+
+924
+00:57:22,960 --> 00:57:24,000
+you clean them up,
+你清理它们。
+
+925
+00:57:25,340 --> 00:57:29,180
+Because that nothing from the transaction which has not finished for me,
+因为对我来说，尚未完成的交易中没有任何东西。
+
+926
+00:57:29,190 --> 00:57:29,460
+did,
+完成了。
+
+927
+00:57:30,080 --> 00:57:32,600
+has been all applied to the disk.
+已经全部应用到磁盘上。
+
+928
+00:57:37,550 --> 00:57:39,790
+What's a big difference between writing directly?
+直接写作和间接写作之间有什么重大区别？
+
+929
+00:57:39,800 --> 00:57:41,350
+The big difference from writing,
+与写作相比的一个重大区别是，
+
+930
+00:57:41,360 --> 00:57:45,660
+between writing directly and writing is along is very simple,
+直接写和写成一行之间的区别非常简单，
+
+931
+00:57:46,860 --> 00:57:47,260
+right?
+对的？
+
+932
+00:57:47,760 --> 00:57:50,480
+Is basically because I have a log and I have done,
+基本上是因为我有一个日志，并且我已经完成了。
+
+933
+00:57:51,050 --> 00:58:00,680
+then I can easy reconstruct the state to make it consistent in the file system.
+然后我可以轻松地重建状态，使其在文件系统中保持一致。
+
+934
+00:58:01,720 --> 00:58:03,040
+Otherwise is more difficult.
+否则会更困难。
+
+935
+00:58:03,050 --> 00:58:03,760
+Remember,
+记住，
+
+936
+00:58:04,260 --> 00:58:08,930
+like with a files check for the fast file system,
+就像对快速文件系统进行文件检查一样，
+
+937
+00:58:10,090 --> 00:58:13,720
+in order to make the state consistent,
+为了使状态保持一致，
+
+938
+00:58:14,270 --> 00:58:18,310
+you need to go and to sequential look over the entire distance
+你需要按顺序查看整个距离。
+
+939
+00:58:18,320 --> 00:58:19,390
+is extremely slow.
+非常慢。
+
+940
+00:58:31,300 --> 00:58:32,540
+It's again here.
+又是我。
+
+941
+00:58:32,930 --> 00:58:33,700
+In the log,
+在日志中，
+
+942
+00:58:33,710 --> 00:58:39,680
+we assume that we know that we know that arrive has been completed.
+我们假设我们知道到达已经完成。
+
+943
+00:58:39,970 --> 00:58:43,670
+Assume that we know that the disk eventually will tell you.
+假设我们知道磁盘最终会告诉你。
+
+944
+00:58:45,920 --> 00:58:47,200
+If the disk doesn't tell you,
+如果磁盘没有告诉你，
+
+945
+00:58:47,210 --> 00:58:48,920
+then you assume that it doesn't.
+那么你假设它不会。
+
+946
+00:59:00,490 --> 00:59:00,850
+Yeah.
+是的。
+
+947
+00:59:00,860 --> 00:59:05,370
+So the question here is that basically see how to ensure the sequentially?
+这里的问题基本上是如何确保顺序执行？
+
+948
+00:59:06,180 --> 00:59:06,640
+Well,
+好的，我会尽力将英文翻译成中文。请继续提供需要翻译的内容。
+
+949
+00:59:07,150 --> 00:59:10,990
+you make sure that a controller for the log is not going to reorder the rights.
+你要确保日志的控制器不会重新排序记录。
+
+950
+00:59:13,180 --> 00:59:14,620
+Faces an excellent question.
+这是一个很好的问题。
+
+951
+00:59:14,920 --> 00:59:16,760
+That is a very good question.
+这是一个非常好的问题。
+
+952
+00:59:19,170 --> 00:59:20,800
+So resources how this happened,
+所以资源是如何发生的呢？
+
+953
+00:59:20,810 --> 00:59:22,570
+if you and now,
+如果你现在在这里，
+
+954
+00:59:23,790 --> 00:59:29,070
+we saw that what happened if you just a log was partially written.
+我们看到了如果只写了部分日志会发生什么。
+
+955
+00:59:30,020 --> 00:59:34,440
+When you come back, you just remove the entries from the partial logs.
+当你回来时，只需从部分日志中删除条目即可。
+
+956
+00:59:35,380 --> 00:59:35,850
+You are done.
+你完成了。
+
+957
+00:59:37,530 --> 00:59:45,380
+But now let's assume that let's see what
+但是现在让我们假设，让我们看看什么情况
+
+958
+00:59:45,390 --> 00:59:47,700
+happens like what now we are.
+现在我们发生了什么事情。
+
+959
+00:59:50,070 --> 00:59:52,430
+We committed the log the transaction.
+我们提交了事务的日志。
+
+960
+00:59:53,450 --> 00:59:55,520
+Now we need to apply all the operation.
+现在我们需要执行所有的操作。
+
+961
+00:59:56,840 --> 00:59:58,950
+In the log, we need to apply them to the risk.
+在日志中，我们需要将它们应用于风险。
+
+962
+01:00:03,260 --> 01:00:06,420
+What do you start from?
+你从哪里开始？
+
+963
+01:00:06,810 --> 01:00:08,080
+That matching commit?
+那个匹配的提交吗？
+
+964
+01:00:14,440 --> 01:00:19,810
+And then what you are going to do here,
+然后你在这里要做什么？
+
+965
+01:00:20,290 --> 01:00:25,160
+it basically is against every of this operation is either important,
+这基本上是反对每一个这种操作都是重要的。
+
+966
+01:00:26,080 --> 01:00:28,590
+meaning that if you apply it multiple times,
+意思是如果你多次应用它，
+
+967
+01:00:29,600 --> 01:00:31,230
+you are going to get the same result,
+你将会得到相同的结果。
+
+968
+01:00:31,240 --> 01:00:33,350
+because it just right, one, right?
+因为它刚刚好，对吗？
+
+969
+01:00:33,360 --> 01:00:36,070
+Is particularly identical that if you write the same value
+如果你写入相同的值，特别是相同的值，那就是完全相同的。
+
+970
+01:00:36,500 --> 01:00:38,300
+at the same location over and over again,
+一次又一次地在同一个位置上。
+
+971
+01:00:38,310 --> 01:00:40,640
+you are still going to get the same value.
+你仍然会得到相同的值。
+
+972
+01:00:40,930 --> 01:00:42,780
+No matter how many times throughout,
+无论在整个过程中发生多少次，
+
+973
+01:00:46,010 --> 01:00:47,080
+here is what happens,
+这是发生的情况：
+
+974
+01:00:47,090 --> 01:00:49,010
+here is about, again,
+这是关于的内容，再次提到
+
+975
+01:00:49,620 --> 01:00:54,030
+if you are going to successfully apply all the operations to the disk,
+如果你要成功地将所有操作应用到磁盘上，
+
+976
+01:00:54,040 --> 01:00:54,960
+you are done.
+你已经完成了。
+
+977
+01:00:55,530 --> 01:00:57,180
+You can garbage for it like you've seen.
+你可以像你看到的那样将其丢弃。
+
+978
+01:00:58,020 --> 01:01:02,170
+But now assume that you have a failure in the middle or you're applying
+但是现在假设你在中间遇到故障或者正在应用某项操作。
+
+979
+01:01:02,180 --> 01:01:04,690
+the operation from the law to that is.
+从法律到那个操作。
+
+980
+01:01:06,790 --> 01:01:07,490
+So what do you do?
+那你做什么工作？
+
+981
+01:01:09,010 --> 01:01:09,560
+Simple.
+简单。
+
+982
+01:01:10,370 --> 01:01:11,210
+When you come back?
+你什么时候回来？
+
+983
+01:01:11,930 --> 01:01:12,210
+Again,
+再一次，
+
+984
+01:01:12,220 --> 01:01:14,650
+you go from the beginning and you applies all the operations
+你从头开始，应用所有的操作。
+
+985
+01:01:14,780 --> 01:01:16,490
+because the operation are right important.
+因为操作是非常重要的。
+
+986
+01:01:16,500 --> 01:01:20,830
+It doesn't matter how many times supplies eventually are going to finish.
+无论最终供应品会用完多少次都无所谓。
+
+987
+01:01:22,000 --> 01:01:22,370
+Right?
+对吗？
+
+988
+01:01:23,050 --> 01:01:26,550
+And then you are going to garbage for like the transaction.
+然后你会将其作为垃圾处理，就像这个交易一样。
+
+989
+01:01:37,660 --> 01:01:38,290
+The question,
+问题是什么？
+
+990
+01:01:38,300 --> 01:01:42,250
+how does discard the log work again when the machine started writing
+当机器开始写入时，如何再次丢弃日志？
+
+991
+01:01:42,260 --> 01:01:44,910
+the log disk that it's already updated?
+已经更新的日志磁盘？
+
+992
+01:01:45,470 --> 01:01:46,170
+Partially?
+部分地？
+
+993
+01:01:46,770 --> 01:01:49,480
+How do we undo the only part that is not permitted?
+我们如何撤销唯一不允许的部分？
+
+994
+01:01:50,050 --> 01:01:52,310
+So maybe I was not, it's a great question.
+也许我不是，这是一个很好的问题。
+
+995
+01:01:52,320 --> 01:01:53,460
+And we are not clear.
+我们还不清楚。
+
+996
+01:01:54,400 --> 01:02:01,750
+There is nothing you are going to update on the disk unless the transaction
+除非事务完成，否则不会对磁盘进行任何更新。
+
+997
+01:02:03,150 --> 01:02:04,640
+is being committed.
+正在被执行。
+
+998
+01:02:06,600 --> 01:02:06,940
+Nothing.
+什么都没有。
+
+999
+01:02:08,680 --> 01:02:10,060
+You see this operation?
+你看到这个操作了吗？
+
+1000
+01:02:10,500 --> 01:02:11,800
+Let me just very clear.
+让我非常清楚一下。
+
+1001
+01:02:13,120 --> 01:02:21,840
+What's these green things?
+这些绿色的东西是什么？
+
+1002
+01:02:24,140 --> 01:02:25,120
+They are not modified.
+它们没有被修改。
+
+1003
+01:02:25,130 --> 01:02:27,200
+I just found this entries.
+我刚刚发现了这些条目。
+
+1004
+01:02:29,030 --> 01:02:29,480
+Right?
+对吗？
+
+1005
+01:02:30,490 --> 01:02:32,090
+Nothing has been modified on the disk.
+磁盘上没有进行任何修改。
+
+1006
+01:02:33,170 --> 01:02:34,750
+You start only modifying,
+你只需要进行修改，
+
+1007
+01:02:35,440 --> 01:02:38,110
+once you wrote, the transaction has permitted,
+一旦你写入，事务就被允许。
+
+1008
+01:02:38,120 --> 01:02:40,150
+now you can start to go back.
+现在你可以开始返回了。
+
+1009
+01:02:41,000 --> 01:02:45,430
+You apply all the changes in the transaction on the disk.
+你将事务中的所有更改应用到磁盘上。
+
+1010
+01:02:46,300 --> 01:02:48,620
+Only now you update the data on the disk.
+现在你才更新磁盘上的数据。
+
+1011
+01:02:50,140 --> 01:02:50,740
+Not before.
+之前没有。
+
+1012
+01:02:54,400 --> 01:02:55,460
+Did answer your question?
+回答了你的问题吗？
+
+1013
+01:02:55,470 --> 01:03:01,980
+I owe you answer.
+我欠你一个答案。
+
+1014
+01:03:10,430 --> 01:03:11,340
+Another question,
+另一个问题，
+
+1015
+01:03:11,350 --> 01:03:14,660
+can we even tell which portion of a committee log is finished?
+我们能否确定委员会日志的哪一部分已经完成了？
+
+1016
+01:03:15,650 --> 01:03:16,270
+It's again,
+又是这样，
+
+1017
+01:03:17,180 --> 01:03:19,970
+if you don't need to know, right?
+如果你不需要知道，对吗？
+
+1018
+01:03:20,500 --> 01:03:22,650
+If you don't know to know it is finished,
+如果你不知道它是否完成了，
+
+1019
+01:03:23,490 --> 01:03:27,480
+because you are going to repeat from the beginning every time.
+因为每次都要从头开始重复。
+
+1020
+01:03:29,530 --> 01:03:30,520
+When you go back,
+当你回去的时候，
+
+1021
+01:03:31,310 --> 01:03:32,320
+when you restart,
+当你重新启动时，
+
+1022
+01:03:33,240 --> 01:03:36,290
+you are going to redo all the operation from the lock.
+你需要重新执行所有的锁操作。
+
+1023
+01:03:38,730 --> 01:03:41,130
+It doesn't matter whether I already done.
+是否已经完成并不重要。
+
+1024
+01:03:41,660 --> 01:03:42,460
+Previously.
+以前。
+
+1025
+01:03:42,850 --> 01:03:43,770
+I've done a few.
+我已经完成了一些。
+
+1026
+01:03:45,010 --> 01:03:46,950
+So I have three operation in the blog,
+所以我在博客中有三个操作。
+
+1027
+01:03:47,440 --> 01:03:50,160
+in the log to apply 1 to 3,
+在日志中应用1到3，
+
+1028
+01:03:50,170 --> 01:03:52,790
+I applied its operation one, and two.
+我申请了它的操作一和操作二。
+
+1029
+01:03:53,280 --> 01:03:54,130
+Then I failed.
+那我失败了。
+
+1030
+01:03:55,860 --> 01:03:59,100
+When I come back, i'm starting again with 12, and 3.
+当我回来的时候，我会重新开始，使用12和3。
+
+1031
+01:03:59,110 --> 01:04:03,220
+And then hopefully I am successful to apply three, and then i'm done.
+然后希望我能成功申请三个，然后就完成了。
+
+1032
+01:04:05,140 --> 01:04:07,130
+I can apply one and two again,
+我可以再次申请一和二。
+
+1033
+01:04:07,440 --> 01:04:08,930
+because one and two are rights.
+因为一和二都是正确的。
+
+1034
+01:04:09,950 --> 01:04:10,780
+They are immutable.
+它们是不可变的。
+
+1035
+01:04:10,790 --> 01:04:11,900
+They are going to write to,
+他们打算写给你，
+
+1036
+01:04:11,910 --> 01:04:13,300
+i'm going to write the same value.
+我将写入相同的值。
+
+1037
+01:04:14,760 --> 01:04:24,480
+It's okay.
+没问题。
+
+1038
+01:04:32,950 --> 01:04:34,650
+Why go through all this trouble?
+为什么要费这么大劲呢？
+
+1039
+01:04:37,060 --> 01:04:44,260
+Because it makes it easy to reason and be quite efficient to make
+因为这样做可以方便地进行推理，并且可以高效地进行制作。
+
+1040
+01:04:44,270 --> 01:04:47,020
+sure that the state on the disk is persistent.
+确保磁盘上的状态是持久的。
+
+1041
+01:04:47,030 --> 01:04:49,820
+It's consistent in the presence of failure.
+在故障存在的情况下是一致的。
+
+1042
+01:04:51,040 --> 01:04:52,160
+Isn't it expensive?
+这不是很贵吗？
+
+1043
+01:04:54,560 --> 01:04:56,470
+From one perspective, it's expensive,
+从某种角度来看，它是昂贵的。
+
+1044
+01:04:57,840 --> 01:05:00,410
+because you are going to write twice,
+因为你要写两次。
+
+1045
+01:05:01,430 --> 01:05:03,070
+you may write the data,
+你可以写入数据。
+
+1046
+01:05:03,520 --> 01:05:06,190
+you are going to write on the blog on the log.
+你将要在博客上写关于日志的文章。
+
+1047
+01:05:07,180 --> 01:05:10,290
+And then you are going to write data on the list.
+然后你将要在列表上写入数据。
+
+1048
+01:05:12,440 --> 01:05:13,190
+However,
+然而，
+
+1049
+01:05:15,610 --> 01:05:18,480
+the modern file system is for about this to mention,
+现代文件系统是关于这个的提及。
+
+1050
+01:05:21,030 --> 01:05:26,970
+they have different optimization to do it.
+它们有不同的优化方式来完成这个任务。
+
+1051
+01:05:28,650 --> 01:05:30,870
+So you can have different optimization.
+所以你可以有不同的优化。
+
+1052
+01:05:32,350 --> 01:05:33,500
+Like, for instance, eventually,
+例如，最终，
+
+1053
+01:05:33,510 --> 01:05:35,100
+the data you can write it directly.
+你可以直接写入数据。
+
+1054
+01:05:35,740 --> 01:05:37,000
+And if you fail,
+如果你失败了，
+
+1055
+01:05:37,390 --> 01:05:39,630
+then you eventually recovered at the light of time.
+最终，你在时间的光芒下恢复了。
+
+1056
+01:05:41,900 --> 01:05:43,420
+But there is one, actually,
+但实际上确实有一个。
+
+1057
+01:05:43,430 --> 01:05:44,920
+I want to ask you,
+我想问你，
+
+1058
+01:05:44,930 --> 01:05:51,390
+can you see one reason actually journaling file systems generally can be
+你能看到为什么日志文件系统通常会有一个原因吗？
+
+1059
+01:05:51,400 --> 01:05:52,430
+good for performance.
+性能良好。
+
+1060
+01:06:02,160 --> 01:06:05,230
+If I tell you that journaling can also help with the performance,
+如果我告诉你，日志记录也可以提高性能，
+
+1061
+01:06:08,620 --> 01:06:11,780
+why do you think that would be the case?
+你为什么认为会是这样呢？
+
+1062
+01:06:27,100 --> 01:06:27,840
+How is the log
+日志的情况如何？
+
+1063
+01:06:43,640 --> 01:06:44,590
+organized sequentially?
+按顺序组织？
+
+1064
+01:06:45,080 --> 01:06:45,550
+Correct?
+正确吗？
+
+1065
+01:06:47,190 --> 01:06:50,820
+We know the sequential rise are fast,
+我们知道顺序上升很快，
+
+1066
+01:06:50,830 --> 01:06:52,740
+so all the rise in the longer sequential,
+所以所有的上升趋势都是更长的连续的。
+
+1067
+01:06:52,750 --> 01:06:53,940
+so they are very fast.
+所以它们非常快速。
+
+1068
+01:06:55,580 --> 01:06:56,300
+And then later,
+然后稍后，
+
+1069
+01:06:56,310 --> 01:07:03,110
+you can actually batch the updates from the logs to the disk.
+你实际上可以将日志中的更新批量写入磁盘。
+
+1070
+01:07:04,290 --> 01:07:06,740
+So you can do them as efficient as you can.
+所以你可以尽可能高效地完成它们。
+
+1071
+01:07:09,990 --> 01:07:10,800
+That's the reason.
+这就是原因。
+
+1072
+01:07:15,110 --> 01:07:17,420
+So it's not all bad when it comes to performance.
+所以在性能方面并不全是坏的。
+
+1073
+01:07:18,330 --> 01:07:19,700
+Announcements projects three,
+公告：项目三开始。
+
+1074
+01:07:19,710 --> 01:07:21,540
+design reviews this week.
+本周进行设计评审。
+
+1075
+01:07:23,890 --> 01:07:25,730
+This is the last round of the dining bills.
+这是就餐账单的最后一轮。
+
+1076
+01:07:25,740 --> 01:07:27,530
+We are close to the end of the class.
+我们快要结束课程了。
+
+1077
+01:07:29,520 --> 01:07:31,660
+Hormone five is due monday,
+第五个荷尔蒙作业要在周一之前完成。
+
+1078
+01:07:32,380 --> 01:07:33,180
+next monday.
+下周一。
+
+1079
+01:07:34,310 --> 01:07:40,100
+And we have
+我们还有
+
+1080
+01:07:44,340 --> 01:07:46,220
+mid term grades were released.
+期中成绩已经发布。
+
+1081
+01:07:47,840 --> 01:07:50,640
+I think you did congratulations, you did very well.
+我认为你做得很棒，你做得非常好。
+
+1082
+01:07:51,670 --> 01:07:53,960
+The first exams,
+第一次考试，
+
+1083
+01:07:53,970 --> 01:07:58,820
+aminos around%50%.
+氨基酸约占50%左右。
+
+1084
+01:07:58,830 --> 01:08:00,940
+Now it's almost 60%.
+现在已经接近60%了。
+
+1085
+01:08:02,050 --> 01:08:02,890
+So great job.
+做得太棒了！
+
+1086
+01:08:06,990 --> 01:08:10,610
+Now we have another a little bit more than 12 minutes,
+现在我们还有略多于12分钟的时间。
+
+1087
+01:08:12,310 --> 01:08:15,730
+and we are going to swiss gears.
+我们要去瑞士的山区。
+
+1088
+01:08:17,140 --> 01:08:20,580
+So we are done with file system reliability, and it's file system.
+我们已经完成了文件系统的可靠性和文件系统部分。
+
+1089
+01:08:20,590 --> 01:08:21,260
+In general.
+一般来说。
+
+1090
+01:08:22,320 --> 01:08:24,790
+We are going to start talking about distributing systems.
+我们将开始讨论分布式系统。
+
+1091
+01:08:28,070 --> 01:08:29,910
+So we are talking about distributed systems,
+所以我们正在讨论分布式系统。
+
+1092
+01:08:31,660 --> 01:08:32,770
+because they are everywhere,
+因为它们无处不在，
+
+1093
+01:08:34,140 --> 01:08:38,330
+because we need to scale all these workloads.
+因为我们需要扩展所有这些工作负载。
+
+1094
+01:08:40,430 --> 01:08:43,900
+And they require a lot of machines,
+而且它们需要很多机器。
+
+1095
+01:08:43,910 --> 01:08:45,060
+lot of resources,
+大量的资源
+
+1096
+01:08:46,750 --> 01:08:48,070
+which many separate systems.
+其中有许多独立的系统。
+
+1097
+01:08:49,760 --> 01:08:55,160
+Because any application today are using almost it has a backend,
+因为现在几乎所有的应用程序都有一个后端。
+
+1098
+01:08:56,920 --> 01:09:01,580
+which is some somewhere in the cloud connecting europe,
+这是一个连接欧洲的云中的某个地方。
+
+1099
+01:09:01,910 --> 01:09:03,380
+the front end of your application.
+你的应用程序的前端。
+
+1100
+01:09:03,390 --> 01:09:07,350
+You can answer your device with a back end is another disability system.
+您可以使用另一种残疾系统的后端来回答您的设备。
+
+1101
+01:09:11,230 --> 01:09:12,770
+So you have everybody in your car.
+所以你把每个人都带在你的车里了。
+
+1102
+01:09:13,670 --> 01:09:19,280
+There are5,100 microprocessors that are connected by a bus.
+有5,100个微处理器通过总线连接在一起。
+
+1103
+01:09:20,150 --> 01:09:21,390
+That's also a distribution system.
+这也是一个分发系统。
+
+1104
+01:09:25,450 --> 01:09:27,890
+There are 2 kind of disability systems.
+有两种类型的残疾制度。
+
+1105
+01:09:28,670 --> 01:09:29,740
+One is centralized.
+一个是集中式的。
+
+1106
+01:09:31,170 --> 01:09:35,250
+And if you have a coordinator, a server,
+如果你有一个协调者和一个服务器，
+
+1107
+01:09:35,530 --> 01:09:35,970
+for instance,
+例如，
+
+1108
+01:09:35,980 --> 01:09:42,570
+all the machines are connected to one particular server is follows.
+所有的机器都连接到一个特定的服务器，如下所示。
+
+1109
+01:09:42,580 --> 01:09:44,770
+A plan set up a model is on the left hand side,
+一个建立模型的计划位于左侧。
+
+1110
+01:09:44,780 --> 01:09:47,610
+the right hand side is peer to peer model.
+右侧是点对点模型。
+
+1111
+01:09:48,920 --> 01:09:50,470
+The peer model is more.
+对等模型更多。
+
+1112
+01:09:50,480 --> 01:09:53,510
+Everyone can every other now can communicate with every other.
+现在每个人都可以与其他人进行交流。
+
+1113
+01:09:53,520 --> 01:09:53,630
+Now,
+现在，
+
+1114
+01:09:54,760 --> 01:09:59,010
+the communication in moscow is less structured,
+莫斯科的交流方式较为松散。
+
+1115
+01:09:59,670 --> 01:10:00,430
+is more general.
+更加通用。
+
+1116
+01:10:01,050 --> 01:10:03,900
+The kind of client server is also implemented by some
+某些实现中也采用了客户端服务器模式
+
+1117
+01:10:03,910 --> 01:10:07,570
+of the distributed systems for framework,
+分布式系统的框架
+
+1118
+01:10:07,580 --> 01:10:10,410
+like hard look spark.
+喜欢艰难的探索和激发灵感。
+
+1119
+01:10:14,090 --> 01:10:14,920
+This is,
+这是，
+
+1120
+01:10:21,940 --> 01:10:23,640
+and like I mentioned,
+就像我之前提到的一样，
+
+1121
+01:10:23,650 --> 01:10:28,990
+disability systems can be on the same car in the same you can have.
+残疾系统可以在同一辆车上同时存在。
+
+1122
+01:10:29,000 --> 01:10:37,720
+And the context can be widely different.
+而且上下文可能大不相同。
+
+1123
+01:10:38,350 --> 01:10:41,430
+You can have a distributed system in your car,
+你的汽车可以拥有一个分布式系统。
+
+1124
+01:10:41,950 --> 01:10:42,960
+in a room,
+在一个房间里，
+
+1125
+01:10:43,730 --> 01:10:44,720
+in your home,
+在你的家里，
+
+1126
+01:10:45,320 --> 01:10:48,200
+in your building data center or across the globe.
+无论是在您的建筑数据中心还是全球范围内。
+
+1127
+01:10:55,020 --> 01:10:57,050
+There are many reasons, again,
+有很多原因，再次提到，
+
+1128
+01:10:57,060 --> 01:10:58,370
+for being distributed systems,
+作为分布式系统，
+
+1129
+01:10:58,380 --> 01:11:01,130
+some of them because the applications, the users,
+其中一些是因为应用程序、用户，
+
+1130
+01:11:01,950 --> 01:11:03,390
+you want to connect the users.
+你想要连接用户。
+
+1131
+01:11:04,610 --> 01:11:06,440
+And the users are different locations.
+而且用户位于不同的地点。
+
+1132
+01:11:08,250 --> 01:11:09,250
+Some of them,
+其中一些，
+
+1133
+01:11:09,260 --> 01:11:10,810
+because like I mentioned,
+因为就像我之前提到的那样，
+
+1134
+01:11:11,900 --> 01:11:18,050
+one server cannot do is not powerful enough to support all the workload
+一个服务器无法做到的是不够强大以支持所有的工作负载。
+
+1135
+01:11:19,470 --> 01:11:20,560
+to perform all the workload.
+执行所有工作负载。
+
+1136
+01:11:24,430 --> 01:11:26,290
+But there are also other reasons.
+但还有其他原因。
+
+1137
+01:11:29,270 --> 01:11:30,390
+Sometimes it's cheaper.
+有时候更便宜。
+
+1138
+01:11:30,400 --> 01:11:36,590
+And this was a truth like it used to be that if you aren't very powerful computers,
+这是一个过去的事实，如果你的计算机不够强大，
+
+1139
+01:11:36,600 --> 01:11:37,870
+you build supercomputers,
+你们建造超级计算机，
+
+1140
+01:11:37,880 --> 01:11:40,070
+you can still be able to play supercomputers.
+你仍然可以玩超级计算机。
+
+1141
+01:11:40,890 --> 01:11:42,250
+These are very expensive,
+这些非常昂贵，
+
+1142
+01:11:42,870 --> 01:11:44,730
+takes year to build, to deliver.
+需要一年的时间来建造和交付。
+
+1143
+01:11:46,890 --> 01:11:49,010
+And then with the rise of the internet,
+随着互联网的兴起，
+
+1144
+01:11:50,480 --> 01:11:53,590
+in particular, google drove the charge,
+特别是谷歌推动了这一进程，
+
+1145
+01:11:53,600 --> 01:11:56,830
+and that was based on some research which has done it directly network
+这是基于一些直接在网络上进行的研究。
+
+1146
+01:11:56,840 --> 01:11:57,590
+of all stations.
+所有车站中的一站。
+
+1147
+01:11:58,670 --> 01:12:04,870
+People started to replace supercomputers with a bunch of servers,
+人们开始用一堆服务器来替代超级计算机。
+
+1148
+01:12:05,320 --> 01:12:06,590
+commodity servers,
+商品服务器，
+
+1149
+01:12:07,520 --> 01:12:10,340
+by service, you can buy right?
+通过服务，你可以购买对吗？
+
+1150
+01:12:10,660 --> 01:12:12,030
+Online or whatever, right?
+在线或者其他方式，对吗？
+
+1151
+01:12:13,100 --> 01:12:15,130
+And then you connect the servers.
+然后你连接服务器。
+
+1152
+01:12:15,140 --> 01:12:19,670
+And now we have a much more powerful intelligence software on top,
+现在我们有一个更强大的智能软件在顶层，
+
+1153
+01:12:20,710 --> 01:12:21,750
+that on the aggregate,
+总体而言，
+
+1154
+01:12:21,760 --> 01:12:23,550
+they can provide you a lot of power,
+它们可以为你提供很多的能力，
+
+1155
+01:12:24,270 --> 01:12:27,420
+computation, power, and storage space.
+计算、功率和存储空间。
+
+1156
+01:12:31,530 --> 01:12:33,720
+What is the promise of the security systems?
+安全系统的承诺是什么？
+
+1157
+01:12:35,470 --> 01:12:37,090
+One problem is higher availability.
+一个问题是更高的可用性。
+
+1158
+01:12:37,460 --> 01:12:40,380
+If one machine goes down, use another one,
+如果一台机器出现故障，使用另一台机器。
+
+1159
+01:12:42,280 --> 01:12:42,710
+right?
+对的？
+
+1160
+01:12:43,200 --> 01:12:44,870
+Despite some failures, actually,
+尽管有一些失败，实际上，
+
+1161
+01:12:44,880 --> 01:12:47,390
+all the services in the cloud are pretty reliable.
+云服务中的所有服务都非常可靠。
+
+1162
+01:12:47,880 --> 01:12:49,460
+Your facebook, google and so forth.
+你的Facebook、谷歌等等。
+
+1163
+01:12:49,470 --> 01:12:50,700
+They are pretty reliable,
+它们非常可靠。
+
+1164
+01:12:50,710 --> 01:12:52,250
+more reliable than your laptop.
+比你的笔记本电脑更可靠。
+
+1165
+01:12:54,140 --> 01:12:55,330
+Better your ability.
+提升你的能力。
+
+1166
+01:12:56,080 --> 01:12:59,790
+You can store like you saw the data in multiple location across the globe.
+你可以将数据存储在全球多个位置，就像你看到的那样。
+
+1167
+01:13:02,880 --> 01:13:04,070
+And also, in principle,
+而且，原则上，
+
+1168
+01:13:04,080 --> 01:13:05,110
+modern security,
+现代安全性
+
+1169
+01:13:05,120 --> 01:13:06,990
+because we have multiple pieces.
+因为我们有多个部分。
+
+1170
+01:13:09,170 --> 01:13:11,200
+You split your application, multiple pieces.
+你将你的应用程序分割成多个部分。
+
+1171
+01:13:11,450 --> 01:13:19,390
+And now you need to protect only 1 piece in a I only 1 piece at a time
+现在你只需要保护一件物品，每次只能保护一件物品。
+
+1172
+01:13:19,730 --> 01:13:21,540
+and securing 1 piece.
+并保护1件物品。
+
+1173
+01:13:21,840 --> 01:13:25,140
+Presumably, it's easier than securing the entire system.
+可以推测，相比于保护整个系统来说，这应该更容易。
+
+1174
+01:13:28,820 --> 01:13:29,680
+However,
+然而，
+
+1175
+01:13:30,450 --> 01:13:31,960
+you need to be very careful,
+你需要非常小心，
+
+1176
+01:13:31,970 --> 01:13:35,200
+and it's not easy to deliver on that promise.
+而且要实现这个承诺并不容易。
+
+1177
+01:13:37,830 --> 01:13:38,500
+In general,
+一般来说，
+
+1178
+01:13:38,510 --> 01:13:42,060
+there have been many systems beyond distributed systems which provides
+除了分布式系统之外，还有许多其他系统提供了
+
+1179
+01:13:42,070 --> 01:13:42,980
+worse of everything,
+一切都更糟糕了，
+
+1180
+01:13:44,100 --> 01:13:45,260
+worse availability,
+更差的可用性
+
+1181
+01:13:45,270 --> 01:13:47,100
+worse reliability, or security,
+更差的可靠性或安全性
+
+1182
+01:13:47,110 --> 01:13:48,140
+worse availability.
+更差的可用性。
+
+1183
+01:13:49,010 --> 01:13:50,240
+This is leslie lambert.
+我是莱斯利·兰伯特。
+
+1184
+01:13:50,570 --> 01:13:51,700
+During our winner,
+在我们的冬季期间，
+
+1185
+01:13:53,270 --> 01:13:55,550
+you'll hear more about him before the class ends,
+在课程结束之前，你会听到更多关于他的事情。
+
+1186
+01:13:57,010 --> 01:13:58,960
+but you are saving the healthiest quote.
+但是你正在保存最健康的语录。
+
+1187
+01:14:00,170 --> 01:14:02,200
+A it's like a funny coat.
+它就像一件有趣的外套。
+
+1188
+01:14:02,800 --> 01:14:07,330
+A distributed system is one in with a failure of a computer.
+分布式系统是指在其中一台计算机发生故障的情况下。
+
+1189
+01:14:07,780 --> 01:14:09,950
+You didn't even now existed,
+你甚至不知道我存在。
+
+1190
+01:14:10,660 --> 01:14:13,460
+can render your own computer that you unusable.
+可以使你自己的计算机变得无法使用。
+
+1191
+01:14:17,430 --> 01:14:22,810
+You can think about if you have your email and email server, right?
+你可以考虑一下，如果你有自己的电子邮件和邮件服务器，对吗？
+
+1192
+01:14:23,820 --> 01:14:26,520
+If your email client works on your computer,
+如果您的电子邮件客户端在您的计算机上正常工作，
+
+1193
+01:14:26,910 --> 01:14:28,420
+but the email server is down,
+但是电子邮件服务器出现故障，
+
+1194
+01:14:29,540 --> 01:14:32,050
+your computer is pretty useless for email.
+你的电脑对于电子邮件来说相当无用。
+
+1195
+01:14:34,120 --> 01:14:35,300
+What is reliability?
+可靠性是指系统或组件在特定条件下持续正常运行的能力。一个可靠的系统能够在面对各种故障、错误或异常情况时保持稳定，并且能够按照预期的方式提供所需的功能。可靠性通常通过指标如平均无故障时间（MTBF）和故障率来衡量。在计算机操作系统中，可靠性是指系统能够在长时间运行中保持稳定，并且能够正确地处理各种输入和操作。
+
+1196
+01:14:37,440 --> 01:14:39,760
+If the data you are not careful of the data,
+如果你对数据不小心的话，
+
+1197
+01:14:39,770 --> 01:14:41,680
+and you don't know where the data is.
+而且你不知道数据在哪里。
+
+1198
+01:14:42,210 --> 01:14:46,730
+If the day if the computer crashes of starting the data crashes,
+如果计算机崩溃导致数据丢失的那一天，
+
+1199
+01:14:46,740 --> 01:14:47,810
+then you lost the data.
+那么你就丢失了数据。
+
+1200
+01:14:49,860 --> 01:14:50,730
+What security?
+什么安全性？
+
+1201
+01:14:50,740 --> 01:14:52,970
+Because if you compromise a component,
+因为如果你妥协了一个组件，
+
+1202
+01:14:52,980 --> 01:14:54,650
+maybe you can compromise the entire system.
+也许你可以妥协整个系统。
+
+1203
+01:14:57,650 --> 01:14:59,770
+Also, coordination is more difficult.
+此外，协调更加困难。
+
+1204
+01:15:00,900 --> 01:15:03,330
+But I remember we have all these challenges to coordinate
+但是我记得我们有很多协调的挑战
+
+1205
+01:15:03,340 --> 01:15:05,450
+on the same machine between different threads.
+在同一台机器上的不同线程之间。
+
+1206
+01:15:05,780 --> 01:15:07,140
+Critical section deadlocks.
+临界区死锁
+
+1207
+01:15:07,150 --> 01:15:11,110
+Remember that now this is much more complicated because
+请记住，现在这个问题变得更加复杂了，因为
+
+1208
+01:15:11,120 --> 01:15:12,550
+not even on a single machine,
+甚至不在一台机器上，
+
+1209
+01:15:14,620 --> 01:15:15,810
+it's across the network.
+它通过网络进行传输。
+
+1210
+01:15:15,820 --> 01:15:17,950
+And you remember,
+记住，
+
+1211
+01:15:17,960 --> 01:15:19,310
+to address these challenges,
+为了应对这些挑战，
+
+1212
+01:15:19,320 --> 01:15:22,590
+we have this kind of very convenient primitives,
+我们有这种非常方便的原语。
+
+1213
+01:15:23,410 --> 01:15:28,700
+like test and set or pmb well,
+像测试和设置（test and set）或者页面修改位（pmb）这样的操作。
+
+1214
+01:15:29,100 --> 01:15:32,540
+these are atomic operation implement based on atomic operations,
+这些是基于原子操作实现的原子操作。
+
+1215
+01:15:33,680 --> 01:15:34,710
+implemented in hardware.
+在硬件中实现。
+
+1216
+01:15:35,910 --> 01:15:38,540
+How you are going to implement this in a distributed system.
+你将如何在分布式系统中实现这个功能？
+
+1217
+01:15:39,760 --> 01:15:43,150
+When machines can be thousands of miles away.
+当机器可以相隔数千英里时。
+
+1218
+01:15:46,490 --> 01:15:47,760
+And fundamentally,
+从根本上说，
+
+1219
+01:15:47,770 --> 01:15:49,240
+the security is a trust.
+安全是一种信任。
+
+1220
+01:15:49,250 --> 01:15:51,320
+It's more difficult,
+这更困难了。
+
+1221
+01:15:52,210 --> 01:15:56,050
+because you need to be careful that even if a component of the system is compromised,
+因为你需要小心，即使系统的某个组件被攻击，
+
+1222
+01:15:56,060 --> 01:15:59,770
+then other parts of the system are not compromised.
+那么系统的其他部分就不会受到威胁。
+
+1223
+01:16:02,040 --> 01:16:04,150
+This is corollary to lump code.
+这是对于代码块的推论。
+
+1224
+01:16:04,160 --> 01:16:08,040
+A disability system is one where you can do it,
+残疾系统是指您可以做到的系统。
+
+1225
+01:16:08,050 --> 01:16:10,600
+because some computer you didn't even now existed,
+因为有些计算机你甚至都不知道它们的存在。
+
+1226
+01:16:11,550 --> 01:16:14,400
+is successfully coordinating an attack on my system, right?
+正在成功协调对我的系统发起攻击，对吗？
+
+1227
+01:16:15,870 --> 01:16:17,630
+It's again, in compromise part of the system.
+又是系统的妥协部分。
+
+1228
+01:16:17,640 --> 01:16:19,230
+You can bring that down the entire system.
+你可以让整个系统崩溃。
+
+1229
+01:16:19,240 --> 01:16:22,080
+If you are not careful in designing these systems.
+如果你在设计这些系统时不小心的话。
+
+1230
+01:16:25,930 --> 01:16:28,800
+Now, when you design a distributed system,
+现在，当你设计一个分布式系统时，
+
+1231
+01:16:29,330 --> 01:16:30,560
+what are your goals?
+你的目标是什么？
+
+1232
+01:16:30,570 --> 01:16:31,760
+What are the requirements?
+要求是什么？
+
+1233
+01:16:33,980 --> 01:16:39,630
+And simply the requirements you want to have is to be as transparent as possible.
+你希望的要求就是尽可能地透明。
+
+1234
+01:16:40,730 --> 01:16:43,690
+It's to be almost maybe like your lap more or less.
+大致上可能会像你的膝盖一样，或多或少。
+
+1235
+01:16:45,320 --> 01:16:45,610
+Right?
+对吗？
+
+1236
+01:16:45,620 --> 01:16:47,170
+You don't want to be aware about.
+你不想知道的。
+
+1237
+01:16:47,180 --> 01:16:48,690
+There are so many machines.
+有这么多机器。
+
+1238
+01:16:49,100 --> 01:16:51,240
+You get this transparency, like, for instance,
+你会得到这种透明度，比如，
+
+1239
+01:16:51,630 --> 01:16:53,290
+when you use your facebook application,
+当你使用Facebook应用时，
+
+1240
+01:16:54,030 --> 01:16:57,740
+do you know how many machines are involved in answering some
+你知道回答问题所涉及的机器数量吗？
+
+1241
+01:16:57,750 --> 01:17:00,960
+of your requests in sending the news,
+在发送新闻的请求中，
+
+1242
+01:17:00,970 --> 01:17:06,750
+feed or messages, chat, widows.
+动态或消息、聊天、窗口。
+
+1243
+01:17:07,120 --> 01:17:07,830
+No, you don't.
+不，你不需要。
+
+1244
+01:17:08,660 --> 01:17:10,430
+That's transparency, good transparency.
+这是透明度，很好的透明度。
+
+1245
+01:17:12,500 --> 01:17:14,170
+The transparency, as you can imagine,
+透明度，正如你所能想象的，
+
+1246
+01:17:14,180 --> 01:17:16,210
+has multiple dimension location.
+具有多维位置。
+
+1247
+01:17:16,850 --> 01:17:22,590
+You don't know what your servers and servers handling your facebook account
+你不知道你的服务器和处理你的Facebook账户的服务器是什么。
+
+1248
+01:17:22,600 --> 01:17:26,550
+up located migration.
+升级定位迁移。
+
+1249
+01:17:26,810 --> 01:17:30,480
+Sometimes you need to move the data from one place to another to scale
+有时候你需要将数据从一个地方移动到另一个地方来进行扩展。
+
+1250
+01:17:30,490 --> 01:17:33,000
+up the system that should be also transparent.
+提升系统的透明度。
+
+1251
+01:17:33,010 --> 01:17:35,240
+You are not aware about the replication.
+你对复制机制不了解。
+
+1252
+01:17:35,610 --> 01:17:38,220
+You don't know in how many places your data is replicated.
+你不知道你的数据被复制到了多少个地方。
+
+1253
+01:17:39,840 --> 01:17:42,070
+Concurrency, you yourself.
+并发，你自己。
+
+1254
+01:17:42,450 --> 01:17:46,150
+You cannot say you cannot tell how many other Facebook users
+你不能说你不知道有多少其他Facebook用户。
+
+1255
+01:17:46,160 --> 01:17:48,670
+at the same time on the system.
+同时在系统上。
+
+1256
+01:17:49,450 --> 01:17:49,730
+Still,
+然而，
+
+1257
+01:17:49,740 --> 01:17:56,600
+your experience is the same whether there are 1,000 or 5,000 or 51 billion.
+无论是1000个、5000个还是510亿个，你的经验都是一样的。
+
+1258
+01:17:57,850 --> 01:18:00,200
+That means that is Paris.
+那意味着那是巴黎。
+
+1259
+01:18:03,850 --> 01:18:06,040
+You also want to be paralyzed.
+你也想瘫痪吗？
+
+1260
+01:18:06,050 --> 01:18:08,040
+I if you want to have a big job,
+如果你想要有一份大的工作，
+
+1261
+01:18:08,050 --> 01:18:13,800
+you want the system to somehow transparently split it, ideally,
+你希望系统能够以某种方式透明地分割它，最理想的情况是，
+
+1262
+01:18:14,380 --> 01:18:19,270
+and then execute multiple pieces if possible in parallel and different machines.
+然后尽可能并行执行多个任务，并在不同的机器上执行。
+
+1263
+01:18:19,280 --> 01:18:23,820
+So it is running fast and falter as for sure,
+所以它肯定是快速运行和不稳定的。
+
+1264
+01:18:23,830 --> 01:18:24,900
+like we discuss.
+像我们讨论的那样。
+
+1265
+01:18:25,590 --> 01:18:26,660
+If there are failures,
+如果发生故障，
+
+1266
+01:18:27,260 --> 01:18:28,940
+you absolutely do not want.
+你绝对不想要。
+
+1267
+01:18:29,450 --> 01:18:31,490
+There's also to see these failures.
+还有其他的故障需要查看。
+
+1268
+01:18:34,930 --> 01:18:40,050
+So any of these things requires the nodes,
+所以任何这些事情都需要节点。
+
+1269
+01:18:40,430 --> 01:18:45,130
+do some computers to communicate between themselves.
+一些计算机之间可以进行通信。
+
+1270
+01:18:46,920 --> 01:18:48,820
+And this is what protocol exchanges.
+这是协议交换的内容。
+
+1271
+01:18:50,480 --> 01:18:51,020
+Okay?
+好的？
+
+1272
+01:18:51,990 --> 01:18:53,020
+The protocol.
+协议。
+
+1273
+01:18:54,220 --> 01:18:57,610
+It's an agreement about how to communicate.
+这是关于如何进行沟通的协议。
+
+1274
+01:18:58,530 --> 01:18:59,920
+It has a syntax.
+它有一种语法。
+
+1275
+01:19:00,200 --> 01:19:01,720
+We describe the comments,
+我们描述了注释。
+
+1276
+01:19:02,490 --> 01:19:06,940
+the syntax of the send message, for instance, receive message.
+发送消息的语法，例如，接收消息。
+
+1277
+01:19:08,340 --> 01:19:09,690
+What are the type of fields?
+字段的类型有哪些？
+
+1278
+01:19:10,790 --> 01:19:13,880
+Name of the common as any semantics?
+常见的语义名称是什么？
+
+1279
+01:19:14,770 --> 01:19:16,310
+When you send some packets?
+你什么时候发送一些数据包？
+
+1280
+01:19:16,980 --> 01:19:19,100
+What really matter, what really happened,
+真正重要的是什么，真正发生了什么，
+
+1281
+01:19:20,040 --> 01:19:21,310
+what actions are taken?
+采取了哪些行动？
+
+1282
+01:19:23,770 --> 01:19:27,240
+In general, this is description of a state machine,
+一般来说，这是一个状态机的描述。
+
+1283
+01:19:27,250 --> 01:19:28,530
+a protocol.
+一个协议。
+
+1284
+01:19:28,540 --> 01:19:30,510
+You receive a message.
+你收到一条消息。
+
+1285
+01:19:31,370 --> 01:19:33,720
+You are in a way state to wait for a message,
+你处于等待消息的方式状态中。
+
+1286
+01:19:34,000 --> 01:19:34,830
+to receive a message,
+接收一条消息
+
+1287
+01:19:34,840 --> 01:19:37,770
+and you go into a state to process a message and seem like that.
+你进入了一个处理消息的状态，看起来是这样的。
+
+1288
+01:19:49,090 --> 01:19:50,920
+We are on the Top of the hour.
+我们现在整点了。
+
+1289
+01:19:50,930 --> 01:19:52,120
+So to stop here,
+所以就到这里停下来吧，
+
+1290
+01:19:52,990 --> 01:19:54,700
+we are going to continue next time.
+我们下次会继续。
+
+1291
+01:19:54,710 --> 01:19:55,300
+And next time.
+下次再说。
+
+1292
+01:19:56,110 --> 01:19:57,980
+It's going to be an exciting lecture.
+这将是一堂令人兴奋的讲座。
+
+1293
+01:19:57,990 --> 01:20:00,200
+We are going to talk about protocols.
+我们将讨论协议。
+
+1294
+01:20:00,210 --> 01:20:05,040
+You are going to talk the byzantine general problem, consensus problem,
+你将要讲解拜占庭将军问题和共识问题。
+
+1295
+01:20:05,400 --> 01:20:11,480
+and also going to talk about now about real transactions and to see
+现在我们还要讨论真实交易，并观察它们的情况。
+
+1296
+01:20:11,490 --> 01:20:13,750
+how they are implemented under the quote.
+在引号下面是如何实现它们的。
+
+1297
+01:20:15,830 --> 01:20:18,030
+Thank you and see you on Monday.
+谢谢你，周一见。
+
+1298
+01:20:18,530 --> 01:20:20,120
+Good luck with everything else.
+祝你一切顺利。
+

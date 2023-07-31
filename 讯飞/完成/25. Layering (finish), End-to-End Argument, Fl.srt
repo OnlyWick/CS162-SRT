@@ -1,0 +1,6425 @@
+1
+00:00:09,440 --> 00:00:10,280
+Hello, everyone.
+大家好。
+
+2
+00:00:10,890 --> 00:00:14,820
+So today we have quite a bit to cover.
+今天我们有很多内容要讲解。
+
+3
+00:00:16,610 --> 00:00:20,880
+In particular, we are going to finish layering another king.
+具体来说，我们将完成另一个层次的分层。
+
+4
+00:00:22,040 --> 00:00:23,790
+What we started last time.
+我们上次开始的内容。
+
+5
+00:00:24,280 --> 00:00:26,830
+Then we are going to talk about end to end argument,
+接下来我们将讨论端到端原则。
+
+6
+00:00:26,840 --> 00:00:30,710
+and we are going to then start the discussion on flow control.
+然后我们将开始讨论流量控制。
+
+7
+00:00:32,420 --> 00:00:34,660
+So larry, so if you remember,
+嗨，Larry，如果你还记得的话，
+
+8
+00:00:34,670 --> 00:00:38,160
+she just recap from the last time,
+她只是简单回顾了上次的内容，
+
+9
+00:00:39,490 --> 00:00:48,190
+there are a few layers in the network has another king stack,
+网络中有几个层次具有另一种协议栈。
+
+10
+00:00:48,200 --> 00:00:49,350
+has a few layers.
+有几个层次。
+
+11
+00:00:51,070 --> 00:00:53,220
+In the internet, you have five layers.
+在互联网中，你有五个层次。
+
+12
+00:00:53,760 --> 00:00:56,340
+The first layer at the bottom is physical layer.
+底层的第一层是物理层。
+
+13
+00:00:56,880 --> 00:01:05,570
+And the role of the physical layer is to send the signal between two machines,
+物理层的作用是在两台机器之间传输信号。
+
+14
+00:01:05,890 --> 00:01:09,470
+which are connected to the same transmission medium.
+它们连接到相同的传输介质。
+
+15
+00:01:10,850 --> 00:01:19,290
+And the service is to move the information from one machine to another.
+这项服务是将信息从一台机器转移到另一台机器。
+
+16
+00:01:21,090 --> 00:01:25,680
+The interface is about how to send and receive bids.
+该接口是关于如何发送和接收竞标。
+
+17
+00:01:27,060 --> 00:01:29,850
+The protocol is about how these beats are encoding.
+这个协议是关于如何对这些节拍进行编码的。
+
+18
+00:01:32,490 --> 00:01:37,560
+It's like based on the voltage duration of each bit frequency.
+这类似于基于每个位频率的电压持续时间。
+
+19
+00:01:38,340 --> 00:01:43,100
+It's again, depending whether we are using the across your cable,
+这取决于我们是否使用您的电缆。
+
+20
+00:01:43,110 --> 00:01:44,440
+optical fiber,
+光纤
+
+21
+00:01:46,310 --> 00:01:49,800
+the wifi,
+无线网络
+
+22
+00:01:50,730 --> 00:01:51,520
+and so forth.
+等等，诸如此类。
+
+23
+00:02:00,360 --> 00:02:03,040
+The second layer is data link layer.
+第二层是数据链路层。
+
+24
+00:02:03,370 --> 00:02:06,940
+Also, we discussed a little bit about it last time.
+另外，上次我们也稍微讨论了一下。
+
+25
+00:02:09,970 --> 00:02:13,860
+The data link layer enables the host,
+数据链路层使主机能够
+
+26
+00:02:14,550 --> 00:02:19,800
+which are on the same physical connected,
+它们位于同一物理连接上，
+
+27
+00:02:19,810 --> 00:02:29,260
+the same physical network to exchange messages or atomic messages.
+使用相同的物理网络来交换消息或原子消息。
+
+28
+00:02:30,300 --> 00:02:35,510
+Basically, the physical layer sends beats zero.
+基本上，物理层发送的是零跳动。
+
+29
+00:02:35,520 --> 00:02:37,880
+And once here,
+一旦到达这里，
+
+30
+00:02:38,190 --> 00:02:41,090
+we send packets.
+我们发送数据包。
+
+31
+00:02:41,100 --> 00:02:42,130
+We send messages.
+我们发送消息。
+
+32
+00:02:43,350 --> 00:02:44,900
+Also, they are called frames.
+另外，它们被称为帧。
+
+33
+00:02:46,310 --> 00:02:49,040
+And what are the services here?
+这里有哪些服务？
+
+34
+00:02:49,410 --> 00:02:54,040
+It's one it's about because you can have here multiple machines,
+这是因为你可以在这里拥有多台机器。
+
+35
+00:02:54,500 --> 00:02:56,470
+which are connected,
+这些是相互连接的。
+
+36
+00:02:56,780 --> 00:02:58,720
+may be on the cell physical line,
+可能是在细胞物理线上。
+
+37
+00:02:58,730 --> 00:03:02,480
+or in the same wireless or the same wireless link.
+或者在同一个无线网络或者同一个无线链路中。
+
+38
+00:03:02,850 --> 00:03:05,890
+There are multiple machines which can send data at the same time.
+有多台机器可以同时发送数据。
+
+39
+00:03:06,310 --> 00:03:15,430
+So somehow you need to arbitrate to make sure that multiple senders
+所以你需要进行仲裁，以确保多个发送者
+
+40
+00:03:15,440 --> 00:03:16,230
+do not call you.
+请不要打电话给你。
+
+41
+00:03:16,720 --> 00:03:22,960
+This is very much like in a room in which everyone talk and talk with everyone.
+这很像一个房间里每个人都在互相交谈的场景。
+
+42
+00:03:23,410 --> 00:03:29,580
+There has to be some kind of protocol so that not everyone stuck
+必须有某种协议，以便不是每个人都被困住。
+
+43
+00:03:29,590 --> 00:03:30,540
+at the same time.
+同时。
+
+44
+00:03:30,550 --> 00:03:34,280
+So people can understand each others.
+这样人们就能互相理解了。
+
+45
+00:03:35,370 --> 00:03:41,120
+The interface is about how to send the frames to as over from one machine
+接口是关于如何将帧从一台机器发送到另一台机器的方式。
+
+46
+00:03:41,130 --> 00:03:42,980
+to one horse to another horse.
+给另一匹马。
+
+47
+00:03:43,700 --> 00:03:49,980
+And they also includes each frame includes an address,
+并且每个帧还包括一个地址，
+
+48
+00:03:50,500 --> 00:03:54,160
+because this is how i'm going to indicate that I am going to send
+因为这是我要发送信息的方式
+
+49
+00:03:54,540 --> 00:03:59,680
+a particular frame to a particular host is a list by destination address.
+将特定帧发送给特定主机是根据目标地址进行列表化。
+
+50
+00:04:01,010 --> 00:04:03,520
+These addresses are the mac address,
+这些地址是MAC地址。
+
+51
+00:04:03,530 --> 00:04:09,620
+is a media access or so called addresses or data link addresses.
+媒体访问地址，也称为地址或数据链路地址。
+
+52
+00:04:09,960 --> 00:04:11,960
+And these are the ones, if you remember,
+这些是那些，如果你还记得的话，
+
+53
+00:04:11,970 --> 00:04:13,120
+from last time,
+从上次开始，
+
+54
+00:04:13,500 --> 00:04:15,320
+there are 48 beats,
+一共有48个节拍。
+
+55
+00:04:15,330 --> 00:04:23,090
+and they are chosen by is a network card vendor.
+它们是由网络卡供应商选择的。
+
+56
+00:04:23,490 --> 00:04:24,630
+So on that card,
+那么在那张卡片上，
+
+57
+00:04:25,180 --> 00:04:33,170
+it's you create another card or you
+是你创建另一张卡片还是我创建？
+
+58
+00:04:33,180 --> 00:04:36,800
+also associate address to it.
+同时将地址与其关联。
+
+59
+00:04:38,840 --> 00:04:42,110
+And the protocol it's about like we discussed about how you
+而且这个协议是关于我们之前讨论的内容，就是关于你如何
+
+60
+00:04:42,120 --> 00:04:47,220
+are going to arbitrate the access like to this shared communication
+将要对这个共享通信的访问进行仲裁
+
+61
+00:04:47,230 --> 00:04:47,580
+media.
+媒体。
+
+62
+00:04:51,160 --> 00:04:51,600
+Okay?
+好的？
+
+63
+00:04:52,730 --> 00:04:55,920
+Each frame contains a source and a destination address.
+每个帧都包含一个源地址和一个目的地址。
+
+64
+00:04:56,350 --> 00:04:58,460
+Each of them, again, is 48 bits.
+每个都是48位。
+
+65
+00:05:00,850 --> 00:05:04,950
+And obviously,
+显然，
+
+66
+00:05:08,250 --> 00:05:08,750
+this beats,
+这是一种击败的方式。
+
+67
+00:05:09,930 --> 00:05:11,480
+this addresses are unique.
+这些地址是唯一的。
+
+68
+00:05:13,110 --> 00:05:15,730
+Every network has a unique address.
+每个网络都有一个唯一的地址。
+
+69
+00:05:19,180 --> 00:05:20,970
+You can also see these addresses,
+您也可以查看这些地址，
+
+70
+00:05:20,980 --> 00:05:22,290
+like we discussed last time.
+就像我们上次讨论的那样。
+
+71
+00:05:22,300 --> 00:05:26,570
+If you do ip configuring windows or if configuring linux,
+如果你在配置Windows的IP或者配置Linux的IP，
+
+72
+00:05:27,240 --> 00:05:30,840
+here you can see these physical addresses is called,
+这里你可以看到这些物理地址被称为
+
+73
+00:05:31,460 --> 00:05:33,190
+and this has 48 bits.
+这个有48位。
+
+74
+00:05:33,200 --> 00:05:33,830
+You see.
+你看到了。
+
+75
+00:05:34,220 --> 00:05:36,820
+123456.
+123456.
+
+76
+00:05:37,190 --> 00:05:40,470
+And each of these groups has it in hexa.
+每个组都以十六进制表示。
+
+77
+00:05:41,820 --> 00:05:43,170
+You have two digits,
+你有两个数字，
+
+78
+00:05:43,600 --> 00:05:45,850
+and you have four beats for each digit.
+每个数字有四个拍子。
+
+79
+00:05:46,060 --> 00:05:46,650
+You have,
+你有，
+
+80
+00:05:48,270 --> 00:05:50,680
+in total, you have 48 weeks.
+总共有48周。
+
+81
+00:05:54,080 --> 00:05:57,190
+Remember that the machine can have multiple network cards.
+请记住，计算机可以有多个网络适配器。
+
+82
+00:05:57,740 --> 00:06:00,010
+So in this case, that's how you are going to see.
+在这种情况下，这就是你将要看到的。
+
+83
+00:06:00,020 --> 00:06:02,050
+In two physical addresses.
+使用两个物理地址。
+
+84
+00:06:02,060 --> 00:06:04,210
+In this case, one for the internet,
+在这种情况下，一个用于互联网，
+
+85
+00:06:04,630 --> 00:06:07,350
+for the wire network, and one for the wireless network.
+一个用于有线网络，一个用于无线网络。
+
+86
+00:06:11,590 --> 00:06:12,480
+Any questions?
+有任何问题吗？
+
+87
+00:06:23,680 --> 00:06:30,370
+So when I said that these hosts are connected with the same communication media,
+当我说这些主机通过相同的通信介质连接时，
+
+88
+00:06:30,630 --> 00:06:32,960
+typically as a data link layer, this kind of metal,
+通常作为数据链路层，这种金属材料，
+
+89
+00:06:32,970 --> 00:06:37,280
+the sharon at or two is a hostile connect again or communicate
+Sharon在这里是一个敌对的连接，再次沟通或交流。
+
+90
+00:06:37,290 --> 00:06:40,420
+with each other is called land local area.
+彼此之间连接的局域网被称为本地区域网。
+
+91
+00:06:41,980 --> 00:06:42,330
+Network.
+网络。
+
+92
+00:06:42,340 --> 00:06:46,820
+And it's again examples are in a wireless network.
+而且，它的例子再次是关于无线网络的。
+
+93
+00:06:46,830 --> 00:06:51,750
+It's all laptops in a starbucks affair,
+这是关于在星巴克的一起笔记本电脑事件。
+
+94
+00:06:53,750 --> 00:06:54,870
+all for instance,
+例如，
+
+95
+00:06:54,880 --> 00:06:57,670
+devices in your home or in your office.
+您家里或办公室里的设备。
+
+96
+00:07:00,230 --> 00:07:07,660
+But this is a the key is that on all the devices connected with the same line,
+但关键是所有连接在同一线路上的设备都是这样的。
+
+97
+00:07:08,370 --> 00:07:09,770
+can communicate with each other.
+可以相互通信。
+
+98
+00:07:09,780 --> 00:07:13,650
+So you can think about this as a broadcast channel, a shared channel.
+你可以将其视为广播通道，一个共享的通道。
+
+99
+00:07:15,190 --> 00:07:19,020
+This also means that when you send a packet or a frame,
+这也意味着当你发送一个数据包或帧时，
+
+100
+00:07:19,600 --> 00:07:22,170
+that frame is going to be delivered to everyone.
+那个帧将会被发送给每个人。
+
+101
+00:07:22,450 --> 00:07:23,930
+It's again like in the room,
+又像在房间里一样，
+
+102
+00:07:24,340 --> 00:07:26,640
+when you say something loud enough,
+当你大声说出某件事时，
+
+103
+00:07:26,890 --> 00:07:28,170
+everyone can hear.
+每个人都可以听到。
+
+104
+00:07:29,750 --> 00:07:30,080
+Okay?
+好的？
+
+105
+00:07:30,870 --> 00:07:34,510
+But now the obvious question is that if I want to send a frame
+但现在显而易见的问题是，如果我想发送一个帧，应该怎么做呢？
+
+106
+00:07:34,850 --> 00:07:38,550
+to one particular post,
+对于一个特定的帖子，
+
+107
+00:07:39,160 --> 00:07:40,400
+then how do I do it?
+那么我该怎么做呢？
+
+108
+00:07:40,740 --> 00:07:42,060
+And obviously,
+显然，
+
+109
+00:07:42,070 --> 00:07:46,120
+the answer here is that by indicating the destination address
+这里的答案是通过指示目标地址来实现的。
+
+110
+00:07:46,130 --> 00:07:48,420
+of the recipient in the frame,
+在帧中的接收者
+
+111
+00:07:49,520 --> 00:07:50,670
+in this example,
+在这个例子中，
+
+112
+00:07:51,000 --> 00:07:52,210
+if I am going to send,
+如果我要发送，
+
+113
+00:07:52,220 --> 00:07:58,130
+I want to send to ba wants to send a frame to b is going to put the address
+我想发送给B的帧，将要放置地址。
+
+114
+00:08:00,300 --> 00:08:03,290
+or to be in the frame as a destination address.
+或者作为目标地址的一部分。
+
+115
+00:08:04,040 --> 00:08:07,100
+Now, because this is a broadcast,
+现在，因为这是一个广播，
+
+116
+00:08:07,620 --> 00:08:09,500
+the line is a broadcast channel.
+这条线是一个广播通道。
+
+117
+00:08:09,510 --> 00:08:13,430
+This packet will be delivered to every host in the network.
+这个数据包将会发送给网络中的每个主机。
+
+118
+00:08:14,590 --> 00:08:15,390
+However,
+然而，
+
+119
+00:08:16,000 --> 00:08:23,770
+each host can check whether the data frames are intended to itself by checking
+每个主机可以通过检查数据帧是否是针对自己的来确定。
+
+120
+00:08:23,780 --> 00:08:30,240
+its own mac address against the destination address in the frame.
+它会将自己的MAC地址与帧中的目标地址进行比对。
+
+121
+00:08:31,530 --> 00:08:32,840
+If they are the same,
+如果它们是相同的，
+
+122
+00:08:32,850 --> 00:08:34,600
+then it accepts a packet,
+然后它接收一个数据包，
+
+123
+00:08:34,610 --> 00:08:36,280
+otherwise it drops back.
+否则它会回退。
+
+124
+00:08:38,130 --> 00:08:38,860
+Any questions?
+有任何问题吗？
+
+125
+00:08:40,400 --> 00:08:42,320
+It's like in our examples.
+就像我们的例子一样。
+
+126
+00:08:42,610 --> 00:08:46,320
+If you are going to speak loudly and everyone can hear,
+如果你要大声说话，让每个人都能听到，
+
+127
+00:08:46,330 --> 00:08:47,800
+if you want to,
+如果你愿意的话，
+
+128
+00:08:48,410 --> 00:08:51,690
+say, address to your friend,
+嘿，朋友，
+
+129
+00:08:52,010 --> 00:08:55,290
+john, you basically say, hey, john,
+约翰，你基本上说，嘿，约翰，
+
+130
+00:08:55,590 --> 00:08:58,680
+and then you are going to say whatever you have to say.
+然后你可以说出你想说的任何话。
+
+131
+00:08:59,410 --> 00:08:59,680
+Right?
+对吗？
+
+132
+00:09:00,380 --> 00:09:01,420
+And by that,
+而且，
+
+133
+00:09:01,640 --> 00:09:03,530
+this means that journal pay attention,
+这意味着期刊要注意，
+
+134
+00:09:03,540 --> 00:09:07,850
+and maybe the other people do not pay attention because that message is
+而且可能其他人没有注意到，因为那条信息是
+
+135
+00:09:07,860 --> 00:09:08,650
+not intelligent.
+不智能的。
+
+136
+00:09:14,480 --> 00:09:16,150
+Now, the land can be larger,
+现在，土地可以更大了，
+
+137
+00:09:16,160 --> 00:09:19,510
+can include multiple hundreds of machines.
+可以包括数百台机器。
+
+138
+00:09:20,510 --> 00:09:24,580
+When includes hundreds of machines or a large number of larger number of machines,
+当涉及到数百台机器或大量更多的机器时，
+
+139
+00:09:24,670 --> 00:09:26,860
+typically they are connected by switches.
+通常它们通过交换机连接。
+
+140
+00:09:27,270 --> 00:09:29,110
+Switches are a little more intelligent.
+交换机更加智能。
+
+141
+00:09:29,780 --> 00:09:31,480
+And so basically,
+所以基本上，
+
+142
+00:09:31,490 --> 00:09:34,600
+switches are doing some pruning of the messages.
+交换机正在对消息进行一些修剪。
+
+143
+00:09:34,850 --> 00:09:36,230
+So if I switch,
+那么如果我转换的话，
+
+144
+00:09:37,490 --> 00:09:44,940
+get some message is it's and that is the horse is not behind.
+获取一些信息，它是这样的，那匹马不在后面。
+
+145
+00:09:44,950 --> 00:09:52,390
+One of its connections is not going to send that frame on that connection.
+其中一个连接不会在该连接上发送该帧。
+
+146
+00:09:52,640 --> 00:09:54,510
+In this particular case, for instance,
+在这个特定的情况下，例如，
+
+147
+00:09:54,520 --> 00:09:56,670
+when b arrives at the switch,
+当 b 到达交换机时，
+
+148
+00:09:57,150 --> 00:10:06,280
+the switch will directly send to be is not going to deliver to bnc it's a feature.
+交换机将直接发送给B，而不会传递给BNC，这是一项功能。
+
+149
+00:10:06,290 --> 00:10:07,240
+It's more efficient.
+这样更高效。
+
+150
+00:10:07,570 --> 00:10:09,170
+But I can that's why the switches are.
+但是我可以，这就是开关的作用。
+
+151
+00:10:09,180 --> 00:10:11,410
+In general when you have a lot of machines,
+一般来说，当你有很多台机器时，
+
+152
+00:10:11,630 --> 00:10:16,130
+what is very inefficient for that frame to be sent to add to reach everyone?
+将该帧发送到每个地址以达到所有人的目的非常低效。
+
+153
+00:10:19,330 --> 00:10:20,160
+Questions?
+有问题吗？
+
+154
+00:10:22,020 --> 00:10:24,370
+How can we ensure mac addresses are unique?
+我们如何确保MAC地址的唯一性？
+
+155
+00:10:24,380 --> 00:10:26,130
+This is excellent question.
+这是一个很棒的问题。
+
+156
+00:10:27,240 --> 00:10:31,980
+Typically, every network vendor,
+通常情况下，每个网络供应商，
+
+157
+00:10:32,370 --> 00:10:35,460
+it's assigned a block of mac addresses.
+它被分配了一组 MAC 地址。
+
+158
+00:10:36,560 --> 00:10:43,930
+And he that vendor can only associate the mac
+只有该供应商才能关联该MAC地址。
+
+159
+00:10:43,940 --> 00:10:46,940
+addresses in his blog to all the network,
+他在博客中公开了所有网络的地址。
+
+160
+00:10:48,770 --> 00:10:51,000
+to all the network cards it produces.
+对所有它所生产的网络卡。
+
+161
+00:10:51,850 --> 00:10:52,210
+That's ha.
+哈哈。
+
+162
+00:10:56,400 --> 00:10:57,550
+No news.
+没有新闻。
+
+163
+00:10:59,260 --> 00:11:02,820
+So another great question is this where security concerns come in?
+另一个很好的问题是安全问题出现在哪里？
+
+164
+00:11:02,830 --> 00:11:07,390
+Can a horse who has a packet is not addressed to still read the message?
+一个没有被寻址的马是否能读取到这个消息？
+
+165
+00:11:07,880 --> 00:11:08,510
+Yes.
+是的。
+
+166
+00:11:08,730 --> 00:11:09,550
+It's an opec.
+这是一个OPEC。
+
+167
+00:11:09,920 --> 00:11:14,380
+That's why you are told that when you are going to be in,
+这就是为什么你被告知当你要进入时，
+
+168
+00:11:14,930 --> 00:11:17,170
+a starter started by scofield,
+由斯科菲尔德启动的一个启动器
+
+169
+00:11:18,720 --> 00:11:21,590
+what you are going to be, you are told, right?
+你被告知你将要成为什么，对吗？
+
+170
+00:11:22,040 --> 00:11:23,190
+You need to use encryption.
+你需要使用加密。
+
+171
+00:11:23,560 --> 00:11:24,930
+Why do you want to use encryption?
+为什么你想要使用加密？
+
+172
+00:11:24,940 --> 00:11:28,330
+Because you don't want just someone to snoop on your own snoopy
+因为你不希望有人窥探你的窥探行为
+
+173
+00:11:28,340 --> 00:11:34,320
+on your packets and read everything what you send or receive.
+在你的数据包上进行监视并阅读你发送或接收的所有内容。
+
+174
+00:11:36,530 --> 00:11:37,350
+Great questions.
+很好的问题。
+
+175
+00:11:42,130 --> 00:11:44,160
+Michael, here is another great question.
+迈克尔，这是又一个很棒的问题。
+
+176
+00:11:44,170 --> 00:11:49,000
+How does the switch now that mac address of b does a device declare
+设备如何声明自己的 MAC 地址，交换机是如何知道设备 b 的 MAC 地址的？
+
+177
+00:11:50,140 --> 00:11:52,870
+its address open connecting to a new media?
+它的地址是打开连接到新媒体吗？
+
+178
+00:11:54,130 --> 00:12:01,160
+There is a special protocol by which the devices connect,
+设备之间有一种特殊的协议用于连接。
+
+179
+00:12:01,720 --> 00:12:05,100
+and then they advertise their address, the switch.
+然后他们宣传他们的地址，交换机。
+
+180
+00:12:07,090 --> 00:12:08,010
+Excellent questions.
+非常好的问题。
+
+181
+00:12:10,650 --> 00:12:11,800
+Please keep them coming.
+请继续发送。
+
+182
+00:12:16,820 --> 00:12:18,410
+Now, one of our problem is, again,
+现在，我们的一个问题是，再次，
+
+183
+00:12:18,420 --> 00:12:19,810
+now let's think about, again,
+现在让我们再次思考一下，
+
+184
+00:12:19,820 --> 00:12:20,850
+these broadcast media,
+这些广播媒体，
+
+185
+00:12:20,860 --> 00:12:22,530
+because even with a switch,
+因为即使有一个交换机，
+
+186
+00:12:22,820 --> 00:12:23,910
+with a switch here,
+这里使用一个开关。
+
+187
+00:12:23,920 --> 00:12:25,580
+we are simplifying it,
+我们正在简化它。
+
+188
+00:12:25,590 --> 00:12:28,740
+but behind each of this output of the switch,
+但在每个交换机的输出背后，
+
+189
+00:12:29,610 --> 00:12:31,040
+there are many hosts.
+有许多主机。
+
+190
+00:12:31,050 --> 00:12:33,560
+It's not only one host still there.
+不仅仅还有一个主机存在。
+
+191
+00:12:34,050 --> 00:12:36,560
+You still have in by this,
+你仍然在这里。
+
+192
+00:12:36,570 --> 00:12:38,000
+that almost by definition,
+几乎可以说是根据定义，
+
+193
+00:12:38,010 --> 00:12:39,080
+in a land,
+在一个国家中，
+
+194
+00:12:39,270 --> 00:12:46,560
+you have multiple hosts being able to send and receive packets at the same time.
+你有多个主机可以同时发送和接收数据包。
+
+195
+00:12:47,760 --> 00:12:50,000
+And when you have multiple people, say,
+当你有多个人时，比如说，
+
+196
+00:12:50,570 --> 00:12:54,200
+sorry, multiple hosts sending being able to send back at the same time,
+抱歉，多个主机同时发送并能够同时回复。
+
+197
+00:12:54,210 --> 00:12:58,890
+you need to somehow make sure they don't collide.
+你需要确保它们不会发生碰撞。
+
+198
+00:13:00,070 --> 00:13:00,370
+Right?
+对吗？
+
+199
+00:13:01,310 --> 00:13:03,770
+And there are three solutions,
+有三种解决方案，
+
+200
+00:13:04,190 --> 00:13:06,260
+a channel partition, taking turns,
+通道分区，轮流进行
+
+201
+00:13:06,270 --> 00:13:07,540
+and random access.
+和随机访问。
+
+202
+00:13:08,180 --> 00:13:12,170
+Channel partition is basically think about you have different frequencies.
+通道分区基本上是指你拥有不同的频率。
+
+203
+00:13:13,860 --> 00:13:16,030
+This is 11 typical example.
+这是一个典型的例子。
+
+204
+00:13:17,210 --> 00:13:19,560
+What you do is frequency division multiplex.
+你所做的是频分复用。
+
+205
+00:13:19,570 --> 00:13:21,590
+You have a band of frequency,
+你有一个频率带。
+
+206
+00:13:21,600 --> 00:13:25,390
+and you are going to split that band in different kinds of frequencies.
+你将把这个频带分成不同的频率。
+
+207
+00:13:25,670 --> 00:13:30,900
+And then you allocate one of these frequency to a different host.
+然后你将其中一个频率分配给另一个主机。
+
+208
+00:13:31,340 --> 00:13:34,210
+And each host can only send on that frequency.
+每个主机只能在那个频率上发送。
+
+209
+00:13:35,060 --> 00:13:37,160
+And you can listen for multiple frequencies,
+而且你可以同时监听多个频率，
+
+210
+00:13:37,170 --> 00:13:40,940
+so you can get the packers from on any frequency.
+所以你可以在任何频率上获取到打包者。
+
+211
+00:13:41,760 --> 00:13:42,090
+Right?
+对吗？
+
+212
+00:13:43,580 --> 00:13:46,330
+Now, what are the advantage of that?
+那么，这有什么优势呢？
+
+213
+00:13:46,700 --> 00:13:47,540
+Is simple.
+很简单。
+
+214
+00:13:47,970 --> 00:13:48,920
+It's pretty clear.
+非常清楚。
+
+215
+00:13:48,930 --> 00:13:51,750
+It provides also some isolation.
+它还提供了一些隔离性。
+
+216
+00:13:52,150 --> 00:13:53,410
+You have your own frequency.
+你有自己的频率。
+
+217
+00:13:53,420 --> 00:13:57,050
+You don't care about the other people you can send on your own frequency.
+你不在乎其他人，你可以自己发送信息。
+
+218
+00:13:58,520 --> 00:14:00,090
+You don't care about other costs.
+你不关心其他费用。
+
+219
+00:14:02,640 --> 00:14:03,590
+It's a pretty efficient.
+这非常高效。
+
+220
+00:14:03,600 --> 00:14:04,790
+One is very high load.
+一个问题是负载非常高。
+
+221
+00:14:05,320 --> 00:14:06,750
+When the load is small,
+当负载较小时，
+
+222
+00:14:06,760 --> 00:14:08,310
+then it's very inefficient.
+那么它就非常低效。
+
+223
+00:14:08,320 --> 00:14:11,030
+Because from if all, for instance,
+因为从如果所有的情况来看，例如，
+
+224
+00:14:11,310 --> 00:14:16,530
+you have only one host sending to another host, right?
+你只有一个主机发送给另一个主机，对吗？
+
+225
+00:14:17,060 --> 00:14:19,450
+Out of 100 hostels there.
+共有100个旅馆。
+
+226
+00:14:19,770 --> 00:14:22,290
+Then you can use only one,
+那么你只需要使用一个。
+
+227
+00:14:23,940 --> 00:14:27,360
+1% of the entire frequency range,
+整个频率范围的1%
+
+228
+00:14:28,520 --> 00:14:30,300
+the ones that frequency,
+频率较高的那些
+
+229
+00:14:30,310 --> 00:14:33,500
+which is allocated with that particular host itself,
+这是分配给特定主机的。
+
+230
+00:14:34,400 --> 00:14:36,190
+while the other one are not yours.
+而另一个不是你的。
+
+231
+00:14:36,730 --> 00:14:37,400
+Ideally,
+理想情况下，
+
+232
+00:14:37,730 --> 00:14:42,080
+what you would like is that of the only two machine to host or communicate
+您希望的是只有两台机器进行主机或通信。
+
+233
+00:14:42,090 --> 00:14:42,840
+with each other,
+彼此之间，
+
+234
+00:14:42,960 --> 00:14:45,430
+you should and none of the others send data.
+只有你应该发送数据，其他人都不需要发送。
+
+235
+00:14:45,440 --> 00:14:49,530
+You should these two holes should be able to use the entire frequency range.
+这两个孔应该能够使用整个频率范围。
+
+236
+00:14:52,000 --> 00:14:54,350
+The other one is pretty similar,
+另一个则非常相似，
+
+237
+00:14:54,360 --> 00:14:56,670
+but this is resource,
+但这是资源，
+
+238
+00:14:57,680 --> 00:14:59,790
+but instead of dividing the frequencies,
+但是不是将频率进行分割，
+
+239
+00:15:00,030 --> 00:15:01,030
+it divides a time.
+它将时间分割。
+
+240
+00:15:01,560 --> 00:15:02,730
+So basically, here,
+基本上，在这里，
+
+241
+00:15:02,740 --> 00:15:05,690
+it's you have imagine that you have a talk.
+你可以想象一下你正在进行一次对话。
+
+242
+00:15:05,700 --> 00:15:07,410
+A talking is a special budget.
+"Talking" refers to a conversation or discussion. "A special budget" means a specific or unique financial plan.
+
+243
+00:15:08,050 --> 00:15:10,510
+And the stock on is going.
+股票正在上涨。
+
+244
+00:15:10,520 --> 00:15:11,350
+And again,
+再次，
+
+245
+00:15:11,960 --> 00:15:16,770
+you can think about that hosts are organized in a logical drink.
+你可以将主机组织成一个逻辑饮料。
+
+246
+00:15:16,980 --> 00:15:18,110
+For instance, okay,
+例如，好的，
+
+247
+00:15:19,210 --> 00:15:25,220
+then this stock and goes from horse to horse around the ring.
+然后这只股票在赛马场上从一匹马转到另一匹马。
+
+248
+00:15:26,450 --> 00:15:31,080
+Now, you can send data only while when you have the top,
+现在，只有在你拥有顶部时才能发送数据。
+
+249
+00:15:31,990 --> 00:15:33,530
+if you have data to send,
+如果你有要发送的数据，
+
+250
+00:15:34,150 --> 00:15:35,180
+but you don't have the token.
+但是你没有令牌。
+
+251
+00:15:35,190 --> 00:15:36,700
+You need to wait to receive the token.
+你需要等待接收令牌。
+
+252
+00:15:37,510 --> 00:15:41,360
+So again, because it's only one post has a token at a given time.
+所以，再次强调，因为在给定时间只有一个帖子有一个令牌。
+
+253
+00:15:41,590 --> 00:15:44,940
+You are sure you are ensuring that there is no collision,
+你确保没有发生碰撞。
+
+254
+00:15:45,250 --> 00:15:48,740
+because only one horse can send up a given time.
+因为一次只能发送一匹马。
+
+255
+00:15:49,210 --> 00:15:52,230
+Again, you have the same kind of a little bit issues.
+再次，你有一些小问题。
+
+256
+00:15:52,490 --> 00:15:55,630
+When everyone has things to send is working great,
+当每个人都有东西要发送时，一切都运行得很顺利。
+
+257
+00:15:55,640 --> 00:15:57,530
+because you get a token,
+因为你获得了一个令牌，
+
+258
+00:15:57,540 --> 00:15:58,670
+you already have,
+你已经拥有了。
+
+259
+00:16:00,290 --> 00:16:02,120
+you send data, you have to send data.
+当你发送数据时，你必须发送数据。
+
+260
+00:16:03,020 --> 00:16:04,580
+If only two hosts,
+如果只有两个主机，
+
+261
+00:16:04,930 --> 00:16:07,450
+one host has to send data to another host,
+一个主机需要将数据发送给另一个主机。
+
+262
+00:16:07,800 --> 00:16:09,090
+then it's more problematic,
+那么问题就更加棘手了，
+
+263
+00:16:09,600 --> 00:16:16,820
+because you need to wait for every other host around the ring to get.
+因为你需要等待环形中的每个其他主机都收到。
+
+264
+00:16:16,830 --> 00:16:20,420
+There is and send out the token before you can send the next packet.
+在发送下一个数据包之前，必须先发送并传递令牌。
+
+265
+00:16:20,970 --> 00:16:22,350
+It's kind of an overhead,
+这有点额外负担。
+
+266
+00:16:22,360 --> 00:16:24,700
+just waiting for this token,
+只是在等待这个令牌，
+
+267
+00:16:24,710 --> 00:16:25,780
+to go around,
+绕过，绕行
+
+268
+00:16:26,090 --> 00:16:28,760
+just for each host to pass it,
+每个主机都要通过它。
+
+269
+00:16:28,970 --> 00:16:32,270
+who doesn't have anything to send just to pass it to another,
+没有任何东西需要发送，只是将其传递给另一个人的人。
+
+270
+00:16:32,280 --> 00:16:32,950
+the next force.
+下一个力量。
+
+271
+00:16:33,240 --> 00:16:34,510
+They just pure overhead,
+它们只是纯粹的开销。
+
+272
+00:16:35,320 --> 00:16:40,660
+which reduces the efficiency of this protocol.
+这会降低该协议的效率。
+
+273
+00:16:43,130 --> 00:16:44,290
+And finally,
+最后，
+
+274
+00:16:47,680 --> 00:16:49,770
+it's random axis.
+这是随机轴。
+
+275
+00:16:50,700 --> 00:16:52,780
+It's also its carrier sense.
+这也是它的载波侦听。
+
+276
+00:16:52,790 --> 00:16:58,630
+Collision detection is called csma this is infinite.
+碰撞检测被称为CSMA，这是无限的。
+
+277
+00:16:58,930 --> 00:17:05,290
+If you heard, this is probably the most popular data link layer technology.
+如果你听说过的话，这可能是最流行的数据链路层技术。
+
+278
+00:17:06,130 --> 00:17:06,410
+Right?
+对吗？
+
+279
+00:17:08,430 --> 00:17:10,980
+And a form of this is also you have for wireless.
+而且你们也有无线的一种形式。
+
+280
+00:17:11,640 --> 00:17:16,010
+But here this is exactly to better understand it.
+但是在这里，这正是为了更好地理解它。
+
+281
+00:17:16,370 --> 00:17:17,620
+Imagine, again,
+再次想象一下，
+
+282
+00:17:17,630 --> 00:17:24,450
+there is a room full of people and they are talking right.
+有一个房间里挤满了人，他们正在交谈。
+
+283
+00:17:27,600 --> 00:17:28,950
+Now, imagine that again,
+现在，请再次想象一下，
+
+284
+00:17:28,960 --> 00:17:29,970
+everyone hears everyone.
+每个人都听到了每个人的声音。
+
+285
+00:17:29,980 --> 00:17:32,010
+So the room is small enough.
+房间足够小。
+
+286
+00:17:33,640 --> 00:17:35,010
+So what do you do?
+那你做什么工作？
+
+287
+00:17:35,020 --> 00:17:35,530
+Right?
+对吗？
+
+288
+00:17:35,920 --> 00:17:36,870
+First of all,
+首先，
+
+289
+00:17:37,590 --> 00:17:38,660
+before you speak,
+在你说话之前，
+
+290
+00:17:38,970 --> 00:17:40,200
+you listen a little bit, right?
+你有听到一点点，对吗？
+
+291
+00:17:40,210 --> 00:17:41,280
+This is scarier sense.
+这是一种更可怕的感觉。
+
+292
+00:17:41,290 --> 00:17:43,160
+You listen that it's a pause.
+你听到了一段停顿。
+
+293
+00:17:43,170 --> 00:17:44,440
+No one else is talking.
+没有其他人在说话。
+
+294
+00:17:45,500 --> 00:17:45,890
+Right?
+对吗？
+
+295
+00:17:47,300 --> 00:17:48,930
+You also don't interrupt, right?
+你也不会打断，对吧？
+
+296
+00:17:48,940 --> 00:17:49,370
+Someone.
+有人。
+
+297
+00:17:49,380 --> 00:17:51,250
+So if someone is though is talking,
+那么如果有人正在说话，
+
+298
+00:17:51,510 --> 00:17:53,900
+you wait for that person to finish before you start that.
+在开始之前，请等待那个人完成。
+
+299
+00:17:54,370 --> 00:17:55,280
+This is for life.
+这是为了生活。
+
+300
+00:17:55,740 --> 00:17:57,540
+This is scary of sense, right?
+这感觉很可怕，对吧？
+
+301
+00:17:57,890 --> 00:17:59,740
+Someone is the medium.
+有人是中介。
+
+302
+00:17:59,750 --> 00:18:02,740
+It's busy because there are some packets being sent out.
+忙是因为有一些数据包正在发送出去。
+
+303
+00:18:04,250 --> 00:18:10,980
+Then you wait for a pause for the media to be idol.
+然后你等待媒体停止播放的间隙。
+
+304
+00:18:11,260 --> 00:18:11,820
+Before it.
+在此之前。
+
+305
+00:18:11,950 --> 00:18:16,320
+You said this is not enough to avoid the collisions,
+你说这还不足以避免碰撞。
+
+306
+00:18:16,330 --> 00:18:20,370
+because more many people may have like in our analogy,
+因为更多的人可能会喜欢我们的类比。
+
+307
+00:18:21,660 --> 00:18:23,170
+As a room analogy.
+作为一个房间的比喻。
+
+308
+00:18:23,410 --> 00:18:27,970
+Multiple people may wait for the current speaker to finish to say something,
+多个人可能会等待当前发言者结束后再说些什么。
+
+309
+00:18:29,520 --> 00:18:34,440
+sometimes happens that people can start to people to start talking
+有时候人们会开始聊天。
+
+310
+00:18:34,450 --> 00:18:35,280
+at the same time.
+同时。
+
+311
+00:18:35,510 --> 00:18:37,540
+Now, that's a collision the same here.
+现在，这里也发生了碰撞。
+
+312
+00:18:38,420 --> 00:18:40,800
+When the media is either to horse,
+当媒体要么太过激动，
+
+313
+00:18:41,070 --> 00:18:43,060
+are going to send back at the same time,
+会同时发送回去吗？
+
+314
+00:18:43,070 --> 00:18:44,500
+these factors are going to collide.
+这些因素将会发生碰撞。
+
+315
+00:18:45,720 --> 00:18:45,980
+Right?
+对吗？
+
+316
+00:18:45,990 --> 00:18:46,900
+What do you do that?
+为什么要这样做？
+
+317
+00:18:47,230 --> 00:18:48,920
+It's again, assuming that you are polite,
+再次假设你是礼貌的，
+
+318
+00:18:48,930 --> 00:18:52,880
+you are most people who like start talking at the same time.
+你是那种喜欢同时开始说话的人。
+
+319
+00:18:53,170 --> 00:18:54,860
+This when they stop,
+这是他们停下来的时候，
+
+320
+00:18:55,590 --> 00:18:55,870
+right?
+对的？
+
+321
+00:18:57,040 --> 00:18:59,860
+They stopped for a while and then try again.
+他们停下来一会儿，然后再试一次。
+
+322
+00:19:00,210 --> 00:19:00,650
+Right?
+对吗？
+
+323
+00:19:01,320 --> 00:19:03,390
+Sometimes again,
+有时候再次，
+
+324
+00:19:03,400 --> 00:19:04,430
+it's like,
+就像是，
+
+325
+00:19:04,910 --> 00:19:05,670
+as you probably,
+正如你可能已经注意到的，
+
+326
+00:19:05,920 --> 00:19:10,030
+i'm sure you witness that two people start at the same time stop and then again,
+我确定你目睹了两个人同时开始、停下，然后再次开始的情况。
+
+327
+00:19:10,040 --> 00:19:11,080
+start at the same time.
+同时开始。
+
+328
+00:19:11,570 --> 00:19:15,820
+So we want to avoid that here in the design of this protocol.
+因此，在这个协议的设计中，我们希望避免这种情况发生。
+
+329
+00:19:15,830 --> 00:19:17,500
+And how do you design it?
+你是指操作系统的设计吗？
+
+330
+00:19:17,730 --> 00:19:19,540
+Each of the parties, each of the hosts,
+每个派对，每个主办方，
+
+331
+00:19:19,820 --> 00:19:20,990
+if there is a collision,
+如果发生碰撞，
+
+332
+00:19:21,800 --> 00:19:23,200
+waits for a random amount of time.
+等待一个随机的时间。
+
+333
+00:19:23,790 --> 00:19:25,580
+If you wait for a random amount of time,
+如果你等待一个随机的时间，
+
+334
+00:19:25,590 --> 00:19:27,940
+the probability of collision, again, colliding again,
+再次发生碰撞的概率
+
+335
+00:19:27,950 --> 00:19:29,490
+is lower.
+是较低的。
+
+336
+00:19:29,820 --> 00:19:30,910
+This is pretty much it.
+就是这样了。
+
+337
+00:19:31,900 --> 00:19:32,190
+Right?
+对吗？
+
+338
+00:19:32,750 --> 00:19:34,010
+And it's very simple.
+而且它非常简单。
+
+339
+00:19:34,020 --> 00:19:35,330
+It decentralized.
+它是去中心化的。
+
+340
+00:19:36,890 --> 00:19:38,680
+It works pretty well.
+它运行得相当不错。
+
+341
+00:19:39,540 --> 00:19:39,980
+In practice,
+在实践中，
+
+342
+00:19:40,970 --> 00:19:42,110
+it's beautiful protocol.
+这是一个很美的协议。
+
+343
+00:19:46,770 --> 00:19:47,640
+Any questions?
+有任何问题吗？
+
+344
+00:19:51,670 --> 00:19:56,140
+It's again the token you can assume this is again like this protocol,
+这个令牌是指你可以假设这个协议再次如此。
+
+345
+00:19:56,150 --> 00:20:02,470
+the cmic csmacd it's like think about always like the protocol,
+CMIC CSMACD就像是一直在思考协议一样。
+
+346
+00:20:02,480 --> 00:20:07,200
+people who use polite people who used in a room or speaking with each other.
+在一个房间里或者彼此交谈时使用礼貌的人。
+
+347
+00:20:09,620 --> 00:20:11,960
+This token protocol,
+这个令牌协议，
+
+348
+00:20:12,340 --> 00:20:13,980
+I will discuss in the previous slide,
+我将在前一张幻灯片中讨论。
+
+349
+00:20:13,990 --> 00:20:15,020
+the taking turns.
+轮流。
+
+350
+00:20:15,310 --> 00:20:19,860
+You can imagine it's like only people who have the mic are going to talk.
+你可以想象成只有拿着麦克风的人才能说话。
+
+351
+00:20:20,310 --> 00:20:20,590
+Right?
+对吗？
+
+352
+00:20:20,920 --> 00:20:23,790
+When you ask questions like a conference and so forth.
+当你像在会议上提问等等的时候。
+
+353
+00:20:24,240 --> 00:20:25,900
+When you ask questions, there is a mic.
+当你提问时，有一个麦克风。
+
+354
+00:20:26,960 --> 00:20:28,270
+If there is only one mic,
+如果只有一个麦克风，
+
+355
+00:20:28,280 --> 00:20:34,680
+only someone is going to hand the mic is a person who has who can tell who
+只有拿着麦克风的人才能告诉我们是谁
+
+356
+00:20:34,690 --> 00:20:36,030
+wants to ask a question,
+想要提问一个问题，
+
+357
+00:20:36,310 --> 00:20:38,490
+but only the person who has a mic.
+但只有有麦克风的人可以。
+
+358
+00:20:38,500 --> 00:20:39,250
+And as a question.
+作为一个问题。
+
+359
+00:20:39,260 --> 00:20:40,290
+So there are no apologies.
+所以没有道歉。
+
+360
+00:20:42,060 --> 00:20:42,970
+So let's see.
+那么让我们来看看。
+
+361
+00:20:47,410 --> 00:20:50,560
+Why would I want allison has this question?
+为什么我想要Allison有这个问题？
+
+362
+00:20:50,930 --> 00:20:53,480
+Why would I want my computer to play fair?
+为什么我希望我的计算机公平地运行？
+
+363
+00:20:53,490 --> 00:20:56,960
+Can I configure my computer to just shoot over everyone?
+我可以配置我的计算机只射击所有人吗？
+
+364
+00:20:57,330 --> 00:20:58,500
+So then it will be faster.
+那么它将会更快。
+
+365
+00:20:58,510 --> 00:21:01,950
+I think that's a good point.
+我认为这是一个很好的观点。
+
+366
+00:21:01,960 --> 00:21:03,310
+The problem, though,
+然而，问题是，
+
+367
+00:21:03,610 --> 00:21:06,950
+is that if everyone is doing the same or even,
+这意味着如果每个人都在做同样的事情，甚至是相等的事情。
+
+368
+00:21:07,650 --> 00:21:09,500
+other people don't do exactly the same,
+其他人不会完全做一样的事情，
+
+369
+00:21:09,950 --> 00:21:11,190
+you are going to have collisions.
+你会发生碰撞。
+
+370
+00:21:11,200 --> 00:21:14,410
+And if you have collisions, you have garbage, you cannot be hurt.
+如果发生碰撞，就会产生垃圾，你不会受到伤害。
+
+371
+00:21:15,370 --> 00:21:16,000
+That's a problem.
+这是一个问题。
+
+372
+00:21:17,160 --> 00:21:17,570
+Right?
+对吗？
+
+373
+00:21:17,850 --> 00:21:19,170
+You cannot, in some sense,
+在某种意义上，你无法
+
+374
+00:21:19,180 --> 00:21:22,650
+you cannot increase the intensity of your signal.
+你无法增加信号的强度。
+
+375
+00:21:22,660 --> 00:21:24,010
+So probably in this case,
+所以在这种情况下，
+
+376
+00:21:24,020 --> 00:21:27,260
+you don't have the ability to increase that kind of intensity.
+你没有能力增加那种强度。
+
+377
+00:21:27,270 --> 00:21:28,500
+Like in practice,
+就像在实践中一样，
+
+378
+00:21:28,510 --> 00:21:30,360
+maybe you are going to yell.
+也许你要大声喊叫。
+
+379
+00:21:33,780 --> 00:21:35,900
+Your voice will be stronger than anyone else,
+你的声音将比任何人都更强大，
+
+380
+00:21:35,910 --> 00:21:38,740
+but here everyone is on the level playing field.
+但在这里，每个人都处于公平竞争的环境中。
+
+381
+00:21:38,920 --> 00:21:43,490
+The same you can send only beats the same visa services against the same voltage,
+相同的电压下，只有相同的节拍才能击败相同的签证服务。
+
+382
+00:21:43,500 --> 00:21:44,330
+the same density,
+相同的密度
+
+383
+00:21:44,580 --> 00:21:46,330
+if two people, if 2 horses,
+如果有两个人，如果有2匹马，
+
+384
+00:21:46,340 --> 00:21:47,490
+and at the same time,
+同时，
+
+385
+00:21:47,870 --> 00:21:50,290
+these are going to be interference.
+这些将会产生干扰。
+
+386
+00:21:50,530 --> 00:21:54,450
+And your message is not going to be delivered to the destination.
+您的消息将无法传递到目的地。
+
+387
+00:22:02,920 --> 00:22:03,630
+Simon,
+Simon，
+
+你好，有什么我可以帮助你的吗？
+
+388
+00:22:05,700 --> 00:22:11,410
+how does random access guarantee a node ever get a chance to speak?
+随机访问如何保证每个节点都有机会发言？
+
+389
+00:22:11,650 --> 00:22:15,990
+What if in the random someone is always speaking when I try to speak?
+如果在随机的情况下，每当我试图说话时，总有人在说话，该怎么办？
+
+390
+00:22:16,490 --> 00:22:18,110
+Could that cause a starvation?
+这可能会导致饥饿现象吗？
+
+391
+00:22:20,240 --> 00:22:21,300
+That's a great question.
+这是一个很好的问题。
+
+392
+00:22:21,700 --> 00:22:22,960
+And it's probabilistic.
+而且它是概率性的。
+
+393
+00:22:24,080 --> 00:22:24,870
+It's like,
+就像是，
+
+394
+00:22:25,470 --> 00:22:26,040
+you,
+你
+
+395
+00:22:27,730 --> 00:22:32,980
+there is a the probability that you are going to be able to speak is non zero.
+你有一定的概率能够说话，概率不为零。
+
+396
+00:22:33,390 --> 00:22:39,610
+Now, it turns out that this random access protocols,
+现在，事实证明这种随机访问协议，
+
+397
+00:22:41,680 --> 00:22:42,910
+they work very well.
+它们工作得非常好。
+
+398
+00:22:42,920 --> 00:22:50,860
+You remember this as a token that the token protocol and the one and with
+你将这个记住作为一个令牌，令牌协议和一个与之相关的。
+
+399
+00:22:51,320 --> 00:22:53,490
+a frequency division multiplexing,
+频分复用
+
+400
+00:22:53,850 --> 00:22:55,400
+they are working very well.
+他们工作得非常好。
+
+401
+00:22:55,810 --> 00:22:58,040
+When the system is very utilized,
+当系统被高度利用时，
+
+402
+00:22:58,050 --> 00:23:00,640
+this is highly utilized when everyone copies everyone.
+当每个人都互相抄袭时，这就被广泛利用了。
+
+403
+00:23:01,370 --> 00:23:06,120
+But it doesn't have such a high efficiency when the system is now utilized,
+但是当系统目前被利用时，它的效率并不是很高。
+
+404
+00:23:06,130 --> 00:23:08,750
+because that say,
+因为那样说，
+
+405
+00:23:08,760 --> 00:23:10,990
+if you have only to host talking to each other,
+如果你只有两个主机彼此交流，
+
+406
+00:23:11,000 --> 00:23:13,230
+they cannot use the entire frequency range,
+他们无法使用整个频率范围。
+
+407
+00:23:13,240 --> 00:23:18,060
+or they have to wait for the token to get around only for and all the other
+或者他们必须等待令牌传递到他们这里，然后才能进行操作，而其他人也是一样的。
+
+408
+00:23:19,060 --> 00:23:20,310
+was not doing anything with the doctor.
+没有和医生做任何事情。
+
+409
+00:23:21,370 --> 00:23:22,450
+This is a reverse,
+这是一个反向操作。
+
+410
+00:23:22,770 --> 00:23:27,710
+is working extremely well on another piece is lightly utilized,
+在另一台轻负载的设备上运行得非常好。
+
+411
+00:23:28,160 --> 00:23:29,580
+because there are no collisions.
+因为没有发生碰撞。
+
+412
+00:23:29,810 --> 00:23:31,390
+But when these heavily utilized,
+但是当这些被广泛使用时，
+
+413
+00:23:31,400 --> 00:23:32,510
+there are many collisions,
+发生了许多碰撞。
+
+414
+00:23:32,950 --> 00:23:35,130
+then the efficiency is going down.
+那么效率就会下降。
+
+415
+00:23:35,630 --> 00:23:37,030
+So there is a problem with that.
+所以有一个问题。
+
+416
+00:23:38,560 --> 00:23:41,720
+And but again,
+而但是再次，
+
+417
+00:23:41,730 --> 00:23:45,140
+so this is probably the intuition behind your question,
+所以这可能是你提问的直觉背后的原因，
+
+418
+00:23:46,900 --> 00:23:47,570
+simon.
+西蒙。
+
+419
+00:23:47,920 --> 00:23:49,950
+But in theory,
+但是从理论上讲，
+
+420
+00:23:52,080 --> 00:23:55,200
+you are going to get your thought.
+你将要得到你的想法。
+
+421
+00:23:55,590 --> 00:23:56,260
+It's like,
+就像是，
+
+422
+00:23:56,910 --> 00:23:57,910
+think about the one.
+思考那个人。
+
+423
+00:23:58,560 --> 00:24:00,790
+It's like here is another analogy.
+这里有另一个类比。
+
+424
+00:24:02,480 --> 00:24:04,430
+You are coming from a secondary road.
+你是从一条次要道路上来的。
+
+425
+00:24:04,840 --> 00:24:09,760
+You are in the main road and you don't have a priority and you want to take
+你现在在主干道上，没有优先权，但你想要通过。
+
+426
+00:24:10,150 --> 00:24:11,020
+the right or less.
+右边或更少。
+
+427
+00:24:11,490 --> 00:24:11,920
+Right?
+对吗？
+
+428
+00:24:13,510 --> 00:24:14,710
+Like you go from,
+就像你从...开始，
+
+429
+00:24:15,790 --> 00:24:17,770
+say, for you whatever you exit, right?
+你是说，无论你退出什么，都可以吗？
+
+430
+00:24:18,070 --> 00:24:25,280
+So you need to wait for a gap to get to enter the traffic.
+所以你需要等待一个空隙才能进入交通流。
+
+431
+00:24:26,390 --> 00:24:27,580
+And in theory,
+理论上来说，
+
+432
+00:24:27,990 --> 00:24:29,940
+you may never get that bad that gap.
+你可能永远不会遇到那么糟糕的差距。
+
+433
+00:24:30,350 --> 00:24:31,630
+But in practice,
+但在实践中，
+
+434
+00:24:32,110 --> 00:24:34,190
+you don't know you did not need to wait too much.
+你不知道你不需要等太久。
+
+435
+00:24:36,830 --> 00:24:38,960
+So probabilistic really is not salvation.
+所以概率性真的不是救世主。
+
+436
+00:24:42,900 --> 00:24:47,650
+The next is a network layer.
+接下来是网络层。
+
+437
+00:24:54,510 --> 00:25:00,740
+I don't know, I so need to update this figure.
+我不知道，我非常需要更新这个数字。
+
+438
+00:25:00,750 --> 00:25:01,540
+On the right hand side.
+在右侧。
+
+439
+00:25:01,550 --> 00:25:02,900
+We are talking about the network layer.
+我们正在讨论网络层。
+
+440
+00:25:02,910 --> 00:25:05,180
+The network layer is actually the most important.
+网络层实际上是最重要的。
+
+441
+00:25:05,190 --> 00:25:05,700
+In some sense.
+在某种意义上。
+
+442
+00:25:06,410 --> 00:25:08,080
+When you talk about internet,
+当谈到互联网时，
+
+443
+00:25:08,350 --> 00:25:12,980
+internet is the main layer in the internet is the internet protocol.
+互联网是互联网协议中的主要层级。
+
+444
+00:25:13,530 --> 00:25:15,810
+Or ip you heard about the ip right?
+你是否听说过知识产权（IP）呢？
+
+445
+00:25:16,580 --> 00:25:18,650
+Ip is the internet proposal is another class.
+IP是互联网协议的另一个类别。
+
+446
+00:25:20,770 --> 00:25:24,340
+The network player had its own address.
+网络播放器有自己的地址。
+
+447
+00:25:24,350 --> 00:25:26,140
+They are called ip addresses.
+它们被称为IP地址。
+
+448
+00:25:27,940 --> 00:25:32,370
+And every host a as a unique ip address.
+每个主机都有一个唯一的IP地址。
+
+449
+00:25:34,540 --> 00:25:36,830
+And this is global,
+而且这是全球性的，
+
+450
+00:25:36,840 --> 00:25:38,790
+it says the level of the entire planet.
+它表示整个地球的水平。
+
+451
+00:25:40,480 --> 00:25:47,000
+So nathara blair is basically going to be able to ensure the main service
+所以Nathara Blair基本上将能够确保主要服务的运行
+
+452
+00:25:47,010 --> 00:25:48,960
+is going to ensure its connectivity.
+将确保其连接性。
+
+453
+00:25:51,540 --> 00:25:52,970
+You can deliver a packet,
+你可以传递一个数据包。
+
+454
+00:25:53,870 --> 00:25:59,290
+specifying the network address or the ip address across the globe.
+指定全球范围内的网络地址或IP地址。
+
+455
+00:26:00,160 --> 00:26:01,670
+From new york, tokyo,
+从纽约到东京
+
+456
+00:26:02,160 --> 00:26:03,980
+from a network in europe,
+来自欧洲的一个网络
+
+457
+00:26:04,310 --> 00:26:07,280
+from a host in san francisco to a host in tokyo.
+从旧金山的主机到东京的主机。
+
+458
+00:26:10,010 --> 00:26:13,760
+This will be across multiple data link layer methods,
+这将涉及多个数据链路层方法，
+
+459
+00:26:15,190 --> 00:26:21,420
+because you cannot have just a data link layer network over the entire globe.
+因为你不能仅仅通过数据链路层在全球范围内建立网络。
+
+460
+00:26:27,520 --> 00:26:29,470
+There are possible other services,
+可能还有其他服务。
+
+461
+00:26:29,520 --> 00:26:31,350
+like scheduling priorities,
+像调度优先级，
+
+462
+00:26:31,360 --> 00:26:33,430
+or some packets are more important than the other.
+或者有些数据包比其他的更重要。
+
+463
+00:26:33,440 --> 00:26:34,630
+You can think about.
+你可以考虑一下。
+
+464
+00:26:34,990 --> 00:26:37,740
+Video packets are going to have higher priorities,
+视频数据包将具有更高的优先级。
+
+465
+00:26:37,750 --> 00:26:39,340
+and data packets seem like that.
+数据包看起来就像这样。
+
+466
+00:26:39,780 --> 00:26:41,910
+You need also to handle the buffer management.
+你还需要处理缓冲区管理。
+
+467
+00:26:41,920 --> 00:26:43,260
+The packets, along the way,
+在传输过程中的数据包
+
+468
+00:26:43,270 --> 00:26:44,610
+are going to be buffer.
+将要成为缓冲区。
+
+469
+00:26:46,370 --> 00:26:48,000
+The interface is very simple.
+界面非常简单。
+
+470
+00:26:48,530 --> 00:26:52,150
+You send a packet to a specify not address this image,
+你发送了一个数据包到一个指定的非地址的图像。
+
+471
+00:26:52,910 --> 00:26:54,040
+and you receive that packet,
+然后你收到了那个数据包，
+
+472
+00:26:54,050 --> 00:26:55,280
+which is intended to you.
+这是针对你的。
+
+473
+00:26:57,020 --> 00:27:00,290
+The protocol includes defining these network addresses which are
+协议包括定义这些网络地址，它们是：
+
+474
+00:27:00,300 --> 00:27:04,790
+globally unique and also constructed the router what are called
+全球唯一的，并且构建了所谓的路由器。
+
+475
+00:27:04,800 --> 00:27:05,750
+forwarding tables.
+转发表。
+
+476
+00:27:05,760 --> 00:27:07,550
+So a router which connects a router,
+所以一个连接两个路由器的路由器，
+
+477
+00:27:07,560 --> 00:27:10,770
+connects different and locality and adults.
+连接不同的地方和成年人。
+
+478
+00:27:11,310 --> 00:27:12,580
+It receives a packet.
+它接收到一个数据包。
+
+479
+00:27:12,920 --> 00:27:16,320
+It looks at the destination address and decides where to send it out.
+它查看目标地址并决定将其发送到哪里。
+
+480
+00:27:22,160 --> 00:27:25,410
+This is the metal player.
+这是金属播放器。
+
+481
+00:27:26,070 --> 00:27:28,930
+And you see the metal player packet.
+你可以看到金属玩家的数据包。
+
+482
+00:27:29,660 --> 00:27:34,750
+It has a payload and the head they are encapsulated in a data frame.
+它有一个负载和头部，它们被封装在数据帧中。
+
+483
+00:27:35,320 --> 00:27:39,650
+Encapsulation means that you take a packet from the metal player and you
+封装意味着你从物理层接收一个数据包，并将其封装成更高层的协议中。
+
+484
+00:27:39,660 --> 00:27:42,930
+add the head of the frame.
+添加帧的头部。
+
+485
+00:27:42,940 --> 00:27:44,050
+This becomes a frame.
+这变成了一个帧。
+
+486
+00:27:49,100 --> 00:27:53,290
+The other header contains the ip destination address and the ip source others.
+另一个头部包含了IP目标地址和IP源地址。
+
+487
+00:27:54,450 --> 00:27:55,800
+And as I mentioned to you,
+正如我之前跟你提到的，
+
+488
+00:27:56,240 --> 00:28:00,080
+these are routed by the routers,
+这些被路由器路由。
+
+489
+00:28:02,620 --> 00:28:08,880
+connect different data link that data layer methods.
+连接不同的数据链路层方法。
+
+490
+00:28:09,940 --> 00:28:15,810
+And all this aggregation of local area matters is called a wide area network.
+所有这些局域网的聚合被称为广域网。
+
+491
+00:28:15,820 --> 00:28:22,210
+So now what is the difference between the switch and the router?
+现在，交换机和路由器有什么区别呢？
+
+492
+00:28:23,570 --> 00:28:24,660
+It's simple.
+很简单。
+
+493
+00:28:25,010 --> 00:28:30,320
+The router, it's only it recognizes and routes based on the ip addresses.
+路由器只能根据IP地址识别和路由数据。
+
+494
+00:28:30,840 --> 00:28:31,180
+A switch,
+一个交换机
+
+495
+00:28:31,190 --> 00:28:36,550
+it's only in a local area network and only recognize mac addresses,
+它只在局域网中工作，并且只识别MAC地址。
+
+496
+00:28:40,970 --> 00:28:43,140
+sort out the function like I mentioned,
+整理出我提到的那个函数。
+
+497
+00:28:43,620 --> 00:28:46,480
+his father, it's to get the packets,
+他的父亲，是为了获取数据包。
+
+498
+00:28:46,490 --> 00:28:50,650
+look at their heads and decide on which output link to send them.
+观察他们的头部并决定将他们发送到哪个输出链路。
+
+499
+00:28:52,350 --> 00:28:54,380
+This is how the router works.
+这是路由器的工作原理。
+
+500
+00:28:55,380 --> 00:28:57,060
+You have a bunch of incoming links,
+你有一堆传入链接。
+
+501
+00:28:57,070 --> 00:28:58,300
+you get pakistan,
+你得到了巴基斯坦。
+
+502
+00:28:59,130 --> 00:29:01,660
+and out outgoing links.
+入站链接和出站链接。
+
+503
+00:29:01,670 --> 00:29:03,860
+It's like a huge intersection.
+它就像一个巨大的交叉口。
+
+504
+00:29:05,070 --> 00:29:05,440
+Right?
+对吗？
+
+505
+00:29:09,960 --> 00:29:12,630
+And basically, what router implements a mechanics,
+基本上，路由器实现了一种机制，
+
+506
+00:29:12,640 --> 00:29:17,280
+which is called store and forward store and forward means the packets
+这被称为存储转发，存储转发意味着数据包。
+
+507
+00:29:17,290 --> 00:29:18,980
+are received first are stored.
+首先接收到的被存储。
+
+508
+00:29:20,950 --> 00:29:22,070
+And after a store,
+在存储之后，
+
+509
+00:29:22,080 --> 00:29:23,830
+the router inspects the header.
+路由器检查头部信息。
+
+510
+00:29:24,620 --> 00:29:27,460
+And based on the destination of the others decides where the forwards
+根据其他人的目的地决定转发的位置
+
+511
+00:29:27,470 --> 00:29:32,590
+and they are stored because you
+它们被存储起来是因为你需要将它们保留下来。
+
+512
+00:29:32,600 --> 00:29:35,830
+don't want to drop the package if the router cannot process them fast enough.
+如果路由器无法快速处理数据包，不想丢弃这些数据包。
+
+513
+00:29:36,900 --> 00:29:37,570
+Does it be?
+是吗？
+
+514
+00:29:40,500 --> 00:29:40,770
+Again,
+请再说一遍。
+
+515
+00:29:40,780 --> 00:29:43,850
+the forwarding table is a mapping between ip addresses and the output.
+转发表是IP地址和输出之间的映射关系。
+
+516
+00:29:45,190 --> 00:29:53,000
+Right here is an example about the packet going from host a to host each
+这里是一个关于数据包从主机A到主机B的示例。
+
+517
+00:29:53,010 --> 00:29:59,550
+other or decide to watch output goes to forward the packet based on its ip address.
+其他路由器或决定观察输出的设备会根据其IP地址转发数据包。
+
+518
+00:30:00,200 --> 00:30:02,440
+And based on the information is a forwarding paper.
+根据提供的信息，这是一份转发文件。
+
+519
+00:30:04,500 --> 00:30:06,440
+So now this life is very important,
+所以现在这个生活非常重要，
+
+520
+00:30:07,490 --> 00:30:08,960
+because it's obvious question.
+因为这是一个显而易见的问题。
+
+521
+00:30:08,970 --> 00:30:09,360
+Now.
+现在。
+
+522
+00:30:10,400 --> 00:30:12,250
+I have mac addresses,
+我有MAC地址。
+
+523
+00:30:13,350 --> 00:30:17,040
+and you told me that they are unique.
+你告诉我它们是独一无二的。
+
+524
+00:30:18,950 --> 00:30:21,870
+Now you tell me also about ip addresses which are also unique.
+现在你也告诉我关于IP地址的事情，它们也是唯一的。
+
+525
+00:30:22,650 --> 00:30:25,110
+Why do I need to kind of others?
+为什么我需要善待他人？
+
+526
+00:30:26,530 --> 00:30:29,530
+Why not using a single type of others?
+为什么不使用单一类型的其他人？
+
+527
+00:30:33,630 --> 00:30:36,860
+In particular, why shouldn't I use as a mac address for output?
+特别是，为什么我不能将其用作输出的 MAC 地址？
+
+528
+00:30:37,190 --> 00:30:38,130
+I already have this.
+我已经有这个了。
+
+529
+00:30:38,140 --> 00:30:39,870
+Why do I need another address?
+为什么我需要另一个地址？
+
+530
+00:30:41,780 --> 00:30:46,250
+The answer is that remember how the mac addresses are allocated?
+答案是记住 MAC 地址是如何分配的吗？
+
+531
+00:30:49,920 --> 00:30:51,530
+I am a network card vendor.
+我是一家网络卡供应商。
+
+532
+00:30:52,550 --> 00:30:53,880
+I get a block of macolysis.
+我遇到了一个宏解析的问题。
+
+533
+00:30:55,090 --> 00:31:01,740
+And i'm going to use this address is in the block to assign to my net of cards.
+我将使用这个地址块中的地址来分配给我的网络卡。
+
+534
+00:31:02,010 --> 00:31:02,630
+It's not.
+不是的。
+
+535
+00:31:04,670 --> 00:31:05,200
+Okay.
+好的。
+
+536
+00:31:05,680 --> 00:31:09,520
+And then these network cards are in computers which are all over the globe.
+然后这些网络卡安装在遍布全球的计算机中。
+
+537
+00:31:11,360 --> 00:31:15,840
+So there is no aggregation is very much like social security number.
+所以聚合就像社会安全号码一样没有什么不同。
+
+538
+00:31:18,160 --> 00:31:19,380
+Now I am asking you,
+现在我在问你，
+
+539
+00:31:20,430 --> 00:31:22,380
+i'm giving you a social security number,
+我正在提供给你一个社会安全号码，
+
+540
+00:31:23,630 --> 00:31:23,970
+right?
+是的，没错。
+
+541
+00:31:25,040 --> 00:31:26,550
+Let's say they are not private.
+假设它们不是私有的。
+
+542
+00:31:28,260 --> 00:31:29,190
+They are not confidential.
+它们不是机密的。
+
+543
+00:31:30,530 --> 00:31:32,230
+And i'm telling you, hey,
+我告诉你，嘿，
+
+544
+00:31:33,760 --> 00:31:39,250
+deliver this letter message to this social security number,
+将这封信件的信息发送给这个社会安全号码。
+
+545
+00:31:40,910 --> 00:31:42,660
+123456, whatever.
+123456，随便。
+
+546
+00:31:45,340 --> 00:31:46,170
+How easy is that?
+那有多容易？
+
+547
+00:31:46,180 --> 00:31:47,480
+Or how hard is it?
+或者说它有多难？
+
+548
+00:31:50,550 --> 00:31:56,720
+It's pretty hard because there is now they are random across the globe.
+这很困难，因为现在它们在全球范围内都是随机的。
+
+549
+00:31:59,310 --> 00:32:00,710
+Now, to compare that,
+现在，为了进行比较，
+
+550
+00:32:00,720 --> 00:32:04,670
+if I am going to give you a message or a letter to deliver,
+如果我要给你一条信息或一封信让你传递，
+
+551
+00:32:05,240 --> 00:32:11,570
+i'm telling you what is the home address of the recipient.
+我告诉你收件人的家庭地址是什么。
+
+552
+00:32:12,980 --> 00:32:15,510
+It's much easier because the others are structured.
+这更容易，因为其他的都是有结构的。
+
+553
+00:32:17,730 --> 00:32:18,180
+Right?
+对吗？
+
+554
+00:32:20,520 --> 00:32:22,040
+The only thing, for instance,
+例如，唯一的事情是
+
+555
+00:32:22,520 --> 00:32:22,800
+say,
+说,
+
+556
+00:32:22,810 --> 00:32:29,830
+i'm going to send the address to this17th street and northwest washington,
+我将发送地址给你，这是在华盛顿西北部的第17街。
+
+557
+00:32:29,840 --> 00:32:31,150
+dc and so forth.
+等等等等。
+
+558
+00:32:31,840 --> 00:32:34,380
+If i'm sending it from california,
+如果我从加利福尼亚发送的话，
+
+559
+00:32:34,950 --> 00:32:38,790
+only the first thing I need to know is that is going to washington,
+我只需要知道的第一件事是，它要去华盛顿吗？
+
+560
+00:32:38,800 --> 00:32:42,430
+dc so I put it on a plane to go to washington,
+所以我把它装上飞机去华盛顿。
+
+561
+00:32:42,440 --> 00:32:45,320
+dc that's the only thing it's very easy.
+dc，那是唯一的事情，非常容易。
+
+562
+00:32:46,970 --> 00:32:47,370
+Right?
+对吗？
+
+563
+00:32:48,370 --> 00:32:52,080
+The amount of state I can use in san francisco to say i'm going to send
+我可以在旧金山使用的州份数量，以表明我要发送的内容。
+
+564
+00:32:52,090 --> 00:32:52,640
+the packet.
+数据包。
+
+565
+00:32:52,730 --> 00:32:55,930
+The letter is very small, right?
+这封信非常小，对吗？
+
+566
+00:32:56,150 --> 00:33:00,560
+Only the cities or the states or the country.
+只有城市、州或国家。
+
+567
+00:33:02,030 --> 00:33:03,510
+If I am sending international letter,
+如果我要寄国际信件，
+
+568
+00:33:05,650 --> 00:33:07,520
+once the letter is coming, going to washington,
+一旦信件到达，就会前往华盛顿。
+
+569
+00:33:07,530 --> 00:33:09,440
+dc remains in the washington dc area.
+dc仍然位于华盛顿特区。
+
+570
+00:33:09,450 --> 00:33:12,560
+And then I know i'm going to look at the street,
+然后我知道我要看街道了。
+
+571
+00:33:13,350 --> 00:33:15,410
+and then i'm looking at the others for this.
+然后我会看看其他人对此的看法。
+
+572
+00:33:16,790 --> 00:33:22,300
+So you can have this theoretical structure and routing of the letter
+所以你可以拥有这封信的理论结构和路由
+
+573
+00:33:22,310 --> 00:33:25,390
+from the sender to the recipient.
+从发送者到接收者。
+
+574
+00:33:27,220 --> 00:33:31,700
+This is what the ip address gives you this structure who is much will make
+这是IP地址提供的结构，它会提供很多信息。
+
+575
+00:33:31,710 --> 00:33:32,460
+it much easier.
+这样会容易得多。
+
+576
+00:33:35,380 --> 00:33:39,850
+I and then if i'm sending from that on to someone from california,
+如果我从那里发送给加利福尼亚的某人，
+
+577
+00:33:39,860 --> 00:33:41,650
+from berkeley, it's again,
+来自伯克利，又是我。
+
+578
+00:33:41,660 --> 00:33:47,340
+just look at the berkeley first sent to berkeley to or someone
+请先查看伯克利发送给伯克利或其他人的信息。
+
+579
+00:33:47,350 --> 00:33:49,500
+close to back san francisco,
+靠近旧金山后方。
+
+580
+00:33:49,510 --> 00:33:50,140
+auckland,
+奥克兰
+
+581
+00:33:50,840 --> 00:33:52,190
+a on a plane to auckland.
+在飞往奥克兰的飞机上。
+
+582
+00:33:52,520 --> 00:33:54,380
+And from there is going to be delivered to you.
+然后将从那里送到您那里。
+
+583
+00:34:05,860 --> 00:34:06,690
+Any question?
+有任何问题吗？
+
+584
+00:34:09,660 --> 00:34:11,930
+So fundamentally, it's, again,
+从根本上说，再次强调，
+
+585
+00:34:17,700 --> 00:34:22,980
+the ip addresses have structured geographic structure,
+IP地址具有结构化的地理结构。
+
+586
+00:34:22,990 --> 00:34:24,180
+the political structure.
+政治结构。
+
+587
+00:34:25,570 --> 00:34:26,840
+And therefore,
+因此，
+
+588
+00:34:26,850 --> 00:34:29,360
+they can be aggregated aggravated.
+它们可以被聚合或加重。
+
+589
+00:34:31,120 --> 00:34:34,960
+Therefore, the following tables in the routers can be much smaller.
+因此，路由器中的以下表格可以更小。
+
+590
+00:34:36,900 --> 00:34:37,210
+Right?
+对吗？
+
+591
+00:34:40,890 --> 00:34:42,000
+While for mac addresses,
+对于MAC地址，
+
+592
+00:34:42,010 --> 00:34:43,160
+there is no aggregation,
+没有聚合
+
+593
+00:34:43,630 --> 00:34:45,430
+we need to keep a following table,
+我们需要维护一个以下的表格：
+
+594
+00:34:45,440 --> 00:34:47,590
+which is equally the number of mechanisms,
+这同样是机制的数量，
+
+595
+00:34:48,080 --> 00:34:49,320
+existing market analysis,
+现有市场分析
+
+596
+00:34:49,770 --> 00:34:54,680
+which is huge casing..
+这是一个巨大的机箱。
+
+597
+00:34:55,910 --> 00:35:03,870
+Assume that you want to send a packet from
+假设你想要从一台计算机发送一个数据包到另一台计算机。
+
+598
+00:35:03,880 --> 00:35:09,090
+new york to a particular ip address to a particular host in uzbek.
+从纽约到乌兹别克斯坦的特定IP地址的特定主机。
+
+599
+00:35:11,440 --> 00:35:13,730
+Then they use it.
+然后他们使用它。
+
+600
+00:35:13,740 --> 00:35:14,330
+Berkeley.
+伯克利。
+
+601
+00:35:14,830 --> 00:35:19,850
+Actually, all ip addresses are starting with this.
+实际上，所有的 IP 地址都以这个开头。
+
+602
+00:35:20,980 --> 00:35:25,580
+The first are 2 bytes,
+第一个是2个字节。
+
+603
+00:35:26,170 --> 00:35:28,430
+are all common, a 95.
+都是常见的，95分。
+
+604
+00:35:33,030 --> 00:35:35,330
+So the router in new york,
+所以纽约的路由器，
+
+605
+00:35:35,340 --> 00:35:39,290
+it needs to keep only one entry for all hosts,
+它需要仅保留一个条目用于所有主机，
+
+606
+00:35:39,640 --> 00:35:43,780
+which are in you associated with this directly.
+你直接与此相关的是哪些？
+
+607
+00:35:45,320 --> 00:35:47,990
+If you don't have that and you use mike addresses,
+如果你没有那个并且你使用了错误的地址，
+
+608
+00:35:48,440 --> 00:35:52,990
+then the new router has to keep an entry for every host,
+那么新路由器必须为每个主机保留一个条目。
+
+609
+00:35:54,230 --> 00:35:57,690
+which is much harder and much harder to update,
+这是更加困难且更加难以更新的。
+
+610
+00:35:58,020 --> 00:35:59,120
+maintain, and things like that.
+维护，以及诸如此类的事情。
+
+611
+00:36:03,310 --> 00:36:04,070
+Does it make sense?
+这有意义吗？
+
+612
+00:36:06,090 --> 00:36:06,920
+Any questions?
+有任何问题吗？
+
+613
+00:36:11,240 --> 00:36:13,350
+So to summarize here,
+所以在这里总结一下，
+
+614
+00:36:13,650 --> 00:36:20,870
+ssn mac address like ssn and an ip address is like an address,
+SSN（社会安全号码）类似于MAC地址，而IP地址则类似于物理地址。
+
+615
+00:36:20,880 --> 00:36:21,830
+although it's not readable.
+尽管它不可读。
+
+616
+00:36:22,740 --> 00:36:22,980
+Right?
+对吗？
+
+617
+00:36:25,690 --> 00:36:30,420
+So therefore, it's much easier to build a system like a male system.
+因此，构建一个像男性系统那样的系统要容易得多。
+
+618
+00:36:30,890 --> 00:36:31,770
+In our case,
+在我们的情况下，
+
+619
+00:36:32,690 --> 00:36:36,640
+to deliver the letter to a particular address, which has structured,
+将信件送到一个特定的地址，该地址已经有结构化的形式。
+
+620
+00:36:37,260 --> 00:36:40,090
+then to some identifier,
+然后给某个标识符赋值。
+
+621
+00:36:40,460 --> 00:36:47,160
+Which has no structure.
+没有结构。
+
+622
+00:36:47,170 --> 00:36:47,820
+Any questions?
+有任何问题吗？
+
+623
+00:36:59,190 --> 00:37:01,630
+Like I mentioned, this is the internet protocol,
+就像我之前提到的，这是互联网协议。
+
+624
+00:37:01,640 --> 00:37:03,700
+the international player,
+国际球员
+
+625
+00:37:05,950 --> 00:37:09,660
+and the internet protocol is the internet senator player.
+互联网协议是互联网的核心组成部分。
+
+626
+00:37:09,990 --> 00:37:11,560
+The service it provides.
+它提供的服务。
+
+627
+00:37:12,270 --> 00:37:14,740
+It's got its connectivity and back at delivery.
+它已经恢复了连接，并已经交付。
+
+628
+00:37:14,750 --> 00:37:20,910
+But its best effort means that you are not guaranteed that your packet
+但是“尽力而为”意味着你不能保证你的数据包
+
+629
+00:37:20,920 --> 00:37:22,710
+is going to make the destination.
+即将到达目的地。
+
+630
+00:37:22,970 --> 00:37:24,840
+It may be dropped, it may be corrupted.
+它可能会被丢弃，也可能会被损坏。
+
+631
+00:37:27,890 --> 00:37:28,920
+And also,
+而且，
+
+632
+00:37:28,930 --> 00:37:33,160
+it doesn't guarantee that the package will send two packets on out of one
+这并不能保证该包将发送两个数据包中的一个。
+
+633
+00:37:33,170 --> 00:37:34,160
+after another.
+之后的另一个。
+
+634
+00:37:34,630 --> 00:37:37,340
+They are going to arrive at the same time in the same order,
+他们将以相同的顺序同时到达。
+
+635
+00:37:38,720 --> 00:37:41,570
+because they may follow different routes.
+因为它们可能会选择不同的路径。
+
+636
+00:37:41,580 --> 00:37:42,310
+It's like,
+就像是，
+
+637
+00:37:42,320 --> 00:37:49,510
+you cannot guarantee that two cars which started san francisco and arrive
+你不能保证两辆从旧金山出发并到达的汽车
+
+638
+00:37:51,030 --> 00:37:56,470
+to and are driving to la they are going to get that delay the same work.
+他们正在开车去洛杉矶，他们打算在那里遇到同样的工作延误。
+
+639
+00:37:58,790 --> 00:37:59,660
+It's very simple.
+这很简单。
+
+640
+00:38:02,390 --> 00:38:02,770
+Now,
+现在，
+
+641
+00:38:03,530 --> 00:38:04,750
+on top of the metal layer,
+在金属层的顶部
+
+642
+00:38:04,760 --> 00:38:08,830
+you have transport layer and the transport layer provide.
+你有传输层，传输层提供了什么功能。
+
+643
+00:38:10,160 --> 00:38:11,280
+It's one level up.
+它上升了一个级别。
+
+644
+00:38:14,060 --> 00:38:20,520
+The net of layer deliver a packet from one horse to an ass.
+网络层将一个数据包从一匹马传递到一头驴。
+
+645
+00:38:22,050 --> 00:38:24,250
+But the hosts do not consume the packet.
+但是主机不会消耗数据包。
+
+646
+00:38:24,820 --> 00:38:26,300
+Application consumes the packet.
+应用程序消耗了数据包。
+
+647
+00:38:27,800 --> 00:38:29,830
+And the application is a process.
+应用程序是一个进程。
+
+648
+00:38:30,910 --> 00:38:33,020
+On a machine have multiple processes.
+在一台机器上有多个进程。
+
+649
+00:38:34,100 --> 00:38:39,080
+You need to specify to which packet to each process on a particular machine.
+你需要为特定机器上的每个进程指定要发送的数据包。
+
+650
+00:38:41,710 --> 00:38:43,090
+The packet needs to be delivered.
+这个数据包需要被传送。
+
+651
+00:38:44,760 --> 00:38:48,560
+The ip address of the recipient is not enough.
+收件人的IP地址不足够。
+
+652
+00:38:49,120 --> 00:38:52,950
+Read another thing to differentiate between multiple processes running
+阅读另一篇文章以区分多个正在运行的进程。
+
+653
+00:38:52,960 --> 00:38:55,270
+on the same action on the same course.
+在同一门课程上进行相同的操作。
+
+654
+00:38:57,120 --> 00:38:57,910
+This is a port.
+这是一个端口。
+
+655
+00:38:57,920 --> 00:38:58,070
+Now.
+现在。
+
+656
+00:38:58,780 --> 00:38:59,270
+I could see.
+我明白了。
+
+657
+00:39:00,470 --> 00:39:01,710
+So the transfer layer,
+因此，传输层是一个重要的网络层，它负责在源主机和目标主机之间提供可靠的数据传输。传输层使用传输协议来分割和重组数据，以确保数据的完整性和可靠性。常见的传输协议包括TCP（传输控制协议）和UDP（用户数据报协议）。
+
+658
+00:39:02,050 --> 00:39:03,980
+multiplex and the multiplex packets,
+多路复用和多路复用数据包
+
+659
+00:39:04,330 --> 00:39:05,640
+which arrive on the same post,
+同时到达的邮件
+
+660
+00:39:06,720 --> 00:39:09,640
+that as other services can provide the reliability,
+其他服务也可以提供可靠性，
+
+661
+00:39:10,790 --> 00:39:11,140
+right?
+对的？
+
+662
+00:39:11,150 --> 00:39:14,460
+Adaptation, like we discussed last time, flow control, congestion control,
+适应性，就像我们上次讨论的那样，流量控制，拥塞控制。
+
+663
+00:39:15,990 --> 00:39:16,940
+and timing properties.
+以及时间属性。
+
+664
+00:39:16,950 --> 00:39:18,380
+Maybe they are going to.
+也许他们会这样做。
+
+665
+00:39:20,420 --> 00:39:26,650
+You've got a guarantee that the packet will be delivered within 100 millisecond.
+你可以确保数据包在100毫秒内被传送。
+
+666
+00:39:27,170 --> 00:39:29,350
+It's important, say, for voice communication,
+这很重要，比如说，对于语音通信来说，
+
+667
+00:39:30,430 --> 00:39:34,620
+the interface is the same message to a specific process of a given estimation.
+接口是发送给特定进程的给定估计的相同消息。
+
+668
+00:39:37,820 --> 00:39:40,870
+And the local process receives a message sent to it.
+本地进程接收到发送给它的消息。
+
+669
+00:39:42,120 --> 00:39:45,520
+The protocol includes the poor numbers.
+该协议包括贫穷数。
+
+670
+00:39:46,650 --> 00:39:49,320
+We used to differentiate between different processes.
+我们过去会区分不同的进程。
+
+671
+00:39:49,330 --> 00:39:52,020
+It may implement reliability,
+它可能实现可靠性，
+
+672
+00:39:52,030 --> 00:39:53,220
+flow control,
+流量控制
+
+673
+00:39:54,050 --> 00:39:57,760
+and packet is asian because of my sense bigger,
+"packet" 是亚洲人的称呼，因为我感觉亚洲人的体型较大。
+
+674
+00:39:57,770 --> 00:39:59,360
+depending on the interface,
+根据接口的不同，
+
+675
+00:39:59,630 --> 00:40:01,480
+you may send streams.
+你可以发送数据流。
+
+676
+00:40:01,800 --> 00:40:02,830
+Like if you remember,
+如果你还记得的话，
+
+677
+00:40:03,140 --> 00:40:05,960
+we have this kind of interface to the network.
+我们有这种与网络连接的接口。
+
+678
+00:40:06,390 --> 00:40:10,090
+You have blocked and stream interface from the stream interface.
+你已经从流接口中阻止了流接口。
+
+679
+00:40:10,100 --> 00:40:13,730
+Somehow you need to chop these streams into packets and send these packets.
+你需要将这些流切割成数据包并发送这些数据包。
+
+680
+00:40:17,820 --> 00:40:19,170
+That is a higher level.
+那是一个较高级别的。
+
+681
+00:40:19,600 --> 00:40:20,880
+You have the transfer layer,
+你有传输层。
+
+682
+00:40:20,890 --> 00:40:22,120
+you have a transfer header.
+你有一个传输头。
+
+683
+00:40:22,130 --> 00:40:26,900
+The transport header is a protocol number as the for port numbers.
+传输头部是一个协议号，类似于端口号。
+
+684
+00:40:26,910 --> 00:40:30,900
+And you have also like, for instance, 80,
+而且你还有，例如，80个。
+
+685
+00:40:30,910 --> 00:40:37,430
+it's identifies for the port is reallocated the port for hpv server.
+它标识端口已重新分配给hpv服务器。
+
+686
+00:40:41,640 --> 00:40:48,080
+There are two important transport protocols in the internet using udp
+在互联网中，有两个重要的传输协议使用UDP。
+
+687
+00:40:51,160 --> 00:40:54,080
+user data ground protocol.
+用户数据地面协议。
+
+688
+00:40:55,330 --> 00:40:59,340
+And this provides only multiplexing and multiplexing among processes.
+这只提供了进程之间的多路复用和多路复用。
+
+689
+00:40:59,740 --> 00:41:01,160
+This is the best effort.
+这是最好的努力。
+
+690
+00:41:01,730 --> 00:41:04,000
+Backers can be lost, can get out of order.
+支持者可能会丢失，也可能会顺序错乱。
+
+691
+00:41:04,370 --> 00:41:06,410
+There is no flow control, nothing.
+没有流量控制，什么都没有。
+
+692
+00:41:08,060 --> 00:41:09,610
+The application is to take care of.
+这个应用程序需要照顾。
+
+693
+00:41:10,570 --> 00:41:13,470
+Then it's pcp which is a transport control protocol.
+那么它就是一个传输控制协议（PCP）。
+
+694
+00:41:14,370 --> 00:41:18,680
+This obviously still provides multiplexing and in multiplexing around processes.
+这显然仍然提供了多路复用和在进程之间的多路复用。
+
+695
+00:41:19,110 --> 00:41:21,870
+But in addition, has a notion of connection.
+此外，还具有连接的概念。
+
+696
+00:41:22,090 --> 00:41:24,670
+You set up the connection and tear down the connection.
+你建立连接并拆除连接。
+
+697
+00:41:26,380 --> 00:41:30,050
+If there are packets which are corrupted or corrupted, you discard them.
+如果有损坏或错误的数据包，你应该将其丢弃。
+
+698
+00:41:30,060 --> 00:41:31,010
+There is a check sum.
+有一个校验和。
+
+699
+00:41:31,020 --> 00:41:31,530
+You check.
+你检查。
+
+700
+00:41:31,940 --> 00:41:33,600
+If the check sum is violated,
+如果校验和被破坏，
+
+701
+00:41:33,610 --> 00:41:34,720
+you discuss the packet.
+你讨论数据包。
+
+702
+00:41:35,370 --> 00:41:37,440
+It transmits a lost packet.
+它传输了一个丢失的数据包。
+
+703
+00:41:37,770 --> 00:41:40,680
+A self provides reliability to the application,
+自我为应用程序提供可靠性。
+
+704
+00:41:41,120 --> 00:41:44,610
+and it's also provides flow control and condition control.
+它还提供了流程控制和条件控制。
+
+705
+00:41:45,040 --> 00:41:49,360
+Remember, flow control is about not overwhelming.
+记住，流量控制是为了避免过载。
+
+706
+00:41:49,610 --> 00:41:50,290
+The receiver.
+接收器。
+
+707
+00:41:50,630 --> 00:41:53,610
+The congestion control is not overwhelming.
+拥塞控制并不压倒性。
+
+708
+00:41:54,330 --> 00:41:55,300
+The method,
+该方法，
+
+709
+00:41:59,060 --> 00:42:01,450
+the services are not typically available.
+这些服务通常不可用。
+
+710
+00:42:02,920 --> 00:42:05,010
+Any bandwidth or delay guarantees.
+任何带宽或延迟保证。
+
+711
+00:42:06,140 --> 00:42:09,010
+In internet, you cannot specify that.
+在互联网上，你无法指定这一点。
+
+712
+00:42:09,450 --> 00:42:11,600
+You cannot say I want 10 megabytes per second.
+你不能说我想要每秒10兆字节。
+
+713
+00:42:11,610 --> 00:42:12,410
+You cannot say,
+你不能这样说，
+
+714
+00:42:12,420 --> 00:42:16,570
+I want these packets need to believe delivery 100 millisecond.
+我希望这些数据包的传递时间保持在100毫秒内。
+
+715
+00:42:18,600 --> 00:42:19,820
+What I mentioned to you,
+我向你提到的是，
+
+716
+00:42:19,830 --> 00:42:22,140
+I mentioned earlier that, in general,
+我之前提到过，总的来说，
+
+717
+00:42:22,150 --> 00:42:23,780
+the transfer protocol,
+传输协议
+
+718
+00:42:23,940 --> 00:42:26,150
+the transport layer can provide that.
+传输层可以提供这个功能。
+
+719
+00:42:26,360 --> 00:42:31,990
+But I am telling you now is that transport protocols in the internet
+现在我告诉你的是互联网中的传输协议。
+
+720
+00:42:32,000 --> 00:42:34,030
+do not provide this kind of
+请不要提供这种类型的信息。
+
+721
+00:42:34,690 --> 00:42:36,920
+then that be like our boundaries guarantees.
+那就像是我们的边界保证。
+
+722
+00:42:39,750 --> 00:42:42,060
+Also if a session with a connection,
+如果一个会话有一个连接，
+
+723
+00:42:42,440 --> 00:42:46,970
+if you try to migrate an application from one or to another,
+如果你尝试将一个应用程序从一个地方迁移到另一个地方，
+
+724
+00:42:47,270 --> 00:42:49,980
+they using yummy migration or something like that,
+他们正在使用美味迁移或类似的工具。
+
+725
+00:42:50,210 --> 00:42:51,380
+the connection is not preserved.
+连接未保持。
+
+726
+00:42:54,310 --> 00:42:55,420
+We have another question.
+我们有另一个问题。
+
+727
+00:43:00,440 --> 00:43:05,110
+The questions are reports used to differentiate which packet to send
+这些问题是用来区分要发送的数据包的报告。
+
+728
+00:43:05,450 --> 00:43:07,380
+to different processes on the house.
+分配给房子上的不同进程。
+
+729
+00:43:07,760 --> 00:43:08,120
+Yes.
+是的。
+
+730
+00:43:08,460 --> 00:43:09,040
+Exactly.
+没错。
+
+731
+00:43:09,050 --> 00:43:09,440
+For that.
+为此。
+
+732
+00:43:10,930 --> 00:43:14,530
+Different processes will have different ports numbers when they open a production.
+当不同的进程打开一个端口时，它们会有不同的端口号。
+
+733
+00:43:21,490 --> 00:43:22,960
+That is the application layer.
+那是应用层。
+
+734
+00:43:27,760 --> 00:43:30,190
+Is here any service provided to the end users.
+这里是否提供给最终用户的服务？
+
+735
+00:43:30,200 --> 00:43:34,580
+This application is like the interface depends on the application,
+这个应用程序的界面取决于应用程序本身。
+
+736
+00:43:34,590 --> 00:43:36,100
+protocol depends on the application.
+协议取决于应用程序。
+
+737
+00:43:36,830 --> 00:43:39,400
+In the osi architecture,
+在OSI架构中，
+
+738
+00:43:39,410 --> 00:43:44,080
+there are also a was a transport,
+还有一个运输方式，
+
+739
+00:43:45,010 --> 00:43:47,080
+sorry, was a session on the presentation layer.
+抱歉，这是关于表示层的一个会话。
+
+740
+00:43:47,520 --> 00:43:51,560
+They are not existent in the internet protocol.
+它们在互联网协议中不存在。
+
+741
+00:43:51,570 --> 00:43:53,420
+So be happy.
+所以要快乐。
+
+742
+00:43:53,430 --> 00:44:00,020
+We only need to learn about five really four layers instead of seven.
+我们只需要学习五个层次，而不是七个。
+
+743
+00:44:00,880 --> 00:44:02,230
+This father, their function,
+这是父函数，它们的功能是什么？
+
+744
+00:44:02,240 --> 00:44:04,950
+it is absorbed by the application layer data.
+它被应用层数据所吸收。
+
+745
+00:44:09,830 --> 00:44:10,860
+This is a better step.
+这是一个更好的步骤。
+
+746
+00:44:11,730 --> 00:44:13,150
+You see, kind of the waterfall.
+你看，有点像瀑布。
+
+747
+00:44:15,020 --> 00:44:17,050
+A packet at one level,
+在一个层次上的数据包
+
+748
+00:44:17,060 --> 00:44:19,690
+becomes a payload as a set as the next level,
+成为下一级的有效载荷集合。
+
+749
+00:44:20,110 --> 00:44:21,190
+as you go down the stack.
+随着你向下遍历堆栈。
+
+750
+00:44:22,380 --> 00:44:24,670
+And when you are going to go up the stack,
+当你要向上移动堆栈时，
+
+751
+00:44:24,680 --> 00:44:29,980
+you are going to strip headers after header until you get to generate
+你将会剥离头部，直到找到generate位置。
+
+752
+00:44:33,200 --> 00:44:34,230
+the first layers,
+第一层，
+
+753
+00:44:34,240 --> 00:44:37,990
+physical layer data link layer network layer are implemented by the host
+物理层、数据链路层和网络层由主机实现。
+
+754
+00:44:38,000 --> 00:44:38,710
+and by the roots.
+并且通过根部。
+
+755
+00:44:41,320 --> 00:44:44,360
+The switch is not shown here by the switch implement the physical layer
+这里没有显示交换机，但交换机实现了物理层。
+
+756
+00:44:44,370 --> 00:44:45,120
+and italic layer.
+斜体层。
+
+757
+00:44:47,020 --> 00:44:51,140
+The host implement transport and application layer is throughout the broad implement.
+主机实现的传输层和应用层是广泛实现的。
+
+758
+00:44:54,230 --> 00:44:58,620
+And the protocol is between two ps at the same time.
+这个协议是同时在两个进程之间进行的。
+
+759
+00:45:03,710 --> 00:45:09,970
+Some announcements discussion will be recorded because of the thanksgiving.
+由于感恩节的原因，部分讨论将会被录制。
+
+760
+00:45:11,640 --> 00:45:13,800
+The office hours for wednesday, thursday,
+周三和周四的办公时间是：
+
+761
+00:45:13,810 --> 00:45:18,130
+friday are going to be canceled against because of the thanksgiving.
+由于感恩节，星期五的活动将被取消。
+
+762
+00:45:19,410 --> 00:45:23,240
+The middle three reviewer session is coming next monday.
+下周一将进行中间的三个评审会议。
+
+763
+00:45:23,250 --> 00:45:25,120
+The time is to be determined.
+时间待定。
+
+764
+00:45:26,050 --> 00:45:26,920
+Please stay focused.
+请保持专注。
+
+765
+00:45:26,930 --> 00:45:28,800
+You are going to announce it on piazza.
+你将在 Piazza 上宣布这个消息。
+
+766
+00:45:28,810 --> 00:45:37,720
+The medium three is next wednesday between 7:00 and 9:00 pm and homeworks
+期中考试将于下周三晚上7点至9点进行，还有作业。
+
+767
+00:45:37,730 --> 00:45:38,380
+is released.
+已发布。
+
+768
+00:45:38,390 --> 00:45:43,220
+And is it has been released and is due on friday.
+它已经发布了，并且截止日期是星期五。
+
+769
+00:45:43,230 --> 00:45:51,080
+December 3rd are layers,
+12月3日是图层。
+
+770
+00:45:51,090 --> 00:45:54,040
+five and six used explicitly in other systems,
+在其他系统中明确使用了五和六。
+
+771
+00:45:54,050 --> 00:45:55,520
+or are they obsolete everywhere?
+还是它们在任何地方都已经过时了？
+
+772
+00:45:56,990 --> 00:46:03,350
+They were used by other network protocol and network stacks.
+它们被其他网络协议和网络堆栈使用。
+
+773
+00:46:04,560 --> 00:46:06,550
+In the past, there are many of them,
+过去，有很多这样的情况。
+
+774
+00:46:07,940 --> 00:46:09,700
+but all of them are obsolete.
+但它们都已经过时了。
+
+775
+00:46:09,710 --> 00:46:16,420
+Eventually the internet protocol took over and everyone knows provide
+最终，互联网协议占据了主导地位，现在每个人都知道提供。
+
+776
+00:46:16,430 --> 00:46:17,300
+the internet protocol.
+互联网协议
+
+777
+00:46:18,420 --> 00:46:21,680
+So the answer to your question today are obsolete.
+所以你今天的问题的答案已经过时了。
+
+778
+00:46:27,290 --> 00:46:29,560
+Previous recording letter will be applauded,
+之前的录音信件将受到赞赏，
+
+779
+00:46:30,370 --> 00:46:32,240
+recording, recorded letter.
+录音，已录制的信件。
+
+780
+00:46:32,970 --> 00:46:33,800
+It should be.
+应该是的。
+
+781
+00:46:34,180 --> 00:46:35,650
+We'll make sure that it's upload it.
+我们会确保它已经上传了。
+
+782
+00:46:37,420 --> 00:46:38,200
+Sorry about that.
+很抱歉。
+
+783
+00:46:42,320 --> 00:46:43,870
+Now let's switch the gears.
+现在让我们换个话题。
+
+784
+00:46:43,880 --> 00:46:47,310
+And this is a very interesting aspect of the internet.
+这是互联网的一个非常有趣的方面。
+
+785
+00:46:48,130 --> 00:46:49,960
+It's called end to end argument.
+这被称为端到端原则。
+
+786
+00:46:54,130 --> 00:46:58,700
+If you look about this another way to look at the internet protocol stack,
+如果你从另一个角度来看互联网协议栈的话，
+
+787
+00:46:59,630 --> 00:47:02,800
+its shape is what is called our glass.
+它的形状被称为我们的玻璃杯。
+
+788
+00:47:03,900 --> 00:47:09,190
+What this means that the internet protocol is and is a waste of the howard glass.
+这句话的意思是互联网协议是一个浪费霍华德·格拉斯的东西。
+
+789
+00:47:10,050 --> 00:47:12,720
+And that's why internet probable is so important.
+这就是为什么互联网可能如此重要的原因。
+
+790
+00:47:12,730 --> 00:47:14,080
+And the sorry,
+对不起，
+
+791
+00:47:14,090 --> 00:47:19,130
+internet in ip layer is so important in the internet network stuff,
+在互联网网络中，IP层中的互联网非常重要。
+
+792
+00:47:22,070 --> 00:47:23,400
+because it's kind of unique.
+因为它有点独特。
+
+793
+00:47:24,650 --> 00:47:29,550
+So everyone has to implement the internet protocol interface.
+所以每个人都需要实现互联网协议接口。
+
+794
+00:47:30,700 --> 00:47:32,660
+But under the internet protocol,
+但在互联网协议下，
+
+795
+00:47:33,450 --> 00:47:35,010
+player and above it,
+玩家并在其上方,
+
+796
+00:47:36,280 --> 00:47:42,350
+there is a large variety of different protocols at different layers.
+在不同的层级上有许多不同的协议。
+
+797
+00:47:43,860 --> 00:47:46,090
+You can answer it under the internet protocol.
+你可以在互联网协议下进行回答。
+
+798
+00:47:46,100 --> 00:47:47,810
+You can have different data link layers.
+你可以有不同的数据链路层。
+
+799
+00:47:48,510 --> 00:47:52,700
+You can have different physical layers about above.
+你可以在上面使用不同的物理层。
+
+800
+00:47:53,910 --> 00:47:56,840
+You can have different transport protocols,
+你可以使用不同的传输协议，
+
+801
+00:47:56,850 --> 00:48:03,730
+this pngdp about you have different application protocols.
+这个PNGDP是关于你有不同的应用协议。
+
+802
+00:48:05,400 --> 00:48:05,800
+Right?
+对吗？
+
+803
+00:48:07,750 --> 00:48:08,860
+This is beautiful.
+这真是太美了。
+
+804
+00:48:08,870 --> 00:48:15,640
+The reason is beautiful because it decouple the evolution of the layers
+这个原因很美，因为它解耦了层的演化。
+
+805
+00:48:15,650 --> 00:48:16,640
+of the layers under
+在下层的层级中
+
+806
+00:48:16,650 --> 00:48:19,870
+the underneath and of the layer above.
+下方和上方的层次。
+
+807
+00:48:20,860 --> 00:48:23,340
+Remember it when he discussed the level of indirection.
+当他讨论间接级别时，请记住这一点。
+
+808
+00:48:23,790 --> 00:48:24,150
+Last,
+最后,
+
+809
+00:48:25,730 --> 00:48:26,290
+this is it.
+就是这样了。
+
+810
+00:48:26,690 --> 00:48:31,950
+But I do remember the couple the evolution above from the evolution of the last.
+但我确实记得上面的进化与上次的进化相比。
+
+811
+00:48:33,580 --> 00:48:36,250
+Therefore, if i'm going to add a new data link layer,
+因此，如果我要添加一个新的数据链路层，
+
+812
+00:48:36,260 --> 00:48:38,650
+as long as i'm providing on top of it,
+只要我在其之上提供。
+
+813
+00:48:38,660 --> 00:48:39,850
+ip interface,
+IP接口
+
+814
+00:48:42,500 --> 00:48:45,090
+then all the other application,
+然后所有其他应用程序，
+
+815
+00:48:45,100 --> 00:48:48,610
+all of the other layers above ip should work without any check.
+IP层以上的所有其他层应该在没有任何检查的情况下正常工作。
+
+816
+00:48:50,070 --> 00:48:50,530
+The same.
+一样的。
+
+817
+00:48:51,240 --> 00:48:55,870
+If i'm going to invent a new transport protocol or a new application protocol,
+如果我要发明一种新的传输协议或应用协议，
+
+818
+00:48:56,810 --> 00:48:57,770
+I can do that.
+我可以做到。
+
+819
+00:48:57,780 --> 00:49:04,470
+And as long as i'm going to write against the ip interface,
+只要我打算写针对IP接口的代码，
+
+820
+00:49:04,480 --> 00:49:07,560
+none of the layers below the ip should care that.
+IP协议以下的所有层都不需要关心这个问题。
+
+821
+00:49:07,570 --> 00:49:10,920
+Now there is a new application protocol or a new transport protocol.
+现在有一个新的应用协议或者一个新的传输协议。
+
+822
+00:49:13,730 --> 00:49:17,280
+This is why the ip layer is so fundamental.
+这就是为什么IP层如此基础的原因。
+
+823
+00:49:21,330 --> 00:49:22,360
+This is what we discussed.
+这是我们讨论的内容。
+
+824
+00:49:23,250 --> 00:49:30,580
+So a single internet module player allows arbitrary networks to operate,
+因此，一个单独的互联网模块播放器可以使任意网络运行。
+
+825
+00:49:31,170 --> 00:49:34,960
+allows application to functions on all networks.
+允许应用程序在所有网络上运行。
+
+826
+00:49:35,920 --> 00:49:36,980
+And therefore,
+因此，
+
+827
+00:49:36,990 --> 00:49:43,000
+because the players below and the layers above can evolved separately,
+因为下方的玩家和上方的层次可以分别发展。
+
+828
+00:49:43,010 --> 00:49:45,520
+this is how you also involve the innovation.
+这是你如何参与创新的方式。
+
+829
+00:49:46,040 --> 00:49:47,590
+It enables innovation.
+它促进创新。
+
+830
+00:49:52,080 --> 00:49:52,970
+However,
+然而，
+
+831
+00:49:53,680 --> 00:49:55,950
+changing ip itself is very hard,
+更改IP地址本身是非常困难的。
+
+832
+00:49:55,960 --> 00:50:00,760
+because it's only one layer of a proof point.
+因为这只是一个证明点的一层。
+
+833
+00:50:01,190 --> 00:50:04,390
+The transition from ipv four to ibv six was very painful,
+从IPv4过渡到IPv6非常痛苦。
+
+834
+00:50:05,250 --> 00:50:06,720
+probably don't like 20 years.
+可能不喜欢20年。
+
+835
+00:50:12,730 --> 00:50:13,130
+Now,
+现在，
+
+836
+00:50:13,880 --> 00:50:15,010
+the layers,
+层级
+
+837
+00:50:15,020 --> 00:50:18,210
+it's a very nice construction, very logical, very clear.
+这是一个非常好的结构，非常合乎逻辑，非常清晰。
+
+838
+00:50:19,100 --> 00:50:24,210
+I provide a lot of isolation because one layer can only use a service
+我提供了很多隔离，因为每个层级只能使用一个服务。
+
+839
+00:50:24,220 --> 00:50:25,170
+of the layer below it.
+它的下一层。
+
+840
+00:50:29,330 --> 00:50:31,170
+At the same time, he has some drawbacks,
+同时，他也有一些缺点，
+
+841
+00:50:36,560 --> 00:50:40,110
+because the layer may need some same functionality like false tolerance
+因为该层可能需要一些与容错性相似的功能。
+
+842
+00:50:40,120 --> 00:50:41,470
+of no reliability.
+不可靠的。
+
+843
+00:50:41,800 --> 00:50:44,750
+Some players are going to replicate this function of it.
+一些玩家打算复制它的功能。
+
+844
+00:50:45,610 --> 00:50:49,120
+The layering can also hurt the performance because one layer can hide
+分层也可能会影响性能，因为一个层级可能会隐藏掉其他层级的信息。
+
+845
+00:50:49,130 --> 00:50:50,760
+information from the above layer.
+来自上一层的信息。
+
+846
+00:50:51,660 --> 00:50:53,030
+Like I mentioned to you,
+就像我之前跟你提到的一样，
+
+847
+00:50:53,040 --> 00:50:57,510
+it's one classic example is that the data link layer hides,
+其中一个经典例子是数据链路层的隐藏功能。
+
+848
+00:50:57,810 --> 00:50:59,200
+wire packet was lost.
+数据包丢失。
+
+849
+00:51:01,460 --> 00:51:03,770
+The ip layer hides while the packet was lost.
+当数据包丢失时，IP层会隐藏这个事实。
+
+850
+00:51:04,300 --> 00:51:08,810
+The transfer layer which provides for recent bcp which is provide reliability,
+传输层提供了最近的可靠性，这是通过提供可靠性机制来实现的。
+
+851
+00:51:08,820 --> 00:51:11,450
+and it needs to do the transmission of the packets.
+它需要进行数据包的传输。
+
+852
+00:51:12,510 --> 00:51:15,300
+It cannot make the right the best decision,
+它无法做出最佳决策。
+
+853
+00:51:15,800 --> 00:51:19,600
+because it doesn't know where there is a packet, for instance, was lost,
+因为它不知道数据包的位置，例如，数据包可能丢失了。
+
+854
+00:51:19,610 --> 00:51:25,150
+because it was dropping the matter because of congestion.
+由于拥塞问题，它放弃了这个事情。
+
+855
+00:51:25,770 --> 00:51:30,710
+So therefore, I need to slow down when I send a new packet,
+因此，当我发送新的数据包时，我需要减慢速度。
+
+856
+00:51:31,590 --> 00:51:33,310
+but I retransmit the loss packet,
+但是我重新传输了丢失的数据包，
+
+857
+00:51:35,980 --> 00:51:37,980
+or the packet may have been lost,
+或者数据包可能已丢失，
+
+858
+00:51:37,990 --> 00:51:40,980
+because interference case in which I don't need to slow down.
+因为干扰情况下我不需要减速。
+
+859
+00:51:42,040 --> 00:51:43,800
+But without having this information,
+但是如果没有这些信息，
+
+860
+00:51:44,130 --> 00:51:46,860
+I need to make a decision the decision today to slow down,
+我今天需要做出一个决定，即放慢速度。
+
+861
+00:51:46,870 --> 00:51:49,380
+which is not optimal, for instance, for wireless networks.
+这并不是最优的选择，比如对于无线网络来说。
+
+862
+00:51:55,060 --> 00:51:58,390
+Some of the layers are not always clearly separate.
+有些层次并不总是清晰地分离开来。
+
+863
+00:52:04,550 --> 00:52:07,100
+The other thing is that you had, as you remember,
+另外一件事是，你记得的话，
+
+864
+00:52:07,110 --> 00:52:08,900
+like for each layer at its own head,
+每个层级都有自己的头指针。
+
+865
+00:52:09,620 --> 00:52:14,070
+you have a lot of head ups and that overhead,
+你有很多负担和额外开销，
+
+866
+00:52:14,940 --> 00:52:18,180
+because it's not really data you want to send in some cases ahead.
+因为在某些情况下，你并不真正想要提前发送数据。
+
+867
+00:52:18,190 --> 00:52:20,660
+That is much harder than the actual data you want to send.
+这比你实际想要发送的数据要困难得多。
+
+868
+00:52:24,580 --> 00:52:25,240
+So now,
+所以现在，
+
+869
+00:52:25,740 --> 00:52:26,180
+again,
+再次，
+
+870
+00:52:26,190 --> 00:52:30,720
+you have all these layers and you want to implement some functionality.
+你有所有这些层级，并且想要实现一些功能。
+
+871
+00:52:32,550 --> 00:52:33,860
+The one question is,
+问题是，
+
+872
+00:52:34,310 --> 00:52:36,830
+at once layer, you are implementing that function.
+在当前层次，你正在实现那个函数。
+
+873
+00:52:39,180 --> 00:52:47,910
+And the end to end arguments is a principle which tries to answer that question.
+端到端论证是一种原则，试图回答这个问题。
+
+874
+00:52:51,290 --> 00:52:54,380
+Some people say is a sacred text of the internet.
+有些人说这是互联网的圣经。
+
+875
+00:52:55,840 --> 00:52:57,540
+And like any sacred text,
+就像任何神圣的文本一样，
+
+876
+00:52:58,300 --> 00:53:00,980
+there are endless disputes about what exactly means.
+关于"what exactly means"的确切含义存在无休止的争议。
+
+877
+00:53:02,420 --> 00:53:02,700
+Right?
+对吗？
+
+878
+00:53:05,140 --> 00:53:09,160
+And everyone cites the supporting their position that it's a little bit a
+每个人都引用支持他们立场的论据，认为这是有点的。
+
+879
+00:53:10,740 --> 00:53:11,230
+like the bible,
+像圣经一样，
+
+880
+00:53:13,960 --> 00:53:15,530
+but still, it's very important.
+但是，这仍然非常重要。
+
+881
+00:53:18,160 --> 00:53:20,030
+But let's consider this, for instance,
+但是让我们考虑一下这个例子，
+
+882
+00:53:20,640 --> 00:53:23,160
+some function into like reliability or security.
+一些功能涉及可靠性或安全性。
+
+883
+00:53:24,070 --> 00:53:27,270
+It's obviously, where do you implement the italian man,
+显然，你要在哪里实现这个意大利人呢？
+
+884
+00:53:27,600 --> 00:53:31,430
+ib land and the metal layer,
+IB Land和金属层
+
+885
+00:53:32,070 --> 00:53:34,150
+transport layer where and why?
+传输层位于计算机网络的协议栈中，位于网络层之上和应用层之下。传输层的主要目的是提供端到端的数据传输服务，确保数据在网络中的可靠传输和正确接收。
+
+传输层的主要功能包括：
+1. 分段和重组：将应用层的数据分割成较小的数据段，并在接收端重新组装成完整的数据。
+2. 连接管理：建立、维护和终止端到端的连接，包括连接的建立、数据传输和连接的关闭。
+3. 流量控制：通过控制发送端的发送速率，确保接收端能够及时处理和接收数据，避免数据丢失或拥塞。
+4. 差错控制：通过校验和、确认和重传机制，保证数据的可靠传输，检测和纠正传输过程中的错误。
+
+传输层的设计目标是提供一种通用的、可靠的数据传输服务，使得应用程序能够方便地进行数据交换和通信。通过传输层的协议，应用程序可以不必关心底层网络的细节，而只需要关注数据的发送和接收。
+
+886
+00:53:46,320 --> 00:53:48,770
+And our application can implement that.
+我们的应用程序可以实现这个。
+
+887
+00:53:52,650 --> 00:53:57,420
+And the main point here is that like,
+这里的主要观点是，就像...
+
+888
+00:53:57,430 --> 00:53:58,940
+we'll see in the next example,
+我们将在下一个例子中看到，
+
+889
+00:54:00,330 --> 00:54:03,560
+is that because a network,
+这是因为网络的原因吗？
+
+890
+00:54:04,800 --> 00:54:08,200
+even if they want at a lower level of the network,
+即使他们希望在网络的较低层级进行操作，
+
+891
+00:54:08,650 --> 00:54:09,810
+cannot implement,
+无法实现
+
+892
+00:54:11,330 --> 00:54:13,240
+and to end and end,
+结束和结束。
+
+893
+00:54:13,250 --> 00:54:14,520
+function will be corrected.
+该函数将被修正。
+
+894
+00:54:14,530 --> 00:54:17,030
+The application may anyway have to implement.
+该应用程序可能仍然需要实现。
+
+895
+00:54:19,630 --> 00:54:21,010
+Let's take a following example,
+让我们来看一个例子，
+
+896
+00:54:26,420 --> 00:54:27,710
+but I it's okay.
+没问题。
+
+897
+00:54:27,720 --> 00:54:28,390
+It's an example.
+这是一个例子。
+
+898
+00:54:29,120 --> 00:54:36,920
+Say you want to transfer a lively a file from one host on us
+假设你想要在美国的两台主机之间传输一个活跃的文件。
+
+899
+00:54:41,500 --> 00:54:42,730
+how this will look like.
+这会是什么样子。
+
+900
+00:54:43,540 --> 00:54:44,870
+If you want to build an application,
+如果你想要构建一个应用程序，
+
+901
+00:54:46,110 --> 00:54:47,650
+where is the data from the file?
+文件中的数据在哪里？
+
+902
+00:54:49,760 --> 00:54:52,510
+Then you send it over the network from hostile to hostile.
+然后你将它从一个敌对主机发送到另一个敌对主机。
+
+903
+00:54:54,260 --> 00:54:57,850
+The horse bees and the application from horse b is going to write it
+马蜂和马b的应用程序将要编写它。
+
+904
+00:54:57,860 --> 00:54:58,610
+on the disk,
+在磁盘上
+
+905
+00:54:59,950 --> 00:55:04,090
+be this is how you copy a file.
+这是如何复制文件的方法。
+
+906
+00:55:07,070 --> 00:55:09,920
+Now, if I want to have a reliable transfer, what you are going to do,
+现在，如果我想要进行可靠的传输，你将要做什么？
+
+907
+00:55:13,500 --> 00:55:14,680
+there are the solutions.
+这是解决方案。
+
+908
+00:55:15,730 --> 00:55:19,910
+I make each of these thread steps reliable.
+我使每个线程步骤都可靠。
+
+909
+00:55:20,870 --> 00:55:22,490
+And now I can catalyze them.
+现在我可以催化它们了。
+
+910
+00:55:22,500 --> 00:55:25,950
+I have here are five reliable steps,
+我这里有五个可靠的步骤，
+
+911
+00:55:26,930 --> 00:55:28,520
+entrance that must be reliable.
+必须可靠的入口。
+
+912
+00:55:30,010 --> 00:55:31,080
+The second one,
+第二个。
+
+913
+00:55:33,650 --> 00:55:35,730
+I don't know any of those that seems.
+我不知道任何一个看起来是这样的。
+
+914
+00:55:36,940 --> 00:55:38,730
+But after I get all,
+但是在我得到一切之后，
+
+915
+00:55:38,740 --> 00:55:40,370
+what I am told is a file,
+我被告知的是一个文件。
+
+916
+00:55:41,230 --> 00:55:42,830
+i'm going to computer checks out,
+我要去电脑检查。
+
+917
+00:55:43,840 --> 00:55:50,590
+and i'm going to send to to match against the jackson,
+我将发送它与杰克逊进行匹配。
+
+918
+00:55:50,600 --> 00:55:53,000
+sent by the host by the sender.
+由发送方发送的由主机发送的消息。
+
+919
+00:55:53,010 --> 00:55:54,280
+So basically hosting,
+基本上，托管服务是指将一个或多个网站、应用程序或其他在线服务存储在由第三方提供的服务器上。这些服务器通常位于数据中心，具备高速互联网连接和稳定的电力供应，以确保服务的可靠性和可用性。通过托管服务，用户可以将自己的网站或应用程序部署到互联网上，而无需自己购买和维护服务器硬件和网络设备。托管服务提供商通常还提供额外的功能和支持，如数据备份、安全性和性能优化等。
+
+920
+00:55:56,080 --> 00:55:58,280
+when he sends a file, it computes also a check stop.
+当他发送一个文件时，它还会计算一个校验码。
+
+921
+00:55:58,800 --> 00:56:00,250
+He sends out the file to horse, be,
+他将文件发送给horse和be。
+
+922
+00:56:00,260 --> 00:56:03,400
+the horse be takes against a file, save the file.
+将马对着文件，保存文件。
+
+923
+00:56:03,720 --> 00:56:06,030
+And also, after it saves the file,
+而且，在保存文件之后，
+
+924
+00:56:06,040 --> 00:56:07,430
+its entire file,
+整个文件
+
+925
+00:56:07,710 --> 00:56:10,660
+it computes a check sum and our computer check sum of the, say,
+它计算一个校验和，我们的计算机也计算一个校验和，比如说，
+
+926
+00:56:10,670 --> 00:56:13,060
+file with the check sum sent by the whole state.
+包含整个状态的校验和的文件。
+
+927
+00:56:13,270 --> 00:56:15,760
+If they are the same success,
+如果它们取得相同的成功，
+
+928
+00:56:16,010 --> 00:56:19,420
+If they are not the same, send the file again,
+如果它们不相同，请重新发送文件。
+
+929
+00:56:23,900 --> 00:56:25,570
+which of the solutions are going to be?
+哪个解决方案将会被采用？
+
+930
+00:56:26,960 --> 00:56:29,830
+If it were for you and one
+如果是为了你和另一个人
+
+931
+00:56:45,940 --> 00:56:51,820
+edison say solution one because solution three is bad for large files,
+Edison说方案一是因为方案三对于大文件来说不太好。
+
+932
+00:56:51,830 --> 00:56:53,940
+through solution three is bad for large files.
+通过解决方案三对于大文件来说是不好的。
+
+933
+00:56:54,900 --> 00:56:55,780
+Assignment.
+作业。
+
+934
+00:56:56,230 --> 00:57:03,160
+I like solution to anyone else.
+我喜欢解决方案适用于其他人。
+
+935
+00:57:04,100 --> 00:57:05,700
+Simon, why do you like some shampoo?
+Simon，你为什么喜欢某种洗发水？
+
+936
+00:57:16,870 --> 00:57:19,790
+Because I don't know whether between each steps is my break.
+因为我不知道每个步骤之间是否有我的休息时间。
+
+937
+00:57:20,100 --> 00:57:20,780
+That's correct.
+没错。
+
+938
+00:57:21,910 --> 00:57:22,610
+Great answer.
+很棒的答案。
+
+939
+00:57:23,650 --> 00:57:25,570
+So that you see the point is that here,
+所以你明白这里的要点是什么了，
+
+940
+00:57:25,580 --> 00:57:28,690
+if I concatenate five reliable steps,
+如果我将五个可靠的步骤连接起来，
+
+941
+00:57:29,290 --> 00:57:31,120
+it doesn't mean that end to end.
+这并不意味着端到端。
+
+942
+00:57:31,350 --> 00:57:32,390
+Everything is reliable.
+一切都是可靠的。
+
+943
+00:57:34,360 --> 00:57:34,470
+Right?
+对吗？
+
+944
+00:57:34,480 --> 00:57:36,920
+This is the grain is a solution, though.
+这个解决方案是可行的。
+
+945
+00:57:37,290 --> 00:57:40,310
+It's checking the checks out.
+这是在检查支票。
+
+946
+00:57:42,100 --> 00:57:43,690
+The solution is incomplete,
+解决方案不完整，
+
+947
+00:57:44,680 --> 00:57:46,070
+because what happens?
+因为发生了什么事情？
+
+948
+00:57:46,670 --> 00:57:50,510
+For instance, when I copy the data from the disk to the application memory,
+例如，当我将数据从磁盘复制到应用程序内存时，
+
+949
+00:57:51,090 --> 00:57:54,740
+and the application memory is corrupted,
+应用程序的内存已损坏，
+
+950
+00:57:54,750 --> 00:58:00,800
+but luck fundamentally,
+但是运气基本上是幸运的，
+
+951
+00:58:00,810 --> 00:58:04,960
+because I cannot guarantee that the end the solution one,
+因为我无法保证最终的解决方案是唯一的。
+
+952
+00:58:05,840 --> 00:58:09,300
+it's is correct.
+是的，这是正确的。
+
+953
+00:58:09,310 --> 00:58:15,640
+I need any way to do a check sum and verify
+我需要任何一种方法来进行校验和验证。
+
+954
+00:58:17,330 --> 00:58:19,600
+the main point here that the application,
+这里的主要观点是应用程序，
+
+955
+00:58:19,610 --> 00:58:24,660
+anyway, has to implement the functionality to verify the checks out,
+无论如何，必须实现验证支票的功能。
+
+956
+00:58:27,620 --> 00:58:28,820
+even if you solution one.
+即使你解决了一个问题。
+
+957
+00:58:33,310 --> 00:58:34,130
+So therefore,
+因此，
+
+958
+00:58:34,140 --> 00:58:39,220
+the full functionality of reliability can be implemented as the application
+可靠性的全部功能可以作为应用程序来实现。
+
+959
+00:58:39,230 --> 00:58:39,460
+level.
+级别。
+
+960
+00:58:41,020 --> 00:58:43,460
+The network doesn't going to do anything.
+网络不会做任何事情。
+
+961
+00:58:47,640 --> 00:58:48,050
+Now,
+现在，
+
+962
+00:58:52,230 --> 00:58:53,900
+for correctness reasons,
+出于正确性的考虑，
+
+963
+00:58:54,920 --> 00:58:55,240
+right?
+是的，正确的。
+
+964
+00:58:55,250 --> 00:58:55,920
+It's a game.
+这是一个游戏。
+
+965
+00:58:57,030 --> 00:58:59,190
+It's enough to implement the application.
+实现应用程序就足够了。
+
+966
+00:59:00,060 --> 00:59:01,350
+The network doesn't do anything.
+网络没有做任何事情。
+
+967
+00:59:03,290 --> 00:59:03,850
+Still,
+然而，
+
+968
+00:59:05,120 --> 00:59:08,680
+we are just talking that the network also implement reliability and not
+我们只是在讨论网络也需要实现可靠性，而不是
+
+969
+00:59:08,690 --> 00:59:10,280
+the natural transformation,
+自然变换
+
+970
+00:59:10,960 --> 00:59:11,590
+reliability.
+可靠性。
+
+971
+00:59:14,270 --> 00:59:20,480
+So why would sales and effort implement reliably?
+那么为什么销售和努力要可靠地实施呢？
+
+972
+00:59:20,490 --> 00:59:22,760
+They are reliable for a reliable product?
+他们可靠吗？他们的产品可靠吗？
+
+973
+00:59:25,010 --> 00:59:26,450
+It's not necessary for correctness.
+这并不是必需的，不影响正确性。
+
+974
+00:59:27,280 --> 00:59:28,290
+We just conclude that,
+我们刚刚得出结论，
+
+975
+00:59:29,520 --> 00:59:30,040
+but still,
+但是，
+
+976
+00:59:31,100 --> 00:59:34,210
+you may want another to implement elaborate.
+你可能需要另一个人来实施详细的操作。
+
+977
+00:59:35,060 --> 00:59:43,880
+Why is that to avoid very expensive collection?
+为什么要避免非常昂贵的收集过程？
+
+978
+00:59:45,830 --> 00:59:46,300
+Alexander?
+是的，我是Alexander。有什么我可以帮助您的吗？
+
+979
+00:59:47,140 --> 00:59:48,240
+So if you think about,
+所以如果你考虑一下，
+
+980
+00:59:50,460 --> 00:59:50,900
+right?
+对的？
+
+981
+00:59:51,710 --> 00:59:54,350
+It's in the second solution,
+这是在第二个解决方案中。
+
+982
+00:59:54,360 --> 00:59:58,160
+if you have ten gigabytes size five,
+如果你有十个千兆字节大小的文件，
+
+983
+00:59:59,300 --> 01:00:01,580
+if one bite 1 bit,
+如果一个字节是1比特的话，
+
+984
+01:00:02,610 --> 01:00:06,420
+not on bite, 1 bit is corrupted.
+不会咬人，只有1个比特位损坏了。
+
+985
+01:00:06,990 --> 01:00:09,030
+You need to resend the entire ten gigabytes.
+你需要重新发送整个十千兆字节的文件。
+
+986
+01:00:11,550 --> 01:00:12,110
+However,
+然而，
+
+987
+01:00:12,770 --> 01:00:13,580
+if you have,
+如果你有的话，
+
+988
+01:00:15,340 --> 01:00:16,690
+the network is reliable.
+网络是可靠的。
+
+989
+01:00:18,080 --> 01:00:18,580
+And the
+而且
+
+990
+01:00:39,340 --> 01:00:39,900
+that's perfect.
+太好了。
+
+991
+01:00:51,100 --> 01:00:55,060
+So the question is that should I implement this function
+所以问题是我应该实现这个函数吗？
+
+992
+01:00:55,070 --> 01:00:57,290
+at the lower levels or not?
+在较低的层次上吗？
+
+993
+01:01:03,390 --> 01:01:05,860
+The question is the answer here.
+问题就是答案。
+
+994
+01:01:06,980 --> 01:01:07,820
+It depends,
+这取决于情况。
+
+995
+01:01:10,630 --> 01:01:10,920
+right?
+是的，正确的。
+
+996
+01:01:10,930 --> 01:01:18,720
+Because in and and the reason this is a
+因为在和和这个原因是这样的
+
+997
+01:01:18,730 --> 01:01:22,170
+question is that if you implement the function,
+问题是，如果你实现了这个函数，
+
+998
+01:01:22,180 --> 01:01:23,720
+it is a lower layer.
+它是一个较低的层次。
+
+999
+01:01:24,710 --> 01:01:30,130
+This function, I it doesn't reduce the application complexity,
+这个函数并没有减少应用程序的复杂性。
+
+1000
+01:01:30,570 --> 01:01:32,060
+because you anyway,
+因为无论如何，
+
+1001
+01:01:32,070 --> 01:01:37,100
+into implement there and increase another complexity.
+将其实现在那里并增加另一个复杂度。
+
+1002
+01:01:41,700 --> 01:01:42,420
+Worse yet,
+更糟糕的是，
+
+1003
+01:01:43,110 --> 01:01:44,210
+it can increase,
+它可以增加，
+
+1004
+01:01:44,220 --> 01:01:50,690
+it can add overhead to application which do not read that functional.
+对于不使用该功能的应用程序来说，它可能会增加额外的开销。
+
+1005
+01:01:52,760 --> 01:01:59,540
+Like, for instance, if you have a voice over ip telephony over the internet,
+例如，如果你在互联网上使用语音传输IP电话技术，
+
+1006
+01:02:01,100 --> 01:02:02,560
+in that particular case,
+在那种特殊情况下，
+
+1007
+01:02:03,200 --> 01:02:04,620
+reliability is not helpful,
+可靠性没有帮助，
+
+1008
+01:02:05,490 --> 01:02:07,090
+because you need to satisfy,
+因为你需要满足，
+
+1009
+01:02:07,420 --> 01:02:14,600
+you need to the latency is more important than getting every every packet.
+你需要明白延迟比获取每个数据包更重要。
+
+1010
+01:02:17,130 --> 01:02:17,340
+Correct?
+正确吗？
+
+1011
+01:02:17,350 --> 01:02:20,690
+Like if the sound is a little bit distorted,
+如果声音有点失真，
+
+1012
+01:02:21,600 --> 01:02:22,960
+it's probably it's okay.
+可能没问题。
+
+1013
+01:02:23,930 --> 01:02:28,090
+But if we need to wait for a second to return in the packet,
+但是如果我们需要等待一秒钟才能返回数据包，
+
+1014
+01:02:28,100 --> 01:02:28,730
+that's probably not.
+那可能不是。
+
+1015
+01:02:34,530 --> 01:02:34,850
+Okay.
+好的。
+
+1016
+01:02:37,570 --> 01:02:38,370
+Yeah,
+是的，
+
+1017
+01:02:38,920 --> 01:02:39,930
+it was glitch.
+这是一个故障。
+
+1018
+01:02:39,940 --> 01:02:43,450
+So I don't know what will happen also is recording because on my side,
+所以我不知道会发生什么，也不确定是否正在录制，因为在我的这一端，
+
+1019
+01:02:43,810 --> 01:02:45,970
+it said a little bit recording is in progress.
+正在进行少量录音。
+
+1020
+01:02:45,980 --> 01:02:47,860
+I hope that it's just a glitch.
+我希望这只是一个小故障。
+
+1021
+01:02:48,370 --> 01:02:51,880
+So that didn't mean anything for the recording.
+这对于录音来说没有任何意义。
+
+1022
+01:02:52,850 --> 01:02:58,550
+That is a the great timing while we are discussing about entrant reliability.
+这正是我们讨论参赛者可靠性的好时机。
+
+1023
+01:03:04,190 --> 01:03:04,720
+Anyway,
+无论如何，
+
+1024
+01:03:09,070 --> 01:03:11,710
+so basically,
+所以基本上，
+
+1025
+01:03:14,170 --> 01:03:19,190
+you can implement a net of function is at a lower level stack.
+你可以在较低级别的堆栈中实现一个函数的网络。
+
+1026
+01:03:20,600 --> 01:03:23,460
+If we can improve performance.
+如果我们能提高性能。
+
+1027
+01:03:28,300 --> 01:03:31,140
+Now there are different interpretation of the end to end argument.
+现在对于端到端原则有不同的解释。
+
+1028
+01:03:32,940 --> 01:03:35,600
+And one extreme implementation, he says,
+他说，还有一种极端的实现方式，
+
+1029
+01:03:38,170 --> 01:03:40,370
+even if you can improve efficiency,
+即使你能提高效率，
+
+1030
+01:03:40,380 --> 01:03:48,400
+don't bother if you cannot simplify the application or the cost software,
+如果你无法简化应用程序或成本软件，就不要费心了。
+
+1031
+01:03:49,080 --> 01:03:52,680
+don't buy to implement as another player.
+不要购买以实施为另一个玩家。
+
+1032
+01:03:54,670 --> 01:03:56,580
+This is very conservative.
+这非常保守。
+
+1033
+01:03:57,590 --> 01:04:00,140
+I have the moderating term in interpretation.
+我对解释中的调节术语有了解。
+
+1034
+01:04:01,230 --> 01:04:09,010
+So the moderate interpretation is kind of it's it basically says you
+所以温和的解释基本上是说，它表示你
+
+1035
+01:04:09,020 --> 01:04:10,370
+can implement the function.
+可以实现这个函数。
+
+1036
+01:04:10,380 --> 01:04:12,650
+It is a network, but be careful about that.
+这是一个网络，但要小心。
+
+1037
+01:04:13,670 --> 01:04:14,500
+Think twice.
+三思而后行。
+
+1038
+01:04:17,540 --> 01:04:18,690
+In particular,
+特别是，
+
+1039
+01:04:21,840 --> 01:04:29,870
+you can implement the function id at a lower layer,
+你可以在更低的层次上实现函数id。
+
+1040
+01:04:30,570 --> 01:04:38,890
+if and only if doesn't impose a burden on applications that do not require
+如果且仅当不会对不需要的应用程序造成负担
+
+1041
+01:04:38,900 --> 01:04:39,850
+that functionality.
+那个功能。
+
+1042
+01:04:42,470 --> 01:04:46,020
+And it provides a significant, improving platform.
+它提供了一个重要且不断改进的平台。
+
+1043
+01:04:48,760 --> 01:04:56,860
+So the benefits are out waiting the complexity of the implementation.
+因此，好处超过了实施的复杂性。
+
+1044
+01:04:56,870 --> 01:04:58,140
+And by the way,
+顺便说一下，
+
+1045
+01:04:58,150 --> 01:05:03,530
+you shouldn't be a burden for the applications who do not need that function.
+你不应该成为那些不需要该功能的应用程序的负担。
+
+1046
+01:05:04,480 --> 01:05:07,830
+So if the application doesn't need for reliability,
+如果应用程序不需要可靠性，
+
+1047
+01:05:08,540 --> 01:05:09,260
+you shouldn't suffer.
+你不应该受苦。
+
+1048
+01:05:10,230 --> 01:05:11,500
+For instance, should that experience?
+例如，应该有那种经验吗？
+
+1049
+01:05:11,510 --> 01:05:16,750
+Have you like latency and relatives and you say interpretation we are using?
+你是否喜欢延迟和相关性，并且你所说的解释是我们正在使用的解释吗？
+
+1050
+01:05:19,260 --> 01:05:19,720
+Okay?
+好的？
+
+1051
+01:05:21,200 --> 01:05:21,960
+Any questions?
+有任何问题吗？
+
+1052
+01:05:33,430 --> 01:05:35,770
+So again, you have a functionality like reliability,
+所以，你需要的是类似可靠性的功能，
+
+1053
+01:05:37,240 --> 01:05:39,630
+which you must for being to be absolute,
+为了成为绝对的，你必须这样做。
+
+1054
+01:05:39,640 --> 01:05:41,830
+to be correct to ensure correctness.
+确保正确性是正确的。
+
+1055
+01:05:42,270 --> 01:05:44,580
+You have to implement the application level at the end.
+你需要在最后实现应用层。
+
+1056
+01:05:47,380 --> 01:05:48,240
+Hosts the question.
+托管问题。
+
+1057
+01:05:48,690 --> 01:05:51,410
+Should we also implement the liability of the lower layers?
+我们是否还应该实现较低层的责任？
+
+1058
+01:05:53,070 --> 01:05:54,140
+Is another layers.
+还有其他层次。
+
+1059
+01:05:55,780 --> 01:05:56,740
+The answer here,
+这里的答案是
+
+1060
+01:05:56,750 --> 01:05:59,420
+according to the moderate interpretation of the entrant argument,
+根据参与者论点的适度解释，
+
+1061
+01:06:04,300 --> 01:06:06,200
+but the bad for that is pretty high.
+但是这样做的风险相当高。
+
+1062
+01:06:07,410 --> 01:06:09,330
+You can implement the liability another team.
+你可以实施责任给另一个团队。
+
+1063
+01:06:09,650 --> 01:06:14,480
+Only if you get significant increase improvement in the performance,
+只有在性能显著提升的情况下，才会生效。
+
+1064
+01:06:15,400 --> 01:06:17,550
+you are not going to hurt the application.
+你不会对应用程序造成任何伤害。
+
+1065
+01:06:17,560 --> 01:06:18,950
+We do not need that function.
+我们不需要那个功能。
+
+1066
+01:06:25,350 --> 01:06:26,040
+Any questions?
+有任何问题吗？
+
+1067
+01:06:30,770 --> 01:06:36,020
+Now we are going to start one of the last topics of the course.
+现在我们将开始课程的最后一个主题之一。
+
+1068
+01:06:36,960 --> 01:06:37,920
+This is flow control.
+这是流量控制。
+
+1069
+01:06:37,930 --> 01:06:43,480
+So the flow control,
+因此，流量控制，
+
+1070
+01:06:44,340 --> 01:06:45,100
+remember,
+记住，
+
+1071
+01:06:45,790 --> 01:06:49,690
+assures that a fast sender does not overwhelm a slow receiver.
+确保快速发送方不会压垮慢速接收方。
+
+1072
+01:06:51,760 --> 01:06:53,440
+And we already seen some mechanics,
+我们已经看到了一些机制，
+
+1073
+01:06:54,380 --> 01:06:57,100
+like producer, consumers is bounded buffers.
+像生产者一样，消费者也是有界缓冲区。
+
+1074
+01:06:58,970 --> 01:07:00,630
+So remember, in this case,
+所以记住，在这种情况下，
+
+1075
+01:07:01,590 --> 01:07:03,850
+you cannot overpower the consumer,
+你不能压制消费者。
+
+1076
+01:07:04,770 --> 01:07:05,620
+overwhelmed the consumer.
+使消费者不知所措。
+
+1077
+01:07:06,510 --> 01:07:08,530
+Because if the buffer is full,
+因为如果缓冲区已满，
+
+1078
+01:07:09,140 --> 01:07:14,530
+the producer can no longer put packets in the buffer.
+生产者无法再将数据包放入缓冲区。
+
+1079
+01:07:20,820 --> 01:07:25,300
+The buffer is naturally pushing back on the producer.
+缓冲区自然地对生产者进行了阻力反作用。
+
+1080
+01:07:26,780 --> 01:07:29,160
+One is full, accepts no new items.
+一个已满，不接受新项目。
+
+1081
+01:07:31,150 --> 01:07:33,700
+Therefore, if the consumer is slower,
+因此，如果消费者速度较慢，
+
+1082
+01:07:33,710 --> 01:07:37,850
+the producer is going to adapt to the consumer speed
+生产者将会适应消费者的速度。
+
+1083
+01:07:38,740 --> 01:07:39,820
+because of the bounded buffer.
+因为有界缓冲区。
+
+1084
+01:07:44,760 --> 01:07:45,490
+So that's the idea.
+那就是这个想法。
+
+1085
+01:07:50,470 --> 01:07:54,650
+In the case of the tcp and this is a talk about this, be flow control.
+在TCP的情况下，我们要讨论的是流量控制。
+
+1086
+01:07:55,350 --> 01:07:58,310
+Things are more complicated because they are not on the same machine.
+事情变得更加复杂，因为它们不在同一台机器上。
+
+1087
+01:07:58,860 --> 01:08:00,060
+We are on different machines.
+我们在不同的机器上。
+
+1088
+01:08:00,490 --> 01:08:08,490
+And with an unreliable network can be doing dcp choosing what is
+在网络不稳定的情况下，进行动态连接性协议（DCP）选择可能会出现问题。
+
+1089
+01:08:08,500 --> 01:08:12,670
+called a sliding window protocol as a byte and not packet level.
+被称为滑动窗口协议，以字节而不是数据包为单位。
+
+1090
+01:08:14,910 --> 01:08:21,400
+And there are 22 types go back and is this a bit a hole
+有22种类型的回退，这是有点麻烦的。
+
+1091
+01:08:21,930 --> 01:08:24,250
+near and selectively be disappeared?
+附近和有选择性地消失？
+
+1092
+01:08:27,860 --> 01:08:28,570
+The star hall,
+星星大厅
+
+1093
+01:08:29,690 --> 01:08:30,970
+new reno and sack,
+新雷诺和萨克
+
+1094
+01:08:31,630 --> 01:08:35,660
+are the different types of pc ps.
+计算机有不同类型的电源吗？
+
+1095
+01:08:36,410 --> 01:08:38,410
+We are going to talk about more about them,
+我们将会更多地讨论它们。
+
+1096
+01:08:38,420 --> 01:08:40,780
+a little next lecture,
+下一节课会稍微讲一下。
+
+1097
+01:08:43,300 --> 01:08:44,480
+go back and meeting.
+回去开会。
+
+1098
+01:08:44,900 --> 01:08:45,870
+Here is a difference.
+这是一个区别。
+
+1099
+01:08:49,240 --> 01:08:50,630
+We explain the packet level.
+我们解释一下数据包级别。
+
+1100
+01:08:50,640 --> 01:08:51,390
+Before it's easier.
+以前更容易。
+
+1101
+01:08:51,400 --> 01:08:55,540
+I sent them packets.
+我发送了数据包给他们。
+
+1102
+01:08:57,830 --> 01:08:59,810
+And the 5/5 packet was lost.
+第5个数据包丢失了。
+
+1103
+01:09:01,390 --> 01:09:03,500
+The receiver gets the first four packets,
+接收方收到了前四个数据包。
+
+1104
+01:09:03,510 --> 01:09:05,260
+and then the last five packets,
+然后是最后五个数据包，
+
+1105
+01:09:05,430 --> 01:09:07,420
+1234, and 6789, 10.
+1234和6789，10。
+
+1106
+01:09:09,570 --> 01:09:10,290
+Please go back.
+请返回。
+
+1107
+01:09:10,300 --> 01:09:15,750
+And you are going to go back and resent from back at 5:00.
+你将返回并重新发送自5:00开始的消息。
+
+1108
+01:09:16,150 --> 01:09:17,870
+So i'm going to pretend five,
+所以我要假装是五岁的样子
+
+1109
+01:09:18,190 --> 01:09:19,980
+and 6789, 10,
+和 6789、10,
+
+1110
+01:09:19,990 --> 01:09:22,500
+despite the fact the 6798, 10,
+尽管事实是6798, 10,
+
+1111
+01:09:23,240 --> 01:09:27,080
+we have already received by the receipt by the spiders, by the recipient.
+我们已经通过蜘蛛收到了收据，通过收件人。
+
+1112
+01:09:29,990 --> 01:09:31,120
+So you miss something,
+所以你错过了一些东西，
+
+1113
+01:09:31,560 --> 01:09:33,640
+you restart from that missing packet,
+你从丢失的数据包重新开始。
+
+1114
+01:09:35,160 --> 01:09:39,070
+all the way selective repeat like the name implies.
+全程选择重传（Selective Repeat）正如其名称所示。
+
+1115
+01:09:39,320 --> 01:09:42,290
+If you lose a packet in our previous examples, a packet five,
+如果在我们之前的示例中丢失了一个数据包，例如第五个数据包，
+
+1116
+01:09:44,530 --> 01:09:45,720
+we send only back at five.
+我们只在五点之后回复。
+
+1117
+01:09:48,910 --> 01:09:51,470
+Why doesn't everyone implement selective repeat,
+为什么不是每个人都实现选择重传？
+
+1118
+01:09:51,480 --> 01:09:53,590
+which seems much easier,
+这似乎更容易，
+
+1119
+01:09:53,600 --> 01:09:55,510
+much in a much more efficient?
+更加高效的多？
+
+1120
+01:09:56,090 --> 01:09:57,360
+Because it's more complex.
+因为它更复杂。
+
+1121
+01:09:59,110 --> 01:10:02,750
+Go back and is my simple thing for all the less efficient.
+回溯并简化所有不高效的事情。
+
+1122
+01:10:05,580 --> 01:10:07,020
+Now is the dcp flow control.
+现在是数据通信协议的流量控制。
+
+1123
+01:10:07,030 --> 01:10:10,420
+The receiver tells us that how many more buys it can receive
+接收器告诉我们它还可以接收多少个购买请求。
+
+1124
+01:10:10,430 --> 01:10:11,900
+without overflowing this buffer.
+在不溢出缓冲区的情况下。
+
+1125
+01:10:13,910 --> 01:10:17,350
+I'm going to tell you I can receive 1 kilowatt.
+我要告诉你我可以接收1千瓦。
+
+1126
+01:10:20,320 --> 01:10:21,200
+And in some way,
+在某种程度上，
+
+1127
+01:10:21,210 --> 01:10:28,780
+this tells you that you can send me one kilobyte of data before you hear
+这告诉你，在你听到之前，你可以发送给我一千字节的数据。
+
+1128
+01:10:28,790 --> 01:10:30,220
+from me whether I receive anything.
+我是否收到任何东西。
+
+1129
+01:10:32,900 --> 01:10:33,230
+Right?
+对吗？
+
+1130
+01:10:33,710 --> 01:10:36,870
+Because you're now based on what I told you that I can get one kilobyte,
+因为根据我告诉你的信息，我可以得到一千字节。
+
+1131
+01:10:36,880 --> 01:10:41,720
+but because you cannot send me more to be before you hear from me that
+但是因为在听到我的回复之前你不能给我发送更多信息
+
+1132
+01:10:41,730 --> 01:10:42,600
+like you can send more.
+你可以发送更多。
+
+1133
+01:10:44,190 --> 01:10:45,150
+This is advertising.
+这是广告。
+
+1134
+01:10:47,480 --> 01:10:48,750
+Now, like I mentioned,
+现在，就像我之前提到的，
+
+1135
+01:10:49,320 --> 01:10:53,690
+for the pcp the protocol is not at the packet level as a byte level.
+对于PCP（Packet Copy Protocol），协议的操作不是在数据包级别，而是在字节级别。
+
+1136
+01:10:54,700 --> 01:10:58,490
+The acknowledgment as a recipient, i'm telling you,
+作为收件人的确认，我告诉你，
+
+1137
+01:10:59,070 --> 01:11:05,080
+i'm acknowledgment, contain the sequence number of a byte of the next byte.
+我明白了，确认消息中包含下一个字节的序列号。
+
+1138
+01:11:05,580 --> 01:11:06,870
+The receiver expects.
+接收方期望。
+
+1139
+01:11:09,960 --> 01:11:13,590
+This means that i'm telling you that acknowledgment contains a number,
+这意味着我告诉你确认包含一个数字。
+
+1140
+01:11:13,600 --> 01:11:15,230
+the sequence number 100.
+序列号为100。
+
+1141
+01:11:16,100 --> 01:11:17,300
+This means that I received,
+这意味着我收到了。
+
+1142
+01:11:17,310 --> 01:11:23,350
+i'm telling you implicitly that I received all the bytes up to 99.
+我在暗示你，我已经接收到了从第一个字节到第99个字节的所有数据。
+
+1143
+01:11:25,710 --> 01:11:26,510
+There is no gap.
+没有间隙。
+
+1144
+01:11:26,770 --> 01:11:28,090
+All of them up to a 99.
+所有的都达到了99分。
+
+1145
+01:11:33,060 --> 01:11:35,920
+And the sequence number is start to count.
+而且序列号开始计数。
+
+1146
+01:11:36,170 --> 01:11:39,140
+It's like, is from the fast first byte.
+就好像，是从第一个字节开始的。
+
+1147
+01:11:39,940 --> 01:11:42,390
+So the first byte, which will send up to the connection of that.
+所以第一个字节将发送到该连接。
+
+1148
+01:11:44,680 --> 01:11:45,010
+Right?
+对吗？
+
+1149
+01:11:50,430 --> 01:11:53,860
+This is a very simple diagram showing the sending process,
+这是一个非常简单的图示，展示了发送过程。
+
+1150
+01:11:53,870 --> 01:11:55,020
+the receiving process.
+接收进程。
+
+1151
+01:11:55,520 --> 01:11:57,180
+And the buffer are the receiver.
+缓冲区是接收者。
+
+1152
+01:12:00,590 --> 01:12:03,710
+The dcpip is implemented in the kernel.
+dcpip 在内核中实现。
+
+1153
+01:12:03,720 --> 01:12:04,430
+Remember,
+记住，
+
+1154
+01:12:05,050 --> 01:12:12,030
+what you discussed is about bsd unix bsd we said that
+你们讨论的是关于BSD Unix的内容，我们说过了。
+
+1155
+01:12:12,970 --> 01:12:20,870
+the dcpip is part of that was first implemented
+DCPIP是首次实施的一部分。
+
+1156
+01:12:20,880 --> 01:12:22,310
+in the bsdi think,
+在BSDI的观点中，
+
+1157
+01:12:22,320 --> 01:12:23,670
+4.3 version.
+4.3 版本。
+
+1158
+01:12:24,640 --> 01:12:29,140
+And it's part of your legacy is one of the biggest achievements
+这是你的遗产之一，也是最大的成就之一。
+
+1159
+01:12:30,210 --> 01:12:31,540
+in the open source software,
+在开源软件中，
+
+1160
+01:12:33,770 --> 01:12:34,720
+because that's internet.
+因为那就是互联网。
+
+1161
+01:12:41,090 --> 01:12:42,210
+Why do you do that?
+为什么你这样做？
+
+1162
+01:12:42,220 --> 01:12:42,810
+Also?
+还有什么其他问题吗？
+
+1163
+01:12:42,980 --> 01:12:45,570
+That is because you cannot do context switching.
+这是因为你无法进行上下文切换。
+
+1164
+01:12:45,900 --> 01:12:47,410
+You cannot do it application level again,
+你不能再在应用层面上做这个操作了。
+
+1165
+01:12:47,420 --> 01:12:50,930
+performance at one garbage per second.
+每秒处理一个垃圾的性能。
+
+1166
+01:12:51,720 --> 01:12:54,310
+Typically, the packers have been 1,500 bytes,
+通常情况下，打包程序的大小为1,500字节。
+
+1167
+01:12:54,960 --> 01:12:56,050
+the ip packets.
+IP数据包。
+
+1168
+01:12:56,970 --> 01:13:00,810
+This takes to send, like one garbage per second is 12 set of micro seconds.
+发送一个垃圾信息需要大约一秒钟的时间，即每秒钟发送12个微秒的垃圾信息。
+
+1169
+01:13:01,790 --> 01:13:04,000
+And if it's 100 bytes packets,
+如果是100字节的数据包，
+
+1170
+01:13:04,010 --> 01:13:06,420
+it's lesson on my one microsecond.
+这是我一微秒的课程。
+
+1171
+01:13:06,430 --> 01:13:08,580
+And by the way, one gap is per second is slow.
+顺便说一下，每秒一个间隔太慢了。
+
+1172
+01:13:09,250 --> 01:13:11,240
+Today we are talking about ten cabbies per second,
+今天我们要讨论每秒十辆出租车的问题。
+
+1173
+01:13:11,250 --> 01:13:12,680
+40 cabbies per second,
+每秒40辆出租车。
+
+1174
+01:13:13,050 --> 01:13:14,730
+100 cabbies per second connection.
+每秒连接100辆出租车。
+
+1175
+01:13:15,980 --> 01:13:17,170
+There is no way you can do context.
+你无法进行上下文处理。
+
+1176
+01:13:17,180 --> 01:13:19,090
+Switching starts that fast to send every packet,
+切换速度如此之快，以至于能够立即发送每个数据包。
+
+1177
+01:13:20,100 --> 01:13:21,510
+the application to send every packet.
+应用程序发送每个数据包。
+
+1178
+01:13:25,950 --> 01:13:28,150
+And actually,
+实际上，
+
+1179
+01:13:28,160 --> 01:13:29,590
+there is not only one buffer.
+不只有一个缓冲区。
+
+1180
+01:13:29,600 --> 01:13:31,030
+There are multiple buffers.
+有多个缓冲区。
+
+1181
+01:13:31,040 --> 01:13:34,750
+There is a buffer, which is between the process and in process.
+有一个缓冲区，位于进程和正在进行的过程之间。
+
+1182
+01:13:35,570 --> 01:13:36,480
+The piano.
+钢琴。
+
+1183
+01:13:37,500 --> 01:13:40,010
+Again, you cannot have contact switching on every packet.
+再次强调，你不能在每个数据包上都进行上下文切换。
+
+1184
+01:13:41,450 --> 01:13:46,930
+Then it's between the receiving operating system that the operating system
+在这种情况下，操作系统之间的通信是在接收操作系统之间进行的。
+
+1185
+01:13:46,940 --> 01:13:49,610
+on the receiving force and the receiving process.
+关于接收力和接收过程。
+
+1186
+01:13:50,270 --> 01:13:52,720
+And then you have a buffer actually,
+然后你实际上有一个缓冲区，
+
+1187
+01:13:57,150 --> 01:14:01,510
+between the two hosts as atcpiip level, the transport level.
+在两个主机之间，TCP/IP协议栈的传输层起到了重要的作用。
+
+1188
+01:14:05,900 --> 01:14:11,150
+There is a buffer that operating system on the recipient cost is maintaining,
+接收方操作系统维护着一个缓冲区。
+
+1189
+01:14:11,580 --> 01:14:14,780
+you get the packets from the sending post.
+你从发送端获取数据包。
+
+1190
+01:14:18,320 --> 01:14:20,880
+So here it's in more details how things that happen.
+这里更详细地描述了事情发生的过程。
+
+1191
+01:14:21,770 --> 01:14:22,990
+You have this buffer here,
+你这里有一个缓冲区。
+
+1192
+01:14:23,000 --> 01:14:24,390
+and you have this buffer here.
+你在这里有一个缓冲区。
+
+1193
+01:14:25,260 --> 01:14:26,930
+You see me at the end,
+你在最后看到我，
+
+1194
+01:14:26,940 --> 01:14:28,050
+host and whispering host.
+主机和悄悄主机。
+
+1195
+01:14:29,110 --> 01:14:33,730
+And but I tell you,
+但是我告诉你，
+
+1196
+01:14:33,740 --> 01:14:37,990
+so you have the state buyers to produce our consumers sending process,
+所以您有国家采购商来生产我们的消费者发送过程，
+
+1197
+01:14:38,460 --> 01:14:43,650
+sending pcb sending dcp receiving pcb receiving dcp receiving process.
+发送进程控制块（PCB），发送数据控制块（DCP），接收进程控制块（PCB），接收数据控制块（DCP），接收进程。
+
+1198
+01:14:48,530 --> 01:14:51,360
+Let's take up of these examples.
+让我们来看看这些例子。
+
+1199
+01:14:53,440 --> 01:14:56,790
+They say the maximal ip packet size is 100 bytes.
+他们说最大的IP数据包大小是100字节。
+
+1200
+01:14:58,560 --> 01:15:01,310
+The size of the receiving buffer is the receiving buffer,
+接收缓冲区的大小是指接收缓冲区的容量。
+
+1201
+01:15:02,130 --> 01:15:03,670
+is 300 by bytes.
+是以字节为单位的300。
+
+1202
+01:15:05,250 --> 01:15:10,140
+Recall, the acknowledgment indicates the next expected byte in sequence,
+回顾一下，确认信息表示下一个预期的字节序号。
+
+1203
+01:15:10,150 --> 01:15:12,260
+not the last recite received byte.
+不是最后接收的字节。
+
+1204
+01:15:14,120 --> 01:15:16,470
+We assume that these are circular buffers.
+我们假设这些是循环缓冲区。
+
+1205
+01:15:17,840 --> 01:15:19,270
+What is a circular buffer?
+什么是循环缓冲区？
+
+1206
+01:15:20,670 --> 01:15:28,300
+A buffer has a size of n you may have an infinite sequence of bytes
+一个缓冲区的大小为n，你可能有一个无限字节序列。
+
+1207
+01:15:29,510 --> 01:15:31,010
+and a bite.
+还有一口。
+
+1208
+01:15:33,250 --> 01:15:42,320
+We sequence number k is stored in a location with the index k mod and+1 in
+我们将序列号k存储在索引为k mod (n+1)的位置上。
+
+1209
+01:15:42,330 --> 01:15:42,760
+the buffer.
+缓冲区。
+
+1210
+01:15:44,920 --> 01:15:46,430
+This is a for example,
+这是一个例子，
+
+1211
+01:15:46,440 --> 01:15:49,990
+these are sequence numbers of hello world.
+这些是"Hello World"的序列号。
+
+1212
+01:15:51,640 --> 01:15:54,690
+So say, age is a sequence number 27.
+所以说，年龄是一个序列号为27的数字。
+
+1213
+01:15:55,770 --> 01:16:00,920
+And l the last l is sequence number 76.
+最后一个L的序列号是76。
+
+1214
+01:16:01,980 --> 01:16:05,650
+And the buffer has only ten entries.
+缓冲区只有十个条目。
+
+1215
+01:16:07,120 --> 01:16:07,500
+Right?
+对吗？
+
+1216
+01:16:08,500 --> 01:16:10,050
+Then this is how you map it.
+那么这是你如何进行映射的方式。
+
+1217
+01:16:11,710 --> 01:16:18,370
+27 is 27 mod n it's seven,
+27是27除以n的余数，它是七。
+
+1218
+01:16:18,740 --> 01:16:21,850
+because any stand and+1, it's eight.
+因为任何数加1，结果都是八。
+
+1219
+01:16:23,040 --> 01:16:24,230
+So n plus,
+所以n加上，
+
+1220
+01:16:25,240 --> 01:16:26,150
+was it so sorry?
+很抱歉吗？
+
+1221
+01:16:26,660 --> 01:16:28,220
+This is age.
+这是年龄。
+
+1222
+01:16:28,230 --> 01:16:31,080
+We are looking at e which is sequence number 28,
+我们正在查看序列号为28的e。
+
+1223
+01:16:31,090 --> 01:16:34,440
+sequence number twenty eight twenty eight, more ten,
+序列号二八二八，再加十，
+
+1224
+01:16:35,290 --> 01:16:36,280
++1 is mine.
++1 是我的。
+
+1225
+01:16:39,500 --> 01:16:48,680
+This is how this data is a buffer data from e to r the blue,
+这是从e到r的蓝色数据的缓冲数据。
+
+1226
+01:16:48,690 --> 01:16:50,880
+which is in blue, shown in blue,
+是蓝色的，以蓝色显示的
+
+1227
+01:16:51,490 --> 01:16:53,970
+is a buffer in the simpler buffer.
+一个简单的缓冲区中有一个缓冲区。
+
+1228
+01:17:04,010 --> 01:17:04,210
+Initially,
+最初，
+
+1229
+01:17:05,970 --> 01:17:11,520
+we are going to have a bunch of variables which. two different
+我们将会有一堆变量，其中两个是不同的。
+
+1230
+01:17:11,530 --> 01:17:12,320
+things in the buffer,
+缓冲区中的内容
+
+1231
+01:17:13,510 --> 01:17:15,050
+three on the sending part,
+发送端的三个部分，
+
+1232
+01:17:15,620 --> 01:17:16,780
+three on the receiving part.
+接收方有三个。
+
+1233
+01:17:18,500 --> 01:17:20,100
+You have last bite to be done,
+你还剩最后一口要吃完了，
+
+1234
+01:17:20,820 --> 01:17:23,060
+which is the last byte written by sending process.
+发送进程写入的最后一个字节是哪个？
+
+1235
+01:17:24,130 --> 01:17:26,520
+Last by scent is a last byte,
+"Last by scent is a last byte" 可以翻译为 "最后一位是最后一个字节"。
+
+1236
+01:17:26,860 --> 01:17:29,120
+send by sender to the receiver.
+发送者发送给接收者。
+
+1237
+01:17:29,870 --> 01:17:35,890
+Last byte act is a last act byte by the receiver is a sender.
+"Last byte act" 是接收方的最后一个字节行为，由发送方完成。
+
+1238
+01:17:37,020 --> 01:17:40,450
+Last byte received now is on the receiving side.
+现在接收端已经收到了最后一个字节。
+
+1239
+01:17:41,050 --> 01:17:43,730
+Is the last bite received by the receiver from sender.
+接收方是否收到了发送方的最后一个字节。
+
+1240
+01:17:44,300 --> 01:17:49,250
+Next bite expected is the last in sequence byte expected by receiver.
+接收方期望的下一个字节是序列中的最后一个字节。
+
+1241
+01:17:57,280 --> 01:18:02,890
+And the last byte read is the last bite read by the receiving process.
+最后一个字节读取是接收进程读取的最后一个字节。
+
+1242
+01:18:05,340 --> 01:18:07,060
+Actually, for the next byte expected,
+实际上，对于下一个预期的字节，
+
+1243
+01:18:07,070 --> 01:18:10,060
+this should be the next in sequence by the expected by the cigarette,
+这应该是根据香烟的预期顺序的下一个。
+
+1244
+01:18:10,570 --> 01:18:11,140
+not last.
+不是最后的。
+
+1245
+01:18:17,300 --> 01:18:17,890
+Okay.
+好的。
+
+1246
+01:18:18,360 --> 01:18:22,230
+Now the advertised window is a number of bytes like we decide the disappear
+现在，广告窗口的大小是以字节为单位的，就像我们决定的那样消失。
+
+1247
+01:18:22,240 --> 01:18:23,430
+receiver can receive.
+接收方可以接收。
+
+1248
+01:18:24,710 --> 01:18:25,650
+So what is this one?
+这是什么？
+
+1249
+01:18:27,670 --> 01:18:29,100
+Let's say with blue here,
+假设我们用蓝色来表示这里，
+
+1250
+01:18:29,470 --> 01:18:34,490
+a is a bite which are already in the receiving the receiver buffer.
+a 是一个已经在接收缓冲区中的字节。
+
+1251
+01:18:36,440 --> 01:18:39,150
+The advertising window is a maximum receive buffer.
+广告窗口是一个最大接收缓冲区。
+
+1252
+01:18:39,160 --> 01:18:46,690
+It's a maximum buffer size minus the last bite
+这是最大缓冲区大小减去最后一个字节。
+
+1253
+01:18:46,700 --> 01:18:51,480
+received this one,
+收到了这个。
+
+1254
+01:18:52,260 --> 01:18:58,230
+and the difference between the last byte received and last by thread.
+最后一个字节接收到的值与最后一个线程接收到的值之间的差异。
+
+1255
+01:18:58,940 --> 01:18:59,370
+Right?
+对吗？
+
+1256
+01:18:59,380 --> 01:19:00,930
+So basically, this is,
+基本上，这是...
+
+1257
+01:19:01,790 --> 01:19:06,220
+You need to subtract from the maximum received buffer.
+你需要从最大接收缓冲区中减去。
+
+1258
+01:19:06,230 --> 01:19:08,300
+So from the buffer size of the receiver,
+从接收器的缓冲区大小来看，
+
+1259
+01:19:08,990 --> 01:19:12,910
+how many bytes are still in the buffer,
+缓冲区中还剩多少字节？
+
+1260
+01:19:13,430 --> 01:19:16,870
+which are not yet read by the receiving process?
+还没有被接收进程读取的是哪些？
+
+1261
+01:19:20,770 --> 01:19:26,120
+On the sending process side is similar to you have a sender window,
+在发送进程的一侧，类似于你有一个发送窗口，
+
+1262
+01:19:26,840 --> 01:19:29,800
+which is a number of buys atcp sender can send.
+这是ATCP发送方可以发送的购买数量。
+
+1263
+01:19:31,220 --> 01:19:41,020
+And the center window is advertised window minus last by cent,
+中心窗口是广告窗口减去最后一个百分比。
+
+1264
+01:19:41,030 --> 01:19:42,420
+minus last by act.
+减去最后一个操作。
+
+1265
+01:19:43,460 --> 01:19:44,570
+Intuitively,
+直观地说，
+
+1266
+01:19:44,580 --> 01:19:48,550
+this means that I can send as a sender.
+这意味着我可以作为发送者发送信息。
+
+1267
+01:19:48,560 --> 01:19:52,220
+I can send a number of bytes,
+我可以发送一定数量的字节。
+
+1268
+01:19:52,990 --> 01:19:58,100
+which is by subtracting what you told me that you can receive,
+这是通过减去你告诉我的你可以接收的内容来实现的。
+
+1269
+01:19:58,820 --> 01:19:59,930
+what I always send,
+我总是发送的内容
+
+1270
+01:19:59,940 --> 01:20:01,210
+I haven't heard from it.
+我还没有收到任何消息。
+
+1271
+01:20:03,360 --> 01:20:05,490
+And I'm finishing with this example.
+我完成了这个例子。
+
+1272
+01:20:05,790 --> 01:20:08,980
+Say you told me the advertising window is one kilobyte.
+你告诉我广告窗口的大小是一千字节。
+
+1273
+01:20:10,090 --> 01:20:13,670
+And since you told me that the advertising window is one kilobyte,
+既然你告诉我广告窗口大小是一千字节，
+
+1274
+01:20:14,280 --> 01:20:16,660
+I send you 100 bytes.
+我给你发送了100字节的数据。
+
+1275
+01:20:18,650 --> 01:20:23,530
+How many more bytes I can send you without hearing from the answer?
+在收到答案之前，您还可以发送多少字节的信息？
+
+1276
+01:20:23,850 --> 01:20:24,690
+It's 900.
+是900。
+
+1277
+01:20:26,300 --> 01:20:26,710
+Right?
+对吗？
+
+1278
+01:20:27,880 --> 01:20:32,410
+So that's basically what the center window tries to capture.
+这基本上就是中心窗口试图捕捉的内容。
+
+1279
+01:20:34,760 --> 01:20:35,390
+Is this.
+这是吗？
+
+1280
+01:20:36,680 --> 01:20:38,190
+I'm going to stop here.
+我要停在这里了。
+
+1281
+01:20:38,870 --> 01:20:41,780
+And this materials we've done in this lecture,
+这节课我们完成了以下的教材内容：
+
+1282
+01:20:42,360 --> 01:20:43,880
+you'll be part of the midterm.
+你将参加期中考试。
+
+1283
+01:20:44,810 --> 01:20:50,250
+And again, best of luck with everything and happy sensitive area.
+祝你一切顺利，愉快的敏感区域。
+

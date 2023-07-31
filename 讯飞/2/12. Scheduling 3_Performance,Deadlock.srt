@@ -1,602 +1,747 @@
-﻿1
+1
 00:00:22,760 --> 00:00:23,790
 Hello, everyone.
+大家好。
 
 2
 00:00:24,340 --> 00:00:30,270
-So today we are going to finish the discussion on scheduling, 
+So today we are going to finish the discussion on scheduling,
+今天我们将结束关于调度的讨论。
 
 3
 00:00:31,080 --> 00:00:34,320
-and then we are going to start the discussion on deadlocks. 
+and then we are going to start the discussion on deadlocks.
+然后我们将开始讨论死锁问题。
 
 4
 00:00:39,800 --> 00:00:41,640
-So last time, 
+So last time,
+上次，
 
 5
 00:00:41,650 --> 00:00:45,200
-we discussed quite a bit about a few scheduling disciplines. 
+we discussed quite a bit about a few scheduling disciplines.
+我们对几种调度策略进行了相当多的讨论。
 
 6
 00:00:46,540 --> 00:00:50,310
 If you remember one scheduling disciplines which has been
+如果你记得一个已经被使用的调度策略的话，那就是
 
 7
 00:00:50,320 --> 00:00:52,900
-very popular and it's still popular, 
+very popular and it's still popular,
+非常受欢迎，而且仍然很受欢迎。
 
 8
 00:00:53,660 --> 00:00:56,100
-it's priority scheduling. 
+it's priority scheduling.
+这是优先级调度。
 
 9
 00:00:57,650 --> 00:01:00,380
-And one of the reason it's popular, 
+And one of the reason it's popular,
+它受欢迎的原因之一是，
 
 10
 00:01:00,390 --> 00:01:01,780
-it's very simple. 
+it's very simple.
+这很简单。
 
 11
 00:01:03,040 --> 00:01:05,560
 The pure priority scheduling, if you remember,
+纯优先级调度，如果你还记得的话，
 
 12
 00:01:06,250 --> 00:01:08,650
-you have different levels of priorities, 
+you have different levels of priorities,
+你有不同的优先级级别，
 
 13
 00:01:08,660 --> 00:01:13,910
-and you always start from the highest priority. 
+and you always start from the highest priority.
+你总是从最高优先级开始。
 
 14
 00:01:14,470 --> 00:01:18,660
-And then you run the jobs at the highest priority. 
+And then you run the jobs at the highest priority.
+然后你以最高优先级运行作业。
 
 15
 00:01:19,110 --> 00:01:21,460
-Only after you are done with those jobs, 
+Only after you are done with those jobs,
+只有在你完成了那些工作之后，
 
 16
 00:01:22,640 --> 00:01:25,240
-you can go to the lower priority. 
+you can go to the lower priority.
+你可以降低优先级。
 
 17
 00:01:31,010 --> 00:01:33,090
-One obvious question is desperate, 
+One obvious question is desperate,
+一个明显的问题是绝望的，
 
 18
 00:01:33,100 --> 00:01:34,570
-privatizing some jobs, 
+privatizing some jobs,
+私有化一些工作岗位
 
 19
 00:01:34,580 --> 00:01:37,610
-necessarily start up those that aren't prioritized. 
+necessarily start up those that aren't prioritized.
+不一定启动那些没有优先级的程序。
 
 20
 00:01:38,870 --> 00:01:42,840
-So do higher priority jobs, 
+So do higher priority jobs,
+所以优先级较高的任务，
 
 21
 00:01:43,500 --> 00:01:46,070
-necessarily start of lower priority jobs. 
+necessarily start of lower priority jobs.
+不一定要立即开始执行优先级较低的任务。
 
 22
 00:01:47,520 --> 00:01:53,470
-And this is what we are going to talk a little bit about here. 
+And this is what we are going to talk a little bit about here.
+这是我们要在这里稍微谈一下的内容。
 
 23
 00:01:54,480 --> 00:02:02,130
 And what kind of clicks you can do to
+您可以执行哪些点击操作？
 
 24
 00:02:02,140 --> 00:02:04,690
-priority scheduling to avoid starvation, 
+priority scheduling to avoid starvation,
+优先级调度以避免饥饿问题。
 
 25
 00:02:05,300 --> 00:02:05,500
-right? 
+right?
+对的？
 
 26
 00:02:05,510 --> 00:02:08,950
-Because is if you remember, 
+Because is if you remember,
+因为如果你记得的话，
 
 27
 00:02:10,370 --> 00:02:14,300
-if you have always high priority jobs, 
+if you have always high priority jobs,
+如果你总是有高优先级的工作任务，
 
 28
 00:02:14,920 --> 00:02:19,370
-then you'll never serve the low priority job jobs. 
+then you'll never serve the low priority job jobs.
+那么你将永远不会为低优先级的作业提供服务。
 
 29
 00:02:19,380 --> 00:02:20,490
 So there, therefore,
+所以，因此，
 
 30
 00:02:20,500 --> 00:02:23,650
-you are going to start to starve the low priority jobs. 
+you are going to start to starve the low priority jobs.
+你将开始饿死低优先级的任务。
 
 31
 00:02:30,050 --> 00:02:33,240
-Let's look through some of these mechanisms. 
+Let's look through some of these mechanisms.
+让我们来看一下这些机制。
 
 32
 00:02:34,170 --> 00:02:34,840
-On mechanics, 
+On mechanics,
+关于力学，
 
 33
 00:02:35,530 --> 00:02:39,600
-it's an api which is provided by early unique systems, 
+it's an api which is provided by early unique systems,
+这是由早期Unique Systems提供的API。
 
 34
 00:02:40,040 --> 00:02:41,450
-which is called nice. 
+which is called nice.
+这被称为nice。
 
 35
 00:02:44,410 --> 00:02:45,070
-This, 
+This,
+这个，
 
 36
 00:02:45,610 --> 00:02:46,880
-as the name implies, 
+as the name implies,
+正如其名所示，
 
 37
 00:02:47,370 --> 00:02:51,450
-it allows you as a user to be nice to others, 
+it allows you as a user to be nice to others,
+它允许你作为用户对他人友善，
 
 38
 00:02:51,970 --> 00:02:56,310
 the way you are going to be nice to others is by lowering the priority
+你对他人友善的方式是降低优先级。
 
 39
 00:02:56,320 --> 00:03:01,230
-of your job of your application. 
+of your job of your application.
+关于你的工作申请的职责。
 
 40
 00:03:05,210 --> 00:03:06,600
-In the case of unix, 
+In the case of unix,
+在Unix的情况下，
 
 41
 00:03:06,960 --> 00:03:10,440
-lower values of priorities mean high priority. 
+lower values of priorities mean high priority.
+优先级较低的值意味着较高的优先级。
 
 42
 00:03:11,610 --> 00:03:16,600
-And is a nice value ranges from my-20 to 19. 
+And is a nice value ranges from my-20 to 19.
+nice值的范围从我的-20到19。
 
 43
 00:03:17,740 --> 00:03:19,810
-Negative value values are not nice. 
+Negative value values are not nice.
+负数的值不好。
 
 44
 00:03:23,020 --> 00:03:24,070
-In order to be nice, 
+In order to be nice,
+为了友善起见，
 
 45
 00:03:24,080 --> 00:03:27,430
-you can increase this value, 
+you can increase this value,
+你可以增加这个值，
 
 46
 00:03:28,270 --> 00:03:29,550
-which means lower product. 
+which means lower product.
+这意味着更低的产品。
 
 47
 00:03:31,620 --> 00:03:31,980
-Okay? 
+Okay?
+好的？
 
 48
 00:03:33,180 --> 00:03:39,900
-So that's very interesting. 
+So that's very interesting.
+这非常有趣。
 
 49
 00:03:41,890 --> 00:03:43,880
-Now a few words about linux. 
+Now a few words about linux.
+现在来谈谈Linux。
 
 50
 00:03:43,890 --> 00:03:47,380
-Let's see how linux the basic scheduler is. 
+Let's see how linux the basic scheduler is.
+让我们来看看Linux的基本调度器是如何工作的。
 
 51
 00:03:48,620 --> 00:03:50,240
-It's organized and it's implemented. 
+It's organized and it's implemented.
+它被组织起来并且被实现了。
 
 52
 00:03:51,340 --> 00:03:54,070
-So you have 140 priorities. 
+So you have 140 priorities.
+所以你有140个优先级。
 
 53
 00:03:54,880 --> 00:03:59,730
-The first 100 are for the kernel and the real time tasks. 
+The first 100 are for the kernel and the real time tasks.
+前100个用于内核和实时任务。
 
 54
 00:04:00,790 --> 00:04:03,480
 Again, the real time task are the one who are predictable.
+实时任务是可预测的任务。
 
 55
 00:04:03,490 --> 00:04:04,830
-You want to be predictable. 
+You want to be predictable.
+你希望是可预测的。
 
 56
 00:04:06,760 --> 00:04:12,560
-And then the last 40 are for the user tasks. 
+And then the last 40 are for the user tasks.
+然后最后的40个是给用户任务使用的。
 
 57
 00:04:20,170 --> 00:04:21,320
-And, 
+And,
+而且，
 
 58
 00:04:22,540 --> 00:04:24,060
 again, lower priority values,
+再次，较低的优先级值，
 
 59
 00:04:24,070 --> 00:04:25,220
-it means higher priority. 
+it means higher priority.
+它的意思是较高的优先级。
 
 60
 00:04:27,100 --> 00:04:30,410
-And the algorithm is all fun of fun complexity, 
+And the algorithm is all fun of fun complexity,
+而且该算法的复杂度非常有趣。
 
 61
 00:04:30,420 --> 00:04:37,180
-meaning that it takes constant time to select the next process to run. 
+meaning that it takes constant time to select the next process to run.
+这意味着选择下一个要运行的进程所需的时间是恒定的。
 
 62
 00:04:40,940 --> 00:04:45,880
-And you also have time slices. 
+And you also have time slices.
+而且你还有时间片。
 
 63
 00:04:45,890 --> 00:04:47,480
-So its preemptive scheduler, 
+So its preemptive scheduler,
+所以它是抢占式调度器，
 
 64
 00:04:48,700 --> 00:04:50,130
-a job or a process doesn't, 
+a job or a process doesn't,
+一个工作或一个进程不会，
 
 65
 00:04:50,140 --> 00:04:54,370
-and to completion is going to be interrupted when his time slice expires. 
+and to completion is going to be interrupted when his time slice expires.
+当时间片到期时，进程的执行将被中断。
 
 66
 00:04:55,450 --> 00:04:58,460
-There is also a 140 bit bit mask, 
+There is also a 140 bit bit mask,
+还有一个140位的位掩码。
 
 67
 00:04:59,320 --> 00:05:03,240
-which indicates the presence or absence of a job at the given priority level. 
+which indicates the presence or absence of a job at the given priority level.
+这表示给定优先级级别上是否存在作业。
 
 68
 00:05:04,090 --> 00:05:05,900
-So why do you have that bit mask? 
+So why do you have that bit mask?
+那么为什么你要使用那个位掩码？
 
 69
 00:05:08,780 --> 00:05:09,200
-Right? 
+Right?
+对吗？
 
 70
 00:05:14,630 --> 00:05:21,110
 The reason you have that this mask is that think about you want to be
+你戴上这个面具的原因是因为你想成为什么样的人。
 
 71
 00:05:21,120 --> 00:05:22,430
 very quick and you select the
+非常迅速，您可以选择。
 
 72
 00:05:22,440 --> 00:05:24,780
-next job to our next process to run. 
+next job to our next process to run.
+下一个任务是运行我们的下一个进程。
 
 73
 00:05:25,840 --> 00:05:29,860
-Now assume that you have two processes in the system, 
+Now assume that you have two processes in the system,
+现在假设你的系统中有两个进程，
 
 74
 00:05:29,870 --> 00:05:37,040
 one process that priority is zero plus the priority one thirty nine o k
+一个优先级为零的进程加上优先级为一百三十九的进程，好的。
 
 75
 00:05:39,590 --> 00:05:44,430
-so once you finish to run the process of priority zero, 
+so once you finish to run the process of priority zero,
+那么一旦你完成了优先级为零的进程的运行，
 
 76
 00:05:44,440 --> 00:05:47,550
-you need to run the process as a priority to 139. 
+you need to run the process as a priority to 139.
+你需要将进程的优先级设置为139。
 
 77
 00:05:48,990 --> 00:05:51,760
-But you need to find that process, 
+But you need to find that process,
+但是你需要找到那个进程，
 
 78
 00:05:53,330 --> 00:05:54,040
-that process. 
+that process.
+那个进程。
 
 79
 00:05:55,210 --> 00:05:59,910
-And the simple implementation is to have a list of priorities. 
+And the simple implementation is to have a list of priorities.
+简单的实现方式是使用一个优先级列表。
 
 80
 00:06:00,250 --> 00:06:06,580
-And each head of that of for each item in this priority list, 
+And each head of that of for each item in this priority list,
+对于这个优先级列表中的每个项目，每个头部都是这样的。
 
 81
 00:06:06,590 --> 00:06:09,120
-it's a list of processes that are priority. 
+it's a list of processes that are priority.
+这是一个优先级进程的列表。
 
 82
 00:06:11,060 --> 00:06:13,250
 Now, you start from zero,
+现在，你从零开始，
 
 83
 00:06:13,260 --> 00:06:15,050
-and you are done with the process. 
+and you are done with the process.
+你已经完成了这个过程。
 
 84
 00:06:16,100 --> 00:06:18,050
-Now you have to go to next one, 
+Now you have to go to next one,
+现在你需要去下一个。
 
 85
 00:06:18,060 --> 00:06:22,170
 which is the next level and the next level and the next level until you get
+直到你达到下一个级别，再达到下一个级别，再达到下一个级别。
 
 86
 00:06:22,180 --> 00:06:24,690
-139 in order to find the next processor. 
+139 in order to find the next processor.
+为了找到下一个处理器，需要使用139。
 
 87
 00:06:26,520 --> 00:06:27,740
-If you have a bit mask, 
+If you have a bit mask,
+如果你有一个位掩码，
 
 88
 00:06:28,650 --> 00:06:30,300
-then basically the bit mask, 
+then basically the bit mask,
+基本上，位掩码是一种用于操作和检查二进制数据的技术。
 
 89
 00:06:30,310 --> 00:06:33,420
-i'm just going to look at the bit mask which is 140 bits. 
+i'm just going to look at the bit mask which is 140 bits.
+我只是要查看一个包含140位的位掩码。
 
 90
 00:06:34,490 --> 00:06:39,140
 The bit mass will say that the next automatic will say that only there are
+位数质量将表明下一个自动将只有
 
 91
 00:06:39,550 --> 00:06:42,310
-processes active at level, 
+processes active at level,
+在该级别上活动的进程数
 
 92
 00:06:43,050 --> 00:06:44,420
-priority level on 39. 
+priority level on 39.
+39的优先级水平。
 
 93
 00:06:45,730 --> 00:06:47,680
-In between there is no process active. 
+In between there is no process active.
+在这之间没有活动的进程。
 
 94
 00:06:48,180 --> 00:06:50,960
 The beats in the bit mascot, not set.
+比特吉祥物中的节拍没有设置。
 
 95
 00:06:51,480 --> 00:06:52,530
-So it's very easy to do. 
+So it's very easy to do.
+所以这很容易做到。
 
 96
 00:06:54,000 --> 00:07:02,000
 The other thing which is doing is that you have two
+另一件事情是你有两个
 
 97
 00:07:02,910 --> 00:07:07,480
-priority queues in terms of for active processes, 
+priority queues in terms of for active processes,
+就活跃进程而言，优先级队列是一种数据结构。
 
 98
 00:07:07,490 --> 00:07:11,080
-the processes that you have to start to. 
+the processes that you have to start to.
+你需要启动的进程。
 
 99
 00:07:11,330 --> 00:07:15,550
-They are still to run and then expire. 
+They are still to run and then expire.
+它们仍然需要运行，然后过期。
 
 100
 00:07:16,280 --> 00:07:19,240
-Processes expire means after you are going to run a process, 
+Processes expire means after you are going to run a process,
+进程过期意味着在你要运行一个进程之前，
 
 101
 00:07:20,070 --> 00:07:22,980
-you are going to put it in the expired. 
+you are going to put it in the expired.
+你将把它放在过期的位置。
 
 102
 00:07:25,990 --> 00:07:32,420
-And then once you are done with all the processes in the active queue, 
+And then once you are done with all the processes in the active queue,
+然后一旦你完成了活动队列中的所有进程，
 
 103
 00:07:34,000 --> 00:07:35,710
-the active queue is empty. 
+the active queue is empty.
+活动队列为空。
 
 104
 00:07:36,950 --> 00:07:38,400
-You just switch, 
+You just switch,
+你只需要切换，
 
 105
 00:07:39,170 --> 00:07:41,730
 be expired, so active become expired,
+已过期，因此活动已过期。
 
 106
 00:07:41,740 --> 00:07:44,430
-q and expired becomes the active. 
+q and expired becomes the active.
+q和expired变为活动状态。
 
 107
 00:07:45,070 --> 00:07:45,780
-You swap them. 
+You swap them.
+你交换它们。
 
 108
 00:07:47,540 --> 00:07:52,930
-This is what an example you go through the active queues. 
+This is what an example you go through the active queues.
+这是一个你遍历活动队列的示例。
 
 109
 00:07:52,940 --> 00:07:54,970
 You have here, all these priorities,
+你在这里有所有这些优先级。
 
 110
 00:07:56,570 --> 00:07:59,020
-each task with its own priorities. 
+each task with its own priorities.
+每个任务都有自己的优先级。
 
 111
 00:08:01,550 --> 00:08:07,610
-And once you are done with all the tasks from the active cure, 
+And once you are done with all the tasks from the active cure,
+完成所有来自活动治疗的任务后，
 
 112
 00:08:07,620 --> 00:08:13,070
-you are going to put them all in the expire queue. 
+you are going to put them all in the expire queue.
+你将把它们全部放入到过期队列中。
 
 113
 00:08:14,100 --> 00:08:19,750
-And then you are just going to swap they expired you with around you. 
+And then you are just going to swap they expired you with around you.
+然后你只需要将过期的他们与你周围的人交换。
 
 114
 00:08:21,960 --> 00:08:22,870
-Any questions? 
+Any questions?
+有任何问题吗？
 
 115
 00:08:30,950 --> 00:08:34,460
-And then in order to avoid kind of starvation, 
+And then in order to avoid kind of starvation,
+为了避免饥饿现象，
 
 116
 00:08:34,470 --> 00:08:36,740
 like we discussed last time, there are many holistics.
+像我们上次讨论的那样，有很多整体性的问题。
 
 117
 00:08:38,020 --> 00:08:41,180
 Like you, if a task is aisle bound,
+如果一个任务是限定在过道范围内的，就像你一样，
 
 118
 00:08:41,990 --> 00:08:44,600
-you try to boost this priority to increase its priority. 
+you try to boost this priority to increase its priority.
+你尝试提升这个优先级以增加它的优先级。
 
 119
 00:08:45,980 --> 00:08:47,590
-If a task running for too long, 
+If a task running for too long,
+如果一个任务运行时间过长，
 
 120
 00:08:47,600 --> 00:08:50,480
-you are going to lower like its priority. 
+you are going to lower like its priority.
+你打算降低它的优先级。
 
 121
 00:08:58,080 --> 00:09:00,080
 More precisely, here is a list of holistics.
+更准确地说，这是一个整体清单。
 
 122
 00:09:00,090 --> 00:09:07,540
 The user task priority is adjusted in
+用户任务的优先级被调整了。
 
 123
 00:09:09,450 --> 00:09:12,530
-+-5 increments. 
++-5 increments.
++-5增量。
 
 124
 00:09:14,220 --> 00:09:14,730
 It's, again,
+又是，
 
 125
 00:09:14,740 --> 00:09:21,640
-you have the user task priorities between one hundred and one hundred seventy nine. 
+you have the user task priorities between one hundred and one hundred seventy nine.
+你的用户任务优先级在100到179之间。
 
 126
 00:09:23,420 --> 00:09:25,980
-And basically, 
+And basically,
+基本上，
 
 127
 00:09:25,990 --> 00:09:28,380
 you are going to update it, like, for instance,
+你将要更新它，例如，
 
 128
 00:09:31,770 --> 00:09:34,030
-if the sleep time and a run time, 
+if the sleep time and a run time,
+如果有睡眠时间和运行时间，
 
 129
 00:09:36,890 --> 00:09:41,440
 if the process lives much longer than it runs, you increase this priority.
+如果进程的生存时间远远超过运行时间，你会增加其优先级。
 
 130
 00:09:42,950 --> 00:09:45,020
-This is probably because it's an aisle bound task. 
+This is probably because it's an aisle bound task.
+这可能是因为它是一个有限制的任务。
 
 131
 00:09:46,650 --> 00:09:48,070
-If he's running for a long time, 
+If he's running for a long time,
+如果他一直在运行，
 
 132
 00:09:48,080 --> 00:09:49,510
-you are going to decrease disparage. 
+you are going to decrease disparage.
+你将减少贬低。
 
 133
 00:09:49,730 --> 00:09:50,950
-And if he doesn't sleep at all, 
+And if he doesn't sleep at all,
+如果他根本不睡觉的话，
 
 134
 00:09:59,060 --> 00:10:01,210
 again, if you task it for a long time,
+再次，如果你长时间执行这个任务，
 
 135
 00:10:01,220 --> 00:10:02,650
-you are going to a cure credit, 
+you are going to a cure credit,
+你要去办理信用卡吗？
 
 136
 00:10:02,660 --> 00:10:04,330
-you are going to increase a priority. 
+you are going to increase a priority.
+你要增加一个优先级。
 
 137
 00:10:05,030 --> 00:10:07,510
 When he's going to run, you are going to spend this credit.
+当他要去跑步时，你将会花费这个学分。
 
 138
 00:10:07,520 --> 00:10:10,500
-You're going to decrease this priority if it's running for too long. 
+You're going to decrease this priority if it's running for too long.
+如果运行时间过长，你将降低这个优先级。
 
 139
 00:10:16,800 --> 00:10:18,450
-And for interactive tasks, 
+And for interactive tasks,
+而对于交互式任务，
 
 140
 00:10:21,970 --> 00:10:23,910
-you give them special treatment, 
+you give them special treatment,
+你给他们特殊待遇，
 
 141
 00:10:24,720 --> 00:10:26,790
-because you want to always have high priority. 
+because you want to always have high priority.
+因为你希望始终保持高优先级。
 
 142
 00:10:27,560 --> 00:10:33,060
 Although in general, many of the interactive tasks are the aisle bound,
+尽管一般来说，许多交互式任务都是有限制的。
 
 143
 00:10:33,070 --> 00:10:34,860
-because they are waiting for the user input. 
+because they are waiting for the user input.
+因为它们正在等待用户输入。
 
 144
 00:10:36,030 --> 00:10:36,650
-Many of them. 
+Many of them.
+很多。
 
 145
 00:10:37,770 --> 00:10:42,020
 So then they can go automatically higher priority because they
+所以它们可以自动提升优先级，因为它们
 
 146
 00:10:42,030 --> 00:10:43,500
-are going to sleep more than they are. 
+are going to sleep more than they are.
 
 147
 00:10:46,030 --> 00:10:47,700
-Let's see that I have two questions here. 
+Let's see that I have two questions here.
 
 148
 00:10:53,760 --> 00:10:54,970
-That's a very good question. 
+That's a very good question.
 
 149
 00:10:55,460 --> 00:10:56,490
-So the question is, 
+So the question is,
 
 150
 00:10:56,500 --> 00:10:58,970
-does this mean getting a new process? 
+does this mean getting a new process?
 
 151
 00:10:59,750 --> 00:11:05,190
@@ -604,23 +749,23 @@ Schedule takes a long time since the existing cure needs to be exhausted
 
 152
 00:11:05,200 --> 00:11:06,750
-before new things can be added? 
+before new things can be added?
 
 153
 00:11:07,980 --> 00:11:08,290
-Yeah. 
+Yeah.
 
 154
 00:11:08,980 --> 00:11:09,770
-And you are right. 
+And you are right.
 
 155
 00:11:10,220 --> 00:11:12,970
-It's a strategy in the process is getting scheduled, 
+It's a strategy in the process is getting scheduled,
 
 156
 00:11:12,980 --> 00:11:14,090
-not the process itself. 
+not the process itself.
 
 157
 00:11:14,860 --> 00:11:17,440
@@ -628,27 +773,27 @@ Although we are, again, when you have one process, one thread,
 
 158
 00:11:18,750 --> 00:11:21,970
-we are going to use interchangeable. 
+we are going to use interchangeable.
 
 159
 00:11:24,210 --> 00:11:30,370
-So this very much depends on the scheduler. 
+So this very much depends on the scheduler.
 
 160
 00:11:31,640 --> 00:11:35,030
-But when you are going to run a new process, 
+But when you are going to run a new process,
 
 161
 00:11:35,680 --> 00:11:38,260
-typically you put the process as the highest priority. 
+typically you put the process as the highest priority.
 
 162
 00:11:40,020 --> 00:11:45,580
-This means that you are going to start executing that process or thread quickly, 
+This means that you are going to start executing that process or thread quickly,
 
 163
 00:11:47,160 --> 00:11:48,750
-which is the highest priority. 
+which is the highest priority.
 
 164
 00:11:50,080 --> 00:11:54,600
@@ -656,15 +801,15 @@ You can start executing that thread as soon as you finish executing
 
 165
 00:11:55,910 --> 00:11:56,740
-the current thread. 
+the current thread.
 
 166
 00:11:57,020 --> 00:12:00,210
-When the time slice of the current slide you are executing is expired. 
+When the time slice of the current slide you are executing is expired.
 
 167
 00:12:06,600 --> 00:12:10,550
-It's also here you receive a word of histories. 
+It's also here you receive a word of histories.
 
 168
 00:12:11,610 --> 00:12:15,000
@@ -672,27 +817,27 @@ You use the studies is to avoid changing interactive data
 
 169
 00:12:15,010 --> 00:12:17,640
-from temporary changing changes in behavior. 
+from temporary changing changes in behavior.
 
 170
 00:12:19,240 --> 00:12:20,130
-What is hysteresis? 
+What is hysteresis?
 
 171
 00:12:20,740 --> 00:12:21,630
-Do you know, 
+Do you know,
 
 172
 00:12:23,230 --> 00:12:28,770
-anyone you can say on the chat? 
+anyone you can say on the chat?
 
 173
 00:12:38,830 --> 00:12:42,740
-The we are not going to go into more data into a lot of details here, 
+The we are not going to go into more data into a lot of details here,
 
 174
 00:12:42,750 --> 00:12:46,180
-but hysteresis means that when you have a process, 
+but hysteresis means that when you have a process,
 
 175
 00:12:46,400 --> 00:12:47,720
@@ -700,15 +845,15 @@ a control system, in general,
 
 176
 00:12:48,320 --> 00:12:49,510
-and you have a threshold. 
+and you have a threshold.
 
 177
 00:12:50,340 --> 00:12:53,340
-And when that exceeds a threshold, 
+And when that exceeds a threshold,
 
 178
 00:12:54,140 --> 00:12:57,010
-you change the output and you decrease the threshold, 
+you change the output and you decrease the threshold,
 
 179
 00:12:57,020 --> 00:13:00,250
@@ -716,15 +861,15 @@ you reduce your game, change the output.
 
 180
 00:13:01,500 --> 00:13:05,010
-If you have a system which is just around the threshold, 
+If you have a system which is just around the threshold,
 
 181
 00:13:05,780 --> 00:13:07,750
-the system changes its behavior. 
+the system changes its behavior.
 
 182
 00:13:08,450 --> 00:13:09,520
-Quite frequently, 
+Quite frequently,
 
 183
 00:13:10,230 --> 00:13:12,350
@@ -732,11 +877,11 @@ you go on to, and even if you has noise,
 
 184
 00:13:12,360 --> 00:13:14,990
-if you have to imagine that you have noise around the threshold. 
+if you have to imagine that you have noise around the threshold.
 
 185
 00:13:16,530 --> 00:13:17,630
-So you want to avoid that. 
+So you want to avoid that.
 
 186
 00:13:18,340 --> 00:13:21,550
@@ -744,7 +889,7 @@ In order to avoid that, you have actually, in general, two thresholds.
 
 187
 00:13:22,440 --> 00:13:23,850
-You have one thresholds, 
+You have one thresholds,
 
 188
 00:13:24,130 --> 00:13:25,540
@@ -752,15 +897,15 @@ low threshold, and high threshold.
 
 189
 00:13:26,700 --> 00:13:28,320
-And you change the behavior. 
+And you change the behavior.
 
 190
 00:13:28,330 --> 00:13:32,120
-When you exceed a high threshold or in its own, 
+When you exceed a high threshold or in its own,
 
 191
 00:13:32,130 --> 00:13:33,990
-you go under the low threshold. 
+you go under the low threshold.
 
 192
 00:13:35,230 --> 00:13:36,860
@@ -768,19 +913,19 @@ In that sense, you have a range.
 
 193
 00:13:37,150 --> 00:13:38,980
-The system behavior doesn't change it. 
+The system behavior doesn't change it.
 
 194
 00:13:38,990 --> 00:13:40,380
-So if there is a noise, 
+So if there is a noise,
 
 195
 00:13:40,800 --> 00:13:42,340
-we are within that range, 
+we are within that range,
 
 196
 00:13:42,350 --> 00:13:44,390
-the system will become constant. 
+the system will become constant.
 
 197
 00:13:45,270 --> 00:13:47,260
@@ -788,7 +933,7 @@ For instance, in this particular case,
 
 198
 00:13:47,760 --> 00:13:50,000
-you don't want to change the behavior. 
+you don't want to change the behavior.
 
 199
 00:13:50,010 --> 00:13:51,080
@@ -796,23 +941,23 @@ Like, for instance,
 
 200
 00:13:51,090 --> 00:13:57,250
-imagine that you have an editor with an editor, 
+imagine that you have an editor with an editor,
 
 201
 00:13:57,940 --> 00:13:58,650
-not editor, 
+not editor,
 
 202
 00:13:58,660 --> 00:14:01,730
-maybe I don't know whether use laid back or something like that, 
+maybe I don't know whether use laid back or something like that,
 
 203
 00:14:01,740 --> 00:14:04,980
-or you have an editor. 
+or you have an editor.
 
 204
 00:14:05,790 --> 00:14:06,940
-Let's take an editor. 
+Let's take an editor.
 
 205
 00:14:07,560 --> 00:14:10,300
@@ -828,15 +973,15 @@ And another one is, for instance,
 
 208
 00:14:16,400 --> 00:14:17,470
-you save or love. 
+you save or love.
 
 209
 00:14:18,650 --> 00:14:19,080
-Okay? 
+Okay?
 
 210
 00:14:20,590 --> 00:14:24,060
-You don't want save or load or even worse. 
+You don't want save or load or even worse.
 
 211
 00:14:24,350 --> 00:14:29,000
@@ -844,11 +989,11 @@ The editor doing some rendering and doing some compute heavy, say,
 
 212
 00:14:29,010 --> 00:14:30,200
-maybe operations. 
+maybe operations.
 
 213
 00:14:30,570 --> 00:14:31,710
-You don't want that, 
+You don't want that,
 
 214
 00:14:33,300 --> 00:14:37,590
@@ -856,19 +1001,19 @@ just because you do a little bit of computation that to make the editor
 
 215
 00:14:37,600 --> 00:14:38,250
-less responsible, 
+less responsible,
 
 216
 00:14:39,150 --> 00:14:40,310
-you want to be more robust. 
+you want to be more robust.
 
 217
 00:14:40,320 --> 00:14:42,590
-And only if it's for a long time, 
+And only if it's for a long time,
 
 218
 00:14:42,600 --> 00:14:46,200
-the editor just doing some a lot of rendering. 
+the editor just doing some a lot of rendering.
 
 219
 00:14:46,440 --> 00:14:51,650
@@ -876,19 +1021,19 @@ Maybe you are going to declarize that what hysteresis means
 
 220
 00:14:56,720 --> 00:14:57,670
-real time task. 
+real time task.
 
 221
 00:14:57,980 --> 00:15:00,180
-They have lower than 100 priority. 
+They have lower than 100 priority.
 
 222
 00:15:01,190 --> 00:15:03,780
-They also pm the non narrative task. 
+They also pm the non narrative task.
 
 223
 00:15:06,420 --> 00:15:07,090
-For each queue. 
+For each queue.
 
 224
 00:15:07,100 --> 00:15:10,170
@@ -900,51 +1045,51 @@ At this priority level, again,
 
 226
 00:15:12,370 --> 00:15:14,640
-you have multiple each priority levels. 
+you have multiple each priority levels.
 
 227
 00:15:15,010 --> 00:15:16,040
-You have a queue, 
+You have a queue,
 
 228
 00:15:16,360 --> 00:15:18,600
-which contains multiple processes or threads. 
+which contains multiple processes or threads.
 
 229
 00:15:19,500 --> 00:15:26,080
-And you can use all the 54 without no time slice or round robin, 
+And you can use all the 54 without no time slice or round robin,
 
 230
 00:15:26,630 --> 00:15:27,970
-there is a time slice. 
+there is a time slice.
 
 231
 00:15:29,210 --> 00:15:30,880
-Here is a real time task. 
+Here is a real time task.
 
 232
 00:15:30,890 --> 00:15:34,090
-They are not scheduled using the early deadline first, 
+They are not scheduled using the early deadline first,
 
 233
 00:15:34,540 --> 00:15:37,060
-which we learned last time, 
+which we learned last time,
 
 234
 00:15:37,070 --> 00:15:38,610
-the last lecture, 
+the last lecture,
 
 235
 00:15:39,060 --> 00:15:40,660
-they are assigned priorities. 
+they are assigned priorities.
 
 236
 00:15:42,040 --> 00:15:43,760
-There are other scheduling algorithms, 
+There are other scheduling algorithms,
 
 237
 00:15:43,770 --> 00:15:45,000
-real time scheduling algorithms, 
+real time scheduling algorithms,
 
 238
 00:15:45,010 --> 00:15:49,850
@@ -952,7 +1097,7 @@ which can use priorities to schedule these tasks and still guarantees you
 
 239
 00:15:49,860 --> 00:15:50,850
-can meet the deadlines. 
+can meet the deadlines.
 
 240
 00:15:54,890 --> 00:15:56,580
@@ -960,19 +1105,19 @@ Another thing like, if you remember,
 
 241
 00:15:57,020 --> 00:16:00,850
-we can do and to be more robust and avoid starvation, 
+we can do and to be more robust and avoid starvation,
 
 242
 00:16:01,750 --> 00:16:04,820
-is basically using proportional share schedule. 
+is basically using proportional share schedule.
 
 243
 00:16:06,240 --> 00:16:08,570
-This is regulated with lottery scheduling. 
+This is regulated with lottery scheduling.
 
 244
 00:16:08,580 --> 00:16:16,810
-Lottery scheduling is an implementation of of proportional share scheduling. 
+Lottery scheduling is an implementation of of proportional share scheduling.
 
 245
 00:16:17,560 --> 00:16:20,160
@@ -980,7 +1125,7 @@ And basically, here, it's, again,
 
 246
 00:16:20,170 --> 00:16:21,200
-if you remember, 
+if you remember,
 
 247
 00:16:24,330 --> 00:16:27,190
@@ -988,27 +1133,27 @@ you allocate these tickets and you have, say,
 
 248
 00:16:27,200 --> 00:16:28,350
-100 tickets, 
+100 tickets,
 
 249
 00:16:28,740 --> 00:16:31,250
-maybe you are going to give to one thread. 
+maybe you are going to give to one thread.
 
 250
 00:16:31,880 --> 00:16:34,840
-You are going to give ten tickets and the other 190 tickets. 
+You are going to give ten tickets and the other 190 tickets.
 
 251
 00:16:35,890 --> 00:16:36,430
-Okay? 
+Okay?
 
 252
 00:16:36,990 --> 00:16:39,460
-Now you are going to do the lottery. 
+Now you are going to do the lottery.
 
 253
 00:16:39,470 --> 00:16:42,250
-So every time though you select a winning ticket, 
+So every time though you select a winning ticket,
 
 254
 00:16:42,710 --> 00:16:49,600
@@ -1016,19 +1161,19 @@ now, obviously, the probability of selecting the second thread,
 
 255
 00:16:49,610 --> 00:16:51,040
-which has 90 tickets, 
+which has 90 tickets,
 
 256
 00:16:51,350 --> 00:16:54,590
-it's 9 times higher than probably to select the first ride, 
+it's 9 times higher than probably to select the first ride,
 
 257
 00:16:54,600 --> 00:16:55,870
-which is one ticket, 
+which is one ticket,
 
 258
 00:16:55,880 --> 00:16:57,630
-which has only ten tickets. 
+which has only ten tickets.
 
 259
 00:16:58,960 --> 00:17:04,170
@@ -1036,23 +1181,23 @@ This means that you give to the second thread, nine,
 
 260
 00:17:04,870 --> 00:17:07,550
-90% of the cpu on the average, 
+90% of the cpu on the average,
 
 261
 00:17:07,920 --> 00:17:09,470
-the first thread only 10%. 
+the first thread only 10%.
 
 262
 00:17:11,330 --> 00:17:16,000
-So you can see that you can use this kind of weights is different. 
+So you can see that you can use this kind of weights is different.
 
 263
 00:17:16,510 --> 00:17:23,780
-A number of tickets you are giving to each thread to approximate priorities. 
+A number of tickets you are giving to each thread to approximate priorities.
 
 264
 00:17:24,750 --> 00:17:25,020
-Right? 
+Right?
 
 265
 00:17:25,030 --> 00:17:30,110
@@ -1060,23 +1205,23 @@ Because clearly you can see that the task with the thread with a90 tickets
 
 266
 00:17:30,120 --> 00:17:34,610
-has a higher priority than the task with ten tickets. 
+has a higher priority than the task with ten tickets.
 
 267
 00:17:36,190 --> 00:17:41,920
-The nice think about this kind of scheme is that it avoid starvation, 
+The nice think about this kind of scheme is that it avoid starvation,
 
 268
 00:17:42,980 --> 00:17:43,320
-right? 
+right?
 
 269
 00:17:44,210 --> 00:17:45,920
-Even if you give a task, 
+Even if you give a task,
 
 270
 00:17:45,930 --> 00:17:47,280
-19 aa thread, 
+19 aa thread,
 
 271
 00:17:47,290 --> 00:17:55,650
@@ -1084,47 +1229,47 @@ Even if you give a task,
 
 272
 00:17:56,200 --> 00:18:01,450
-out of 100 time slices or quanta. 
+out of 100 time slices or quanta.
 
 273
 00:18:02,570 --> 00:18:07,180
-The stablish has only one ticket is going to get a chance to run. 
+The stablish has only one ticket is going to get a chance to run.
 
 274
 00:18:07,980 --> 00:18:08,850
-So it's no stop. 
+So it's no stop.
 
 275
 00:18:11,570 --> 00:18:15,350
-This is basically tells you a little bit more giving a little more math on that. 
+This is basically tells you a little bit more giving a little more math on that.
 
 276
 00:18:16,100 --> 00:18:17,510
-Now you may ask, 
+Now you may ask,
 
 277
 00:18:18,020 --> 00:18:22,010
-then why we don't do only this lottery scheduling, 
+then why we don't do only this lottery scheduling,
 
 278
 00:18:22,020 --> 00:18:23,610
-all this proportional sharing? 
+all this proportional sharing?
 
 279
 00:18:23,810 --> 00:18:24,170
-Right? 
+Right?
 
 280
 00:18:24,960 --> 00:18:27,000
-The answer is that it's harder to implement. 
+The answer is that it's harder to implement.
 
 281
 00:18:27,010 --> 00:18:28,450
-It's more complex to implement, 
+It's more complex to implement,
 
 282
 00:18:29,190 --> 00:18:29,890
-is slower. 
+is slower.
 
 283
 00:18:30,820 --> 00:18:33,440
@@ -1132,11 +1277,11 @@ Then the priority or so, is so on.
 
 284
 00:18:33,450 --> 00:18:35,900
-All of one super simple to implement. 
+All of one super simple to implement.
 
 285
 00:18:37,490 --> 00:18:38,440
-So that's yes. 
+So that's yes.
 
 286
 00:18:42,760 --> 00:18:46,310
@@ -1144,15 +1289,15 @@ Let's again, unix has a lot of schedulers, actually.
 
 287
 00:18:47,100 --> 00:18:48,500
-The first one was a basic scheduler. 
+The first one was a basic scheduler.
 
 288
 00:18:48,990 --> 00:18:51,540
-You have this kind of two cures, 
+You have this kind of two cures,
 
 289
 00:18:52,560 --> 00:18:54,110
-active and expired. 
+active and expired.
 
 290
 00:18:54,840 --> 00:18:57,410
@@ -1160,7 +1305,7 @@ It's all fun, very simple,
 
 291
 00:18:58,230 --> 00:19:01,720
-but it has also a more more sophisticated scheduler. 
+but it has also a more more sophisticated scheduler.
 
 292
 00:19:01,730 --> 00:19:04,400
@@ -1172,11 +1317,11 @@ The back the idea here is to track the cpu time per thread
 
 294
 00:19:10,780 --> 00:19:13,830
-and schedule stress to match up on average rate of execution. 
+and schedule stress to match up on average rate of execution.
 
 295
 00:19:14,920 --> 00:19:15,150
-Right? 
+Right?
 
 296
 00:19:15,640 --> 00:19:16,890
@@ -1184,43 +1329,43 @@ So basically, you want,
 
 297
 00:19:17,350 --> 00:19:18,430
-in other words, 
+in other words,
 
 298
 00:19:18,710 --> 00:19:20,230
-You are different threads. 
+You are different threads.
 
 299
 00:19:20,450 --> 00:19:22,080
-If you don't have different threads, 
+If you don't have different threads,
 
 300
 00:19:22,470 --> 00:19:23,430
-more than one threads, 
+more than one threads,
 
 301
 00:19:23,440 --> 00:19:27,460
-you want all of them to make kind of progress at the same rate. 
+you want all of them to make kind of progress at the same rate.
 
 302
 00:19:29,860 --> 00:19:30,660
-That's a high level. 
+That's a high level.
 
 303
 00:19:32,500 --> 00:19:33,030
-Okay? 
+Okay?
 
 304
 00:19:33,560 --> 00:19:35,510
-This is if the cpu time like, 
+This is if the cpu time like,
 
 305
 00:19:35,520 --> 00:19:37,150
-this is the cpu time, 
+this is the cpu time,
 
 306
 00:19:37,160 --> 00:19:39,890
-and this is one over n you have three threads. 
+and this is one over n you have three threads.
 
 307
 00:19:40,140 --> 00:19:41,570
@@ -1228,15 +1373,15 @@ In this case, n is three.
 
 308
 00:19:42,140 --> 00:19:43,250
-This is each of them. 
+This is each of them.
 
 309
 00:19:43,260 --> 00:19:50,230
-You get 1/3 of the cpu then you look at how long each of them they run, 
+You get 1/3 of the cpu then you look at how long each of them they run,
 
 310
 00:19:50,500 --> 00:19:52,050
-starting for a given time. 
+starting for a given time.
 
 311
 00:19:52,060 --> 00:19:55,370
@@ -1244,15 +1389,15 @@ And in this case, the one run longer than the two.
 
 312
 00:19:55,380 --> 00:19:57,090
-And these three. 
+And these three.
 
 313
 00:19:57,950 --> 00:19:58,660
-Therefore, 
+Therefore,
 
 314
 00:19:58,670 --> 00:20:04,400
-here you are going to give the next time when you are going to schedule, 
+here you are going to give the next time when you are going to schedule,
 
 315
 00:20:04,410 --> 00:20:07,000
@@ -1260,15 +1405,15 @@ you are going to sell to select probability, too,
 
 316
 00:20:07,010 --> 00:20:11,250
-because you want to catch up with to do to catch up with the one and history. 
+because you want to catch up with to do to catch up with the one and history.
 
 317
 00:20:13,730 --> 00:20:13,960
-Again, 
+Again,
 
 318
 00:20:14,730 --> 00:20:16,000
-this is a simple one. 
+this is a simple one.
 
 319
 00:20:17,220 --> 00:20:18,980
@@ -1276,15 +1421,15 @@ A simple case by so complicated, right?
 
 320
 00:20:18,990 --> 00:20:22,560
-Because threats do not start at the same time. 
+Because threats do not start at the same time.
 
 321
 00:20:22,910 --> 00:20:23,350
-Threads. 
+Threads.
 
 322
 00:20:25,180 --> 00:20:25,560
-Excuse me, 
+Excuse me,
 
 323
 00:20:26,560 --> 00:20:28,380
@@ -1292,35 +1437,35 @@ threads are the io bounded, right?
 
 324
 00:20:28,990 --> 00:20:32,970
-Instead of they don't use their entire full quanta. 
+Instead of they don't use their entire full quanta.
 
 325
 00:20:33,220 --> 00:20:33,690
-Okay. 
+Okay.
 
 326
 00:20:33,970 --> 00:20:35,160
-So there are many things, 
+So there are many things,
 
 327
 00:20:35,170 --> 00:20:37,720
-and that's why these schedulers are much more complicated. 
+and that's why these schedulers are much more complicated.
 
 328
 00:20:37,730 --> 00:20:39,240
-There are a lot of papers, 
+There are a lot of papers,
 
 329
 00:20:39,250 --> 00:20:41,730
-research papers written about these catalysts. 
+research papers written about these catalysts.
 
 330
 00:20:42,140 --> 00:20:44,170
-This is discussion is to give you a sense, 
+This is discussion is to give you a sense,
 
 331
 00:20:44,490 --> 00:20:48,950
-some intuition about what are the problems and how these schedulers are working. 
+some intuition about what are the problems and how these schedulers are working.
 
 332
 00:20:52,310 --> 00:20:53,660
@@ -1328,11 +1473,11 @@ Again, this is a goal here,
 
 333
 00:20:53,670 --> 00:20:56,660
-is to provide this illusion of conflict of fairness. 
+is to provide this illusion of conflict of fairness.
 
 334
 00:20:57,010 --> 00:21:00,840
-Each of the past thread gets the same kind of makes progress is the same, 
+Each of the past thread gets the same kind of makes progress is the same,
 
 335
 00:21:00,850 --> 00:21:02,520
@@ -1340,75 +1485,75 @@ but I get cpu the same, right?
 
 336
 00:21:04,460 --> 00:21:06,590
-And it's close related with factory. 
+And it's close related with factory.
 
 337
 00:21:08,590 --> 00:21:09,780
-How do you implement it? 
+How do you implement it?
 
 338
 00:21:09,790 --> 00:21:11,460
-You can use a heap scheduler, 
+You can use a heap scheduler,
 
 339
 00:21:11,470 --> 00:21:12,500
-but it's hard. 
+but it's hard.
 
 340
 00:21:12,770 --> 00:21:14,530
-A heap schedule is log n right? 
+A heap schedule is log n right?
 
 341
 00:21:14,800 --> 00:21:16,230
-Or n is a number of threads. 
+Or n is a number of threads.
 
 342
 00:21:16,360 --> 00:21:16,950
-If you look, 
+If you look,
 
 343
 00:21:17,270 --> 00:21:21,890
-if you look about the number of threads on your mac or on your probably pc, 
+if you look about the number of threads on your mac or on your probably pc,
 
 344
 00:21:21,900 --> 00:21:24,570
-you'll see that you can have on your machine. 
+you'll see that you can have on your machine.
 
 345
 00:21:24,910 --> 00:21:28,190
-You can have like tens of thousands of cells at a given time, 
+You can have like tens of thousands of cells at a given time,
 
 346
 00:21:28,200 --> 00:21:29,620
-tens of thousands. 
+tens of thousands.
 
 347
 00:21:29,850 --> 00:21:31,160
-This is can be quite slow. 
+This is can be quite slow.
 
 348
 00:21:31,170 --> 00:21:33,470
-The log n are to remove threads. 
+The log n are to remove threads.
 
 349
 00:21:35,680 --> 00:21:35,910
-Right? 
+Right?
 
 350
 00:21:35,920 --> 00:21:39,590
-But this is a very using a heap like scheduling. 
+But this is a very using a heap like scheduling.
 
 351
 00:21:40,000 --> 00:21:43,620
-It's easy because you can always from a hip, 
+It's easy because you can always from a hip,
 
 352
 00:21:43,630 --> 00:21:48,670
-you are going to get select the task which has allow us cpu time, 
+you are going to get select the task which has allow us cpu time,
 
 353
 00:21:49,060 --> 00:21:50,460
-which user cpu the list. 
+which user cpu the list.
 
 354
 00:21:52,460 --> 00:21:55,090
@@ -1416,11 +1561,11 @@ Now, we said that these things are more complicated.
 
 355
 00:21:55,100 --> 00:21:57,370
-You can have a sleeping seat threads. 
+You can have a sleeping seat threads.
 
 356
 00:21:57,380 --> 00:21:59,210
-What do you do if a thread is sleeping? 
+What do you do if a thread is sleeping?
 
 357
 00:21:59,570 --> 00:22:06,270
@@ -1428,15 +1573,15 @@ Because waits for some event to happen or it's like think about the thread
 
 358
 00:22:06,280 --> 00:22:06,990
-is sleeping, 
+is sleeping,
 
 359
 00:22:07,270 --> 00:22:08,920
-which as a process. 
+which as a process.
 
 360
 00:22:10,340 --> 00:22:11,370
-When forks, 
+When forks,
 
 361
 00:22:11,650 --> 00:22:17,480
@@ -1444,7 +1589,7 @@ another process is going to sleep and wait for the other process to finish
 
 362
 00:22:18,150 --> 00:22:20,370
-and to join back. 
+and to join back.
 
 363
 00:22:23,640 --> 00:22:29,720
@@ -1452,31 +1597,31 @@ Basically, one thing to hear you is like when a thread sleeps,
 
 364
 00:22:29,730 --> 00:22:31,440
-you don't have basis if you types, 
+you don't have basis if you types,
 
 365
 00:22:31,940 --> 00:22:33,460
-if you don't have basic advances, 
+if you don't have basic advances,
 
 366
 00:22:33,470 --> 00:22:34,660
-cpu time, 
+cpu time,
 
 367
 00:22:35,040 --> 00:22:36,350
-then when it wakes up, 
+then when it wakes up,
 
 368
 00:22:36,670 --> 00:22:38,500
-is going to have low cpu time. 
+is going to have low cpu time.
 
 369
 00:22:38,880 --> 00:22:41,890
-It's going to have priority is going to be scheduled. 
+It's going to have priority is going to be scheduled.
 
 370
 00:22:42,210 --> 00:22:42,510
-Right? 
+Right?
 
 371
 00:22:43,040 --> 00:22:46,520
@@ -1484,27 +1629,27 @@ But now, the problem is that you cannot do that unbounded.
 
 372
 00:22:46,790 --> 00:22:51,580
-Like what happens if I have a thread which is slips from me since yesterday? 
+Like what happens if I have a thread which is slips from me since yesterday?
 
 373
 00:22:52,570 --> 00:22:52,950
-Right? 
+Right?
 
 374
 00:22:53,260 --> 00:22:58,090
-That will have a higher than a lower superior time than anything in the system. 
+That will have a higher than a lower superior time than anything in the system.
 
 375
 00:22:58,490 --> 00:22:58,760
-Basically, 
+Basically,
 
 376
 00:22:59,330 --> 00:23:01,840
-it's going to have priority over all of them. 
+it's going to have priority over all of them.
 
 377
 00:23:02,500 --> 00:23:04,110
-So you need to adjust for that as well. 
+So you need to adjust for that as well.
 
 378
 00:23:05,710 --> 00:23:09,360
@@ -1512,15 +1657,15 @@ It's again, we are not going to go into all the details.
 
 379
 00:23:13,760 --> 00:23:15,150
-But at the high level, 
+But at the high level,
 
 380
 00:23:15,160 --> 00:23:17,390
-once one trade off with the schedulers, 
+once one trade off with the schedulers,
 
 381
 00:23:17,400 --> 00:23:19,150
-like we also discussed last lecture, 
+like we also discussed last lecture,
 
 382
 00:23:19,620 --> 00:23:24,020
@@ -1528,11 +1673,11 @@ it's about between being very responsive and between a bit risk
 
 383
 00:23:24,030 --> 00:23:26,100
-between responsibility and fairness. 
+between responsibility and fairness.
 
 384
 00:23:27,300 --> 00:23:27,680
-Right? 
+Right?
 
 385
 00:23:27,950 --> 00:23:32,550
@@ -1540,11 +1685,11 @@ You remember, it's like an algorithm which is fair is round robin.
 
 386
 00:23:32,810 --> 00:23:33,140
-Right? 
+Right?
 
 387
 00:23:33,150 --> 00:23:37,510
-Each of them you go across around the threads. 
+Each of them you go across around the threads.
 
 388
 00:23:37,520 --> 00:23:42,470
@@ -1552,11 +1697,11 @@ And every round you are going to schedule to give a time quanta
 
 389
 00:23:42,870 --> 00:23:44,860
-through each thread thread. 
+through each thread thread.
 
 390
 00:23:45,200 --> 00:23:46,230
-That's very fair. 
+That's very fair.
 
 391
 00:23:46,240 --> 00:23:48,470
@@ -1564,39 +1709,39 @@ However, the memory don't be very responsive,
 
 392
 00:23:48,480 --> 00:23:49,870
-because you have any threads. 
+because you have any threads.
 
 393
 00:23:49,880 --> 00:23:58,900
-You need to wait for n minus up to n minus one times quanta to get a time contact. 
+You need to wait for n minus up to n minus one times quanta to get a time contact.
 
 394
 00:23:58,910 --> 00:24:00,060
-What was right? 
+What was right?
 
 395
 00:24:00,310 --> 00:24:04,750
-Thread particular thread has can wait for n minus one times one. 
+Thread particular thread has can wait for n minus one times one.
 
 396
 00:24:05,950 --> 00:24:07,180
-On the other hand, 
+On the other hand,
 
 397
 00:24:07,490 --> 00:24:13,970
-the priority is very effective and provide your low response time, 
+the priority is very effective and provide your low response time,
 
 398
 00:24:14,310 --> 00:24:16,850
-at least for the threads with a high priority. 
+at least for the threads with a high priority.
 
 399
 00:24:17,130 --> 00:24:17,380
-Right? 
+Right?
 
 400
 00:24:17,390 --> 00:24:18,140
-If you have, 
+If you have,
 
 401
 00:24:19,090 --> 00:24:22,360
@@ -1616,15 +1761,15 @@ Because the high priority threads are going to get all the cpu
 
 405
 00:24:32,190 --> 00:24:33,970
-as the expense of low priority sets. 
+as the expense of low priority sets.
 
 406
 00:24:34,950 --> 00:24:35,260
-Right? 
+Right?
 
 407
 00:24:35,560 --> 00:24:37,150
-So that's a fundamental trade off. 
+So that's a fundamental trade off.
 
 408
 00:24:37,780 --> 00:24:41,580
@@ -1632,39 +1777,39 @@ And what linux is doing, it has this kind of, perhaps,
 
 409
 00:24:41,920 --> 00:24:44,090
-could this constraint about target latency? 
+could this constraint about target latency?
 
 410
 00:24:44,820 --> 00:24:46,250
-It's a period of time over each. 
+It's a period of time over each.
 
 411
 00:24:46,260 --> 00:24:48,250
-Every process gets service right time, 
+Every process gets service right time,
 
 412
 00:24:48,260 --> 00:24:50,710
-guaranteed that target latency. 
+guaranteed that target latency.
 
 413
 00:24:50,720 --> 00:24:52,910
-So I say it is 100 million seconds. 
+So I say it is 100 million seconds.
 
 414
 00:24:52,920 --> 00:24:59,190
-I'm gonna be that i'm going to get access to the cpo within every 100 millisecond. 
+I'm gonna be that i'm going to get access to the cpo within every 100 millisecond.
 
 415
 00:25:01,380 --> 00:25:03,210
-This defines a time quanta, 
+This defines a time quanta,
 
 416
 00:25:03,660 --> 00:25:08,800
-because if you have n number is a number of processes or thread, 
+because if you have n number is a number of processes or thread,
 
 417
 00:25:08,810 --> 00:25:12,480
-then the time quantity is a target latency over m right? 
+then the time quantity is a target latency over m right?
 
 418
 00:25:12,910 --> 00:25:15,140
@@ -1672,7 +1817,7 @@ For instance, if you have the target latency,
 
 419
 00:25:15,150 --> 00:25:17,460
-20 millisecond and you have four processes, 
+20 millisecond and you have four processes,
 
 420
 00:25:17,600 --> 00:25:20,390
@@ -1680,7 +1825,7 @@ but is a time quantity has to be five, right?
 
 421
 00:25:20,400 --> 00:25:21,550
-Because it's longer. 
+Because it's longer.
 
 422
 00:25:21,560 --> 00:25:26,230
@@ -1688,23 +1833,23 @@ You cannot guarantee that this process is going to get access to the cpu is
 
 423
 00:25:26,240 --> 00:25:28,430
-in 20 millisecond. 
+in 20 millisecond.
 
 424
 00:25:28,440 --> 00:25:28,710
-Right? 
+Right?
 
 425
 00:25:28,720 --> 00:25:31,790
-But now if you have20 millisecond, 
+But now if you have20 millisecond,
 
 426
 00:25:31,800 --> 00:25:33,430
-they have 200 processes. 
+they have 200 processes.
 
 427
 00:25:33,440 --> 00:25:36,270
-The time quanta can be 0.1 millisecond, 
+The time quanta can be 0.1 millisecond,
 
 428
 00:25:36,480 --> 00:25:38,270
@@ -1716,7 +1861,7 @@ To remember, if it's a time slice of time quantity is too small,
 
 430
 00:25:42,350 --> 00:25:46,180
-then the overhead of context switching can dominate. 
+then the overhead of context switching can dominate.
 
 431
 00:25:46,590 --> 00:25:50,260
@@ -1724,19 +1869,19 @@ You are doing more context switches between this kind of processes
 
 432
 00:25:50,530 --> 00:25:53,920
-than really running these processes. 
+than really running these processes.
 
 433
 00:25:54,730 --> 00:25:55,080
-Right? 
+Right?
 
 434
 00:25:58,100 --> 00:25:59,000
-So this is one thing. 
+So this is one thing.
 
 435
 00:25:59,010 --> 00:26:00,600
-The other thing is about, 
+The other thing is about,
 
 436
 00:26:04,620 --> 00:26:08,990
@@ -1744,19 +1889,19 @@ obviously want to the reason we want to avoid xa lot
 
 437
 00:26:09,000 --> 00:26:12,990
-of overheading context switching is to increase to preserve the throughput, 
+of overheading context switching is to increase to preserve the throughput,
 
 438
 00:26:13,000 --> 00:26:13,430
-right? 
+right?
 
 439
 00:26:13,600 --> 00:26:17,480
-This robot is defined as a useful work done by a system. 
+This robot is defined as a useful work done by a system.
 
 440
 00:26:17,820 --> 00:26:19,540
-Context switching is not useful work. 
+Context switching is not useful work.
 
 441
 00:26:22,030 --> 00:26:26,420
@@ -1764,23 +1909,23 @@ Therefore, in order to make sure that this report is not going to plummet,
 
 442
 00:26:26,430 --> 00:26:27,860
-it's not going to be too low. 
+it's not going to be too low.
 
 443
 00:26:28,100 --> 00:26:29,210
-You are going to, 
+You are going to,
 
 444
 00:26:30,050 --> 00:26:31,320
-we are going to say, 
+we are going to say,
 
 445
 00:26:31,330 --> 00:26:34,360
-what is the minimum length of any time slice? 
+what is the minimum length of any time slice?
 
 446
 00:26:34,370 --> 00:26:36,240
-So it's a minimum ground already constraints. 
+So it's a minimum ground already constraints.
 
 447
 00:26:36,840 --> 00:26:40,240
@@ -1788,11 +1933,11 @@ You have a target latency and meaning granularity, which, in general,
 
 448
 00:26:40,250 --> 00:26:41,480
-can be at odds, 
+can be at odds,
 
 449
 00:26:46,830 --> 00:26:52,330
-because they are at odds in sometimes you have to violate one. 
+because they are at odds in sometimes you have to violate one.
 
 450
 00:26:52,730 --> 00:26:53,320
@@ -1804,31 +1949,31 @@ if you have target latency of 20 million seconds and minimum gratitude
 
 452
 00:26:56,810 --> 00:26:57,960
-of 1 million seconds, 
+of 1 million seconds,
 
 453
 00:26:59,510 --> 00:27:01,660
-then in this case, 
+then in this case,
 
 454
 00:27:01,670 --> 00:27:06,830
-you can minimum granularity is going to prevail and is going. 
+you can minimum granularity is going to prevail and is going.
 
 455
 00:27:07,160 --> 00:27:13,670
-You cannot reduce the time slice to less autonomy seconds and the target latency, 
+You cannot reduce the time slice to less autonomy seconds and the target latency,
 
 456
 00:27:13,680 --> 00:27:14,910
-you cannot do it. 
+you cannot do it.
 
 457
 00:27:15,030 --> 00:27:18,560
-If you just do our robin. 
+If you just do our robin.
 
 458
 00:27:18,890 --> 00:27:19,210
-Right? 
+Right?
 
 459
 00:27:19,530 --> 00:27:26,430
@@ -1836,27 +1981,27 @@ Because if you do our robin is going to take100 millisecond to a process to
 
 460
 00:27:26,440 --> 00:27:27,270
-get it stern. 
+get it stern.
 
 461
 00:27:27,280 --> 00:27:30,230
-So you need to wait for 99 million seconds to get your turn. 
+So you need to wait for 99 million seconds to get your turn.
 
 462
 00:27:31,730 --> 00:27:34,150
-You are going to violate the target latency here. 
+You are going to violate the target latency here.
 
 463
 00:27:37,650 --> 00:27:38,640
-It's a question here. 
+It's a question here.
 
 464
 00:27:39,330 --> 00:27:40,720
-What is granularity? 
+What is granularity?
 
 465
 00:27:53,620 --> 00:27:53,660
-Yeah. 
+Yeah.
 
 466
 00:27:54,430 --> 00:27:57,420
@@ -1864,39 +2009,39 @@ Okay, so these are very good questions.
 
 467
 00:27:57,980 --> 00:28:00,090
-What is granularity? 
+What is granularity?
 
 468
 00:28:00,420 --> 00:28:02,930
-It's how granular you are going to provide. 
+It's how granular you are going to provide.
 
 469
 00:28:02,940 --> 00:28:05,730
-What is the granularity at which you are going to provide the service? 
+What is the granularity at which you are going to provide the service?
 
 470
 00:28:05,740 --> 00:28:09,360
-I this is what we mean. 
+I this is what we mean.
 
 471
 00:28:09,370 --> 00:28:13,800
-It's like what we mean is about what is the minimum length of the time slices. 
+It's like what we mean is about what is the minimum length of the time slices.
 
 472
 00:28:16,590 --> 00:28:18,270
-This is what I mean by granularity. 
+This is what I mean by granularity.
 
 473
 00:28:18,700 --> 00:28:20,100
-What is the times life size? 
+What is the times life size?
 
 474
 00:28:23,780 --> 00:28:24,850
-Why would we have boss? 
+Why would we have boss?
 
 475
 00:28:24,860 --> 00:28:28,210
-It seems like minimum length is the only real powerful constraint. 
+It seems like minimum length is the only real powerful constraint.
 
 476
 00:28:29,200 --> 00:28:30,040
@@ -1912,7 +2057,7 @@ we illustrated that minimum priority is a stronger constraint, if you want.
 
 479
 00:28:38,890 --> 00:28:40,160
-Because if you go too low, 
+Because if you go too low,
 
 480
 00:28:40,170 --> 00:28:42,680
@@ -1924,23 +2069,23 @@ It's again, spend all the time doing contact switching.
 
 482
 00:28:46,000 --> 00:28:47,840
-But target latency, 
+But target latency,
 
 483
 00:28:47,850 --> 00:28:54,140
-it's also a constraint if you want to support interactive workloads. 
+it's also a constraint if you want to support interactive workloads.
 
 484
 00:28:55,080 --> 00:28:55,470
-Right? 
+Right?
 
 485
 00:28:56,400 --> 00:28:57,380
-How we are going to, 
+How we are going to,
 
 486
 00:28:59,190 --> 00:29:00,300
-there has to be, 
+there has to be,
 
 487
 00:29:01,130 --> 00:29:07,250
@@ -1948,15 +2093,15 @@ there are limits in terms of how responsive your editor or your computer
 
 488
 00:29:07,260 --> 00:29:07,810
-should be. 
+should be.
 
 489
 00:29:07,820 --> 00:29:10,930
-Different applications should be to provide you a good experience. 
+Different applications should be to provide you a good experience.
 
 490
 00:29:11,900 --> 00:29:12,170
-Okay? 
+Okay?
 
 491
 00:29:12,180 --> 00:29:16,810
@@ -1964,31 +2109,31 @@ So you should strive to provide that kind of level of interactivity
 
 492
 00:29:16,820 --> 00:29:18,560
-and the level of interactivity. 
+and the level of interactivity.
 
 493
 00:29:18,570 --> 00:29:21,540
-It's obviously related with this, 
+It's obviously related with this,
 
 494
 00:29:22,950 --> 00:29:24,000
-a target latency. 
+a target latency.
 
 495
 00:29:24,840 --> 00:29:25,240
-Right? 
+Right?
 
 496
 00:29:25,570 --> 00:29:27,680
-Because if you are going, 
+Because if you are going,
 
 497
 00:29:27,690 --> 00:29:29,640
-if the target latency you like, 
+if the target latency you like,
 
 498
 00:29:29,650 --> 00:29:31,840
-if you cannot get your turn, 
+if you cannot get your turn,
 
 499
 00:29:32,040 --> 00:29:33,830
@@ -1996,7 +2141,7 @@ say, in 500 millisecond,
 
 500
 00:29:34,040 --> 00:29:35,910
-this means that your application, 
+this means that your application,
 
 501
 00:29:37,520 --> 00:29:40,710
@@ -2004,23 +2149,23 @@ you may have to wait for half a second for your application to respond
 
 502
 00:29:40,720 --> 00:29:43,620
-your text application editor water. 
+your text application editor water.
 
 503
 00:29:43,630 --> 00:29:50,560
-So in summary, 
+So in summary,
 
 504
 00:29:50,570 --> 00:29:55,250
-as the minimum granularity is a stronger constraint, 
+as the minimum granularity is a stronger constraint,
 
 505
 00:29:55,670 --> 00:29:59,540
-but target latency captures the demands of the interactive applications. 
+but target latency captures the demands of the interactive applications.
 
 506
 00:30:00,800 --> 00:30:01,860
-It's also important. 
+It's also important.
 
 507
 00:30:06,670 --> 00:30:12,300
@@ -2028,19 +2173,19 @@ The other question here is about priority like this kind of a little bit
 
 508
 00:30:12,310 --> 00:30:13,060
-for organization. 
+for organization.
 
 509
 00:30:13,070 --> 00:30:19,350
-What if you want to give more cpu to some to some threads or unless to another? 
+What if you want to give more cpu to some to some threads or unless to another?
 
 510
 00:30:21,000 --> 00:30:24,270
-So allowed for a different rate of execution is very similar. 
+So allowed for a different rate of execution is very similar.
 
 511
 00:30:24,720 --> 00:30:25,270
-It's awake. 
+It's awake.
 
 512
 00:30:25,280 --> 00:30:29,920
@@ -2052,11 +2197,11 @@ you see that is w so basically you have the equal share is
 
 514
 00:30:33,800 --> 00:30:36,270
-basically the equal share here. 
+basically the equal share here.
 
 515
 00:30:36,560 --> 00:30:39,460
-It's about how much of the cpu you are going to give. 
+It's about how much of the cpu you are going to give.
 
 516
 00:30:39,470 --> 00:30:41,000
@@ -2064,19 +2209,19 @@ And it started latency over there, right?
 
 517
 00:30:42,660 --> 00:30:44,230
-Like we discussed earlier on. 
+Like we discussed earlier on.
 
 518
 00:30:44,640 --> 00:30:46,430
-Here is a way to sharing. 
+Here is a way to sharing.
 
 519
 00:30:49,050 --> 00:30:50,290
-You are going to give. 
+You are going to give.
 
 520
 00:30:50,510 --> 00:30:51,980
-Within one of these target shares, 
+Within one of these target shares,
 
 521
 00:30:51,990 --> 00:30:58,440
@@ -2088,7 +2233,7 @@ This is very, very similar,
 
 523
 00:31:01,950 --> 00:31:03,580
-but it's using different notation, 
+but it's using different notation,
 
 524
 00:31:03,590 --> 00:31:11,470
@@ -2096,23 +2241,23 @@ but in as the the outcome is basically identical a it's another implementation
 
 525
 00:31:11,850 --> 00:31:14,930
-to having different number of tickets, 
+to having different number of tickets,
 
 526
 00:31:15,340 --> 00:31:19,250
-giving different number of tickets to different threads or processes. 
+giving different number of tickets to different threads or processes.
 
 527
 00:31:23,720 --> 00:31:25,230
-That's basically what it is. 
+That's basically what it is.
 
 528
 00:31:26,840 --> 00:31:27,000
-Right? 
+Right?
 
 529
 00:31:27,210 --> 00:31:29,120
-This is basic equal share. 
+This is basic equal share.
 
 530
 00:31:29,130 --> 00:31:35,060
@@ -2120,11 +2265,11 @@ It's one over n if you want weighted share w you'll give
 
 531
 00:31:35,070 --> 00:31:36,860
-up higher weight one process. 
+up higher weight one process.
 
 532
 00:31:37,530 --> 00:31:37,970
-This. 
+This.
 
 533
 00:31:37,980 --> 00:31:44,070
@@ -2132,31 +2277,31 @@ So then you get the fraction you are going to get from the cpu it's your weight
 
 534
 00:31:45,450 --> 00:31:51,990
-divided by the sum of the ways of all the other sets of processes. 
+divided by the sum of the ways of all the other sets of processes.
 
 535
 00:31:59,510 --> 00:32:03,940
-They use a nice value to reflect shares rather than priority. 
+They use a nice value to reflect shares rather than priority.
 
 536
 00:32:10,300 --> 00:32:16,350
-This is over using api an existing api and this is how you use it. 
+This is over using api an existing api and this is how you use it.
 
 537
 00:32:16,360 --> 00:32:20,470
-You have the nice is becoming the exponent. 
+You have the nice is becoming the exponent.
 
 538
 00:32:20,970 --> 00:32:25,330
-This is how you are basically think about that when you are going to use nice, 
+This is how you are basically think about that when you are going to use nice,
 
 539
 00:32:25,610 --> 00:32:26,700
-what will happen? 
+what will happen?
 
 540
 00:32:26,950 --> 00:32:31,210
-You are going to change the weight as provided by this formula. 
+You are going to change the weight as provided by this formula.
 
 541
 00:32:31,850 --> 00:32:34,730
@@ -2172,7 +2317,7 @@ It's 10, 24 if you are going to increase your nice.
 
 544
 00:32:41,420 --> 00:32:44,160
-So you have to basically being nice. 
+So you have to basically being nice.
 
 545
 00:32:44,170 --> 00:32:50,850
@@ -2180,103 +2325,103 @@ It means that you get less access to the cpu so you let others use acpu
 
 546
 00:32:50,860 --> 00:32:51,330
-for longer. 
+for longer.
 
 547
 00:32:51,950 --> 00:32:52,220
-Right? 
+Right?
 
 548
 00:32:52,230 --> 00:32:53,620
-That means to be nice. 
+That means to be nice.
 
 549
 00:32:54,350 --> 00:32:56,940
-And this is reflected in getting a lower weight. 
+And this is reflected in getting a lower weight.
 
 550
 00:32:59,190 --> 00:32:59,590
-Again, 
+Again,
 
 551
 00:32:59,600 --> 00:33:05,020
-the particular way you are going to get by using nice is given by this formula, 
+the particular way you are going to get by using nice is given by this formula,
 
 552
 00:33:05,030 --> 00:33:05,220
-10, 
+10,
 
 553
 00:33:05,230 --> 00:33:08,060
-24/1.25 at power. 
+24/1.25 at power.
 
 554
 00:33:08,070 --> 00:33:08,540
-Nice. 
+Nice.
 
 555
 00:33:09,130 --> 00:33:11,760
-It's here just to give you a sense. 
+It's here just to give you a sense.
 
 556
 00:33:12,120 --> 00:33:13,640
-If it's a nice, 
+If it's a nice,
 
 557
 00:33:13,650 --> 00:33:16,200
-it's implemented of in terms implemented, 
+it's implemented of in terms implemented,
 
 558
 00:33:16,610 --> 00:33:18,520
-if you remember that, 
+if you remember that,
 
 559
 00:33:18,530 --> 00:33:20,860
-you can implement it, 
+you can implement it,
 
 560
 00:33:22,650 --> 00:33:23,800
-units of five, 
+units of five,
 
 561
 00:33:24,210 --> 00:33:26,970
-1.25 power five is three. 
+1.25 power five is three.
 
 562
 00:33:27,510 --> 00:33:27,790
-Right? 
+Right?
 
 563
 00:33:28,270 --> 00:33:31,180
-So if you increase your 9th×5, 
+So if you increase your 9th×5,
 
 564
 00:33:31,450 --> 00:33:33,530
-this means that your way to decrease by three, 
+this means that your way to decrease by three,
 
 565
 00:33:37,290 --> 00:33:38,960
-there is a concept of virtual time. 
+there is a concept of virtual time.
 
 566
 00:33:38,970 --> 00:33:40,760
-We are not going to discuss it here. 
+We are not going to discuss it here.
 
 567
 00:33:41,970 --> 00:33:43,910
-But if you have questions, 
+But if you have questions,
 
 568
 00:33:44,180 --> 00:33:46,730
-i'll be more than happy to talk about this special time. 
+i'll be more than happy to talk about this special time.
 
 569
 00:33:46,740 --> 00:33:51,030
-I did a lot of research during my phd many years back on this one. 
+I did a lot of research during my phd many years back on this one.
 
 570
 00:33:55,110 --> 00:33:56,650
-So really, 
+So really,
 
 571
 00:33:56,900 --> 00:33:59,010
@@ -2284,7 +2429,7 @@ again, scheduling is a complex problem.
 
 572
 00:33:59,580 --> 00:34:03,200
-There are many hundreds of scheduling algorithms, 
+There are many hundreds of scheduling algorithms,
 
 573
 00:34:04,070 --> 00:34:08,290
@@ -2296,83 +2441,83 @@ probably only about just talking about fair queuing
 
 575
 00:34:12,080 --> 00:34:15,910
-or proportional sharing is the same name for the kind of the same scalar. 
+or proportional sharing is the same name for the kind of the same scalar.
 
 576
 00:34:15,920 --> 00:34:17,030
-But in different domains, 
+But in different domains,
 
 577
 00:34:17,040 --> 00:34:18,350
-like cpo networking, 
+like cpo networking,
 
 578
 00:34:18,360 --> 00:34:20,790
-there are probably hundreds of thousands of papers, 
+there are probably hundreds of thousands of papers,
 
 579
 00:34:20,800 --> 00:34:23,070
-only for this particular discipline. 
+only for this particular discipline.
 
 580
 00:34:23,850 --> 00:34:24,880
-So it's huge. 
+So it's huge.
 
 581
 00:34:25,300 --> 00:34:26,880
-And why is that? 
+And why is that?
 
 582
 00:34:26,890 --> 00:34:27,080
-Is? 
+Is?
 
 583
 00:34:27,090 --> 00:34:30,320
-Because the scheduler is hard, 
+Because the scheduler is hard,
 
 584
 00:34:30,330 --> 00:34:33,020
-because you want to do it extremely fast. 
+because you want to do it extremely fast.
 
 585
 00:34:33,290 --> 00:34:36,650
-And then there are different competing priorities, 
+And then there are different competing priorities,
 
 586
 00:34:37,080 --> 00:34:39,200
-competing demands from the applications. 
+competing demands from the applications.
 
 587
 00:34:39,980 --> 00:34:40,390
-Right? 
+Right?
 
 588
 00:34:40,400 --> 00:34:41,670
-You want to be fair. 
+You want to be fair.
 
 589
 00:34:42,340 --> 00:34:43,690
-You want to be interactive. 
+You want to be interactive.
 
 590
 00:34:44,080 --> 00:34:47,280
-You want to have high throughput and so forth. 
+You want to have high throughput and so forth.
 
 591
 00:34:48,180 --> 00:34:49,290
-And therefore, 
+And therefore,
 
 592
 00:34:49,300 --> 00:34:54,690
-that's why for different Demands or from the applications, 
+that's why for different Demands or from the applications,
 
 593
 00:34:55,360 --> 00:34:57,750
-you can come up with different schedulers, 
+you can come up with different schedulers,
 
 594
 00:34:57,760 --> 00:35:00,600
-which are best fit to satisfy those demands. 
+which are best fit to satisfy those demands.
 
 595
 00:35:00,960 --> 00:35:02,550
@@ -2380,15 +2525,15 @@ For instance, if you want cpo struggle,
 
 596
 00:35:02,560 --> 00:35:04,590
-throughput is first come first set up. 
+throughput is first come first set up.
 
 597
 00:35:04,800 --> 00:35:06,630
-Because what you want to minimize, 
+Because what you want to minimize,
 
 598
 00:35:06,640 --> 00:35:09,950
-you have you want to minimize the overhead for the scheduler. 
+you have you want to minimize the overhead for the scheduler.
 
 599
 00:35:10,240 --> 00:35:13,560
@@ -2396,7 +2541,7 @@ First comfort said, picking up a a new job.
 
 600
 00:35:14,120 --> 00:35:14,870
-It's super easy. 
+It's super easy.
 
 601
 00:35:14,880 --> 00:35:15,710
@@ -2404,35 +2549,35 @@ It's all fun, right?
 
 602
 00:35:15,720 --> 00:35:16,790
-It's the head of the queue. 
+It's the head of the queue.
 
 603
 00:35:17,070 --> 00:35:18,670
-And then there is no context switching. 
+And then there is no context switching.
 
 604
 00:35:18,680 --> 00:35:24,490
-And you are going to continue to run that the job to completion, 
+And you are going to continue to run that the job to completion,
 
 605
 00:35:25,710 --> 00:35:26,980
-minimizing the operation, 
+minimizing the operation,
 
 606
 00:35:26,990 --> 00:35:28,300
-to select the overhead, 
+to select the overhead,
 
 607
 00:35:28,310 --> 00:35:29,660
-to select the next job, 
+to select the next job,
 
 608
 00:35:29,670 --> 00:35:33,270
-minimizes the overhead to the number of context switches. 
+minimizes the overhead to the number of context switches.
 
 609
 00:35:34,920 --> 00:35:37,500
-Average response time is shortest time. 
+Average response time is shortest time.
 
 610
 00:35:37,850 --> 00:35:38,450
@@ -2440,11 +2585,11 @@ First, right?
 
 611
 00:35:38,460 --> 00:35:43,490
-This is probable optimal to read to up to minimize the average response time, 
+This is probable optimal to read to up to minimize the average response time,
 
 612
 00:35:45,740 --> 00:35:46,480
-and so forth. 
+and so forth.
 
 613
 00:35:46,990 --> 00:35:48,230
@@ -2452,47 +2597,47 @@ Fairness here, you have silly,
 
 614
 00:35:48,240 --> 00:35:51,360
-no cfs you can let lottery scheduling. 
+no cfs you can let lottery scheduling.
 
 615
 00:35:52,880 --> 00:35:54,550
-If this is for superior time, 
+If this is for superior time,
 
 616
 00:35:55,200 --> 00:35:57,750
-also fairness and fairness, 
+also fairness and fairness,
 
 617
 00:35:58,920 --> 00:36:01,230
-if you want to be very predictable, 
+if you want to be very predictable,
 
 618
 00:36:01,940 --> 00:36:05,730
-how long to wait until to get the cpu just to go round robin? 
+how long to wait until to get the cpu just to go round robin?
 
 619
 00:36:06,380 --> 00:36:08,710
-This is relatively targeted latency meeting. 
+This is relatively targeted latency meeting.
 
 620
 00:36:08,720 --> 00:36:11,050
-The outlines a leader line first. 
+The outlines a leader line first.
 
 621
 00:36:12,230 --> 00:36:17,510
-If you want to have some very few important tasks which they cannot be delayed, 
+If you want to have some very few important tasks which they cannot be delayed,
 
 622
 00:36:17,520 --> 00:36:18,830
-you can use priority. 
+you can use priority.
 
 623
 00:36:19,920 --> 00:36:22,390
-For our support is yours. 
+For our support is yours.
 
 624
 00:36:22,760 --> 00:36:24,430
-Srdp approximation. 
+Srdp approximation.
 
 625
 00:36:24,440 --> 00:36:27,310
@@ -2500,19 +2645,19 @@ Again, we discuss about that, I think, two lecture ago,
 
 626
 00:36:27,320 --> 00:36:31,900
-but we have these examples of two tasks which each of them takes1 week. 
+but we have these examples of two tasks which each of them takes1 week.
 
 627
 00:36:31,910 --> 00:36:33,860
-And then you have this other task, 
+And then you have this other task,
 
 628
 00:36:33,870 --> 00:36:34,980
-which is our bound. 
+which is our bound.
 
 629
 00:36:34,990 --> 00:36:39,250
-It takes runs for 1 million seconds and race for 9 million seconds. 
+It takes runs for 1 million seconds and race for 9 million seconds.
 
 630
 00:36:39,530 --> 00:36:40,470
@@ -2520,7 +2665,7 @@ If I remember, correct?
 
 631
 00:36:44,210 --> 00:36:44,840
-Okay. 
+Okay.
 
 632
 00:36:45,900 --> 00:36:48,570
@@ -2528,23 +2673,23 @@ Now, how to evaluate these scheduling algorithms?
 
 633
 00:36:48,580 --> 00:36:48,890
-Right? 
+Right?
 
 634
 00:36:48,900 --> 00:36:50,630
-You have all of those different properties. 
+You have all of those different properties.
 
 635
 00:36:50,640 --> 00:36:52,630
-How and you are going to design them, 
+How and you are going to design them,
 
 636
 00:36:52,640 --> 00:36:54,130
-how you are going to evaluate. 
+how you are going to evaluate.
 
 637
 00:36:54,900 --> 00:36:55,930
-There are several ways. 
+There are several ways.
 
 638
 00:36:57,440 --> 00:36:58,680
@@ -2556,15 +2701,15 @@ you basically, you get a workload.
 
 640
 00:37:01,510 --> 00:37:02,980
-And given this workload, 
+And given this workload,
 
 641
 00:37:02,990 --> 00:37:08,210
-you compute the performance of the algorithms in the face of that workload performance, 
+you compute the performance of the algorithms in the face of that workload performance,
 
 642
 00:37:08,220 --> 00:37:11,010
-meaning response times throughput, 
+meaning response times throughput,
 
 643
 00:37:11,740 --> 00:37:16,960
@@ -2580,11 +2725,11 @@ you say you are going to have each
 
 646
 00:37:27,990 --> 00:37:30,590
-processes continue every one process. 
+processes continue every one process.
 
 647
 00:37:30,600 --> 00:37:32,390
-You have one process arriving. 
+You have one process arriving.
 
 648
 00:37:34,970 --> 00:37:41,370
@@ -2592,27 +2737,27 @@ You have one process arriving.
 
 649
 00:37:41,790 --> 00:37:42,050
-right? 
+right?
 
 650
 00:37:42,060 --> 00:37:43,440
-Or a thing like that. 
+Or a thing like that.
 
 651
 00:37:43,960 --> 00:37:44,340
-Okay? 
+Okay?
 
 652
 00:37:44,970 --> 00:37:45,850
-Queuing models. 
+Queuing models.
 
 653
 00:37:45,860 --> 00:37:49,170
-This is a mathematical approach for stochastic workload. 
+This is a mathematical approach for stochastic workload.
 
 654
 00:37:49,380 --> 00:37:50,650
-In this particular case. 
+In this particular case.
 
 655
 00:37:51,030 --> 00:37:56,600
@@ -2620,11 +2765,11 @@ Basically, you are saying that the load is not deterministic,
 
 656
 00:37:57,220 --> 00:37:57,590
-right? 
+right?
 
 657
 00:37:58,010 --> 00:38:00,980
-You give the load in statistical terms. 
+You give the load in statistical terms.
 
 658
 00:38:01,520 --> 00:38:03,410
@@ -2632,15 +2777,15 @@ Is all you say, on the average,
 
 659
 00:38:04,040 --> 00:38:07,870
-you'll have one process arriving every second. 
+you'll have one process arriving every second.
 
 660
 00:38:08,610 --> 00:38:11,240
-This process are on the average, 
+This process are on the average,
 
 661
 00:38:11,640 --> 00:38:15,910
-has it takes running time is 10 seconds. 
+has it takes running time is 10 seconds.
 
 662
 00:38:17,740 --> 00:38:22,480
@@ -2648,11 +2793,11 @@ Those numbers are drawn from a particular distribution, like, for instance,
 
 663
 00:38:22,490 --> 00:38:26,740
-the length of the process is exponentially distributed. 
+the length of the process is exponentially distributed.
 
 664
 00:38:27,340 --> 00:38:27,700
-Right? 
+Right?
 
 665
 00:38:28,230 --> 00:38:30,610
@@ -2664,7 +2809,7 @@ The arrival time is like, say,
 
 667
 00:38:32,760 --> 00:38:33,790
-poisson distribute. 
+poisson distribute.
 
 668
 00:38:33,800 --> 00:38:38,630
@@ -2672,11 +2817,11 @@ Poisson means that the in the inter arrival between processes is drawn
 
 669
 00:38:38,640 --> 00:38:40,110
-from an exponential distribution. 
+from an exponential distribution.
 
 670
 00:38:40,680 --> 00:38:41,750
-This is just an example. 
+This is just an example.
 
 671
 00:38:41,760 --> 00:38:44,180
@@ -2684,11 +2829,11 @@ And for that, you are going to get statistic.
 
 672
 00:38:44,830 --> 00:38:48,600
-You are going to be able to compute statistically, 
+You are going to be able to compute statistically,
 
 673
 00:38:48,610 --> 00:38:52,080
-what are the performance of the scheduler alike? 
+what are the performance of the scheduler alike?
 
 674
 00:38:52,090 --> 00:38:56,310
@@ -2700,11 +2845,11 @@ And the other one, you just implement it.
 
 676
 00:39:00,140 --> 00:39:02,330
-You just takes python. 
+You just takes python.
 
 677
 00:39:02,560 --> 00:39:09,190
-You implement a simple simulator and run it and see what results you get. 
+You implement a simple simulator and run it and see what results you get.
 
 678
 00:39:11,130 --> 00:39:13,240
@@ -2712,11 +2857,11 @@ This is general, flexible,
 
 679
 00:39:15,200 --> 00:39:17,400
-as long as you don't have bugs in your simulator. 
+as long as you don't have bugs in your simulator.
 
 680
 00:39:19,610 --> 00:39:25,180
-So a final order on scheduling, 
+So a final order on scheduling,
 
 681
 00:39:27,200 --> 00:39:35,160
@@ -2724,63 +2869,63 @@ the scheduling matters when there are not enough resources and many of the
 
 682
 00:39:35,170 --> 00:39:38,240
-things we learn in this class, 
+things we learn in this class,
 
 683
 00:39:38,880 --> 00:39:42,160
-many of the algorithms and many of the problem is solved. 
+many of the algorithms and many of the problem is solved.
 
 684
 00:39:44,070 --> 00:39:51,570
-These problems occur because there are not enough resources. 
+These problems occur because there are not enough resources.
 
 685
 00:39:52,510 --> 00:39:53,660
-We'll see virtual memory. 
+We'll see virtual memory.
 
 686
 00:39:53,670 --> 00:39:54,940
-Why do we have ritual memory? 
+Why do we have ritual memory?
 
 687
 00:39:55,270 --> 00:39:55,540
-That? 
+That?
 
 688
 00:39:55,830 --> 00:39:58,100
-Because there is not enough physical memory. 
+Because there is not enough physical memory.
 
 689
 00:39:58,110 --> 00:40:02,060
-It's one of the reasons not scheduling. 
+It's one of the reasons not scheduling.
 
 690
 00:40:02,070 --> 00:40:05,100
-Why do we need to have a scheduling or sophisticated scheduling? 
+Why do we need to have a scheduling or sophisticated scheduling?
 
 691
 00:40:05,110 --> 00:40:06,700
-Because there are not enough superiors. 
+Because there are not enough superiors.
 
 692
 00:40:06,910 --> 00:40:08,480
-If you have one cpu per thread, 
+If you have one cpu per thread,
 
 693
 00:40:08,880 --> 00:40:11,300
-there is no scheduling right problem. 
+there is no scheduling right problem.
 
 694
 00:40:12,770 --> 00:40:13,180
-Okay. 
+Okay.
 
 695
 00:40:17,000 --> 00:40:21,140
-Why shouldn't you simply buy a faster computer or highways? 
+Why shouldn't you simply buy a faster computer or highways?
 
 696
 00:40:24,740 --> 00:40:25,200
-Look, 
+Look,
 
 697
 00:40:26,070 --> 00:40:29,270
@@ -2788,7 +2933,7 @@ you can buy it if you can afford it, but remember,
 
 698
 00:40:30,060 --> 00:40:31,700
-the more slow is ending. 
+the more slow is ending.
 
 699
 00:40:32,840 --> 00:40:35,070
@@ -2800,19 +2945,19 @@ you could buy your mac or your rpc it's not a lot of more powerful
 
 701
 00:40:39,290 --> 00:40:41,810
-than the one you have from 3 years back. 
+than the one you have from 3 years back.
 
 702
 00:40:43,190 --> 00:40:43,470
-Right? 
+Right?
 
 703
 00:40:50,960 --> 00:40:55,100
-You need to be careful about not. 
+You need to be careful about not.
 
 704
 00:40:55,110 --> 00:40:57,260
-You don't understand too much money. 
+You don't understand too much money.
 
 705
 00:40:59,010 --> 00:41:01,480
@@ -2820,75 +2965,75 @@ The other thing, what you need to understand,
 
 706
 00:41:02,960 --> 00:41:05,380
-this is a curve on this right hand side. 
+this is a curve on this right hand side.
 
 707
 00:41:06,030 --> 00:41:07,540
-Maybe we should do a lecture on it, 
+Maybe we should do a lecture on it,
 
 708
 00:41:07,550 --> 00:41:09,140
-because it's extremely important. 
+because it's extremely important.
 
 709
 00:41:10,430 --> 00:41:13,010
-A it's an extremely important curve. 
+A it's an extremely important curve.
 
 710
 00:41:13,790 --> 00:41:14,760
-And this is what I say. 
+And this is what I say.
 
 711
 00:41:14,770 --> 00:41:15,320
-This curve. 
+This curve.
 
 712
 00:41:16,680 --> 00:41:21,410
-Say your system has a certain capacity. 
+Say your system has a certain capacity.
 
 713
 00:41:23,190 --> 00:41:25,820
-When you are approaching the capacity of the system, 
+When you are approaching the capacity of the system,
 
 714
 00:41:27,570 --> 00:41:31,550
-the response time is growing super linear. 
+the response time is growing super linear.
 
 715
 00:41:33,640 --> 00:41:35,400
-It's almost goes to infinity. 
+It's almost goes to infinity.
 
 716
 00:41:36,520 --> 00:41:39,430
-A as if you go to that, 
+A as if you go to that,
 
 717
 00:41:39,750 --> 00:41:41,210
-if you go to 100%, 
+if you go to 100%,
 
 718
 00:41:42,620 --> 00:41:43,050
-okay? 
+okay?
 
 719
 00:41:44,780 --> 00:41:45,250
-You can. 
+You can.
 
 720
 00:41:45,260 --> 00:41:46,130
-And again, 
+And again,
 
 721
 00:41:46,820 --> 00:41:49,170
-we don't have time here to say why, 
+we don't have time here to say why,
 
 722
 00:41:50,400 --> 00:41:54,960
-but intuitively think about the highway and the rush hour. 
+but intuitively think about the highway and the rush hour.
 
 723
 00:41:55,590 --> 00:41:57,640
-So it's not like, 
+So it's not like,
 
 724
 00:41:58,650 --> 00:42:03,100
@@ -2896,19 +3041,19 @@ it's like the difference where you start to be to approach the capacity
 
 725
 00:42:03,110 --> 00:42:03,900
-of the highway. 
+of the highway.
 
 726
 00:42:04,980 --> 00:42:07,950
-And if you just inject a few cars, 
+And if you just inject a few cars,
 
 727
 00:42:07,960 --> 00:42:09,150
-a few more cars, 
+a few more cars,
 
 728
 00:42:09,910 --> 00:42:13,440
-then the delay is going to shut up. 
+then the delay is going to shut up.
 
 729
 00:42:15,050 --> 00:42:17,400
@@ -2916,19 +3061,19 @@ For instance, if there are on the highway,
 
 730
 00:42:17,770 --> 00:42:20,340
-now there are 100 cars per hour. 
+now there are 100 cars per hour.
 
 731
 00:42:21,400 --> 00:42:24,290
-The capacity of the system is 120. 
+The capacity of the system is 120.
 
 732
 00:42:24,300 --> 00:42:27,400
-And now you have a speed, 
+And now you have a speed,
 
 733
 00:42:27,410 --> 00:42:29,560
-and the latency says 50 miles per hour. 
+and the latency says 50 miles per hour.
 
 734
 00:42:31,660 --> 00:42:33,460
@@ -2936,15 +3081,15 @@ Now, if you add ten more cars,
 
 735
 00:42:33,770 --> 00:42:35,280
-there is still a lesser capacity. 
+there is still a lesser capacity.
 
 736
 00:42:36,670 --> 00:42:38,270
-Instead of going 50 miles per hour, 
+Instead of going 50 miles per hour,
 
 737
 00:42:38,280 --> 00:42:40,350
-you are going to go suddenly 20 miles per hour. 
+you are going to go suddenly 20 miles per hour.
 
 738
 00:42:42,800 --> 00:42:44,370
@@ -2952,11 +3097,11 @@ And again, things about your experience,
 
 739
 00:42:44,380 --> 00:42:45,810
-just a few more cars, 
+just a few more cars,
 
 740
 00:42:48,900 --> 00:42:50,050
-everything to a crawl. 
+everything to a crawl.
 
 741
 00:42:51,660 --> 00:42:54,170
@@ -2964,15 +3109,15 @@ Again, let me see what I can have a lecture on that.
 
 742
 00:42:57,980 --> 00:42:58,350
-Now, 
+Now,
 
 743
 00:43:03,400 --> 00:43:06,860
-let me see it any half. 
+let me see it any half.
 
 744
 00:43:07,320 --> 00:43:11,080
-What if all the cars are managed by computer and all of them of simultaneously? 
+What if all the cars are managed by computer and all of them of simultaneously?
 
 745
 00:43:11,410 --> 00:43:14,300
@@ -2980,23 +3125,23 @@ In that case, you can achieve the capacity.
 
 746
 00:43:14,760 --> 00:43:15,560
-But the point is, 
+But the point is,
 
 747
 00:43:15,840 --> 00:43:19,070
-that's not the case and the car left leaves gap between them. 
+that's not the case and the car left leaves gap between them.
 
 748
 00:43:19,330 --> 00:43:21,030
-And these gaps you cannot recover them. 
+And these gaps you cannot recover them.
 
 749
 00:43:21,390 --> 00:43:24,900
-Say this gap stakes from the capacity of the system that's kind of the invasion. 
+Say this gap stakes from the capacity of the system that's kind of the invasion.
 
 750
 00:43:26,650 --> 00:43:27,570
-So announcements, 
+So announcements,
 
 751
 00:43:27,580 --> 00:43:32,810
@@ -3004,23 +3149,23 @@ I know that everyone waits for that mid term on we are planning to release
 
 752
 00:43:32,820 --> 00:43:33,860
-the grades by next monday. 
+the grades by next monday.
 
 753
 00:43:36,130 --> 00:43:36,940
-We are degrading. 
+We are degrading.
 
 754
 00:43:37,240 --> 00:43:37,930
-You have to meet that. 
+You have to meet that.
 
 755
 00:43:38,860 --> 00:43:40,670
-Project deal is doing this wednesday, 
+Project deal is doing this wednesday,
 
 756
 00:43:41,960 --> 00:43:43,420
-called final reports, 
+called final reports,
 
 757
 00:43:43,670 --> 00:43:45,250
@@ -3028,11 +3173,11 @@ peer evaluation, everything.
 
 758
 00:43:47,200 --> 00:43:48,760
-If any of them is late, 
+If any of them is late,
 
 759
 00:43:48,770 --> 00:43:50,480
-you are going to encourage sleep days. 
+you are going to encourage sleep days.
 
 760
 00:43:52,120 --> 00:43:56,320
@@ -3044,31 +3189,31 @@ Every person, I believe you get 20 points per partner,
 
 762
 00:44:00,370 --> 00:44:04,320
-which so everyone every person get 20 points. 
+which so everyone every person get 20 points.
 
 763
 00:44:04,970 --> 00:44:12,120
-And you are going to hand out these points to other members in your group, 
+And you are going to hand out these points to other members in your group,
 
 764
 00:44:12,130 --> 00:44:13,120
-not to yourself. 
+not to yourself.
 
 765
 00:44:14,510 --> 00:44:16,850
-So this is a way to media. 
+So this is a way to media.
 
 766
 00:44:17,150 --> 00:44:20,600
-What is the contribution of other members in your team? 
+What is the contribution of other members in your team?
 
 767
 00:44:24,210 --> 00:44:25,200
-Office hours? 
+Office hours?
 
 768
 00:44:26,860 --> 00:44:28,470
-There are a lot of students, 
+There are a lot of students,
 
 769
 00:44:28,880 --> 00:44:31,090
@@ -3076,27 +3221,27 @@ and we all want to, again,
 
 770
 00:44:31,100 --> 00:44:32,930
-to answer all your questions, 
+to answer all your questions,
 
 771
 00:44:33,400 --> 00:44:34,830
-but you say, 
+but you say,
 
 772
 00:44:34,840 --> 00:44:37,710
-like you see in this lecture, 
+like you see in this lecture,
 
 773
 00:44:38,230 --> 00:44:40,140
-when the resources are scared, 
+when the resources are scared,
 
 774
 00:44:40,490 --> 00:44:43,390
-we need to put some conditions that have some policies in place. 
+we need to put some conditions that have some policies in place.
 
 775
 00:44:43,780 --> 00:44:47,660
-But I to try to be to provide some level of fairness to you guys. 
+But I to try to be to provide some level of fairness to you guys.
 
 776
 00:44:50,600 --> 00:44:52,310
@@ -3104,15 +3249,15 @@ T as will spend, in general,
 
 777
 00:44:52,320 --> 00:44:54,760
-were bound to spend 15 minutes per student. 
+were bound to spend 15 minutes per student.
 
 778
 00:44:55,030 --> 00:44:59,500
-It's again to not starve other students from their attention. 
+It's again to not starve other students from their attention.
 
 779
 00:45:00,240 --> 00:45:03,900
-You need to have a detailed ticket field out, 
+You need to have a detailed ticket field out,
 
 780
 00:45:03,910 --> 00:45:06,580
@@ -3120,7 +3265,7 @@ and the gdp pulled up, right?
 
 781
 00:45:06,590 --> 00:45:08,460
-So to be absolutely ready. 
+So to be absolutely ready.
 
 782
 00:45:08,470 --> 00:45:11,750
@@ -3128,15 +3273,15 @@ So the compact switching is minimum, right?
 
 783
 00:45:11,760 --> 00:45:12,870
-Between students. 
+Between students.
 
 784
 00:45:13,430 --> 00:45:15,100
-And from these 15 minutes, 
+And from these 15 minutes,
 
 785
 00:45:15,110 --> 00:45:18,140
-you get the full value for these 15 minutes. 
+you get the full value for these 15 minutes.
 
 786
 00:45:18,150 --> 00:45:24,080
@@ -3144,27 +3289,27 @@ You don't wait for 55 minutes to set up your gdp and provide
 
 787
 00:45:24,090 --> 00:45:27,430
-the ticket detail explaining to the da and thing like that. 
+the ticket detail explaining to the da and thing like that.
 
 788
 00:45:32,090 --> 00:45:32,680
-Great. 
+Great.
 
 789
 00:45:34,060 --> 00:45:36,050
-Now we are going to switch gears, 
+Now we are going to switch gears,
 
 790
 00:45:36,410 --> 00:45:38,220
-and we are going to talk about deadlocks. 
+and we are going to talk about deadlocks.
 
 791
 00:45:39,960 --> 00:45:49,060
-That look is a particular type of starvation. 
+That look is a particular type of starvation.
 
 792
 00:45:53,160 --> 00:45:58,490
-Thank you for the this is my date is wrong. 
+Thank you for the this is my date is wrong.
 
 793
 00:45:58,910 --> 00:46:00,460
@@ -3172,11 +3317,11 @@ The wednesday, it was wednesday.
 
 794
 00:46:05,890 --> 00:46:06,450
-Thanks. 
+Thanks.
 
 795
 00:46:10,210 --> 00:46:12,560
-Deadlock is a deadly type of starvation, 
+Deadlock is a deadly type of starvation,
 
 796
 00:46:14,510 --> 00:46:17,800
@@ -3188,43 +3333,43 @@ Allow priorities, right?
 
 798
 00:46:19,050 --> 00:46:20,360
-Waiting for resources, 
+Waiting for resources,
 
 799
 00:46:20,690 --> 00:46:23,200
-because there are many other high project threats, 
+because there are many other high project threats,
 
 800
 00:46:24,370 --> 00:46:25,340
-the deadlock, 
+the deadlock,
 
 801
 00:46:25,940 --> 00:46:28,660
-it's a circular waiting for resources. 
+it's a circular waiting for resources.
 
 802
 00:46:29,730 --> 00:46:31,270
-And this is a very simple example. 
+And this is a very simple example.
 
 803
 00:46:34,020 --> 00:46:42,190
-Say you have two threads and both threads in order to make progress, 
+Say you have two threads and both threads in order to make progress,
 
 804
 00:46:42,720 --> 00:46:46,790
-require to get access to two resources, 
+require to get access to two resources,
 
 805
 00:46:47,890 --> 00:46:49,330
-resource one and resource two. 
+resource one and resource two.
 
 806
 00:46:50,420 --> 00:46:53,450
-And now one thread gets access to resource one, 
+And now one thread gets access to resource one,
 
 807
 00:46:54,490 --> 00:46:57,850
-and the other thread get access to resources. 
+and the other thread get access to resources.
 
 808
 00:47:00,100 --> 00:47:02,080
@@ -3232,39 +3377,39 @@ And both of them, they hold these resources.
 
 809
 00:47:03,780 --> 00:47:05,690
-None of them can get the other resource, 
+None of them can get the other resource,
 
 810
 00:47:05,700 --> 00:47:06,930
-so they are deadlocked. 
+so they are deadlocked.
 
 811
 00:47:06,940 --> 00:47:08,370
-They cannot make progress. 
+They cannot make progress.
 
 812
 00:47:10,390 --> 00:47:11,460
-This is what it is. 
+This is what it is.
 
 813
 00:47:13,210 --> 00:47:15,120
-Deadlock implies starvation, 
+Deadlock implies starvation,
 
 814
 00:47:16,510 --> 00:47:17,810
-because starvation, 
+because starvation,
 
 815
 00:47:18,260 --> 00:47:20,510
-because you are guaranteed that in a deadlock, 
+because you are guaranteed that in a deadlock,
 
 816
 00:47:21,220 --> 00:47:22,760
-now I will make progress. 
+now I will make progress.
 
 817
 00:47:24,210 --> 00:47:28,730
-Starvation doesn't imply that log because starvation can end. 
+Starvation doesn't imply that log because starvation can end.
 
 818
 00:47:29,700 --> 00:47:33,220
@@ -3272,27 +3417,27 @@ Eventually, if the high priority task finish,
 
 819
 00:47:33,780 --> 00:47:37,400
-the low priority task just be executed, 
+the low priority task just be executed,
 
 820
 00:47:38,390 --> 00:47:43,060
-that law cannot finish without some external intervention. 
+that law cannot finish without some external intervention.
 
 821
 00:47:43,980 --> 00:47:44,870
-Here is example. 
+Here is example.
 
 822
 00:47:44,880 --> 00:47:46,430
-It's a real example, 
+It's a real example,
 
 823
 00:47:46,830 --> 00:47:52,880
-a a it's a one line bridge, 
+a a it's a one line bridge,
 
 824
 00:47:53,880 --> 00:47:54,260
-right? 
+right?
 
 825
 00:47:55,080 --> 00:47:56,670
@@ -3300,11 +3445,11 @@ As you probably know, it,
 
 826
 00:47:56,680 --> 00:48:00,510
-if you enter your sanity on california and one for 140. 
+if you enter your sanity on california and one for 140.
 
 827
 00:48:02,490 --> 00:48:03,070
-Okay? 
+Okay?
 
 828
 00:48:04,400 --> 00:48:05,840
@@ -3312,7 +3457,7 @@ The point here is, again,
 
 829
 00:48:05,850 --> 00:48:07,290
-there are two directions right? 
+there are two directions right?
 
 830
 00:48:08,650 --> 00:48:11,770
@@ -3320,7 +3465,7 @@ Now, typically you have a traffic light for these ones,
 
 831
 00:48:12,500 --> 00:48:14,300
-but assume that you don't have a traffic light. 
+but assume that you don't have a traffic light.
 
 832
 00:48:14,310 --> 00:48:17,490
@@ -3328,27 +3473,27 @@ So if you don't have a traffic light, what happens?
 
 833
 00:48:18,310 --> 00:48:18,740
-Right? 
+Right?
 
 834
 00:48:19,260 --> 00:48:20,260
-What can happen intuitively? 
+What can happen intuitively?
 
 835
 00:48:20,270 --> 00:48:21,540
-What is the problem? 
+What is the problem?
 
 836
 00:48:21,950 --> 00:48:25,450
-The problem is that two cars come from both ends, 
+The problem is that two cars come from both ends,
 
 837
 00:48:26,330 --> 00:48:27,770
-because there is no line. 
+because there is no line.
 
 838
 00:48:27,780 --> 00:48:31,180
-They are stuck their deadlock. 
+They are stuck their deadlock.
 
 839
 00:48:32,730 --> 00:48:40,130
@@ -3356,55 +3501,55 @@ And the way you can model this is basically thinking that you have 2/2
 
 840
 00:48:40,140 --> 00:48:41,290
-to the entrance, 
+to the entrance,
 
 841
 00:48:41,810 --> 00:48:43,440
-2/2 of the bridge. 
+2/2 of the bridge.
 
 842
 00:48:44,230 --> 00:48:46,700
-And each car acquire 1/2. 
+And each car acquire 1/2.
 
 843
 00:48:49,160 --> 00:48:50,880
-But in order to cross a bridge, 
+But in order to cross a bridge,
 
 844
 00:48:50,890 --> 00:48:52,000
-you need to both halves. 
+you need to both halves.
 
 845
 00:48:52,700 --> 00:48:54,730
-It's exactly like the previous example, 
+It's exactly like the previous example,
 
 846
 00:48:56,130 --> 00:48:56,500
-right? 
+right?
 
 847
 00:48:57,000 --> 00:48:58,400
-Each card has 1/2. 
+Each card has 1/2.
 
 848
 00:48:58,870 --> 00:49:00,600
-Each card required a boss halves. 
+Each card required a boss halves.
 
 849
 00:49:02,540 --> 00:49:03,100
-They are stuck. 
+They are stuck.
 
 850
 00:49:06,890 --> 00:49:11,360
-In order that how you say solve is the only way to solve this. 
+In order that how you say solve is the only way to solve this.
 
 851
 00:49:11,370 --> 00:49:15,470
-A deadlock is for one car to back up. 
+A deadlock is for one car to back up.
 
 852
 00:49:17,230 --> 00:49:21,300
-And this is a kiva land. 
+And this is a kiva land.
 
 853
 00:49:21,840 --> 00:49:25,280
@@ -3412,19 +3557,19 @@ With the other car, we didn't back up to preempt the resource,
 
 854
 00:49:25,860 --> 00:49:28,090
-which is hauled by the car who backed up. 
+which is hauled by the car who backed up.
 
 855
 00:49:28,730 --> 00:49:30,130
-Because now the car, 
+Because now the car,
 
 856
 00:49:31,890 --> 00:49:33,280
-which didn't back up, 
+which didn't back up,
 
 857
 00:49:34,910 --> 00:49:37,260
-is going to acquire the second half of the bridge. 
+is going to acquire the second half of the bridge.
 
 858
 00:49:37,680 --> 00:49:39,560
@@ -3432,7 +3577,7 @@ Now he has the first half, second half,
 
 859
 00:49:39,570 --> 00:49:41,720
-and then it going to cross the beach. 
+and then it going to cross the beach.
 
 860
 00:49:53,330 --> 00:49:57,410
@@ -3448,11 +3593,11 @@ the car which comes from the other direction will not get an opportunity
 
 863
 00:50:11,620 --> 00:50:14,290
-even to get on the beach that salvage. 
+even to get on the beach that salvage.
 
 864
 00:50:15,100 --> 00:50:15,400
-Again, 
+Again,
 
 865
 00:50:15,410 --> 00:50:19,980
@@ -3460,27 +3605,27 @@ starvation eventually can end when there are no longer cars coming
 
 866
 00:50:19,990 --> 00:50:24,460
-in this case from the west or from the east. 
+in this case from the west or from the east.
 
 867
 00:50:27,200 --> 00:50:27,320
-Now, 
+Now,
 
 868
 00:50:27,330 --> 00:50:30,440
-let's look about what does it seem from the point of view of our program. 
+let's look about what does it seem from the point of view of our program.
 
 869
 00:50:30,450 --> 00:50:31,940
-You have to stress here. 
+You have to stress here.
 
 870
 00:50:32,440 --> 00:50:33,370
-And let's go to, 
+And let's go to,
 
 871
 00:50:33,900 --> 00:50:34,490
-it's like, 
+it's like,
 
 872
 00:50:35,100 --> 00:50:36,060
@@ -3492,19 +3637,19 @@ These resources are like, locks are resources.
 
 874
 00:50:40,520 --> 00:50:44,280
-And this figure and the examples, 
+And this figure and the examples,
 
 875
 00:50:44,590 --> 00:50:49,090
-we can see that so far can be expressed the following way. 
+we can see that so far can be expressed the following way.
 
 876
 00:50:49,770 --> 00:50:52,270
-Thread a you have two blocks, 
+Thread a you have two blocks,
 
 877
 00:50:52,280 --> 00:50:54,800
-x and y acquiesce, 
+x and y acquiesce,
 
 878
 00:50:55,710 --> 00:51:03,530
@@ -3512,47 +3657,47 @@ block x and y and then the lease is y and x and b acquires the locks
 
 879
 00:51:03,540 --> 00:51:08,710
-in a different order and releases them in the different order. 
+in a different order and releases them in the different order.
 
 880
 00:51:13,330 --> 00:51:14,420
-So in this case, 
+So in this case,
 
 881
 00:51:14,430 --> 00:51:16,470
-you can get that lock. 
+you can get that lock.
 
 882
 00:51:16,810 --> 00:51:17,240
-Right? 
+Right?
 
 883
 00:51:17,730 --> 00:51:18,890
-When does this happen? 
+When does this happen?
 
 884
 00:51:20,870 --> 00:51:25,900
-When this kind of order the interleaving, 
+When this kind of order the interleaving,
 
 885
 00:51:26,370 --> 00:51:29,570
-you the cpu interleaves, 
+you the cpu interleaves,
 
 886
 00:51:30,080 --> 00:51:34,490
-execution of instruction from different threads. 
+execution of instruction from different threads.
 
 887
 00:51:35,030 --> 00:51:35,640
-For instance, 
+For instance,
 
 888
 00:51:35,650 --> 00:51:42,300
-when this happens on thread a acquire x then thread b acquire y now, 
+when this happens on thread a acquire x then thread b acquire y now,
 
 889
 00:51:42,310 --> 00:51:44,020
-thread a is stalled, 
+thread a is stalled,
 
 890
 00:51:44,470 --> 00:51:53,870
@@ -3560,23 +3705,23 @@ because thread b owns y and thread b cannot progress farther, either,
 
 891
 00:51:54,210 --> 00:52:03,860
-because it wants to acquire x which is our by a so this is that long, 
+because it wants to acquire x which is our by a so this is that long,
 
 892
 00:52:06,080 --> 00:52:06,440
-right? 
+right?
 
 893
 00:52:07,200 --> 00:52:08,110
-Hard to debug. 
+Hard to debug.
 
 894
 00:52:09,590 --> 00:52:10,750
-Because this happens, 
+Because this happens,
 
 895
 00:52:11,850 --> 00:52:13,410
-not doesn't happen all the time. 
+not doesn't happen all the time.
 
 896
 00:52:14,510 --> 00:52:16,040
@@ -3588,39 +3733,39 @@ That because it's, again, like, for instance,
 
 898
 00:52:22,860 --> 00:52:24,010
-if this happens, 
+if this happens,
 
 899
 00:52:24,690 --> 00:52:25,530
-you don't have that lock. 
+you don't have that lock.
 
 900
 00:52:25,810 --> 00:52:26,070
-Right? 
+Right?
 
 901
 00:52:26,080 --> 00:52:29,180
-So this is non deterministic. 
+So this is non deterministic.
 
 902
 00:52:29,600 --> 00:52:31,430
-It shall be a non thermissive bug. 
+It shall be a non thermissive bug.
 
 903
 00:52:33,280 --> 00:52:36,110
-You always need to be afraid of our on their missing bugs, 
+You always need to be afraid of our on their missing bugs,
 
 904
 00:52:36,120 --> 00:52:39,330
-because you cannot recruit them. 
+because you cannot recruit them.
 
 905
 00:52:39,340 --> 00:52:40,690
-If you can recruit a bug, 
+If you can recruit a bug,
 
 906
 00:52:40,920 --> 00:52:43,980
-it's the result is relatively easy to fix it. 
+it's the result is relatively easy to fix it.
 
 907
 00:52:44,760 --> 00:52:46,770
@@ -3628,55 +3773,55 @@ If you cannot reproduce it, how you are going to fix it.
 
 908
 00:52:51,730 --> 00:52:53,350
-Here is another classic example. 
+Here is another classic example.
 
 909
 00:52:54,810 --> 00:52:56,010
-He had four trains. 
+He had four trains.
 
 910
 00:52:56,690 --> 00:52:58,340
-And in this configuration, 
+And in this configuration,
 
 911
 00:52:58,870 --> 00:53:00,310
-none of them can make progress. 
+none of them can make progress.
 
 912
 00:53:00,320 --> 00:53:01,110
-You have a deadlock. 
+You have a deadlock.
 
 913
 00:53:02,490 --> 00:53:03,590
-You have here a deadlock, 
+You have here a deadlock,
 
 914
 00:53:03,600 --> 00:53:05,910
-just basically to illustrate the point. 
+just basically to illustrate the point.
 
 915
 00:53:06,300 --> 00:53:07,910
-So far as the examples we had, 
+So far as the examples we had,
 
 916
 00:53:07,920 --> 00:53:08,950
-you have to, 
+you have to,
 
 917
 00:53:09,280 --> 00:53:10,670
-it is which are in bad luck, 
+it is which are in bad luck,
 
 918
 00:53:11,090 --> 00:53:12,950
-two cars or two threads. 
+two cars or two threads.
 
 919
 00:53:13,370 --> 00:53:17,530
-But obviously that law can happen between multiple more than 20 days. 
+But obviously that law can happen between multiple more than 20 days.
 
 920
 00:53:17,820 --> 00:53:19,590
-And here is an example for four. 
+And here is an example for four.
 
 921
 00:53:23,030 --> 00:53:30,860
@@ -3684,11 +3829,11 @@ Here, each train wants to turn to write.
 
 922
 00:53:33,860 --> 00:53:40,740
-This is a real problems which are in in different systems, 
+This is a real problems which are in in different systems,
 
 923
 00:53:40,750 --> 00:53:42,000
-encountering different systems. 
+encountering different systems.
 
 924
 00:53:45,350 --> 00:53:50,610
@@ -3696,23 +3841,23 @@ Yes, it's exactly san francisco traffic a that's a good one.
 
 925
 00:53:54,270 --> 00:53:55,770
-So how you fix it? 
+So how you fix it?
 
 926
 00:53:56,870 --> 00:53:58,680
-One way to fix it, 
+One way to fix it,
 
 927
 00:53:58,690 --> 00:54:00,180
-it's actually for some ordering. 
+it's actually for some ordering.
 
 928
 00:54:00,190 --> 00:54:02,280
-You'll see this as a recurrent theme. 
+You'll see this as a recurrent theme.
 
 929
 00:54:03,210 --> 00:54:08,010
-One way to fix that lock is to have an order. 
+One way to fix that lock is to have an order.
 
 930
 00:54:11,530 --> 00:54:15,810
@@ -3732,11 +3877,11 @@ and only east, west, and north, south.
 
 934
 00:54:24,090 --> 00:54:24,410
-Right? 
+Right?
 
 935
 00:54:25,930 --> 00:54:26,420
-Okay. 
+Okay.
 
 936
 00:54:27,490 --> 00:54:30,240
@@ -3744,7 +3889,7 @@ As you'll see, like for our previous example,
 
 937
 00:54:31,630 --> 00:54:32,260
-this is a lot. 
+this is a lot.
 
 938
 00:54:32,270 --> 00:54:34,540
@@ -3752,27 +3897,27 @@ So as you see, in our previous examples,
 
 939
 00:54:34,550 --> 00:54:36,100
-when you have this kind of deadlock, 
+when you have this kind of deadlock,
 
 940
 00:54:37,870 --> 00:54:39,220
-we'll say it a few more times, 
+we'll say it a few more times,
 
 941
 00:54:39,230 --> 00:54:45,040
-but it's good to remember that one way you can avoid the deadlock, 
+but it's good to remember that one way you can avoid the deadlock,
 
 942
 00:54:45,050 --> 00:54:46,160
-in the previous case, 
+in the previous case,
 
 943
 00:54:46,170 --> 00:54:54,010
-is to enforce that both threads are going to acquire the locks in the same order. 
+is to enforce that both threads are going to acquire the locks in the same order.
 
 944
 00:54:55,560 --> 00:54:56,000
-Okay? 
+Okay?
 
 945
 00:54:57,840 --> 00:54:59,310
@@ -3784,7 +3929,7 @@ if you enforce that both and b acquire threads in the same order first x
 
 947
 00:55:05,710 --> 00:55:09,620
-and then y you are going to solve this problem. 
+and then y you are going to solve this problem.
 
 948
 00:55:17,340 --> 00:55:19,530
@@ -3792,11 +3937,11 @@ Again, we have the deadlock here,
 
 949
 00:55:19,900 --> 00:55:22,540
-because we do not have enough resources. 
+because we do not have enough resources.
 
 950
 00:55:23,980 --> 00:55:24,370
-Right? 
+Right?
 
 951
 00:55:25,770 --> 00:55:28,470
@@ -3804,15 +3949,15 @@ If we have enough resources, it's not a problem.
 
 952
 00:55:29,640 --> 00:55:30,060
-Right? 
+Right?
 
 953
 00:55:30,970 --> 00:55:35,250
-You wait for a resource that multiple threads compete to, 
+You wait for a resource that multiple threads compete to,
 
 954
 00:55:36,870 --> 00:55:37,150
-right? 
+right?
 
 955
 00:55:40,310 --> 00:55:42,390
@@ -3820,7 +3965,7 @@ There are also threats, car blocking,
 
 956
 00:55:42,400 --> 00:55:43,870
-waiting for other threats, 
+waiting for other threats,
 
 957
 00:55:43,880 --> 00:55:48,520
@@ -3828,63 +3973,63 @@ like pipe or sockets or wait, like, for instance,
 
 958
 00:55:48,530 --> 00:55:52,000
-I am blocked to wait for a to get a message, 
+I am blocked to wait for a to get a message,
 
 959
 00:55:53,680 --> 00:55:59,520
-but I am waiting for if I am remembered about bounded cures, 
+but I am waiting for if I am remembered about bounded cures,
 
 960
 00:56:00,350 --> 00:56:06,490
-I am awaiting for queue to become to get a free slot. 
+I am awaiting for queue to become to get a free slot.
 
 961
 00:56:06,500 --> 00:56:07,010
-In order. 
+In order.
 
 962
 00:56:07,020 --> 00:56:08,410
-If i'm a producer. 
+If i'm a producer.
 
 963
 00:56:08,670 --> 00:56:09,460
-Ii can wait. 
+Ii can wait.
 
 964
 00:56:09,470 --> 00:56:10,660
-If the queue is full. 
+If the queue is full.
 
 965
 00:56:10,670 --> 00:56:13,360
-I am waiting until the queue is drained. 
+I am waiting until the queue is drained.
 
 966
 00:56:13,370 --> 00:56:15,840
-So I can put more items in the queue. 
+So I can put more items in the queue.
 
 967
 00:56:20,740 --> 00:56:24,510
-It's again that local space is an example like here. 
+It's again that local space is an example like here.
 
 968
 00:56:26,110 --> 00:56:27,640
-If you don't have enough resources, 
+If you don't have enough resources,
 
 969
 00:56:28,710 --> 00:56:35,490
-you have two threads is threads want to allocate2 megabytes, 
+you have two threads is threads want to allocate2 megabytes,
 
 970
 00:56:35,500 --> 00:56:39,360
-but they want to allocate that into different calls. 
+but they want to allocate that into different calls.
 
 971
 00:56:40,270 --> 00:56:42,750
-And now assume that you have 2 megabytes of space. 
+And now assume that you have 2 megabytes of space.
 
 972
 00:56:43,410 --> 00:56:43,760
-Right? 
+Right?
 
 973
 00:56:44,220 --> 00:56:46,210
@@ -3892,15 +4037,15 @@ He said, allocates to megabytes,
 
 974
 00:56:46,220 --> 00:56:47,290
-32megabytes. 
+32megabytes.
 
 975
 00:56:47,720 --> 00:56:49,900
-But he's doing that one megabyte at a time. 
+But he's doing that one megabyte at a time.
 
 976
 00:56:50,410 --> 00:56:50,940
-Right? 
+Right?
 
 977
 00:56:51,340 --> 00:56:53,650
@@ -3908,19 +4053,19 @@ You can get here a deadlock situation, right?
 
 978
 00:56:53,660 --> 00:56:59,580
-Because if one thread gets one megabyte, 
+Because if one thread gets one megabyte,
 
 979
 00:57:00,530 --> 00:57:02,960
-one thread car gets another one megabyte, 
+one thread car gets another one megabyte,
 
 980
 00:57:03,510 --> 00:57:06,320
-they are deadlocked, 
+they are deadlocked,
 
 981
 00:57:07,300 --> 00:57:10,800
-because none of the thread can get an extra megabyte in order to finish. 
+because none of the thread can get an extra megabyte in order to finish.
 
 982
 00:57:14,980 --> 00:57:20,210
@@ -3928,31 +4073,31 @@ Here is another very famous problem
 
 983
 00:57:24,170 --> 00:57:25,160
-to illustrate the deadlock. 
+to illustrate the deadlock.
 
 984
 00:57:27,350 --> 00:57:28,020
-Dining. 
+Dining.
 
 985
 00:57:28,330 --> 00:57:31,190
-It was called philosopher problem. 
+It was called philosopher problem.
 
 986
 00:57:31,200 --> 00:57:33,270
-This is a little bit of a joke with the lawyers. 
+This is a little bit of a joke with the lawyers.
 
 987
 00:57:35,620 --> 00:57:36,970
-But think about this, 
+But think about this,
 
 988
 00:57:36,980 --> 00:57:39,090
-you have five people. 
+you have five people.
 
 989
 00:57:41,070 --> 00:57:44,680
-And there are only five chopsticks. 
+And there are only five chopsticks.
 
 990
 00:57:46,450 --> 00:57:47,880
@@ -3960,63 +4105,63 @@ Now, in order to eat,
 
 991
 00:57:49,780 --> 00:57:52,550
-you need two and you need two chopsticks. 
+you need two and you need two chopsticks.
 
 992
 00:57:53,830 --> 00:57:58,390
-So if everyone grabs one, 
+So if everyone grabs one,
 
 993
 00:57:58,400 --> 00:58:00,340
-chopstick is deadlock, 
+chopstick is deadlock,
 
 994
 00:58:00,950 --> 00:58:02,220
-because no one can eat. 
+because no one can eat.
 
 995
 00:58:04,110 --> 00:58:04,480
-Right? 
+Right?
 
 996
 00:58:06,430 --> 00:58:08,610
-So how do you do that? 
+So how do you do that?
 
 997
 00:58:09,470 --> 00:58:11,620
-In order to break this deadlock? 
+In order to break this deadlock?
 
 998
 00:58:12,510 --> 00:58:16,010
-We need to give someone to chopsticks. 
+We need to give someone to chopsticks.
 
 999
 00:58:17,120 --> 00:58:19,110
-So if everyone has one chopstick, 
+So if everyone has one chopstick,
 
 1000
 00:58:19,990 --> 00:58:25,920
-we need to get one someone to give up her chopsticks to her neighbor. 
+we need to get one someone to give up her chopsticks to her neighbor.
 
 1001
 00:58:25,930 --> 00:58:28,160
-So I know now my neighbor has the chopsticks. 
+So I know now my neighbor has the chopsticks.
 
 1002
 00:58:30,060 --> 00:58:30,700
-She can eat, 
+She can eat,
 
 1003
 00:58:31,370 --> 00:58:32,280
-she can finish. 
+she can finish.
 
 1004
 00:58:33,160 --> 00:58:38,160
-And now she can give the chopsticks to her neighbors. 
+And now she can give the chopsticks to her neighbors.
 
 1005
 00:58:39,100 --> 00:58:39,560
-Now, 
+Now,
 
 1006
 00:58:40,060 --> 00:58:45,170
@@ -4024,47 +4169,47 @@ other that her neighbors can finish, right?
 
 1007
 00:58:52,440 --> 00:58:52,740
-Okay? 
+Okay?
 
 1008
 00:58:53,480 --> 00:58:56,430
-This was a deadlock solving the deadlock after it occurred. 
+This was a deadlock solving the deadlock after it occurred.
 
 1009
 00:58:58,180 --> 00:58:59,970
-But ideally, 
+But ideally,
 
 1010
 00:58:59,980 --> 00:59:01,610
-you even want to prevent that. 
+you even want to prevent that.
 
 1011
 00:59:04,260 --> 00:59:05,480
-You have to have an algorithms. 
+You have to have an algorithms.
 
 1012
 00:59:05,490 --> 00:59:06,640
-You want to prevent that a lot. 
+You want to prevent that a lot.
 
 1013
 00:59:06,650 --> 00:59:08,080
-You don't get in the deadlock situation. 
+You don't get in the deadlock situation.
 
 1014
 00:59:08,090 --> 00:59:09,000
-In the first case. 
+In the first case.
 
 1015
 00:59:11,630 --> 00:59:12,520
-We'll talk about this, 
+We'll talk about this,
 
 1016
 00:59:13,050 --> 00:59:14,110
-but keep that in mind. 
+but keep that in mind.
 
 1017
 00:59:17,440 --> 00:59:17,870
-Now it is, 
+Now it is,
 
 1018
 00:59:18,480 --> 00:59:21,830
@@ -4072,75 +4217,75 @@ if you remember, when you have this kind of situations,
 
 1019
 00:59:22,040 --> 00:59:23,350
-you have some concurrence. 
+you have some concurrence.
 
 1020
 00:59:23,360 --> 00:59:27,500
-This is also an example of concurrent access to the resources. 
+This is also an example of concurrent access to the resources.
 
 1021
 00:59:29,550 --> 00:59:31,310
-We saw something similar with this. 
+We saw something similar with this.
 
 1022
 00:59:31,760 --> 00:59:33,350
-When we talk about critical section, 
+When we talk about critical section,
 
 1023
 00:59:34,430 --> 00:59:38,540
-we really want to have some to formalize the problem. 
+we really want to have some to formalize the problem.
 
 1024
 00:59:40,300 --> 00:59:42,010
-If we formalize a problem and say, 
+If we formalize a problem and say,
 
 1025
 00:59:42,020 --> 00:59:44,730
-what are the conditions a solution should meet? 
+what are the conditions a solution should meet?
 
 1026
 00:59:45,390 --> 00:59:46,810
-Then we should focus on. 
+Then we should focus on.
 
 1027
 00:59:46,820 --> 00:59:51,250
-We can only focus when developing a solution to meeting these conditions. 
+We can only focus when developing a solution to meeting these conditions.
 
 1028
 00:59:55,160 --> 00:59:58,460
-So what that the requirements, 
+So what that the requirements,
 
 1029
 00:59:58,640 --> 00:59:59,770
-first of all, 
+first of all,
 
 1030
 01:00:00,190 --> 01:00:04,970
-let's think about when does the deadlock occurs? 
+let's think about when does the deadlock occurs?
 
 1031
 01:00:05,410 --> 01:00:08,170
-Because if we know the requirements and under the lock occurs, 
+Because if we know the requirements and under the lock occurs,
 
 1032
 01:00:09,410 --> 01:00:13,430
-then if we basically break one of these requirements, 
+then if we basically break one of these requirements,
 
 1033
 01:00:14,490 --> 01:00:15,890
-then we can break the deadlock. 
+then we can break the deadlock.
 
 1034
 01:00:17,490 --> 01:00:20,090
-So there are four requirements for a dialogue docker, 
+So there are four requirements for a dialogue docker,
 
 1035
 01:00:21,750 --> 01:00:22,840
-mutual exclusion. 
+mutual exclusion.
 
 1036
 01:00:23,850 --> 01:00:29,380
-Only 1 sat at a time can use a resource hold and wait, 
+Only 1 sat at a time can use a resource hold and wait,
 
 1037
 01:00:30,300 --> 01:00:32,410
@@ -4148,11 +4293,11 @@ a thread holding, at least on resources,
 
 1038
 01:00:32,420 --> 01:00:34,730
-waiting to acquire additional resources, 
+waiting to acquire additional resources,
 
 1039
 01:00:34,740 --> 01:00:35,850
-held by other threats. 
+held by other threats.
 
 1040
 01:00:36,740 --> 01:00:38,660
@@ -4160,19 +4305,19 @@ Because if you don't wait, you can proceed.
 
 1041
 01:00:38,670 --> 01:00:39,540
-You can finish it. 
+You can finish it.
 
 1042
 01:00:39,840 --> 01:00:40,930
-You can release a resource. 
+You can release a resource.
 
 1043
 01:00:40,940 --> 01:00:42,910
-And now there are more resources in the system. 
+And now there are more resources in the system.
 
 1044
 01:00:44,660 --> 01:00:46,060
-So maybe as a threat can finish, 
+So maybe as a threat can finish,
 
 1045
 01:00:46,070 --> 01:00:47,980
@@ -4180,39 +4325,39 @@ which are writing for the resources, your fault,
 
 1046
 01:00:49,270 --> 01:00:50,170
-no preemption. 
+no preemption.
 
 1047
 01:00:51,560 --> 01:00:54,570
-If a thread hold the resource, 
+If a thread hold the resource,
 
 1048
 01:00:56,290 --> 01:00:58,060
-that thread is not going to release, 
+that thread is not going to release,
 
 1049
 01:00:58,070 --> 01:00:59,180
-that is sort of voluntary. 
+that is sort of voluntary.
 
 1050
 01:01:02,350 --> 01:01:03,940
-Before it finishes with it, 
+Before it finishes with it,
 
 1051
 01:01:05,490 --> 01:01:06,930
-then it is circular weight. 
+then it is circular weight.
 
 1052
 01:01:08,090 --> 01:01:09,850
-There exists a set of threads, 
+There exists a set of threads,
 
 1053
 01:01:10,470 --> 01:01:13,190
-says that t one is waiting for a resource that is held by t two. 
+says that t one is waiting for a resource that is held by t two.
 
 1054
 01:01:13,200 --> 01:01:16,390
-T two is waiting for a resource that is held by the three and so forth. 
+T two is waiting for a resource that is held by the three and so forth.
 
 1055
 01:01:20,320 --> 01:01:25,600
@@ -4220,23 +4365,23 @@ This means the last actually
 
 1056
 01:01:28,530 --> 01:01:34,190
-requirement give us away to detect deadlocks. 
+requirement give us away to detect deadlocks.
 
 1057
 01:01:37,830 --> 01:01:38,460
-How is that? 
+How is that?
 
 1058
 01:01:41,380 --> 01:01:42,950
-So basically, 
+So basically,
 
 1059
 01:01:42,960 --> 01:01:44,550
-you want to detect that cycle. 
+you want to detect that cycle.
 
 1060
 01:01:46,160 --> 01:01:48,320
-Let's use the same symbols. 
+Let's use the same symbols.
 
 1061
 01:01:48,330 --> 01:01:53,310
@@ -4244,19 +4389,19 @@ You want to use them, but the threads are circles.
 
 1062
 01:01:55,480 --> 01:01:58,800
-The resources are rectangles, 
+The resources are rectangles,
 
 1063
 01:01:58,810 --> 01:02:00,360
-and you have multiple dots. 
+and you have multiple dots.
 
 1064
 01:02:01,300 --> 01:02:02,680
-So this a resource, 
+So this a resource,
 
 1065
 01:02:02,690 --> 01:02:08,060
-when you each dot represent an instance of a particular resource. 
+when you each dot represent an instance of a particular resource.
 
 1066
 01:02:09,490 --> 01:02:14,260
@@ -4264,27 +4409,27 @@ So for instance, you have acpu is, for course,
 
 1067
 01:02:15,220 --> 01:02:18,190
-you are going to have four dots. 
+you are going to have four dots.
 
 1068
 01:02:19,170 --> 01:02:20,470
-Each representing worker. 
+Each representing worker.
 
 1069
 01:02:27,340 --> 01:02:31,810
-And the patterns of manipulating a resource is very simple. 
+And the patterns of manipulating a resource is very simple.
 
 1070
 01:02:32,680 --> 01:02:34,000
-You request a resource, 
+You request a resource,
 
 1071
 01:02:34,010 --> 01:02:35,040
-you use a resource, 
+you use a resource,
 
 1072
 01:02:35,050 --> 01:02:36,720
-you release a resource after you are done. 
+you release a resource after you are done.
 
 1073
 01:02:38,610 --> 01:02:40,920
@@ -4292,7 +4437,7 @@ Now, we can have a resource allocation graph,
 
 1074
 01:02:40,930 --> 01:02:45,330
-and we have 2 types of vertices, 
+and we have 2 types of vertices,
 
 1075
 01:02:46,260 --> 01:02:47,900
@@ -4300,11 +4445,11 @@ threads, and resources,
 
 1076
 01:02:48,860 --> 01:02:49,700
-resource types, 
+resource types,
 
 1077
 01:02:51,020 --> 01:02:54,250
-and 2 types of vertices or edges. 
+and 2 types of vertices or edges.
 
 1078
 01:02:54,880 --> 01:02:56,280
@@ -4312,7 +4457,7 @@ Sorry, and 2 types of edges.
 
 1079
 01:02:58,770 --> 01:03:00,130
-These are directed edge. 
+These are directed edge.
 
 1080
 01:03:02,050 --> 01:03:11,180
@@ -4320,7 +4465,7 @@ If a thread, you have an edge from a thread ti to a resource rj if set
 
 1081
 01:03:11,190 --> 01:03:18,790
-ti request the resource j and then you have assignment age, 
+ti request the resource j and then you have assignment age,
 
 1082
 01:03:19,720 --> 01:03:27,300
@@ -4332,7 +4477,7 @@ when thread di allocate or has allocated resource
 
 1084
 01:03:35,420 --> 01:03:40,760
-rjok so basically, 
+rjok so basically,
 
 1085
 01:03:40,770 --> 01:03:42,320
@@ -4340,15 +4485,15 @@ here, in this example,
 
 1086
 01:03:43,540 --> 01:03:50,740
-this edge from r one to t two basically says that t two own r one, 
+this edge from r one to t two basically says that t two own r one,
 
 1087
 01:03:52,750 --> 01:03:54,950
-the edge from t one to r one, 
+the edge from t one to r one,
 
 1088
 01:03:54,960 --> 01:03:57,430
-say that t one requests resource r one. 
+say that t one requests resource r one.
 
 1089
 01:04:06,050 --> 01:04:07,240
@@ -4356,7 +4501,7 @@ This is some
 
 1090
 01:04:13,990 --> 01:04:20,430
-examples you see here. 
+examples you see here.
 
 1091
 01:04:23,880 --> 01:04:24,890
@@ -4368,15 +4513,15 @@ it turns out, and we are going to learn more about that,
 
 1093
 01:04:31,330 --> 01:04:34,670
-but it turns out that these middle examples, 
+but it turns out that these middle examples,
 
 1094
 01:04:35,080 --> 01:04:36,080
-it's in the deadlock. 
+it's in the deadlock.
 
 1095
 01:04:37,510 --> 01:04:38,020
-Why? 
+Why?
 
 1096
 01:04:39,280 --> 01:04:44,620
@@ -4384,31 +4529,31 @@ Because two reasons, first of all, you have a cycle.
 
 1097
 01:04:46,100 --> 01:04:46,780
-You see here, 
+You see here,
 
 1098
 01:04:48,220 --> 01:04:49,660
-t one was for our own, 
+t one was for our own,
 
 1099
 01:04:50,710 --> 01:04:53,300
-which our own is owned by t two, 
+which our own is owned by t two,
 
 1100
 01:04:54,530 --> 01:04:56,960
-and it always are of our for us. 
+and it always are of our for us.
 
 1101
 01:04:58,760 --> 01:04:59,430
-I'm sorry. 
+I'm sorry.
 
 1102
 01:04:59,880 --> 01:05:00,360
-I'm sorry. 
+I'm sorry.
 
 1103
 01:05:01,000 --> 01:05:03,150
-The cycle is this one, 
+The cycle is this one,
 
 1104
 01:05:03,630 --> 01:05:06,120
@@ -4416,15 +4561,15 @@ r three, d two, r two, d three.
 
 1105
 01:05:07,300 --> 01:05:09,440
-The two owns are three. 
+The two owns are three.
 
 1106
 01:05:10,030 --> 01:05:11,300
-Requests are two, 
+Requests are two,
 
 1107
 01:05:11,960 --> 01:05:13,780
-which is owned by the three. 
+which is owned by the three.
 
 1108
 01:05:13,790 --> 01:05:20,700
@@ -4432,11 +4577,11 @@ And finally, these three requests for are three, which is owned by people.
 
 1109
 01:05:22,490 --> 01:05:23,900
-So this is a deadlock, 
+So this is a deadlock,
 
 1110
 01:05:24,630 --> 01:05:25,870
-because you have this cycle. 
+because you have this cycle.
 
 1111
 01:05:25,880 --> 01:05:28,270
@@ -4448,7 +4593,7 @@ Here, another requirement is hold on weight thread, holding,
 
 1113
 01:05:32,630 --> 01:05:33,580
-at least on resources, 
+at least on resources,
 
 1114
 01:05:33,590 --> 01:05:36,180
@@ -4456,7 +4601,7 @@ waiting to acquire additional resource, held by other threats.
 
 1115
 01:05:37,440 --> 01:05:39,790
-Every thread here in this example, 
+Every thread here in this example,
 
 1116
 01:05:40,710 --> 01:05:42,930
@@ -4464,15 +4609,15 @@ it's in this situation, right?
 
 1117
 01:05:45,090 --> 01:05:47,990
-It's waiting for a resource, 
+It's waiting for a resource,
 
 1118
 01:05:48,660 --> 01:05:50,160
-handled by another thread. 
+handled by another thread.
 
 1119
 01:05:52,730 --> 01:05:56,960
-Here is an example which there is a cycle, 
+Here is an example which there is a cycle,
 
 1120
 01:05:57,860 --> 01:06:00,540
@@ -4480,19 +4625,19 @@ d one, r one, d three, r two.
 
 1121
 01:06:01,460 --> 01:06:02,610
-But this is not deadlock, 
+But this is not deadlock,
 
 1122
 01:06:04,060 --> 01:06:08,930
-because d two and d four owner resource, 
+because d two and d four owner resource,
 
 1123
 01:06:08,940 --> 01:06:11,450
-but they don't do it for any other resource. 
+but they don't do it for any other resource.
 
 1124
 01:06:14,560 --> 01:06:15,040
-Okay? 
+Okay?
 
 1125
 01:06:17,680 --> 01:06:19,750
@@ -4504,39 +4649,39 @@ we learn more in the remaining of this lecture and the next lecture is that
 
 1127
 01:06:27,650 --> 01:06:30,020
-t two and t four can proceed, 
+t two and t four can proceed,
 
 1128
 01:06:31,390 --> 01:06:32,620
-can run to completion. 
+can run to completion.
 
 1129
 01:06:32,630 --> 01:06:34,300
-And once they run to completion, 
+And once they run to completion,
 
 1130
 01:06:34,770 --> 01:06:39,140
-they free or an instance of r one and r two respect. 
+they free or an instance of r one and r two respect.
 
 1131
 01:06:47,220 --> 01:06:47,800
-I see, 
+I see,
 
 1132
 01:06:48,590 --> 01:06:51,500
-how does that three have two assignment edges? 
+how does that three have two assignment edges?
 
 1133
 01:06:52,720 --> 01:06:53,780
-Assignment? 
+Assignment?
 
 1134
 01:06:53,790 --> 01:06:54,340
-Good answer. 
+Good answer.
 
 1135
 01:06:54,350 --> 01:06:55,620
-There are two instances. 
+There are two instances.
 
 1136
 01:06:56,030 --> 01:06:56,790
@@ -4544,7 +4689,7 @@ Yes, like I said.
 
 1137
 01:06:56,800 --> 01:07:01,600
-So you can look about this r three and r four as type of resources. 
+So you can look about this r three and r four as type of resources.
 
 1138
 01:07:02,200 --> 01:07:09,220
@@ -4552,35 +4697,35 @@ And the dots within these rectangles are the number of instances
 
 1139
 01:07:09,230 --> 01:07:10,580
-of that particular type. 
+of that particular type.
 
 1140
 01:07:12,700 --> 01:07:13,420
-And typically, 
+And typically,
 
 1141
 01:07:13,430 --> 01:07:20,480
-one thread here with require one instance of a particular resource type. 
+one thread here with require one instance of a particular resource type.
 
 1142
 01:07:27,820 --> 01:07:31,060
-We do have also a deadlock detection algorithms. 
+We do have also a deadlock detection algorithms.
 
 1143
 01:07:31,070 --> 01:07:32,580
-You want an algorithm. 
+You want an algorithm.
 
 1144
 01:07:34,620 --> 01:07:38,210
-And the vector that on detection algorithms is very simple. 
+And the vector that on detection algorithms is very simple.
 
 1145
 01:07:43,980 --> 01:07:47,370
-You keep an array of free resources, 
+You keep an array of free resources,
 
 1146
 01:07:48,750 --> 01:07:50,990
-then you have an array of requests, 
+then you have an array of requests,
 
 1147
 01:07:52,410 --> 01:08:00,190
@@ -4588,47 +4733,47 @@ threads of the current request from thread x you have all
 
 1148
 01:08:00,200 --> 01:08:05,230
-sorts of for each thread x you have the current request of that thread. 
+sorts of for each thread x you have the current request of that thread.
 
 1149
 01:08:06,140 --> 01:08:08,930
-The current resources are located by the threat. 
+The current resources are located by the threat.
 
 1150
 01:08:16,940 --> 01:08:17,330
-Okay? 
+Okay?
 
 1151
 01:08:18,360 --> 01:08:21,680
-You initialize the available resources to the free resource. 
+You initialize the available resources to the free resource.
 
 1152
 01:08:22,790 --> 01:08:23,130
-Right? 
+Right?
 
 1153
 01:08:23,760 --> 01:08:26,310
-The free resources are the one which are available. 
+The free resources are the one which are available.
 
 1154
 01:08:27,820 --> 01:08:31,290
-Then you look at all the notes which are unfinished. 
+Then you look at all the notes which are unfinished.
 
 1155
 01:08:31,300 --> 01:08:32,370
-You keep all the notes, 
+You keep all the notes,
 
 1156
 01:08:32,380 --> 01:08:34,280
-which are all threads. 
+which are all threads.
 
 1157
 01:08:34,290 --> 01:08:37,860
-This represents all threads which are not finished. 
+This represents all threads which are not finished.
 
 1158
 01:08:41,140 --> 01:08:42,770
-And you take one by one. 
+And you take one by one.
 
 1159
 01:08:44,150 --> 01:08:49,690
@@ -4636,11 +4781,11 @@ And you look whether you have enough available resources for that thread
 
 1160
 01:08:49,700 --> 01:08:50,290
-to finish. 
+to finish.
 
 1161
 01:08:50,730 --> 01:08:51,790
-In other words, 
+In other words,
 
 1162
 01:08:52,080 --> 01:09:00,040
@@ -4648,11 +4793,11 @@ if the requested resources by that thread
 
 1163
 01:09:01,140 --> 01:09:04,420
-can be satisfied by the existing available resources. 
+can be satisfied by the existing available resources.
 
 1164
 01:09:06,360 --> 01:09:11,160
-And if you are going to run the threat, 
+And if you are going to run the threat,
 
 1165
 01:09:11,750 --> 01:09:19,610
@@ -4660,95 +4805,95 @@ and then now all the resources on the thread are finishes are going to be added 
 
 1166
 01:09:19,620 --> 01:09:21,760
-availability set, 
+availability set,
 
 1167
 01:09:22,080 --> 01:09:23,300
-because they are available now. 
+because they are available now.
 
 1168
 01:09:25,360 --> 01:09:27,630
-So you do that. 
+So you do that.
 
 1169
 01:09:29,080 --> 01:09:33,190
-And if there are no longer unfinished resources, 
+And if there are no longer unfinished resources,
 
 1170
 01:09:33,420 --> 01:09:41,420
-and if there are no longer items in or threads in their finished list, 
+and if there are no longer items in or threads in their finished list,
 
 1171
 01:09:43,160 --> 01:09:43,670
-you are done. 
+you are done.
 
 1172
 01:09:43,680 --> 01:09:46,060
-That is not a deadlock. 
+That is not a deadlock.
 
 1173
 01:09:47,110 --> 01:09:48,040
-Otherwise, 
+Otherwise,
 
 1174
 01:09:48,850 --> 01:09:49,640
-there is a deadlock, 
+there is a deadlock,
 
 1175
 01:09:57,850 --> 01:10:00,360
-so not left in unfinished out of that. 
+so not left in unfinished out of that.
 
 1176
 01:10:00,690 --> 01:10:01,110
-Okay. 
+Okay.
 
 1177
 01:10:01,580 --> 01:10:03,200
-Let me there is a question here, 
+Let me there is a question here,
 
 1178
 01:10:03,210 --> 01:10:04,640
-but t one and t two, 
+but t one and t two,
 
 1179
 01:10:04,650 --> 01:10:06,080
-t three is still in deadlock. 
+t three is still in deadlock.
 
 1180
 01:10:14,990 --> 01:10:15,940
-So I can say, 
+So I can say,
 
 1181
 01:10:17,520 --> 01:10:19,450
-so let me stay here. 
+so let me stay here.
 
 1182
 01:10:20,570 --> 01:10:21,820
-So this is a question. 
+So this is a question.
 
 1183
 01:10:21,830 --> 01:10:23,630
-It's a great timing for that question. 
+It's a great timing for that question.
 
 1184
 01:10:33,090 --> 01:10:33,880
-There's a question here. 
+There's a question here.
 
 1185
 01:10:34,770 --> 01:10:36,200
-T two and t four finishes, 
+T two and t four finishes,
 
 1186
 01:10:36,210 --> 01:10:38,280
-but t one and t three are still in that lock. 
+but t one and t three are still in that lock.
 
 1187
 01:10:40,240 --> 01:10:41,150
-Here is a sink. 
+Here is a sink.
 
 1188
 01:10:41,160 --> 01:10:43,190
-If you run this algorithm is what will happen. 
+If you run this algorithm is what will happen.
 
 1189
 01:10:44,850 --> 01:10:50,580
@@ -4756,11 +4901,11 @@ You see, t two actually will finish the execution.
 
 1190
 01:10:51,570 --> 01:10:53,760
-And whilst the two finishes execution, 
+And whilst the two finishes execution,
 
 1191
 01:10:55,160 --> 01:10:57,160
-it releases the instance of our one. 
+it releases the instance of our one.
 
 1192
 01:11:00,020 --> 01:11:03,820
@@ -4768,7 +4913,7 @@ Now, there is one available r one instance.
 
 1193
 01:11:05,070 --> 01:11:07,540
-T one can acquire that instance. 
+T one can acquire that instance.
 
 1194
 01:11:08,730 --> 01:11:11,420
@@ -4776,39 +4921,39 @@ Now, t one has both the instance of ours,
 
 1195
 01:11:11,430 --> 01:11:12,620
-two and r one. 
+two and r one.
 
 1196
 01:11:12,630 --> 01:11:16,100
-So we can run and complete. 
+So we can run and complete.
 
 1197
 01:11:19,860 --> 01:11:20,690
-That's a trick, 
+That's a trick,
 
 1198
 01:11:21,560 --> 01:11:22,800
-because the t two, 
+because the t two,
 
 1199
 01:11:22,810 --> 01:11:24,320
-whenever you have a threat, 
+whenever you have a threat,
 
 1200
 01:11:25,980 --> 01:11:33,640
-which can complete think that is going to release the number once it finishes, 
+which can complete think that is going to release the number once it finishes,
 
 1201
 01:11:34,200 --> 01:11:38,230
-the number of three resources available resources going to increase, 
+the number of three resources available resources going to increase,
 
 1202
 01:11:39,060 --> 01:11:43,350
-which will give an opportunity to as a thread which are blocked until then, 
+which will give an opportunity to as a thread which are blocked until then,
 
 1203
 01:11:44,170 --> 01:11:50,550
-to acquire the newly the new release resources and to finish themselves. 
+to acquire the newly the new release resources and to finish themselves.
 
 1204
 01:11:50,560 --> 01:11:53,910
@@ -4816,35 +4961,35 @@ And then they are going to finish even more resources are going to be
 
 1205
 01:11:53,920 --> 01:11:57,700
-available for in the system for the other stress to finish. 
+available for in the system for the other stress to finish.
 
 1206
 01:12:01,880 --> 01:12:03,690
-So how should we deal with the deadlock? 
+So how should we deal with the deadlock?
 
 1207
 01:12:04,850 --> 01:12:06,530
-There are four different approaches, 
+There are four different approaches,
 
 1208
 01:12:08,370 --> 01:12:09,590
-bedrock prevention. 
+bedrock prevention.
 
 1209
 01:12:13,480 --> 01:12:18,170
-You write your code in a way that is not that law cannot happen. 
+You write your code in a way that is not that law cannot happen.
 
 1210
 01:12:18,690 --> 01:12:19,190
-Can happen. 
+Can happen.
 
 1211
 01:12:19,200 --> 01:12:20,510
-Did that law recovery? 
+Did that law recovery?
 
 1212
 01:12:21,210 --> 01:12:24,530
-You let that all happen and then figure out how to recover from it. 
+You let that all happen and then figure out how to recover from it.
 
 1213
 01:12:25,440 --> 01:12:26,920
@@ -4856,35 +5001,35 @@ so on the bridge, a car, we come back up.
 
 1215
 01:12:31,870 --> 01:12:32,760
-You can preemptive. 
+You can preemptive.
 
 1216
 01:12:33,010 --> 01:12:33,800
-So things like that. 
+So things like that.
 
 1217
 01:12:35,310 --> 01:12:36,510
-Deadlock avoidance. 
+Deadlock avoidance.
 
 1218
 01:12:37,630 --> 01:12:37,950
-With that. 
+With that.
 
 1219
 01:12:37,960 --> 01:12:40,950
-Look of doyle as they can dynamically delay resource request. 
+Look of doyle as they can dynamically delay resource request.
 
 1220
 01:12:40,960 --> 01:12:42,150
-So that doesn't happen. 
+So that doesn't happen.
 
 1221
 01:12:42,570 --> 01:12:49,060
-You kind order and impose an order and a time when different threads, 
+You kind order and impose an order and a time when different threads,
 
 1222
 01:12:49,580 --> 01:12:50,760
-they request resources. 
+they request resources.
 
 1223
 01:12:53,780 --> 01:12:58,180
@@ -4896,31 +5041,31 @@ first, you let duty one acquire the resources,
 
 1225
 01:13:04,000 --> 01:13:05,190
-and then t two, 
+and then t two,
 
 1226
 01:13:05,200 --> 01:13:07,630
-and then there is no deadlock. 
+and then there is no deadlock.
 
 1227
 01:13:10,600 --> 01:13:11,510
-The last one, 
+The last one,
 
 1228
 01:13:12,360 --> 01:13:14,100
-it's obviously not a solution. 
+it's obviously not a solution.
 
 1229
 01:13:16,680 --> 01:13:19,990
-You can deny that the deadlock and see what happens. 
+You can deny that the deadlock and see what happens.
 
 1230
 01:13:20,000 --> 01:13:21,470
-Maybe you are lucky. 
+Maybe you are lucky.
 
 1231
 01:13:27,780 --> 01:13:31,930
-What is the difference between deadlock avoidance and then lock prevention? 
+What is the difference between deadlock avoidance and then lock prevention?
 
 1232
 01:13:32,560 --> 01:13:38,130
@@ -4928,19 +5073,19 @@ That's a very good question that a lot avoidance is that you can Write
 
 1233
 01:13:38,140 --> 01:13:38,650
-your code, 
+your code,
 
 1234
 01:13:38,660 --> 01:13:39,250
-for instance, 
+for instance,
 
 1235
 01:13:39,260 --> 01:13:40,970
-the law prevention meaning that, 
+the law prevention meaning that,
 
 1236
 01:13:43,210 --> 01:13:43,830
-for instance, 
+for instance,
 
 1237
 01:13:43,840 --> 01:13:50,210
@@ -4948,35 +5093,35 @@ you make sure that you never had more stress than the resources that I
 
 1238
 01:13:50,220 --> 01:13:51,570
-do have plenty of resources, 
+do have plenty of resources,
 
 1239
 01:13:52,040 --> 01:13:53,220
-then you prevent either lock. 
+then you prevent either lock.
 
 1240
 01:13:54,110 --> 01:13:56,270
-Deadlock avoidance is that the law can happen. 
+Deadlock avoidance is that the law can happen.
 
 1241
 01:13:57,480 --> 01:14:07,290
-But you can make sure and you write your your code, 
+But you can make sure and you write your your code,
 
 1242
 01:14:07,300 --> 01:14:12,010
-and you are trying to schedule your threads. 
+and you are trying to schedule your threads.
 
 1243
 01:14:12,820 --> 01:14:17,550
-And you are trying to order as a resource request. 
+And you are trying to order as a resource request.
 
 1244
 01:14:17,560 --> 01:14:18,710
-So that doesn't happen. 
+So that doesn't happen.
 
 1245
 01:14:22,170 --> 01:14:27,800
-Like in our examples of brains. 
+Like in our examples of brains.
 
 1246
 01:14:29,390 --> 01:14:32,700
@@ -4984,7 +5129,7 @@ When you go south, east, west,
 
 1247
 01:14:32,710 --> 01:14:33,870
-and then North, 
+and then North,
 
 1248
 01:14:34,590 --> 01:14:37,850
@@ -4992,87 +5137,87 @@ south, then you don't go first, North, south, and then south,
 
 1249
 01:14:39,310 --> 01:14:39,560
-east, 
+east,
 
 1250
 01:14:40,380 --> 01:14:40,550
-west. 
+west.
 
 1251
 01:14:43,100 --> 01:14:43,870
-But they are related. 
+But they are related.
 
 1252
 01:14:43,880 --> 01:14:47,730
-And okay, 
+And okay,
 
 1253
 01:14:49,660 --> 01:14:52,670
-so many operating systems avoid the deadlock. 
+so many operating systems avoid the deadlock.
 
 1254
 01:14:53,680 --> 01:14:56,430
-They don't ignore the deadlock. 
+They don't ignore the deadlock.
 
 1255
 01:14:56,800 --> 01:14:57,830
-When can you ignore that? 
+When can you ignore that?
 
 1256
 01:14:57,840 --> 01:14:58,590
-The deadlock? 
+The deadlock?
 
 1257
 01:14:59,200 --> 01:15:04,420
-To let me here we are making a little bit of fun that denial in this Oscar covering. 
+To let me here we are making a little bit of fun that denial in this Oscar covering.
 
 1258
 01:15:04,910 --> 01:15:09,140
-So you pretend the problem is not doesn't happen, 
+So you pretend the problem is not doesn't happen,
 
 1259
 01:15:10,730 --> 01:15:11,560
-is not happening. 
+is not happening.
 
 1260
 01:15:12,030 --> 01:15:14,460
-But when actually deadlock denial, 
+But when actually deadlock denial,
 
 1261
 01:15:15,230 --> 01:15:15,950
-it's okay. 
+it's okay.
 
 1262
 01:15:23,940 --> 01:15:25,000
-When crashing freezing, 
+When crashing freezing,
 
 1263
 01:15:25,010 --> 01:15:26,640
-isn't that big of a problem? 
+isn't that big of a problem?
 
 1264
 01:15:27,450 --> 01:15:27,730
-Yes. 
+Yes.
 
 1265
 01:15:27,740 --> 01:15:29,530
-And when they are very, 
+And when they are very,
 
 1266
 01:15:29,540 --> 01:15:31,650
-very happened very readily, 
+very happened very readily,
 
 1267
 01:15:33,900 --> 01:15:36,630
-when it happens very rarely. 
+when it happens very rarely.
 
 1268
 01:15:37,280 --> 01:15:37,670
-Okay. 
+Okay.
 
 1269
 01:15:38,170 --> 01:15:42,130
-That's what when it's okay. 
+That's what when it's okay.
 
 1270
 01:15:42,570 --> 01:15:48,320
@@ -5080,51 +5225,51 @@ And if you were to address to put the deadlock to do deadlock prevention
 
 1271
 01:15:48,330 --> 01:15:50,460
-or avoidance, 
+or avoidance,
 
 1272
 01:15:51,360 --> 01:15:53,030
-will require very expensive algorithms, 
+will require very expensive algorithms,
 
 1273
 01:15:53,040 --> 01:15:56,150
-will dramatically increase the complexity of the system. 
+will dramatically increase the complexity of the system.
 
 1274
 01:15:59,730 --> 01:16:00,070
-Right? 
+Right?
 
 1275
 01:16:01,300 --> 01:16:02,980
-So preventing deadlocks, 
+So preventing deadlocks,
 
 1276
 01:16:03,950 --> 01:16:04,730
-like I mentioned, 
+like I mentioned,
 
 1277
 01:16:04,740 --> 01:16:07,770
-you have enough resources so that no one ever runs out of resources. 
+you have enough resources so that no one ever runs out of resources.
 
 1278
 01:16:09,270 --> 01:16:09,730
-Right? 
+Right?
 
 1279
 01:16:10,640 --> 01:16:11,780
-And other things, 
+And other things,
 
 1280
 01:16:14,400 --> 01:16:15,870
-every source can be shared. 
+every source can be shared.
 
 1281
 01:16:17,100 --> 01:16:22,310
-Like the CPU you have100, 
+Like the CPU you have100,
 
 1282
 01:16:22,320 --> 01:16:23,550
-you have one thread, 
+you have one thread,
 
 1283
 01:16:23,860 --> 01:16:25,710
@@ -5140,47 +5285,47 @@ Everyone will be slower, but still,
 
 1286
 01:16:29,210 --> 01:16:35,730
-you are going to get your share of the CPU and finally, 
+you are going to get your share of the CPU and finally,
 
 1287
 01:16:35,740 --> 01:16:37,650
-like you don't allow waiting. 
+like you don't allow waiting.
 
 1288
 01:16:39,180 --> 01:16:43,030
-I this is what happens in many cases, 
+I this is what happens in many cases,
 
 1289
 01:16:44,730 --> 01:16:45,050
-right? 
+right?
 
 1290
 01:16:45,060 --> 01:16:47,410
-You knew when you call, 
+You knew when you call,
 
 1291
 01:16:48,130 --> 01:16:50,100
-the other part is not available, 
+the other part is not available,
 
 1292
 01:16:50,110 --> 01:16:52,080
-or when the system is overloaded, 
+or when the system is overloaded,
 
 1293
 01:16:52,890 --> 01:16:54,040
-you get a busy signal, 
+you get a busy signal,
 
 1294
 01:16:55,660 --> 01:16:56,050
-right? 
+right?
 
 1295
 01:16:56,490 --> 01:16:57,000
-Failure. 
+Failure.
 
 1296
 01:16:58,120 --> 01:16:58,720
-Try again. 
+Try again.
 
 1297
 01:16:59,910 --> 01:17:01,770
@@ -5188,15 +5333,15 @@ The same in internet, in the networking.
 
 1298
 01:17:02,460 --> 01:17:04,010
-There are collision between the packets. 
+There are collision between the packets.
 
 1299
 01:17:04,500 --> 01:17:05,050
-Try again. 
+Try again.
 
 1300
 01:17:06,010 --> 01:17:06,370
-Okay? 
+Okay?
 
 1301
 01:17:07,980 --> 01:17:09,530
@@ -5208,15 +5353,15 @@ And in some case, you cannot do it.
 
 1303
 01:17:13,000 --> 01:17:17,150
-But it can be inefficient in some cases. 
+But it can be inefficient in some cases.
 
 1304
 01:17:17,530 --> 01:17:18,780
-But it's a very simple method. 
+But it's a very simple method.
 
 1305
 01:17:22,360 --> 01:17:23,170
-This is an example. 
+This is an example.
 
 1306
 01:17:23,180 --> 01:17:25,130
@@ -5224,11 +5369,11 @@ If you having been resources, in our case,
 
 1307
 01:17:25,140 --> 01:17:28,260
-in which that will happen because limited resources, 
+in which that will happen because limited resources,
 
 1308
 01:17:28,610 --> 01:17:29,740
-no longer a problem. 
+no longer a problem.
 
 1309
 01:17:43,470 --> 01:17:51,840
@@ -5236,19 +5381,19 @@ Another way to do it is to prevent the deadlock is to require everything
 
 1310
 01:17:51,850 --> 01:17:53,160
-at the beginning. 
+at the beginning.
 
 1311
 01:17:55,300 --> 01:17:57,440
-Everyone requires everything at the beginning, 
+Everyone requires everything at the beginning,
 
 1312
 01:17:58,020 --> 01:17:59,050
-and therefore, 
+and therefore,
 
 1313
 01:18:06,130 --> 01:18:07,640
-exactly what everyone is using. 
+exactly what everyone is using.
 
 1314
 01:18:07,650 --> 01:18:13,890
@@ -5256,11 +5401,11 @@ So you can allocate from at the beginning resources to everyone so that you
 
 1315
 01:18:13,900 --> 01:18:16,820
-make sure there is no prevention, 
+make sure there is no prevention,
 
 1316
 01:18:16,870 --> 01:18:18,740
-there is no deadlock, 
+there is no deadlock,
 
 1317
 01:18:21,120 --> 01:18:26,450
@@ -5268,15 +5413,15 @@ and then force all stress to request resources in particular orders like we
 
 1318
 01:18:26,460 --> 01:18:26,890
-discuss. 
+discuss.
 
 1319
 01:18:28,400 --> 01:18:29,400
-But here, 
+But here,
 
 1320
 01:18:30,660 --> 01:18:32,100
-a it's a very, 
+a it's a very,
 
 1321
 01:18:32,110 --> 01:18:37,760
@@ -5284,7 +5429,7 @@ very interesting important things is that one thing this happens when you
 
 1322
 01:18:37,770 --> 01:18:38,690
-acquire the locks, 
+acquire the locks,
 
 1323
 01:18:38,700 --> 01:18:46,300
@@ -5292,55 +5437,55 @@ x and y and y and x is because this two operations of
 
 1324
 01:18:46,310 --> 01:18:48,720
-acquiring the tulips, 
+acquiring the tulips,
 
 1325
 01:18:48,730 --> 01:18:51,830
-they are not atomic. 
+they are not atomic.
 
 1326
 01:18:54,140 --> 01:18:58,080
-But what if the operation of acquiring these locks is at home? 
+But what if the operation of acquiring these locks is at home?
 
 1327
 01:18:59,700 --> 01:19:00,920
-Then everything will work, 
+Then everything will work,
 
 1328
 01:19:02,530 --> 01:19:02,760
-right? 
+right?
 
 1329
 01:19:02,770 --> 01:19:05,040
-Because only one of the thread will be successful. 
+Because only one of the thread will be successful.
 
 1330
 01:19:06,150 --> 01:19:09,240
-The strategy is successful is going to run to completion, 
+The strategy is successful is going to run to completion,
 
 1331
 01:19:09,550 --> 01:19:12,540
-is going to release the two resources to locks. 
+is going to release the two resources to locks.
 
 1332
 01:19:12,910 --> 01:19:15,140
-The other trend is going to come up and run. 
+The other trend is going to come up and run.
 
 1333
 01:19:17,020 --> 01:19:19,090
-And how do you do that in practice? 
+And how do you do that in practice?
 
 1334
 01:19:19,770 --> 01:19:20,290
-Well, 
+Well,
 
 1335
 01:19:20,710 --> 01:19:25,770
-use another lock to make sure that acquiring the locks x and do and y are atomic. 
+use another lock to make sure that acquiring the locks x and do and y are atomic.
 
 1336
 01:19:29,750 --> 01:19:30,780
-That's why I have to do it. 
+That's why I have to do it.
 
 1337
 01:19:33,300 --> 01:19:37,640
@@ -5348,7 +5493,7 @@ You can also do it, like I said earlier on that by enforcing order.
 
 1338
 01:19:37,650 --> 01:19:38,960
-So in this case, 
+So in this case,
 
 1339
 01:19:38,970 --> 01:19:42,920
@@ -5360,29 +5505,29 @@ again, you are fine.
 
 1341
 01:19:47,460 --> 01:19:49,650
-Does it matter in which order the locks are released? 
+Does it matter in which order the locks are released?
 
 1342
 01:19:51,300 --> 01:19:51,710
-Now? 
+Now?
 
 1343
 01:19:52,340 --> 01:19:54,170
-Because the release is not awaiting operation? 
+Because the release is not awaiting operation?
 
 1344
 01:19:56,220 --> 01:19:56,730
-Okay. 
+Okay.
 
 1345
 01:19:58,050 --> 01:20:00,040
-We are going to stop here, 
+We are going to stop here,
 
 1346
 01:20:00,050 --> 01:20:04,930
-and we are going to continue talking about deadlocks next lecture. 
+and we are going to continue talking about deadlocks next lecture.
 
 1347
 01:20:05,950 --> 01:20:14,670
-Good luck with the project one and see you all on virtually on Saturday. 
+Good luck with the project one and see you all on virtually on Saturday.
 

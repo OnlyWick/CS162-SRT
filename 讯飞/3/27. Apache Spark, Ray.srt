@@ -1,634 +1,791 @@
-﻿1
+1
 00:00:16,640 --> 00:00:17,670
 Hello, everyone.
+大家好。
 
 2
 00:00:19,640 --> 00:00:21,750
-Welcome to the last lecture. 
+Welcome to the last lecture.
+欢迎来到最后一堂课。
 
 3
 00:00:21,760 --> 00:00:27,670
-And today we are going to go over some special topics this being the last lecture. 
+And today we are going to go over some special topics this being the last lecture.
+今天我们将讨论一些特殊的主题，这是最后一堂课。
 
 4
 00:00:28,300 --> 00:00:28,890
-In particular, 
+In particular,
+特别是，
 
 5
 00:00:28,900 --> 00:00:35,370
-i'm going to talk briefly about apache spark and ray two systems. 
+i'm going to talk briefly about apache spark and ray two systems.
+我将简要介绍Apache Spark和Ray这两个系统。
 
 6
 00:00:35,760 --> 00:00:38,270
-We developed that berkeley you may have heard of. 
+We developed that berkeley you may have heard of.
+我们开发了你可能听说过的伯克利系统。
 
 7
 00:00:40,190 --> 00:00:42,370
-And i'd like to go quicker, 
+And i'd like to go quicker,
+我想要更快一些，
 
 8
 00:00:42,380 --> 00:00:44,050
-although there are a lot of slides, 
+although there are a lot of slides,
+虽然有很多幻灯片，
 
 9
 00:00:45,770 --> 00:00:46,390
-because really, 
+because really,
+因为真的，
 
 10
 00:00:46,400 --> 00:00:51,030
 I like to give you opportunity to ask any questions you may have
+我很乐意给你机会提出你可能有的任何问题
 
 11
 00:00:51,730 --> 00:00:54,150
-about these lectures about this class, 
+about these lectures about this class,
+关于这门课程的讲座，
 
 12
 00:00:54,160 --> 00:00:55,710
-or in general, 
+or in general,
+或者一般来说，
 
 13
 00:00:59,980 --> 00:01:01,010
-as always, 
+as always,
+一如既往，
 
 14
 00:01:01,560 --> 00:01:02,960
-at any point, 
+at any point,
+在任何时候，
 
 15
 00:01:03,170 --> 00:01:06,320
-please feel free to ask any questions. 
+please feel free to ask any questions.
+请随时提出任何问题。
 
 16
 00:01:10,560 --> 00:01:11,910
 Basically, we have these labs,
+基本上，我们有这些实验室，
 
 17
 00:01:11,920 --> 00:01:13,870
-and as you may know, 
+and as you may know,
+正如你所知道的，
 
 18
 00:01:13,920 --> 00:01:16,030
-each lab is around 5 years. 
+each lab is around 5 years.
+每个实验大约需要5年的时间。
 
 19
 00:01:16,490 --> 00:01:21,530
-Each lab has a particular mission and consist of a bunch of faculty, 
+Each lab has a particular mission and consist of a bunch of faculty,
+每个实验室都有特定的任务，并由一群教职员组成。
 
 20
 00:01:23,020 --> 00:01:26,730
-some quite a few graduate students and post docs. 
+some quite a few graduate students and post docs.
+有相当多的研究生和博士后研究员。
 
 21
 00:01:27,810 --> 00:01:29,080
-This is what we started. 
+This is what we started.
+这是我们开始的内容。
 
 22
 00:01:29,410 --> 00:01:33,110
-This is one of more recent one, 
+This is one of more recent one,
+这是其中较新的一个。
 
 23
 00:01:33,120 --> 00:01:35,070
-because i'm lab 2011, 
+because i'm lab 2011,
+因为我是2011年的实验室助教。
 
 24
 00:01:35,080 --> 00:01:36,830
-2000. 
+2000.
+2000年。
 
 25
 00:01:37,300 --> 00:01:42,970
-It had a faculties across different disciplines of computer science algorithms, 
+It had a faculties across different disciplines of computer science algorithms,
+它拥有跨不同计算机科学算法领域的教职人员。
 
 26
 00:01:43,980 --> 00:01:45,370
-machine learning, 
+machine learning,
+机器学习
 
 27
 00:01:45,380 --> 00:01:47,620
-and sorry, 
+and sorry,
+对不起，
 
 28
 00:01:47,750 --> 00:01:51,550
 algorithms, which in what do you mean?
+算法，你指的是什么意思？
 
 29
 00:01:51,560 --> 00:01:53,350
-Bargaining is mostly machine learning. 
+Bargaining is mostly machine learning.
+讨价还价主要是机器学习。
 
 30
 00:01:53,360 --> 00:01:55,390
-The machines means systems. 
+The machines means systems.
+机器指的是系统。
 
 31
 00:01:56,000 --> 00:01:57,430
-And people, 
+And people,
+大家，
 
 32
 00:01:58,080 --> 00:02:01,060
-we are looking at some projects, 
+we are looking at some projects,
+我们正在考虑一些项目，
 
 33
 00:02:01,070 --> 00:02:04,500
-which i'm not going to talk now is about crowd source. 
+which i'm not going to talk now is about crowd source.
+我现在不打算谈论的是关于众包的话题。
 
 34
 00:02:05,430 --> 00:02:07,710
-That's why hands the name of the lab, 
+That's why hands the name of the lab,
+这就是为什么实验室的名字叫做“Hands”。
 
 35
 00:02:07,720 --> 00:02:11,690
 ampr and this lapse, again,
+再次提到ampr和这个间隙，
 
 36
 00:02:11,700 --> 00:02:17,390
-like some of you may now are a is a floor plan in open space, 
+like some of you may now are a is a floor plan in open space,
+就像你们中的一些人可能已经知道的那样，开放式办公空间中有一个楼层平面图。
 
 37
 00:02:18,040 --> 00:02:25,200
 even the faculty have open sitting, stay in open sitting.
+即使是教职员工也有开放的座位，留在开放的座位上。
 
 38
 00:02:27,230 --> 00:02:28,630
-And as islam, 
+And as islam,
+作为伊斯兰教，
 
 39
 00:02:28,640 --> 00:02:34,420
 they have twice a year retreats with the industries that are working
+他们每年与合作的行业举行两次团队撤退活动。
 
 40
 00:02:34,430 --> 00:02:36,300
-very closely with the industry. 
+very closely with the industry.
+与行业密切合作。
 
 41
 00:02:36,750 --> 00:02:39,890
 Anyway, between 120 and 200 people,
+无论如何，在120到200人之间，
 
 42
 00:02:40,800 --> 00:02:42,950
 half from berkeley, half from industry.
+一半来自伯克利，一半来自工业界。
 
 43
 00:02:42,960 --> 00:02:43,710
-In general. 
+In general.
+一般来说。
 
 44
 00:02:47,380 --> 00:02:48,490
-Before pandemic, 
+Before pandemic,
+在疫情爆发之前，
 
 45
 00:02:48,500 --> 00:02:53,960
-there are that be nice places like tahoe and monterrey. 
+there are that be nice places like tahoe and monterrey.
+有一些很好的地方，比如塔霍湖和蒙特雷。
 
 46
 00:02:53,970 --> 00:02:55,680
-You go there for 3 days, 
+You go there for 3 days,
+你去那里待三天，
 
 47
 00:02:55,690 --> 00:02:59,740
-and then you present the latest reserve results, 
+and then you present the latest reserve results,
+然后你展示最新的储备结果，
 
 48
 00:02:59,750 --> 00:03:06,010
-and you get feedback and you network with people from industry. 
+and you get feedback and you network with people from industry.
+你会得到反馈，并与来自工业界的人建立联系。
 
 49
 00:03:07,220 --> 00:03:13,170
-And we also have this kind of arm camps which are basically things. 
+And we also have this kind of arm camps which are basically things.
+我们还有这种军营，基本上就是一些东西。
 
 50
 00:03:13,860 --> 00:03:16,470
 Once you build some systems, some artifacts,
+一旦你构建了一些系统和一些工件，
 
 51
 00:03:16,480 --> 00:03:18,880
-these are some events. 
+these are some events.
+这些是一些事件。
 
 52
 00:03:19,130 --> 00:03:24,890
-It's your basically train, 
+It's your basically train,
+这基本上是你的训练。
 
 53
 00:03:24,900 --> 00:03:28,650
 provide tutorials to people, in particular,
+向人们提供教程，特别是
 
 54
 00:03:28,660 --> 00:03:35,300
-from industry to use for these new systems you built. 
+from industry to use for these new systems you built.
+从工业界开始使用你们建立的这些新系统。
 
 55
 00:03:35,310 --> 00:03:35,650
-Anyway. 
+Anyway.
+无论如何。
 
 56
 00:03:36,110 --> 00:03:36,720
-Let's start. 
+Let's start.
+让我们开始吧。
 
 57
 00:03:36,730 --> 00:03:37,960
-So this is spark. 
+So this is spark.
+这是Spark。
 
 58
 00:03:39,640 --> 00:03:41,750
-But I started using berkeley in 2009, 
+But I started using berkeley in 2009,
+但是我从2009年开始使用伯克利。
 
 59
 00:03:41,760 --> 00:03:49,910
-so actually started in the lab before i'm lab that was called a rad lab. 
+so actually started in the lab before i'm lab that was called a rad lab.
+所以实际上在我实验室之前，有一个被称为Rad实验室的实验室。
 
 60
 00:03:52,110 --> 00:03:55,220
-But the main developing development happened during the amp lab. 
+But the main developing development happened during the amp lab.
+但是主要的开发工作发生在amp实验室期间。
 
 61
 00:03:56,020 --> 00:03:58,370
-It became open source 2010. 
+It became open source 2010.
+它在2010年成为开源软件。
 
 62
 00:03:59,760 --> 00:04:03,070
-It becomes an apache project 2017, 
+It becomes an apache project 2017,
+它于2017年成为了Apache项目。
 
 63
 00:04:03,080 --> 00:04:05,910
-and also data research is a company behind. 
+and also data research is a company behind.
+而且数据研究是这家公司的背后支持者。
 
 64
 00:04:06,760 --> 00:04:11,310
-The open source project has been started in 2013. 
+The open source project has been started in 2013.
+这个开源项目始于2013年。
 
 65
 00:04:13,660 --> 00:04:16,930
-Today is the factor standard for being big data processing. 
+Today is the factor standard for being big data processing.
+今天是进行大数据处理的因素标准。
 
 66
 00:04:20,630 --> 00:04:22,220
-How did this happen? 
+How did this happen?
+这是怎么发生的？
 
 67
 00:04:22,230 --> 00:04:26,260
-So what does2009 when we started to work on this? 
+So what does2009 when we started to work on this?
+那么我们从2009年开始做了什么工作呢？
 
 68
 00:04:26,270 --> 00:04:29,040
-What was the state of the world? 
+What was the state of the world?
+世界的状况如何？
 
 69
 00:04:30,640 --> 00:04:38,710
 So at that time, the most popular system to process huge amounts of data,
+当时，处理大量数据最流行的系统是
 
 70
 00:04:38,720 --> 00:04:41,310
-large amounts of data was apache handle. 
+large amounts of data was apache handle.
+Apache可以处理大量的数据。
 
 71
 00:04:42,670 --> 00:04:47,230
-And apartheid had was an open source clone of the maverick use, 
+And apartheid had was an open source clone of the maverick use,
+种族隔离制度是对马威克使用的一个开源克隆。
 
 72
 00:04:47,900 --> 00:04:50,290
 which a maverick use, which are the system,
+一个特立独行者使用的是哪些系统？
 
 73
 00:04:50,940 --> 00:04:55,280
-a high profile system developed internally at google. 
+a high profile system developed internally at google.
+一个在谷歌内部开发的高知名度系统。
 
 74
 00:04:58,030 --> 00:05:02,970
-And this process huge amount of data, 
+And this process huge amount of data,
+并且这个过程处理了大量的数据，
 
 75
 00:05:02,980 --> 00:05:04,770
-the procedure amount of data. 
+the procedure amount of data.
+数据量的处理过程。
 
 76
 00:05:05,110 --> 00:05:06,400
-But it was more bad. 
+But it was more bad.
+但情况更糟糕了。
 
 77
 00:05:06,410 --> 00:05:07,640
-It was quite slow. 
+It was quite slow.
+它运行得相当慢。
 
 78
 00:05:09,380 --> 00:05:13,770
-But it had the rapid, 
+But it had the rapid,
+但是它具有快速的，
 
 79
 00:05:14,100 --> 00:05:16,090
-it had a lot of industry adoption, 
+it had a lot of industry adoption,
+它得到了许多行业的采用，
 
 80
 00:05:16,100 --> 00:05:18,730
-some of the big high tech companies, 
+some of the big high tech companies,
+一些大型高科技公司，
 
 81
 00:05:19,390 --> 00:05:26,180
 and cloud are hot and there are two companies
+云计算和云服务很火热，市场上有两家公司。
 
 82
 00:05:28,190 --> 00:05:35,820
-which are to new startups which are promoting. 
+which are to new startups which are promoting.
+正在推广的新创企业有哪些？
 
 83
 00:05:35,830 --> 00:05:37,330
-I do open source. 
+I do open source.
+我参与开源项目。
 
 84
 00:05:38,140 --> 00:05:39,490
 At that time, again,
+那个时候，再次，
 
 85
 00:05:39,500 --> 00:05:40,850
-this is open source. 
+this is open source.
+这是开源的。
 
 86
 00:05:40,860 --> 00:05:41,870
-It was free. 
+It was free.
+它是免费的。
 
 87
 00:05:44,130 --> 00:05:45,680
-It came at the right time. 
+It came at the right time.
+它来得正是时候。
 
 88
 00:05:45,910 --> 00:05:49,810
-Because if you probably remember of your heart, 
+Because if you probably remember of your heart,
+因为如果你可能记得你的内心，
 
 89
 00:05:50,330 --> 00:05:51,830
-2007 2008, 
+2007 2008,
+2007年 2008年
 
 90
 00:05:51,840 --> 00:05:57,040
-or this big financial crash, 
+or this big financial crash,
+或者这次大的金融危机，
 
 91
 00:06:00,120 --> 00:06:02,090
 so sorry, it should be,
+非常抱歉，应该是这样的：
 
 92
 00:06:03,670 --> 00:06:05,060
 this should be hard, though.
+这可能会很困难。
 
 93
 00:06:05,070 --> 00:06:05,900
-Let me guess. 
+Let me guess.
+让我猜猜看。
 
 94
 00:06:11,620 --> 00:06:12,690
-And let's not simplify. 
+And let's not simplify.
+不要简化。
 
 95
 00:06:12,820 --> 00:06:14,850
-This is like hard or how hard is working. 
+This is like hard or how hard is working.
+这很难或者说工作有多难。
 
 96
 00:06:14,860 --> 00:06:17,150
-The hardware has two stages, 
+The hardware has two stages,
+硬件有两个阶段。
 
 97
 00:06:17,580 --> 00:06:18,780
-map and reduce. 
+map and reduce.
+映射和归约。
 
 98
 00:06:19,510 --> 00:06:22,370
-And in each stage, 
+And in each stage,
+在每个阶段中，
 
 99
 00:06:22,970 --> 00:06:24,780
-each stage is done in parallel. 
+each stage is done in parallel.
+每个阶段都是并行完成的。
 
 100
 00:06:25,240 --> 00:06:27,010
-A bunch of map tasks, 
+A bunch of map tasks,
+一堆的映射任务，
 
 101
 00:06:27,300 --> 00:06:31,260
 read the data from the stories, from the disk.
+从磁盘中读取故事的数据。
 
 102
 00:06:31,860 --> 00:06:33,980
-Then they process the data, 
+Then they process the data,
+然后他们处理数据，
 
 103
 00:06:33,990 --> 00:06:35,980
-then they shuffle the data. 
+then they shuffle the data.
+然后他们对数据进行洗牌。
 
 104
 00:06:36,430 --> 00:06:37,860
-And there is a second stage, 
+And there is a second stage,
+还有第二阶段，
 
 105
 00:06:37,870 --> 00:06:39,060
-which is the radio stage. 
+which is the radio stage.
+哪个是无线电阶段？
 
 106
 00:06:40,170 --> 00:06:45,130
-The new stage provides you the last the final results. 
+The new stage provides you the last the final results.
+新阶段将为您提供最终结果。
 
 107
 00:06:45,750 --> 00:06:46,160
-Right? 
+Right?
+对吗？
 
 108
 00:06:47,470 --> 00:06:55,340
 The classic example of a memory of this job is you count how many occurrences
+这个工作的经典例子是你计算出现次数的数量
 
 109
 00:06:55,350 --> 00:07:00,960
-of each word you have in this ten nominees and documents. 
+of each word you have in this ten nominees and documents.
+对于您在这十个提名和文档中的每个单词，
 
 110
 00:07:01,630 --> 00:07:01,900
-Right? 
+Right?
+对吗？
 
 111
 00:07:03,790 --> 00:07:05,340
-So this is basically the high level. 
+So this is basically the high level.
+所以这基本上是高层次的。
 
 112
 00:07:05,350 --> 00:07:08,020
-And I think that many of you already know about it, 
+And I think that many of you already know about it,
+我认为你们中的许多人已经知道这件事了，
 
 113
 00:07:08,530 --> 00:07:12,120
-you may have even done projects for each other. 
+you may have even done projects for each other.
+你们甚至可能为彼此完成了项目。
 
 114
 00:07:16,900 --> 00:07:24,320
 Any questions about the task are typically co located with the data is
+通常，与数据共同放置的任务有哪些问题？
 
 115
 00:07:24,330 --> 00:07:26,520
-at least with the data, 
+at least with the data,
+至少有了数据，
 
 116
 00:07:28,190 --> 00:07:29,250
-with the input beta. 
+with the input beta.
+使用输入beta。
 
 117
 00:07:30,410 --> 00:07:34,770
 And like this figure shells, the input data,
+就像这个图中的外壳一样，输入数据，
 
 118
 00:07:35,360 --> 00:07:38,250
-as well as intermediate data is stored on the list. 
+as well as intermediate data is stored on the list.
+中间数据也存储在列表中。
 
 119
 00:07:53,520 --> 00:07:58,880
 The question, can I briefly explain what the map reduce means?
+这个问题，我可以简要解释一下 MapReduce 的含义吗？
 
 120
 00:07:59,920 --> 00:08:01,480
-So think about this one. 
+So think about this one.
+所以请思考一下这个问题。
 
 121
 00:08:03,010 --> 00:08:05,120
 Sorry, I don't have an example here right away,
+抱歉，我暂时没有例子。
 
 122
 00:08:05,980 --> 00:08:07,170
-but I think that we can, 
+but I think that we can,
+但是我认为我们可以。
 
 123
 00:08:07,620 --> 00:08:10,170
-it is hopefully that reasonably easy to explain, 
+it is hopefully that reasonably easy to explain,
+希望能够相对容易地解释清楚，
 
 124
 00:08:10,180 --> 00:08:12,890
-even without an exam of sound figure, 
+even without an exam of sound figure,
+即使没有一个完善的考试
 
 125
 00:08:13,430 --> 00:08:14,660
-say you have 10, 
+say you have 10,
+假设你有10个。
 
 126
 00:08:14,670 --> 00:08:16,890
-millions documents, 
+millions documents,
+数百万份文件
 
 127
 00:08:16,900 --> 00:08:18,370
-you have a large number of documents, 
+you have a large number of documents,
+你有大量的文件。
 
 128
 00:08:18,380 --> 00:08:26,600
-and you want to count the occurrences of every word, 
+and you want to count the occurrences of every word,
+你想要统计每个单词的出现次数，
 
 129
 00:08:27,350 --> 00:08:29,350
-write english word in these documents. 
+write english word in these documents.
+在这些文件中写英文单词。
 
 130
 00:08:31,990 --> 00:08:32,740
-One way to do. 
+One way to do.
+一种方法是这样做。
 
 131
 00:08:34,760 --> 00:08:35,420
-It is very simple. 
+It is very simple.
+这很简单。
 
 132
 00:08:35,430 --> 00:08:36,020
-First. 
+First.
+首先。
 
 133
 00:08:36,570 --> 00:08:39,210
-You if I say you have 100 machines, 
+You if I say you have 100 machines,
+如果我告诉你有100台机器，
 
 134
 00:08:40,410 --> 00:08:42,360
-you take these 10 millions documents, 
+you take these 10 millions documents,
+你需要处理这一亿份文件。
 
 135
 00:08:42,370 --> 00:08:46,200
-and you divide them between 100 machines and you give to each machine. 
+and you divide them between 100 machines and you give to each machine.
+然后你将它们分配给100台机器，并给每台机器分配。
 
 136
 00:08:46,720 --> 00:08:48,670
-I think 100,000 documents, 
+I think 100,000 documents,
+我认为有100,000份文件。
 
 137
 00:08:53,370 --> 00:08:56,440
-and each machine takes its pile of documents, 
+and each machine takes its pile of documents,
+每台机器都会拿走它的一堆文件，
 
 138
 00:08:56,450 --> 00:08:58,800
-and it counts each in each word, 
+and it counts each in each word,
+并且它对每个单词进行计数，
 
 139
 00:08:59,730 --> 00:09:01,040
 like, for instance,
+例如，比如说，
 
 140
 00:09:01,050 --> 00:09:02,520
-were the world better place? 
+were the world better place?
+世界变得更好了吗？
 
 141
 00:09:03,830 --> 00:09:07,140
-How many times it appears in each files of documents? 
+How many times it appears in each files of documents?
+每个文件中它出现了多少次？
 
 142
 00:09:07,580 --> 00:09:09,570
 One machine would say, okay, berkeley,
+一台机器会说，好的，伯克利，
 
 143
 00:09:09,960 --> 00:09:17,380
-it's appears200 times and other machines finds 150 times and so forth. 
+it's appears200 times and other machines finds 150 times and so forth.
+它出现了200次，其他机器发现了150次，依此类推。
 
 144
 00:09:20,030 --> 00:09:24,380
 This first phase in which each machine is being independently discounting
+这是第一阶段，每台机器都在独立进行折扣。
 
 145
 00:09:24,390 --> 00:09:27,260
-on each piles of documents is called map. 
+on each piles of documents is called map.
+每一堆文件上都被称为地图。
 
 146
 00:09:28,970 --> 00:09:29,240
-Now, 
+Now,
+现在，
 
 147
 00:09:29,850 --> 00:09:32,920
 each after the first stage, you want to aggregate, right?
+每个阶段之后，您想要进行聚合，对吗？
 
 148
 00:09:32,930 --> 00:09:37,080
-Because in order to know the total number of occurrences of work, 
+Because in order to know the total number of occurrences of work,
+因为为了知道工作的总出现次数，
 
 149
 00:09:37,230 --> 00:09:39,080
-the world berkeley, 
+the world berkeley,
+伯克利的世界
 
 150
 00:09:39,510 --> 00:09:40,900
-in all the documents, 
+in all the documents,
+在所有的文件中，
 
 151
 00:09:40,910 --> 00:09:42,650
 you need to sum up, right?
+你需要求和，对吗？
 
 152
 00:09:42,660 --> 00:09:46,140
 Because one machines in its 100,000, like, again,
+因为一个机器在它的10万个中，再次，
 
 153
 00:09:46,150 --> 00:09:48,660
-found that very clear occurs 200 times, 
+found that very clear occurs 200 times,
+发现"very clear"出现了200次。
 
 154
 00:09:48,950 --> 00:09:50,670
-another machine 150 times and so forth. 
+another machine 150 times and so forth.
+另一台机器150次，依此类推。
 
 155
 00:09:50,890 --> 00:09:52,140
-You need to add them up. 
+You need to add them up.
+你需要将它们相加。
 
 156
 00:09:53,120 --> 00:09:54,260
-This is very new space. 
+This is very new space.
+这是一个非常新的领域。
 
 157
 00:09:54,820 --> 00:09:55,890
-In the reduced phase, 
+In the reduced phase,
+在缩减阶段中，
 
 158
 00:09:55,900 --> 00:10:00,350
-you are going to map each english word on one of the machines. 
+you are going to map each english word on one of the machines.
 
 159
 00:10:00,790 --> 00:10:02,860
@@ -636,11 +793,11 @@ Say, for instance,
 
 160
 00:10:04,180 --> 00:10:05,370
-a one machine, 
+a one machine,
 
 161
 00:10:05,380 --> 00:10:06,810
-b on one machines, 
+b on one machines,
 
 162
 00:10:06,820 --> 00:10:10,130
@@ -648,23 +805,23 @@ we were starting a with on one machine were started
 
 163
 00:10:10,140 --> 00:10:13,290
-with beyond the other machines and so forth. 
+with beyond the other machines and so forth.
 
 164
 00:10:13,300 --> 00:10:17,480
-And then each of the mapper will send, 
+And then each of the mapper will send,
 
 165
 00:10:18,100 --> 00:10:19,500
-for all words, 
+for all words,
 
 166
 00:10:20,080 --> 00:10:21,560
-the account for all words, 
+the account for all words,
 
 167
 00:10:21,570 --> 00:10:23,480
-which starts with a to machine one. 
+which starts with a to machine one.
 
 168
 00:10:24,670 --> 00:10:29,610
@@ -676,7 +833,7 @@ with a so they can sum up and finally gives you the world that give you
 
 170
 00:10:33,730 --> 00:10:34,280
-the result. 
+the result.
 
 171
 00:10:34,760 --> 00:10:39,450
@@ -696,31 +853,31 @@ after received the information in the partial accounts from each of the
 
 175
 00:10:50,140 --> 00:10:51,950
-mappers for the world berkeley. 
+mappers for the world berkeley.
 
 176
 00:10:54,190 --> 00:10:55,180
-This is the radio space. 
+This is the radio space.
 
 177
 00:10:55,570 --> 00:10:56,100
-Make sense? 
+Make sense?
 
 178
 00:10:59,200 --> 00:11:02,950
-The shuffle pay the shuffle as stage. 
+The shuffle pay the shuffle as stage.
 
 179
 00:11:03,390 --> 00:11:04,340
-It's exactly this. 
+It's exactly this.
 
 180
 00:11:04,350 --> 00:11:05,570
-What I describe. 
+What I describe.
 
 181
 00:11:05,770 --> 00:11:06,870
-This is what it is like. 
+This is what it is like.
 
 182
 00:11:06,880 --> 00:11:08,030
@@ -728,7 +885,7 @@ Each, for instance,
 
 183
 00:11:08,040 --> 00:11:09,830
-if this is the second machines, 
+if this is the second machines,
 
 184
 00:11:10,420 --> 00:11:16,450
@@ -736,15 +893,15 @@ the second machine here is storing the counts of computer final count
 
 185
 00:11:17,050 --> 00:11:19,560
-for all the final accounts, 
+for all the final accounts,
 
 186
 00:11:19,570 --> 00:11:25,950
-for all of our starting with b then it has to get the data from every mapper. 
+for all of our starting with b then it has to get the data from every mapper.
 
 187
 00:11:26,700 --> 00:11:27,070
-Right? 
+Right?
 
 188
 00:11:27,730 --> 00:11:28,800
@@ -752,7 +909,7 @@ Therefore, the arrow,
 
 189
 00:11:28,810 --> 00:11:30,400
-this is why the shell communication. 
+this is why the shell communication.
 
 190
 00:11:30,410 --> 00:11:34,890
@@ -764,35 +921,35 @@ these partial informations about the accounts for
 
 192
 00:11:38,100 --> 00:11:41,420
-the words it found in its passing of documents. 
+the words it found in its passing of documents.
 
 193
 00:11:43,190 --> 00:11:43,700
-Make sense? 
+Make sense?
 
 194
 00:11:51,040 --> 00:11:51,710
-Okay. 
+Okay.
 
 195
 00:11:54,530 --> 00:11:55,060
-Great. 
+Great.
 
 196
 00:11:55,320 --> 00:11:57,590
-Thank you. 
+Thank you.
 
 197
 00:11:57,600 --> 00:11:59,240
-So at the same time, 
+So at the same time,
 
 198
 00:12:00,470 --> 00:12:02,180
-we are working on at that time. 
+we are working on at that time.
 
 199
 00:12:02,190 --> 00:12:04,860
-We are working on harder quite, 
+We are working on harder quite,
 
 200
 00:12:05,660 --> 00:12:06,650
@@ -800,15 +957,15 @@ quite a bit, right?
 
 201
 00:12:06,660 --> 00:12:09,410
-So improving the scheduling and things like that. 
+So improving the scheduling and things like that.
 
 202
 00:12:09,420 --> 00:12:11,490
-And in 2009, 
+And in 2009,
 
 203
 00:12:12,320 --> 00:12:15,800
-leicester was a postdoc with michael jordan some machine learning. 
+leicester was a postdoc with michael jordan some machine learning.
 
 204
 00:12:17,240 --> 00:12:23,000
@@ -816,7 +973,7 @@ He came to us through people on seizing the system because net flicks have
 
 205
 00:12:23,010 --> 00:12:23,880
-this challenge. 
+this challenge.
 
 206
 00:12:25,020 --> 00:12:32,730
@@ -824,27 +981,27 @@ So the challenge it was they have this challenge for a competition with $1 milli
 
 207
 00:12:33,500 --> 00:12:36,850
-for whoever can develop the best algorithms, 
+for whoever can develop the best algorithms,
 
 208
 00:12:36,860 --> 00:12:38,210
-recommendation algorithms. 
+recommendation algorithms.
 
 209
 00:12:40,530 --> 00:12:41,840
-It gives you a set of data. 
+It gives you a set of data.
 
 210
 00:12:41,850 --> 00:12:44,720
-It was supposed to anonymous to be anonymous that in the end, 
+It was supposed to anonymous to be anonymous that in the end,
 
 211
 00:12:46,720 --> 00:12:48,550
-it and it ended up. 
+it and it ended up.
 
 212
 00:12:49,740 --> 00:12:55,410
-Not people realizing that it was not as much anonymous as I thought it is. 
+Not people realizing that it was not as much anonymous as I thought it is.
 
 213
 00:12:57,550 --> 00:12:59,020
@@ -852,15 +1009,15 @@ But anyway, at that stage,
 
 214
 00:12:59,030 --> 00:13:00,420
-that was a problem. 
+that was a problem.
 
 215
 00:13:00,650 --> 00:13:02,030
-They give a set of data, 
+They give a set of data,
 
 216
 00:13:02,370 --> 00:13:04,910
-and these are the preference of the users. 
+and these are the preference of the users.
 
 217
 00:13:07,160 --> 00:13:11,600
@@ -868,11 +1025,11 @@ The question is that can you predict what movies this particular viewer
 
 218
 00:13:11,610 --> 00:13:13,520
-is going to like? 
+is going to like?
 
 219
 00:13:14,660 --> 00:13:15,000
-Right? 
+Right?
 
 220
 00:13:15,880 --> 00:13:17,860
@@ -880,15 +1037,15 @@ This is a competition, public competition.
 
 221
 00:13:20,360 --> 00:13:25,230
-He came to us because the team in the umbrella with that, 
+He came to us because the team in the umbrella with that,
 
 222
 00:13:25,240 --> 00:13:27,170
-they wanted to compete, 
+they wanted to compete,
 
 223
 00:13:28,550 --> 00:13:29,070
-obviously. 
+obviously.
 
 224
 00:13:29,480 --> 00:13:34,410
@@ -896,19 +1053,19 @@ And we obviously told them, and obviously,
 
 225
 00:13:34,420 --> 00:13:37,130
-with this amount of you need a lot of data, 
+with this amount of you need a lot of data,
 
 226
 00:13:37,140 --> 00:13:38,450
-because the more data you have, 
+because the more data you have,
 
 227
 00:13:38,460 --> 00:13:40,290
-the better models you are going to build. 
+the better models you are going to build.
 
 228
 00:13:40,660 --> 00:13:41,810
-This is one example. 
+This is one example.
 
 229
 00:13:42,560 --> 00:13:48,050
@@ -916,15 +1073,15 @@ For instance, if I want to the question is that given your age,
 
 230
 00:13:48,060 --> 00:13:52,340
-can I predict what kind of what kind of movie you like? 
+can I predict what kind of what kind of movie you like?
 
 231
 00:13:52,350 --> 00:13:54,060
-And basically the way I predict it, 
+And basically the way I predict it,
 
 232
 00:13:54,070 --> 00:13:58,690
-I am going to predict what is the rating you would give to a particular movie. 
+I am going to predict what is the rating you would give to a particular movie.
 
 233
 00:13:58,700 --> 00:14:03,120
@@ -932,11 +1089,11 @@ So then i'm going to return the movies for which I predict that you
 
 234
 00:14:03,130 --> 00:14:05,220
-are going to provide the highest rank. 
+are going to provide the highest rank.
 
 235
 00:14:07,680 --> 00:14:09,110
-You have a few data points, 
+You have a few data points,
 
 236
 00:14:09,120 --> 00:14:11,790
@@ -944,7 +1101,7 @@ and then i'm asking you here in the middle, what is there?
 
 237
 00:14:12,080 --> 00:14:13,510
-What is the prediction? 
+What is the prediction?
 
 238
 00:14:13,940 --> 00:14:18,390
@@ -956,23 +1113,23 @@ And the the intuition is that the more data you are going to have is
 
 240
 00:14:23,030 --> 00:14:24,340
-a better prediction can make. 
+a better prediction can make.
 
 241
 00:14:25,610 --> 00:14:25,900
-Right? 
+Right?
 
 242
 00:14:26,470 --> 00:14:30,560
-That's why you want ability to process a huge amount of it. 
+That's why you want ability to process a huge amount of it.
 
 243
 00:14:32,190 --> 00:14:32,590
-Makes sense. 
+Makes sense.
 
 244
 00:14:32,600 --> 00:14:35,520
-So this is a problem. 
+So this is a problem.
 
 245
 00:14:35,530 --> 00:14:38,440
@@ -980,15 +1137,15 @@ So obviously, we told them use huddle.
 
 246
 00:14:40,100 --> 00:14:43,130
-They use hard work because it process a large amount of data. 
+They use hard work because it process a large amount of data.
 
 247
 00:14:43,660 --> 00:14:45,610
-But how do it was extremely slow? 
+But how do it was extremely slow?
 
 248
 00:14:47,390 --> 00:14:51,090
-So let me explain why machine learning. 
+So let me explain why machine learning.
 
 249
 00:14:51,100 --> 00:14:52,970
@@ -996,35 +1153,35 @@ And at that, we are talking,
 
 250
 00:14:52,980 --> 00:14:56,740
-then we are talking about collaborative filtering algorithms. 
+then we are talking about collaborative filtering algorithms.
 
 251
 00:14:56,990 --> 00:14:58,460
-This is before the deep learning, 
+This is before the deep learning,
 
 252
 00:14:58,860 --> 00:15:00,300
-is before neural adults. 
+is before neural adults.
 
 253
 00:15:02,510 --> 00:15:03,850
-It's more classical martial arts. 
+It's more classical martial arts.
 
 254
 00:15:06,790 --> 00:15:08,600
-And but still, 
+And but still,
 
 255
 00:15:08,610 --> 00:15:12,570
-each machine learning algorithms are typically algorithms. 
+each machine learning algorithms are typically algorithms.
 
 256
 00:15:12,580 --> 00:15:15,590
-It are iterative algorithms, 
+It are iterative algorithms,
 
 257
 00:15:16,430 --> 00:15:19,070
-meaning that you start with some kind of predictions. 
+meaning that you start with some kind of predictions.
 
 258
 00:15:19,450 --> 00:15:21,810
@@ -1032,103 +1189,103 @@ And then you train model the model, right?
 
 259
 00:15:22,200 --> 00:15:23,960
-You are getting more and more data, 
+You are getting more and more data,
 
 260
 00:15:23,970 --> 00:15:28,460
-and they are going to hopefully improve but improve the prediction, 
+and they are going to hopefully improve but improve the prediction,
 
 261
 00:15:28,470 --> 00:15:29,780
-but I think better and better. 
+but I think better and better.
 
 262
 00:15:34,300 --> 00:15:36,210
-Now each iteration, 
+Now each iteration,
 
 263
 00:15:37,160 --> 00:15:39,080
-if you want to implement this hard loop, 
+if you want to implement this hard loop,
 
 264
 00:15:39,810 --> 00:15:41,690
-is going to be a map reduce job, 
+is going to be a map reduce job,
 
 265
 00:15:42,230 --> 00:15:42,840
-one job, 
+one job,
 
 266
 00:15:44,990 --> 00:15:45,760
-100 job. 
+100 job.
 
 267
 00:15:47,590 --> 00:15:49,630
-And for each job, 
+And for each job,
 
 268
 00:15:49,640 --> 00:15:53,310
-you need to read the data from the storage. 
+you need to read the data from the storage.
 
 269
 00:15:54,000 --> 00:15:56,030
-And you need to write the data on the storage. 
+And you need to write the data on the storage.
 
 270
 00:15:57,890 --> 00:15:59,120
-Each iteration, 
+Each iteration,
 
 271
 00:15:59,130 --> 00:16:04,160
-mister read and write a lot of data from the storage from the disk. 
+mister read and write a lot of data from the storage from the disk.
 
 272
 00:16:04,170 --> 00:16:07,680
-And you remember the reading and writing is that this is slow. 
+And you remember the reading and writing is that this is slow.
 
 273
 00:16:08,430 --> 00:16:08,760
-Right? 
+Right?
 
 274
 00:16:11,280 --> 00:16:13,470
-Now if you have a few thousands of iteration, 
+Now if you have a few thousands of iteration,
 
 275
 00:16:13,480 --> 00:16:14,510
-this will take forever. 
+this will take forever.
 
 276
 00:16:16,740 --> 00:16:19,850
-That's kind of what's the motivation on the motivation? 
+That's kind of what's the motivation on the motivation?
 
 277
 00:16:22,510 --> 00:16:23,340
-At the same time, 
+At the same time,
 
 278
 00:16:24,190 --> 00:16:24,620
-again, 
+again,
 
 279
 00:16:25,870 --> 00:16:30,510
-this is an example of machine learning application. 
+this is an example of machine learning application.
 
 280
 00:16:30,950 --> 00:16:32,350
-But there are many other people, 
+But there are many other people,
 
 281
 00:16:32,360 --> 00:16:33,430
-because once you have data, 
+because once you have data,
 
 282
 00:16:33,440 --> 00:16:35,950
-what you are going to do is if you want to do some forecast, 
+what you are going to do is if you want to do some forecast,
 
 283
 00:16:35,960 --> 00:16:36,870
-some prediction, 
+some prediction,
 
 284
 00:16:37,400 --> 00:16:39,800
@@ -1136,39 +1293,39 @@ some optimization, so you need to process a data.
 
 285
 00:16:39,810 --> 00:16:40,880
-And in many cases, 
+And in many cases,
 
 286
 00:16:40,890 --> 00:16:43,840
-this means machine learning or iterative computation. 
+this means machine learning or iterative computation.
 
 287
 00:16:44,570 --> 00:16:47,190
-The other one is that once you have the data, 
+The other one is that once you have the data,
 
 288
 00:16:47,200 --> 00:16:48,640
-the other application trend is, 
+the other application trend is,
 
 289
 00:16:49,430 --> 00:16:51,020
-once you have the data, 
+once you have the data,
 
 290
 00:16:53,210 --> 00:16:56,670
-it's you want to start to queries a date, 
+it's you want to start to queries a date,
 
 291
 00:16:58,000 --> 00:16:58,350
-right? 
+right?
 
 292
 00:16:59,150 --> 00:17:02,140
-You don't want to attest to just run a job, 
+You don't want to attest to just run a job,
 
 293
 00:17:02,590 --> 00:17:05,980
-a run up which takes a few hours to produce the results. 
+a run up which takes a few hours to produce the results.
 
 294
 00:17:09,280 --> 00:17:14,190
@@ -1180,23 +1337,23 @@ want to ask and to get
 
 296
 00:17:18,180 --> 00:17:20,050
-answered very quickly. 
+answered very quickly.
 
 297
 00:17:22,580 --> 00:17:24,910
-So this is what was happening back then. 
+So this is what was happening back then.
 
 298
 00:17:25,360 --> 00:17:25,720
-Right? 
+Right?
 
 299
 00:17:26,660 --> 00:17:27,530
-At the same time, 
+At the same time,
 
 300
 00:17:27,540 --> 00:17:32,210
-we are starting to look around and we are working with facebook, 
+we are starting to look around and we are working with facebook,
 
 301
 00:17:32,560 --> 00:17:36,700
@@ -1204,23 +1361,23 @@ the microsoft, yahoo at that time was a big company at that time.
 
 302
 00:17:38,920 --> 00:17:43,940
-And we are starting to look at the workloads. 
+And we are starting to look at the workloads.
 
 303
 00:17:44,700 --> 00:17:46,240
-And to our surprise, 
+And to our surprise,
 
 304
 00:17:46,250 --> 00:17:48,520
-it turns out that despite that, 
+it turns out that despite that,
 
 305
 00:17:49,940 --> 00:17:52,710
-they had huge amount of data, 
+they had huge amount of data,
 
 306
 00:17:53,750 --> 00:17:55,000
-many working set. 
+many working set.
 
 307
 00:17:55,010 --> 00:17:56,640
@@ -1232,31 +1389,31 @@ What the king said, it's how much space would you need in, say,
 
 309
 00:18:02,090 --> 00:18:08,420
-in memory so that your application works well. 
+in memory so that your application works well.
 
 310
 00:18:09,260 --> 00:18:13,050
-That means your application will not access a lot of data, 
+That means your application will not access a lot of data,
 
 311
 00:18:13,060 --> 00:18:19,640
-which is not in the working section looking here. 
+which is not in the working section looking here.
 
 312
 00:18:19,910 --> 00:18:20,680
-This is what? 
+This is what?
 
 313
 00:18:21,080 --> 00:18:21,610
-I remember, 
+I remember,
 
 314
 00:18:22,160 --> 00:18:24,310
-this is the data seen the team back. 
+this is the data seen the team back.
 
 315
 00:18:24,320 --> 00:18:24,580
-Then. 
+Then.
 
 316
 00:18:27,460 --> 00:18:30,810
@@ -1264,15 +1421,15 @@ This basically shows, you say, basically,
 
 317
 00:18:31,460 --> 00:18:33,130
-you have here 3 columns, 
+you have here 3 columns,
 
 318
 00:18:34,500 --> 00:18:35,250
-4 columns. 
+4 columns.
 
 319
 00:18:35,260 --> 00:18:38,890
-The last 3 columns are for different workloads from these companies, 
+The last 3 columns are for different workloads from these companies,
 
 320
 00:18:38,900 --> 00:18:40,570
@@ -1280,7 +1437,7 @@ facebook, microsoft, and yahoo.
 
 321
 00:18:41,140 --> 00:18:44,220
-The first column is a noun is a memory of those machines. 
+The first column is a noun is a memory of those machines.
 
 322
 00:18:44,510 --> 00:18:47,250
@@ -1288,15 +1445,15 @@ This again, 2010 around 9,
 
 323
 00:18:47,260 --> 00:18:48,570
-10and so forth. 
+10and so forth.
 
 324
 00:18:49,500 --> 00:18:52,130
-Certainly garbage ram for a server, 
+Certainly garbage ram for a server,
 
 325
 00:18:52,140 --> 00:18:53,970
-it was a lot of that. 
+it was a lot of that.
 
 326
 00:18:56,450 --> 00:19:02,580
@@ -1304,7 +1461,7 @@ And the numbers represent how many of a percentage of these jobs
 
 327
 00:19:05,530 --> 00:19:07,320
-can fully fill their data in memoirs. 
+can fully fill their data in memoirs.
 
 328
 00:19:09,360 --> 00:19:11,470
@@ -1316,19 +1473,19 @@ if the several memory is 32 gigabytes than 96% of the jobs of from facebook
 
 330
 00:19:22,280 --> 00:19:23,030
-were load, 
+were load,
 
 331
 00:19:23,620 --> 00:19:25,170
-can feed their data in memory, 
+can feed their data in memory,
 
 332
 00:19:25,180 --> 00:19:29,050
-82% from microsoft to 90 75% from yahoo. 
+82% from microsoft to 90 75% from yahoo.
 
 333
 00:19:30,350 --> 00:19:32,060
-For 64 gigabytes, 
+For 64 gigabytes,
 
 334
 00:19:32,810 --> 00:19:37,940
@@ -1336,23 +1493,23 @@ For 64 gigabytes,
 
 335
 00:19:40,030 --> 00:19:42,980
-That's kind of the idea what is the solution? 
+That's kind of the idea what is the solution?
 
 336
 00:19:42,990 --> 00:19:46,030
-And this is what spark comes in. 
+And this is what spark comes in.
 
 337
 00:19:46,600 --> 00:19:50,310
-This was a new parallel execution engine for big data processing, 
+This was a new parallel execution engine for big data processing,
 
 338
 00:19:51,070 --> 00:19:55,700
-provides those general provides efficient support for multiple workloads. 
+provides those general provides efficient support for multiple workloads.
 
 339
 00:19:56,490 --> 00:19:57,120
-It was, 
+It was,
 
 340
 00:19:58,410 --> 00:20:03,040
@@ -1360,31 +1517,31 @@ because has a powerful api it reduces a code you need to write
 
 341
 00:20:03,050 --> 00:20:04,160
-for the same application, 
+for the same application,
 
 342
 00:20:04,600 --> 00:20:04,830
-right? 
+right?
 
 343
 00:20:04,840 --> 00:20:07,490
-Because each api was doing more. 
+Because each api was doing more.
 
 344
 00:20:09,750 --> 00:20:11,780
-The original ibi was in scholar, 
+The original ibi was in scholar,
 
 345
 00:20:13,020 --> 00:20:13,110
-right? 
+right?
 
 346
 00:20:13,120 --> 00:20:14,510
-It's a functional language. 
+It's a functional language.
 
 347
 00:20:15,610 --> 00:20:18,370
-But you also have api in java and later in python. 
+But you also have api in java and later in python.
 
 348
 00:20:19,970 --> 00:20:23,290
@@ -1392,35 +1549,35 @@ But the one thing, what but did
 
 349
 00:20:28,720 --> 00:20:32,050
-was very good at those performers, 
+was very good at those performers,
 
 350
 00:20:32,630 --> 00:20:34,140
-at least compared with struggle. 
+at least compared with struggle.
 
 351
 00:20:37,360 --> 00:20:39,080
-It was for some jobs, 
+It was for some jobs,
 
 352
 00:20:39,090 --> 00:20:44,450
-it was 100 times faster than how to mmr it means my videos, 
+it was 100 times faster than how to mmr it means my videos,
 
 353
 00:20:46,640 --> 00:20:49,960
-because it was aggressively exploiting the memory. 
+because it was aggressively exploiting the memory.
 
 354
 00:20:50,690 --> 00:20:52,050
-And for the most water clothes, 
+And for the most water clothes,
 
 355
 00:20:52,060 --> 00:20:53,900
-like we just seen, 
+like we just seen,
 
 356
 00:20:56,390 --> 00:20:58,950
-the data was fully fitting in memory. 
+the data was fully fitting in memory.
 
 357
 00:21:02,000 --> 00:21:03,300
@@ -1428,23 +1585,23 @@ Again, it was general.
 
 358
 00:21:03,570 --> 00:21:05,300
-There is a spark core. 
+There is a spark core.
 
 359
 00:21:05,830 --> 00:21:06,930
-On top of that, 
+On top of that,
 
 360
 00:21:06,940 --> 00:21:10,860
-you have a bunch of libraries like to provide sql interface, 
+you have a bunch of libraries like to provide sql interface,
 
 361
 00:21:11,390 --> 00:21:13,420
-provide streaming functionality, 
+provide streaming functionality,
 
 362
 00:21:13,830 --> 00:21:15,050
-machine learning, 
+machine learning,
 
 363
 00:21:15,670 --> 00:21:17,700
@@ -1452,19 +1609,19 @@ graph processing, and the spark car.
 
 364
 00:21:17,710 --> 00:21:21,390
-It's provides support for the other language. 
+It's provides support for the other language.
 
 365
 00:21:25,330 --> 00:21:26,210
-Is it to write code? 
+Is it to write code?
 
 366
 00:21:26,220 --> 00:21:27,290
-This is our account. 
+This is our account.
 
 367
 00:21:27,300 --> 00:21:29,370
-This is the application I mentioned to you. 
+This is the application I mentioned to you.
 
 368
 00:21:32,750 --> 00:21:38,620
@@ -1476,11 +1633,11 @@ that application using
 
 370
 00:21:40,570 --> 00:21:43,080
-hardware memory use ap is. 
+hardware memory use ap is.
 
 371
 00:21:43,470 --> 00:21:49,650
-And this is so for 50 lines of code to 3 lines of code, 
+And this is so for 50 lines of code to 3 lines of code,
 
 372
 00:22:01,020 --> 00:22:08,890
@@ -1488,31 +1645,31 @@ the main key abstraction of the original spark was what you call
 
 373
 00:22:08,900 --> 00:22:10,850
-the resilient distributed assets. 
+the resilient distributed assets.
 
 374
 00:22:12,320 --> 00:22:15,790
-This is a set of data which is partition across machines. 
+This is a set of data which is partition across machines.
 
 375
 00:22:16,200 --> 00:22:20,970
-And it was stored on ram or on disk and resilient, 
+And it was stored on ram or on disk and resilient,
 
 376
 00:22:20,980 --> 00:22:25,300
-because those resilient to failures will learn more about that. 
+because those resilient to failures will learn more about that.
 
 377
 00:22:27,900 --> 00:22:29,970
-There are 2 kinds of operation, 
+There are 2 kinds of operation,
 
 378
 00:22:29,980 --> 00:22:32,050
-transformation of the data and actions. 
+transformation of the data and actions.
 
 379
 00:22:33,510 --> 00:22:34,500
-The action, 
+The action,
 
 380
 00:22:34,510 --> 00:22:39,330
@@ -1520,15 +1677,15 @@ the difference is a big difference is that transformation can be filtered
 
 381
 00:22:39,340 --> 00:22:43,330
-on about data selecting just a few lines, 
+on about data selecting just a few lines,
 
 382
 00:22:43,870 --> 00:22:44,900
-a few rows, 
+a few rows,
 
 383
 00:22:45,180 --> 00:22:51,050
-selecting order or all lines in a text which contains were better. 
+selecting order or all lines in a text which contains were better.
 
 384
 00:22:51,060 --> 00:22:56,000
@@ -1536,7 +1693,7 @@ Like, for instance, the actions are the one which produce an output,
 
 385
 00:22:56,270 --> 00:22:57,230
-a visible output. 
+a visible output.
 
 386
 00:22:58,240 --> 00:23:01,780
@@ -1544,11 +1701,11 @@ Like, for instance, I want to get the account for berkeley,
 
 387
 00:23:02,150 --> 00:23:09,900
-like how many occurrences of berkeley are in all these documents? 
+like how many occurrences of berkeley are in all these documents?
 
 388
 00:23:11,120 --> 00:23:11,880
-This is spark. 
+This is spark.
 
 389
 00:23:11,890 --> 00:23:14,930
@@ -1556,27 +1713,27 @@ It's again, i'm going to show you a very similar figure,
 
 390
 00:23:14,940 --> 00:23:17,090
-like i've shown you in the case of had book. 
+like i've shown you in the case of had book.
 
 391
 00:23:18,030 --> 00:23:19,460
-They have these rb ds. 
+They have these rb ds.
 
 392
 00:23:21,280 --> 00:23:22,320
-And then now, 
+And then now,
 
 393
 00:23:22,330 --> 00:23:23,920
-instead of only two stages, 
+instead of only two stages,
 
 394
 00:23:23,930 --> 00:23:26,640
-memory user can have many number of stages. 
+memory user can have many number of stages.
 
 395
 00:23:27,400 --> 00:23:31,240
-Map radios are only particular form of stages, 
+Map radios are only particular form of stages,
 
 396
 00:23:31,930 --> 00:23:34,370
@@ -1584,15 +1741,15 @@ but you can have much more, in general, any stages.
 
 397
 00:23:34,380 --> 00:23:37,840
-We are going to be calling these stages or the steps. 
+We are going to be calling these stages or the steps.
 
 398
 00:23:39,410 --> 00:23:44,820
-And then you have this kind of stage at the stage and between stages. 
+And then you have this kind of stage at the stage and between stages.
 
 399
 00:23:45,240 --> 00:23:49,790
-You can reshuffle the data and create new these rv ds. 
+You can reshuffle the data and create new these rv ds.
 
 400
 00:23:54,950 --> 00:24:00,770
@@ -1600,31 +1757,31 @@ Now, all stars in the same stage implement the same operation, like,
 
 401
 00:24:00,780 --> 00:24:01,370
-for instance, 
+for instance,
 
 402
 00:24:01,380 --> 00:24:02,650
-map or reduce. 
+map or reduce.
 
 403
 00:24:05,530 --> 00:24:09,320
-And typically they are a single strategy and they have determined to execution, 
+And typically they are a single strategy and they have determined to execution,
 
 404
 00:24:09,330 --> 00:24:10,960
-meaning that if you execute, 
+meaning that if you execute,
 
 405
 00:24:12,500 --> 00:24:16,780
-if your execute is the same task on the same data, 
+if your execute is the same task on the same data,
 
 406
 00:24:17,710 --> 00:24:19,040
-you get the same results. 
+you get the same results.
 
 407
 00:24:19,050 --> 00:24:23,520
-And this will be important for a full tolerance that you are going to see next. 
+And this will be important for a full tolerance that you are going to see next.
 
 408
 00:24:27,880 --> 00:24:32,540
@@ -1632,19 +1789,19 @@ But I think that you already can start seeing these advantages, right?
 
 409
 00:24:34,100 --> 00:24:35,250
-And our advisory, 
+And our advisory,
 
 410
 00:24:35,260 --> 00:24:37,850
-the resilient data assets are also immutable. 
+the resilient data assets are also immutable.
 
 411
 00:24:38,260 --> 00:24:40,430
-Immutable means that once you created them, 
+Immutable means that once you created them,
 
 412
 00:24:40,440 --> 00:24:41,480
-you don't change. 
+you don't change.
 
 413
 00:24:41,740 --> 00:24:44,050
@@ -1652,15 +1809,15 @@ If you want to change them, you create a copy of them,
 
 414
 00:24:45,210 --> 00:24:46,140
-and you change the option. 
+and you change the option.
 
 415
 00:24:48,420 --> 00:24:52,100
-The shuffle kind of plays a lot of implicit barriers, 
+The shuffle kind of plays a lot of implicit barriers,
 
 416
 00:24:52,110 --> 00:24:57,000
-a meaning that one stage cannot finish before the previous stage finished. 
+a meaning that one stage cannot finish before the previous stage finished.
 
 417
 00:24:57,320 --> 00:25:02,730
@@ -1668,7 +1825,7 @@ Because the stage the current state depends on the data being produced
 
 418
 00:25:02,740 --> 00:25:03,850
-by the previous stage. 
+by the previous stage.
 
 419
 00:25:04,170 --> 00:25:05,920
@@ -1676,7 +1833,7 @@ So therefore, by definition, you cannot feel.
 
 420
 00:25:08,440 --> 00:25:08,820
-Right? 
+Right?
 
 421
 00:25:13,470 --> 00:25:18,020
@@ -1688,7 +1845,7 @@ map, filter, goodbye,
 
 423
 00:25:20,060 --> 00:25:21,210
-or actions, 
+or actions,
 
 424
 00:25:21,560 --> 00:25:22,750
@@ -1696,7 +1853,7 @@ count, and things like that.
 
 425
 00:25:24,740 --> 00:25:25,830
-So now you see, 
+So now you see,
 
 426
 00:25:26,040 --> 00:25:28,310
@@ -1704,43 +1861,43 @@ probably you can guess why now spark is
 
 427
 00:25:28,320 --> 00:25:31,150
-much better for about our application of mention that. 
+much better for about our application of mention that.
 
 428
 00:25:33,020 --> 00:25:38,870
-Because now each iteration it's one or more stages spark of a spark joe. 
+Because now each iteration it's one or more stages spark of a spark joe.
 
 429
 00:25:40,650 --> 00:25:45,110
-And if you go from italy one iteration to another, 
+And if you go from italy one iteration to another,
 
 430
 00:25:45,120 --> 00:25:47,190
-you are going to pass the data through up, 
+you are going to pass the data through up,
 
 431
 00:25:49,040 --> 00:25:49,330
-right? 
+right?
 
 432
 00:25:49,340 --> 00:25:50,410
-Directly to memo. 
+Directly to memo.
 
 433
 00:25:51,270 --> 00:25:53,750
-You don't need to hit the disk. 
+You don't need to hit the disk.
 
 434
 00:25:58,380 --> 00:26:01,730
-So here you are each iteration processing, 
+So here you are each iteration processing,
 
 435
 00:26:01,740 --> 00:26:03,490
-except for the first one process, 
+except for the first one process,
 
 436
 00:26:03,500 --> 00:26:08,270
-the data from the ram output the data into the ram for the next iteration. 
+the data from the ram output the data into the ram for the next iteration.
 
 437
 00:26:09,150 --> 00:26:17,460
@@ -1748,7 +1905,7 @@ She's going to be so much faster than re reading and writing the data
 
 438
 00:26:17,470 --> 00:26:19,100
-from the list between the iteration. 
+from the list between the iteration.
 
 439
 00:26:29,290 --> 00:26:34,570
@@ -1756,23 +1913,23 @@ Again, this is a question about why do we need to shuffle?
 
 440
 00:26:41,680 --> 00:26:43,150
-There are two questions here. 
+There are two questions here.
 
 441
 00:26:44,160 --> 00:26:47,270
-Wouldn't the data need to be sent over the network in the shuffle stage? 
+Wouldn't the data need to be sent over the network in the shuffle stage?
 
 442
 00:26:47,280 --> 00:26:48,070
-Absolutely. 
+Absolutely.
 
 443
 00:26:50,620 --> 00:26:58,040
-But it's actually the network is faster than the disk. 
+But it's actually the network is faster than the disk.
 
 444
 00:26:59,430 --> 00:27:00,250
-That's number one. 
+That's number one.
 
 445
 00:27:05,740 --> 00:27:07,370
@@ -1780,15 +1937,15 @@ The number two is, again,
 
 446
 00:27:07,380 --> 00:27:11,420
-you don't need to send them and depend on the what each stage, 
+you don't need to send them and depend on the what each stage,
 
 447
 00:27:12,040 --> 00:27:13,010
-what happens between the stages? 
+what happens between the stages?
 
 448
 00:27:13,020 --> 00:27:15,510
-You don't need to send all the data across another. 
+You don't need to send all the data across another.
 
 449
 00:27:22,750 --> 00:27:24,750
@@ -1796,7 +1953,7 @@ Again, to answer against the question,
 
 450
 00:27:24,760 --> 00:27:29,810
-why does the data needs to be shuffled between each step steps? 
+why does the data needs to be shuffled between each step steps?
 
 451
 00:27:30,020 --> 00:27:35,730
@@ -1804,7 +1961,7 @@ Again, it's like in our example about counting workout.
 
 452
 00:27:37,990 --> 00:27:39,070
-In the first stage, 
+In the first stage,
 
 453
 00:27:39,080 --> 00:27:45,120
@@ -1812,27 +1969,27 @@ you devise the documents and each machine counts of occurrences of berkeley
 
 454
 00:27:45,130 --> 00:27:46,400
-in the sets of documents. 
+in the sets of documents.
 
 455
 00:27:48,750 --> 00:27:48,980
-Now, 
+Now,
 
 456
 00:27:49,470 --> 00:27:57,110
-each machine has a partial count of berkeley occurrences to get the total account. 
+each machine has a partial count of berkeley occurrences to get the total account.
 
 457
 00:27:57,120 --> 00:27:58,590
-You need to aggregate those. 
+You need to aggregate those.
 
 458
 00:27:59,100 --> 00:28:04,800
-So each machine needs to send to another machine is partial account. 
+So each machine needs to send to another machine is partial account.
 
 459
 00:28:10,730 --> 00:28:12,080
-That's why you need to communicate. 
+That's why you need to communicate.
 
 460
 00:28:13,410 --> 00:28:15,400
@@ -1840,7 +1997,7 @@ Now, we have every machine in the first phase,
 
 461
 00:28:15,410 --> 00:28:17,320
-which has a partial account of berkeley, 
+which has a partial account of berkeley,
 
 462
 00:28:19,090 --> 00:28:21,780
@@ -1848,7 +2005,7 @@ in the first stage, sends,
 
 463
 00:28:21,790 --> 00:28:25,400
-especially account to the machine in the second stage. 
+especially account to the machine in the second stage.
 
 464
 00:28:26,980 --> 00:28:31,600
@@ -1856,19 +2013,19 @@ Now, imagine that you do this for every word.
 
 465
 00:28:33,220 --> 00:28:36,770
-So you have to have all to all communication. 
+So you have to have all to all communication.
 
 466
 00:28:46,430 --> 00:28:47,180
-Simon, 
+Simon,
 
 467
 00:28:48,000 --> 00:28:48,950
-great question. 
+great question.
 
 468
 00:28:48,960 --> 00:28:51,030
-How do you guarantee the internet? 
+How do you guarantee the internet?
 
 469
 00:28:51,040 --> 00:28:53,510
@@ -1876,19 +2033,19 @@ Are these things that i'm stay durable since that i'm is
 
 470
 00:28:53,520 --> 00:28:57,240
-not as% of this great question? 
+not as% of this great question?
 
 471
 00:28:57,500 --> 00:29:00,860
-We'll answer it very quickly soon. 
+We'll answer it very quickly soon.
 
 472
 00:29:04,450 --> 00:29:05,320
-Okay. 
+Okay.
 
 473
 00:29:08,380 --> 00:29:09,930
-Now you may ask what happens. 
+Now you may ask what happens.
 
 474
 00:29:10,420 --> 00:29:17,220
@@ -1896,11 +2053,11 @@ So basically leicester with his group bmu spark and to compete
 
 475
 00:29:17,960 --> 00:29:22,560
-and their team is the ensembles. 
+and their team is the ensembles.
 
 476
 00:29:25,030 --> 00:29:25,760
-Okay? 
+Okay?
 
 477
 00:29:28,540 --> 00:29:31,150
@@ -1908,7 +2065,7 @@ As you can see, is a time for the best for.
 
 478
 00:29:34,150 --> 00:29:40,950
-But they were second because they submitted 20 minutes late. 
+But they were second because they submitted 20 minutes late.
 
 479
 00:29:44,880 --> 00:29:46,430
@@ -1920,11 +2077,11 @@ Is that teams, which are $1 million,
 
 481
 00:29:51,620 --> 00:29:53,050
-sit down just 20 minutes. 
+sit down just 20 minutes.
 
 482
 00:29:53,830 --> 00:30:02,910
-Maybe if we have started working on spark 20 minutes earlier by the other story. 
+Maybe if we have started working on spark 20 minutes earlier by the other story.
 
 483
 00:30:04,160 --> 00:30:06,630
@@ -1932,11 +2089,11 @@ Now let me give you an example, another example of mining.
 
 484
 00:30:06,640 --> 00:30:07,130
-We spark. 
+We spark.
 
 485
 00:30:07,140 --> 00:30:09,880
-And then i'm going to address a question about the photographs. 
+And then i'm going to address a question about the photographs.
 
 486
 00:30:11,520 --> 00:30:16,890
@@ -1944,35 +2101,35 @@ So the here is log minding your loud error messages from a log
 
 487
 00:30:16,900 --> 00:30:20,170
-into memories and interactive research for various patterns. 
+into memories and interactive research for various patterns.
 
 488
 00:30:22,800 --> 00:30:28,970
-Spark has a driver which executes which runs a code you fit in the code. 
+Spark has a driver which executes which runs a code you fit in the code.
 
 489
 00:30:29,420 --> 00:30:30,400
-And workers. 
+And workers.
 
 490
 00:30:30,930 --> 00:30:34,550
-The driver will send some function to the workers to execute any step. 
+The driver will send some function to the workers to execute any step.
 
 491
 00:30:37,770 --> 00:30:38,520
-Basically, 
+Basically,
 
 492
 00:30:39,090 --> 00:30:40,640
-this is a scholar code. 
+this is a scholar code.
 
 493
 00:30:42,290 --> 00:30:45,360
-Don't worry if you don't know scholar, 
+Don't worry if you don't know scholar,
 
 494
 00:30:45,370 --> 00:30:49,220
-I think it would be the this instruction will be self explanatory. 
+I think it would be the this instruction will be self explanatory.
 
 495
 00:30:50,110 --> 00:30:52,140
@@ -1980,7 +2137,7 @@ So basically, you read the text,
 
 496
 00:30:52,150 --> 00:30:55,110
-you read the lines from the text file. 
+you read the lines from the text file.
 
 497
 00:30:57,000 --> 00:31:02,460
@@ -1988,27 +2145,27 @@ This you are creating the rvd this will be the rvd these lines
 
 498
 00:31:02,850 --> 00:31:04,210
-are going to be a big set, 
+are going to be a big set,
 
 499
 00:31:04,220 --> 00:31:06,570
-and then it's going to be partitioned across machines, 
+and then it's going to be partitioned across machines,
 
 500
 00:31:08,530 --> 00:31:09,340
-across the workforce. 
+across the workforce.
 
 501
 00:31:10,750 --> 00:31:13,390
-Then you are going to filter each line, 
+Then you are going to filter each line,
 
 502
 00:31:13,400 --> 00:31:17,240
-which contains we start this error. 
+which contains we start this error.
 
 503
 00:31:20,240 --> 00:31:22,070
-This will create another data set, 
+This will create another data set,
 
 504
 00:31:22,410 --> 00:31:24,580
@@ -2016,19 +2173,19 @@ again, is represents all lines,
 
 505
 00:31:25,040 --> 00:31:26,100
-which starts with error, 
+which starts with error,
 
 506
 00:31:27,610 --> 00:31:29,170
-is a second transformer, 
+is a second transformer,
 
 507
 00:31:31,850 --> 00:31:32,120
-right? 
+right?
 
 508
 00:31:33,410 --> 00:31:35,090
-And now I want to read the messages. 
+And now I want to read the messages.
 
 509
 00:31:35,100 --> 00:31:42,390
@@ -2036,91 +2193,91 @@ So i'm going to split by tab like because errors and the legs
 
 510
 00:31:42,400 --> 00:31:44,110
-of the message separated by tab. 
+of the message separated by tab.
 
 511
 00:31:45,000 --> 00:31:47,470
-I'm going to split between the error and the message. 
+I'm going to split between the error and the message.
 
 512
 00:31:48,960 --> 00:31:49,910
-These are messages. 
+These are messages.
 
 513
 00:31:50,450 --> 00:31:52,320
-And I am going to catch the messages. 
+And I am going to catch the messages.
 
 514
 00:31:56,410 --> 00:31:57,800
-I want to count, 
+I want to count,
 
 515
 00:31:57,810 --> 00:31:58,880
-for instance, 
+for instance,
 
 516
 00:32:00,850 --> 00:32:04,280
-all the messages are all messages contained my sequel. 
+all the messages are all messages contained my sequel.
 
 517
 00:32:04,290 --> 00:32:08,770
-So basically how many error messages I have containing my sequel. 
+So basically how many error messages I have containing my sequel.
 
 518
 00:32:13,820 --> 00:32:14,830
-And this is the action. 
+And this is the action.
 
 519
 00:32:14,840 --> 00:32:19,040
-Remember you have transformation and action filter map, 
+Remember you have transformation and action filter map,
 
 520
 00:32:19,050 --> 00:32:20,480
-cache or transformation. 
+cache or transformation.
 
 521
 00:32:23,480 --> 00:32:28,960
-The code starts to this spark as what is called lazy evaluation. 
+The code starts to this spark as what is called lazy evaluation.
 
 522
 00:32:30,870 --> 00:32:32,850
-Only on you trigger an action, 
+Only on you trigger an action,
 
 523
 00:32:32,860 --> 00:32:34,770
-you start to execute the code. 
+you start to execute the code.
 
 524
 00:32:36,690 --> 00:32:41,050
-And the core thing about this is that when you start execute the code, 
+And the core thing about this is that when you start execute the code,
 
 525
 00:32:41,060 --> 00:32:44,410
-you see all these lines you need to execute and you can optimize. 
+you see all these lines you need to execute and you can optimize.
 
 526
 00:32:45,440 --> 00:32:47,450
-You can do data placement, 
+You can do data placement,
 
 527
 00:32:47,830 --> 00:32:48,900
-compute placement, 
+compute placement,
 
 528
 00:32:48,910 --> 00:32:53,100
-so you can have higher accurate data localities. 
+so you can have higher accurate data localities.
 
 529
 00:32:53,110 --> 00:32:58,190
-So you reduce the amount of data transfers over the network and sing like that. 
+So you reduce the amount of data transfers over the network and sing like that.
 
 530
 00:33:00,140 --> 00:33:00,440
-Right? 
+Right?
 
 531
 00:33:00,450 --> 00:33:02,760
-It's like a a sql query. 
+It's like a a sql query.
 
 532
 00:33:03,310 --> 00:33:06,540
@@ -2132,47 +2289,47 @@ and the optimizer season that is equal query and can do small things
 
 534
 00:33:09,350 --> 00:33:10,100
-about optimize. 
+about optimize.
 
 535
 00:33:11,180 --> 00:33:13,340
-If I give you one instruction at the time, 
+If I give you one instruction at the time,
 
 536
 00:33:13,860 --> 00:33:15,450
-it's not much you can do to optimize. 
+it's not much you can do to optimize.
 
 537
 00:33:15,980 --> 00:33:16,400
-But anyway, 
+But anyway,
 
 538
 00:33:17,110 --> 00:33:19,970
-all this code is run by the driver. 
+all this code is run by the driver.
 
 539
 00:33:21,340 --> 00:33:22,130
-Let's see what happens. 
+Let's see what happens.
 
 540
 00:33:22,880 --> 00:33:24,550
-Let's say the original data, 
+Let's say the original data,
 
 541
 00:33:24,560 --> 00:33:28,340
-it's in this adfsa distributed file system. 
+it's in this adfsa distributed file system.
 
 542
 00:33:29,230 --> 00:33:33,630
-These are different blocks from this file I am reading, 
+These are different blocks from this file I am reading,
 
 543
 00:33:33,870 --> 00:33:35,520
-and they are across the different world. 
+and they are across the different world.
 
 544
 00:33:38,260 --> 00:33:41,790
-So the driver sends a task to the worker. 
+So the driver sends a task to the worker.
 
 545
 00:33:42,770 --> 00:33:47,640
@@ -2180,23 +2337,23 @@ The task is to read from the first line, for instance, to read from this,
 
 546
 00:33:48,210 --> 00:33:50,900
-the blocks from adfs is partition. 
+the blocks from adfs is partition.
 
 547
 00:33:50,910 --> 00:33:53,910
-They doing the transformation. 
+They doing the transformation.
 
 548
 00:33:53,920 --> 00:33:59,520
-And then eventually you are going to cash and send the results back. 
+And then eventually you are going to cash and send the results back.
 
 549
 00:34:01,820 --> 00:34:04,320
-This is what the results back are. 
+This is what the results back are.
 
 550
 00:34:04,330 --> 00:34:07,460
-This kind of partial counters, 
+This kind of partial counters,
 
 551
 00:34:07,470 --> 00:34:12,760
@@ -2204,47 +2361,47 @@ because each of these workers is going to count the number of occurrences
 
 552
 00:34:12,770 --> 00:34:15,420
-of my sql across this data. 
+of my sql across this data.
 
 553
 00:34:16,320 --> 00:34:17,740
-So to get the total account, 
+So to get the total account,
 
 554
 00:34:17,750 --> 00:34:19,140
-you need to sum them up. 
+you need to sum them up.
 
 555
 00:34:19,760 --> 00:34:23,270
-These results represent this partial counter just sent to the driver. 
+These results represent this partial counter just sent to the driver.
 
 556
 00:34:25,580 --> 00:34:28,520
-And now you send the second. 
+And now you send the second.
 
 557
 00:34:29,580 --> 00:34:30,800
-Now i'm doing the same thing, 
+Now i'm doing the same thing,
 
 558
 00:34:30,810 --> 00:34:32,800
-but I want for php errors. 
+but I want for php errors.
 
 559
 00:34:34,540 --> 00:34:38,630
-Now the key point here is that now with aphp errors, 
+Now the key point here is that now with aphp errors,
 
 560
 00:34:38,640 --> 00:34:40,750
-you when you count the php errors, 
+you when you count the php errors,
 
 561
 00:34:40,760 --> 00:34:44,110
-you don't need to go all the way to read from the original files, 
+you don't need to go all the way to read from the original files,
 
 562
 00:34:44,120 --> 00:34:45,590
-do the filter to the map. 
+do the filter to the map.
 
 563
 00:34:46,100 --> 00:34:49,240
@@ -2252,11 +2409,11 @@ Now, you are going to read the cash message.
 
 564
 00:34:52,890 --> 00:34:53,960
-If you do that, 
+If you do that,
 
 565
 00:34:54,730 --> 00:34:55,650
-obviously, 
+obviously,
 
 566
 00:34:56,420 --> 00:35:00,210
@@ -2264,27 +2421,27 @@ the first time is a follower because you need the game to do the read
 
 567
 00:35:00,220 --> 00:35:01,300
-from the disk. 
+from the disk.
 
 568
 00:35:02,580 --> 00:35:03,250
-Do the filter? 
+Do the filter?
 
 569
 00:35:03,260 --> 00:35:03,890
-Does a map? 
+Does a map?
 
 570
 00:35:03,900 --> 00:35:09,140
-You told you was taking in these examples to on60 gigabytes, 
+You told you was taking in these examples to on60 gigabytes,
 
 571
 00:35:09,150 --> 00:35:11,060
-22 machines at that time. 
+22 machines at that time.
 
 572
 00:35:11,400 --> 00:35:18,240
-20 seconds for the first to get the number of the count of my sql errors. 
+20 seconds for the first to get the number of the count of my sql errors.
 
 573
 00:35:20,520 --> 00:35:23,150
@@ -2292,11 +2449,11 @@ The second time, when it's already in the cache,
 
 574
 00:35:23,820 --> 00:35:24,980
-it's only half a second. 
+it's only half a second.
 
 575
 00:35:28,700 --> 00:35:31,610
-So that's about this. 
+So that's about this.
 
 576
 00:35:31,620 --> 00:35:34,740
@@ -2304,15 +2461,15 @@ Again, you have language support for python,
 
 577
 00:35:34,750 --> 00:35:36,140
-scholar and java. 
+scholar and java.
 
 578
 00:35:36,500 --> 00:35:39,320
-I mentioned to you is far more expressive. 
+I mentioned to you is far more expressive.
 
 579
 00:35:39,330 --> 00:35:40,040
-Ap is, 
+Ap is,
 
 580
 00:35:40,050 --> 00:35:45,720
@@ -2320,11 +2477,11 @@ and you see map and reduce are only towards the ap is even back then it has
 
 581
 00:35:45,730 --> 00:35:47,280
-around 100 ap is. 
+around 100 ap is.
 
 582
 00:35:49,080 --> 00:35:51,600
-And still we have another question. 
+And still we have another question.
 
 583
 00:36:02,070 --> 00:36:03,310
@@ -2332,31 +2489,31 @@ Now, in hard,
 
 584
 00:36:03,320 --> 00:36:11,380
-do you can maybe aggregate in canopy, 
+do you can maybe aggregate in canopy,
 
 585
 00:36:11,390 --> 00:36:12,980
-you have only two stages. 
+you have only two stages.
 
 586
 00:36:13,990 --> 00:36:16,170
-You need to stay to have map and reduces. 
+You need to stay to have map and reduces.
 
 587
 00:36:16,180 --> 00:36:17,930
-You have only two tasks to functions. 
+You have only two tasks to functions.
 
 588
 00:36:18,540 --> 00:36:19,660
-That's the only thing you can do. 
+That's the only thing you can do.
 
 589
 00:36:23,920 --> 00:36:24,350
-Right? 
+Right?
 
 590
 00:36:24,360 --> 00:36:25,870
-You have two special tasks. 
+You have two special tasks.
 
 591
 00:36:26,210 --> 00:36:29,020
@@ -2364,47 +2521,47 @@ Here you have much more general, like you said, filter,
 
 592
 00:36:29,690 --> 00:36:30,240
-maps, 
+maps,
 
 593
 00:36:30,880 --> 00:36:31,930
-count things like that. 
+count things like that.
 
 594
 00:36:38,590 --> 00:36:38,780
-Now, 
+Now,
 
 595
 00:36:38,790 --> 00:36:42,820
-it was this great question about what you do about recovery for tolerance. 
+it was this great question about what you do about recovery for tolerance.
 
 596
 00:36:43,380 --> 00:36:44,700
-This is distributed systems. 
+This is distributed systems.
 
 597
 00:36:45,490 --> 00:36:46,950
-We know the machine fails. 
+We know the machine fails.
 
 598
 00:36:47,410 --> 00:36:48,640
-We learn about that. 
+We learn about that.
 
 599
 00:36:49,150 --> 00:36:51,960
-We want to make it more for tolerant. 
+We want to make it more for tolerant.
 
 600
 00:36:53,390 --> 00:36:55,230
-So how do you do about that? 
+So how do you do about that?
 
 601
 00:36:55,240 --> 00:36:55,610
-Let's see. 
+Let's see.
 
 602
 00:36:59,560 --> 00:37:00,630
-Let me before going that. 
+Let me before going that.
 
 603
 00:37:00,640 --> 00:37:03,950
@@ -2412,15 +2569,15 @@ Let me ask answer this other question, ask shift question.
 
 604
 00:37:04,700 --> 00:37:05,870
-For this log mining example, 
+For this log mining example,
 
 605
 00:37:05,880 --> 00:37:08,190
-are the main reason why spark is faster? 
+are the main reason why spark is faster?
 
 606
 00:37:08,200 --> 00:37:12,450
-Because it's using graham instead of this totally and lazy evaluation, 
+Because it's using graham instead of this totally and lazy evaluation,
 
 607
 00:37:13,500 --> 00:37:18,630
@@ -2428,43 +2585,43 @@ allowing for optimization in part of it and sleep transforms
 
 608
 00:37:18,640 --> 00:37:20,230
-and multiple action following it, 
+and multiple action following it,
 
 609
 00:37:20,240 --> 00:37:21,790
-as opposed to my reducing. 
+as opposed to my reducing.
 
 610
 00:37:22,230 --> 00:37:22,970
-On repeat. 
+On repeat.
 
 611
 00:37:23,670 --> 00:37:25,580
-These are all good reasons. 
+These are all good reasons.
 
 612
 00:37:26,080 --> 00:37:30,600
-These are all through the lazy evaluation does a lousy. 
+These are all through the lazy evaluation does a lousy.
 
 613
 00:37:30,610 --> 00:37:35,020
-And we now spark as an optimizer or catalyst, 
+And we now spark as an optimizer or catalyst,
 
 614
 00:37:35,610 --> 00:37:37,890
-doing quite smart optimization. 
+doing quite smart optimization.
 
 615
 00:37:39,010 --> 00:37:41,880
-Like a database optimizer. 
+Like a database optimizer.
 
 616
 00:37:44,030 --> 00:37:52,870
-You can link multiple option actions and more multiple transformations. 
+You can link multiple option actions and more multiple transformations.
 
 617
 00:37:52,880 --> 00:37:54,870
-So you don't need different jobs for those. 
+So you don't need different jobs for those.
 
 618
 00:37:58,060 --> 00:38:05,900
@@ -2472,15 +2629,15 @@ The biggest reason actually is because of data between stages is is started
 
 619
 00:38:05,910 --> 00:38:07,550
-in round instead of one, 
+in round instead of one,
 
 620
 00:38:07,560 --> 00:38:07,790
-that is. 
+that is.
 
 621
 00:38:07,800 --> 00:38:07,870
-So. 
+So.
 
 622
 00:38:10,620 --> 00:38:12,390
@@ -2488,35 +2645,35 @@ Now, this is a question,
 
 623
 00:38:12,400 --> 00:38:18,790
-and this is what Actually one of the main innovation of ray. 
+and this is what Actually one of the main innovation of ray.
 
 624
 00:38:19,280 --> 00:38:22,640
-It is to make this data set to reliable. 
+It is to make this data set to reliable.
 
 625
 00:38:24,390 --> 00:38:25,740
-How do you make reliability? 
+How do you make reliability?
 
 626
 00:38:25,750 --> 00:38:27,780
-How to achieve a reliability? 
+How to achieve a reliability?
 
 627
 00:38:27,790 --> 00:38:28,820
-One is replication. 
+One is replication.
 
 628
 00:38:29,650 --> 00:38:31,490
-We learned about that if you remember the rate, 
+We learned about that if you remember the rate,
 
 629
 00:38:34,980 --> 00:38:37,130
-but you need to write the data over the network, 
+but you need to write the data over the network,
 
 630
 00:38:37,140 --> 00:38:38,770
-and the memory can be inefficient. 
+and the memory can be inefficient.
 
 631
 00:38:40,740 --> 00:38:42,180
@@ -2524,31 +2681,31 @@ You inefficient use, right?
 
 632
 00:38:42,190 --> 00:38:45,940
-Because now you still remember the memory is expensive. 
+Because now you still remember the memory is expensive.
 
 633
 00:38:45,950 --> 00:38:48,890
-You don't have as much memories on the disk. 
+You don't have as much memories on the disk.
 
 634
 00:38:48,900 --> 00:38:55,480
-And now to use as a memory to store multiple replicas. 
+And now to use as a memory to store multiple replicas.
 
 635
 00:38:56,110 --> 00:39:05,630
-So the effective memory size will decrease by half or by once by 3 times. 
+So the effective memory size will decrease by half or by once by 3 times.
 
 636
 00:39:05,970 --> 00:39:11,810
-If you are going to store to have three replicas is not good. 
+If you are going to store to have three replicas is not good.
 
 637
 00:39:14,950 --> 00:39:17,150
-You can do backup on pakistan storage. 
+You can do backup on pakistan storage.
 
 638
 00:39:17,720 --> 00:39:18,120
-Right? 
+Right?
 
 639
 00:39:18,860 --> 00:39:20,870
@@ -2556,27 +2713,27 @@ But still, if you do backup, right?
 
 640
 00:39:22,330 --> 00:39:23,390
-Is slow. 
+Is slow.
 
 641
 00:39:23,940 --> 00:39:25,980
-I still mainly mean to go over the matter. 
+I still mainly mean to go over the matter.
 
 642
 00:39:27,510 --> 00:39:30,680
-So the spark choice is what is called lineage, 
+So the spark choice is what is called lineage,
 
 643
 00:39:30,690 --> 00:39:31,720
-basic construction. 
+basic construction.
 
 644
 00:39:33,930 --> 00:39:35,200
-Our spark is doing. 
+Our spark is doing.
 
 645
 00:39:35,210 --> 00:39:37,480
-It tracks the sequence of operations. 
+It tracks the sequence of operations.
 
 646
 00:39:38,590 --> 00:39:44,530
@@ -2584,7 +2741,7 @@ It records the sequence of operations that creates a partition
 
 647
 00:39:44,540 --> 00:39:47,890
-of a particular rvd and if that partition misses, 
+of a particular rvd and if that partition misses,
 
 648
 00:39:49,050 --> 00:39:56,440
@@ -2592,51 +2749,51 @@ it re executes the sequence of operations which created that partition is
 
 649
 00:39:56,450 --> 00:39:57,400
-the first place. 
+the first place.
 
 650
 00:39:58,700 --> 00:40:00,410
-This way it recreates a factory. 
+This way it recreates a factory.
 
 651
 00:40:03,350 --> 00:40:07,420
-And this is working because the inputs are immutable. 
+And this is working because the inputs are immutable.
 
 652
 00:40:07,780 --> 00:40:11,300
-Once the inputs are used by a task, 
+Once the inputs are used by a task,
 
 653
 00:40:11,310 --> 00:40:12,660
-they don't change after that. 
+they don't change after that.
 
 654
 00:40:12,670 --> 00:40:14,100
-So you can reuse later. 
+So you can reuse later.
 
 655
 00:40:15,310 --> 00:40:16,940
-The task are deterministic. 
+The task are deterministic.
 
 656
 00:40:19,260 --> 00:40:20,360
-So here is an example. 
+So here is an example.
 
 657
 00:40:21,570 --> 00:40:23,990
-You have an rbda you have some filter, 
+You have an rbda you have some filter,
 
 658
 00:40:24,000 --> 00:40:25,310
-creates an rdd bs, 
+creates an rdd bs,
 
 659
 00:40:25,320 --> 00:40:29,190
-and you have a join operations, 
+and you have a join operations,
 
 660
 00:40:29,200 --> 00:40:30,310
-have a shuffle here. 
+have a shuffle here.
 
 661
 00:40:30,320 --> 00:40:34,910
@@ -2644,7 +2801,7 @@ Then you create an rvdc and you have aggregation of creating an rvdd
 
 662
 00:40:35,600 --> 00:40:36,880
-here we have two machines, 
+here we have two machines,
 
 663
 00:40:36,890 --> 00:40:41,030
@@ -2652,7 +2809,7 @@ each like a one, a two, b one, b two, c one,
 
 664
 00:40:41,040 --> 00:40:43,350
-c two corresponds to two different machines. 
+c two corresponds to two different machines.
 
 665
 00:40:45,050 --> 00:40:52,630
@@ -2660,15 +2817,15 @@ And now assume that before the aggregation get a chance to read the input c
 
 666
 00:40:52,640 --> 00:40:55,950
-one that machines fails. 
+one that machines fails.
 
 667
 00:40:59,650 --> 00:40:59,850
-Right? 
+Right?
 
 668
 00:41:00,060 --> 00:41:00,730
-What does it do? 
+What does it do?
 
 669
 00:41:00,740 --> 00:41:08,460
@@ -2676,7 +2833,7 @@ The driver from spark side is going to notice that and is going to
 
 670
 00:41:12,250 --> 00:41:13,140
-just replay, 
+just replay,
 
 671
 00:41:13,700 --> 00:41:21,280
@@ -2684,23 +2841,23 @@ re execute the task who created sichuan and find another note
 
 672
 00:41:21,290 --> 00:41:22,800
-eventually to run the passport. 
+eventually to run the passport.
 
 673
 00:41:24,790 --> 00:41:25,080
-Right? 
+Right?
 
 674
 00:41:25,750 --> 00:41:27,070
-So it reconstructs you on. 
+So it reconstructs you on.
 
 675
 00:41:27,080 --> 00:41:31,190
-And now the aggregation function will have boston pursue an answer to the creative. 
+And now the aggregation function will have boston pursue an answer to the creative.
 
 676
 00:41:36,500 --> 00:41:36,930
-Right? 
+Right?
 
 677
 00:41:38,660 --> 00:41:41,410
@@ -2708,11 +2865,11 @@ Now here, for instance, maybe beyond, it's also lost.
 
 678
 00:41:43,110 --> 00:41:43,800
-It's okay. 
+It's okay.
 
 679
 00:41:44,090 --> 00:41:47,090
-If beyond is lost or not beyond, 
+If beyond is lost or not beyond,
 
 680
 00:41:47,100 --> 00:41:49,610
@@ -2720,7 +2877,7 @@ b two says beyond is lost, it's okay.
 
 681
 00:41:50,170 --> 00:41:52,440
-You are going to go all the way to a one. 
+You are going to go all the way to a one.
 
 682
 00:41:54,090 --> 00:41:59,080
@@ -2728,11 +2885,11 @@ In the worst case, you go to a one to all the data, which is input data,
 
 683
 00:41:59,090 --> 00:42:00,320
-which is stored on the disk, 
+which is stored on the disk,
 
 684
 00:42:01,300 --> 00:42:02,620
-which is persistently stopped. 
+which is persistently stopped.
 
 685
 00:42:04,730 --> 00:42:06,950
@@ -2740,31 +2897,31 @@ But in general, you don't need to go all the way.
 
 686
 00:42:09,250 --> 00:42:10,000
-So that's a key. 
+So that's a key.
 
 687
 00:42:12,940 --> 00:42:13,530
-Make sense? 
+Make sense?
 
 688
 00:42:22,530 --> 00:42:26,000
-This is an iterative algorithms like our machine learning algorithms, 
+This is an iterative algorithms like our machine learning algorithms,
 
 689
 00:42:26,010 --> 00:42:27,280
-the first iteration, 
+the first iteration,
 
 690
 00:42:27,290 --> 00:42:30,400
-basically 1 to 3 iteration on the y axis, 
+basically 1 to 3 iteration on the y axis,
 
 691
 00:42:30,410 --> 00:42:32,670
-how long the iteration takes. 
+how long the iteration takes.
 
 692
 00:42:34,350 --> 00:42:35,220
-So here, 
+So here,
 
 693
 00:42:35,230 --> 00:42:38,930
@@ -2772,11 +2929,11 @@ the first iteration takes longer because they need to read the data
 
 694
 00:42:38,940 --> 00:42:39,690
-from the disk. 
+from the disk.
 
 695
 00:42:40,620 --> 00:42:41,900
-And then you are going, 
+And then you are going,
 
 696
 00:42:41,910 --> 00:42:44,020
@@ -2784,15 +2941,15 @@ then each iteration takes much, less.
 
 697
 00:42:44,700 --> 00:42:45,920
-And at some point, 
+And at some point,
 
 698
 00:42:46,500 --> 00:42:47,660
-you have a failure. 
+you have a failure.
 
 699
 00:42:48,340 --> 00:42:49,740
-But the only three things, 
+But the only three things,
 
 700
 00:42:49,750 --> 00:42:52,500
@@ -2800,11 +2957,11 @@ what happens when you have a failure is the next iteration will take
 
 701
 00:42:52,510 --> 00:42:53,260
-a little bit longer, 
+a little bit longer,
 
 702
 00:42:53,990 --> 00:42:56,090
-because they need to reconstruct the loss take. 
+because they need to reconstruct the loss take.
 
 703
 00:42:57,790 --> 00:42:59,540
@@ -2812,31 +2969,31 @@ That's all, but as always is transparent.
 
 704
 00:43:01,680 --> 00:43:05,430
-So now i'm going to end with a spot, 
+So now i'm going to end with a spot,
 
 705
 00:43:06,820 --> 00:43:07,900
-like I mentioned, 
+like I mentioned,
 
 706
 00:43:08,560 --> 00:43:09,600
-right now, 
+right now,
 
 707
 00:43:11,000 --> 00:43:17,370
-parkers and effective standards for distributed for data processing, 
+parkers and effective standards for distributed for data processing,
 
 708
 00:43:20,890 --> 00:43:22,520
-very successful data, 
+very successful data,
 
 709
 00:43:22,530 --> 00:43:23,880
-which is a successful company. 
+which is a successful company.
 
 710
 00:43:23,890 --> 00:43:26,440
-So it was pretty much a success scenario here. 
+So it was pretty much a success scenario here.
 
 711
 00:43:30,900 --> 00:43:34,290
@@ -2844,11 +3001,11 @@ Yes, ii sorry, what I said here,
 
 712
 00:43:34,300 --> 00:43:36,410
-not beyond his back comparison storage, 
+not beyond his back comparison storage,
 
 713
 00:43:36,420 --> 00:43:39,060
-I said a one is back complex and storage. 
+I said a one is back complex and storage.
 
 714
 00:43:39,340 --> 00:43:44,080
@@ -2856,47 +3013,47 @@ The inputs are read from a persistent storage, which is resilient.
 
 715
 00:43:45,110 --> 00:43:46,010
-In the worst case, 
+In the worst case,
 
 716
 00:43:46,020 --> 00:43:51,690
-you can go all the way back to the input to reconstruct the lost outputs. 
+you can go all the way back to the input to reconstruct the lost outputs.
 
 717
 00:43:53,140 --> 00:43:57,380
-But I assume that a one and a two are stored. 
+But I assume that a one and a two are stored.
 
 718
 00:43:57,390 --> 00:43:59,340
-The inputs are stored reliably. 
+The inputs are stored reliably.
 
 719
 00:44:05,650 --> 00:44:06,480
-Announcements. 
+Announcements.
 
 720
 00:44:06,490 --> 00:44:08,480
-Congrats for taking the last meter. 
+Congrats for taking the last meter.
 
 721
 00:44:11,130 --> 00:44:16,240
-Project three due on projects three is due next wednesday. 
+Project three due on projects three is due next wednesday.
 
 722
 00:44:17,200 --> 00:44:18,240
-But sunday, 
+But sunday,
 
 723
 00:44:18,250 --> 00:44:21,880
-there is a party in wozniak lounge. 
+there is a party in wozniak lounge.
 
 724
 00:44:22,310 --> 00:44:24,070
-You can get held there. 
+You can get held there.
 
 725
 00:44:26,370 --> 00:44:27,380
-If you are around, 
+If you are around,
 
 726
 00:44:28,810 --> 00:44:32,430
@@ -2904,11 +3061,11 @@ you can, it should be a fun and very useful.
 
 727
 00:44:33,690 --> 00:44:35,200
-4 hours you can spend. 
+4 hours you can spend.
 
 728
 00:44:38,240 --> 00:44:40,190
-Discussion will be office hours, 
+Discussion will be office hours,
 
 729
 00:44:40,200 --> 00:44:42,230
@@ -2916,11 +3073,11 @@ like you will be seen, probably.
 
 730
 00:44:42,950 --> 00:44:45,250
-And the officer will continue to that of that week. 
+And the officer will continue to that of that week.
 
 731
 00:44:45,260 --> 00:44:49,480
-And the homework six is due next tomorrow. 
+And the homework six is due next tomorrow.
 
 732
 00:44:53,210 --> 00:44:56,240
@@ -2928,31 +3085,31 @@ Now, let's switch the gears and talk a little bit, right?
 
 733
 00:44:58,000 --> 00:44:59,230
-There is a system. 
+There is a system.
 
 734
 00:44:59,570 --> 00:45:00,960
-I'll give you the history as well. 
+I'll give you the history as well.
 
 735
 00:45:01,630 --> 00:45:06,750
-We also build after the trends. 
+We also build after the trends.
 
 736
 00:45:06,760 --> 00:45:08,150
-And i'm going to go quickly. 
+And i'm going to go quickly.
 
 737
 00:45:08,360 --> 00:45:11,630
-We went through these trends earlier on when I started the class. 
+We went through these trends earlier on when I started the class.
 
 738
 00:45:12,300 --> 00:45:14,170
-Ai demands are exploding. 
+Ai demands are exploding.
 
 739
 00:45:14,930 --> 00:45:15,980
-I show you the plot. 
+I show you the plot.
 
 740
 00:45:15,990 --> 00:45:22,250
@@ -2960,15 +3117,15 @@ This is a plot from open ai which is the computational requirements
 
 741
 00:45:22,260 --> 00:45:24,890
-to train the state of the art machine learning models. 
+to train the state of the art machine learning models.
 
 742
 00:45:24,900 --> 00:45:31,310
-And it was growing 35 times every 18 miles between 2012 and 2019. 
+And it was growing 35 times every 18 miles between 2012 and 2019.
 
 743
 00:45:32,030 --> 00:45:33,940
-The growth continue after that. 
+The growth continue after that.
 
 744
 00:45:33,950 --> 00:45:40,590
@@ -2980,11 +3137,11 @@ of esoteric
 
 746
 00:45:41,440 --> 00:45:44,230
-workloads like playing games or things like that. 
+workloads like playing games or things like that.
 
 747
 00:45:44,240 --> 00:45:47,270
-It's also for image processing or natural language processing, 
+It's also for image processing or natural language processing,
 
 748
 00:45:47,830 --> 00:45:49,660
@@ -2996,27 +3153,27 @@ The other thing is a more slow is ended, right?
 
 750
 00:45:54,800 --> 00:46:00,840
-It used to have it use that like27 years ago, 
+It used to have it use that like27 years ago,
 
 751
 00:46:00,850 --> 00:46:03,240
-every one year and a half, 
+every one year and a half,
 
 752
 00:46:03,250 --> 00:46:08,390
-the performance of the processors doubled no longer true. 
+the performance of the processors doubled no longer true.
 
 753
 00:46:08,400 --> 00:46:10,870
-Now we're just growing by a few percents every year. 
+Now we're just growing by a few percents every year.
 
 754
 00:46:12,220 --> 00:46:15,090
-So then there is a huge gap between the motors law. 
+So then there is a huge gap between the motors law.
 
 755
 00:46:15,100 --> 00:46:16,010
-And actually, 
+And actually,
 
 756
 00:46:19,720 --> 00:46:21,590
@@ -3024,11 +3181,11 @@ the end, the morsel is no longer.
 
 757
 00:46:21,600 --> 00:46:23,630
-It's even worse because the morsel has ended, 
+It's even worse because the morsel has ended,
 
 758
 00:46:23,640 --> 00:46:24,670
-like we just mentioned. 
+like we just mentioned.
 
 759
 00:46:25,420 --> 00:46:29,700
@@ -3036,23 +3193,23 @@ It's a huge gap between the demands of this kind of machine learning
 
 760
 00:46:29,710 --> 00:46:32,800
-application and capabilities of a single processors. 
+application and capabilities of a single processors.
 
 761
 00:46:34,670 --> 00:46:35,660
-This is also true. 
+This is also true.
 
 762
 00:46:35,670 --> 00:46:38,060
-Even if you are looking at gp us and dp us, 
+Even if you are looking at gp us and dp us,
 
 763
 00:46:38,470 --> 00:46:40,340
-the gap is a little bit lower smaller, 
+the gap is a little bit lower smaller,
 
 764
 00:46:40,350 --> 00:46:41,540
-but it's a log scale. 
+but it's a log scale.
 
 765
 00:46:42,510 --> 00:46:45,620
@@ -3060,15 +3217,15 @@ Wise, or the why coordinate.
 
 766
 00:46:45,630 --> 00:46:46,580
-It's a log scale. 
+It's a log scale.
 
 767
 00:46:46,590 --> 00:46:48,740
-It's in log logarithmic scale. 
+It's in log logarithmic scale.
 
 768
 00:46:49,430 --> 00:46:54,500
-All these kind of differences means that the gap increases exponentially. 
+All these kind of differences means that the gap increases exponentially.
 
 769
 00:46:55,340 --> 00:46:59,500
@@ -3080,15 +3237,15 @@ So this means that really, you cannot,
 
 771
 00:47:03,410 --> 00:47:07,260
-there is no other way to run this kind of variables, 
+there is no other way to run this kind of variables,
 
 772
 00:47:07,270 --> 00:47:09,100
-others and distributing these variables. 
+others and distributing these variables.
 
 773
 00:47:11,420 --> 00:47:14,850
-Spark was more about data scalable data processing. 
+Spark was more about data scalable data processing.
 
 774
 00:47:15,850 --> 00:47:19,570
@@ -3100,11 +3257,11 @@ compute, scalable, compute.
 
 776
 00:47:26,420 --> 00:47:29,730
-This is an example recommendation service. 
+This is an example recommendation service.
 
 777
 00:47:29,740 --> 00:47:31,090
-You have here. 
+You have here.
 
 778
 00:47:35,310 --> 00:47:36,310
@@ -3112,7 +3269,7 @@ Basically, here,
 
 779
 00:47:36,320 --> 00:47:39,790
-when you are going to open your application on your phone, 
+when you are going to open your application on your phone,
 
 780
 00:47:40,370 --> 00:47:47,310
@@ -3120,19 +3277,19 @@ you get some recommendation about maybe new products to buy or the
 
 781
 00:47:49,490 --> 00:47:50,650
-services download. 
+services download.
 
 782
 00:47:52,090 --> 00:47:53,370
-This is from the largest, 
+This is from the largest,
 
 783
 00:47:53,380 --> 00:47:54,650
-one largest feedback, 
+one largest feedback,
 
 784
 00:47:54,660 --> 00:47:56,730
-one of the largest feedback company in the world. 
+one of the largest feedback company in the world.
 
 785
 00:47:57,960 --> 00:48:01,650
@@ -3140,47 +3297,47 @@ And the application, when you look,
 
 786
 00:48:01,660 --> 00:48:05,160
-it looks at the high level, 
+it looks at the high level,
 
 787
 00:48:05,170 --> 00:48:06,480
-it has three stages. 
+it has three stages.
 
 788
 00:48:06,820 --> 00:48:08,250
-You get the data you do. 
+You get the data you do.
 
 789
 00:48:08,260 --> 00:48:09,370
-Some feature is asian. 
+Some feature is asian.
 
 790
 00:48:09,380 --> 00:48:14,140
-You try to extract what are the things from the data which are important? 
+You try to extract what are the things from the data which are important?
 
 791
 00:48:14,790 --> 00:48:17,660
-Like the user I ds or things like that. 
+Like the user I ds or things like that.
 
 792
 00:48:19,390 --> 00:48:21,610
-Then you use that data to train the model, 
+Then you use that data to train the model,
 
 793
 00:48:23,530 --> 00:48:27,210
-the recommendation to improve the recommendation and then to sell them. 
+the recommendation to improve the recommendation and then to sell them.
 
 794
 00:48:29,260 --> 00:48:29,650
-All right? 
+All right?
 
 795
 00:48:30,070 --> 00:48:33,500
-So this means that the next users or you and you are coming again, 
+So this means that the next users or you and you are coming again,
 
 796
 00:48:33,510 --> 00:48:35,180
-or you are long on the application, 
+or you are long on the application,
 
 797
 00:48:35,460 --> 00:48:40,170
@@ -3188,7 +3345,7 @@ you are going to now to be served these recommendations based on a model
 
 798
 00:48:40,180 --> 00:48:40,970
-or just train. 
+or just train.
 
 799
 00:48:44,480 --> 00:48:50,560
@@ -3196,19 +3353,19 @@ So now one question is about how fast you can update this model, right?
 
 800
 00:48:50,570 --> 00:48:53,060
-Because presumably, 
+Because presumably,
 
 801
 00:48:53,480 --> 00:48:56,560
-if you are going to update with the most recent data, 
+if you are going to update with the most recent data,
 
 802
 00:48:57,460 --> 00:49:00,360
-the model is going to perform better. 
+the model is going to perform better.
 
 803
 00:49:02,390 --> 00:49:02,750
-Right? 
+Right?
 
 804
 00:49:03,430 --> 00:49:09,500
@@ -3216,31 +3373,31 @@ I think about if I am going to use a model to recommend whatever services
 
 805
 00:49:09,870 --> 00:49:12,340
-from last year probably not going to be that accurate. 
+from last year probably not going to be that accurate.
 
 806
 00:49:13,550 --> 00:49:14,660
-Because in the meantime, 
+Because in the meantime,
 
 807
 00:49:14,670 --> 00:49:16,260
-there are a lot of other products, 
+there are a lot of other products,
 
 808
 00:49:16,270 --> 00:49:18,580
-a lot of other services which are introduced. 
+a lot of other services which are introduced.
 
 809
 00:49:19,130 --> 00:49:20,250
-That recommendation will not give. 
+That recommendation will not give.
 
 810
 00:49:20,260 --> 00:49:22,490
-A system will not even know about it, 
+A system will not even know about it,
 
 811
 00:49:23,250 --> 00:49:26,880
-and certainly will not know how my preferences have been involved. 
+and certainly will not know how my preferences have been involved.
 
 812
 00:49:31,290 --> 00:49:32,480
@@ -3252,15 +3409,15 @@ it's obvious that if I train a model today is going to do
 
 814
 00:49:37,940 --> 00:49:40,210
-much better than the one and j train last year. 
+much better than the one and j train last year.
 
 815
 00:49:40,220 --> 00:49:44,400
-But what about the one last week? 
+But what about the one last week?
 
 816
 00:49:45,980 --> 00:49:46,340
-Right? 
+Right?
 
 817
 00:49:47,570 --> 00:49:49,340
@@ -3268,47 +3425,47 @@ Or yesterday, there's a base model.
 
 818
 00:49:51,210 --> 00:49:53,160
-The question is about how much it matters. 
+The question is about how much it matters.
 
 819
 00:49:58,120 --> 00:49:59,430
-When this company started, 
+When this company started,
 
 820
 00:49:59,440 --> 00:50:02,750
-they started with this updating the model every one day. 
+they started with this updating the model every one day.
 
 821
 00:50:04,710 --> 00:50:06,790
-And they wanted to reduce to 1 hour, 
+And they wanted to reduce to 1 hour,
 
 822
 00:50:06,800 --> 00:50:09,630
-and they use a state of the art solution at that time. 
+and they use a state of the art solution at that time.
 
 823
 00:50:10,660 --> 00:50:13,460
-And they get pretty good results. 
+And they get pretty good results.
 
 824
 00:50:14,250 --> 00:50:15,260
-Click through rate. 
+Click through rate.
 
 825
 00:50:15,270 --> 00:50:18,880
-It's one of the main matrix for this application. 
+It's one of the main matrix for this application.
 
 826
 00:50:19,210 --> 00:50:19,520
-Basically, 
+Basically,
 
 827
 00:50:19,530 --> 00:50:26,690
-it tells you what is a ratio between the times you click on the offering, 
+it tells you what is a ratio between the times you click on the offering,
 
 828
 00:50:26,700 --> 00:50:33,170
-which was shown to you over the number of times that offering was shown to you. 
+which was shown to you over the number of times that offering was shown to you.
 
 829
 00:50:35,400 --> 00:50:39,480
@@ -3316,51 +3473,51 @@ If an offering was shown to you 100 times and you played 5 times
 
 830
 00:50:39,490 --> 00:50:40,640
-and the clinics through, 
+and the clinics through,
 
 831
 00:50:40,910 --> 00:50:42,590
-the rate is 5%. 
+the rate is 5%.
 
 832
 00:50:44,150 --> 00:50:48,300
-So they got an increase in god as this clicks arrived by 5%, 
+So they got an increase in god as this clicks arrived by 5%,
 
 833
 00:50:48,310 --> 00:50:49,180
-which was massive, 
+which was massive,
 
 834
 00:50:49,890 --> 00:50:51,480
-then they want to get lower, 
+then they want to get lower,
 
 835
 00:50:51,730 --> 00:50:53,250
-but they couldn't get lower, 
+but they couldn't get lower,
 
 836
 00:50:55,390 --> 00:50:58,500
-because they're suggesting the solution at that time. 
+because they're suggesting the solution at that time.
 
 837
 00:51:00,920 --> 00:51:03,230
-The main point here is that their solution, 
+The main point here is that their solution,
 
 838
 00:51:03,240 --> 00:51:04,470
-and even today, 
+and even today,
 
 839
 00:51:04,480 --> 00:51:07,070
-many of the solutions that remember, 
+many of the solutions that remember,
 
 840
 00:51:07,080 --> 00:51:12,790
-each of this stage needs to be distributed. 
+each of this stage needs to be distributed.
 
 841
 00:51:14,600 --> 00:51:19,390
-We have good systems to distribute each of these daily studies of workload, 
+We have good systems to distribute each of these daily studies of workload,
 
 842
 00:51:20,000 --> 00:51:21,710
@@ -3368,19 +3525,19 @@ data ingestion, and visualization,
 
 843
 00:51:22,360 --> 00:51:24,110
-you can use spark or something else. 
+you can use spark or something else.
 
 844
 00:51:24,820 --> 00:51:25,180
-For training, 
+For training,
 
 845
 00:51:25,190 --> 00:51:30,020
-you can use themselves serving a sense of flow distributed by toys. 
+you can use themselves serving a sense of flow distributed by toys.
 
 846
 00:51:30,030 --> 00:51:31,660
-Like me may be horrible. 
+Like me may be horrible.
 
 847
 00:51:32,370 --> 00:51:34,400
@@ -3388,19 +3545,19 @@ For selling, you can use another system.
 
 848
 00:51:35,100 --> 00:51:38,020
-But now in order to build all this entrance application, 
+But now in order to build all this entrance application,
 
 849
 00:51:38,360 --> 00:51:40,650
-you need to stitch together these stages. 
+you need to stitch together these stages.
 
 850
 00:51:40,660 --> 00:51:42,090
-And this is hard. 
+And this is hard.
 
 851
 00:51:44,350 --> 00:51:47,310
-Development is hard because each of these stages different. 
+Development is hard because each of these stages different.
 
 852
 00:51:47,570 --> 00:51:50,250
@@ -3408,43 +3565,43 @@ Then the deployment is hard because now you need to deploy
 
 853
 00:51:50,260 --> 00:51:51,930
-different distributed systems. 
+different distributed systems.
 
 854
 00:51:52,400 --> 00:51:57,000
-The management discard because you need to manage different distributed systems. 
+The management discard because you need to manage different distributed systems.
 
 855
 00:51:57,330 --> 00:51:59,110
-Different ap is and things like that, 
+Different ap is and things like that,
 
 856
 00:52:00,480 --> 00:52:01,640
-and also is slow. 
+and also is slow.
 
 857
 00:52:01,650 --> 00:52:04,080
-And that's why they couldn't read faster. 
+And that's why they couldn't read faster.
 
 858
 00:52:04,500 --> 00:52:07,130
-Because and now this is going to sound. 
+Because and now this is going to sound.
 
 859
 00:52:09,690 --> 00:52:14,290
-Now you can recognize this pattern to move the data between two different systems, 
+Now you can recognize this pattern to move the data between two different systems,
 
 860
 00:52:14,300 --> 00:52:16,770
-how it moves the data between the different systems. 
+how it moves the data between the different systems.
 
 861
 00:52:17,000 --> 00:52:17,990
-Where is the way you move? 
+Where is the way you move?
 
 862
 00:52:18,000 --> 00:52:19,790
-The data between the different systems? 
+The data between the different systems?
 
 863
 00:52:19,800 --> 00:52:23,030
@@ -3452,7 +3609,7 @@ Is to write a in a disagree story system and to read
 
 864
 00:52:23,040 --> 00:52:24,350
-from the disagree story system. 
+from the disagree story system.
 
 865
 00:52:24,950 --> 00:52:26,300
@@ -3460,7 +3617,7 @@ That's, again, was slow.
 
 866
 00:52:28,710 --> 00:52:33,210
-And this was a very simple application machine learning application. 
+And this was a very simple application machine learning application.
 
 867
 00:52:33,400 --> 00:52:35,430
@@ -3468,47 +3625,47 @@ In general, it's much more complicated.
 
 868
 00:52:35,440 --> 00:52:36,950
-You don't need only to do training. 
+You don't need only to do training.
 
 869
 00:52:36,960 --> 00:52:40,320
-You also need to do to tune their models. 
+You also need to do to tune their models.
 
 870
 00:52:40,770 --> 00:52:44,630
-And if you are thinking about something like reinforcement learning, 
+And if you are thinking about something like reinforcement learning,
 
 871
 00:52:44,640 --> 00:52:48,520
-you also need to do simulations and things like that. 
+you also need to do simulations and things like that.
 
 872
 00:52:48,530 --> 00:52:49,720
-So it's very complicated. 
+So it's very complicated.
 
 873
 00:52:51,250 --> 00:52:53,360
-The summary here today, 
+The summary here today,
 
 874
 00:52:53,570 --> 00:52:58,840
-we need to to run all these workload distributedly, 
+we need to to run all these workload distributedly,
 
 875
 00:52:58,850 --> 00:53:00,360
-because they need to scale. 
+because they need to scale.
 
 876
 00:53:02,090 --> 00:53:03,850
-And for each of these workloads, 
+And for each of these workloads,
 
 877
 00:53:04,800 --> 00:53:06,290
-we have good distributed systems, 
+we have good distributed systems,
 
 878
 00:53:08,510 --> 00:53:08,960
-right? 
+right?
 
 879
 00:53:09,290 --> 00:53:11,050
@@ -3520,19 +3677,19 @@ simulation, streaming.
 
 881
 00:53:14,750 --> 00:53:17,290
-But when you want to build an entrance applications, 
+But when you want to build an entrance applications,
 
 882
 00:53:20,250 --> 00:53:22,730
-we need to use many of these systems together. 
+we need to use many of these systems together.
 
 883
 00:53:23,790 --> 00:53:24,890
-And this is very hard. 
+And this is very hard.
 
 884
 00:53:26,240 --> 00:53:26,770
-Okay? 
+Okay?
 
 885
 00:53:30,090 --> 00:53:31,450
@@ -3544,39 +3701,39 @@ And also on top of that, it's also slow.
 
 887
 00:53:33,740 --> 00:53:37,850
-So this is what is right. 
+So this is what is right.
 
 888
 00:53:38,580 --> 00:53:40,060
-Ray tries to solve this problem. 
+Ray tries to solve this problem.
 
 889
 00:53:40,190 --> 00:53:45,110
-Instead of having this hodgepodge of libraries of systems, 
+Instead of having this hodgepodge of libraries of systems,
 
 890
 00:53:46,240 --> 00:53:50,090
-you need to stitch together with ray. 
+you need to stitch together with ray.
 
 891
 00:53:50,410 --> 00:53:53,150
-You have one system, 
+You have one system,
 
 892
 00:53:53,160 --> 00:53:54,430
-which is very general. 
+which is very general.
 
 893
 00:53:55,140 --> 00:53:57,540
-It's a universal framework for this video computing. 
+It's a universal framework for this video computing.
 
 894
 00:53:58,430 --> 00:54:00,020
-And to support these workloads, 
+And to support these workloads,
 
 895
 00:54:00,030 --> 00:54:01,740
-you build libraries on top of it. 
+you build libraries on top of it.
 
 896
 00:54:04,260 --> 00:54:06,610
@@ -3584,23 +3741,23 @@ Now, if you want to support the workload,
 
 897
 00:54:06,620 --> 00:54:07,850
-they just run a library, 
+they just run a library,
 
 898
 00:54:07,860 --> 00:54:09,250
-but on top of the same system, 
+but on top of the same system,
 
 899
 00:54:14,710 --> 00:54:20,580
-a aa short story is starting in 2016 as a class project. 
+a aa short story is starting in 2016 as a class project.
 
 900
 00:54:21,640 --> 00:54:22,910
-Is here robert and philip, 
+Is here robert and philip,
 
 901
 00:54:22,920 --> 00:54:24,230
-they are taking a class. 
+they are taking a class.
 
 902
 00:54:24,810 --> 00:54:28,480
@@ -3608,7 +3765,7 @@ And their projects I was teaching and their project
 
 903
 00:54:28,490 --> 00:54:31,840
-was to scale distributed deep neural networks. 
+was to scale distributed deep neural networks.
 
 904
 00:54:31,850 --> 00:54:35,240
@@ -3616,27 +3773,27 @@ Remember, the new spark was created before the neural,
 
 905
 00:54:35,760 --> 00:54:41,360
-before the neural letters took off and wanted reinforcement learning. 
+before the neural letters took off and wanted reinforcement learning.
 
 906
 00:54:43,030 --> 00:54:46,440
-They struggle to use existing systems to do so. 
+They struggle to use existing systems to do so.
 
 907
 00:54:47,430 --> 00:54:48,480
-And then, 
+And then,
 
 908
 00:54:48,940 --> 00:54:50,160
-for the reason we mentioned, 
+for the reason we mentioned,
 
 909
 00:54:50,170 --> 00:54:51,360
-it was very hard. 
+it was very hard.
 
 910
 00:54:51,370 --> 00:54:58,100
-So started to develop this array application area system. 
+So started to develop this array application area system.
 
 911
 00:54:59,580 --> 00:55:01,730
@@ -3644,47 +3801,47 @@ So started to develop this array application area system.
 
 912
 00:55:01,740 --> 00:55:02,850
-The radio not released. 
+The radio not released.
 
 913
 00:55:02,860 --> 00:55:05,170
-These are live is reinforcement learning library. 
+These are live is reinforcement learning library.
 
 914
 00:55:05,400 --> 00:55:08,230
-Right here on its high parameter attorney library. 
+Right here on its high parameter attorney library.
 
 915
 00:55:09,210 --> 00:55:11,570
-And version on zero was at least last year. 
+And version on zero was at least last year.
 
 916
 00:55:11,580 --> 00:55:13,610
-And any scary is a company behind rate, 
+And any scary is a company behind rate,
 
 917
 00:55:14,310 --> 00:55:16,110
-like databases behind the spark. 
+like databases behind the spark.
 
 918
 00:55:19,790 --> 00:55:20,250
-Now, 
+Now,
 
 919
 00:55:20,810 --> 00:55:21,850
-ray core, 
+ray core,
 
 920
 00:55:22,180 --> 00:55:23,420
-this is the things i'm talking. 
+this is the things i'm talking.
 
 921
 00:55:23,430 --> 00:55:24,420
-This blue sinks. 
+This blue sinks.
 
 922
 00:55:24,700 --> 00:55:25,560
-This is a core. 
+This is a core.
 
 923
 00:55:26,050 --> 00:55:28,040
@@ -3692,15 +3849,15 @@ There's a very mean honest, api the core,
 
 924
 00:55:28,050 --> 00:55:29,080
-api is this one. 
+api is this one.
 
 925
 00:55:30,060 --> 00:55:30,460
-Right? 
+Right?
 
 926
 00:55:30,470 --> 00:55:32,580
-They need to start with the rainbow. 
+They need to start with the rainbow.
 
 927
 00:55:32,590 --> 00:55:33,980
@@ -3708,67 +3865,67 @@ They get raided, right?
 
 928
 00:55:33,990 --> 00:55:35,810
-And some decorators, 
+And some decorators,
 
 929
 00:55:37,290 --> 00:55:39,520
-the back end is c plus. 
+the back end is c plus.
 
 930
 00:55:40,920 --> 00:55:49,440
-The front c plus is what how the backend or phrase build the bindings. 
+The front c plus is what how the backend or phrase build the bindings.
 
 931
 00:55:50,030 --> 00:55:51,920
-The ab are in python, 
+The ab are in python,
 
 932
 00:55:51,930 --> 00:55:53,160
-the most popular one, 
+the most popular one,
 
 933
 00:55:53,170 --> 00:55:57,650
-but there also is java and some experimentality in c plus. 
+but there also is java and some experimentality in c plus.
 
 934
 00:56:02,130 --> 00:56:04,120
-This is what ray nutshell is doing. 
+This is what ray nutshell is doing.
 
 935
 00:56:06,800 --> 00:56:10,050
-So ray marshall is very general for the following reasons. 
+So ray marshall is very general for the following reasons.
 
 936
 00:56:10,560 --> 00:56:11,200
-Think about. 
+Think about.
 
 937
 00:56:11,210 --> 00:56:12,560
-This is a way to think about it. 
+This is a way to think about it.
 
 938
 00:56:14,700 --> 00:56:18,590
-What are the abstractions in most programming languages? 
+What are the abstractions in most programming languages?
 
 939
 00:56:19,970 --> 00:56:27,810
-Think about c plus or python computer abstractions that are functions and classes. 
+Think about c plus or python computer abstractions that are functions and classes.
 
 940
 00:56:29,910 --> 00:56:35,260
-So ray can take a function and can transparently run it remotely, 
+So ray can take a function and can transparently run it remotely,
 
 941
 00:56:36,480 --> 00:56:42,550
-and can take a class on instantiate as an object is going to bring. 
+and can take a class on instantiate as an object is going to bring.
 
 942
 00:56:42,680 --> 00:56:46,150
-So instantiate it also remotely call them actors, 
+So instantiate it also remotely call them actors,
 
 943
 00:56:46,700 --> 00:56:47,530
-remote function. 
+remote function.
 
 944
 00:56:47,540 --> 00:56:51,970
@@ -3776,75 +3933,75 @@ We call them task remote in class instances, we call them up.
 
 945
 00:56:54,420 --> 00:56:57,290
-Stateless means that they don't have internal state. 
+Stateless means that they don't have internal state.
 
 946
 00:56:58,150 --> 00:57:00,330
-They get the input process. 
+They get the input process.
 
 947
 00:57:00,340 --> 00:57:05,370
-The input beats out that our results. 
+The input beats out that our results.
 
 948
 00:57:05,380 --> 00:57:09,280
-And they are that while actors is like, 
+And they are that while actors is like,
 
 949
 00:57:09,700 --> 00:57:10,900
-they have internal state, 
+they have internal state,
 
 950
 00:57:11,390 --> 00:57:12,420
-you call the methods. 
+you call the methods.
 
 951
 00:57:12,430 --> 00:57:16,920
-And when you define a class, 
+And when you define a class,
 
 952
 00:57:16,930 --> 00:57:19,080
-you have internal state and you can modify the state. 
+you have internal state and you can modify the state.
 
 953
 00:57:19,630 --> 00:57:20,430
-That means stateful. 
+That means stateful.
 
 954
 00:57:21,860 --> 00:57:23,770
-It's also have a future abstraction, 
+It's also have a future abstraction,
 
 955
 00:57:24,280 --> 00:57:27,930
-meaning that when I am going to run a task remotely, 
+meaning that when I am going to run a task remotely,
 
 956
 00:57:28,690 --> 00:57:31,540
-the call is going to execute to return immediately. 
+the call is going to execute to return immediately.
 
 957
 00:57:31,790 --> 00:57:37,240
-I'm going to show you and also have any in memory distributed object stars. 
+I'm going to show you and also have any in memory distributed object stars.
 
 958
 00:57:39,770 --> 00:57:40,880
-It's not a new language, 
+It's not a new language,
 
 959
 00:57:40,890 --> 00:57:45,650
-is an existing extension to existing language. 
+is an existing extension to existing language.
 
 960
 00:57:45,660 --> 00:57:47,260
-So let me give you an example. 
+So let me give you an example.
 
 961
 00:57:49,100 --> 00:57:51,410
-Let's have you have this python code, 
+Let's have you have this python code,
 
 962
 00:57:51,420 --> 00:57:54,650
-your return r and you do some computation. 
+your return r and you do some computation.
 
 963
 00:57:56,100 --> 00:57:59,390
@@ -3852,7 +4009,7 @@ Now, you are just running on there on your laptop,
 
 964
 00:57:59,400 --> 00:58:04,130
-and then you run f of a you run this function once, 
+and then you run f of a you run this function once,
 
 965
 00:58:04,140 --> 00:58:06,690
@@ -3860,7 +4017,7 @@ and it takes 1 second, you run twice.
 
 966
 00:58:07,050 --> 00:58:08,500
-It takes another second. 
+It takes another second.
 
 967
 00:58:08,960 --> 00:58:09,970
@@ -3868,51 +4025,51 @@ Basically, the program,
 
 968
 00:58:09,980 --> 00:58:13,380
-it takes 2 seconds. 
+it takes 2 seconds.
 
 969
 00:58:13,390 --> 00:58:14,460
-Okay. 
+Okay.
 
 970
 00:58:18,120 --> 00:58:22,430
-Let's see how the same program is going to run in. 
+Let's see how the same program is going to run in.
 
 971
 00:58:26,150 --> 00:58:28,760
-But I let me see it's another. 
+But I let me see it's another.
 
 972
 00:58:35,900 --> 00:58:39,660
-Ii was talking here about classes is a programming class. 
+Ii was talking here about classes is a programming class.
 
 973
 00:58:39,670 --> 00:58:43,170
-You is like a class in c plus or class in piper. 
+You is like a class in c plus or class in piper.
 
 974
 00:58:43,830 --> 00:58:44,690
-I'll show you an example. 
+I'll show you an example.
 
 975
 00:58:44,700 --> 00:58:46,820
-I was on setting a question now. 
+I was on setting a question now.
 
 976
 00:58:48,760 --> 00:58:50,150
-This program takes 2 seconds. 
+This program takes 2 seconds.
 
 977
 00:58:50,160 --> 00:58:51,630
-Now let's see what happens in life. 
+Now let's see what happens in life.
 
 978
 00:58:52,400 --> 00:58:52,910
-Is ray. 
+Is ray.
 
 979
 00:58:52,920 --> 00:58:57,270
-If you want to run this function every monthly to on a different note, 
+If you want to run this function every monthly to on a different note,
 
 980
 00:59:00,740 --> 00:59:02,730
@@ -3920,7 +4077,7 @@ you are this decorator, a dot remote.
 
 981
 00:59:04,890 --> 00:59:09,810
-And then when you call f you are the suffix, 
+And then when you call f you are the suffix,
 
 982
 00:59:10,400 --> 00:59:18,070
@@ -3928,39 +4085,39 @@ f dot remote and f and now the things to notice here and you'll see that these
 
 983
 00:59:18,080 --> 00:59:22,960
-functions do not return the result. 
+functions do not return the result.
 
 984
 00:59:24,280 --> 00:59:26,640
-While they return a pointer, 
+While they return a pointer,
 
 985
 00:59:26,650 --> 00:59:28,520
-a future is so called a future, 
+a future is so called a future,
 
 986
 00:59:28,530 --> 00:59:32,070
-a pointer to the result. 
+a pointer to the result.
 
 987
 00:59:33,820 --> 00:59:34,380
-Okay? 
+Okay?
 
 988
 00:59:35,120 --> 00:59:36,290
-And why is that useful? 
+And why is that useful?
 
 989
 00:59:36,300 --> 00:59:36,890
-Let's see. 
+Let's see.
 
 990
 00:59:37,880 --> 00:59:39,430
-So he says the driver is our worker, 
+So he says the driver is our worker,
 
 991
 00:59:39,440 --> 00:59:41,710
-so driver and workers are different machines. 
+so driver and workers are different machines.
 
 992
 00:59:42,420 --> 00:59:47,350
@@ -3968,39 +4125,39 @@ When you are going to execute the first f dot remote on a now this function
 
 993
 00:59:47,360 --> 00:59:49,570
-instead of learning locally, 
+instead of learning locally,
 
 994
 00:59:49,880 --> 00:59:51,780
-it's going to run remotely. 
+it's going to run remotely.
 
 995
 00:59:54,860 --> 00:59:55,360
-Okay? 
+Okay?
 
 996
 00:59:55,870 --> 00:59:56,620
-This is a task, 
+This is a task,
 
 997
 00:59:57,470 --> 01:00:02,720
-but it returns immediately the result to this task. 
+but it returns immediately the result to this task.
 
 998
 01:00:04,310 --> 01:00:06,660
-Returns immediately is a pointer to the result. 
+Returns immediately is a pointer to the result.
 
 999
 01:00:06,910 --> 01:00:10,750
-This is returns even before the function is executed. 
+This is returns even before the function is executed.
 
 1000
 01:00:10,760 --> 01:00:11,450
-And also, 
+And also,
 
 1001
 01:00:11,460 --> 01:00:16,120
-even before the function may be even have been scheduled on a different amount. 
+even before the function may be even have been scheduled on a different amount.
 
 1002
 01:00:19,320 --> 01:00:21,830
@@ -4012,63 +4169,63 @@ it's non blocking, if you remember,
 
 1004
 01:00:23,480 --> 01:00:25,030
-about blocking and unlocking, 
+about blocking and unlocking,
 
 1005
 01:00:27,030 --> 01:00:29,630
-I can't execute immediately the next call. 
+I can't execute immediately the next call.
 
 1006
 01:00:31,220 --> 01:00:33,020
-So i'm going to create another task, 
+So i'm going to create another task,
 
 1007
 01:00:34,000 --> 01:00:36,990
-which takes the argument b the sad task. 
+which takes the argument b the sad task.
 
 1008
 01:00:37,000 --> 01:00:39,830
-It's return immediately a future, 
+It's return immediately a future,
 
 1009
 01:00:39,840 --> 01:00:42,430
-a pointer to these result. 
+a pointer to these result.
 
 1010
 01:00:44,630 --> 01:00:46,180
-The beauty of it right now, 
+The beauty of it right now,
 
 1011
 01:00:46,190 --> 01:00:51,840
-I launch both f and flf of a and f of b simultaneously. 
+I launch both f and flf of a and f of b simultaneously.
 
 1012
 01:00:52,870 --> 01:00:54,060
-They can run in parallel. 
+They can run in parallel.
 
 1013
 01:00:54,070 --> 01:00:57,690
-And now is the radar get is a blocking code. 
+And now is the radar get is a blocking code.
 
 1014
 01:00:58,500 --> 01:00:59,560
-If I pass the radar, 
+If I pass the radar,
 
 1015
 01:00:59,570 --> 01:01:01,900
-get the futures, 
+get the futures,
 
 1016
 01:01:02,350 --> 01:01:05,190
-but they don't get to wait until all the results are produced. 
+but they don't get to wait until all the results are produced.
 
 1017
 01:01:06,470 --> 01:01:06,820
-Right? 
+Right?
 
 1018
 01:01:07,550 --> 01:01:08,370
-It's a blocking code. 
+It's a blocking code.
 
 1019
 01:01:08,890 --> 01:01:12,230
@@ -4076,31 +4233,31 @@ Now, fnfanfab run in parallel,
 
 1020
 01:01:12,730 --> 01:01:13,850
-and returns the results. 
+and returns the results.
 
 1021
 01:01:13,860 --> 01:01:18,250
-And now my program from 2 seconds to takes only 1 second. 
+And now my program from 2 seconds to takes only 1 second.
 
 1022
 01:01:18,840 --> 01:01:24,460
-Here I am ignoring the message overhead and other overheads. 
+Here I am ignoring the message overhead and other overheads.
 
 1023
 01:01:26,320 --> 01:01:30,190
-But as I keep another question, 
+But as I keep another question,
 
 1024
 01:01:37,110 --> 01:01:41,220
-the question about the classes which class at very clear was a project. 
+the question about the classes which class at very clear was a project.
 
 1025
 01:01:42,250 --> 01:01:46,640
-It was262 ai believe, 
+It was262 ai believe,
 
 1026
 01:01:46,650 --> 01:01:49,040
-in fall 2015, 
+in fall 2015,
 
 1027
 01:01:50,350 --> 01:01:58,350
@@ -4108,11 +4265,11 @@ their projects was to do distributed training
 
 1028
 01:01:59,310 --> 01:02:00,870
-for the neural networks. 
+for the neural networks.
 
 1029
 01:02:00,880 --> 01:02:05,800
-I also asked them to do using spark. 
+I also asked them to do using spark.
 
 1030
 01:02:05,810 --> 01:02:12,030
@@ -4120,7 +4277,7 @@ And actually they developed an extension of sparkle spark net to work
 
 1031
 01:02:12,040 --> 01:02:15,360
-with gp us to do it. 
+with gp us to do it.
 
 1032
 01:02:16,010 --> 01:02:21,720
@@ -4132,7 +4289,7 @@ jbm and dozen design for this kind of photographs and started the work on
 
 1034
 01:02:33,970 --> 01:02:38,200
-what are the solution before I could do this sort of distributed compute? 
+what are the solution before I could do this sort of distributed compute?
 
 1035
 01:02:39,890 --> 01:02:41,730
@@ -4144,11 +4301,11 @@ Another system, which is a little bit more general,
 
 1037
 01:02:44,370 --> 01:02:45,480
-but it's a pain to use, 
+but it's a pain to use,
 
 1038
 01:02:45,490 --> 01:02:46,640
-and it's not fault around. 
+and it's not fault around.
 
 1039
 01:02:46,650 --> 01:02:51,740
@@ -4156,79 +4313,79 @@ It's mpi but it's for high performance message passing interface is called
 
 1040
 01:02:52,230 --> 01:02:54,860
-is from high performance computing faults. 
+is from high performance computing faults.
 
 1041
 01:02:56,360 --> 01:02:58,940
-There are also some actor framework, 
+There are also some actor framework,
 
 1042
 01:03:02,680 --> 01:03:04,040
-but none of them, 
+but none of them,
 
 1043
 01:03:04,050 --> 01:03:06,360
-at least to my best of my analogy soldier, 
+at least to my best of my analogy soldier,
 
 1044
 01:03:06,370 --> 01:03:07,440
-it's as general, 
+it's as general,
 
 1045
 01:03:11,650 --> 01:03:12,400
-got it. 
+got it.
 
 1046
 01:03:14,040 --> 01:03:15,190
-Now this is the python class. 
+Now this is the python class.
 
 1047
 01:03:15,200 --> 01:03:15,790
-This is a class. 
+This is a class.
 
 1048
 01:03:15,800 --> 01:03:16,630
-Iii miss. 
+Iii miss.
 
 1049
 01:03:16,640 --> 01:03:19,920
-And ii misunderstood the question. 
+And ii misunderstood the question.
 
 1050
 01:03:20,050 --> 01:03:20,680
-This is a class. 
+This is a class.
 
 1051
 01:03:20,690 --> 01:03:21,720
-Now it's a counter class, 
+Now it's a counter class,
 
 1052
 01:03:21,730 --> 01:03:23,640
-and you can do the same thing with this one. 
+and you can do the same thing with this one.
 
 1053
 01:03:24,370 --> 01:03:26,810
-You basically to reiterate them out, 
+You basically to reiterate them out,
 
 1054
 01:03:26,820 --> 01:03:27,830
-and you do, 
+and you do,
 
 1055
 01:03:30,150 --> 01:03:31,100
-when you invoke, 
+when you invoke,
 
 1056
 01:03:31,110 --> 01:03:33,780
-when you create the class and you invoke the mathematical class, 
+when you create the class and you invoke the mathematical class,
 
 1057
 01:03:33,790 --> 01:03:35,660
-you have the suffix stock remote. 
+you have the suffix stock remote.
 
 1058
 01:03:35,670 --> 01:03:37,700
-And just like that, 
+And just like that,
 
 1059
 01:03:37,710 --> 01:03:43,930
@@ -4236,35 +4393,35 @@ this class is going to be associated as an actor c and actors means that
 
 1060
 01:03:43,940 --> 01:03:44,570
-are active. 
+are active.
 
 1061
 01:03:44,580 --> 01:03:45,890
-It's like a mini service. 
+It's like a mini service.
 
 1062
 01:03:46,410 --> 01:03:50,990
-We sit there and waste for the methods to be able to process and methods, 
+We sit there and waste for the methods to be able to process and methods,
 
 1063
 01:03:52,050 --> 01:03:53,240
-which are invocated on it. 
+which are invocated on it.
 
 1064
 01:03:54,710 --> 01:03:55,130
-Okay? 
+Okay?
 
 1065
 01:03:58,070 --> 01:03:59,900
-Number of also you can specify here, 
+Number of also you can specify here,
 
 1066
 01:03:59,910 --> 01:04:01,020
-the number of gp us, 
+the number of gp us,
 
 1067
 01:04:01,030 --> 01:04:02,340
-a number of cp us, 
+a number of cp us,
 
 1068
 01:04:02,770 --> 01:04:08,680
@@ -4272,11 +4429,11 @@ which is very useful for when you do deep learning, right?
 
 1069
 01:04:08,690 --> 01:04:10,080
-Because a lot of tasks, 
+Because a lot of tasks,
 
 1070
 01:04:10,090 --> 01:04:11,640
-they may have a lot of needs. 
+they may have a lot of needs.
 
 1071
 01:04:14,520 --> 01:04:17,350
@@ -4284,7 +4441,7 @@ Right now, ii said the last thing is to read the object star.
 
 1072
 01:04:17,360 --> 01:04:19,670
-So let's see how this is working with them again. 
+So let's see how this is working with them again.
 
 1073
 01:04:19,910 --> 01:04:27,720
@@ -4292,7 +4449,7 @@ A simple function, I call ii have a function f and g and it's very simple.
 
 1074
 01:04:28,260 --> 01:04:31,210
-I am every terms of future, 
+I am every terms of future,
 
 1075
 01:04:31,220 --> 01:04:36,080
@@ -4300,35 +4457,35 @@ which is going to get to be taken as an argument by g which
 
 1076
 01:04:36,090 --> 01:04:37,480
-is going to return the result. 
+is going to return the result.
 
 1077
 01:04:39,640 --> 01:04:45,010
-What is this distributed memory about distribute objects dot a new execute, 
+What is this distributed memory about distribute objects dot a new execute,
 
 1078
 01:04:45,020 --> 01:04:46,250
-f dot remote? 
+f dot remote?
 
 1079
 01:04:47,460 --> 01:04:49,210
-It's like we seen before. 
+It's like we seen before.
 
 1080
 01:04:49,220 --> 01:04:52,210
-You are going to run this task on a different note. 
+You are going to run this task on a different note.
 
 1081
 01:04:53,150 --> 01:04:57,430
-You get immediately back to the future that is asked to have. 
+You get immediately back to the future that is asked to have.
 
 1082
 01:04:58,860 --> 01:05:01,150
-And again, 
+And again,
 
 1083
 01:05:01,160 --> 01:05:04,550
-it's not only xi ds that are not x value. 
+it's not only xi ds that are not x value.
 
 1084
 01:05:05,490 --> 01:05:07,000
@@ -4336,19 +4493,19 @@ Now you call, again,
 
 1085
 01:05:07,430 --> 01:05:12,940
-not you call g right? 
+not you call g right?
 
 1086
 01:05:13,690 --> 01:05:15,380
-And you get the future. 
+And you get the future.
 
 1087
 01:05:17,200 --> 01:05:18,540
-At some., 
+At some.,
 
 1088
 01:05:19,130 --> 01:05:23,590
-when f finishes is going to create this object, 
+when f finishes is going to create this object,
 
 1089
 01:05:24,110 --> 01:05:25,240
@@ -4356,11 +4513,11 @@ result, object,
 
 1090
 01:05:25,920 --> 01:05:26,510
-result, 
+result,
 
 1091
 01:05:27,070 --> 01:05:29,020
-it's going to put in this object store. 
+it's going to put in this object store.
 
 1092
 01:05:31,070 --> 01:05:38,490
@@ -4368,23 +4525,23 @@ Now, this reference idea of x or future points to x and on that is ready.
 
 1093
 01:05:38,980 --> 01:05:41,980
-G is going to wait for the reference, 
+G is going to wait for the reference,
 
 1094
 01:05:42,590 --> 01:05:44,380
-for the argument to be ready. 
+for the argument to be ready.
 
 1095
 01:05:44,820 --> 01:05:47,260
-So the system is going to be ready. 
+So the system is going to be ready.
 
 1096
 01:05:47,550 --> 01:05:51,070
-Then he's going to copy x to node three, 
+Then he's going to copy x to node three,
 
 1097
 01:05:51,080 --> 01:05:52,190
-where the g is. 
+where the g is.
 
 1098
 01:05:52,490 --> 01:05:55,180
@@ -4392,11 +4549,11 @@ And now, the argument of g is,
 
 1099
 01:05:55,990 --> 01:05:56,780
-it's available. 
+it's available.
 
 1100
 01:05:57,240 --> 01:06:00,910
-Now g can execute. 
+Now g can execute.
 
 1101
 01:06:06,970 --> 01:06:08,480
@@ -4404,11 +4561,11 @@ Basically, this is what it is.
 
 1102
 01:06:09,910 --> 01:06:10,310
-Okay? 
+Okay?
 
 1103
 01:06:12,170 --> 01:06:14,600
-So the objects are passed by reference. 
+So the objects are passed by reference.
 
 1104
 01:06:19,040 --> 01:06:22,970
@@ -4416,11 +4573,11 @@ Now, if you don't have references what this she says,
 
 1105
 01:06:23,290 --> 01:06:24,800
-imagine that you don't have reference. 
+imagine that you don't have reference.
 
 1106
 01:06:24,810 --> 01:06:26,160
-If you don't have reference, 
+If you don't have reference,
 
 1107
 01:06:26,600 --> 01:06:30,520
@@ -4436,7 +4593,7 @@ Now to g g will evict that, you don't know three.
 
 1110
 01:06:39,300 --> 01:06:43,950
-So g and including the the results from f are going to be copied to know three. 
+So g and including the the results from f are going to be copied to know three.
 
 1111
 01:06:43,960 --> 01:06:46,890
@@ -4444,11 +4601,11 @@ So the results from, if it has to be copied to one out one,
 
 1112
 01:06:46,900 --> 01:06:47,940
-and then to know three, 
+and then to know three,
 
 1113
 01:06:49,190 --> 01:06:49,600
-right? 
+right?
 
 1114
 01:06:50,440 --> 01:06:55,540
@@ -4456,23 +4613,23 @@ Needlessly, because no one doesn't do anything with the result from no two.
 
 1115
 01:06:57,200 --> 01:06:57,670
-Okay? 
+Okay?
 
 1116
 01:06:58,150 --> 01:06:59,500
-That's kind of the point here. 
+That's kind of the point here.
 
 1117
 01:06:59,510 --> 01:07:01,580
-It's like by reference when you pass it, 
+It's like by reference when you pass it,
 
 1118
 01:07:01,590 --> 01:07:07,080
-like even on a single machine will pass that when you pass arguments by reference, 
+like even on a single machine will pass that when you pass arguments by reference,
 
 1119
 01:07:07,090 --> 01:07:10,640
-one of the reason you are going to pass is to avoid expensive copies. 
+one of the reason you are going to pass is to avoid expensive copies.
 
 1120
 01:07:11,180 --> 01:07:13,500
@@ -4480,7 +4637,7 @@ This is very similar, but for this to be decided.
 
 1121
 01:07:14,970 --> 01:07:15,970
-So what happens? 
+So what happens?
 
 1122
 01:07:16,810 --> 01:07:19,000
@@ -4488,35 +4645,35 @@ With this example, I show you at the beginning,
 
 1123
 01:07:19,650 --> 01:07:23,000
-they used ray to implement this pipeline. 
+they used ray to implement this pipeline.
 
 1124
 01:07:24,230 --> 01:07:26,290
-So now everything is on different systems, 
+So now everything is on different systems,
 
 1125
 01:07:26,300 --> 01:07:27,850
-but there are different libraries. 
+but there are different libraries.
 
 1126
 01:07:28,270 --> 01:07:34,120
-They are able to do the model update every 5 minutes from 1 hour. 
+They are able to do the model update every 5 minutes from 1 hour.
 
 1127
 01:07:34,540 --> 01:07:38,010
-They increase the clicks to write by other 1%. 
+They increase the clicks to write by other 1%.
 
 1128
 01:07:39,770 --> 01:07:42,790
-So the architecture i'm going to go very, 
+So the architecture i'm going to go very,
 
 1129
 01:07:44,640 --> 01:07:45,760
-very quickly, 
+very quickly,
 
 1130
 01:07:46,050 --> 01:07:52,080
-because I want into 3 minutes to finish and let some time for more questions. 
+because I want into 3 minutes to finish and let some time for more questions.
 
 1131
 01:07:53,760 --> 01:07:58,310
@@ -4528,7 +4685,7 @@ on different now to check they could this tasks or the actors which
 
 1133
 01:08:02,360 --> 01:08:03,150
-are created. 
+are created.
 
 1134
 01:08:05,960 --> 01:08:10,790
@@ -4536,15 +4693,15 @@ There is a distributed scheduler to decide where to run the task
 
 1135
 01:08:10,800 --> 01:08:13,110
-where and where to instantiate actors. 
+where and where to instantiate actors.
 
 1136
 01:08:16,360 --> 01:08:21,830
-You also keep the lineage about for the task which are creating similar to sparks. 
+You also keep the lineage about for the task which are creating similar to sparks.
 
 1137
 01:08:21,840 --> 01:08:23,670
-You can reconstruct the lost objects. 
+You can reconstruct the lost objects.
 
 1138
 01:08:27,070 --> 01:08:33,640
@@ -4552,7 +4709,7 @@ So today, raise this score and you have a lot of libraries on top of it.
 
 1139
 01:08:34,370 --> 01:08:36,480
-These are native libraries which are built by us. 
+These are native libraries which are built by us.
 
 1140
 01:08:36,490 --> 01:08:39,900
@@ -4560,75 +4717,75 @@ So to speak by the original team of ray are
 
 1141
 01:08:39,910 --> 01:08:43,480
-a liberal enforcement learning library during high parameter tuning, 
+a liberal enforcement learning library during high parameter tuning,
 
 1142
 01:08:43,490 --> 01:08:49,140
-the race service about serving ag ds or ag ds training now is called great train, 
+the race service about serving ag ds or ag ds training now is called great train,
 
 1143
 01:08:49,150 --> 01:08:52,460
-but there are also a lot of third party libraries which run on the public. 
+but there are also a lot of third party libraries which run on the public.
 
 1144
 01:08:55,470 --> 01:08:56,390
-Let me see, 
+Let me see,
 
 1145
 01:09:06,510 --> 01:09:08,380
-let me just answer this question. 
+let me just answer this question.
 
 1146
 01:09:10,400 --> 01:09:15,310
-I should have asked what happens when every lies on data surroundings. 
+I should have asked what happens when every lies on data surroundings.
 
 1147
 01:09:15,800 --> 01:09:17,060
-If the data it's on the disk, 
+If the data it's on the disk,
 
 1148
 01:09:17,070 --> 01:09:18,820
-then it's going to delete from the disk. 
+then it's going to delete from the disk.
 
 1149
 01:09:19,970 --> 01:09:25,980
-No difference that if you run it on us on your machine by object store, 
+No difference that if you run it on us on your machine by object store,
 
 1150
 01:09:26,310 --> 01:09:29,220
-does it just mean passing the references? 
+does it just mean passing the references?
 
 1151
 01:09:29,430 --> 01:09:32,140
-The object store means that you can pass the references. 
+The object store means that you can pass the references.
 
 1152
 01:09:32,500 --> 01:09:36,320
-You can put the results and you can put the data in the object stores. 
+You can put the results and you can put the data in the object stores.
 
 1153
 01:09:37,390 --> 01:09:40,510
-And then you can pass the references to that object. 
+And then you can pass the references to that object.
 
 1154
 01:09:41,290 --> 01:09:44,740
-It allows you to pass the references without the object story, 
+It allows you to pass the references without the object story,
 
 1155
 01:09:44,750 --> 01:09:45,900
-you cannot pass the reference. 
+you cannot pass the reference.
 
 1156
 01:09:50,310 --> 01:09:53,740
-If it's on the disk of the original machines or not the remote, 
+If it's on the disk of the original machines or not the remote,
 
 1157
 01:09:54,110 --> 01:09:56,420
-if it shows a disk of the original machine, 
+if it shows a disk of the original machine,
 
 1158
 01:09:56,430 --> 01:09:58,140
-what you are going to happen, 
+what you are going to happen,
 
 1159
 01:09:58,830 --> 01:10:00,320
@@ -4648,7 +4805,7 @@ if you run it, obviously,
 
 1163
 01:10:09,740 --> 01:10:11,980
-if its local disk is not going to work. 
+if its local disk is not going to work.
 
 1164
 01:10:12,580 --> 01:10:14,070
@@ -4656,19 +4813,19 @@ But typically, in this system,
 
 1165
 01:10:14,080 --> 01:10:15,870
-you have a distributed storage system, 
+you have a distributed storage system,
 
 1166
 01:10:16,620 --> 01:10:17,510
-which is accessible. 
+which is accessible.
 
 1167
 01:10:17,520 --> 01:10:18,830
-But from all machines, 
+But from all machines,
 
 1168
 01:10:23,400 --> 01:10:25,460
-even in spite you have a distributed file system, 
+even in spite you have a distributed file system,
 
 1169
 01:10:25,470 --> 01:10:29,170
@@ -4676,19 +4833,19 @@ use hbfs hardcore distributed file system, for instance,
 
 1170
 01:10:29,180 --> 01:10:32,020
-or you can use a blob store like s three. 
+or you can use a blob store like s three.
 
 1171
 01:10:32,880 --> 01:10:36,520
-But all these systems are they do assume there is a distributed story system. 
+But all these systems are they do assume there is a distributed story system.
 
 1172
 01:10:42,530 --> 01:10:44,440
-This is a get up stars. 
+This is a get up stars.
 
 1173
 01:10:45,350 --> 01:10:50,800
-And this is comparing grey and spark with other popular system like cuff cart, 
+And this is comparing grey and spark with other popular system like cuff cart,
 
 1174
 01:10:50,810 --> 01:10:51,720
@@ -4696,47 +4853,47 @@ cure, flow,
 
 1175
 01:10:51,730 --> 01:10:54,360
-a dusk and so forth and fling. 
+a dusk and so forth and fling.
 
 1176
 01:10:56,760 --> 01:10:57,690
-If you look here, 
+If you look here,
 
 1177
 01:10:58,050 --> 01:11:02,340
-ray and spark a they are actually pretty much matching the slope, 
+ray and spark a they are actually pretty much matching the slope,
 
 1178
 01:11:03,480 --> 01:11:05,270
-and they are faster than the others. 
+and they are faster than the others.
 
 1179
 01:11:06,940 --> 01:11:08,330
-There are a lot of contributors. 
+There are a lot of contributors.
 
 1180
 01:11:08,340 --> 01:11:10,250
-Now I think that are close to 600. 
+Now I think that are close to 600.
 
 1181
 01:11:11,510 --> 01:11:13,010
-This is one system, 
+This is one system,
 
 1182
 01:11:13,020 --> 01:11:22,160
-this and group build on top of ray and build the real is the entire platform, 
+this and group build on top of ray and build the real is the entire platform,
 
 1183
 01:11:23,200 --> 01:11:24,210
-is called fusion. 
+is called fusion.
 
 1184
 01:11:25,560 --> 01:11:26,150
-Seize them. 
+Seize them.
 
 1185
 01:11:27,120 --> 01:11:30,670
-So build algorithms and application and services, 
+So build algorithms and application and services,
 
 1186
 01:11:30,680 --> 01:11:33,030
@@ -4744,7 +4901,7 @@ like for marketing, advertisement,
 
 1187
 01:11:33,040 --> 01:11:34,630
-recommendation and things like that. 
+recommendation and things like that.
 
 1188
 01:11:36,210 --> 01:11:40,240
@@ -4756,19 +4913,19 @@ as you may, now,
 
 1190
 01:11:41,290 --> 01:11:43,750
-is a largest shopping day. 
+is a largest shopping day.
 
 1191
 01:11:48,670 --> 01:11:49,440
-This is uber. 
+This is uber.
 
 1192
 01:11:49,450 --> 01:11:51,120
-They build a machine learning platform. 
+They build a machine learning platform.
 
 1193
 01:11:51,130 --> 01:11:57,490
-They are building on top of raise a new generation or machine learning platform. 
+They are building on top of raise a new generation or machine learning platform.
 
 1194
 01:11:57,790 --> 01:11:59,420
@@ -4776,11 +4933,11 @@ But this, quote is great, right?
 
 1195
 01:11:59,430 --> 01:12:02,420
-It's like you're saying exactly what I said to you. 
+It's like you're saying exactly what I said to you.
 
 1196
 01:12:02,650 --> 01:12:04,800
-But someone else is telling you saying that, 
+But someone else is telling you saying that,
 
 1197
 01:12:05,220 --> 01:12:06,370
@@ -4788,87 +4945,87 @@ say, by leveraging ray,
 
 1198
 01:12:06,380 --> 01:12:07,930
-we can combine the reprocessing, 
+we can combine the reprocessing,
 
 1199
 01:12:07,940 --> 01:12:10,530
-this retraining and high parameter search, 
+this retraining and high parameter search,
 
 1200
 01:12:10,540 --> 01:12:13,410
-always in a single job running a single training street, 
+always in a single job running a single training street,
 
 1201
 01:12:14,500 --> 01:12:15,630
-a single machine. 
+a single machine.
 
 1202
 01:12:16,350 --> 01:12:18,280
-And this is a fun example. 
+And this is a fun example.
 
 1203
 01:12:20,800 --> 01:12:26,670
-This is america's cup is the biggest selling competition, 
+This is america's cup is the biggest selling competition,
 
 1204
 01:12:26,680 --> 01:12:27,750
-the most prestigious. 
+the most prestigious.
 
 1205
 01:12:28,470 --> 01:12:30,700
-They sold us away from 1841. 
+They sold us away from 1841.
 
 1206
 01:12:31,650 --> 01:12:33,440
-It's every 3 or 4 years. 
+It's every 3 or 4 years.
 
 1207
 01:12:33,980 --> 01:12:34,580
-I forgot. 
+I forgot.
 
 1208
 01:12:36,470 --> 01:12:37,980
-It was a few years ago, 
+It was a few years ago,
 
 1209
 01:12:37,990 --> 01:12:39,660
-it was in san francisco. 
+it was in san francisco.
 
 1210
 01:12:39,670 --> 01:12:41,890
-Oracle team won one. 
+Oracle team won one.
 
 1211
 01:12:42,260 --> 01:12:43,480
-This 2 year, 
+This 2 year,
 
 1212
 01:12:44,330 --> 01:12:46,660
-the team who won was new zealand team, 
+the team who won was new zealand team,
 
 1213
 01:12:47,720 --> 01:12:49,160
-and that new zealand team, 
+and that new zealand team,
 
 1214
 01:12:49,530 --> 01:12:53,730
-the boat and the team was trained with stools, 
+the boat and the team was trained with stools,
 
 1215
 01:12:54,090 --> 01:12:55,650
-built by this quantum black, 
+built by this quantum black,
 
 1216
 01:12:55,660 --> 01:12:57,210
-which is a mckinsey company. 
+which is a mckinsey company.
 
 1217
 01:12:58,300 --> 01:13:03,380
-And those tools ends about or a design with the help of adelaide. 
+And those tools ends about or a design with the help of adelaide.
 
 1218
 01:13:06,260 --> 01:13:07,210
-That was pretty cool. 
+That was pretty cool.
 
 1219
 01:13:10,280 --> 01:13:13,910
@@ -4876,7 +5033,7 @@ I'm stopping here and i'm going to help you to take any questions
 
 1220
 01:13:13,920 --> 01:13:16,750
-for the remaining time of few minutes. 
+for the remaining time of few minutes.
 
 1221
 01:13:17,610 --> 01:13:20,680
@@ -4884,11 +5041,11 @@ Sorry, I couldn't leave more time.
 
 1222
 01:13:21,370 --> 01:13:25,840
-The really good luck with the end of the semester and resolve your classes. 
+The really good luck with the end of the semester and resolve your classes.
 
 1223
 01:13:26,070 --> 01:13:27,230
-All your projects, 
+All your projects,
 
 1224
 01:13:29,200 --> 01:13:30,450
@@ -4896,71 +5053,71 @@ obviously, happy holidays.
 
 1225
 01:13:30,460 --> 01:13:32,940
-And now i'm happy. 
+And now i'm happy.
 
 1226
 01:13:32,950 --> 01:13:34,950
-Let me take the questions. 
+Let me take the questions.
 
 1227
 01:13:41,810 --> 01:13:42,440
-Thank you. 
+Thank you.
 
 1228
 01:13:45,490 --> 01:13:49,200
-How is this to migrate non distributed non email application? 
+How is this to migrate non distributed non email application?
 
 1229
 01:13:49,210 --> 01:13:49,520
-Today? 
+Today?
 
 1230
 01:13:49,530 --> 01:13:51,040
-I may be misunderstanding, 
+I may be misunderstanding,
 
 1231
 01:13:51,050 --> 01:13:53,360
-but why not just use existing scaling? 
+but why not just use existing scaling?
 
 1232
 01:13:53,370 --> 01:13:53,880
-Solutions? 
+Solutions?
 
 1233
 01:13:53,890 --> 01:13:58,400
-Are just Containers plus carbon at this plus traditional application? 
+Are just Containers plus carbon at this plus traditional application?
 
 1234
 01:13:59,440 --> 01:14:00,780
-That's a great question. 
+That's a great question.
 
 1235
 01:14:00,790 --> 01:14:03,940
-Why not containers and cooperatives could, 
+Why not containers and cooperatives could,
 
 1236
 01:14:03,950 --> 01:14:06,340
-but medicine containers are orthogonal. 
+but medicine containers are orthogonal.
 
 1237
 01:14:08,540 --> 01:14:11,720
-This Ray is intended for the programmer. 
+This Ray is intended for the programmer.
 
 1238
 01:14:12,000 --> 01:14:13,330
-You as a programmer, 
+You as a programmer,
 
 1239
 01:14:13,340 --> 01:14:20,720
-you build distributed applications by just adding this rating mode in the code. 
+you build distributed applications by just adding this rating mode in the code.
 
 1240
 01:14:21,440 --> 01:14:23,200
-And it's suppose, 
+And it's suppose,
 
 1241
 01:14:23,210 --> 01:14:24,360
-ideally to be, 
+ideally to be,
 
 1242
 01:14:24,370 --> 01:14:28,570
@@ -4968,7 +5125,7 @@ and it's easy, hopefully, to run, to build this.
 
 1243
 01:14:30,540 --> 01:14:36,880
-Ray tries to reduce a gap between building applications, 
+Ray tries to reduce a gap between building applications,
 
 1244
 01:14:36,890 --> 01:14:39,240
@@ -4976,35 +5133,35 @@ writing Python code, for instance,
 
 1245
 01:14:40,100 --> 01:14:47,840
-and running on your machine to developing the code and running on a cluster. 
+and running on your machine to developing the code and running on a cluster.
 
 1246
 01:14:49,440 --> 01:14:49,840
-Right? 
+Right?
 
 1247
 01:14:50,450 --> 01:14:51,570
-Try to reduce this gap. 
+Try to reduce this gap.
 
 1248
 01:14:52,800 --> 01:14:53,110
-Cuba. 
+Cuba.
 
 1249
 01:14:53,120 --> 01:14:58,320
-Notice it's helping you its resource orchestration. 
+Notice it's helping you its resource orchestration.
 
 1250
 01:14:59,530 --> 01:15:05,020
-It helps you to manage a distributed applications. 
+It helps you to manage a distributed applications.
 
 1251
 01:15:05,030 --> 01:15:07,860
-It doesn't help you to write the distribute applications. 
+It doesn't help you to write the distribute applications.
 
 1252
 01:15:08,470 --> 01:15:09,930
-If you have a distributed application, 
+If you have a distributed application,
 
 1253
 01:15:10,640 --> 01:15:14,420
@@ -5012,11 +5169,11 @@ it helps you to manage it, right?
 
 1254
 01:15:17,070 --> 01:15:19,240
-Where to run different parts and things like that. 
+Where to run different parts and things like that.
 
 1255
 01:15:20,450 --> 01:15:20,930
-In fact, 
+In fact,
 
 1256
 01:15:20,940 --> 01:15:26,540
@@ -5024,39 +5181,39 @@ the Ray is running on Top of cabernet is and Dockers are
 
 1257
 01:15:26,550 --> 01:15:28,680
-just obviously what it is. 
+just obviously what it is.
 
 1258
 01:15:28,690 --> 01:15:31,040
-It's it's a package right? 
+It's it's a package right?
 
 1259
 01:15:31,930 --> 01:15:33,370
-Package all the dependencies. 
+Package all the dependencies.
 
 1260
 01:15:34,560 --> 01:15:36,130
-And also under the hood, 
+And also under the hood,
 
 1261
 01:15:36,140 --> 01:15:37,650
-I can use Dockers. 
+I can use Dockers.
 
 1262
 01:15:38,390 --> 01:15:39,030
-But that's a thing. 
+But that's a thing.
 
 1263
 01:15:39,040 --> 01:15:40,150
-They are a different level. 
+They are a different level.
 
 1264
 01:15:40,160 --> 01:15:41,790
-So it's a different goals. 
+So it's a different goals.
 
 1265
 01:15:42,180 --> 01:15:43,970
-And there are some level complementary. 
+And there are some level complementary.
 
 1266
 01:15:43,980 --> 01:15:48,460
@@ -5064,19 +5221,19 @@ So Ray it helps you to write is for intended for the developments
 
 1267
 01:15:48,470 --> 01:15:50,610
-for someone like you. 
+for someone like you.
 
 1268
 01:15:50,620 --> 01:15:53,210
-But that is for the box. 
+But that is for the box.
 
 1269
 01:15:53,490 --> 01:15:54,060
-In general, 
+In general,
 
 1270
 01:15:54,560 --> 01:15:58,490
-it allows you to manage the distribute applications, 
+it allows you to manage the distribute applications,
 
 1271
 01:15:58,740 --> 01:16:00,830
@@ -5084,7 +5241,7 @@ not to write it, to deploy it and manage it.
 
 1272
 01:16:03,210 --> 01:16:10,530
-And Dockers is fantastic for packaging the dependencies, 
+And Dockers is fantastic for packaging the dependencies,
 
 1273
 01:16:11,600 --> 01:16:13,960
@@ -5096,47 +5253,47 @@ Hopefully, I answer the question.
 
 1275
 01:16:20,920 --> 01:16:22,690
-Any other last minute questions? 
+Any other last minute questions?
 
 1276
 01:16:28,290 --> 01:16:29,740
-We still have 23 minutes. 
+We still have 23 minutes.
 
 1277
 01:16:35,990 --> 01:16:36,860
-If not, 
+If not,
 
 1278
 01:16:38,760 --> 01:16:40,880
-it's a good way to end. 
+it's a good way to end.
 
 1279
 01:16:46,820 --> 01:16:49,810
-So what are some systems related classes you recommend? 
+So what are some systems related classes you recommend?
 
 1280
 01:16:51,390 --> 01:16:57,020
-I think you can see us 262 a when it's offered, 
+I think you can see us 262 a when it's offered,
 
 1281
 01:16:57,950 --> 01:16:59,880
-the database is 26. 
+the database is 26.
 
 1282
 01:17:01,180 --> 01:17:03,220
-You may also get in if they are offered, 
+You may also get in if they are offered,
 
 1283
 01:17:03,230 --> 01:17:07,320
-like 290 fours with graduate special graduate seminars, 
+like 290 fours with graduate special graduate seminars,
 
 1284
 01:17:07,890 --> 01:17:11,120
-which are focusing on system distributed systems that are a few of them. 
+which are focusing on system distributed systems that are a few of them.
 
 1285
 01:17:12,510 --> 01:17:14,100
-But this has a few plus to look at. 
+But this has a few plus to look at.
 
 1286
 01:17:15,320 --> 01:17:18,260
@@ -5148,23 +5305,23 @@ I think it's a I'm happy that and I have to apologize to you
 
 1288
 01:17:23,340 --> 01:17:27,720
-that almost all classes I went over time. 
+that almost all classes I went over time.
 
 1289
 01:17:27,730 --> 01:17:29,200
-I was not over time, 
+I was not over time,
 
 1290
 01:17:29,210 --> 01:17:32,450
-but I was not able to finish my material. 
+but I was not able to finish my material.
 
 1291
 01:17:34,190 --> 01:17:36,180
-So this is an exception, 
+So this is an exception,
 
 1292
 01:17:36,190 --> 01:17:38,960
-and I'm glad to finish on this note. 
+and I'm glad to finish on this note.
 
 1293
 01:17:40,190 --> 01:17:43,510
@@ -5172,7 +5329,7 @@ Thanks, everyone and happy holidays and all the best.
 
 1294
 01:17:44,120 --> 01:17:48,390
-I'm sure we'll see each other many more times in the future. 
+I'm sure we'll see each other many more times in the future.
 
 1295
 01:17:49,630 --> 01:17:50,040

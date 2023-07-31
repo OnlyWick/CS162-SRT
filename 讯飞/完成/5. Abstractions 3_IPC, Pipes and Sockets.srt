@@ -1,0 +1,7102 @@
+1
+00:00:38,860 --> 00:00:39,970
+Hello, everyone.
+大家好。
+
+2
+00:00:40,380 --> 00:00:44,590
+Welcome to the 5th lecture of cs 162.
+欢迎来到 CS162 的第五堂课。
+
+3
+00:00:45,650 --> 00:00:49,680
+Today, we are going to continue with the exciting topic of files.
+今天，我们将继续讨论关于文件的有趣话题。
+
+4
+00:00:51,070 --> 00:00:53,940
+We are going to start another topic,
+我们将要开始另一个话题，
+
+5
+00:00:54,970 --> 00:01:00,750
+which is on communications between processes or ipc inter process,
+这是关于进程间通信或IPC（Inter-Process Communication）的通信问题。
+
+6
+00:01:00,760 --> 00:01:01,630
+communication,
+通信
+
+7
+00:01:01,880 --> 00:01:03,080
+techniques and mechanics.
+技术和机制。
+
+8
+00:01:05,770 --> 00:01:11,780
+As always, if you have any questions ask on the q and a let's start.
+一如既往，如果你有任何问题，请在问答环节提问，我们开始吧。
+
+9
+00:01:14,800 --> 00:01:16,630
+Not yesterday 2 days ago,
+不是昨天，是前天。
+
+10
+00:01:16,640 --> 00:01:19,390
+we discussed about the streams,
+我们讨论了关于流的内容，
+
+11
+00:01:19,870 --> 00:01:24,470
+which is a highest level api for the file systems.
+文件系统的最高级别 API 是什么？
+
+12
+00:01:25,090 --> 00:01:30,840
+Today, we are going to talk a little bit of a lower level file io api
+今天，我们将讨论一下较低级别的文件IO API。
+
+13
+00:01:32,800 --> 00:01:36,030
+which is centered around file descriptors.
+这个课程主要围绕文件描述符展开。
+
+14
+00:01:37,920 --> 00:01:41,150
+Then we are going to talk what is the difference between the high level
+然后我们将讨论高级语言之间的区别。
+
+15
+00:01:41,160 --> 00:01:41,750
+and low level?
+低级别？
+
+16
+00:01:41,760 --> 00:01:50,040
+Ap is, why do we have to kind of ap is about somehow is a state is
+AP 是指 Access Point，为什么我们需要有不同类型的 AP，某种程度上与状态有关。
+
+17
+00:01:50,050 --> 00:01:53,110
+managed across processes,
+跨进程管理
+
+18
+00:01:54,230 --> 00:01:58,440
+especially when you create another process using fork.
+特别是当你使用fork创建另一个进程时。
+
+19
+00:01:59,540 --> 00:02:03,460
+What happens with the file descriptors in the parent and the child?
+在父进程和子进程中，文件描述符会发生什么情况？
+
+20
+00:02:04,350 --> 00:02:06,440
+And finally,
+最后，
+
+21
+00:02:06,790 --> 00:02:09,710
+two or three common pitfalls,
+两个或三个常见陷阱：
+
+22
+00:02:10,580 --> 00:02:14,450
+you may want to avoid in your projects or homeworks.
+你可能想在你的项目或作业中避免的一些事情。
+
+23
+00:02:15,840 --> 00:02:18,350
+In general, when you are going to write a program,
+一般情况下，当你要编写一个程序时，
+
+24
+00:02:19,020 --> 00:02:19,970
+using this,
+使用这个，
+
+25
+00:02:21,150 --> 00:02:23,260
+ap is for the file systems.
+AP是指文件系统。
+
+26
+00:02:24,860 --> 00:02:33,320
+First, remember, what we discussed last time is that one unique thing about
+首先，记住，我们上次讨论的一个独特之处是
+
+27
+00:02:34,560 --> 00:02:41,440
+unique is that it uses a file systems of a generic abstractions,
+独特之处在于它使用了通用抽象的文件系统。
+
+28
+00:02:41,650 --> 00:02:43,850
+not only to deals or files,
+不仅仅是处理交易或文件，
+
+29
+00:02:44,200 --> 00:02:48,540
+or on a storage device like a describe,
+或者存储设备上，比如一个描述文件，
+
+30
+00:02:49,090 --> 00:02:53,100
+but also to deal with different devices,
+还要处理不同的设备，
+
+31
+00:02:53,490 --> 00:02:55,110
+like keyboard,
+像键盘一样，
+
+32
+00:02:55,600 --> 00:02:56,750
+terminals,
+终端
+
+33
+00:02:58,230 --> 00:02:59,630
+printer, and so forth.
+打印机，等等。
+
+34
+00:03:00,900 --> 00:03:05,230
+The second thing is that the abstraction which is provided,
+第二件事是提供的抽象化。
+
+35
+00:03:05,440 --> 00:03:06,790
+it's by oriented.
+这是面向对象的。
+
+36
+00:03:06,800 --> 00:03:13,370
+So by oriented means that you have what you get and you read or you
+"面向"的意思是你拥有你所得到的东西，并且你可以阅读或使用它。
+
+37
+00:03:13,380 --> 00:03:14,450
+read and write to the
+读取和写入到
+
+38
+00:03:14,460 --> 00:03:17,600
+devices is basically a bunch of bytes.
+设备基本上是一堆字节。
+
+39
+00:03:18,400 --> 00:03:21,310
+And you can think about like a sequence of bytes.
+你可以将其想象成一系列字节。
+
+40
+00:03:21,630 --> 00:03:27,030
+And you can address it by the index of a particular byte.
+你可以通过特定字节的索引来访问它。
+
+41
+00:03:28,110 --> 00:03:32,340
+You can identify the bike in the sequence by its index in that sequence.
+你可以通过在序列中的索引来识别自行车。
+
+42
+00:03:35,380 --> 00:03:39,250
+The other things we are going to learn more is that when you
+我们还要学习的另一件事是当你...
+
+43
+00:03:39,260 --> 00:03:41,130
+are going to do reads and writes,
+将要进行读取和写入操作。
+
+44
+00:03:42,040 --> 00:03:47,280
+these reasons rights are not going to come directly to your application.
+这些权限不会直接授予给你的应用程序。
+
+45
+00:03:47,290 --> 00:03:50,280
+They are going first to be buffered in the operating system.
+它们首先会被缓冲在操作系统中。
+
+46
+00:03:50,880 --> 00:03:52,270
+As you'll see, also,
+正如你所看到的，此外，
+
+47
+00:03:52,280 --> 00:03:54,110
+with the stream, the high level,
+通过流，实现高级功能。
+
+48
+00:03:54,120 --> 00:03:55,790
+api we talked last time,
+上次我们讨论过的API。
+
+49
+00:03:56,030 --> 00:03:58,800
+there is also a buffer in the application level.
+应用层也有一个缓冲区。
+
+50
+00:04:01,580 --> 00:04:04,160
+Finally, the pattern is very simple.
+最后，这个模式非常简单。
+
+51
+00:04:04,430 --> 00:04:07,550
+You open a file, right?
+你打开了一个文件，对吗？
+
+52
+00:04:08,250 --> 00:04:12,740
+You have to close it at the end and in between your read and write
+你需要在读取和写入之间以及最后关闭它。
+
+53
+00:04:14,460 --> 00:04:17,720
+from that particular file descriptor.
+从特定的文件描述符中。
+
+54
+00:04:22,370 --> 00:04:30,260
+This is a low level file io api it's quite similar from the one the high level
+这是一个低级文件IO API，它与高级API非常相似。
+
+55
+00:04:30,970 --> 00:04:34,650
+pilot or api one difference,
+飞行员和API之间的一个区别是
+
+56
+00:04:34,980 --> 00:04:35,370
+though,
+然而，
+
+57
+00:04:37,140 --> 00:04:41,670
+it's it's similar in the sense that it has an open,
+从某种意义上说，它是相似的，因为它是开放的。
+
+58
+00:04:42,180 --> 00:04:43,330
+close,
+关闭，
+
+59
+00:04:43,340 --> 00:04:47,660
+and in between like your series and rights is differently,
+在你的系列和权利之间有所不同。
+
+60
+00:04:47,670 --> 00:04:50,060
+provides slightly different semantics.
+提供稍微不同的语义。
+
+61
+00:04:50,480 --> 00:04:52,630
+And instead of if open,
+而不是使用 if 打开，
+
+62
+00:04:52,640 --> 00:04:59,950
+like for the high level api you have just opened when you open a file,
+当你打开一个文件时，就像你刚刚打开的高级API一样。
+
+63
+00:04:59,960 --> 00:05:01,270
+you pass a file name,
+你传递一个文件名，
+
+64
+00:05:01,280 --> 00:05:02,390
+then a bunch of flags,
+然后是一堆标志
+
+65
+00:05:02,400 --> 00:05:03,910
+which basically says,
+基本上是说，
+
+66
+00:05:07,780 --> 00:05:09,480
+what are the access rights?
+访问权限是什么？
+
+67
+00:05:09,860 --> 00:05:13,210
+Whether you read, you have the rights to read from the file,
+无论你是读取文件，你都有读取文件的权限。
+
+68
+00:05:13,220 --> 00:05:14,330
+write from the file,
+从文件中读取数据
+
+69
+00:05:14,680 --> 00:05:16,820
+or read write the file.
+或者读写文件。
+
+70
+00:05:17,990 --> 00:05:24,100
+And then there are also a bit vector a with a permission bits,
+然后还有一个带有权限位的位向量a，
+
+71
+00:05:25,490 --> 00:05:33,270
+which are also who is going to have the rights to access that file.
+这也包括谁将拥有访问该文件的权限。
+
+72
+00:05:33,660 --> 00:05:36,190
+And you can have users.
+你可以拥有用户。
+
+73
+00:05:36,600 --> 00:05:43,100
+The users is a is a user who actually runs a program which invokes this api
+用户是一个实际运行调用此API的程序的用户。
+
+74
+00:05:43,110 --> 00:05:44,260
+to open the file.
+打开文件。
+
+75
+00:05:45,450 --> 00:05:47,160
+Then it's a group.
+那么这是一个小组。
+
+76
+00:05:47,170 --> 00:05:49,800
+This is the concept the user belongs to a group.
+这是用户所属于一个群组的概念。
+
+77
+00:05:49,810 --> 00:05:51,040
+We learn more about that.
+我们会进一步了解这个问题。
+
+78
+00:05:51,770 --> 00:05:58,270
+And others means everyone else can access these files.
+"and others" 意味着其他人也可以访问这些文件。
+
+79
+00:06:02,560 --> 00:06:07,480
+Then you have the clouds and you have create when your first time when you
+然后你有云，当你第一次创建时。
+
+80
+00:06:07,490 --> 00:06:08,320
+create a heart.
+创建一个心形。
+
+81
+00:06:10,090 --> 00:06:18,330
+Now, the important thing here is that open returns you and an integer.
+现在，这里重要的是open函数会返回一个整数。
+
+82
+00:06:19,840 --> 00:06:22,560
+The integer is also called file descriptor.
+整数也被称为文件描述符。
+
+83
+00:06:23,480 --> 00:06:25,180
+The integers are greater than zero.
+整数大于零。
+
+84
+00:06:25,190 --> 00:06:26,830
+If it's less than zero,
+如果它小于零，
+
+85
+00:06:26,840 --> 00:06:28,480
+this means that is error.
+这意味着出现了错误。
+
+86
+00:06:31,280 --> 00:06:32,680
+It is integer.
+它是一个整数。
+
+87
+00:06:33,100 --> 00:06:41,700
+It used to identify the meta data associated with a file.
+它用于识别与文件相关的元数据。
+
+88
+00:06:41,710 --> 00:06:43,680
+You open in,
+你打开它。
+
+89
+00:06:43,690 --> 00:06:46,240
+and this meta data is stored in the operating system.
+这些元数据存储在操作系统中。
+
+90
+00:06:50,810 --> 00:06:54,160
+So that's why you are going to have.
+所以这就是你要去的原因。
+
+91
+00:06:54,690 --> 00:06:56,030
+Why do you have.
+你为什么有这个问题？
+
+92
+00:06:56,250 --> 00:07:04,190
+Then I integer to identify this kind of this meta data,
+然后我使用整数来标识这种元数据。
+
+93
+00:07:04,830 --> 00:07:06,050
+which also, again,
+同样地，再次，
+
+94
+00:07:06,440 --> 00:07:07,530
+this file descriptor.
+这个文件描述符。
+
+95
+00:07:08,950 --> 00:07:14,970
+And why do you have a file descriptor specified as an integer than specify
+为什么要将文件描述符指定为整数而不是指定为其他类型？
+
+96
+00:07:15,100 --> 00:07:15,890
+a as a pointer?
+a作为一个指针？
+
+97
+00:07:16,490 --> 00:07:17,970
+Can anyone answer that question?
+有人可以回答这个问题吗？
+
+98
+00:07:22,710 --> 00:07:24,700
+It again, open returns an integer,
+再次强调，open函数返回一个整数值，
+
+99
+00:07:24,710 --> 00:07:25,740
+is a file descriptor,
+是一个文件描述符。
+
+100
+00:07:27,530 --> 00:07:33,180
+which identifies the meta data associated with that file in the cattle.
+这个词叫做"cattle"的文件中包含了与该文件相关的元数据。
+
+101
+00:07:36,150 --> 00:07:37,540
+Why not just have a pointer?
+为什么不只使用指针呢？
+
+102
+00:07:41,320 --> 00:07:42,600
+Yes, less dangerous.
+是的，更安全。
+
+103
+00:07:43,810 --> 00:07:46,050
+One is same memory, not exactly.
+一个是相同的内存，但并不完全相同。
+
+104
+00:07:46,060 --> 00:07:46,610
+It does.
+是的。
+
+105
+00:07:53,930 --> 00:07:54,880
+That's correct.
+没错。
+
+106
+00:07:55,120 --> 00:08:00,940
+Having a point at the canal will allow will mean that will allow the process,
+在运河上设置一个点将意味着允许该过程，
+
+107
+00:08:01,230 --> 00:08:04,620
+which is a user process, which opens a file to have access to the camera,
+这是一个用户进程，它打开文件以访问摄像头。
+
+108
+00:08:04,980 --> 00:08:05,630
+actually.
+实际上。
+
+109
+00:08:05,890 --> 00:08:09,890
+But we know that processes are have their own address space,
+但是我们知道进程拥有自己的地址空间，
+
+110
+00:08:09,900 --> 00:08:11,450
+which is different from the kernel.
+这与内核不同。
+
+111
+00:08:11,720 --> 00:08:14,830
+You cannot have a pointer to the address space of the kernel.
+你不能拥有指向内核地址空间的指针。
+
+112
+00:08:15,920 --> 00:08:16,350
+Right?
+对吗？
+
+113
+00:08:18,130 --> 00:08:19,560
+That's why you have an integer,
+这就是为什么你有一个整数。
+
+114
+00:08:19,570 --> 00:08:24,610
+because an integer is going when you are going to invoke on this one
+因为当你要调用它时，一个整数正在进行中。
+
+115
+00:08:24,620 --> 00:08:26,850
+of this operation on the file systems,
+对文件系统的这个操作，
+
+116
+00:08:28,530 --> 00:08:31,070
+then you are going to pass a file descriptor,
+那么你将要传递一个文件描述符。
+
+117
+00:08:31,450 --> 00:08:32,340
+the file descriptor,
+文件描述符
+
+118
+00:08:32,350 --> 00:08:37,290
+it is going to be an index in a table of the file descriptors,
+它将成为文件描述符表中的一个索引。
+
+119
+00:08:38,240 --> 00:08:40,830
+which are open at that given time.
+在给定的时间里有哪些是开放的。
+
+120
+00:08:41,090 --> 00:08:46,000
+And that index will.out to the meta data are sold or the
+该索引将输出到元数据中，以供出售或使用。
+
+121
+00:08:46,010 --> 00:08:47,680
+state associated with its open file.
+与其打开文件相关联的状态。
+
+122
+00:08:51,240 --> 00:08:58,560
+So it's a portable way to identify the file state or the meta data
+这是一种便携的方式来识别文件状态或元数据。
+
+123
+00:08:58,570 --> 00:09:00,640
+associated with the open file.
+与打开文件相关联的内容。
+
+124
+00:09:05,030 --> 00:09:10,430
+Now, there are several default files.
+现在，有几个默认文件。
+
+125
+00:09:11,530 --> 00:09:19,610
+File names is like thunder bean thundered out standard file and this,
+文件名就像雷电豆一样，雷声轰鸣着标准文件和这个。
+
+126
+00:09:19,620 --> 00:09:20,010
+sorry,
+对不起，
+
+127
+00:09:20,020 --> 00:09:23,650
+decided the standard file descriptors.
+决定了标准文件描述符。
+
+128
+00:09:24,210 --> 00:09:24,660
+Okay,
+好的，
+
+129
+00:09:26,590 --> 00:09:27,540
+stand up in.
+站起来。
+
+130
+00:09:28,970 --> 00:09:32,770
+It's when you want to read from the keyboard standard out when you
+当你想从键盘标准输出读取时，就会这样做。
+
+131
+00:09:32,780 --> 00:09:35,010
+are going to write to the keyboard.
+你将要写入键盘。
+
+132
+00:09:37,340 --> 00:09:40,230
+And the other thing,
+另外一件事是，
+
+133
+00:09:40,580 --> 00:09:43,190
+it's again, we have high level of the ap is.
+又是这样，我们的AP信号强度很高。
+
+134
+00:09:43,410 --> 00:09:44,510
+Low level ap is,
+低级应用程序是指直接与计算机硬件进行交互的程序。它们通常使用底层编程语言编写，如汇编语言或C语言，并且对硬件的操作更加细粒度。低级应用程序可以直接访问和控制计算机的内存、寄存器、设备和其他硬件资源。与高级应用程序相比，低级应用程序更加复杂和底层，需要更多的编程技巧和对硬件的深入理解。
+
+135
+00:09:44,720 --> 00:09:48,750
+the high level ap is or stream ap is, if you remember, from last time,
+高级应用程序或流应用程序，如果你还记得的话，是上次讨论过的。
+
+136
+00:09:48,760 --> 00:09:50,350
+when you do an f open,
+当你执行一个文件打开操作时，
+
+137
+00:09:50,470 --> 00:09:52,620
+you return a file, a pointer.
+你返回一个文件，一个指针。
+
+138
+00:09:53,260 --> 00:09:58,650
+That pointer is actually a pointer to data structures in the user space.
+该指针实际上是指向用户空间中的数据结构的指针。
+
+139
+00:09:59,020 --> 00:10:01,450
+And in that address,
+在那个地址中，
+
+140
+00:10:02,380 --> 00:10:04,170
+in that data,
+在那个数据中，
+
+141
+00:10:04,180 --> 00:10:11,230
+structuring the user space has also contains a file descriptors
+用户空间的结构也包含文件描述符。
+
+142
+00:10:13,820 --> 00:10:16,250
+associated with that open.
+与该打开的相关联。
+
+143
+00:10:17,740 --> 00:10:18,930
+We'll talk more about that,
+我们会更详细地讨论这个问题，
+
+144
+00:10:18,940 --> 00:10:21,420
+but therefore,
+但是因此，
+
+145
+00:10:21,430 --> 00:10:25,540
+there is a way to go from the file descriptors.
+可以通过文件描述符进行操作。
+
+146
+00:10:25,550 --> 00:10:33,350
+And that's the pointer which is returned by an of open instructor of open
+这是由open函数返回的指针，由open指令返回的指针。
+
+147
+00:10:33,360 --> 00:10:34,980
+of system called.
+系统的类型被称为。
+
+148
+00:10:36,450 --> 00:10:41,250
+You remember, if you do fo but you get this pointer, file pointer.
+你记得，如果你执行了`fo`，你会得到这个指针，文件指针。
+
+149
+00:10:41,980 --> 00:10:46,060
+And you can from this file pointer,
+你可以通过这个文件指针来，
+
+150
+00:10:46,460 --> 00:10:48,720
+returned by an f open.
+由 f open 返回。
+
+151
+00:10:49,160 --> 00:10:55,460
+You can get the associated file descriptor by using file.
+你可以使用 file 来获取关联的文件描述符。
+
+152
+00:10:55,470 --> 00:10:55,740
+Now,
+现在，
+
+153
+00:10:57,210 --> 00:10:57,630
+correction.
+更正。
+
+154
+00:10:59,070 --> 00:11:06,380
+The universe is also true from file descriptor.
+宇宙也可以从文件描述符中得到验证。
+
+155
+00:11:06,730 --> 00:11:08,970
+You got, when you open a file,
+当你打开一个文件时，你得到的是
+
+156
+00:11:09,670 --> 00:11:10,790
+you can go out.
+你可以出去了。
+
+157
+00:11:11,090 --> 00:11:17,870
+You can get the file pointer to that file by specifying
+你可以通过指定文件来获取该文件的文件指针。
+
+158
+00:11:17,880 --> 00:11:21,020
+the file descriptors and the open type.
+文件描述符和打开类型。
+
+159
+00:11:21,310 --> 00:11:26,800
+And now you can use this file descriptors to you to invoke for to invoke
+现在你可以使用这些文件描述符来调用函数。
+
+160
+00:11:26,810 --> 00:11:27,920
+on that file,
+在那个文件上，
+
+161
+00:11:27,930 --> 00:11:31,000
+the high level ap is the stream level ap is,
+高级AP是流级AP。
+
+162
+00:11:37,530 --> 00:11:40,250
+low level ap is you have forgained, read and write.
+低级应用程序是具有读取和写入权限的应用程序。
+
+163
+00:11:40,690 --> 00:11:43,070
+But typically here, when you have read and write,
+但通常情况下，在这里，当你进行读取和写入操作时，
+
+164
+00:11:43,570 --> 00:11:50,700
+you are going to read a buffer of a certain size.
+你将要读取一个特定大小的缓冲区。
+
+165
+00:11:51,450 --> 00:11:54,340
+You read it into a buffer of a certain size,
+你将其读入一个特定大小的缓冲区中，
+
+166
+00:11:54,610 --> 00:11:57,370
+or you write a buffer of a certain size, right?
+或者你写一个特定大小的缓冲区，对吗？
+
+167
+00:11:59,640 --> 00:12:05,670
+Will read the elements from the files up to the size of the buffer,
+将从文件中读取元素，直到达到缓冲区的大小。
+
+168
+00:12:05,680 --> 00:12:06,910
+which is mark size.
+这是标记大小。
+
+169
+00:12:07,260 --> 00:12:10,680
+Obviously, when you read, you need to allocate space for the buffer.
+显然，当你阅读时，你需要为缓冲区分配空间。
+
+170
+00:12:13,890 --> 00:12:16,080
+The right, it's, again, similar.
+没错，它们是相似的。
+
+171
+00:12:16,090 --> 00:12:18,480
+You provide the pointer to a buffer,
+你提供了一个指向缓冲区的指针。
+
+172
+00:12:19,000 --> 00:12:22,890
+which of this of a given size.
+给定大小的这些中的哪一个。
+
+173
+00:12:23,380 --> 00:12:28,170
+And that will result taking this buffer and writing it to the device.
+这将导致将该缓冲区写入设备。
+
+174
+00:12:30,910 --> 00:12:32,040
+In addition,
+此外，
+
+175
+00:12:32,740 --> 00:12:34,060
+the other way to look at,
+另一种看法是，
+
+176
+00:12:34,190 --> 00:12:35,980
+in addition, you have this command,
+此外，您还有这个命令，
+
+177
+00:12:35,990 --> 00:12:37,260
+which is l sick.
+你生病了。
+
+178
+00:12:38,700 --> 00:12:39,330
+Remember,
+记住，
+
+179
+00:12:39,840 --> 00:12:42,010
+the abstraction is byte oriented.
+这个抽象是以字节为单位的。
+
+180
+00:12:42,650 --> 00:12:43,810
+If you look at the file,
+如果你查看文件，
+
+181
+00:12:43,820 --> 00:12:45,050
+it's a sequence of bytes.
+它是一系列字节。
+
+182
+00:12:46,740 --> 00:12:52,780
+If you want, now to read or to write in a file at a particular position.
+如果你想要，在文件中的特定位置进行读取或写入操作。
+
+183
+00:12:53,400 --> 00:12:54,460
+The one, though,
+然而，那个人，
+
+184
+00:12:54,750 --> 00:12:57,750
+you can use lc basically,
+你可以基本上使用lc。
+
+185
+00:12:57,760 --> 00:12:59,300
+you are going to say,
+你要说的是，
+
+186
+00:12:59,310 --> 00:13:00,850
+where do you want to?
+你想去哪里？
+
+187
+00:13:02,200 --> 00:13:05,020
+Where do you want offset is from the current position?
+你想要偏移量是从当前位置的哪里开始计算？
+
+188
+00:13:05,740 --> 00:13:07,480
+You want to add an offset,
+您想要添加一个偏移量，
+
+189
+00:13:09,470 --> 00:13:12,960
+a to a new location,
+将a移动到一个新位置。
+
+190
+00:13:12,970 --> 00:13:15,330
+or you want to read from or to write.
+或者你想从中读取或写入。
+
+191
+00:13:20,260 --> 00:13:22,050
+Let me answer some of the question.
+让我回答一些问题。
+
+192
+00:13:22,930 --> 00:13:25,550
+Can we put the powerpoint into presentation mode?
+我们可以将 PowerPoint 切换到演示模式吗？
+
+193
+00:13:26,630 --> 00:13:27,030
+Thank you.
+谢谢你。
+
+194
+00:13:27,040 --> 00:13:27,830
+Sorry about that.
+很抱歉。
+
+195
+00:13:30,240 --> 00:13:31,280
+Yes, absolutely.
+是的，当然可以。
+
+196
+00:13:31,290 --> 00:13:32,200
+That was an easy one.
+这个很简单。
+
+197
+00:13:34,080 --> 00:13:37,390
+What does mode mean on the open code?
+在打开代码中，"mode" 是指文件的访问模式。
+
+198
+00:13:37,750 --> 00:13:40,380
+Does it apply to just the file descriptor?
+这仅适用于文件描述符吗？
+
+199
+00:13:40,390 --> 00:13:43,580
+Can I share a file descriptor with loser permission?
+我可以使用较低的权限共享文件描述符吗？
+
+200
+00:13:44,050 --> 00:13:52,590
+Then the file in the fs the mode is, again,
+在文件系统中，文件的模式是再次的。
+
+201
+00:13:52,600 --> 00:13:59,070
+referring who has arrived to access the open file using the file descriptor.
+引用已到达的人来使用文件描述符访问打开的文件。
+
+202
+00:13:59,880 --> 00:14:02,830
+And it does apply to a file descriptor.
+它确实适用于文件描述符。
+
+203
+00:14:03,960 --> 00:14:05,040
+But a file descriptor,
+但是文件描述符，
+
+204
+00:14:05,690 --> 00:14:07,210
+can I share a file escape tories,
+我可以分享一个逃离塔利斯的文件吗？
+
+205
+00:14:07,220 --> 00:14:08,370
+loser permissions,
+权限不足
+
+206
+00:14:08,380 --> 00:14:15,720
+and the file in the you cannot because
+你无法访问该文件。
+
+207
+00:14:16,370 --> 00:14:24,270
+of you if the file the access
+如果您访问文件的话
+
+208
+00:14:24,280 --> 00:14:25,510
+rights are,
+权利是，
+
+209
+00:14:25,900 --> 00:14:28,100
+like in the name implies,
+正如名字所示，
+
+210
+00:14:28,110 --> 00:14:29,980
+are enforced when you access a file.
+在访问文件时会执行强制访问控制。
+
+211
+00:14:31,090 --> 00:14:32,880
+If the file, for instance,
+如果文件，例如，
+
+212
+00:14:32,890 --> 00:14:35,570
+when you create it,
+当你创建它时，
+
+213
+00:14:35,580 --> 00:14:41,200
+it's you can only read.
+你只能读取。
+
+214
+00:14:41,210 --> 00:14:43,360
+And again, when you are going to create a file,
+再次提醒，当你要创建一个文件时，
+
+215
+00:14:43,370 --> 00:14:47,910
+you are going to basically say something like with these flags.
+你可以基本上这样说，使用这些标志位。
+
+216
+00:14:49,630 --> 00:14:50,630
+All people, for instance,
+所有人，例如，
+
+217
+00:14:50,640 --> 00:14:52,870
+in my group can access a file.
+在我的组中可以访问一个文件。
+
+218
+00:14:52,880 --> 00:14:58,950
+So now if you share your file descriptor to someone in the same group,
+那么如果你将文件描述符分享给同一组中的其他人，
+
+219
+00:14:59,210 --> 00:15:01,920
+they are going to have our rights to access a file.
+他们将获得我们访问文件的权利。
+
+220
+00:15:03,710 --> 00:15:04,300
+If you,
+如果你，
+
+221
+00:15:05,190 --> 00:15:07,140
+sherry, someone from other,
+Sherry，有人来自其他地方找你。
+
+222
+00:15:07,150 --> 00:15:10,180
+was as a outside your group,
+作为一个外部人，
+
+223
+00:15:10,580 --> 00:15:12,770
+that person cannot access a file,
+那个人无法访问文件。
+
+224
+00:15:13,040 --> 00:15:17,830
+because and the operating system is going to look who is going to access a file,
+因为操作系统要确定谁将要访问一个文件，
+
+225
+00:15:17,840 --> 00:15:20,110
+and this logo is not the same group,
+这个标志不属于同一组织。
+
+226
+00:15:20,380 --> 00:15:22,550
+then is going to procure the axis.
+然后将采购轴。
+
+227
+00:15:25,250 --> 00:15:26,440
+Why is a buffer?
+为什么需要缓冲区？
+
+228
+00:15:26,450 --> 00:15:30,660
+This next question is why is a buffer of type void?
+下一个问题是为什么缓冲区的类型是void？
+
+229
+00:15:32,320 --> 00:15:36,920
+It's basically saying this signify the fact that in that buffer,
+这基本上是在说这个表示在那个缓冲区中，
+
+230
+00:15:36,930 --> 00:15:38,160
+you can have anything,
+你可以拥有任何东西，
+
+231
+00:15:39,000 --> 00:15:39,290
+right?
+对的？
+
+232
+00:15:39,890 --> 00:15:40,900
+Is for generality.
+是为了通用性。
+
+233
+00:15:41,680 --> 00:15:43,910
+But if you put car, for instance,
+但是如果你举例说汽车的话，
+
+234
+00:15:44,150 --> 00:15:48,100
+then he suggests that these are kind of the characters probably in us
+然后他建议这些可能是美国的一种特征
+
+235
+00:15:48,110 --> 00:15:49,420
+for emergency like that.
+对于紧急情况如此。
+
+236
+00:15:49,870 --> 00:15:56,680
+Void is basically saying it can be also binary representation.
+Void基本上表示它也可以是二进制表示。
+
+237
+00:15:57,380 --> 00:15:58,610
+It can be anything.
+它可以是任何东西。
+
+238
+00:16:00,930 --> 00:16:04,670
+It's a convention more than anything.
+这只是一种惯例，不过如此。
+
+239
+00:16:13,870 --> 00:16:17,460
+A this is an example of a simple example.
+这是一个简单示例的例子。
+
+240
+00:16:18,520 --> 00:16:20,160
+You open an existing file,
+你打开一个已存在的文件。
+
+241
+00:16:24,560 --> 00:16:26,760
+you open an existing file,
+你打开一个已存在的文件，
+
+242
+00:16:27,110 --> 00:16:31,690
+and you write the output.
+并且你编写输出。
+
+243
+00:16:38,850 --> 00:16:40,760
+Here you is read only.
+这里是只读的。
+
+244
+00:16:42,060 --> 00:16:48,490
+This is the user is right,
+这是用户的正确信息。
+
+245
+00:16:48,750 --> 00:16:52,160
+writing, access and writing access for the user.
+用户的读取、访问和写入权限。
+
+246
+00:16:52,880 --> 00:16:56,510
+And then you read it your clothes,
+然后你读了它，你的衣服。
+
+247
+00:16:59,020 --> 00:17:07,650
+you send the you send the output to standard out by number.
+你可以通过数字将输出发送到标准输出。
+
+248
+00:17:10,110 --> 00:17:16,400
+So one question here is about how many bytes these program reads.
+这里有一个问题是关于这个程序读取了多少字节。
+
+249
+00:17:17,150 --> 00:17:18,810
+So you can see when you read,
+所以当你阅读时，你可以看到
+
+250
+00:17:19,240 --> 00:17:20,680
+this is an important instruction.
+这是一条重要的指示。
+
+251
+00:17:20,690 --> 00:17:26,820
+You read into a buffer of which you allocated 1,000 bytes.
+你读取了一个你分配了1,000字节的缓冲区。
+
+252
+00:17:28,350 --> 00:17:29,860
+How many bytes does this program?
+这个程序占用多少字节？
+
+253
+00:17:29,870 --> 00:17:38,820
+It should be easy.
+这应该很容易。
+
+254
+00:17:42,750 --> 00:17:43,510
+Any answers?
+有答案吗？
+
+255
+00:17:47,020 --> 00:17:48,330
+We have some answers here.
+我们这里有一些答案。
+
+256
+00:17:53,320 --> 00:17:55,840
+Size of buffer without some answers,
+没有一些答案的缓冲区大小
+
+257
+00:17:56,440 --> 00:17:57,480
+$1,000,
+1,000美元
+
+258
+00:17:57,490 --> 00:17:58,600
+at most on salary.
+最多薪资上限。
+
+259
+00:18:01,330 --> 00:18:02,160
+That's correct.
+没错。
+
+260
+00:18:03,190 --> 00:18:05,030
+With just a little,
+只需要一点点，
+
+261
+00:18:05,040 --> 00:18:07,900
+tiny clarification,
+小小的澄清，
+
+262
+00:18:09,010 --> 00:18:10,050
+you read,
+你可以阅读。
+
+263
+00:18:10,800 --> 00:18:15,760
+if the size of the file is less than 1,000 bytes,
+如果文件的大小小于1,000字节，
+
+264
+00:18:16,070 --> 00:18:18,290
+you read everything, you read the entire file.
+你读取了所有内容，你读取了整个文件。
+
+265
+00:18:19,200 --> 00:18:23,100
+If the size of the file is greater than 1,000 bytes,
+如果文件的大小大于1,000字节，
+
+266
+00:18:23,110 --> 00:18:26,780
+you read the first 1,000 bytes of the file.
+你读取了文件的前1,000个字节。
+
+267
+00:18:34,220 --> 00:18:36,830
+Like I mentioned the design pattern.
+就像我之前提到的设计模式一样。
+
+268
+00:18:37,160 --> 00:18:38,190
+It's open.
+它是开放的。
+
+269
+00:18:39,580 --> 00:18:40,880
+Before you use a file.
+在使用文件之前。
+
+270
+00:18:41,350 --> 00:18:42,810
+At the end you close it.
+最后你关闭它。
+
+271
+00:18:43,250 --> 00:18:50,980
+And in between and read and write from the file with a low level,
+并且在其中使用低级别的方式从文件中读取和写入数据。
+
+272
+00:18:51,550 --> 00:18:57,480
+ioapi you basically read and write a bunch of bytes.
+IOAPI主要用于读取和写入一系列字节。
+
+273
+00:18:57,730 --> 00:19:05,450
+That's all you can use lc to reposition in inside a file.
+你可以使用`lc`命令在文件内重新定位。
+
+274
+00:19:09,650 --> 00:19:13,210
+So one important aspect I mentioned earlier on,
+之前我提到的一个重要方面是，
+
+275
+00:19:13,220 --> 00:19:16,330
+you also need to think about the buffers.
+你还需要考虑缓冲区。
+
+276
+00:19:16,960 --> 00:19:19,580
+When you read something from a file,
+当你从文件中读取内容时，
+
+277
+00:19:20,160 --> 00:19:23,050
+that sink doesn't go,
+那个水槽不工作。
+
+278
+00:19:23,060 --> 00:19:29,550
+that is not red directly to the operating system to this application.
+这与操作系统直接与该应用程序无关。
+
+279
+00:19:31,140 --> 00:19:32,300
+It reads first.
+它首先读取。
+
+280
+00:19:34,640 --> 00:19:36,130
+The information from a file,
+来自文件的信息
+
+281
+00:19:36,140 --> 00:19:39,280
+the data from the file is first thread,
+文件中的数据是来自第一个线程。
+
+282
+00:19:39,740 --> 00:19:41,620
+and is buffered in the kernel.
+并且在内核中进行了缓冲。
+
+283
+00:19:43,610 --> 00:19:44,850
+The same is right.
+是的，没错。
+
+284
+00:19:45,790 --> 00:19:46,480
+When you write,
+当你写作时，
+
+285
+00:19:47,270 --> 00:19:49,520
+you don't write directly to the device,
+你不直接向设备写入数据，
+
+286
+00:19:50,180 --> 00:19:52,950
+you write to a buffering to the camera.
+你将数据写入相机的缓冲区。
+
+287
+00:19:53,620 --> 00:19:56,730
+And the camera writes after that to the device.
+然后相机将数据写入设备。
+
+288
+00:19:58,550 --> 00:19:58,980
+Okay.
+好的。
+
+289
+00:20:00,300 --> 00:20:07,180
+Now can you think about why would you read and write to a buffer
+现在你可以思考一下为什么要读取和写入缓冲区。
+
+290
+00:20:07,450 --> 00:20:09,990
+from and probably to and from a buffer?
+从缓冲区读取并可能写入到缓冲区？
+
+291
+00:20:10,210 --> 00:20:12,770
+Is a kernel rather directly from the device to
+内核是直接从设备到的。
+
+292
+00:20:22,990 --> 00:20:24,850
+check for malaysia input?
+检查马来西亚的输入？
+
+293
+00:20:25,920 --> 00:20:26,010
+Faster.
+更快。
+
+294
+00:20:26,390 --> 00:20:30,550
+The devices might not be directly, right?
+这些设备可能不是直接连接的，对吗？
+
+295
+00:20:31,560 --> 00:20:32,110
+That's good.
+很好。
+
+296
+00:20:32,440 --> 00:20:33,470
+It's faster,
+它更快。
+
+297
+00:20:33,480 --> 00:20:35,830
+and the devices might not be directly ready.
+设备可能不会直接就绪。
+
+298
+00:20:36,900 --> 00:20:41,090
+And think about this way, right?
+而且要这样考虑，对吗？
+
+299
+00:20:42,460 --> 00:20:46,940
+It's also the fact that the devices,
+这也是事实，设备，
+
+300
+00:20:48,560 --> 00:20:50,100
+when they transferred data,
+当他们传输数据时，
+
+301
+00:20:50,460 --> 00:20:56,780
+they may have a natural granularity, at least a transfer, the date.
+它们可能具有一种自然的粒度，至少在传输日期方面。
+
+302
+00:20:57,870 --> 00:20:59,350
+So, for instance,
+例如，
+
+303
+00:20:59,360 --> 00:21:02,870
+when you read from the disk,
+当你从磁盘读取时，
+
+304
+00:21:03,610 --> 00:21:09,020
+you read kind of ground like these, like blocks, a few kilobytes.
+你可以将其理解为类似这样的基本单位，类似于块，大小为几千字节。
+
+305
+00:21:09,750 --> 00:21:10,190
+Right?
+对吗？
+
+306
+00:21:10,670 --> 00:21:13,580
+This is what you get from a describe.
+这是从一个描述中得到的结果。
+
+307
+00:21:13,590 --> 00:21:15,380
+You don't get 1 byte at a time.
+你不是一次获得1个字节。
+
+308
+00:21:15,390 --> 00:21:16,700
+You get a block at a time.
+你一次获取一个块。
+
+309
+00:21:17,980 --> 00:21:20,530
+Even if you ask for on character, you get a block.
+即使你请求一个字符，你也会得到一个块。
+
+310
+00:21:20,880 --> 00:21:22,180
+You need to put that block summers.
+你需要将那个块放置在夏季。
+
+311
+00:21:22,190 --> 00:21:23,510
+We are going to put it in,
+我们要把它放进去。
+
+312
+00:21:23,520 --> 00:21:25,790
+though this is how we are going to put in.
+虽然这是我们要进行的方式。
+
+313
+00:21:27,180 --> 00:21:28,610
+A is a kernel buffer,
+A 是一个内核缓冲区，
+
+314
+00:21:29,110 --> 00:21:29,470
+right?
+是的，没错。
+
+315
+00:21:29,780 --> 00:21:31,790
+Otherwise means to throw it away.
+"Otherwise" 在这里的意思是将其丢弃。
+
+316
+00:21:32,080 --> 00:21:35,940
+And then if you read the second character from that block,
+然后，如果你读取该块的第二个字符，
+
+317
+00:21:35,950 --> 00:21:37,380
+you need to bring it again.
+你需要再次带来它。
+
+318
+00:21:38,310 --> 00:21:43,100
+The other thing it's about another situation is that when I write,
+另一件事是关于另一种情况，就是当我写作时，
+
+319
+00:21:43,720 --> 00:21:46,930
+say, a buffer right to the device,
+说，将缓冲区正确地写入设备中，
+
+320
+00:21:46,940 --> 00:21:48,090
+the device may not be ready.
+设备可能还没有准备好。
+
+321
+00:21:49,220 --> 00:21:49,610
+Right?
+对吗？
+
+322
+00:21:51,100 --> 00:21:53,530
+Maybe another right is happening on the device.
+可能是设备上发生了另一个故障。
+
+323
+00:21:53,540 --> 00:21:55,370
+Or simply, if you have a files,
+或者简单来说，如果你有文件，
+
+324
+00:21:55,380 --> 00:21:57,820
+you have at least the like a disk drive.
+你至少需要一个像磁盘驱动器一样的设备。
+
+325
+00:21:58,660 --> 00:21:59,970
+You need the disk,
+你需要这个磁盘。
+
+326
+00:21:59,980 --> 00:22:02,130
+you need to wait for the disk to rotate,
+你需要等待磁盘旋转，
+
+327
+00:22:02,570 --> 00:22:06,120
+says that the head of the disk to be above this,
+说的是磁盘的磁头要在这之上。
+
+328
+00:22:06,130 --> 00:22:07,400
+the region of the disk,
+磁盘的区域
+
+329
+00:22:07,730 --> 00:22:11,160
+or you already which is available as you can write new data.
+或者你已经知道了，你可以写入新的数据。
+
+330
+00:22:12,810 --> 00:22:16,120
+Or in that particular case,
+在那种特殊情况下，
+
+331
+00:22:16,450 --> 00:22:18,580
+instead of blocking the application,
+不是阻塞应用程序，
+
+332
+00:22:18,860 --> 00:22:22,070
+then for to wait for that event,
+那么为了等待那个事件，
+
+333
+00:22:22,430 --> 00:22:23,830
+then instead,
+那么，相反地，
+
+334
+00:22:23,840 --> 00:22:26,200
+you are going to write to this kernel buffer,
+你将要写入这个内核缓冲区。
+
+335
+00:22:26,210 --> 00:22:29,800
+and the kernel is going to take care of the rest.
+而内核将负责处理其余的事情。
+
+336
+00:22:30,660 --> 00:22:32,430
+The same is another, right?
+是的，"the same"和"another"是相同的意思吗？
+
+337
+00:22:32,810 --> 00:22:34,280
+I I if I want,
+如果我想的话，我可以。
+
+338
+00:22:34,290 --> 00:22:39,050
+if i'm going to write at once a big chunk of data,
+如果我要一次写入大量数据，
+
+339
+00:22:39,060 --> 00:22:45,070
+and this is larger than what the network can send at once large as are
+这比网络一次能发送的数据量要大，尽管它已经很大了。
+
+340
+00:22:45,080 --> 00:22:46,030
+not one packet.
+不是一个数据包。
+
+341
+00:22:47,100 --> 00:22:52,610
+Then what what will happen in that case that you are going to write
+那么在这种情况下会发生什么，你将要写什么？
+
+342
+00:22:52,620 --> 00:22:55,450
+all this kind of chunk of data in the kernel?
+所有这种数据块都在内核中吗？
+
+343
+00:22:55,880 --> 00:23:02,070
+The kennel take care to chop how much you want to send in smaller packets
+狗舍会注意将你想要发送的东西切割成更小的包裹。
+
+344
+00:23:02,080 --> 00:23:04,590
+and send packages or each packet at a time.
+可以选择一次发送整个包裹或每次只发送一个数据包。
+
+345
+00:23:06,500 --> 00:23:07,220
+So hopefully,
+希望如此，
+
+346
+00:23:07,510 --> 00:23:11,720
+this is enough to give you a sense about why you need to buffer the data,
+这已经足够让你了解为什么需要对数据进行缓冲了。
+
+347
+00:23:12,990 --> 00:23:16,890
+why I need to buffer to have kennel buffers when you read and write.
+为什么在读写操作时需要使用内核缓冲区？
+
+348
+00:23:23,250 --> 00:23:25,900
+Then there is another operation.
+然后还有另一个操作。
+
+349
+00:23:25,910 --> 00:23:28,320
+It's, again, there are differences.
+又是这样，确实有些差异。
+
+350
+00:23:28,610 --> 00:23:32,100
+While everything is a file that are different between devices,
+虽然一切皆为文件，但设备之间存在差异，
+
+351
+00:23:32,110 --> 00:23:33,740
+like you mentioned last time,
+就像你上次提到的那样，
+
+352
+00:23:33,950 --> 00:23:35,570
+for instance, from a terminal,
+例如，从终端中，
+
+353
+00:23:35,580 --> 00:23:36,620
+you have terminal,
+你有终端。
+
+354
+00:23:36,630 --> 00:23:37,670
+it's only output,
+这只是输出。
+
+355
+00:23:38,770 --> 00:23:40,330
+a printer, it's only output,
+打印机，它只是输出设备。
+
+356
+00:23:40,600 --> 00:23:44,060
+the keyboard it's only input or the mouse, it's only input.
+键盘只是输入设备，鼠标也只是输入设备。
+
+357
+00:23:45,290 --> 00:23:48,360
+Like for instance for the yeah,
+例如，比如说，是的。
+
+358
+00:23:49,130 --> 00:23:53,010
+and then also you may want to configure the other parameters like a printer
+然后你可能还想配置其他参数，比如打印机。
+
+359
+00:23:53,020 --> 00:23:55,330
+to configure the line speed or things like that.
+配置线速或类似的设置。
+
+360
+00:23:55,760 --> 00:24:00,790
+What you are going to do when you have this extra parameters to configure
+当你有额外的参数要配置时，你将要做什么？
+
+361
+00:24:00,800 --> 00:24:05,120
+it for which are particular to a partner to a given device,
+这是特定于给定设备的合作伙伴的功能。
+
+362
+00:24:05,410 --> 00:24:09,330
+then you have this ioctl as a escape batch.
+那么你可以将这个ioctl作为一个逃逸批处理。
+
+363
+00:24:09,630 --> 00:24:14,100
+So that allows you to deal with these specialized particular parameters
+这样可以让你处理这些特定的参数
+
+364
+00:24:14,380 --> 00:24:15,570
+for different devices.
+针对不同的设备。
+
+365
+00:24:16,910 --> 00:24:20,420
+The other one is a double to duplicate the file descriptors.
+另一个是一个双重复制文件描述符的操作。
+
+366
+00:24:20,870 --> 00:24:22,530
+And to duplicate you,
+并且复制你，
+
+367
+00:24:23,140 --> 00:24:24,630
+a can open a file.
+一个可以打开文件。
+
+368
+00:24:25,150 --> 00:24:26,290
+You can get a file descriptors.
+你可以获得文件描述符。
+
+369
+00:24:27,130 --> 00:24:31,690
+And you can, if you want to share that file descriptor to someone else,
+如果你想将该文件描述符分享给其他人，你可以这样做。
+
+370
+00:24:32,240 --> 00:24:32,610
+right?
+是的，正确的。
+
+371
+00:24:32,930 --> 00:24:34,960
+Maybe another thread in the same application,
+也许是同一个应用程序中的另一个线程。
+
+372
+00:24:35,300 --> 00:24:40,690
+or maybe another process for you to another process to operate on the same file,
+或者也许另一个进程可以对同一个文件进行操作，
+
+373
+00:24:40,900 --> 00:24:45,870
+then one way to do it is to create another file descriptors to which point
+那么一种方法是创建另一个文件描述符，将其指向该文件
+
+374
+00:24:46,560 --> 00:24:50,830
+to the same metadata to the same instance of the open file.
+将相同的元数据应用于打开文件的同一实例。
+
+375
+00:24:51,620 --> 00:24:53,330
+We'll show examples of that.
+我们将展示一些例子。
+
+376
+00:24:54,360 --> 00:24:58,630
+The difference between loop two and loop is that we stop to,
+loop two和loop之间的区别在于我们停止到。
+
+377
+00:24:58,640 --> 00:25:02,390
+you can actually specify the file descriptors.
+你实际上可以指定文件描述符。
+
+378
+00:25:03,230 --> 00:25:08,350
+You want to point to the same data structure of open file,
+你想要指向同一个打开文件的数据结构。
+
+379
+00:25:09,330 --> 00:25:09,620
+right?
+对的？
+
+380
+00:25:10,100 --> 00:25:11,140
+With a dupe,
+有一个重复的副本
+
+381
+00:25:12,890 --> 00:25:18,680
+you'll get back the next lowest number available
+你将得到下一个可用的最低数字。
+
+382
+00:25:21,420 --> 00:25:25,830
+step in the file descriptor of the file descriptor numbers,
+将文件描述符的编号作为步骤。
+
+383
+00:25:26,120 --> 00:25:33,120
+the lowest available by it's like, you'll see,
+最低可用的，就像它一样，你会看到的。
+
+384
+00:25:33,130 --> 00:25:36,320
+it's a way to communicate between two processes.
+这是两个进程之间进行通信的一种方式。
+
+385
+00:25:36,550 --> 00:25:38,030
+You can think as a cube.
+你可以把它想象成一个立方体。
+
+386
+00:25:45,260 --> 00:25:49,320
+And we are going to talk about memory mapping, files, file locking,
+我们将讨论内存映射、文件、文件锁定。
+
+387
+00:25:49,330 --> 00:25:50,120
+dancing like that.
+那样跳舞。
+
+388
+00:25:51,710 --> 00:25:52,220
+Now,
+现在，
+
+389
+00:25:53,110 --> 00:25:57,060
+an obvious question here is that why do we have high level and low level
+这里一个显而易见的问题是，为什么我们需要高级和低级的概念？
+
+390
+00:25:57,070 --> 00:26:00,010
+like pis why do we have streams?
+为什么我们需要流（stream）？就像树莓派（Raspberry Pi）一样。
+
+391
+00:26:00,360 --> 00:26:02,180
+And why you have file descriptors?
+为什么你需要文件描述符？
+
+文件描述符是操作系统中用于标识和访问打开文件的一种机制。它是一个非负整数，用于唯一标识一个打开的文件。操作系统使用文件描述符来跟踪和管理文件的状态和访问权限。
+
+文件描述符的存在有以下几个原因：
+
+1. 资源管理：文件描述符允许操作系统跟踪和管理打开的文件。通过文件描述符，操作系统可以知道哪些文件正在被使用，以及它们的状态和访问权限。
+
+2. 文件访问：文件描述符提供了一种统一的方式来访问文件。通过文件描述符，应用程序可以使用标准的系统调用来读取、写入和操作文件，而不需要关心底层的文件实现细节。
+
+3. 进程间通信：文件描述符也可以用于进程间通信。例如，一个进程可以将文件描述符传递给另一个进程，使得它可以访问同一个文件。
+
+总之，文件描述符是操作系统中用于标识和访问打开文件的一种机制，它提供了一种统一的方式来管理文件资源和进行文件访问。
+
+392
+00:26:02,190 --> 00:26:03,700
+Why do you have fo ones?
+你为什么有这么多人？
+
+393
+00:26:04,020 --> 00:26:05,220
+And why do you have open?
+为什么你要打开它？
+
+394
+00:26:05,480 --> 00:26:05,910
+Right?
+对吗？
+
+395
+00:26:09,090 --> 00:26:18,860
+First of all, this is how they compare here.
+首先，这是它们在这里的比较。
+
+396
+00:26:18,870 --> 00:26:21,090
+It's high level operation,
+这是高级操作。
+
+397
+00:26:21,100 --> 00:26:23,370
+which is on streams of bytes.
+这是关于字节流的。
+
+398
+00:26:23,870 --> 00:26:24,260
+Here,
+在这里，
+
+399
+00:26:25,070 --> 00:26:27,860
+it's operation which is on a buffer.
+这是对缓冲区进行的操作。
+
+400
+00:26:28,310 --> 00:26:28,620
+Right?
+对吗？
+
+401
+00:26:30,940 --> 00:26:33,640
+And the files,
+还有这些文件，
+
+402
+00:26:34,110 --> 00:26:40,160
+the stream of bioap are preceded by f with f letter.
+生物应用流以字母f开头。
+
+403
+00:26:40,700 --> 00:26:40,920
+Obviously,
+显然，
+
+404
+00:26:41,450 --> 00:26:42,480
+as a low level,
+作为一个低级别的操作系统，
+
+405
+00:26:42,490 --> 00:26:46,020
+api they don't have any this prefix letter.
+他们的API没有任何以这个前缀字母开头的。
+
+406
+00:26:46,030 --> 00:26:48,420
+So the middle is the same.
+所以中间是一样的。
+
+407
+00:26:48,810 --> 00:26:49,280
+Right?
+对吗？
+
+408
+00:26:49,290 --> 00:26:54,320
+Remember, this are going to be converted to a system call,
+请记住，这些将被转换为系统调用。
+
+409
+00:26:54,990 --> 00:26:58,350
+because this operation are implemented by the kernel.
+因为这些操作是由内核实现的。
+
+410
+00:27:00,050 --> 00:27:01,160
+What happens here?
+这里发生了什么事情？
+
+411
+00:27:01,170 --> 00:27:06,350
+You are going to call invoke the function it in the operating system
+你将要调用操作系统中的函数。
+
+412
+00:27:06,360 --> 00:27:08,900
+by using this kind of trap
+通过使用这种类型的陷阱
+
+413
+00:27:11,600 --> 00:27:14,410
+and special drop instruction.
+以及特殊的跳转指令。
+
+414
+00:27:14,840 --> 00:27:16,090
+And before you do that,
+在你这样做之前，
+
+415
+00:27:16,360 --> 00:27:20,970
+you are going to fill in some registers with the data,
+你需要将一些数据填入寄存器中，
+
+416
+00:27:21,470 --> 00:27:22,630
+for the operating systems,
+对于操作系统来说，
+
+417
+00:27:22,640 --> 00:27:23,710
+for the kernel,
+对于内核来说，
+
+418
+00:27:23,720 --> 00:27:26,230
+to know which files you are referring.
+了解你指的是哪些文件。
+
+419
+00:27:27,020 --> 00:27:27,260
+Right?
+对吗？
+
+420
+00:27:27,270 --> 00:27:31,460
+And what operation you want to perform on that file.
+您想对该文件执行什么操作？
+
+421
+00:27:31,720 --> 00:27:33,110
+And for that operation,
+对于那个操作，
+
+422
+00:27:33,120 --> 00:27:34,310
+what are the arguments?
+参数是什么？
+
+423
+00:27:35,240 --> 00:27:39,650
+This is what you put in registers here just before the trap instruction.
+这是你在陷阱指令之前将放入寄存器中的内容。
+
+424
+00:27:40,290 --> 00:27:43,020
+And then after it was a stop,
+然后在它停下来之后，
+
+425
+00:27:43,030 --> 00:27:45,420
+is after the execute the trap instructions,
+在执行陷阱指令之后，
+
+426
+00:27:46,040 --> 00:27:47,950
+the kernel will take over,
+内核将接管。
+
+427
+00:27:47,960 --> 00:27:49,030
+look at the register.
+看一下寄存器。
+
+428
+00:27:49,040 --> 00:27:50,030
+If you initialize,
+如果你进行初始化操作，
+
+429
+00:27:50,040 --> 00:27:52,950
+is figuring out the file descriptor you are referring to,
+你所指的文件描述符是指确定文件描述符的过程。
+
+430
+00:27:53,720 --> 00:27:56,430
+figure out what is the operation you want to perform,
+弄清楚你想要执行的操作是什么。
+
+431
+00:27:56,440 --> 00:27:58,470
+figure out the arguments of the operation,
+弄清操作的参数
+
+432
+00:27:58,610 --> 00:27:59,880
+which are in other registers,
+这些寄存器中的其他寄存器，
+
+433
+00:27:59,890 --> 00:28:06,330
+perform the operation and then returns back to the users once the operation
+执行操作，然后在操作完成后返回给用户。
+
+434
+00:28:06,340 --> 00:28:07,090
+is performed.
+已执行。
+
+435
+00:28:07,100 --> 00:28:09,050
+And if the return values,
+如果返回值，
+
+436
+00:28:09,220 --> 00:28:14,490
+it's also make sure that put the return value a in the particular register
+还要确保将返回值 a 放在特定的寄存器中。
+
+437
+00:28:14,500 --> 00:28:18,750
+like ex the only difference is that,
+例如，唯一的区别是，
+
+438
+00:28:18,760 --> 00:28:19,770
+as you see,
+正如你所看到的，
+
+439
+00:28:19,780 --> 00:28:21,250
+the afraid,
+害怕的
+
+440
+00:28:22,450 --> 00:28:23,560
+so this is the middle part.
+所以这是中间部分。
+
+441
+00:28:23,570 --> 00:28:24,320
+It's identical.
+它是相同的。
+
+442
+00:28:24,590 --> 00:28:32,070
+The only difference is that the ways afraid with a high level ap is you do
+唯一的区别是，高级应用程序所担心的方式是你所做的事情。
+
+443
+00:28:32,080 --> 00:28:32,550
+a lot
+很多
+
+444
+00:28:32,560 --> 00:28:35,710
+of some work before or after.
+在某项工作之前或之后的一些工作。
+
+445
+00:28:36,010 --> 00:28:38,370
+You invokes the operating system,
+你调用操作系统，
+
+446
+00:28:38,380 --> 00:28:41,720
+you invoke the system call as a user level.
+你以用户级别调用系统调用。
+
+447
+00:28:41,730 --> 00:28:42,640
+You do some more work.
+你需要做更多的工作。
+
+448
+00:28:43,160 --> 00:28:43,470
+Right?
+对吗？
+
+449
+00:28:43,880 --> 00:28:45,430
+That has to do is the fact that,
+这与事实有关，
+
+450
+00:28:45,640 --> 00:28:46,790
+as you will see,
+正如你将会看到的，
+
+451
+00:28:47,520 --> 00:28:49,830
+with the high level ap is,
+高级应用程序是什么意思？
+
+452
+00:28:50,000 --> 00:28:52,250
+we have a buffer not only in the kernel,
+我们不仅在内核中有一个缓冲区，
+
+453
+00:28:52,490 --> 00:28:55,430
+but also we have a buffer in the user level.
+而且我们在用户级别上也有一个缓冲区。
+
+454
+00:29:02,280 --> 00:29:04,440
+This is exactly to illustrate that point.
+这正是为了阐明这一观点。
+
+455
+00:29:04,910 --> 00:29:05,170
+Right?
+对吗？
+
+456
+00:29:06,580 --> 00:29:08,590
+If there are two examples here,
+如果这里有两个例子的话，
+
+457
+00:29:08,980 --> 00:29:11,290
+we try to achieve mostly the same thing,
+我们试图实现大部分相同的目标，
+
+458
+00:29:11,300 --> 00:29:12,740
+but they have different behavior.
+但它们有不同的行为。
+
+459
+00:29:14,440 --> 00:29:16,760
+So in the first case,
+在第一个情况下，
+
+460
+00:29:17,820 --> 00:29:19,410
+you are going to,
+你将要...
+
+461
+00:29:19,420 --> 00:29:21,090
+in both cases, with sprint,
+在这两种情况下，使用Sprint，
+
+462
+00:29:21,100 --> 00:29:24,600
+f printer is at the end of the day,
+f 打印机在一天结束时。
+
+463
+00:29:24,610 --> 00:29:27,590
+it's a right operation to the terminal.
+这是对终端的正确操作。
+
+464
+00:29:28,780 --> 00:29:29,850
+You give a string,
+你给出一个字符串，
+
+465
+00:29:30,210 --> 00:29:31,450
+you bring to the terminal.
+你带到终端。
+
+466
+00:29:31,960 --> 00:29:37,420
+This is a high level api right here.
+这是一个高级API。
+
+467
+00:29:37,430 --> 00:29:42,430
+We have the the same kind of operation,
+我们有相同类型的操作。
+
+468
+00:29:42,440 --> 00:29:44,760
+but using the low level ips right?
+但是使用低级别的IP地址对吗？
+
+469
+00:29:45,280 --> 00:29:49,630
+To standard out to the to the output, to the terminal.
+将标准输出发送到终端。
+
+470
+00:29:51,310 --> 00:29:53,060
+In both cases, what we do,
+在这两种情况下，我们所做的是
+
+471
+00:29:53,070 --> 00:29:55,410
+we write a string,
+我们写一个字符串，
+
+472
+00:29:55,650 --> 00:29:58,520
+the first part of a string begin offline.
+字符串的第一部分开始于"offline"。
+
+473
+00:29:58,800 --> 00:30:00,440
+Then we sleep for 10 seconds.
+然后我们休眠10秒。
+
+474
+00:30:00,650 --> 00:30:04,820
+And then we ride the second part of the string,
+然后我们遍历字符串的第二部分，
+
+475
+00:30:05,280 --> 00:30:09,670
+but which is hence with character, slasher.
+但是这个角色是一个带有斜杠的字符。
+
+476
+00:30:11,050 --> 00:30:11,500
+Okay.
+好的。
+
+477
+00:30:12,500 --> 00:30:14,350
+What is the difference between that?
+那两者之间有什么区别？
+
+478
+00:30:14,360 --> 00:30:16,210
+What is the difference in behavior?
+行为上的差异是什么？
+
+479
+00:30:17,130 --> 00:30:20,480
+The difference in behaviour is at the first one.
+行为上的差异在于第一个。
+
+480
+00:30:20,490 --> 00:30:23,880
+It brings everything at once souls, although you,
+它一次带来了所有的灵魂，尽管你，
+
+481
+00:30:24,030 --> 00:30:25,580
+but in beginning of line,
+但是在行的开头，
+
+482
+00:30:25,900 --> 00:30:31,580
+you don't see anything at the terminal before you also print the end
+在打印"结束"之前，您在终端上看不到任何内容。
+
+483
+00:30:31,590 --> 00:30:32,750
+of the string
+字符串的长度
+
+484
+00:30:33,370 --> 00:30:36,640
+which finishes which ends with carriage bitter.
+这个短语的意思是"哪个结束了，哪个带来了痛苦"。
+
+485
+00:30:38,950 --> 00:30:40,170
+In the second case, again,
+在第二种情况下，同样地，
+
+486
+00:30:40,180 --> 00:30:41,670
+you spring the same thing.
+你重复了同样的事情。
+
+487
+00:30:43,330 --> 00:30:47,380
+You are going to see beginning of line printed,
+你将会看到打印出的行的开头。
+
+488
+00:30:47,930 --> 00:30:49,070
+then slip ten.
+然后滑倒十次。
+
+489
+00:30:49,650 --> 00:30:50,550
+After 10 seconds,
+10秒后，
+
+490
+00:30:50,560 --> 00:30:55,060
+you are going to see the end what happened under the hood?
+你将要看到发生在引擎盖下的结局是什么？
+
+491
+00:30:55,070 --> 00:30:57,020
+And why do you have this behavior?
+为什么你有这种行为？
+
+492
+00:30:57,930 --> 00:30:58,960
+You have the behavior,
+你有这种行为，
+
+493
+00:30:58,970 --> 00:31:00,760
+because in the second case,
+因为在第二种情况下，
+
+494
+00:31:01,170 --> 00:31:03,290
+you have a buffer and that buffer.
+你有一个缓冲区和那个缓冲区。
+
+495
+00:31:03,610 --> 00:31:04,430
+It is a cara.
+这是一辆汽车。
+
+496
+00:31:05,370 --> 00:31:06,920
+You sent to the colonel,
+您发送给了上校，
+
+497
+00:31:06,930 --> 00:31:10,120
+this kind of the first 18 beats beginning of line.
+这是一种以前18个节拍为一行的方式。
+
+498
+00:31:10,860 --> 00:31:13,800
+And then the kernel is going to print on the terminal,
+然后内核将在终端上打印输出，
+
+499
+00:31:13,810 --> 00:31:16,750
+the second one.
+第二个。
+
+500
+00:31:17,110 --> 00:31:20,210
+And then when you send the last a 16 beats,
+然后当你发送最后的16个节拍时，
+
+501
+00:31:20,550 --> 00:31:25,240
+the colonel beautifully will print the end, right?
+这位上校会漂亮地打印出结果，对吗？
+
+502
+00:31:25,250 --> 00:31:28,120
+Of the of the sentence.
+这个句子有点问题，可能是输入错误。请提供正确的句子，我会帮您翻译成中文。
+
+503
+00:31:30,290 --> 00:31:31,480
+In contrast,
+相比之下，
+
+504
+00:31:31,890 --> 00:31:35,750
+with a stream level interface,
+使用流级别接口
+
+505
+00:31:36,260 --> 00:31:37,700
+you have another buffer,
+你有另一个缓冲区，
+
+506
+00:31:38,100 --> 00:31:39,800
+which is in the application level.
+这是在应用层级别上。
+
+507
+00:31:41,000 --> 00:31:47,240
+You don't directly write in the back kernel buffer.
+你不能直接写入后端内核缓冲区。
+
+508
+00:31:47,550 --> 00:31:49,470
+You write in the application buffer.
+你可以在应用程序缓冲区中写入数据。
+
+509
+00:31:50,930 --> 00:31:55,670
+And the application buffer is written to the kennel buffer.
+应用程序缓冲区被写入内核缓冲区。
+
+510
+00:31:55,900 --> 00:31:57,110
+Only when you have,
+只有当你拥有时，
+
+511
+00:31:57,120 --> 00:31:58,510
+in this particular case,
+在这种特殊情况下，
+
+512
+00:31:58,520 --> 00:32:05,280
+when you encounter the slash character,
+当你遇到斜杠字符时，
+
+513
+00:32:05,290 --> 00:32:06,640
+like the end of line character.
+像是换行符一样。
+
+514
+00:32:08,390 --> 00:32:11,220
+In this case, he printed beginning of line.
+在这种情况下，他打印了行的开头。
+
+515
+00:32:11,470 --> 00:32:13,840
+This is going to do application buffer.
+这将用于应用程序缓冲区。
+
+516
+00:32:13,850 --> 00:32:16,260
+Nothing happens after 10 seconds.
+10秒过去了，什么都没有发生。
+
+517
+00:32:16,590 --> 00:32:22,040
+You at end of line in the application buffer.
+你在应用程序缓冲区的末尾。
+
+518
+00:32:22,300 --> 00:32:25,480
+And then only now because you have this kind of line feet.
+现在才是因为你有这种线脚。
+
+519
+00:32:26,270 --> 00:32:28,410
+So the end of line,
+所以行尾，
+
+520
+00:32:28,950 --> 00:32:35,620
+it's the entire application buffer is is written in the kernel buffer.
+整个应用程序缓冲区被写入内核缓冲区。
+
+521
+00:32:36,080 --> 00:32:42,150
+They cannot will the right on the terminal as the entire centers.
+他们无法将终端上的权限赋予整个中心。
+
+522
+00:32:44,090 --> 00:32:44,840
+Does it make sense?
+这有意义吗？
+
+523
+00:32:52,690 --> 00:32:53,640
+That's what happens.
+就是这样发生的。
+
+524
+00:32:54,490 --> 00:32:58,720
+Now, what is it the file disk file of into the file?
+现在，文件磁盘文件是什么意思？
+
+525
+00:32:59,000 --> 00:32:59,830
+Data structure?
+数据结构
+
+526
+00:32:59,840 --> 00:33:03,910
+Again, this pointer to a file data structure is returned by the high level.
+高级别返回的是指向文件数据结构的指针。
+
+527
+00:33:03,920 --> 00:33:05,190
+Ap is by f open.
+Ap是由f打开的。
+
+528
+00:33:06,000 --> 00:33:07,350
+You have the file descriptors.
+你拥有文件描述符。
+
+529
+00:33:07,360 --> 00:33:11,670
+This is the one which is returned by the low level api which is the side integer.
+这是由低级API返回的一个整数值。
+
+530
+00:33:12,810 --> 00:33:14,880
+You have the buffer, like I mentioned,
+你有缓冲区，就像我之前提到的一样。
+
+531
+00:33:14,890 --> 00:33:16,600
+mister buffer we are talking about,
+先生，我们正在谈论的是缓冲区。
+
+532
+00:33:16,610 --> 00:33:18,560
+you have us at the application level.
+你们在应用层面上操作。
+
+533
+00:33:19,160 --> 00:33:20,420
+You also have a lock,
+你也有一把锁，
+
+534
+00:33:20,430 --> 00:33:24,860
+in case there are multiple threads using the file concurrently.
+如果有多个线程同时使用文件的情况下。
+
+535
+00:33:25,110 --> 00:33:28,180
+Then you want to lock and you have only one thread accessing the file
+那么你想要进行锁定，且只有一个线程访问该文件。
+
+536
+00:33:28,190 --> 00:33:29,100
+at the same time.
+同时。
+
+537
+00:33:29,730 --> 00:33:31,730
+Remember about the concurrency discussion,
+请记住并发讨论，
+
+538
+00:33:31,740 --> 00:33:34,850
+we had last lecture.
+我们上次有一节课。
+
+539
+00:33:39,050 --> 00:33:41,290
+There are many other things in the file data,
+文件数据中还有许多其他内容。
+
+540
+00:33:41,550 --> 00:33:42,790
+in the file data structures,
+在文件数据结构中，
+
+541
+00:33:42,800 --> 00:33:47,090
+but this is we are not going to discuss us now.
+但是现在我们不打算讨论这个。
+
+542
+00:33:47,810 --> 00:33:48,050
+Right?
+对吗？
+
+543
+00:33:48,060 --> 00:33:50,170
+So now when you call af right?
+那么现在当你调用 af 对吗？
+
+544
+00:33:50,720 --> 00:33:56,110
+Or any kind of high level apia stream,
+或者任何类型的高级API流，
+
+545
+00:33:56,120 --> 00:34:02,270
+api what happens to the data you provide is a following you get to write is
+API是应用程序编程接口的缩写。当你提供数据给API时，接下来会发生什么取决于你要编写的代码。
+
+546
+00:34:02,280 --> 00:34:03,110
+a files buffer,
+文件缓冲区
+
+547
+00:34:03,120 --> 00:34:04,270
+this application buffer.
+这是一个应用程序缓冲区。
+
+548
+00:34:04,660 --> 00:34:06,000
+This is exactly what I mentioned.
+这正是我所提到的。
+
+549
+00:34:07,820 --> 00:34:09,120
+And then you have to fly.
+然后你必须飞行。
+
+550
+00:34:09,130 --> 00:34:14,150
+And then this application buffer or file buffer is written as a kennel buffer.
+然后，这个应用程序缓冲区或文件缓冲区被写入为内核缓冲区。
+
+551
+00:34:14,160 --> 00:34:14,670
+Any flushing.
+任何刷新操作。
+
+552
+00:34:14,680 --> 00:34:20,950
+You have a special inter instruction to flush in the particular case
+在特定情况下，你有一个特殊的内部指令来进行刷新操作。
+
+553
+00:34:20,960 --> 00:34:24,480
+of the print f it is flashed when you get the line fit.
+当你得到线性拟合的结果时，如果打印出 "f"，则表示它已经被闪烁。
+
+554
+00:34:27,890 --> 00:34:29,550
+So that's basically what it is.
+所以基本上就是这样。
+
+555
+00:34:34,460 --> 00:34:35,330
+What does this mean?
+这是什么意思？
+
+556
+00:34:35,580 --> 00:34:36,570
+When you write code,
+当你编写代码时，
+
+557
+00:34:36,580 --> 00:34:40,490
+you make the weakest possible assumption about how data is flushed
+你对数据刷新的假设是最弱的可能。
+
+558
+00:34:41,050 --> 00:34:42,680
+from the file buffer.
+从文件缓冲区中。
+
+559
+00:34:42,890 --> 00:34:44,040
+We need to make that assumption.
+我们需要做出这个假设。
+
+560
+00:34:44,630 --> 00:34:45,870
+And why is that important?
+为什么这很重要？
+
+561
+00:34:46,380 --> 00:34:50,270
+So your application in your application,
+所以你的应用程序中有一个应用程序？
+
+562
+00:34:50,280 --> 00:34:52,940
+you write yourself, right?
+你是自己写的，对吗？
+
+563
+00:34:53,720 --> 00:34:54,710
+From your point of view,
+从你的角度来看，
+
+564
+00:34:54,720 --> 00:34:59,030
+you may think that all these data already made it onto the disk.
+你可能会认为所有这些数据已经成功写入磁盘了。
+
+565
+00:34:59,850 --> 00:35:00,250
+Right?
+对吗？
+
+566
+00:35:01,220 --> 00:35:02,470
+But that's not the case.
+但事实并非如此。
+
+567
+00:35:03,420 --> 00:35:04,750
+If you have a failure,
+如果你遇到故障，
+
+568
+00:35:05,140 --> 00:35:06,520
+just after an f right?
+刚刚在一个 f 之后吗？
+
+569
+00:35:06,800 --> 00:35:10,150
+You are not guaranteed as a beta you wrote, is making all the disk.
+你不能保证你所写的beta版本会对所有的磁盘进行操作。
+
+570
+00:35:12,340 --> 00:35:13,350
+In order to do that,
+为了做到这一点，
+
+571
+00:35:13,360 --> 00:35:15,110
+you need to make sure that is flushed.
+你需要确保它已经被刷新。
+
+572
+00:35:15,120 --> 00:35:18,370
+The data is flushed to the kernel, and actually,
+数据被刷新到内核中，实际上，
+
+573
+00:35:18,380 --> 00:35:19,530
+and then from,
+然后从，
+
+574
+00:35:19,540 --> 00:35:22,730
+and then the kernel is going to make sure that it's going to be return
+然后内核会确保它会被返回
+
+575
+00:35:22,740 --> 00:35:23,250
+on the risk.
+关于风险。
+
+576
+00:35:27,220 --> 00:35:32,620
+So need to be careful about that.
+所以需要小心注意这一点。
+
+577
+00:35:32,630 --> 00:35:39,330
+And this is a reminder for you how use a high level cpi
+这是一个提醒，告诉你如何使用高级CPI。
+
+578
+00:35:40,610 --> 00:35:42,970
+to in this particular case,
+在这种特殊情况下，
+
+579
+00:35:44,480 --> 00:35:47,450
+to write and read.
+写入和读取。
+
+580
+00:35:47,830 --> 00:35:55,720
+And this is another important aspect to allow you to understand the
+这是另一个重要方面，让你能够理解
+
+581
+00:35:55,730 --> 00:35:58,960
+subtleties associated with this high level interface.
+与这个高级接口相关的微妙之处。
+
+582
+00:35:59,500 --> 00:36:01,160
+In this code, what you have,
+在这段代码中，你拥有的是什么？
+
+583
+00:36:01,170 --> 00:36:07,810
+I have a character c and I am going to write it in a file dot text.
+我有一个字符 c，我打算将它写入一个名为 dot text 的文件中。
+
+584
+00:36:08,370 --> 00:36:11,480
+Then i'm going to open the file.
+然后我要打开这个文件。
+
+585
+00:36:11,960 --> 00:36:12,720
+Again,
+请再说一遍。
+
+586
+00:36:13,590 --> 00:36:16,310
+this is another descriptor here, f two.
+这是另一个描述符，编号为 f two。
+
+587
+00:36:16,680 --> 00:36:19,430
+And i'm going to read from that file.
+我将从那个文件中读取数据。
+
+588
+00:36:20,510 --> 00:36:20,960
+Okay?
+好的？
+
+589
+00:36:21,630 --> 00:36:23,410
+You write a character in the file,
+你在文件中写入一个字符。
+
+590
+00:36:23,850 --> 00:36:28,980
+and you are going to read the character from the same file using different files,
+而且你将使用不同的文件从同一个文件中读取字符。
+
+591
+00:36:29,270 --> 00:36:29,900
+pointers.
+指针。
+
+592
+00:36:32,920 --> 00:36:34,150
+What happens in this case?
+在这种情况下会发生什么？
+
+593
+00:36:34,900 --> 00:36:35,300
+Right?
+对吗？
+
+594
+00:36:38,900 --> 00:36:39,620
+That happen?
+发生了什么事情？
+
+595
+00:36:51,600 --> 00:36:51,910
+Sorry,
+抱歉，
+
+596
+00:36:52,840 --> 00:36:57,230
+you initialize x here to c and what you're writing the file is b not c sorry,
+你在这里将x初始化为c，但是你写入文件的是b而不是c，抱歉。
+
+597
+00:36:57,240 --> 00:37:00,810
+ii then the question, what you are going to get,
+然后问题是，你将得到什么？
+
+598
+00:37:02,960 --> 00:37:05,270
+you are going to get an anatomic behavior.
+你将会得到一个解剖学行为。
+
+599
+00:37:07,110 --> 00:37:08,750
+When you read here,
+当你读到这里时，
+
+600
+00:37:09,100 --> 00:37:15,380
+you can have c or you can have b so why is that?
+你可以选择C，也可以选择B，那么为什么会这样呢？
+
+601
+00:37:17,710 --> 00:37:19,260
+Can someone say it?
+有人可以说一下吗？
+
+602
+00:37:32,470 --> 00:37:33,540
+There are two questions here,
+这里有两个问题：
+
+603
+00:37:33,550 --> 00:37:34,900
+so please try to,
+所以请尽量，
+
+604
+00:37:37,980 --> 00:37:39,150
+yes, that's very good.
+是的，非常好。
+
+605
+00:37:40,670 --> 00:37:41,900
+So to answer this question,
+所以要回答这个问题，
+
+606
+00:37:41,910 --> 00:37:45,460
+and then I there is an answer to my question.
+然后我得到了对我的问题的答案。
+
+607
+00:37:46,400 --> 00:37:50,030
+The answer to my question is that why you can get deterministic behavior?
+为什么可以获得确定性行为的答案是什么？
+
+608
+00:37:50,040 --> 00:37:57,940
+Because you don't know any the when the files buffer is flashed to disk.
+因为你不知道文件缓冲区何时被刷新到磁盘。
+
+609
+00:37:58,230 --> 00:37:58,420
+Right?
+对吗？
+
+610
+00:37:58,430 --> 00:37:59,340
+So what can happen?
+那么会发生什么呢？
+
+611
+00:37:59,350 --> 00:38:00,020
+Remember,
+记住，
+
+612
+00:38:00,460 --> 00:38:04,750
+when you are going to write b that b is written in the file buffer
+当你要写入文件缓冲区的b时，你什么时候写入？
+
+613
+00:38:05,080 --> 00:38:05,910
+in the file buffer,
+在文件缓冲区中，
+
+614
+00:38:06,650 --> 00:38:08,320
+which is associated with effort.
+与努力相关。
+
+615
+00:38:08,880 --> 00:38:10,450
+Now you open f two.
+现在你打开了文件 f two。
+
+616
+00:38:10,650 --> 00:38:13,360
+And now this is going to create another file buffer,
+现在这将创建另一个文件缓冲区，
+
+617
+00:38:13,370 --> 00:38:17,640
+which is a social reserve to when you read it,
+当你阅读它时，它是一种社交储备。
+
+618
+00:38:18,170 --> 00:38:23,600
+if this b didn't make it from the file buffer of f one to the kernel buffer
+如果这个b没有从文件缓冲区f的一个位置成功传输到内核缓冲区。
+
+619
+00:38:23,610 --> 00:38:24,680
+and to the disk,
+并写入磁盘中，
+
+620
+00:38:25,320 --> 00:38:27,340
+what you are going, you are not going to read it.
+你在做什么，你不会读它的。
+
+621
+00:38:30,740 --> 00:38:31,870
+If it made it,
+如果它成功了，
+
+622
+00:38:32,320 --> 00:38:35,450
+then you are going to really be okay.
+那你真的会没事的。
+
+623
+00:38:36,360 --> 00:38:38,670
+Basically, here you write b in a file buffer,
+基本上，这里你将 b 写入一个文件缓冲区中，
+
+624
+00:38:39,410 --> 00:38:41,580
+and you are going to read from a different file buffer.
+而且你将从一个不同的文件缓冲区中读取。
+
+625
+00:38:44,980 --> 00:38:48,860
+If b didn't make it from this file buffer or have fun to the disk,
+如果b没有从文件缓冲区成功传输或保存到磁盘中，
+
+626
+00:38:49,850 --> 00:38:55,540
+then it's available when you are going to open the second the file using
+那么当你打开第二个文件时，它就可用了。
+
+627
+00:38:55,550 --> 00:38:56,820
+another file descriptor,
+另一个文件描述符
+
+628
+00:38:57,230 --> 00:39:01,320
+you are not going to cb now,
+你现在不打算去上厕所了。
+
+629
+00:39:01,330 --> 00:39:06,840
+there are two other questions on the second point.
+第二点还有另外两个问题。
+
+630
+00:39:07,110 --> 00:39:09,340
+Does it mean that if a file buffer is full,
+这是否意味着如果文件缓冲区已满，
+
+631
+00:39:09,350 --> 00:39:10,540
+then the buffer is flushed.
+然后缓冲区被刷新。
+
+632
+00:39:11,350 --> 00:39:13,300
+If the file buffer is full, it is flushed.
+如果文件缓冲区已满，则会进行刷新。
+
+633
+00:39:14,260 --> 00:39:17,040
+There are other policies you have no control of.
+有其他政策是你无法控制的。
+
+634
+00:39:17,630 --> 00:39:22,910
+When with a file buffer can be flushed periodically even before it's full.
+当使用文件缓冲区时，可以在其未满之前定期刷新。
+
+635
+00:39:23,670 --> 00:39:25,650
+After you have data stay too much,
+当数据停留时间过长时，
+
+636
+00:39:25,660 --> 00:39:26,690
+maybe in the file buffer,
+可能在文件缓冲区中。
+
+637
+00:39:27,500 --> 00:39:28,780
+or you can do it explicitly.
+或者你可以明确地做这件事。
+
+638
+00:39:29,180 --> 00:39:31,930
+There is a flash comment like a mesh.
+有一个闪光的评论，就像一个网状结构。
+
+639
+00:39:33,660 --> 00:39:40,010
+Why do we have to make the weakest possible assumptions on when file is flushed?
+为什么我们要在文件刷新时做出最弱的假设？
+
+640
+00:39:41,030 --> 00:39:45,220
+It's again because you do not know unless you flash it explicitly,
+这是因为你不明白，除非你明确地刷新它，否则你不会知道。
+
+641
+00:39:45,620 --> 00:39:48,980
+you do not know when the file buffer is flashed to the kelvin.
+你不知道文件缓冲区何时被刷新到内核。
+
+642
+00:39:52,390 --> 00:39:52,810
+Okay?
+好的？
+
+643
+00:39:56,810 --> 00:39:57,520
+Let me see.
+让我看看。
+
+644
+00:39:57,530 --> 00:39:58,840
+There are some other questions.
+还有一些其他问题。
+
+645
+00:40:00,860 --> 00:40:06,550
+Is there a way to atomic to do atomic file operations?
+有没有一种方法可以执行原子文件操作？
+
+646
+00:40:08,390 --> 00:40:13,620
+There is no easy way to do atomic file atomic operation.
+没有简单的方法来执行原子文件操作。
+
+647
+00:40:13,630 --> 00:40:14,660
+You can do that.
+你可以这样做。
+
+648
+00:40:16,440 --> 00:40:18,480
+And we are going to learn how to do it.
+我们将学习如何做到这一点。
+
+649
+00:40:20,340 --> 00:40:26,460
+But one of the original designs of decision design decision in unix
+但是Unix中的决策设计决策之一的原始设计之一
+
+650
+00:40:26,800 --> 00:40:28,310
+was to not support
+不支持
+
+651
+00:40:28,320 --> 00:40:31,870
+transaction semantics when you update the fast.
+当您更新快速存储时的事务语义。
+
+652
+00:40:32,450 --> 00:40:33,760
+That's where you have database,
+那就是你拥有数据库的地方。
+
+653
+00:40:34,560 --> 00:40:35,750
+but you say you can do it,
+是的，我可以帮你翻译英文成中文。请提供需要翻译的英文内容。
+
+654
+00:40:35,760 --> 00:40:40,080
+but you don't have an operation to do it on an f right?
+但是你没有对 f 进行操作的方法，对吗？
+
+655
+00:40:40,090 --> 00:40:41,360
+If the buffer is flushed,
+如果缓冲区被刷新，
+
+656
+00:40:41,370 --> 00:40:44,400
+does the input data go into the newly cleaned buffer?
+输入数据是否进入新清理过的缓冲区？
+
+657
+00:40:44,860 --> 00:40:48,420
+Or does it get written to file as part of the flush?
+或者它会作为刷新的一部分被写入文件吗？
+
+658
+00:40:49,380 --> 00:40:50,960
+If it's flashed the flush?
+如果它已经被刷新了，那么是被冲洗了吗？
+
+659
+00:40:51,190 --> 00:40:52,360
+It's you can think,
+你可以这样想，
+
+660
+00:40:52,370 --> 00:40:53,680
+as an atomic operation,
+作为一个原子操作，
+
+661
+00:40:54,240 --> 00:40:57,370
+you flush it, and then you write in the buffer.
+你将其刷新，然后在缓冲区中写入。
+
+662
+00:41:06,320 --> 00:41:08,200
+Does file buffer have a default size?
+文件缓冲区有默认大小吗？
+
+663
+00:41:08,210 --> 00:41:10,720
+Or does it depend on the size of the file being open?
+还是取决于打开的文件大小呢？
+
+664
+00:41:12,500 --> 00:41:13,700
+That's a great question.
+这是一个很好的问题。
+
+665
+00:41:13,990 --> 00:41:16,180
+Ii think i'll check,
+我想我会检查一下。
+
+666
+00:41:16,190 --> 00:41:17,690
+but as far as I know,
+但据我所知，
+
+667
+00:41:17,700 --> 00:41:19,410
+you have a default size,
+你有一个默认大小。
+
+668
+00:41:20,040 --> 00:41:23,770
+which you may be able to recall to configure.
+你可能会回忆起来进行配置。
+
+669
+00:41:25,000 --> 00:41:26,590
+But from what I remember,
+但是根据我记得的，
+
+670
+00:41:26,600 --> 00:41:27,870
+it's a default size.
+这是默认大小。
+
+671
+00:41:29,830 --> 00:41:30,500
+Let's move on.
+让我们继续吧。
+
+672
+00:41:30,510 --> 00:41:32,460
+We have still a lot of things to cover.
+我们还有很多事情要讲解。
+
+673
+00:41:34,560 --> 00:41:37,260
+So writing the correct code is,
+所以正确的代码是：
+
+674
+00:41:37,270 --> 00:41:38,660
+like I mentioned to you,
+就像我之前跟你提到的一样，
+
+675
+00:41:39,050 --> 00:41:41,510
+is basically you have to flash the data.
+基本上，你需要刷新数据。
+
+676
+00:41:41,860 --> 00:41:44,810
+Now, this is the explicit command.
+现在，这是明确的命令。
+
+677
+00:41:45,350 --> 00:41:47,800
+I mentioned to you ff flush.
+我之前提到了ff flush。
+
+678
+00:41:48,620 --> 00:41:49,210
+Now,
+现在，
+
+679
+00:41:49,220 --> 00:41:53,120
+you are going to flush to force the file buffer being flushed
+你要执行刷新操作以强制刷新文件缓冲区。
+
+680
+00:41:56,600 --> 00:41:58,020
+with the flow level appear.
+随着流量水平的出现。
+
+681
+00:41:58,030 --> 00:42:01,860
+We don't have this problem because you are going to write in the buffer
+我们不会遇到这个问题，因为你将要写入缓冲区中。
+
+682
+00:42:01,870 --> 00:42:03,630
+or in the kernel,
+或者在内核中，
+
+683
+00:42:03,840 --> 00:42:05,630
+and both the scripters,
+还有脚本编写者，
+
+684
+00:42:05,640 --> 00:42:10,710
+when i'm going to open the file of the descriptor for the same file,
+当我要打开同一个文件的描述符时，
+
+685
+00:42:10,920 --> 00:42:14,260
+they are going to see the same kernel buffer.
+他们将会看到相同的内核缓冲区。
+
+686
+00:42:16,670 --> 00:42:16,900
+Right?
+对吗？
+
+687
+00:42:17,150 --> 00:42:18,860
+When you have on a right completes,
+当你穿上一件合适的衣服时，
+
+688
+00:42:18,870 --> 00:42:20,660
+is going to be visible to secrecy,
+将会对保密性可见。
+
+689
+00:42:20,670 --> 00:42:21,780
+subsequent rates.
+后续费率。
+
+690
+00:42:23,880 --> 00:42:28,020
+Now, the key question, which I expected to get and I didn't,
+现在，关键问题是我预期会得到但没有得到的问题，
+
+691
+00:42:28,330 --> 00:42:29,990
+but it's a very natural question.
+但这是一个非常自然的问题。
+
+692
+00:42:30,620 --> 00:42:32,140
+The key question,
+关键问题是，
+
+693
+00:42:32,350 --> 00:42:37,700
+why do you have a buffer in in the user as a user level?
+为什么在用户级别中有一个缓冲区？
+
+694
+00:42:37,710 --> 00:42:39,540
+So why do you have the file buffer?
+那么为什么需要文件缓冲区呢？
+
+695
+00:42:39,770 --> 00:42:41,500
+When you already have a kernel buffer?
+当你已经有一个内核缓冲区时？
+
+696
+00:42:44,490 --> 00:42:48,710
+The answer is one of the answers is performance.
+答案之一是性能。
+
+697
+00:42:52,290 --> 00:42:54,330
+If you write a character at that time,
+如果你在那个时候写一个字符，
+
+698
+00:42:55,770 --> 00:43:01,930
+if you use a stream api you are going to write the character in the file buffer.
+如果你使用流API，你将会将字符写入文件缓冲区。
+
+699
+00:43:02,880 --> 00:43:04,090
+This is a user level.
+这是用户级别。
+
+700
+00:43:04,850 --> 00:43:06,290
+It's just a function call.
+这只是一个函数调用。
+
+701
+00:43:08,340 --> 00:43:17,760
+If you want to write one character using the low level api that's a system call.
+如果你想使用低级API来写入一个字符，那就需要使用系统调用。
+
+702
+00:43:18,390 --> 00:43:25,210
+It requires context switching to the kernel and a system called,
+这需要进行内核的上下文切换和一个称为的系统。
+
+703
+00:43:25,490 --> 00:43:28,120
+because the contact switching to the kernel is
+因为上下文切换到内核
+
+704
+00:43:28,130 --> 00:43:31,850
+far more expensive than a local function,
+比本地函数要贵得多
+
+705
+00:43:34,310 --> 00:43:34,710
+right?
+是的，正确的。
+
+706
+00:43:35,460 --> 00:43:37,700
+Which is 25 times more expensive.
+比较贵25倍。
+
+707
+00:43:38,760 --> 00:43:40,960
+So let me put it this way, and you should try it.
+所以让我这样说吧，你应该试试看。
+
+708
+00:43:42,690 --> 00:43:43,550
+If you write,
+如果你写的话，
+
+709
+00:43:44,720 --> 00:43:47,180
+say, 1,000 characters,
+说，1,000个字符。
+
+710
+00:43:47,190 --> 00:43:49,700
+but it was a 10,000 characters.
+但是它有10,000个字符。
+
+711
+00:43:52,040 --> 00:43:54,290
+If you write it character by character,
+如果你逐个字符地写下来，
+
+712
+00:43:55,330 --> 00:44:03,060
+using the high level api will be much faster than writing character by
+使用高级API比逐个字符编写要快得多。
+
+713
+00:44:03,070 --> 00:44:08,830
+character using the low level api because in the first case,
+在第一种情况下，使用低级API来处理字符。
+
+714
+00:44:08,840 --> 00:44:13,190
+you are going to have a contact switching only when the buffer file buffer
+当缓冲文件缓冲区时，你将进行一次联系切换。
+
+715
+00:44:13,200 --> 00:44:13,910
+is flashed.
+已经刷写完成。
+
+716
+00:44:16,240 --> 00:44:18,160
+While in the second case, you have contact switching.
+在第二种情况下，你会进行上下文切换。
+
+717
+00:44:18,510 --> 00:44:21,050
+Every time you write a character.
+每次你输入一个字符。
+
+718
+00:44:26,500 --> 00:44:26,890
+Sorry.
+抱歉。
+
+719
+00:44:32,030 --> 00:44:36,260
+The other thing is that you can implement more sophisticated things
+另外一件事是你可以实现更复杂的功能。
+
+720
+00:44:36,270 --> 00:44:37,060
+as the user level.
+作为用户级别。
+
+721
+00:44:38,490 --> 00:44:38,860
+Right?
+对吗？
+
+722
+00:44:43,310 --> 00:44:45,020
+The second point here about, I guess,
+这里的第二点，我猜是指...
+
+723
+00:44:45,030 --> 00:44:47,100
+see what I told you about,
+看看我跟你说的东西，
+
+724
+00:44:47,410 --> 00:44:51,800
+but I think it also apply about writing, about reading.
+但我认为这也适用于写作和阅读。
+
+725
+00:44:52,530 --> 00:44:53,020
+Right?
+对吗？
+
+726
+00:44:53,350 --> 00:44:56,180
+Because when you read, you can have the entire blog,
+因为当你阅读时，你可以获得整个博客的内容。
+
+727
+00:44:56,400 --> 00:44:58,430
+which will be transferring the file bar for us.
+将为我们传输文件栏。
+
+728
+00:44:58,680 --> 00:45:03,550
+And then when you do the fgsc on the next character,
+然后当你在下一个字符上执行fgsc时，
+
+729
+00:45:03,790 --> 00:45:05,460
+then to get the next character,
+然后获取下一个字符，
+
+730
+00:45:05,470 --> 00:45:07,500
+you are going to be a local call,
+你将成为一个本地电话。
+
+731
+00:45:07,510 --> 00:45:10,020
+because the block is already in the file buffer.
+因为该块已经在文件缓冲区中。
+
+732
+00:45:10,350 --> 00:45:12,420
+If the block is only on the kernel buffer,
+如果块只在内核缓冲区中，
+
+733
+00:45:12,650 --> 00:45:16,340
+then every time you get the next characters with a low level,
+那么每次你以低级别获取下一个字符时，
+
+734
+00:45:16,350 --> 00:45:18,440
+api is going to be a context such.
+API将成为一个上下文。
+
+735
+00:45:19,950 --> 00:45:22,180
+Hopefully, this is clarify a few things.
+希望这能澄清一些事情。
+
+736
+00:45:24,990 --> 00:45:30,100
+Aa system called a system cooperation are less kept are system cooperation,
+一个被称为系统协作的系统，其保留的系统协作较少。
+
+737
+00:45:30,110 --> 00:45:30,940
+which is a low level.
+这是一个低级别的操作。
+
+738
+00:45:30,950 --> 00:45:32,180
+Apis are, in general,
+APIs（应用程序接口）通常是一种定义了软件组件之间交互的规范。它们允许不同的应用程序之间共享数据和功能，以实现更高级的功能。APIs可以用于访问操作系统的功能，访问硬件设备，或者与其他应用程序进行通信。通过使用APIs，开发人员可以更轻松地构建和集成不同的软件组件，提高开发效率和灵活性。
+
+739
+00:45:32,950 --> 00:45:34,260
+less capable.
+能力较弱。
+
+740
+00:45:34,490 --> 00:45:37,260
+You can have more functions like formatting, right?
+你可以拥有更多的功能，比如格式化，对吗？
+
+741
+00:45:37,270 --> 00:45:38,220
+As a high level.
+作为一个高级别。
+
+742
+00:45:38,610 --> 00:45:43,320
+Why it's important is because you want the kernel to be as small as possible.
+之所以重要是因为你希望内核尽可能小。
+
+743
+00:45:43,720 --> 00:45:43,730
+Right?
+对吗？
+
+744
+00:45:43,740 --> 00:45:44,310
+You aren't,
+你不是。
+
+745
+00:45:44,320 --> 00:45:47,790
+because I care anything resident to the always residents in the memory.
+因为我关心内存中始终驻留的所有居民。
+
+746
+00:45:47,800 --> 00:45:51,160
+And it's not only that if you have less code,
+不仅如此，如果你的代码量较少，
+
+747
+00:45:51,510 --> 00:45:54,580
+it's less chances to introduce box.
+引入盒子的机会较少。
+
+748
+00:45:55,190 --> 00:45:55,520
+Right?
+对吗？
+
+749
+00:45:57,460 --> 00:46:00,070
+So that's why this is another reason for it.
+这就是另一个原因。
+
+750
+00:46:00,080 --> 00:46:05,900
+You have stream api in high level api and low level system.
+在高级API和低级系统中，您有流API。
+
+751
+00:46:05,910 --> 00:46:10,070
+Api is because you can add more functionality in the file level,
+API是因为你可以在文件级别上添加更多功能。
+
+752
+00:46:10,080 --> 00:46:18,750
+api without making the kernel more complex process state for file skippers.
+为文件跳过器提供不增加内核复杂性的API，处理进程状态。
+
+753
+00:46:18,760 --> 00:46:19,980
+Let's move quickly.
+我们快点行动吧。
+
+754
+00:46:21,530 --> 00:46:22,800
+Here we are doing,
+我们正在进行的是，
+
+755
+00:46:23,130 --> 00:46:26,320
+let's see how the state is maintained in the kernel.
+让我们看看内核是如何维护状态的。
+
+756
+00:46:26,910 --> 00:46:27,370
+Right?
+对吗？
+
+757
+00:46:27,770 --> 00:46:29,790
+Recall on a successful code to open,
+回顾一段成功的打开代码。
+
+758
+00:46:29,800 --> 00:46:31,240
+you have a file descriptor.
+你有一个文件描述符。
+
+759
+00:46:31,250 --> 00:46:34,150
+It's returned to the user and an open,
+它被返回给用户并处于打开状态，
+
+760
+00:46:35,470 --> 00:46:36,780
+open file description.
+打开文件描述符。
+
+761
+00:46:36,790 --> 00:46:41,410
+So the state associated with that file descriptor is created in the cattle.
+因此，与该文件描述符相关联的状态是在内核中创建的。
+
+762
+00:46:42,230 --> 00:46:42,250
+Right?
+对吗？
+
+763
+00:46:42,260 --> 00:46:43,750
+When the feature system calls,
+当特性系统调用时，
+
+764
+00:46:43,760 --> 00:46:48,110
+the camera looks to the open file description using the file descriptor.
+相机使用文件描述符来查看打开的文件描述符。
+
+765
+00:46:48,630 --> 00:46:48,950
+Right?
+对吗？
+
+766
+00:46:49,450 --> 00:46:49,940
+Okay?
+好的？
+
+767
+00:46:53,230 --> 00:46:56,760
+Is a very simple of far code here.
+这里有一个非常简单的远程代码。
+
+768
+00:46:57,040 --> 00:46:58,110
+This is a code.
+这是一段代码。
+
+769
+00:46:58,120 --> 00:46:59,190
+We have two buffers,
+我们有两个缓冲区，
+
+770
+00:46:59,470 --> 00:47:00,710
+buffer on and buffer two,
+缓冲区一和缓冲区二
+
+771
+00:47:00,720 --> 00:47:07,180
+and we are using the system calls a low level calls to read from food or text.
+我们正在使用系统调用作为低级调用来从文件或文本中读取数据。
+
+772
+00:47:07,700 --> 00:47:10,910
+We want to eat the first 100 bytes in buffalo one,
+我们想要吃掉buffalo one中的前100个字节。
+
+773
+00:47:10,920 --> 00:47:13,120
+the second 51 100 bytes in buffer.
+缓冲区中的第二个 51 到 100 字节。
+
+774
+00:47:14,030 --> 00:47:14,310
+Right?
+对吗？
+
+775
+00:47:19,710 --> 00:47:21,220
+The important.here,
+这里的重要之处是，
+
+776
+00:47:21,230 --> 00:47:22,340
+it's about the lock.
+这是关于锁的问题。
+
+777
+00:47:22,350 --> 00:47:29,720
+The current location in the file is kept by in this file description.
+文件描述中保存了当前文件的位置。
+
+778
+00:47:30,170 --> 00:47:30,530
+Right?
+对吗？
+
+779
+00:47:30,980 --> 00:47:34,120
+That's why if you have consecutive calls or read,
+这就是为什么如果你有连续的调用或读取操作，
+
+780
+00:47:34,400 --> 00:47:38,390
+you are going first to read the first 100 by the next to read the next 100 bytes.
+你首先要读取前100个字节，然后再读取接下来的100个字节。
+
+781
+00:47:41,860 --> 00:47:46,980
+Here we just a slide showing about files of file description how it looks like.
+这里有一张幻灯片展示文件描述符的外观。
+
+782
+00:47:47,440 --> 00:47:52,480
+This is love is a position of the current position in the file.
+这是当前文件中的位置。
+
+783
+00:47:53,870 --> 00:47:56,250
+The structure of, I know we are going to talk later.
+我知道我们之后会讨论的结构。
+
+784
+00:47:56,530 --> 00:47:59,300
+It's where the file is located on the disk.
+它指的是文件在磁盘上的位置。
+
+785
+00:48:00,280 --> 00:48:04,030
+And there are a lot of other information is not important for our discussion,
+还有很多其他信息对我们的讨论来说并不重要，
+
+786
+00:48:04,560 --> 00:48:06,400
+but it's important for our discussion.
+但这对我们的讨论很重要。
+
+787
+00:48:06,630 --> 00:48:13,850
+It's about, let's see how things are maintained in the memory.
+这是关于如何在内存中维护数据的问题。
+
+788
+00:48:15,840 --> 00:48:17,530
+We have here a process.
+我们这里有一个进程。
+
+789
+00:48:17,870 --> 00:48:19,800
+And here we have the kernel, right?
+这里是操作系统内核，对吗？
+
+790
+00:48:20,120 --> 00:48:21,150
+Above the dash line,
+在虚线之上，
+
+791
+00:48:21,160 --> 00:48:22,230
+it has a process.
+它有一个进程。
+
+792
+00:48:22,470 --> 00:48:23,920
+At the below the dash line,
+在下面的虚线下方，
+
+793
+00:48:24,200 --> 00:48:25,810
+a a it's a cab.
+嗯，这是一辆出租车。
+
+794
+00:48:26,300 --> 00:48:26,670
+Right?
+对吗？
+
+795
+00:48:28,700 --> 00:48:31,160
+In the process, you have the address space,
+在进程中，你拥有地址空间。
+
+796
+00:48:32,400 --> 00:48:33,560
+and then you have a thread,
+然后你有一个线程，
+
+797
+00:48:34,190 --> 00:48:35,640
+and you have the thread registers.
+你拥有线程寄存器。
+
+798
+00:48:35,650 --> 00:48:38,040
+Remember, the thread is a unit of execution.
+记住，线程是执行的单位。
+
+799
+00:48:38,550 --> 00:48:40,360
+Every process has at least one thread,
+每个进程至少有一个线程。
+
+800
+00:48:41,660 --> 00:48:41,950
+right?
+对的？
+
+801
+00:48:42,680 --> 00:48:45,030
+Suppose that to execute open food or text,
+假设要执行打开食物或文本文件，
+
+802
+00:48:45,420 --> 00:48:46,710
+and the result is three.
+结果是三。
+
+803
+00:48:47,150 --> 00:48:48,190
+The file descriptor,
+文件描述符，
+
+804
+00:48:48,200 --> 00:48:50,290
+which is returned by open history,
+open history 返回的是什么？
+
+805
+00:48:52,190 --> 00:48:54,870
+you have open file descriptions.
+你有打开的文件描述符。
+
+806
+00:48:55,270 --> 00:48:57,090
+You have the file which is opened,
+你有打开的文件。
+
+807
+00:48:57,100 --> 00:48:59,500
+and the position start to be zero.
+并且位置开始变为零。
+
+808
+00:49:01,080 --> 00:49:03,310
+This is why the file descriptor points.
+这就是文件描述符指向的原因。
+
+809
+00:49:05,570 --> 00:49:06,440
+This is what I wanna.
+这就是我想要的。
+
+810
+00:49:06,450 --> 00:49:10,200
+The open file description is what I mentioned earlier is like the state
+打开文件描述符就像我之前提到的那样，它是文件的状态。
+
+811
+00:49:10,210 --> 00:49:13,150
+of the file for them and the meta data associated with the file.
+为他们提供文件的内容以及与文件相关的元数据。
+
+812
+00:49:16,900 --> 00:49:17,530
+What is now?
+现在是什么时间？
+
+813
+00:49:17,540 --> 00:49:18,690
+So initially,
+最初，
+
+814
+00:49:18,700 --> 00:49:20,250
+you may ask why is three?
+你可能会问为什么是三？
+
+815
+00:49:20,710 --> 00:49:25,190
+Because the standard being standard out and standard error at 01,
+因为标准输出和标准错误输出在01上。
+
+816
+00:49:25,200 --> 00:49:26,930
+and two are already taken.
+而且已经有两个被占用了。
+
+817
+00:49:27,190 --> 00:49:29,490
+Remember, this has a default file descriptors.
+请记住，这有默认的文件描述符。
+
+818
+00:49:31,930 --> 00:49:35,230
+Next, suppose that you execute read from this file descriptors,
+接下来，假设您从这些文件描述符执行读取操作，
+
+819
+00:49:36,110 --> 00:49:38,330
+the first 100 bytes in this buffer.
+这个缓冲区中的前100个字节。
+
+820
+00:49:38,590 --> 00:49:38,910
+Right?
+对吗？
+
+821
+00:49:39,230 --> 00:49:40,550
+Remember the previous code?
+还记得之前的代码吗？
+
+822
+00:49:41,140 --> 00:49:41,510
+Right?
+对吗？
+
+823
+00:49:42,460 --> 00:49:44,610
+You read that, and once you read it,
+你读了那个，一旦你读了它，
+
+824
+00:49:45,030 --> 00:49:48,440
+the position, notice in the open file description,
+在打开文件描述符中的位置通知
+
+825
+00:49:48,690 --> 00:49:52,370
+it's a set updated to 100.
+这是一个更新为100的集合。
+
+826
+00:49:56,250 --> 00:49:59,080
+Now, suppose that you execute close three,
+现在，假设你执行了close three命令。
+
+827
+00:49:59,630 --> 00:50:00,910
+you execute closely.
+你执行得很仔细。
+
+828
+00:50:01,440 --> 00:50:05,600
+The file descriptor is gone as well as a file description.
+文件描述符和文件描述信息都已经消失。
+
+829
+00:50:06,760 --> 00:50:07,100
+Right?
+对吗？
+
+830
+00:50:07,460 --> 00:50:08,370
+So it's simply enough.
+所以这很简单。
+
+831
+00:50:09,050 --> 00:50:09,340
+Right?
+对吗？
+
+832
+00:50:11,440 --> 00:50:13,660
+But now, instead of closing,
+但是现在，相反地，
+
+833
+00:50:14,650 --> 00:50:17,450
+after you read the first 100 bytes, let's say we fork.
+在你读取了前100个字节之后，假设我们进行了分叉。
+
+834
+00:50:19,280 --> 00:50:21,350
+Now, if you for, remember,
+现在，如果你愿意的话，请记住，
+
+835
+00:50:23,110 --> 00:50:26,180
+the entire state in the entire code of the parent process
+父进程代码中的整个状态
+
+836
+00:50:26,190 --> 00:50:32,490
+is going to be copied in the child process.
+将在子进程中被复制。
+
+837
+00:50:33,220 --> 00:50:38,760
+So this is going also to have what is going to happen is a file descriptors
+所以这个也会有文件描述符的发生
+
+838
+00:50:38,770 --> 00:50:40,340
+are going to be copied.
+将要被复制。
+
+839
+00:50:40,810 --> 00:50:44,130
+Now, you have to the same open file descriptions.
+现在，你必须拥有相同的打开文件描述符。
+
+840
+00:50:44,410 --> 00:50:46,790
+You have two pointers,
+你有两个指针，
+
+841
+00:50:47,420 --> 00:50:49,380
+three, both of them are three, obviously,
+三，它们都是三，显然。
+
+842
+00:50:49,390 --> 00:50:52,890
+because that's how you indexing this open file description,
+因为这是你对打开文件描述符进行索引的方式，
+
+843
+00:50:53,620 --> 00:50:55,820
+one from parent process,
+来自父进程的一个。
+
+844
+00:50:56,530 --> 00:50:57,790
+and one from the child process.
+还有一个来自子进程的。
+
+845
+00:50:59,420 --> 00:50:59,760
+Right?
+对吗？
+
+846
+00:51:00,760 --> 00:51:02,190
+You are shared the same state,
+你们共享相同的状态。
+
+847
+00:51:02,200 --> 00:51:04,710
+the shared state in the open file description.
+打开文件描述符中的共享状态。
+
+848
+00:51:05,580 --> 00:51:05,910
+Right?
+对吗？
+
+849
+00:51:06,870 --> 00:51:12,450
+Now, if you read from buffer 100 or inform process one,
+现在，如果你从缓冲区100读取或通知进程一，
+
+850
+00:51:12,890 --> 00:51:14,530
+using the file descriptor three,
+使用文件描述符三，
+
+851
+00:51:14,540 --> 00:51:16,850
+now the position is advanced to hundred.
+现在的位置已经前进到一百。
+
+852
+00:51:17,950 --> 00:51:19,190
+Now, if you read,
+现在，如果你读了的话，
+
+853
+00:51:19,430 --> 00:51:23,050
+the process is the charlie process that is from the same file descriptor.
+该进程是来自相同文件描述符的Charlie进程。
+
+854
+00:51:23,360 --> 00:51:23,980
+What happens?
+发生了什么事情？
+
+855
+00:51:24,550 --> 00:51:26,860
+The position is updated to 300,
+位置已更新为300。
+
+856
+00:51:27,250 --> 00:51:27,670
+because again,
+因为再次，
+
+857
+00:51:27,680 --> 00:51:32,920
+both the child and the parent operate on of the same open file description.
+子进程和父进程都在同一个打开文件描述符上操作。
+
+858
+00:51:37,310 --> 00:51:39,460
+Now, when you closely is apparent,
+现在，当你仔细观察时，很明显，
+
+859
+00:51:40,670 --> 00:51:47,410
+the file from the that is closed from the perspective of process one,
+从进程一的角度来看，该文件已关闭。
+
+860
+00:51:47,840 --> 00:51:50,750
+but the open file description is not destroyed,
+但是打开的文件描述符并没有被销毁，
+
+861
+00:51:50,990 --> 00:51:56,360
+because it's still referred by the client by the child process.
+因为它仍然由子进程通过客户端引用。
+
+862
+00:51:57,880 --> 00:52:03,720
+So only when the child process is going to close its own,
+只有当子进程要关闭自己时，
+
+863
+00:52:04,360 --> 00:52:06,670
+the file descriptor three,
+文件描述符三，
+
+864
+00:52:07,070 --> 00:52:10,310
+only then open file description associated with the file descriptor three
+只有在打开与文件描述符三相关联的文件描述符之后才能执行该操作。
+
+865
+00:52:10,320 --> 00:52:11,910
+is going to go away.
+即将消失。
+
+866
+00:52:18,060 --> 00:52:19,330
+The cool thing about this.
+这个的有趣之处在于。
+
+867
+00:52:19,780 --> 00:52:22,250
+Now you can have remembered one of the potential,
+现在你可以记住其中一个潜力了，
+
+868
+00:52:22,260 --> 00:52:23,850
+and we are going to learn more about that.
+我们将会更深入地学习这个。
+
+869
+00:52:24,210 --> 00:52:28,190
+One of the problems, when you have processes, on one hand,
+当你有进程时，其中一个问题是，一方面，
+
+870
+00:52:28,200 --> 00:52:33,540
+you have strong isolation because each of them comes with own file system
+你具有强大的隔离性，因为每个系统都配备了自己的文件系统。
+
+871
+00:52:33,630 --> 00:52:35,860
+which own other space.
+指的是拥有其他空间的实体。
+
+872
+00:52:36,520 --> 00:52:39,840
+But you still want to communicate in some cases between the process.
+但在某些情况下，您仍然希望在进程之间进行通信。
+
+873
+00:52:40,580 --> 00:52:41,930
+This is one way to communicate.
+这是一种沟通方式。
+
+874
+00:52:42,760 --> 00:52:42,910
+Right?
+对吗？
+
+875
+00:52:42,920 --> 00:52:44,150
+You open a file,
+你打开一个文件，
+
+876
+00:52:45,240 --> 00:52:46,910
+you fork a child,
+你创建了一个子进程，
+
+877
+00:52:47,560 --> 00:52:51,670
+then both the child and the parent have access to the fallacy
+那么子进程和父进程都可以访问这个谬论。
+
+878
+00:52:51,680 --> 00:52:52,710
+with the same fallacy.
+以同样的谬误。
+
+879
+00:52:53,150 --> 00:52:55,550
+You can use file system to exchange the data.
+你可以使用文件系统来交换数据。
+
+880
+00:53:00,420 --> 00:53:00,690
+Again,
+请再说一遍。
+
+881
+00:53:00,700 --> 00:53:06,420
+this is the same repeating it that everything or every device
+这是指重复的事物或每个设备都是一样的。
+
+882
+00:53:06,780 --> 00:53:09,070
+and its abstraction is a file,
+它的抽象是一个文件。
+
+883
+00:53:09,370 --> 00:53:11,970
+like disks, networking,
+像磁盘、网络，
+
+884
+00:53:12,450 --> 00:53:15,810
+and receive some other communication primitives.
+并接收其他通信原语。
+
+885
+00:53:16,160 --> 00:53:18,540
+This means that they are going to have a high level
+这意味着他们将拥有高水平
+
+886
+00:53:18,550 --> 00:53:21,100
+at the same high level api open,
+在相同的高级API打开，
+
+887
+00:53:21,110 --> 00:53:22,260
+read, write clothes.
+读取，写入衣物。
+
+888
+00:53:26,030 --> 00:53:31,580
+The same thing happened when you have for the first default descriptor, 01,
+当您为第一个默认描述符01时，发生了同样的情况。
+
+889
+00:53:31,590 --> 00:53:32,180
+and 2,
+和2,
+
+890
+00:53:32,590 --> 00:53:36,090
+obviously, they are going to be shared between the child and the parent.
+显然，它们将在子进程和父进程之间共享。
+
+891
+00:53:36,830 --> 00:53:37,120
+Right?
+对吗？
+
+892
+00:53:37,950 --> 00:53:40,480
+So if the child and the parent are going to write,
+那么如果子进程和父进程都要写入数据，
+
+893
+00:53:41,670 --> 00:53:46,130
+you are going to see interleaved the whatever they are writing on the terminal,
+你将会看到终端上交替出现他们正在写的内容。
+
+894
+00:53:46,450 --> 00:53:47,000
+for instance.
+例如。
+
+895
+00:53:48,620 --> 00:53:49,050
+Okay.
+好的。
+
+896
+00:53:53,520 --> 00:53:54,320
+It's a game.
+这是一个游戏。
+
+897
+00:53:55,400 --> 00:53:57,430
+If one process is concluded standard in,
+如果一个进程以标准方式结束，
+
+898
+00:53:57,440 --> 00:54:02,130
+this means that you can no longer get an input from the keyboard.
+这意味着你无法再从键盘获取输入了。
+
+899
+00:54:02,390 --> 00:54:06,900
+Then the process the child is the only one which can receive inputs
+那么子进程是唯一能够接收输入的进程。
+
+900
+00:54:06,910 --> 00:54:07,980
+from the keyboard.
+从键盘输入。
+
+901
+00:54:08,600 --> 00:54:09,900
+And that's very important,
+这非常重要，
+
+902
+00:54:10,120 --> 00:54:12,270
+because you may want in your program,
+因为您可能希望在您的程序中使用。
+
+903
+00:54:12,280 --> 00:54:15,850
+only the child process to get the input from The keyboard,
+只有子进程可以从键盘获取输入。
+
+904
+00:54:15,860 --> 00:54:18,730
+not both across both parents and the child.
+不是同时涉及父母和孩子两者。
+
+905
+00:54:24,830 --> 00:54:28,540
+So many of the things we talk about and we are going to talk
+我们谈论的和将要谈论的事情有很多。
+
+906
+00:54:28,550 --> 00:54:32,320
+in the remaining of the lecture are going to be helpful for you in home
+在接下来的讲座中，对你在家里会有帮助的内容。
+
+907
+00:54:32,330 --> 00:54:34,390
+or do when you have to write a shout.
+或者当你需要写一个呼喊时该怎么办。
+
+908
+00:54:39,080 --> 00:54:43,620
+Therefore could be very useful for metal king because you can handle
+因此，对于金属王来说可能非常有用，因为你可以处理它们。
+
+909
+00:54:43,630 --> 00:54:45,580
+each connection in a different process.
+每个连接在不同的进程中。
+
+910
+00:54:47,620 --> 00:54:51,860
+Now there is another way you can share the access to the same file,
+现在还有另一种方式可以共享对同一文件的访问权限，
+
+911
+00:54:52,280 --> 00:54:54,280
+and that is using dupe.
+这是使用"dupe"来实现的。
+
+912
+00:54:55,270 --> 00:54:55,780
+Okay?
+好的？
+
+913
+00:54:56,180 --> 00:54:59,570
+So what loop is meaning you replicate the file descriptors,
+"所以循环的意思是复制文件描述符"
+
+914
+00:54:59,580 --> 00:55:03,810
+and the file descriptor is going to point to the same open file description.
+文件描述符将指向相同的打开文件描述符。
+
+915
+00:55:04,670 --> 00:55:07,660
+Here you have is that you like think about on an arias,
+你所拥有的是你喜欢思考的领域。
+
+916
+00:55:08,380 --> 00:55:11,640
+but I see if you create it and you open a file,
+但是我看到如果你创建它并打开一个文件，
+
+917
+00:55:11,650 --> 00:55:13,840
+you got the file descriptor three.
+你获得了文件描述符为三。
+
+918
+00:55:15,010 --> 00:55:16,890
+Now, if you can call dope on three,
+现在，如果你能在三个人中叫出“dope”，
+
+919
+00:55:16,900 --> 00:55:18,780
+you are going to get a four.
+你将会得到一个四。
+
+920
+00:55:20,340 --> 00:55:20,560
+Now,
+现在，
+
+921
+00:55:20,570 --> 00:55:25,340
+both file descriptor three and four point out to the same open file description.
+文件描述符3和4都指向同一个打开的文件描述符。
+
+922
+00:55:27,280 --> 00:55:28,420
+There is another instruction,
+还有另一条指令，
+
+923
+00:55:28,430 --> 00:55:29,460
+which is the tool,
+哪个工具
+
+924
+00:55:30,090 --> 00:55:31,410
+which has a second argument.
+它有一个第二个参数。
+
+925
+00:55:32,480 --> 00:55:35,500
+The second argument is actually saying,
+第二个参数实际上是在说，
+
+926
+00:55:35,510 --> 00:55:42,350
+what is a file descriptor you want to point up to the same open file description,
+文件描述符是一个用于标识打开文件的整数值。当打开一个文件时，操作系统会为该文件分配一个唯一的文件描述符。文件描述符可以用于读取、写入或操作文件。在某些情况下，我们可能希望将多个文件描述符指向同一个打开文件描述符，这样可以实现文件共享或并发访问。
+
+927
+00:55:42,650 --> 00:55:45,980
+like the far the first argument in the call, in this case,
+在这种情况下，像远程调用中的第一个参数一样。
+
+928
+00:55:46,270 --> 00:55:47,780
+file descriptor three.
+文件描述符三。
+
+929
+00:55:51,620 --> 00:55:52,890
+This is useful.
+这很有用。
+
+930
+00:55:52,900 --> 00:55:56,210
+If, for instance, you have multiple processes of the same application,
+例如，如果您有多个相同应用程序的进程，
+
+931
+00:55:56,220 --> 00:55:57,370
+you run all of them.
+你运行它们所有。
+
+932
+00:55:57,750 --> 00:55:58,940
+You have a barrier,
+你有一个屏障，
+
+933
+00:55:58,950 --> 00:56:00,440
+you have a constant there,
+你那里有一个常数。
+
+934
+00:56:00,450 --> 00:56:01,940
+basically say each of them,
+基本上，就是说每个人。
+
+935
+00:56:02,170 --> 00:56:03,580
+they should open.
+它们应该打开。
+
+936
+00:56:03,590 --> 00:56:06,940
+They should operate on the files descriptor,
+它们应该基于文件描述符进行操作。
+
+937
+00:56:07,440 --> 00:56:08,230
+162,
+你好！我是CS162计算机操作系统的助教。请问有什么我可以帮助你的吗？
+
+938
+00:56:09,870 --> 00:56:11,060
+like one process,
+像一个进程一样，
+
+939
+00:56:11,310 --> 00:56:13,080
+create a file open, the files,
+创建一个文件打开，打开文件。
+
+940
+00:56:13,090 --> 00:56:14,360
+then it calls stoop.
+然后它调用stoop函数。
+
+941
+00:56:14,680 --> 00:56:18,130
+And then everyone can operate on that file descriptor.
+然后每个人都可以对该文件描述符进行操作。
+
+942
+00:56:21,000 --> 00:56:23,020
+We are running a little bit late.
+我们稍微有点晚了。
+
+943
+00:56:25,830 --> 00:56:29,140
+So here are some based on what they discussed.
+所以这是根据他们讨论的内容。
+
+944
+00:56:29,510 --> 00:56:32,970
+There are some challenges or some things you need to be
+有一些挑战或一些事情你需要注意的。
+
+945
+00:56:32,980 --> 00:56:35,980
+careful with when you work with the file systems.
+在处理文件系统时要小心。
+
+946
+00:56:36,400 --> 00:56:42,980
+This is particularly very important to for your homework and projects.
+这对于你的作业和项目来说尤为重要。
+
+947
+00:56:44,550 --> 00:56:48,890
+First, don't fork in a process that already has multiple threads.
+首先，在已经有多个线程的进程中不要进行fork操作。
+
+948
+00:56:51,170 --> 00:56:51,980
+Why?
+为了方便中文用户理解和阅读，我将英文翻译成中文。这样可以更好地帮助您解决问题和获取所需的信息。
+
+949
+00:56:52,550 --> 00:56:55,990
+Because the threads are not for,
+因为线程不是为了
+
+950
+00:56:57,740 --> 00:56:58,130
+right?
+对的？
+
+951
+00:56:58,510 --> 00:57:01,090
+You for the state of the process that is copied,
+你需要为被复制的进程保存其状态。
+
+952
+00:57:02,050 --> 00:57:05,400
+you are going when you copy it a process,
+当你复制一个进程时，你会发生什么情况？
+
+953
+00:57:06,090 --> 00:57:12,020
+when you duplicate all the state from the parent to the child.
+当你将父进程的所有状态复制到子进程时。
+
+954
+00:57:13,750 --> 00:57:16,530
+The threats are not copied,
+威胁没有被复制。
+
+955
+00:57:16,770 --> 00:57:18,730
+because their executions are ephemeral.
+因为它们的执行是短暂的。
+
+956
+00:57:19,880 --> 00:57:20,260
+Right?
+对吗？
+
+957
+00:57:22,790 --> 00:57:24,280
+In the second, in the child,
+在第二个步骤中，在子进程中，
+
+958
+00:57:24,290 --> 00:57:25,640
+you have only one process,
+你只有一个进程。
+
+959
+00:57:26,820 --> 00:57:27,370
+one thread.
+一个线程。
+
+960
+00:57:29,290 --> 00:57:30,930
+All the other cells will disappear.
+所有其他的单元格都会消失。
+
+961
+00:57:33,560 --> 00:57:34,350
+So many member,
+这么多成员
+
+962
+00:57:35,160 --> 00:57:38,350
+only the threat that calls a fog existing the new process.
+只有威胁才会引发一个新进程的迷雾存在。
+
+963
+00:57:41,740 --> 00:57:43,280
+This is and remember,
+这是并且请记住，
+
+964
+00:57:43,290 --> 00:57:44,480
+when you call exact,
+当你调用exact时，
+
+965
+00:57:44,900 --> 00:57:48,450
+you don't care about it whether there are multiple steps because exact
+你不需要关心是否有多个步骤，因为准确性很重要。
+
+966
+00:57:48,950 --> 00:57:52,530
+is basically replace the entire space of the
+基本上是替换整个空间的
+
+967
+00:57:52,540 --> 00:57:57,990
+process who called exec with a program which is going to be executed
+调用exec的进程，将要执行的程序作为参数传递给exec。
+
+968
+00:57:59,110 --> 00:58:00,110
+in that process.
+在那个过程中。
+
+969
+00:58:01,360 --> 00:58:01,790
+Okay?
+好的？
+
+970
+00:58:04,100 --> 00:58:08,300
+Be very mindful when you mix a low level and high level failures.
+在混合低级和高级故障时要非常谨慎。
+
+971
+00:58:12,000 --> 00:58:13,710
+It's again, the main reason.
+这又是主要原因。
+
+972
+00:58:13,950 --> 00:58:19,220
+Remember, high level ipoiio has a file pointer and a file buffer.
+记住，高级 I/O 有一个文件指针和一个文件缓冲区。
+
+973
+00:58:19,760 --> 00:58:20,660
+They have the file buffer.
+他们有文件缓冲区。
+
+974
+00:58:21,960 --> 00:58:22,280
+That,
+那，
+
+975
+00:58:23,270 --> 00:58:24,300
+in this case,
+在这种情况下，
+
+976
+00:58:24,840 --> 00:58:25,740
+for instance,
+例如，
+
+977
+00:58:27,360 --> 00:58:31,400
+when here a it's a subtly subtle problem.
+当这里有一个微妙的问题时，它是一个微妙的问题。
+
+978
+00:58:32,430 --> 00:58:33,090
+In this case,
+在这种情况下，
+
+979
+00:58:33,940 --> 00:58:40,710
+you open a file a with a high level api you get file pointer f and then you
+使用高级API打开文件a，获取文件指针f，然后你...
+
+980
+00:58:40,720 --> 00:58:42,030
+get from that file pointer,
+从该文件指针获取数据。
+
+981
+00:58:42,040 --> 00:58:43,270
+you get the file descriptor.
+你获得了文件描述符。
+
+982
+00:58:44,090 --> 00:58:48,780
+Now you call f read on that file and read on that file.
+现在你调用了 f.read() 来读取那个文件。
+
+983
+00:58:50,500 --> 00:58:52,770
+And the file a file read, you'll get,
+并且读取文件，你会得到一个文件。
+
+984
+00:58:53,030 --> 00:58:55,170
+you say, I want to read only the first 10 bytes,
+你说，我只想读取前10个字节。
+
+985
+00:58:56,670 --> 00:58:57,920
+and then with a read,
+然后进行读取操作，
+
+986
+00:58:57,930 --> 00:59:01,220
+which is a low level api want to read the next 10 bytes.
+想要读取下一个10个字节的低级API是哪个？
+
+987
+00:59:02,440 --> 00:59:05,000
+We started expect when you look at this code,
+当你看这段代码时，我们开始期望。
+
+988
+00:59:05,010 --> 00:59:08,020
+I say every do will read the file,
+我说每个进程都会读取文件。
+
+989
+00:59:08,030 --> 00:59:09,300
+the first 10 bytes,
+前10个字节
+
+990
+00:59:10,450 --> 00:59:12,280
+read or read the next 10 bytes.
+读取或读取接下来的10个字节。
+
+991
+00:59:14,790 --> 00:59:16,030
+The problems they may not me,
+可能不是他们的问题，而是我自己的问题。
+
+992
+00:59:16,040 --> 00:59:18,630
+maybe that might not happen,
+也许那可能不会发生，
+
+993
+00:59:19,710 --> 00:59:24,680
+because every it returns to the applications of first and bytes.
+因为每次它都返回到第一个字节的应用程序。
+
+994
+00:59:25,430 --> 00:59:26,810
+But from the kernel,
+但是从内核来看，
+
+995
+00:59:27,070 --> 00:59:28,670
+it may get an entire block,
+它可能会获取整个块。
+
+996
+00:59:29,870 --> 00:59:33,410
+which is going to be stored in the file buffer.
+将要存储在文件缓冲区中。
+
+997
+00:59:35,060 --> 00:59:38,060
+So you may get the first 4,000 bytes from the fire,
+所以你可以从火中获得前4,000字节。
+
+998
+00:59:40,920 --> 00:59:43,760
+which means that in the kernel,
+这意味着在内核中，
+
+999
+00:59:44,030 --> 00:59:46,820
+in the associated file description,
+在相关的文件描述中，
+
+1000
+00:59:48,020 --> 00:59:50,480
+the position now will be 4,000.
+现在的职位将是4,000。
+
+1001
+00:59:51,500 --> 00:59:52,990
+So when you call the read,
+当你调用read函数时，
+
+1002
+00:59:53,250 --> 00:59:55,080
+this will go directly to the kernel.
+这将直接进入内核。
+
+1003
+00:59:55,580 --> 00:59:57,450
+It will read from the current position.
+它将从当前位置读取。
+
+1004
+00:59:57,730 --> 01:00:05,820
+So it may lead the bites from 4,000 to 4,000 before continuing.
+因此，在继续之前，可能会将字节从4,000增加到4,000。
+
+1005
+01:00:07,820 --> 01:00:12,260
+Actually, let me answer this question on an f right?
+实际上，让我在一个 f 上回答这个问题，对吗？
+
+1006
+01:00:12,270 --> 01:00:13,740
+If the buffer is flushed,
+如果缓冲区被刷新，
+
+1007
+01:00:14,590 --> 01:00:17,670
+does the input data go into the newly clean buffer?
+输入数据是否进入新的清空缓冲区？
+
+1008
+01:00:17,680 --> 01:00:19,550
+Or does it get written to the farthest?
+还是它被写入到最远的位置？
+
+1009
+01:00:19,720 --> 01:00:20,990
+I answer this question.
+我回答这个问题。
+
+1010
+01:00:21,850 --> 01:00:22,290
+Right?
+对吗？
+
+1011
+01:00:22,980 --> 01:00:24,150
+First, you do the flash.
+首先，你需要进行闪存操作。
+
+1012
+01:00:24,380 --> 01:00:32,070
+Then you are going to arrive in your data announcements.
+那么你将要发布你的数据公告。
+
+1013
+01:00:33,120 --> 01:00:35,800
+The group da assignments have been released.
+小组的作业已经发布了。
+
+1014
+01:00:36,280 --> 01:00:37,700
+If you don't know yet.
+如果你还不知道的话。
+
+1015
+01:00:38,050 --> 01:00:39,330
+Take on pizza.
+点一份披萨。
+
+1016
+01:00:41,380 --> 01:00:43,300
+Project zero is due today.
+项目零今天截止。
+
+1017
+01:00:44,670 --> 01:00:46,260
+Good luck with a submission.
+祝你提交顺利。
+
+1018
+01:00:48,170 --> 01:00:51,050
+And project one will be released on friday.
+项目一将在星期五发布。
+
+1019
+01:00:53,210 --> 01:00:54,280
+Other than that,
+除此之外，
+
+1020
+01:00:54,920 --> 01:00:56,850
+many of you are still online.
+你们中的许多人仍然在线。
+
+1021
+01:00:57,220 --> 01:01:00,490
+Please start planning on how your group will collaborate is
+请开始计划你们小组如何合作。
+
+1022
+01:01:00,500 --> 01:01:01,490
+the most effective way.
+最有效的方法。
+
+1023
+01:01:02,440 --> 01:01:03,800
+Virtual coffee hours,
+虚拟咖啡时间
+
+1024
+01:01:03,810 --> 01:01:05,560
+a regular brainstorming meeting.
+一个定期的头脑风暴会议。
+
+1025
+01:01:05,990 --> 01:01:07,710
+And again,
+再次，
+
+1026
+01:01:07,720 --> 01:01:10,110
+try to communicate as much as possible.
+尽量多进行沟通。
+
+1027
+01:01:16,140 --> 01:01:18,060
+Now we switch the gears,
+现在我们换个话题，
+
+1028
+01:01:18,920 --> 01:01:26,110
+and we are going to talk about how two processes can communicate to each other.
+我们将讨论两个进程如何进行通信。
+
+1029
+01:01:31,230 --> 01:01:33,760
+One way to communicate is using the networking.
+一种通信方式是使用网络。
+
+1030
+01:01:34,720 --> 01:01:38,280
+This is a very general way to communicate between two processes,
+这是一种非常通用的两个进程之间通信的方式，
+
+1031
+01:01:38,820 --> 01:01:43,960
+because you can do that even when processes run on different measures.
+因为即使进程在不同的度量上运行，你仍然可以做到这一点。
+
+1032
+01:01:46,080 --> 01:01:55,680
+And this is can happen when you have your web browser and what if your browser,
+当你使用网络浏览器时，可能会发生以下情况，如果你的浏览器...
+
+1033
+01:01:56,770 --> 01:01:59,490
+this is how your browser communicate with a web brow,
+这是你的浏览器与网络浏览器进行通信的方式。
+
+1034
+01:01:59,500 --> 01:02:00,570
+with a web server.
+使用一个网络服务器。
+
+1035
+01:02:04,970 --> 01:02:08,430
+And under the hood use tcpip protocol.
+在底层使用TCP/IP协议。
+
+1036
+01:02:09,280 --> 01:02:10,750
+We are going to learn about it.
+我们将要学习它。
+
+1037
+01:02:11,130 --> 01:02:14,200
+For now, we just the suffice to say,
+目前，我们只需要简单地说一下，
+
+1038
+01:02:14,450 --> 01:02:18,450
+and to take a look about the api the api is very similar.
+并且查看一下API，API非常相似。
+
+1039
+01:02:18,940 --> 01:02:20,450
+When you want to send data,
+当你想要发送数据时，
+
+1040
+01:02:21,770 --> 01:02:23,890
+you essentially what is called a socket.
+你所说的"socket"实际上是指套接字。
+
+1041
+01:02:24,580 --> 01:02:25,850
+This is, in some sense,
+从某种意义上说，这是
+
+1042
+01:02:25,860 --> 01:02:30,100
+think about the equivalent of the file descriptor and the file description
+考虑一下文件描述符和文件描述的等价物。
+
+1043
+01:02:30,110 --> 01:02:30,940
+with the socket.
+使用套接字。
+
+1044
+01:02:32,810 --> 01:02:35,760
+You are going to write to that socket,
+你将要向那个套接字写入数据。
+
+1045
+01:02:36,320 --> 01:02:38,560
+like you write for a file profile descriptor,
+就像你为文件配置文件描述符一样编写。
+
+1046
+01:02:38,920 --> 01:02:40,060
+but otherwise,
+但是除此之外，
+
+1047
+01:02:40,950 --> 01:02:44,130
+the api is the same right?
+API是一样的吗？
+
+1048
+01:02:44,140 --> 01:02:46,910
+Or file descriptors above a certain length.
+或者文件描述符超过一定长度。
+
+1049
+01:02:48,350 --> 01:02:49,610
+Then on the receiving side,
+然后在接收端，
+
+1050
+01:02:49,620 --> 01:02:51,170
+when you want to get data,
+当你想要获取数据时，
+
+1051
+01:02:51,180 --> 01:02:53,530
+you are going to have a read.
+你要读一下。
+
+1052
+01:02:53,900 --> 01:02:57,300
+Again, the same api read from the far less guitar.
+再次，从远处的吉他读取相同的API。
+
+1053
+01:02:57,660 --> 01:03:04,020
+This is the socket descriptor in a buffer of a certain size.
+这是一个特定大小缓冲区中的套接字描述符。
+
+1054
+01:03:07,290 --> 01:03:07,430
+Again,
+再次，
+
+1055
+01:03:07,440 --> 01:03:14,300
+we are going to have an entire lecture about the cpip what is the other way
+我们将要进行一整堂关于CP/IP的讲座，还有其他的方式吗？
+
+1056
+01:03:14,310 --> 01:03:16,540
+to communicate between processes?
+进程间通信？
+
+1057
+01:03:16,550 --> 01:03:18,900
+Another way to communicate between processes?
+进程间通信的另一种方式是什么？
+
+1058
+01:03:19,590 --> 01:03:24,490
+Like you'll see that are using pipes and using the shared memory.
+就像你会看到，我们使用管道和共享内存。
+
+1059
+01:03:25,390 --> 01:03:25,790
+But,
+但是，
+
+1060
+01:03:26,540 --> 01:03:28,690
+again, taking her back, a step back,
+再次带她回去，退一步，
+
+1061
+01:03:29,110 --> 01:03:33,550
+here, we want fundamentally to punch a hole between the processes,
+在这里，我们基本上想要在进程之间打开一个洞。
+
+1062
+01:03:35,160 --> 01:03:37,760
+because otherwise, the process cannot communicate with each other.
+否则，进程之间无法进行通信。
+
+1063
+01:03:37,770 --> 01:03:41,910
+That's entire idea about processes to be isolated from each other.
+这个概念的整体思想是让进程彼此隔离。
+
+1064
+01:03:43,010 --> 01:03:45,130
+Each of them has its own other space.
+每个都有自己的其他空间。
+
+1065
+01:03:45,640 --> 01:03:50,790
+They cannot address data from each other's other space.
+它们无法访问彼此的其他空间中的数据。
+
+1066
+01:03:55,980 --> 01:03:57,090
+Here is one example.
+这是一个例子。
+
+1067
+01:04:01,960 --> 01:04:03,120
+This is about shared memory,
+这是关于共享内存的问题。
+
+1068
+01:04:03,350 --> 01:04:06,300
+but before, let's again, sing again,
+但在此之前，让我们再次唱一遍，再次唱一遍，
+
+1069
+01:04:07,720 --> 01:04:11,710
+recall a guy about how processes are protected from each other.
+回想一下关于进程如何相互保护的内容。
+
+1070
+01:04:12,610 --> 01:04:16,120
+You have two processes here on the left and the right hand side.
+这里有两个进程，一个在左边，一个在右边。
+
+1071
+01:04:16,680 --> 01:04:17,430
+Right program.
+正确的程序。
+
+1072
+01:04:17,440 --> 01:04:20,950
+One runs in the first process program during the second process.
+在第二个进程期间，第一个进程的程序运行。
+
+1073
+01:04:21,760 --> 01:04:25,250
+If then you have each process with its own code,
+如果每个进程都有自己的代码，那么
+
+1074
+01:04:25,540 --> 01:04:27,490
+data segment, heap, and stuck.
+数据段、堆和栈。
+
+1075
+01:04:29,140 --> 01:04:34,490
+Now, both processes share the same physical others,
+现在，这两个进程共享相同的物理内存。
+
+1076
+01:04:34,810 --> 01:04:36,300
+physical memory.
+物理内存。
+
+1077
+01:04:37,910 --> 01:04:40,130
+In the middle, you have the physical memory.
+在中间，你有物理内存。
+
+1078
+01:04:41,700 --> 01:04:44,140
+The physical memory is divided into regions.
+物理内存被划分为多个区域。
+
+1079
+01:04:46,700 --> 01:04:48,550
+And this into,
+并将此转化为中文。
+
+1080
+01:04:49,040 --> 01:04:53,350
+and what happens is the operating system or the kernel map,
+发生的情况是操作系统或内核进行映射。
+
+1081
+01:04:55,340 --> 01:04:56,690
+the code, the daytime,
+代码，白天时间，
+
+1082
+01:04:56,700 --> 01:05:00,560
+the heap from different processes in different regions.
+不同进程的堆位于不同的区域。
+
+1083
+01:05:01,690 --> 01:05:02,020
+Right?
+对吗？
+
+1084
+01:05:03,010 --> 01:05:05,280
+And these regions are to be joined it.
+这些区域需要被连接起来。
+
+1085
+01:05:05,960 --> 01:05:06,510
+Okay?
+好的？
+
+1086
+01:05:07,090 --> 01:05:12,330
+That's why you cannot address the data from another process.
+这就是为什么你不能访问另一个进程的数据。
+
+1087
+01:05:14,570 --> 01:05:16,180
+Because in the physical memory,
+因为在物理内存中，
+
+1088
+01:05:16,560 --> 01:05:22,200
+each process owns a the joint pace of others.
+每个进程都拥有其他进程的共享空间。
+
+1089
+01:05:27,140 --> 01:05:32,670
+And the reason the way you achieve that it is through translation.
+而你实现这一点的方式是通过翻译。
+
+1090
+01:05:32,680 --> 01:05:34,350
+Again, we are going to learn about that.
+我们将再次学习这个。
+
+1091
+01:05:34,360 --> 01:05:35,750
+That's where the magic happens,
+那就是魔法发生的地方，
+
+1092
+01:05:36,140 --> 01:05:40,980
+and making sure that the processes do not step on each other, those.
+并确保进程彼此不干扰。
+
+1093
+01:05:47,610 --> 01:05:51,670
+So that's what we have despite of this.
+尽管如此，这就是我们所拥有的。
+
+1094
+01:05:51,930 --> 01:05:55,420
+And despite this protection and followed by the kernel,
+尽管有这种保护，并且由内核跟随，
+
+1095
+01:05:55,800 --> 01:05:58,020
+we still want to communicate between processes,
+我们仍然希望在进程之间进行通信，
+
+1096
+01:05:58,700 --> 01:05:58,900
+right?
+对的？
+
+1097
+01:05:58,910 --> 01:05:59,620
+Like we mentioned.
+就像我们之前提到的那样。
+
+1098
+01:06:03,370 --> 01:06:05,010
+So how do we do that?
+那么我们该怎么做呢？
+
+1099
+01:06:05,020 --> 01:06:07,410
+And we already shown some example in the sockets.
+我们已经在套接字中展示了一些示例。
+
+1100
+01:06:08,210 --> 01:06:09,180
+Another way,
+另一种方式，
+
+1101
+01:06:09,950 --> 01:06:13,220
+you already know, you can use file system,
+你已经知道，可以使用文件系统。
+
+1102
+01:06:14,210 --> 01:06:14,650
+right?
+对的？
+
+1103
+01:06:15,300 --> 01:06:17,730
+A file system can write to a file data,
+文件系统可以向文件写入数据。
+
+1104
+01:06:17,740 --> 01:06:19,570
+and sorry,
+对不起，
+
+1105
+01:06:19,580 --> 01:06:21,850
+a process can drive data to a file.
+一个进程可以将数据写入文件。
+
+1106
+01:06:22,790 --> 01:06:25,180
+The process can read from the same file,
+进程可以从同一个文件中读取数据，
+
+1107
+01:06:25,190 --> 01:06:30,270
+the data written by the first process using the read and write primitives.
+第一个进程使用读写原语写入的数据。
+
+1108
+01:06:34,550 --> 01:06:34,950
+Now,
+现在，
+
+1109
+01:06:35,760 --> 01:06:36,700
+you can do that.
+你可以做到。
+
+1110
+01:06:37,220 --> 01:06:39,410
+However, this is quite expensive,
+然而，这相当昂贵。
+
+1111
+01:06:40,490 --> 01:06:42,180
+because the right or file,
+因为权限或文件的问题，
+
+1112
+01:06:42,840 --> 01:06:48,220
+it's expensive and reading from a file and slow.
+它很贵，并且从文件中读取速度很慢。
+
+1113
+01:06:49,050 --> 01:06:51,300
+And also, in most of the cases,
+而且，在大多数情况下，
+
+1114
+01:06:51,550 --> 01:06:53,200
+you don't need a persistence store.
+你不需要持久化存储。
+
+1115
+01:06:54,330 --> 01:06:55,370
+It's an overkill.
+这是过度杀伤力。
+
+1116
+01:06:56,240 --> 01:06:56,740
+Okay?
+好的？
+
+1117
+01:06:57,780 --> 01:07:05,060
+Like, think about if you want to go from your client to your web browser,
+想象一下，如果你想从客户端到达你的网络浏览器，
+
+1118
+01:07:05,850 --> 01:07:09,050
+you don't need to start every request and every reply.
+你不需要在每个请求和回复中都开头。
+
+1119
+01:07:09,810 --> 01:07:12,730
+Furthermore, this works only on the same machine.
+此外，这仅适用于同一台机器。
+
+1120
+01:07:14,280 --> 01:07:16,030
+Otherwise, you need a distributed file system.
+否则，你需要一个分布式文件系统。
+
+1121
+01:07:17,210 --> 01:07:19,650
+If the processes are not located on the same machine,
+如果进程不位于同一台机器上，
+
+1122
+01:07:23,070 --> 01:07:29,350
+one solution is to have ability to have shared memory.
+一种解决方案是具备共享内存的能力。
+
+1123
+01:07:30,290 --> 01:07:32,500
+And the operating system provides that ability.
+操作系统提供了这种能力。
+
+1124
+01:07:33,570 --> 01:07:39,940
+You can actually create a memory if a process can create a memory and share
+如果一个进程能够创建内存并共享，那么实际上可以创建内存。
+
+1125
+01:07:39,950 --> 01:07:41,540
+and say that
+并且说
+
+1126
+01:07:41,550 --> 01:07:43,780
+memory can be shared with other processes.
+内存可以与其他进程共享。
+
+1127
+01:07:48,230 --> 01:07:50,330
+And therefore,
+因此，
+
+1128
+01:07:50,740 --> 01:07:51,750
+in this case,
+在这种情况下，
+
+1129
+01:07:52,110 --> 01:07:55,260
+both processes one and two,
+进程一和进程二，
+
+1130
+01:07:55,970 --> 01:08:01,560
+they are going to.to share the same share space in the physical memory,
+它们将共享同一物理内存中的共享空间。
+
+1131
+01:08:01,960 --> 01:08:03,540
+which means that within this space,
+这意味着在这个空间内，
+
+1132
+01:08:03,550 --> 01:08:05,090
+they can share of it.
+他们可以共享它。
+
+1133
+01:08:06,080 --> 01:08:06,470
+Okay?
+好的？
+
+1134
+01:08:07,540 --> 01:08:12,010
+There is an api there is a way by which you can create shared memory
+有一种方法可以通过API创建共享内存。
+
+1135
+01:08:12,670 --> 01:08:15,150
+and a shared memory regions and
+一个共享内存区域和
+
+1136
+01:08:15,160 --> 01:08:19,710
+share that region between two different processes.
+在两个不同的进程之间共享该区域。
+
+1137
+01:08:19,720 --> 01:08:19,790
+See?
+看到了吗？
+
+1138
+01:08:27,260 --> 01:08:28,550
+It's a question.
+这是一个问题。
+
+1139
+01:08:29,050 --> 01:08:32,670
+What is the benefit to having memory of the individual processes be deterred?
+将各个进程的内存延迟有什么好处？
+
+1140
+01:08:33,400 --> 01:08:38,930
+The benefit of having the memory of individual processes be designed is
+将个别进程的内存设计为独立的好处是
+
+1141
+01:08:38,940 --> 01:08:40,220
+to ensure protection.
+为了确保保护。
+
+1142
+01:08:41,320 --> 01:08:48,760
+You do not want a malicious process to access the memory of another process.
+你不希望恶意进程访问另一个进程的内存。
+
+1143
+01:08:49,550 --> 01:08:52,370
+What words to access a memory of the cat?
+访问猫的记忆的单词是什么？
+
+1144
+01:08:56,500 --> 01:08:57,790
+Hopefully answers the question.
+希望这能回答你的问题。
+
+1145
+01:09:08,430 --> 01:09:09,630
+What about the other things?
+其他的事情呢？
+
+1146
+01:09:09,990 --> 01:09:15,940
+What about if we want to is anything that kernel can provide us
+如果我们想知道内核能为我们提供什么，该怎么办呢？
+
+1147
+01:09:16,380 --> 01:09:19,110
+to facilitate the communication between two processes?
+为了促进两个进程之间的通信？
+
+1148
+01:09:27,760 --> 01:09:28,950
+By the way,
+顺便说一下，
+
+1149
+01:09:30,180 --> 01:09:32,170
+so the asset it is,
+所以它就是资产。
+
+1150
+01:09:32,460 --> 01:09:40,190
+which I only alluded by providing this kind of socket mechanism,
+我只是通过提供这种套接字机制来暗示了这一点。
+
+1151
+01:09:42,060 --> 01:09:44,990
+like I when I talk about the cpip right?
+是的，当我谈论CP/IP时。
+
+1152
+01:09:45,340 --> 01:09:46,940
+But fundamentally, it's, again,
+但从根本上说，再次强调，
+
+1153
+01:09:46,950 --> 01:09:48,380
+the abstraction you want,
+你想要的抽象化
+
+1154
+01:09:48,390 --> 01:09:53,040
+which is useful to provide is like a queue, right?
+提供类似队列的功能是有用的，对吗？
+
+1155
+01:09:53,470 --> 01:09:56,420
+Because we do not want at least four processes.
+因为我们至少不想要四个进程。
+
+1156
+01:09:56,660 --> 01:09:58,210
+We run on the same machine.
+我们在同一台机器上运行。
+
+1157
+01:09:58,470 --> 01:09:59,920
+We want to kind of in memory queue.
+我们想要一种类似于内存队列的数据结构。
+
+1158
+01:10:00,300 --> 01:10:00,630
+Right?
+对吗？
+
+1159
+01:10:00,970 --> 01:10:06,120
+Again, we don't want to build something on top of the storage file storage.
+再次强调，我们不希望在存储文件系统的基础上构建任何东西。
+
+1160
+01:10:06,610 --> 01:10:08,500
+We said it's too expensive,
+我们说它太贵了，
+
+1161
+01:10:09,310 --> 01:10:10,130
+too slow.
+太慢了。
+
+1162
+01:10:16,620 --> 01:10:17,690
+What is memory?
+内存是计算机中用于存储和访问数据和指令的硬件设备。它是计算机系统的重要组成部分，用于临时存储正在执行的程序和数据。内存可以被视为计算机的"大脑"，它提供了快速的数据访问和临时存储能力，以支持计算机的运行。
+
+1163
+01:10:17,700 --> 01:10:18,130
+Cube?
+立方体？
+
+1164
+01:10:18,140 --> 01:10:23,940
+Means is basically the semantic is that a process just push the data
+"Means"基本上是指一个进程只是将数据推送出去的语义。
+
+1165
+01:10:23,950 --> 01:10:24,870
+to the cure.
+到治愈的方法。
+
+1166
+01:10:25,090 --> 01:10:28,580
+And the other is the producer and the consumer read from the queue.
+另一个是生产者和消费者从队列中读取。
+
+1167
+01:10:29,010 --> 01:10:29,460
+Right?
+对吗？
+
+1168
+01:10:29,710 --> 01:10:34,030
+And typically, the cues it's in first out,
+通常情况下，它是先进先出的。
+
+1169
+01:10:34,040 --> 01:10:35,670
+there are other kinds of cues,
+还有其他类型的提示，
+
+1170
+01:10:35,910 --> 01:10:37,670
+like last in, first out, but typically is,
+类似于后进先出，但通常是这样的。
+
+1171
+01:10:37,920 --> 01:10:42,090
+in first out, what we are going to talk this in this lecture.
+在本讲座中，我们将讨论先进先出（FIFO）算法。
+
+1172
+01:10:43,260 --> 01:10:47,420
+One abstraction of such fuel is a pipe, is a unique spike.
+这种燃料的一个抽象概念是管道，是一种独特的尖峰。
+
+1173
+01:10:49,480 --> 01:10:50,710
+So the unique spike,
+因此，这个独特的峰值，
+
+1174
+01:10:50,950 --> 01:10:53,450
+you are the way you can open a pipe.
+你可以通过打开管道来实现。
+
+1175
+01:10:54,060 --> 01:10:57,370
+And you can, again, it's like a file, a scripture.
+你可以，再次说，就像一个文件，一篇经文。
+
+1176
+01:10:58,210 --> 01:11:05,450
+You can use read and write when you write
+当你写作时，可以使用读取和写入操作。
+
+1177
+01:11:06,030 --> 01:11:13,490
+you right at the end of the pipe when you read from the front of the pipe.
+当你从管道的前端读取时，你位于管道的末端。
+
+1178
+01:11:14,390 --> 01:11:14,890
+Okay?
+好的？
+
+1179
+01:11:15,290 --> 01:11:17,140
+That's exactly that you sum up.
+这正是你总结的。
+
+1180
+01:11:19,660 --> 01:11:20,050
+Now,
+现在，
+
+1181
+01:11:22,950 --> 01:11:26,410
+these five and you have a buffer of a certain size,
+这五个和你有一个特定大小的缓冲区。
+
+1182
+01:11:26,970 --> 01:11:28,130
+it's not infinite.
+它不是无限的。
+
+1183
+01:11:29,650 --> 01:11:34,610
+If the pipe is full than the right blocks,
+如果管道已满，则右侧会被阻塞。
+
+1184
+01:11:34,620 --> 01:11:36,410
+you can no longer,
+你不能再这样做了。
+
+1185
+01:11:37,050 --> 01:11:37,800
+right,
+没问题，
+
+1186
+01:11:37,810 --> 01:11:44,500
+is a bike unless the consumer a process released from the pipe and makes
+除非消费者从管道中释放出一个进程并制造出一辆自行车，否则不会有自行车。
+
+1187
+01:11:44,510 --> 01:11:46,790
+room for new data to be returned in the pipe.
+管道中有空间可以返回新的数据。
+
+1188
+01:11:47,980 --> 01:11:51,950
+The same if the pipe is empty and you want to read from the pipe you block
+如果管道为空并且你想从管道中读取数据，你会被阻塞。
+
+1189
+01:11:51,960 --> 01:11:55,420
+and it looks until someone put some data in the pipe.
+它会一直等待，直到有人向管道中放入一些数据。
+
+1190
+01:12:04,400 --> 01:12:06,080
+When you create a pipe,
+当你创建一个管道时，
+
+1191
+01:12:06,740 --> 01:12:09,060
+what you get to file descriptors,
+文件描述符是操作系统中用于标识打开文件或者输入/输出设备的整数值。每个进程都有一个文件描述符表，其中存储了该进程打开的文件和设备的信息。文件描述符可以用于读取、写入或者关闭文件，以及进行其他文件操作。
+
+1192
+01:12:09,070 --> 01:12:10,780
+like you in my imagine,
+就像我想象中的你一样，
+
+1193
+01:12:11,280 --> 01:12:13,180
+one file descriptors to,
+一个文件描述符到，
+
+1194
+01:12:14,130 --> 01:12:14,760
+right?
+对的？
+
+1195
+01:12:14,770 --> 01:12:17,680
+2 and 15 is still the descriptor to read from.
+2和15仍然是要读取的描述符。
+
+1196
+01:12:19,410 --> 01:12:19,770
+Right?
+对吗？
+
+1197
+01:12:19,780 --> 01:12:28,370
+So five, you have the that file descriptor is to read from file this zero.
+所以，你有一个文件描述符，用于从文件中读取数据，该文件描述符为0。
+
+1198
+01:12:30,310 --> 01:12:34,650
+And file descriptor one is the second file descriptor is to write.
+文件描述符1是用于写入的第二个文件描述符。
+
+1199
+01:12:37,490 --> 01:12:39,060
+And it's implemented, like I mentioned,
+就像我之前提到的那样，它已经被实现了。
+
+1200
+01:12:39,070 --> 01:12:40,140
+as a fixed size two.
+作为一个固定大小的二进制数。
+
+1201
+01:12:42,620 --> 01:12:46,700
+Right here is how you can use it.
+这里是你如何使用它的方法。
+
+1202
+01:12:48,840 --> 01:12:49,580
+You can,
+你可以。
+
+1203
+01:12:50,600 --> 01:12:52,030
+you create a file, again,
+你再次创建一个文件。
+
+1204
+01:12:52,040 --> 01:12:53,310
+kind of a pipe.
+一种管道。
+
+1205
+01:12:54,210 --> 01:13:01,320
+And then you are going to write to the second file descriptor.
+然后你将要写入第二个文件描述符。
+
+1206
+01:13:01,330 --> 01:13:03,720
+You are going to read from the second file, first file descriptors,
+你将从第二个文件中读取，第一个文件描述符。
+
+1207
+01:13:04,520 --> 01:13:08,490
+and make sure that when you close both file descriptors,
+请确保在关闭两个文件描述符时，
+
+1208
+01:13:14,090 --> 01:13:15,870
+so piled between the processes,
+所以在进程之间堆积着
+
+1209
+01:13:16,730 --> 01:13:17,970
+Again, here a greater pipe,
+再次，这是一个更大的管道，
+
+1210
+01:13:17,980 --> 01:13:20,450
+you get the first file descriptor, three and four,
+你获得了第一个文件描述符，即三和四。
+
+1211
+01:13:20,800 --> 01:13:23,060
+pointing to read and write from that pipe.
+指向从该管道读取和写入的位置。
+
+1212
+01:13:23,670 --> 01:13:24,740
+Now you do a fork.
+现在你要进行一个fork操作。
+
+1213
+01:13:25,450 --> 01:13:29,710
+The file descriptors are copied.
+文件描述符被复制。
+
+1214
+01:13:30,380 --> 01:13:36,080
+And now you also have this file descriptors pointing to the same instance
+现在你也有这些文件描述符指向同一个实例。
+
+1215
+01:13:36,090 --> 01:13:36,640
+of the pipe.
+管道的一端。
+
+1216
+01:13:37,570 --> 01:13:37,950
+Right?
+对吗？
+
+1217
+01:13:39,770 --> 01:13:42,130
+So if you want to write to use that,
+所以如果你想要使用它，
+
+1218
+01:13:42,690 --> 01:13:45,530
+despite to communicate between the parent and the child,
+尽管父进程和子进程之间进行通信，
+
+1219
+01:13:46,440 --> 01:13:48,340
+then you need also,
+那么你还需要什么呢？
+
+1220
+01:13:50,460 --> 01:13:54,570
+this is in one direction.
+这是单向的。
+
+1221
+01:13:55,500 --> 01:13:56,770
+In this particular case,
+在这种特殊情况下，
+
+1222
+01:13:56,780 --> 01:13:58,370
+I want the parents say,
+我想要父母说的话。
+
+1223
+01:13:58,380 --> 01:14:03,340
+I want the parent to send data to the child,
+我希望父进程向子进程发送数据。
+
+1224
+01:14:03,990 --> 01:14:04,350
+right?
+对的？
+
+1225
+01:14:07,930 --> 01:14:08,900
+I gave the pipe,
+我给了管道。
+
+1226
+01:14:09,950 --> 01:14:11,090
+which is not shown here.
+这里没有显示。
+
+1227
+01:14:12,170 --> 01:14:13,110
+And then I fork,
+然后我进行分叉操作，
+
+1228
+01:14:14,660 --> 01:14:15,360
+remember,
+记住，
+
+1229
+01:14:17,050 --> 01:14:21,080
+if the result of the fork is not zero,
+如果fork的结果不为零，
+
+1230
+01:14:21,840 --> 01:14:26,900
+this means that I I am the parent when I execute the code.
+这意味着当我执行这段代码时，我是父进程。
+
+1231
+01:14:28,160 --> 01:14:31,210
+Because the result from the fork is going to be the PIB is
+因为fork的结果将是进程标识符（PID）。
+
+1232
+01:14:31,220 --> 01:14:33,010
+a process identifier of the child.
+子进程的进程标识符。
+
+1233
+01:14:34,910 --> 01:14:38,040
+Then I'm going to write the second descriptor,
+然后我将写第二个描述符。
+
+1234
+01:14:38,390 --> 01:14:41,960
+and I'm going to close the this is a writer, skipper,
+我将关闭这个会话，这是一个作者、船长。
+
+1235
+01:14:42,540 --> 01:14:44,020
+pipe fd of one.
+一个管道的文件描述符。
+
+1236
+01:14:44,430 --> 01:14:48,300
+And then to close the read descriptor.
+然后关闭读取描述符。
+
+1237
+01:14:48,790 --> 01:14:49,310
+Why?
+为了方便理解和交流，我会将英文翻译成中文。这样可以确保信息的准确传达和理解。
+
+1238
+01:14:49,320 --> 01:14:51,030
+Because again, in this example,
+因为在这个例子中，
+
+1239
+01:14:51,390 --> 01:14:56,220
+I I want only the parent to write to comment to send data to the child.
+我只希望父进程能够写入评论并发送数据给子进程。
+
+1240
+01:14:56,920 --> 01:14:59,070
+The same for the child.
+对于孩子也是一样的。
+
+1241
+01:14:59,590 --> 01:14:59,950
+Right?
+对吗？
+
+1242
+01:15:00,290 --> 01:15:02,860
+I am going to read from the file,
+我将从文件中读取数据。
+
+1243
+01:15:02,870 --> 01:15:04,220
+first file descriptors.
+文件描述符。
+
+1244
+01:15:04,560 --> 01:15:05,870
+And I don't want to write,
+我不想写。
+
+1245
+01:15:05,880 --> 01:15:08,190
+so I'm going to close that I described.
+所以我打算结束我所描述的内容。
+
+1246
+01:15:09,920 --> 01:15:13,620
+So this is what happens closely and close for.
+这就是紧密和接近的发生情况。
+
+1247
+01:15:13,630 --> 01:15:14,100
+Right.
+好的。
+
+1248
+01:15:14,770 --> 01:15:15,280
+Now,
+现在，
+
+1249
+01:15:15,290 --> 01:15:21,680
+the pattern I have is that the pattern process is going to send data
+我所拥有的模式是模式进程将要发送数据。
+
+1250
+01:15:21,690 --> 01:15:23,980
+to the child process survive.
+使子进程存活。
+
+1251
+01:15:28,830 --> 01:15:33,680
+If you want to the other way around to get the child to communicate to the parent,
+如果你想要实现相反的方式，让子进程与父进程进行通信，
+
+1252
+01:15:34,290 --> 01:15:38,210
+you can do the other way around by closing the other file descriptors.
+你可以通过关闭其他文件描述符来实现相反的操作。
+
+1253
+01:15:46,640 --> 01:15:53,560
+When do we get end of file on a pipe after the last Friday?
+在最后一个星期五之后，我们何时会在管道上收到文件结束符？
+
+1254
+01:15:53,570 --> 01:15:55,440
+So after the last ride,
+上次骑行之后，
+
+1255
+01:15:55,450 --> 01:15:57,440
+descriptor is closed to a bike,
+descriptor 是指对于一辆自行车的描述或特征。
+
+1256
+01:15:57,990 --> 01:15:59,060
+if you continue to read.
+如果你继续阅读。
+
+1257
+01:15:59,070 --> 01:16:01,490
+So if you continue to read from a pipe,
+如果你继续从管道中读取数据，
+
+1258
+01:16:02,120 --> 01:16:04,180
+and there is no right descriptor,
+并且没有正确的描述符。
+
+1259
+01:16:04,550 --> 01:16:07,890
+open for that far for that pipe,
+打开那个管道的距离太远了。
+
+1260
+01:16:08,210 --> 01:16:09,320
+you get end of five.
+你得到了五的结尾。
+
+1261
+01:16:12,180 --> 01:16:16,680
+If the grid descriptor is closed,
+如果网格描述符被关闭，
+
+1262
+01:16:17,270 --> 01:16:20,620
+and you try to write to a file, you get a sick pipe.
+当你尝试向文件写入时，你会得到一个错误的管道。
+
+1263
+01:16:20,630 --> 01:16:21,500
+This is the interact.
+这是互动界面。
+
+1264
+01:16:23,900 --> 01:16:25,610
+You can ignore it,
+你可以忽略它，
+
+1265
+01:16:26,790 --> 01:16:28,780
+but then the right will fail.
+但是然后右边会失败。
+
+1266
+01:16:30,470 --> 01:16:30,740
+All right?
+你好吗？
+
+1267
+01:16:31,450 --> 01:16:32,130
+So here,
+所以在这里，
+
+1268
+01:16:32,840 --> 01:16:35,080
+if you close a ride a scripter,
+如果你关闭一个骑行脚本者，
+
+1269
+01:16:37,380 --> 01:16:40,810
+then and you continue to read from that pipe,
+然后你继续从该管道中读取数据，
+
+1270
+01:16:41,230 --> 01:16:42,470
+you are going to get on the file.
+你要进入这个文件。
+
+1271
+01:16:48,160 --> 01:16:51,320
+Now, once you have a communication,
+现在，一旦你建立了通信连接，
+
+1272
+01:16:51,330 --> 01:16:52,640
+establish a communication,
+建立一种通信方式，
+
+1273
+01:16:53,190 --> 01:16:54,080
+we need a protocol.
+我们需要一个协议。
+
+1274
+01:16:54,790 --> 01:17:02,240
+The protocol need about how we are going to communicate between two parties.
+协议需要确定我们如何在两个参与方之间进行通信。
+
+1275
+01:17:02,890 --> 01:17:03,390
+Okay?
+好的？
+
+1276
+01:17:03,960 --> 01:17:05,870
+The protocol will have a syntax,
+该协议将具有一种语法，
+
+1277
+01:17:07,930 --> 01:17:08,240
+right?
+对的？
+
+1278
+01:17:08,980 --> 01:17:12,550
+Which will specify how you need to specify.
+这将指定你需要如何进行指定。
+
+1279
+01:17:12,560 --> 01:17:15,750
+You specify the protocol, the format,
+您需要指定协议和格式。
+
+1280
+01:17:16,500 --> 01:17:18,890
+the message order or things like that.
+消息的顺序或类似的事情。
+
+1281
+01:17:19,340 --> 01:17:22,920
+How do you send and receive data?
+你如何发送和接收数据？
+
+1282
+01:17:22,930 --> 01:17:27,120
+And then the semantics is that what communication means?
+然后语义是什么意思？它指的是什么样的通信方式？
+
+1283
+01:17:27,890 --> 01:17:28,300
+Right?
+对吗？
+
+1284
+01:17:29,090 --> 01:17:33,270
+When you make a call to send some data,
+当你发起一个发送数据的调用时，
+
+1285
+01:17:33,860 --> 01:17:35,120
+what actually happens?
+实际上发生了什么？
+
+1286
+01:17:35,990 --> 01:17:36,340
+Right?
+对吗？
+
+1287
+01:17:37,100 --> 01:17:37,570
+Okay?
+好的？
+
+1288
+01:17:38,050 --> 01:17:42,910
+Is the data always guaranteed to get to the destination or may be lost?
+数据是否始终能够确保到达目的地，还是可能会丢失？
+
+1289
+01:17:43,730 --> 01:17:44,130
+Right?
+对吗？
+
+1290
+01:17:44,480 --> 01:17:50,880
+A is a data guarantee to be get is a destination of the receiver guarantee
+A是一个数据保证，确保接收方能够获得的目的地保证。
+
+1291
+01:17:50,890 --> 01:17:54,080
+to get the data in the same order in your send out.
+为了以相同的顺序获取发送出去的数据。
+
+1292
+01:17:58,690 --> 01:18:00,340
+It's also more complicated,
+这也更加复杂，
+
+1293
+01:18:01,040 --> 01:18:03,880
+because if you communicate over network,
+因为如果你通过网络进行通信，
+
+1294
+01:18:04,530 --> 01:18:10,290
+different computers make you have different data formats,
+不同的计算机会导致不同的数据格式。
+
+1295
+01:18:11,120 --> 01:18:13,780
+you need to convert between different formats.
+你需要在不同的格式之间进行转换。
+
+1296
+01:18:16,530 --> 01:18:17,900
+This is also part of the product.
+这也是产品的一部分。
+
+1297
+01:18:20,390 --> 01:18:20,910
+Okay?
+好的？
+
+1298
+01:18:21,480 --> 01:18:23,110
+This is things and things about,
+这是关于某些事情和事情的内容。
+
+1299
+01:18:25,060 --> 01:18:26,340
+like you talk about telephone,
+就像你谈论电话一样，
+
+1300
+01:18:26,990 --> 01:18:27,400
+right?
+对的？
+
+1301
+01:18:27,880 --> 01:18:28,710
+You pick up,
+你接听了电话，
+
+1302
+01:18:29,310 --> 01:18:30,470
+you dial the number,
+你拨打了电话号码，
+
+1303
+01:18:31,150 --> 01:18:33,420
+then you talk with your friend.
+那你可以和你的朋友交谈。
+
+1304
+01:18:34,000 --> 01:18:36,470
+And then at the end,
+最后，
+
+1305
+01:18:37,410 --> 01:18:38,780
+you end up, right?
+你到达了，对吗？
+
+1306
+01:18:39,560 --> 01:18:40,140
+You hang up.
+你挂断电话。
+
+1307
+01:18:43,360 --> 01:18:44,560
+But the protocol here,
+但是这里的协议，
+
+1308
+01:18:44,980 --> 01:18:52,070
+part of the protocol is is about what are the part of the
+协议的一部分是关于协议的组成部分是什么的。
+
+1309
+01:18:52,840 --> 01:18:56,010
+protocols like like pick up the phone and open it?
+像"拿起电话"和"打开电话"这样的协议？
+
+1310
+01:18:56,020 --> 01:18:56,730
+It's like an open.
+这就像是一个开放的。
+
+1311
+01:18:58,480 --> 01:19:01,580
+Closing the phone is closing the call.
+挂断电话即是结束通话。
+
+1312
+01:19:02,900 --> 01:19:04,170
+It's like a close.
+这就像是一个结束。
+
+1313
+01:19:04,600 --> 01:19:07,310
+And then the break in me in the middle you have read and writes.
+然后在中间打断我，你可以读取和写入。
+
+1314
+01:19:07,920 --> 01:19:10,280
+But what I mean by the protocol here, like, for instance,
+但是我在这里所指的协议，比如说，
+
+1315
+01:19:10,290 --> 01:19:13,580
+the dial is how you are going to contact the other party.
+拨号盘是你与对方联系的方式。
+
+1316
+01:19:13,850 --> 01:19:14,870
+That's part of the protocol.
+这是协议的一部分。
+
+1317
+01:19:16,640 --> 01:19:17,290
+It's a number,
+这是一个数字。
+
+1318
+01:19:17,870 --> 01:19:18,170
+right?
+是的，正确的。
+
+1319
+01:19:18,180 --> 01:19:23,010
+We need to figure out then is that this kind of part of the total value
+我们需要弄清楚的是，这部分是否属于总价值的一部分。
+
+1320
+01:19:23,020 --> 01:19:24,610
+where typically you start with the hello.
+通常你会从打印"Hello"开始。
+
+1321
+01:19:25,210 --> 01:19:26,530
+But I I'm here,
+但是我在这里，
+
+1322
+01:19:27,070 --> 01:19:27,490
+right?
+对的？
+
+1323
+01:19:28,110 --> 01:19:33,380
+Also, it's used implicitly to recognize because the other party,
+此外，它被隐式地用于识别对方。
+
+1324
+01:19:33,390 --> 01:19:35,460
+if your friend is going to recognize your voice,
+如果你的朋友要识别你的声音，
+
+1325
+01:19:36,620 --> 01:19:40,820
+or may be recognized because of the number you see she or he sees.
+或者也可以根据你看到的数字来识别他或她。
+
+1326
+01:19:41,550 --> 01:19:42,770
+And then before hanging up,
+然后在挂断电话之前，
+
+1327
+01:19:42,780 --> 01:19:44,270
+you don't just hang up.
+你不能只是挂断电话。
+
+1328
+01:19:44,280 --> 01:19:45,170
+You say, bye.
+你说，再见。
+
+1329
+01:19:45,530 --> 01:19:50,310
+Right, you also that's implicit protocol here on your boss.
+没错，这也是你在老板这里的隐性规定。
+
+1330
+01:19:51,070 --> 01:19:53,060
+You expect for the other person to talk.
+你期望对方说话。
+
+1331
+01:19:53,480 --> 01:19:53,880
+Right?
+对吗？
+
+1332
+01:19:54,680 --> 01:19:55,360
+So things like that.
+就是这样的事情。
+
+1333
+01:19:55,710 --> 01:19:56,160
+Okay.
+好的。
+
+1334
+01:19:58,410 --> 01:20:03,970
+Okay, so the website about it,
+好的，关于这个网站，
+
+1335
+01:20:03,980 --> 01:20:05,690
+this is a very simple example.
+这是一个非常简单的例子。
+
+1336
+01:20:05,960 --> 01:20:08,170
+You also have a high level protocol,
+你还有一个高级协议，
+
+1337
+01:20:08,180 --> 01:20:09,190
+its application protocol,
+它的应用协议，
+
+1338
+01:20:09,410 --> 01:20:10,880
+which have a request and reply.
+其中包括一个请求和回复。
+
+1339
+01:20:12,250 --> 01:20:13,840
+That's how you are going.
+这就是你的情况。
+
+1340
+01:20:15,620 --> 01:20:19,210
+You see the results from the websites,
+你可以看到网站上的结果。
+
+1341
+01:20:19,220 --> 01:20:22,400
+from your Facebook account,
+从你的Facebook账户中，
+
+1342
+01:20:22,410 --> 01:20:24,920
+or when you do a query on Google.
+或者当你在谷歌上进行查询时。
+
+1343
+01:20:25,270 --> 01:20:27,340
+This is exactly how things are working.
+事情确实是这样运作的。
+
+1344
+01:20:27,350 --> 01:20:28,540
+You send a request,
+您发送了一个请求，
+
+1345
+01:20:28,890 --> 01:20:32,590
+you get a reply which is going to be rendered and shown to you in our process.
+你会收到一个回复，该回复将在我们的进程中呈现和显示给你。
+
+1346
+01:20:35,620 --> 01:20:37,780
+So I'm going to stop here.
+所以我要停在这里。
+
+1347
+01:20:40,940 --> 01:20:44,470
+In the meantime, I'm going to take the last question.
+与此同时，我将回答最后一个问题。
+
+1348
+01:20:44,480 --> 01:20:46,120
+So we are done.
+我们完成了。
+
+1349
+01:20:46,130 --> 01:20:48,640
+So for people who ask the questions,
+对于提问的人来说，
+
+1350
+01:20:48,650 --> 01:20:52,170
+I'm going to spend a few more minutes to answer this question.
+我将花几分钟时间来回答这个问题。
+
+1351
+01:21:04,380 --> 01:21:05,330
+This has a question.
+这是一个问题。
+
+1352
+01:21:05,340 --> 01:21:06,770
+Actually, I missed recently.
+实际上，我最近错过了。
+
+1353
+01:21:09,420 --> 01:21:14,460
+What happens if the new argument in the dot two function
+如果在dot two函数中添加了新的参数，会发生什么？
+
+1354
+01:21:14,470 --> 01:21:17,900
+is already being used as another file the skater?
+这个文件名已经被另一个文件使用了吗？
+
+1355
+01:21:18,850 --> 01:21:25,800
+Great question is the old one is overwritten
+很好的问题，旧的被覆盖了。
+
+1356
+01:21:28,690 --> 01:21:36,240
+by www why is file io slow?
+为什么文件输入输出（I/O）速度慢？
+
+1357
+01:21:36,250 --> 01:21:43,950
+The file io is slow is because every operation like read and write leads
+文件IO速度慢是因为每次读写操作都会导致
+
+1358
+01:21:43,960 --> 01:21:46,150
+to context switching to the kernel.
+进行上下文切换到内核。
+
+1359
+01:21:46,840 --> 01:21:50,910
+It has to be implemented by the is going to be executed by the killer.
+这必须由执行者来实施。
+
+1360
+01:21:52,210 --> 01:21:56,610
+If you are going to write one character at a time,
+如果你打算逐个字符地写入
+
+1361
+01:21:58,310 --> 01:22:00,100
+the low level file,
+低级文件
+
+1362
+01:22:01,430 --> 01:22:06,530
+what will cause that for every character,
+每个字符的原因是什么？
+
+1363
+01:22:07,490 --> 01:22:12,550
+you have a context switch from the user process to the kernel,
+你从用户进程切换到内核。
+
+1364
+01:22:13,930 --> 01:22:15,640
+for the kernel to write the character,
+内核要写入字符，
+
+1365
+01:22:15,650 --> 01:22:19,000
+you write 1,000 characters,
+你写了1,000个字符。
+
+1366
+01:22:19,510 --> 01:22:20,550
+one by one.
+逐一。
+
+1367
+01:22:21,010 --> 01:22:23,250
+Then you have 1,000 context switches.
+那么你有1,000次上下文切换。
+
+1368
+01:22:24,490 --> 01:22:26,220
+And the context switch is expensive.
+而且上下文切换是昂贵的。
+
+1369
+01:22:27,650 --> 01:22:32,400
+You need to save the state of the process below the state of the operating system.
+你需要将进程的状态保存在操作系统的状态之下。
+
+1370
+01:22:32,710 --> 01:22:33,680
+And then go back.
+然后返回。
+
+1371
+01:22:35,240 --> 01:22:39,840
+Like i've shown you from this data is twelve twenty,
+就像我从这些数据中向你展示的一样，是十二点二十。
+
+1372
+01:22:39,850 --> 01:22:41,040
+no function call,
+没有函数调用
+
+1373
+01:22:41,570 --> 01:22:50,180
+is at least one or remind you faster than a system called to the operating system.
+至少有一个或多个提醒你比操作系统更快的系统。
+
+1374
+01:22:52,590 --> 01:22:53,230
+So why?
+为什么呢？
+
+1375
+01:22:53,240 --> 01:22:55,590
+So we can buy between any two processes.
+所以我们可以在任意两个进程之间进行购买。
+
+1376
+01:22:56,080 --> 01:23:00,650
+You can buy between any two processes on the same machine.
+您可以在同一台机器上的任意两个进程之间进行购买。
+
+1377
+01:23:03,600 --> 01:23:05,390
+It's a question from miles.
+这是来自Miles的问题。
+
+1378
+01:23:05,400 --> 01:23:08,430
+Can a process ever make a Malaysia system call?
+一个进程能否调用马来西亚系统调用？
+
+1379
+01:23:08,920 --> 01:23:11,920
+Can you assume they're relying on the kernel for IPC secure?
+你能假设他们依赖内核来实现安全的进程间通信吗？
+
+1380
+01:23:12,890 --> 01:23:13,920
+You can assume,
+你可以假设，
+
+1381
+01:23:14,370 --> 01:23:17,450
+because the operating system is, again, you can,
+因为操作系统是可以的，再次，你可以。
+
+1382
+01:23:17,460 --> 01:23:21,360
+on the way you ask the operating system to do something,
+在你请求操作系统执行某项任务的过程中，
+
+1383
+01:23:21,650 --> 01:23:23,480
+is to put some data,
+是将一些数据放入
+
+1384
+01:23:23,850 --> 01:23:25,280
+the system call,
+系统调用
+
+1385
+01:23:25,730 --> 01:23:27,080
+and the file descriptor,
+文件描述符，
+
+1386
+01:23:27,090 --> 01:23:29,520
+the argument for the system calls in the registers.
+系统调用参数存储在寄存器中的论据。
+
+1387
+01:23:31,040 --> 01:23:34,550
+The operating system is going to read the context of the registers.
+操作系统将读取寄存器的上下文。
+
+1388
+01:23:35,080 --> 01:23:38,100
+This is how is going to execute the system call.
+这是系统调用的执行过程。
+
+1389
+01:23:38,110 --> 01:23:42,900
+And one reading is going to validate the data you put in the registers.
+还有一个读取操作将验证您放入寄存器中的数据。
+
+1390
+01:23:44,960 --> 01:23:48,310
+You assume that the validation is done correctly.
+你假设验证已经正确完成。
+
+1391
+01:23:48,590 --> 01:23:49,810
+And therefore,
+因此，
+
+1392
+01:23:50,550 --> 01:23:51,820
+by using a system call,
+通过使用系统调用，
+
+1393
+01:23:51,830 --> 01:23:54,620
+you cannot cause any harm to the operating system.
+你不能对操作系统造成任何损害。
+
+1394
+01:23:58,350 --> 01:24:04,840
+Let me see whether there are any other questions on the chat.
+让我看看聊天中是否还有其他问题。
+
+1395
+01:24:06,390 --> 01:24:07,060
+It's the norm.
+这是常态。
+
+1396
+01:24:07,070 --> 01:24:07,780
+Last one.
+最后一个。
+
+1397
+01:24:07,790 --> 01:24:11,500
+It looked like the physical memory of a single process was the joint.
+看起来单个进程的物理内存是共享的。
+
+1398
+01:24:11,510 --> 01:24:15,300
+I was wondering why not keep the physical memory of each process continuous.
+我想知道为什么不将每个进程的物理内存保持连续。
+
+1399
+01:24:15,690 --> 01:24:16,850
+That's an excellent question,
+这是一个很好的问题，
+
+1400
+01:24:17,790 --> 01:24:18,710
+Jasper.
+贾斯珀。
+
+1401
+01:24:19,780 --> 01:24:24,090
+So the reason is you cannot have contiguous,
+所以原因是你不能有连续的，
+
+1402
+01:24:24,100 --> 01:24:29,110
+because you do not know as the beginning of the process of a program,
+因为你不知道一个程序的开始过程。
+
+1403
+01:24:29,120 --> 01:24:30,610
+how much memory you need.
+你需要多少内存？
+
+1404
+01:24:31,600 --> 01:24:35,670
+Why a simple reason is, for instance, a stack,
+一个简单的原因是，例如，栈。
+
+1405
+01:24:36,120 --> 01:24:37,600
+you don't know how much stack will grow.
+你不知道栈会增长多少。
+
+1406
+01:24:38,920 --> 01:24:40,760
+Another reason is hip.
+另一个原因是时尚。
+
+1407
+01:24:41,380 --> 01:24:43,570
+When you allocate dynamically memories,
+当你动态分配内存时，
+
+1408
+01:24:43,580 --> 01:24:45,610
+a program allocate dynamically memory,
+一个程序动态分配内存。
+
+1409
+01:24:46,750 --> 01:24:50,200
+do you know how much a program is going to allocate?
+你知道一个程序要分配多少内存吗？
+
+1410
+01:24:52,100 --> 01:24:53,290
+Because of this reason?
+因为这个原因吗？
+
+1411
+01:24:53,300 --> 01:24:58,410
+And because the address space in the virtual address space about everything
+由于虚拟地址空间中的地址空间几乎涵盖了所有内容。
+
+1412
+01:24:58,420 --> 01:25:01,230
+that they the user sees can
+用户看到的东西可以
+
+1413
+01:25:01,240 --> 01:25:04,300
+be much larger than the physical address space,
+远远大于物理地址空间
+
+1414
+01:25:04,720 --> 01:25:12,560
+then there is no way the you cannot allocate a contiguous region.
+那么就没有办法无法分配一个连续的区域。
+
+1415
+01:25:16,570 --> 01:25:17,070
+Thank you.
+谢谢你。
+
+1416
+01:25:18,160 --> 01:25:18,980
+Thanks, everyone.
+谢谢大家。
+
+1417
+01:25:18,990 --> 01:25:21,630
+Good luck with first project.
+祝你在第一个项目中好运。
+
+1418
+01:25:22,310 --> 01:25:28,980
+And i'll see you next week.
+下周见。
+

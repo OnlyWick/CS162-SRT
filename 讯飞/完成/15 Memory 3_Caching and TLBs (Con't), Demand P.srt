@@ -1,0 +1,8465 @@
+1
+00:00:02,820 --> 00:00:03,100
+Cool.
+很酷。
+
+2
+00:00:03,110 --> 00:00:04,060
+So we're recording.
+我们正在录音。
+
+3
+00:00:04,540 --> 00:00:07,210
+And I can do stuff.
+我可以做事情。
+
+4
+00:00:08,530 --> 00:00:08,920
+Great.
+太好了。
+
+5
+00:00:08,930 --> 00:00:11,840
+So i'm gonna try and keep my eye on the chat.
+所以我会尽量留意聊天窗口。
+
+6
+00:00:12,290 --> 00:00:15,910
+But i'm not very good at this yet, so this is all new to me.
+但是我还不太擅长这个，所以这对我来说都是新的。
+
+7
+00:00:17,260 --> 00:00:18,220
+So i'm gonna do my best.
+所以我会尽力而为。
+
+8
+00:00:19,600 --> 00:00:21,790
+So i'm nathan, i'm filling in for yon today.
+所以我是Nathan，我今天代替Yon。
+
+9
+00:00:21,800 --> 00:00:22,910
+I'm a grad student,
+我是一名研究生。
+
+10
+00:00:23,480 --> 00:00:24,030
+I work with yon.
+我和你一起工作。
+
+11
+00:00:24,040 --> 00:00:24,750
+Sometimes.
+有时候。
+
+12
+00:00:25,810 --> 00:00:27,210
+I study a lot of stuff.
+我学习了很多东西。
+
+13
+00:00:27,220 --> 00:00:28,650
+I do like kind of cloud stuff,
+我喜欢云计算相关的东西。
+
+14
+00:00:29,420 --> 00:00:30,250
+serverless computing.
+无服务器计算。
+
+15
+00:00:30,260 --> 00:00:32,690
+If ever heard of that, I goof around with some hardware,
+如果你听说过的话，我会玩一些硬件。
+
+16
+00:00:33,240 --> 00:00:34,470
+lots of stuff like that.
+很多类似的东西。
+
+17
+00:00:34,480 --> 00:00:38,930
+But today we're gonna be talking about more stuff to do with a dream
+但是今天我们将讨论与梦想有关的更多内容
+
+18
+00:00:40,000 --> 00:00:41,000
+and virtual memory.
+和虚拟内存。
+
+19
+00:00:41,010 --> 00:00:42,440
+And particularly today,
+特别是今天，
+
+20
+00:00:42,450 --> 00:00:48,430
+there's a big focus on how paging actually works kind of in practice.
+在实际中，对页面的工作原理有很大的关注。
+
+21
+00:00:48,440 --> 00:00:51,430
+So a lot of the tips and tricks how the hardware deals with it.
+很多技巧和窍门都与硬件的处理方式有关。
+
+22
+00:00:51,850 --> 00:00:53,600
+Some of the more kind of advanced,
+一些比较高级的，
+
+23
+00:00:53,610 --> 00:00:55,610
+detailed concepts around that.
+关于这个的详细概念。
+
+24
+00:00:56,390 --> 00:00:59,100
+So starting from what you guys saw last week,
+从上周你们所看到的开始说起，
+
+25
+00:00:59,110 --> 00:01:04,420
+and you guys can interrupt me in the chat if if i'm sort of off and sink,
+如果我有点偏离主题或混乱的话，你们可以在聊天中打断我。
+
+26
+00:01:04,430 --> 00:01:06,620
+I think young told me where he left off last time.
+我想年轻人告诉我他上次停下来的地方。
+
+27
+00:01:07,310 --> 00:01:09,340
+We talked about flat page tables.
+我们讨论了平面页表。
+
+28
+00:01:09,350 --> 00:01:10,620
+We talked about first level,
+我们讨论了第一层级，
+
+29
+00:01:10,630 --> 00:01:12,540
+single level page tables.
+单层页表。
+
+30
+00:01:13,430 --> 00:01:18,850
+A single level page table is gonna have one entry for every virtual page
+一个单层页表将为每个虚拟页面有一个条目。
+
+31
+00:01:18,860 --> 00:01:20,170
+that you could possibly have.
+你可能拥有的一切。
+
+32
+00:01:20,610 --> 00:01:22,080
+If you have a 32 bit system,
+如果你有一个32位的系统，
+
+33
+00:01:22,090 --> 00:01:25,840
+that's gonna be 2 to the 32 entries about4 billion,
+这将会有2的32次方个条目，大约40亿个。
+
+34
+00:01:26,300 --> 00:01:28,570
+4 billion divided by the page size,
+40亿除以页面大小，
+
+35
+00:01:28,580 --> 00:01:31,550
+just four k if you're on a 64 bit machine,
+如果你使用的是64位机器，那么只需要4K。
+
+36
+00:01:31,560 --> 00:01:33,870
+which is obviously the most popular today,
+显然，这是当今最受欢迎的。
+
+37
+00:01:34,470 --> 00:01:36,140
+at least for high end,
+至少对于高端产品来说，
+
+38
+00:01:36,150 --> 00:01:38,380
+sort of systems that's gonna be 2 to the 64,
+这种系统的数量将会是2的64次方。
+
+39
+00:01:38,390 --> 00:01:40,540
+which is a completely outrageous number.
+这是一个完全荒谬的数字。
+
+40
+00:01:42,020 --> 00:01:44,210
+Single level page tables are just not practical.
+单层页表实际上并不实用。
+
+41
+00:01:44,220 --> 00:01:47,010
+You'd have to have an entry for every virtual address.
+每个虚拟地址都需要有一个对应的条目。
+
+42
+00:01:47,020 --> 00:01:49,990
+And the reality is that and no program uses
+事实是没有一个程序使用
+
+43
+00:01:50,000 --> 00:01:52,430
+anywhere near all available virtual addresses.
+任何接近所有可用虚拟地址的地方。
+
+44
+00:01:52,440 --> 00:01:56,590
+The vast majority of programs use a tiny fraction of virtual memory.
+绝大多数程序只使用了虚拟内存的一小部分。
+
+45
+00:01:57,360 --> 00:01:57,990
+What do we do?
+我们要做什么？
+
+46
+00:01:58,490 --> 00:02:01,880
+We go back to our data structures class that we learned.
+我们回到我们学过的数据结构课程。
+
+47
+00:02:02,240 --> 00:02:04,190
+We learned about all these neat data structures,
+我们学习了所有这些很棒的数据结构，
+
+48
+00:02:04,200 --> 00:02:06,310
+and we remember that there's a thing called a tree.
+我们记得有一种东西叫做树。
+
+49
+00:02:07,340 --> 00:02:11,650
+What we do is instead of having that first level page table address everything,
+我们所做的是，不再让第一级页表地址包含所有内容，
+
+50
+00:02:11,890 --> 00:02:15,810
+what it instead does is it points to child nodes in a tree.
+它实际上指向树中的子节点。
+
+51
+00:02:16,210 --> 00:02:17,320
+This isn't a binary tree.
+这不是一个二叉树。
+
+52
+00:02:17,330 --> 00:02:22,030
+It's aa tree with as many leaves as you need in order to cover
+这是一棵树，叶子的数量足以覆盖所需的范围。
+
+53
+00:02:22,040 --> 00:02:23,270
+the virtual address space.
+虚拟地址空间。
+
+54
+00:02:23,670 --> 00:02:25,200
+But it's the same idea, just like a tree.
+但是这个想法是一样的，就像一棵树一样。
+
+55
+00:02:26,330 --> 00:02:31,370
+And instead of treating your virtual address bits as an index
+而不是将您的虚拟地址位视为索引
+
+56
+00:02:31,380 --> 00:02:32,570
+into a single table,
+合并成一个表格
+
+57
+00:02:32,580 --> 00:02:33,490
+we split it up.
+我们把它分开了。
+
+58
+00:02:33,620 --> 00:02:35,330
+Now there's two parts here.
+现在有两个部分。
+
+59
+00:02:35,340 --> 00:02:39,080
+So you can see there's one part that indexes into the first level page table.
+所以你可以看到有一个部分是用来索引第一级页表的。
+
+60
+00:02:39,790 --> 00:02:44,000
+And then the second half of it we're gonna use here to index
+然后我们将使用后半部分来进行索引。
+
+61
+00:02:44,010 --> 00:02:45,960
+into the second level page table.
+进入第二级页表。
+
+62
+00:02:46,310 --> 00:02:47,680
+It's just an index scheme.
+这只是一个索引方案。
+
+63
+00:02:47,920 --> 00:02:50,440
+It's just a scheme in order to structure a page table,
+这只是一种用于构建页表的方案。
+
+64
+00:02:50,450 --> 00:02:53,440
+more like a tree than a page than a single table.
+更像是一棵树而不是一页或单个表格。
+
+65
+00:02:53,980 --> 00:02:57,610
+Then this one here is actually like what you learned about before.
+那么这个例子实际上就像你之前学过的那个。
+
+66
+00:02:57,620 --> 00:02:59,850
+This is your standard page table entry.
+这是标准的页表项。
+
+67
+00:03:00,130 --> 00:03:01,750
+We call that apte for short,
+我们简称为apte。
+
+68
+00:03:01,760 --> 00:03:03,350
+i'm gonna use that word a lot today.
+我今天会经常使用那个词。
+
+69
+00:03:04,120 --> 00:03:09,440
+So page table entry is apte this is the normal one we saw,
+所以页表项是指我们所见到的常规页表项。
+
+70
+00:03:09,450 --> 00:03:11,440
+just like when it was in a first level page table.
+就像它在一级页表中时一样。
+
+71
+00:03:11,840 --> 00:03:14,390
+So you got the physical page number here.
+所以你在这里得到了物理页号。
+
+72
+00:03:14,970 --> 00:03:15,520
+In linux.
+在Linux中。
+
+73
+00:03:15,530 --> 00:03:16,840
+I think they call this a frame,
+我认为他们称之为帧。
+
+74
+00:03:16,850 --> 00:03:20,790
+so they call this the physical frame number of pfn you might hear me say
+所以他们称之为物理帧号码（PFN），你可能会听到我这样说。
+
+75
+00:03:20,800 --> 00:03:21,470
+page number,
+页码
+
+76
+00:03:21,480 --> 00:03:23,150
+you might hear me say frame number,
+你可能会听到我说帧号码，
+
+77
+00:03:23,160 --> 00:03:26,670
+often frame is tends to get used for the physical,
+通常，"frame"一词常用于表示物理层面的东西。
+
+78
+00:03:26,920 --> 00:03:29,310
+just to make it a little more clear that whether we're talking
+只是为了更清楚一点，我们是在讨论
+
+79
+00:03:29,320 --> 00:03:31,470
+about virtual pages or physical pages,
+关于虚拟页面或物理页面，
+
+80
+00:03:31,790 --> 00:03:32,840
+also, when you say frame,
+此外，当你说到"frame"时，
+
+81
+00:03:32,850 --> 00:03:37,110
+you tend to refer to an actual literal like particular address in memory.
+你倾向于引用实际的文字，比如内存中的特定地址。
+
+82
+00:03:37,950 --> 00:03:40,340
+Either way we have a physical page number in the table,
+无论哪种方式，我们在表中都有一个物理页号。
+
+83
+00:03:40,350 --> 00:03:42,100
+so we use the virtual page number.
+所以我们使用虚拟页号。
+
+84
+00:03:42,110 --> 00:03:43,420
+So that was this part.
+那就是这部分了。
+
+85
+00:03:43,850 --> 00:03:45,970
+This was what you thought the address was.
+这是你认为的地址。
+
+86
+00:03:46,210 --> 00:03:49,760
+We use that in order to find the physical page number.
+我们使用这个来找到物理页号。
+
+87
+00:03:50,150 --> 00:03:52,660
+And then because pages have multiple bytes in them,
+然后由于页面中有多个字节，
+
+88
+00:03:52,670 --> 00:03:54,660
+and you're trying to address a particular byte,
+而你正在尝试访问特定的字节，
+
+89
+00:03:55,000 --> 00:03:56,380
+there's this offset part you provided,
+你提供了一个偏移量部分。
+
+90
+00:03:56,390 --> 00:03:58,270
+and that offsets gonna be the same,
+并且偏移量将保持不变，
+
+91
+00:03:58,530 --> 00:04:00,100
+whether it's physical or virtual.
+无论是物理的还是虚拟的。
+
+92
+00:04:00,410 --> 00:04:02,730
+It's just the offset in here,
+这里只是偏移量。
+
+93
+00:04:02,740 --> 00:04:04,620
+whether it's here, right?
+是这里吗，对吗？
+
+94
+00:04:05,230 --> 00:04:05,610
+Okay?
+好的？
+
+95
+00:04:06,220 --> 00:04:08,530
+Multilevel page table is pretty sure we talked about this,
+多级页表，我相当确定我们谈过这个话题。
+
+96
+00:04:08,540 --> 00:04:10,090
+or you talked about this last week.
+或者你上周已经谈论过这个了。
+
+97
+00:04:11,900 --> 00:04:12,930
+But they're pretty cool.
+但它们非常酷。
+
+98
+00:04:13,180 --> 00:04:16,290
+And one of the nice things here is that I don't actually have to have
+这里的一个好处是我实际上不需要拥有
+
+99
+00:04:16,300 --> 00:04:16,970
+every one of these,
+每一个
+
+100
+00:04:16,980 --> 00:04:17,290
+right?
+对的？
+
+101
+00:04:17,300 --> 00:04:18,090
+So I could have,
+所以我可以有，
+
+102
+00:04:19,070 --> 00:04:20,750
+maybe this doesn't even have to exist.
+也许这根本不需要存在。
+
+103
+00:04:20,970 --> 00:04:21,060
+Right?
+对吗？
+
+104
+00:04:21,070 --> 00:04:22,700
+If I haven't allocated any pages,
+如果我还没有分配任何页面，
+
+105
+00:04:22,710 --> 00:04:25,140
+why should I even bother creating the leaf node yet?
+为什么我要费心去创建叶节点呢？
+
+106
+00:04:26,070 --> 00:04:29,580
+What you might do is you might just sort of mark this as empty.
+你可以将其标记为空。
+
+107
+00:04:30,300 --> 00:04:30,310
+Right?
+对吗？
+
+108
+00:04:30,320 --> 00:04:33,470
+In this entry might have some sort of bit that you said that's enough.
+在这个条目中可能有一些你说的足够的位。
+
+109
+00:04:33,760 --> 00:04:34,740
+This doesn't actually exist.
+这实际上并不存在。
+
+110
+00:04:34,750 --> 00:04:35,300
+Ignore it.
+忽略它。
+
+111
+00:04:35,770 --> 00:04:37,920
+In which case we didn't have to allocate this other one.
+在哪种情况下我们不需要分配这个其他的呢？
+
+112
+00:04:38,320 --> 00:04:39,470
+We saved ourselves some memory.
+我们节省了一些内存。
+
+113
+00:04:39,480 --> 00:04:41,390
+So with multilevel page tables,
+使用多级页表时，
+
+114
+00:04:41,400 --> 00:04:42,830
+we no longer have to store.
+我们不再需要存储。
+
+115
+00:04:42,840 --> 00:04:47,060
+We don't have to allocate memory for all the empty spots in the table anymore.
+我们不再需要为表中的所有空位分配内存了。
+
+116
+00:04:47,070 --> 00:04:52,560
+We just have to allocate memory for the ones that actually have been assigned,
+我们只需要为实际被分配的那些分配内存。
+
+117
+00:04:52,790 --> 00:04:56,260
+or at least1 page is worth of ones that have been assigned.
+或者至少有一页的已分配的任务。
+
+118
+00:04:56,270 --> 00:05:00,340
+We still are gonna have empty slots in this second level page table,
+我们在这个二级页表中仍然会有空槽位。
+
+119
+00:05:00,350 --> 00:05:01,580
+but there's a lot fewer of them.
+但是它们的数量要少得多。
+
+120
+00:05:01,590 --> 00:05:02,540
+So it kind of works out.
+所以它有点能够正常运作。
+
+121
+00:05:06,130 --> 00:05:07,680
+What are the pros and cons here?
+这里有哪些利弊？
+
+122
+00:05:08,200 --> 00:05:10,990
+So the pros of the multilevel page table is that,
+多级页表的优点是，
+
+123
+00:05:11,320 --> 00:05:16,310
+like I said, sparse address spaces that are mostly empty, mostly unassigned.
+就像我说的，稀疏的地址空间大部分是空的，大部分是未分配的。
+
+124
+00:05:17,120 --> 00:05:20,630
+This is reasonably good at because you don't have to store all the empty ones,
+这是相对不错的，因为你不需要存储所有的空白部分。
+
+125
+00:05:21,500 --> 00:05:25,370
+because we're using paging rather than something more complicated like segmentation.
+因为我们使用的是分页而不是更复杂的分段技术。
+
+126
+00:05:25,660 --> 00:05:27,770
+Then it makes memory allocation a lot easier,
+然后它使内存分配变得更容易。
+
+127
+00:05:27,780 --> 00:05:29,930
+because you have fixed size pages,
+因为你有固定大小的页面，
+
+128
+00:05:29,940 --> 00:05:34,180
+you have these fixed size allocation units that makes life a lot
+你有这些固定大小的分配单元，这使得生活变得更加轻松。
+
+129
+00:05:34,190 --> 00:05:36,020
+easier when you're writing memory allocators.
+在编写内存分配器时会更容易。
+
+130
+00:05:36,030 --> 00:05:39,340
+Now I don't know if you guys have a memory allocator project in this class,
+现在我不知道你们在这门课上是否有一个内存分配器项目。
+
+131
+00:05:39,970 --> 00:05:42,040
+or if you've done one yet, but when you do,
+或者如果你已经完成了一个，但是当你完成时，
+
+132
+00:05:42,050 --> 00:05:44,280
+you're gonna start to realize how incredibly annoying it
+你会开始意识到它是多么令人讨厌
+
+133
+00:05:44,290 --> 00:05:46,990
+would be to try and allocate variable size things.
+尝试分配可变大小的变量可能是一个解决方法。
+
+134
+00:05:47,000 --> 00:05:49,870
+It's much easier if they're fixed size and aligned.
+如果它们是固定大小并对齐的话，会更容易。
+
+135
+00:05:51,140 --> 00:05:53,860
+The other nice thing is that every process has its own page table.
+另一个好处是每个进程都有自己的页表。
+
+136
+00:05:54,300 --> 00:05:55,880
+And so it makes it really easy to share.
+因此，它使分享变得非常容易。
+
+137
+00:05:55,890 --> 00:05:59,390
+So even though two people might have different virtual addresses,
+即使两个人的虚拟地址不同，
+
+138
+00:05:59,690 --> 00:06:00,240
+it's pretty neat.
+这很不错。
+
+139
+00:06:00,250 --> 00:06:03,200
+We can actually just have those virtual addresses mapped
+我们实际上可以将这些虚拟地址映射起来。
+
+140
+00:06:03,210 --> 00:06:04,840
+to the same physical address.
+指向相同的物理地址。
+
+141
+00:06:05,170 --> 00:06:08,520
+Then people can share physical memory without even realizing it.
+这样，人们甚至可以在不知情的情况下共享物理内存。
+
+142
+00:06:08,530 --> 00:06:09,360
+And that's pretty neat.
+这真的很棒。
+
+143
+00:06:09,370 --> 00:06:11,600
+So we'll talk a little bit more about that later in the lecture.
+稍后在讲座中我们会再详细讨论这个话题。
+
+144
+00:06:13,070 --> 00:06:13,900
+It's not perfect, though.
+虽然不完美，但还可以。
+
+145
+00:06:13,910 --> 00:06:15,180
+I there's down sides, right?
+是的，有一些不利的方面，对吗？
+
+146
+00:06:15,720 --> 00:06:18,340
+One of them is that because they're not variable size,
+其中之一是因为它们不是可变大小的。
+
+147
+00:06:18,350 --> 00:06:19,500
+because they're fixed size,
+因为它们是固定大小的，
+
+148
+00:06:19,510 --> 00:06:22,370
+we actually have to have an entry page,
+我们实际上需要一个入口页面。
+
+149
+00:06:22,720 --> 00:06:25,870
+even though I might allocate you like a gigabyte in one shot,
+即使我可能一次性分配给你一GB的空间，
+
+150
+00:06:25,880 --> 00:06:30,540
+actually gonna have to have one entry for every four k in that big,
+实际上，在那个大的地方，每四千字节需要有一个条目。
+
+151
+00:06:30,550 --> 00:06:31,560
+four gigabyte section.
+四千兆字节的部分。
+
+152
+00:06:31,920 --> 00:06:34,040
+So I can give you these big allocations,
+所以我可以给你这些大内存分配。
+
+153
+00:06:34,050 --> 00:06:37,770
+but i'm allocating a lot of kind of redundant information with segments.
+但是我正在使用段来分配许多冗余信息。
+
+154
+00:06:37,780 --> 00:06:39,210
+You wouldn't have that problem, right?
+你不会有那个问题，对吗？
+
+155
+00:06:39,220 --> 00:06:39,690
+Of segmentation.
+分段。
+
+156
+00:06:39,700 --> 00:06:42,900
+I could give you a base register and just a four gigabyte down,
+我可以给你一个基址寄存器，只需要四个千兆字节的下限。
+
+157
+00:06:42,910 --> 00:06:44,260
+and then everything would work out.
+然后一切都会顺利解决。
+
+158
+00:06:44,860 --> 00:06:47,330
+It's kind of a drawback of this paging approach.
+这种分页方法有点不足之处。
+
+159
+00:06:47,560 --> 00:06:51,470
+The way people deal with that is they tend to allow for different sized pages.
+人们处理这个问题的方式是他们倾向于允许不同大小的页面。
+
+160
+00:06:51,480 --> 00:06:54,670
+There's still a line, but today you can do things called huge pages.
+还有一种叫做巨大页的功能，但是今天你可以使用它。
+
+161
+00:06:55,090 --> 00:07:00,520
+Maybe you could allocate a one megabyte or even bigger page size.
+也许你可以分配一个一兆字节甚至更大的页面大小。
+
+162
+00:07:01,110 --> 00:07:03,100
+That is a trick that modern systems use,
+这是现代系统使用的一个技巧，
+
+163
+00:07:03,650 --> 00:07:08,320
+but we won't really go into too much more detail beyond that for huge pages.
+但是对于大页，我们不会深入讨论太多细节。
+
+164
+00:07:09,520 --> 00:07:10,430
+They have to be contiguous.
+它们必须是连续的。
+
+165
+00:07:10,440 --> 00:07:11,790
+It's not such a bad a bit.
+这并不是太糟糕。
+
+166
+00:07:12,160 --> 00:07:13,310
+So not such a problem.
+没什么大问题。
+
+167
+00:07:13,320 --> 00:07:15,190
+When you have multilevel page tables.
+当你有多级页表时。
+
+168
+00:07:15,440 --> 00:07:17,660
+All we do is we make each one of those levels.
+我们所做的就是制作每一个层级。
+
+169
+00:07:17,670 --> 00:07:18,760
+So each one of those,
+所以每一个人，
+
+170
+00:07:20,120 --> 00:07:20,510
+let's see.
+让我们看看。
+
+171
+00:07:20,520 --> 00:07:22,430
+So each one of these,
+所以每一个这样的，
+
+172
+00:07:25,890 --> 00:07:26,800
+what happened here?
+这里发生了什么事情？
+
+173
+00:07:32,910 --> 00:07:33,820
+Sorry, guys.
+抱歉，大家。
+
+174
+00:07:34,210 --> 00:07:35,250
+So getting used to this,
+所以逐渐适应了这个
+
+175
+00:07:36,120 --> 00:07:36,490
+okay?
+好的？
+
+176
+00:07:40,850 --> 00:07:45,560
+We make each one of these happen to fit precisely in 1 page that makes life
+我们确保每一个都能精确地适应一页，这让生活变得更加方便。
+
+177
+00:07:45,570 --> 00:07:47,180
+an awful lot easier for everybody.
+对每个人来说都容易得多。
+
+178
+00:07:47,880 --> 00:07:49,520
+So it's not really that big a deal,
+所以这并不是什么大不了的事情，
+
+179
+00:07:51,070 --> 00:07:54,020
+but it does add us another little constraint that we have to have
+但它确实给我们增加了另一个小限制，我们必须满足。
+
+180
+00:07:54,030 --> 00:07:56,780
+a very particular organization of our page table.
+一个非常特殊的页面表组织。
+
+181
+00:07:57,090 --> 00:07:58,360
+Because we're gonna talk about later,
+因为我们将在稍后讨论，
+
+182
+00:07:58,370 --> 00:08:00,200
+the hardware has to be able to interact with it.
+硬件必须能够与其进行交互。
+
+183
+00:08:00,330 --> 00:08:01,600
+It's a little bit of a constraint.
+这有点限制。
+
+184
+00:08:02,340 --> 00:08:06,360
+But the big the one that really screws us up here is this last point.
+但是最让我们困扰的是最后一个问题。
+
+185
+00:08:06,680 --> 00:08:11,100
+So the problem we have is that when you have multilevel page tables,
+我们遇到的问题是，当使用多级页表时，
+
+186
+00:08:11,400 --> 00:08:13,220
+then you have to kind of hunt around it.
+那你需要在周围四处搜索一下。
+
+187
+00:08:14,220 --> 00:08:16,520
+You gotta read that first level page table first,
+你首先需要阅读一级页表。
+
+188
+00:08:16,800 --> 00:08:18,680
+figure out where the second level one is,
+找出第二级的位置在哪里
+
+189
+00:08:18,690 --> 00:08:21,760
+and then go read the second level one to find your answer.
+然后去阅读第二级的内容，找到你的答案。
+
+190
+00:08:21,770 --> 00:08:23,040
+And if you have more right,
+如果你有更多的权利，
+
+191
+00:08:23,050 --> 00:08:24,760
+like some things have more than two levels,
+有些事情有超过两个层次，
+
+192
+00:08:24,770 --> 00:08:26,560
+there's four level page tables or more,
+有四级或更多级的页表。
+
+193
+00:08:27,020 --> 00:08:28,810
+then it's like four hops.
+那么就像是四个跳跃。
+
+194
+00:08:28,820 --> 00:08:30,610
+And every time you have to follow a pointer,
+每次你需要跟随一个指针时，
+
+195
+00:08:30,620 --> 00:08:32,780
+that's time that takes time, right?
+这是需要花费时间的时间，对吗？
+
+196
+00:08:32,790 --> 00:08:34,930
+Jumping around memory, chasing pointers.
+在内存中跳来跳去，追逐指针。
+
+197
+00:08:35,340 --> 00:08:40,000
+And we have to do address translation on every single load store.
+我们必须在每个加载存储操作上进行地址转换。
+
+198
+00:08:40,580 --> 00:08:42,650
+Every time you load, every time you store,
+每次加载，每次存储，
+
+199
+00:08:42,660 --> 00:08:43,770
+including instructions.
+包括指示。
+
+200
+00:08:43,780 --> 00:08:45,730
+So every time you fetch the next instruction,
+每次你获取下一条指令时，
+
+201
+00:08:45,740 --> 00:08:47,130
+that's kind of like a load.
+这有点像负载。
+
+202
+00:08:47,510 --> 00:08:49,180
+You have to do address translation.
+你需要进行地址转换。
+
+203
+00:08:49,540 --> 00:08:53,650
+It's important that it be super fast and hopping around is kind of slow.
+它非常重要要非常快速，而跳跃移动则相对较慢。
+
+204
+00:08:53,660 --> 00:08:56,650
+So this is a big issue that we're gonna have to figure out how to solve.
+这是一个我们需要解决的重大问题。
+
+205
+00:09:00,400 --> 00:09:02,510
+The next question is we talked about how they're organized,
+下一个问题是我们讨论了它们是如何组织的，
+
+206
+00:09:02,520 --> 00:09:04,350
+what they're kind of doing at a high level.
+他们在高层次上做的是什么。
+
+207
+00:09:04,590 --> 00:09:05,820
+The next question is,
+下一个问题是，
+
+208
+00:09:05,830 --> 00:09:07,220
+who's managing these, right?
+谁在管理这些，对吗？
+
+209
+00:09:07,230 --> 00:09:10,850
+How are you actually filling in these translations?
+你实际上是如何填写这些翻译的？
+
+210
+00:09:11,460 --> 00:09:14,410
+We got to remember that this is an operating system,
+我们必须记住这是一个操作系统，
+
+211
+00:09:14,420 --> 00:09:16,010
+the operating systems, job,
+操作系统，工作，
+
+212
+00:09:16,020 --> 00:09:19,840
+one of its big jobs is allowing multiple applications
+它的一个重要任务是允许多个应用程序同时运行
+
+213
+00:09:19,850 --> 00:09:22,720
+like multiple processes to safely share machines.
+像多个进程安全地共享计算机。
+
+214
+00:09:22,730 --> 00:09:24,000
+They can't screw with each other.
+他们不能互相捣乱。
+
+215
+00:09:24,480 --> 00:09:24,790
+Right?
+对吗？
+
+216
+00:09:25,000 --> 00:09:28,910
+Like, even if you have a process running some sensitive information,
+即使你有一个正在运行一些敏感信息的进程，
+
+217
+00:09:29,270 --> 00:09:32,300
+other processes that you're running at the same time aren't allowed to read
+同时运行的其他进程不允许读取
+
+218
+00:09:32,310 --> 00:09:32,580
+that.
+那个。
+
+219
+00:09:32,590 --> 00:09:33,660
+So its security.
+所以这是关于安全性的。
+
+220
+00:09:33,980 --> 00:09:35,530
+And also, if one of them screws up, right?
+而且，如果其中一个出错了，对吗？
+
+221
+00:09:35,540 --> 00:09:36,250
+You have a mistake.
+你犯了一个错误。
+
+222
+00:09:36,260 --> 00:09:39,290
+You start writing to some random address, you get a seg fault, whatever.
+你开始向一个随机地址写入数据，然后出现了段错误。无论发生了什么。
+
+223
+00:09:39,620 --> 00:09:41,610
+We don't want to be able to screw everybody else up.
+我们不希望能够搞乱其他人。
+
+224
+00:09:41,620 --> 00:09:44,690
+So if one badly written program can take your whole system down,
+如果一个编写不良的程序可以使整个系统崩溃，
+
+225
+00:09:44,700 --> 00:09:45,650
+you kind of have a problem.
+你似乎遇到了一个问题。
+
+226
+00:09:46,440 --> 00:09:51,950
+The trick we do with most any sort of cpu that really supports,
+对于几乎所有真正支持的CPU，我们都会使用的技巧是
+
+227
+00:09:51,960 --> 00:09:53,710
+or any isa that really supports,
+或者任何真正支持的ISA。
+
+228
+00:09:54,020 --> 00:09:56,930
+an operating system is gonna have this dual mode operation.
+操作系统将具有双模式运行。
+
+229
+00:09:57,560 --> 00:10:00,850
+Instead of letting processes set up their own page tables,
+不再让进程自行设置页表，
+
+230
+00:10:01,180 --> 00:10:04,610
+we have kernel mode.
+我们有内核模式。
+
+231
+00:10:05,170 --> 00:10:07,520
+In kernel mode, you can do anything you want, right?
+在内核模式下，你可以做任何你想做的事情，对吗？
+
+232
+00:10:07,530 --> 00:10:10,440
+You have super high privilege to do anything you want.
+你拥有超高的特权，可以随心所欲地做任何事情。
+
+233
+00:10:10,730 --> 00:10:13,400
+And then in user mode, there's a bunch of stuff you're not allowed to do.
+然后在用户模式下，有一些你不被允许做的事情。
+
+234
+00:10:13,980 --> 00:10:16,370
+A lot of the stuff you're not allowed to do boils down to like
+很多你不被允许做的事情归结为
+
+235
+00:10:16,380 --> 00:10:18,730
+what memory regions you can write,
+你可以写入哪些内存区域？
+
+236
+00:10:19,100 --> 00:10:22,170
+and which like control registers you can set and things like that.
+你可以设置哪些控制寄存器之类的东西。
+
+237
+00:10:22,870 --> 00:10:24,820
+When the system first boots up, it's in kernel mode.
+当系统首次启动时，它处于内核模式。
+
+238
+00:10:24,830 --> 00:10:26,300
+When you first press that power button,
+当你第一次按下电源按钮时，
+
+239
+00:10:27,030 --> 00:10:28,000
+then your operating system loads.
+然后你的操作系统加载。
+
+240
+00:10:28,010 --> 00:10:29,250
+And it sets up anything.
+它会设置任何东西。
+
+241
+00:10:29,260 --> 00:10:31,500
+It wants to set up page tables, ctrl bits,
+它想要设置页表和控制位。
+
+242
+00:10:31,510 --> 00:10:32,750
+all this kind of junk.
+所有这种垃圾。
+
+243
+00:10:34,070 --> 00:10:36,520
+And then it decides to run a program.
+然后它决定运行一个程序。
+
+244
+00:10:36,530 --> 00:10:38,480
+So it's gonna jump into that program.
+所以它将会跳转到那个程序中。
+
+245
+00:10:38,490 --> 00:10:39,600
+It's gonna say, okay,
+它会说，好的，
+
+246
+00:10:39,610 --> 00:10:44,350
+let's go and execute some pc that represents some process.
+让我们去执行一些代表进程的个人电脑。
+
+247
+00:10:44,570 --> 00:10:45,570
+And when it does that,
+当它这样做时，
+
+248
+00:10:45,580 --> 00:10:47,810
+it's gonna deselect the privileged bit,
+它将取消特权位的选择。
+
+249
+00:10:47,820 --> 00:10:49,650
+so it's gonna turn off that privilege bit.
+所以它将关闭那个特权位。
+
+250
+00:10:50,060 --> 00:10:53,170
+Now, we're in user mode and users not allowed to do anything.
+现在，我们处于用户模式，用户不被允许做任何事情。
+
+251
+00:10:53,520 --> 00:10:56,110
+And the only way you get back to kernel mode is through a trap.
+唯一的方式回到内核模式是通过陷阱。
+
+252
+00:10:56,630 --> 00:10:58,010
+There might be some hardware event,
+可能发生了一些硬件事件，
+
+253
+00:10:58,020 --> 00:11:01,470
+or there might be some software event that says it's time for the kernel
+或者可能有一些软件事件会告诉内核现在是时候了
+
+254
+00:11:01,480 --> 00:11:02,350
+to do something.
+做某事。
+
+255
+00:11:02,760 --> 00:11:06,430
+The colonel has registered very specific things that it's allowed to do.
+上校已经注册了一些非常具体的允许操作。
+
+256
+00:11:06,440 --> 00:11:09,050
+So it says, if I get trapped five,
+这里说的是，如果我被困住五次，
+
+257
+00:11:09,350 --> 00:11:11,700
+then you should run this code in my kernel.
+那么你应该在我的内核中运行这段代码。
+
+258
+00:11:11,710 --> 00:11:12,860
+If I get trapped six,
+如果我被困住六次，
+
+259
+00:11:12,870 --> 00:11:14,020
+you should run that code.
+你应该运行那段代码。
+
+260
+00:11:14,410 --> 00:11:15,730
+The user can't touch anything,
+用户无法触碰任何东西，
+
+261
+00:11:15,740 --> 00:11:21,620
+but they can hand control back to the kernel in a very controlled way.
+但是它们可以以非常受控的方式将控制权交还给内核。
+
+262
+00:11:21,980 --> 00:11:24,520
+It's obviously more complicated that than that.
+显然，情况比那复杂得多。
+
+263
+00:11:24,530 --> 00:11:27,280
+And there's gonna be this caveat through this entire lecture.
+在整个讲座中都会有一个重要提示。
+
+264
+00:11:27,520 --> 00:11:30,230
+In this class, we're mostly focused on x 86,
+在这门课上，我们主要关注的是x86架构。
+
+265
+00:11:30,240 --> 00:11:33,430
+because that's the one you're using in your projects.
+因为这是你在项目中使用的操作系统。
+
+266
+00:11:34,200 --> 00:11:34,750
+Basically,
+基本上，
+
+267
+00:11:34,760 --> 00:11:40,070
+x 86 is like thousands and thousands of pages for its instruction manual.
+x86指令集手册有成千上万页的内容。
+
+268
+00:11:40,080 --> 00:11:40,870
+It's old.
+它已经过时了。
+
+269
+00:11:40,880 --> 00:11:42,470
+It's grown very organically.
+它的发展非常有机。
+
+270
+00:11:42,840 --> 00:11:45,000
+And so things tend to get a little complicated,
+因此事情往往变得有点复杂，
+
+271
+00:11:45,760 --> 00:11:46,910
+not too important to know,
+不是太重要需要知道，
+
+272
+00:11:46,920 --> 00:11:51,550
+but what you can realize is that we have a lot of flexibility here.
+但你可以意识到的是，我们在这里有很大的灵活性。
+
+273
+00:11:51,840 --> 00:11:54,030
+Traditionally, ring zero would be kernel mode.
+传统上，ring zero 代表内核模式。
+
+274
+00:11:54,040 --> 00:11:55,510
+Ring three is user mode.
+Ring three 是用户模式。
+
+275
+00:11:55,800 --> 00:11:58,270
+There's a ring one and two that nobody really uses.
+有一个一级和二级的环，实际上没有人使用。
+
+276
+00:11:58,650 --> 00:12:01,310
+And then when they wanted to add hypervisors,
+然后当他们想要添加虚拟化监控程序时，
+
+277
+00:12:02,080 --> 00:12:02,510
+right?
+对的？
+
+278
+00:12:02,520 --> 00:12:03,830
+And then there's-1,
+然后还有-1，
+
+279
+00:12:03,840 --> 00:12:07,430
+and there's more right like this-3 that michael is mentioning.
+还有更多像这样的-3，迈克尔正在提到的。
+
+280
+00:12:08,060 --> 00:12:11,170
+In risk five, what you have are also different modes.
+在风险五中，你也有不同的模式。
+
+281
+00:12:11,180 --> 00:12:13,170
+I don't think they call them rings and risk five,
+我认为他们不称之为环和风险五。
+
+282
+00:12:13,510 --> 00:12:14,700
+but you have machine mode,
+但是你有机器模式，
+
+283
+00:12:14,710 --> 00:12:18,340
+which is kind of like this intel management engine style thing,
+这有点像英特尔管理引擎那样的东西。
+
+284
+00:12:19,250 --> 00:12:22,200
+where you're setting up very low level stuff.
+你正在设置非常低层的东西。
+
+285
+00:12:22,210 --> 00:12:25,400
+It's where you might like emulate instructions that you haven't implemented
+这是你可能想要模拟尚未实现的指令的地方。
+
+286
+00:12:25,410 --> 00:12:26,920
+it or other stuff like that.
+它或其他类似的东西。
+
+287
+00:12:27,260 --> 00:12:29,530
+Then there's supervisor mode where the kernel runs,
+然后还有监管模式，内核在其中运行。
+
+288
+00:12:29,540 --> 00:12:30,690
+and then there's user mode.
+然后还有用户模式。
+
+289
+00:12:31,310 --> 00:12:34,510
+And I actually don't know a lot about how risk five handles hypervisors.
+我实际上对RISC-V如何处理虚拟化程序并不了解很多。
+
+290
+00:12:34,520 --> 00:12:36,510
+So I can't talk too much about that.
+所以我不能过多地谈论那个。
+
+291
+00:12:37,010 --> 00:12:39,830
+But the point is that the cpu has control modes,
+但关键是CPU具有控制模式，
+
+292
+00:12:39,840 --> 00:12:40,790
+they have protection modes,
+它们具有保护模式，
+
+293
+00:12:40,800 --> 00:12:42,230
+and that's how operating systems work.
+这就是操作系统的工作原理。
+
+294
+00:12:42,240 --> 00:12:42,710
+In practice.
+在实践中。
+
+295
+00:12:42,720 --> 00:12:43,670
+That's how they're safe.
+这就是它们的安全机制。
+
+296
+00:12:46,320 --> 00:12:46,720
+Okay?
+好的？
+
+297
+00:12:47,650 --> 00:12:50,240
+We're gonna just take a quick detour into segmentation.
+我们将简单地进入分段的内容。
+
+298
+00:12:50,250 --> 00:12:53,320
+I just talked about how intel has got all sorts of old stuff floating
+我刚刚谈到了英特尔拥有各种旧设备的情况。
+
+299
+00:12:53,330 --> 00:12:54,040
+around in it.
+在其中四处转动。
+
+300
+00:12:54,830 --> 00:12:59,060
+And one of those old mobile things is segmentation.
+其中一个旧的移动设备是分段。
+
+301
+00:12:59,350 --> 00:13:02,070
+It's not really used a lot these days,
+这个在现在并不常用。
+
+302
+00:13:02,080 --> 00:13:03,670
+but it does still exist.
+但它确实仍然存在。
+
+303
+00:13:03,930 --> 00:13:04,800
+So just real quickly,
+所以只是很快地，
+
+304
+00:13:04,810 --> 00:13:08,070
+I think the slide will be mostly good for your reference after.
+我认为这张幻灯片对你以后的参考会非常有帮助。
+
+305
+00:13:08,640 --> 00:13:10,070
+So i'm gonna go through it real quick,
+所以我会快速浏览一下。
+
+306
+00:13:10,500 --> 00:13:13,270
+but x 86 supports a bunch of different segments.
+但是x86支持许多不同的段。
+
+307
+00:13:14,040 --> 00:13:16,070
+You have these registers, the register,
+你有这些寄存器，寄存器，
+
+308
+00:13:16,080 --> 00:13:17,910
+so registers are right in your pipeline.
+所以寄存器在你的流水线中是正确的。
+
+309
+00:13:17,920 --> 00:13:20,930
+They're right next to your cpu you can't have very many of them,
+它们就在你的 CPU 旁边，你不能有太多。
+
+310
+00:13:20,940 --> 00:13:24,890
+and they can't be too complicated because you have like limited number of bits,
+并且它们不能太复杂，因为你只有有限的比特数。
+
+311
+00:13:24,900 --> 00:13:26,170
+limited number of wires,
+有限数量的电线
+
+312
+00:13:26,180 --> 00:13:27,530
+and flip flops and whatever,
+以及触发器和其他任何东西，
+
+313
+00:13:27,940 --> 00:13:30,620
+right next to your cpu so you can't have too many.
+紧挨着你的CPU，所以你不能有太多。
+
+314
+00:13:31,510 --> 00:13:35,380
+So what they do is they have a register to write represent segments.
+他们所做的是使用一个寄存器来表示段。
+
+315
+00:13:35,630 --> 00:13:41,100
+And then that register is actually a pointer to a more rich description
+然后，该寄存器实际上是指向一个更丰富描述的指针。
+
+316
+00:13:41,110 --> 00:13:42,740
+of the segment that you want.
+你所需的段的偏移量。
+
+317
+00:13:43,290 --> 00:13:47,550
+And then that segment has a whole bunch of details in it about the segment.
+然后该段落中包含了关于该段落的大量细节。
+
+318
+00:13:47,560 --> 00:13:48,910
+So it's got permission bits.
+所以它有权限位。
+
+319
+00:13:48,920 --> 00:13:51,760
+It's got a base and a limit,
+它有一个基址和一个限制，
+
+320
+00:13:51,770 --> 00:13:54,160
+which is the bottom line for segments.
+段的底线是什么？
+
+321
+00:13:54,810 --> 00:13:58,920
+You notice that they're like the address bits are spread around in funny places.
+你注意到地址位在奇怪的位置上分散着。
+
+322
+00:13:59,190 --> 00:14:02,580
+You might remember from 61 c how risk five does the same thing for,
+你可能还记得在61c课程中，Risk-V也是为此做了相同的事情。
+
+323
+00:14:02,590 --> 00:14:03,180
+I think,
+我认为，
+
+324
+00:14:03,190 --> 00:14:06,660
+loads like certain loads or certain jumps have kind of a funny layout.
+某些加载或跳转指令的布局有点奇怪。
+
+325
+00:14:07,470 --> 00:14:09,580
+These are all just micro architectural details.
+这些只是微体系结构的细节。
+
+326
+00:14:09,950 --> 00:14:10,740
+At the time.
+当时。
+
+327
+00:14:10,750 --> 00:14:11,620
+When they wrote this,
+当他们写这个的时候，
+
+328
+00:14:11,630 --> 00:14:14,260
+it was easier to put this wire here or that wire there.
+把这根电线放在这里或者把那根电线放在那里都更容易一些。
+
+329
+00:14:15,130 --> 00:14:18,000
+It tends to be sort of boring reasons that it's shaped funny.
+它往往是因为形状奇怪而显得有些无聊的原因。
+
+330
+00:14:21,280 --> 00:14:24,210
+You can come back to the slide to understand what all these bits do.
+你可以回到幻灯片上来了解这些位的作用。
+
+331
+00:14:24,760 --> 00:14:28,190
+But let's just quickly talk about what they're actually used for.
+但是让我们简单地谈谈它们实际上是用来做什么的。
+
+332
+00:14:30,590 --> 00:14:32,500
+There's different ways that you can use the segments.
+你可以使用不同的方式来使用段。
+
+333
+00:14:33,040 --> 00:14:39,310
+The most common use originally was in the old 16 bit version of x 86.
+最常见的用途最初是在旧版的16位x86上。
+
+334
+00:14:39,320 --> 00:14:42,870
+The very first time people were writing 16 bit processors.
+人们第一次开始编写16位处理器。
+
+335
+00:14:43,640 --> 00:14:46,880
+Having more than a few kilobytes of memory was a ridiculous concept, right?
+拥有几千字节以上的内存是一个荒谬的概念，对吗？
+
+336
+00:14:46,890 --> 00:14:49,230
+Nobody having a megabyte of memory was insane.
+没有人拥有一兆字节的内存是疯狂的。
+
+337
+00:14:49,240 --> 00:14:50,550
+Nobody ever thought that could happen.
+没有人曾经想过那可能发生。
+
+338
+00:14:52,180 --> 00:14:54,330
+They had this 16 bit addressing mode,
+他们有这个16位寻址模式，
+
+339
+00:14:55,080 --> 00:14:56,950
+and they had a lot of segments.
+它们有很多段。
+
+340
+00:14:56,960 --> 00:14:59,710
+Again, you can't have page tables if you only have, like,
+如果你只有一个页面，那么你是无法拥有页面表的。
+
+341
+00:14:59,720 --> 00:15:01,190
+less than a kilobyte of memory.
+少于一千字节的内存。
+
+342
+00:15:01,830 --> 00:15:04,760
+So they would use segments originally.
+所以他们最初会使用分段。
+
+343
+00:15:06,450 --> 00:15:09,070
+Then we use the word modern here loosely.
+在这里，我们使用"现代"这个词比较宽泛。
+
+344
+00:15:09,620 --> 00:15:14,690
+Most application level sorts of processors are 64 bit these days,
+现如今，大多数应用级处理器都是64位的。
+
+345
+00:15:14,940 --> 00:15:18,410
+but some embedded low power that kind of stuff would be 32 bit.
+但是一些嵌入式低功耗设备可能会使用32位处理器。
+
+346
+00:15:18,680 --> 00:15:22,430
+I don't think there's a lot of 32 bit x 86 processors out there,
+我认为目前市面上并没有很多32位x86处理器。
+
+347
+00:15:22,440 --> 00:15:23,590
+but in risk five,
+但在 Risk Five 中，
+
+348
+00:15:23,600 --> 00:15:26,670
+there's lots of 32 bit risk five processors floating around.
+有很多32位的RISC-V处理器在市面上流通。
+
+349
+00:15:27,800 --> 00:15:30,750
+So in this case, they kind of weakened the segmentation support.
+所以在这种情况下，他们在一定程度上削弱了分段支持。
+
+350
+00:15:30,760 --> 00:15:32,270
+It's still there, but not great.
+它还在，但不是很好。
+
+351
+00:15:32,670 --> 00:15:34,770
+The one exception is spread local storage.
+唯一的例外是分布式本地存储。
+
+352
+00:15:35,050 --> 00:15:40,090
+So a process is not like a super precise concept.
+所以进程并不是一个非常精确的概念。
+
+353
+00:15:40,100 --> 00:15:41,170
+I it is in the spec,
+这在规范中有提到。
+
+354
+00:15:41,180 --> 00:15:45,730
+but a process is just some sort of logically connected set of things
+但是一个进程只是一些逻辑上连接的事物的集合。
+
+355
+00:15:45,740 --> 00:15:47,690
+that all share most of their resources.
+它们共享大部分资源。
+
+356
+00:15:47,700 --> 00:15:51,420
+So they have one process id they most for the most part,
+所以他们大部分时间只有一个进程ID
+
+357
+00:15:51,430 --> 00:15:54,740
+they have 1 set of like virtual addresses, things like that.
+它们有一个类似虚拟地址的集合，诸如此类的东西。
+
+358
+00:15:55,040 --> 00:15:59,150
+But sometimes it's handy to have a little bit of private memory space per thread.
+但有时候每个线程都有一点私有内存空间是很方便的。
+
+359
+00:15:59,160 --> 00:16:00,510
+The threads, in this case,
+在这种情况下，线程
+
+360
+00:16:00,520 --> 00:16:04,920
+are like different p cs that you could potentially be jumping between.
+就像不同的计算机一样，你可能会在它们之间进行跳转。
+
+361
+00:16:04,930 --> 00:16:05,310
+Right?
+对吗？
+
+362
+00:16:05,320 --> 00:16:10,460
+So different program counters into the same basic program.
+不同的程序计数器指向同一个基本程序。
+
+363
+00:16:11,460 --> 00:16:15,330
+On x 86, they used segments in order to implement that.
+在x86架构中，他们使用段来实现这一点。
+
+364
+00:16:15,640 --> 00:16:17,350
+On risk five, they something different.
+在第五个风险上，他们做了一些不同的事情。
+
+365
+00:16:17,360 --> 00:16:18,910
+I actually was looking for that earlier.
+我之前确实在找那个。
+
+366
+00:16:18,920 --> 00:16:19,590
+I couldn't find it.
+我找不到它。
+
+367
+00:16:19,600 --> 00:16:22,070
+So i'm not sure how risk five implements thread local storage,
+我不确定 RISC-V 如何实现线程本地存储。
+
+368
+00:16:22,080 --> 00:16:23,790
+but i'm sure it's not with segments.
+但我确定它不是使用分段。
+
+369
+00:16:24,790 --> 00:16:26,540
+And then on 64 bit mode,
+然后在64位模式下，
+
+370
+00:16:26,550 --> 00:16:30,270
+which is the most common x 86 mode today,
+目前最常见的x86模式是64位模式。
+
+371
+00:16:30,550 --> 00:16:32,100
+they have been basically nerved.
+他们基本上已经变得胆怯了。
+
+372
+00:16:32,110 --> 00:16:35,890
+So like they work in like the most limited possible way,
+所以它们以最有限的方式工作，
+
+373
+00:16:36,530 --> 00:16:39,440
+except again for thread local storage which still gets.
+除了线程本地存储（TLS）仍然可用之外，其他都不再可用。
+
+374
+00:16:40,630 --> 00:16:41,220
+But otherwise,
+但是除此之外，
+
+375
+00:16:41,230 --> 00:16:44,260
+just keep in mind segments kind of made sense when you had very,
+只要记住，在很早的时候，分段的概念在某种程度上是有意义的，
+
+376
+00:16:44,270 --> 00:16:45,300
+very little memory.
+非常少的内存。
+
+377
+00:16:46,070 --> 00:16:49,660
+And they make a lot less sense as your virtual address space starts to get bigger,
+当你的虚拟地址空间变得更大时，它们变得更加无意义。
+
+378
+00:16:49,670 --> 00:16:52,660
+and you need like more and more flexible management.
+而且你需要越来越灵活的管理。
+
+379
+00:16:52,670 --> 00:16:55,740
+And you have enough memory where the memory overhead of keeping a bunch
+而且你有足够的内存来存储一堆数据的内存开销
+
+380
+00:16:55,750 --> 00:16:57,740
+of page tables around isn't gonna kill you.
+围绕页面表的操作不会让你丧命。
+
+381
+00:16:59,920 --> 00:17:00,430
+Okay?
+好的？
+
+382
+00:17:00,640 --> 00:17:03,150
+So enough about segmentation coming back to paging,
+好了，关于分段的讨论到此为止，我们回到分页。
+
+383
+00:17:03,420 --> 00:17:06,690
+I mentioned that you could have more than two levels, right?
+我提到过你可以有超过两个层级，对吗？
+
+384
+00:17:06,700 --> 00:17:07,810
+So if two levels is good,
+那么如果有两个层级就足够了，
+
+385
+00:17:07,820 --> 00:17:09,130
+then four levels is good.
+那么四个级别就可以了。
+
+386
+00:17:09,970 --> 00:17:11,680
+And there's really nothing different here.
+这里真的没有什么不同。
+
+387
+00:17:11,690 --> 00:17:12,840
+So there's nothing special,
+所以没有什么特别的，
+
+388
+00:17:14,050 --> 00:17:16,360
+whatever you learned about two level page tables,
+关于两级页表的学习内容，无论你学到了什么，
+
+389
+00:17:16,370 --> 00:17:19,320
+just like recurse on that a couple more times than you've got
+就像对它进行多次递归一样，然后你就得到了
+
+390
+00:17:19,470 --> 00:17:20,870
+multilevel page tables.
+多级页表。
+
+391
+00:17:21,220 --> 00:17:22,800
+So you still have your base here.
+所以你还在这里保留你的基地。
+
+392
+00:17:23,090 --> 00:17:26,340
+You have your top level page table that is gonna point
+你有一个顶层页表，它将指向...
+
+393
+00:17:26,350 --> 00:17:28,260
+into some lower level page table,
+转换为一些较低级别的页表中，
+
+394
+00:17:28,270 --> 00:17:30,540
+which is sort of like this one.
+这个有点类似于这个。
+
+395
+00:17:30,930 --> 00:17:32,800
+Now it points here, and then it points here.
+现在它指向这里，然后指向这里。
+
+396
+00:17:32,810 --> 00:17:34,800
+And then finally, you get your pte here.
+然后最后，你在这里获得你的页表项。
+
+397
+00:17:35,270 --> 00:17:36,620
+It's not fundamentally different.
+它在根本上并没有不同。
+
+398
+00:17:36,630 --> 00:17:38,460
+In any way than a two level page table.
+除了两级页表之外的任何方式。
+
+399
+00:17:38,470 --> 00:17:39,700
+You just have more hops.
+你只是多了几个跳跃点。
+
+400
+00:17:40,120 --> 00:17:43,150
+That's gonna keep shrinking this top level page table, right?
+这将会不断缩小顶级页表，对吗？
+
+401
+00:17:43,160 --> 00:17:44,510
+Every time you add a hop,
+每次你添加一个跳跃点，
+
+402
+00:17:44,520 --> 00:17:48,350
+that's gonna exponentially drop the number of entries you have to have here,
+这将指数级地减少你在这里需要拥有的条目数量。
+
+403
+00:17:48,360 --> 00:17:49,230
+which can be handy.
+这可能会很方便。
+
+404
+00:17:51,670 --> 00:17:53,420
+But again, otherwise, nothing special.
+但是除此之外，没有什么特别的。
+
+405
+00:17:53,740 --> 00:17:54,790
+Just like you saw before,
+就像你之前看到的一样，
+
+406
+00:17:57,020 --> 00:17:57,620
+you keep going, right?
+你继续前进，对吗？
+
+407
+00:17:58,510 --> 00:17:59,160
+We had four.
+我们有四个。
+
+408
+00:17:59,170 --> 00:18:00,260
+Why don't we do six?
+为什么我们不做六呢？
+
+409
+00:18:01,740 --> 00:18:03,380
+It starts to get ridiculous.
+这开始变得荒谬了。
+
+410
+00:18:03,600 --> 00:18:06,030
+Basically, I there are drawbacks, right?
+基本上，有一些缺点，对吗？
+
+411
+00:18:06,040 --> 00:18:08,790
+We talked about having to do all this pointer hopping, right?
+我们之前讨论过需要进行指针跳转的事情，对吗？
+
+412
+00:18:08,800 --> 00:18:11,710
+You have to keep following through each level, and that takes time.
+你必须在每个层级上持续跟进，这需要时间。
+
+413
+00:18:12,110 --> 00:18:13,940
+There's a point where you're just not saving anything.
+有一个点，你就是在浪费时间。
+
+414
+00:18:13,950 --> 00:18:15,100
+It just starts to get out of hand.
+情况开始失控了。
+
+415
+00:18:15,110 --> 00:18:18,070
+So six level page tables aren't really common.
+所以六级页表并不常见。
+
+416
+00:18:18,480 --> 00:18:19,870
+I think italian might have.
+我认为意大利可能有。
+
+417
+00:18:19,880 --> 00:18:25,340
+Italian was an attempt by intel to create a new isa it went horribly wrong.
+意大利语是英特尔试图创建一种新的指令集架构的尝试，但结果非常糟糕。
+
+418
+00:18:25,350 --> 00:18:31,020
+It's a long and tragic story and somewhat funny involving lawsuits between hewlett,
+这是一个漫长而悲惨的故事，有点滑稽，涉及到了休利特之间的诉讼。
+
+419
+00:18:31,030 --> 00:18:32,400
+packard and intel.
+惠普和英特尔。
+
+420
+00:18:32,410 --> 00:18:35,190
+And it's a great story that I won't tell you now.
+这是一个很棒的故事，我现在不会告诉你。
+
+421
+00:18:35,770 --> 00:18:37,280
+But it basically,
+但基本上，
+
+422
+00:18:37,570 --> 00:18:38,920
+they did a lot of crazy things,
+他们做了很多疯狂的事情，
+
+423
+00:18:38,930 --> 00:18:40,280
+and some of them didn't work out,
+其中一些并没有成功。
+
+424
+00:18:40,290 --> 00:18:42,000
+including 6 double page tables.
+包括6个双页表。
+
+425
+00:18:43,570 --> 00:18:44,530
+Okay, so what else can we do?
+好的，我们还能做些什么呢？
+
+426
+00:18:45,400 --> 00:18:49,120
+And then i'm gonna ask for a little bit of audience thought here,
+然后我想请大家思考一下，
+
+427
+00:18:49,130 --> 00:18:50,480
+if not participation,
+如果不参与，
+
+428
+00:18:51,590 --> 00:18:59,420
+the problem we're facing here is that these page tables are have drawbacks.
+我们面临的问题是这些页表存在缺点。
+
+429
+00:18:59,430 --> 00:19:02,730
+You have to have an entry for every virtual memory address.
+每个虚拟内存地址都必须有一个对应的条目。
+
+430
+00:19:02,740 --> 00:19:04,370
+So there's still a lot of space.
+所以还有很多空间。
+
+431
+00:19:04,380 --> 00:19:06,810
+Every process gets their own page table.
+每个进程都有自己的页表。
+
+432
+00:19:07,380 --> 00:19:09,570
+And even with multilevel page tables,
+即使使用多级页表，
+
+433
+00:19:09,580 --> 00:19:11,450
+you still have a lot of empty spots.
+你还有很多空位。
+
+434
+00:19:13,010 --> 00:19:16,920
+Typically, your address space is way bigger than your physical memory,
+通常情况下，您的地址空间要比物理内存大得多，
+
+435
+00:19:16,930 --> 00:19:17,280
+right?
+对的？
+
+436
+00:19:17,290 --> 00:19:21,340
+You might have two for32 gigs of ram,
+你可能有两个32GB的内存条。
+
+437
+00:19:21,350 --> 00:19:24,100
+but you've got 2 to the 64 virtual addresses,
+但是你有2的64次方个虚拟地址，
+
+438
+00:19:24,110 --> 00:19:25,460
+so it's not even a competition.
+所以这根本不是一场竞争。
+
+439
+00:19:26,120 --> 00:19:27,660
+So the question for you guys is,
+所以问题是，
+
+440
+00:19:28,820 --> 00:19:31,100
+let's look at what is the problem we're trying to solve.
+让我们来看看我们试图解决的问题是什么。
+
+441
+00:19:31,460 --> 00:19:33,510
+The problem is given a virtual address,
+问题是给定一个虚拟地址，
+
+442
+00:19:33,520 --> 00:19:36,900
+I want to be able to map that to a physical address.
+我想要能够将其映射到物理地址。
+
+443
+00:19:38,150 --> 00:19:41,820
+One of the data structures we thought about for doing that was a tree trees,
+我们考虑用一种数据结构来实现这个功能，那就是树。
+
+444
+00:19:41,830 --> 00:19:45,520
+have this login sort of traversal pattern.
+有这种登录遍历模式。
+
+445
+00:19:47,230 --> 00:19:48,260
+They have these properties,
+它们具有以下特性：
+
+446
+00:19:48,270 --> 00:19:50,540
+but we want to have better than login, right?
+但我们希望有比登录更好的方式，对吗？
+
+447
+00:19:50,550 --> 00:19:52,820
+We'd we'd like to have fewer pointer chases.
+我们希望减少指针追踪。
+
+448
+00:19:52,830 --> 00:19:58,170
+We want to faster look at what data structure might we consider?
+我们想要更快地查看可能考虑的数据结构是什么？
+
+449
+00:19:58,180 --> 00:19:59,170
+That isn't a table.
+那不是一张桌子。
+
+450
+00:19:59,180 --> 00:20:00,890
+We have a lot of data structures you all took.
+我们有很多数据结构是你们都学过的。
+
+451
+00:20:01,420 --> 00:20:03,700
+I guess it's 61 b that teaches you these.
+我猜是61B教你这些的。
+
+452
+00:20:04,070 --> 00:20:08,260
+I'm gonna give you 10 seconds to think up what data structure you would use
+我会给你10秒钟的时间来考虑你会使用哪种数据结构
+
+453
+00:20:08,270 --> 00:20:09,660
+other than a tree.
+除了树以外。
+
+454
+00:20:19,090 --> 00:20:20,480
+We got it hash table.
+我们使用了哈希表。
+
+455
+00:20:21,120 --> 00:20:23,330
+Hash tables are super cool.
+哈希表非常酷。
+
+456
+00:20:23,960 --> 00:20:24,910
+Hash tables are great.
+哈希表非常好用。
+
+457
+00:20:24,920 --> 00:20:26,910
+They've got constant access time,
+它们具有恒定的访问时间，
+
+458
+00:20:26,920 --> 00:20:29,430
+at least big o constant access time.
+至少具有O(1)的常数访问时间。
+
+459
+00:20:29,930 --> 00:20:32,530
+And we can do some cool tricks with these.
+我们可以用这些做一些很酷的技巧。
+
+460
+00:20:32,540 --> 00:20:37,440
+So one of the things we do here is we can have a hash table where it has
+我们这里可以使用哈希表，它可以存储数据并进行快速查找。
+
+461
+00:20:37,450 --> 00:20:39,560
+an entry for every physical page.
+每个物理页面都有一个条目。
+
+462
+00:20:39,810 --> 00:20:42,800
+Like we don't need more virtual addresses mapped.
+我们不需要更多的虚拟地址映射。
+
+463
+00:20:43,110 --> 00:20:46,190
+Then we have physical memory because like it doesn't make sense.
+然后我们有物理内存，因为它是有意义的。
+
+464
+00:20:46,200 --> 00:20:49,390
+You can't map more than physical memory anyways,
+无论如何，你都无法映射超过物理内存的大小。
+
+465
+00:20:49,400 --> 00:20:51,070
+because you only have that much memory.
+因为你只有那么多的内存。
+
+466
+00:20:51,690 --> 00:20:54,630
+So you can have one hash table for the entire system.
+所以你可以为整个系统使用一个哈希表。
+
+467
+00:20:55,060 --> 00:20:57,530
+You can use that to look up your virtual page,
+你可以使用这个来查找你的虚拟页面，
+
+468
+00:20:57,540 --> 00:21:01,490
+so you can index into this hash table using virtual page number and get
+所以你可以使用虚拟页号索引到这个哈希表，并获取相应的内容。
+
+469
+00:21:01,500 --> 00:21:02,940
+this physical page number back.
+将这个物理页号返回。
+
+470
+00:21:03,360 --> 00:21:04,520
+And this has been used before, right?
+这之前有使用过吗？
+
+471
+00:21:04,530 --> 00:21:06,880
+This is nice when you have these big address spaces,
+当你拥有这么大的地址空间时，这是很好的。
+
+472
+00:21:06,890 --> 00:21:08,590
+these big virtual address spaces.
+这些大的虚拟地址空间。
+
+473
+00:21:08,600 --> 00:21:11,230
+And so it has been used in a couple of places.
+因此，它已经在一些地方被使用过。
+
+474
+00:21:12,650 --> 00:21:14,190
+It has some nice properties,
+它具有一些很好的特性，
+
+475
+00:21:14,200 --> 00:21:15,740
+but it's not perfect either.
+但它也不是完美的。
+
+476
+00:21:16,200 --> 00:21:17,680
+So the big problem here,
+所以这里的大问题是，
+
+477
+00:21:17,690 --> 00:21:19,080
+there's two big problems here.
+这里有两个大问题。
+
+478
+00:21:20,110 --> 00:21:22,340
+It actually probably three big problems here,
+实际上，这里可能有三个大问题。
+
+479
+00:21:22,350 --> 00:21:24,060
+but we're gonna list two of them here.
+但是我们将在这里列出其中两个。
+
+480
+00:21:24,490 --> 00:21:28,410
+One is that keep in mind from your algorithms classes and stuff,
+其中一个是要记住你在算法课上学到的东西。
+
+481
+00:21:28,420 --> 00:21:30,710
+the limitations of big o notation.
+大O符号的局限性。
+
+482
+00:21:31,180 --> 00:21:31,280
+Right?
+对吗？
+
+483
+00:21:31,290 --> 00:21:35,460
+We say constants don't matter in terms of asymptotic complexity.
+在渐近复杂度的角度来看，我们说常数并不重要。
+
+484
+00:21:35,730 --> 00:21:41,350
+But like insertion sort is way faster than quick sort for a small enough list.
+但是对于足够小的列表来说，插入排序比快速排序要快得多。
+
+485
+00:21:41,830 --> 00:21:41,990
+Right?
+对吗？
+
+486
+00:21:42,000 --> 00:21:43,190
+When you were doing merge sort,
+当你在进行归并排序时，
+
+487
+00:21:43,200 --> 00:21:45,840
+there was a point where you bottomed out on merge sort
+在归并排序中，有一个点你达到了最低点。
+
+488
+00:21:45,850 --> 00:21:49,020
+and just switched to like selection sort of insertion sort.
+刚刚切换到了选择排序或插入排序。
+
+489
+00:21:49,440 --> 00:21:50,350
+The same thing applies here.
+这里也适用相同的事情。
+
+490
+00:21:50,360 --> 00:21:53,430
+There's a point where the complexity of looking up a hash table,
+在查找哈希表时，存在一个复杂度的临界点，
+
+491
+00:21:53,440 --> 00:21:55,450
+the constants involved algorithm, again,
+涉及算法的常量，再次，
+
+492
+00:21:55,460 --> 00:21:59,890
+looking at the hash table are actually gonna outweigh the benefits.
+仔细观察哈希表，实际上会超过其带来的好处。
+
+493
+00:21:59,900 --> 00:22:00,930
+So that can happen.
+那是可能发生的。
+
+494
+00:22:01,320 --> 00:22:03,450
+This is particularly true in hardware,
+这在硬件方面尤为明显。
+
+495
+00:22:04,850 --> 00:22:07,520
+because these look, ups are happening on every axis.
+因为这些外观，上升都发生在每个轴上。
+
+496
+00:22:07,530 --> 00:22:09,080
+We need to do that in hardware.
+我们需要在硬件上完成这个任务。
+
+497
+00:22:09,290 --> 00:22:10,960
+We're actually designing a circuit,
+我们实际上正在设计一个电路，
+
+498
+00:22:10,970 --> 00:22:14,300
+a digital logic to access this hash table.
+一个用于访问这个哈希表的数字逻辑。
+
+499
+00:22:15,700 --> 00:22:18,770
+It has to be sufficiently simple that you can implement that hardware.
+它必须足够简单，以便您可以实现该硬件。
+
+500
+00:22:19,890 --> 00:22:20,720
+That's a problem.
+这是个问题。
+
+501
+00:22:20,730 --> 00:22:22,470
+The other problem is locality.
+另一个问题是局部性。
+
+502
+00:22:22,930 --> 00:22:25,360
+Hash tables kind of by their very nature, right?
+哈希表本质上是这样的，对吗？
+
+503
+00:22:25,370 --> 00:22:26,800
+That's what a hash function does,
+这就是哈希函数的作用。
+
+504
+00:22:26,810 --> 00:22:28,190
+is it's pretty random.
+这是相当随机的。
+
+505
+00:22:28,200 --> 00:22:29,990
+It's pretty evenly distributed.
+它分布相当均匀。
+
+506
+00:22:30,410 --> 00:22:31,060
+There's no locality.
+没有局部性。
+
+507
+00:22:31,070 --> 00:22:33,850
+So I can't like effectively cash this hash table.
+所以我不能有效地将这个哈希表转换为现金。
+
+508
+00:22:33,860 --> 00:22:38,770
+Every lookup is gonna be in a pretty random spot in this hash table.
+在这个哈希表中，每次查找都会在一个相当随机的位置进行。
+
+509
+00:22:38,780 --> 00:22:40,210
+So it's not very cash friendly,
+所以它不太适合现金支付。
+
+510
+00:22:40,220 --> 00:22:41,410
+and that's pretty annoying.
+这真的很烦人。
+
+511
+00:22:42,770 --> 00:22:44,640
+The third problem here actually,
+这里实际上是第三个问题，
+
+512
+00:22:44,890 --> 00:22:48,520
+is that it makes things like sharing really difficult.
+这使得像共享这样的事情变得非常困难。
+
+513
+00:22:48,880 --> 00:22:51,750
+This assumes there's only ever one virtual page,
+这假设只有一个虚拟页面存在。
+
+514
+00:22:51,760 --> 00:22:54,070
+virtual address map to a physical page.
+虚拟地址映射到物理页。
+
+515
+00:22:54,520 --> 00:22:55,270
+But for sharing,
+但是为了分享，
+
+516
+00:22:55,280 --> 00:22:58,910
+we might want to have multiple virtual addresses.to the same physical
+我们可能希望将多个虚拟地址映射到同一个物理地址。
+
+517
+00:22:58,920 --> 00:23:01,580
+address that makes this a lot more complicated.
+这个地址使得事情变得更加复杂。
+
+518
+00:23:01,590 --> 00:23:02,840
+If you want to do that.
+如果你想这样做的话。
+
+519
+00:23:03,480 --> 00:23:05,050
+Nonetheless, it's still pretty handy.
+尽管如此，它仍然非常方便。
+
+520
+00:23:05,060 --> 00:23:06,890
+And people have used them in the past,
+过去人们曾经使用过它们，
+
+521
+00:23:07,150 --> 00:23:09,820
+but they're not especially popular in processors.
+但它们在处理器中并不特别受欢迎。
+
+522
+00:23:09,830 --> 00:23:10,100
+Today.
+今天。
+
+523
+00:23:10,110 --> 00:23:14,240
+I'm not aware of any make a really popular process,
+我不知道有任何使一个进程变得非常流行的方法。
+
+524
+00:23:14,250 --> 00:23:17,090
+I guess power pc might still be around.
+我猜PowerPC可能仍然存在。
+
+525
+00:23:19,290 --> 00:23:20,160
+We've got options here.
+我们这里有几个选择。
+
+526
+00:23:20,170 --> 00:23:23,020
+We've got a whole bunch of options and how we can do paging.
+我们有很多选项来进行分页。
+
+527
+00:23:23,410 --> 00:23:25,500
+At the end of the day, we're all trying to solve the same problem.
+在一天结束时，我们都在努力解决同一个问题。
+
+528
+00:23:26,060 --> 00:23:28,220
+You have some virtual address,
+你有一些虚拟地址。
+
+529
+00:23:28,230 --> 00:23:30,380
+and you want to map it to some physical address.
+你想将它映射到某个物理地址。
+
+530
+00:23:31,030 --> 00:23:31,980
+That's all we're trying to do.
+我们只是在尝试做这件事。
+
+531
+00:23:32,430 --> 00:23:32,860
+Right?
+对吗？
+
+532
+00:23:33,470 --> 00:23:36,340
+These are a bunch of different algorithms and data structures that we
+这些是一堆不同的算法和数据结构，我们
+
+533
+00:23:36,350 --> 00:23:37,300
+could consider using.
+可以考虑使用。
+
+534
+00:23:37,310 --> 00:23:38,260
+In order to do that.
+为了做到这一点。
+
+535
+00:23:38,950 --> 00:23:40,100
+We've got segmentation.
+我们遇到了分段错误。
+
+536
+00:23:40,110 --> 00:23:42,340
+Segmentation is great, for simplicity,
+分段是很好的，因为它简化了问题。
+
+537
+00:23:42,350 --> 00:23:46,970
+in terms of implementing acpu doesn't use too much memory for the meta data,
+在实现中，CPU对元数据的内存使用并不多。
+
+538
+00:23:47,410 --> 00:23:50,400
+but it's very hard to allocate all these arbitrary size things,
+但是分配所有这些任意大小的东西非常困难，
+
+539
+00:23:50,410 --> 00:23:53,320
+and it really screws with your ability to share memory and accurate
+这真的会影响你共享内存和准确性的能力。
+
+540
+00:23:53,330 --> 00:23:54,680
+and allocate memory.
+并分配内存。
+
+541
+00:23:56,370 --> 00:23:57,760
+Paging works a lot better.
+分页工作得更好。
+
+542
+00:23:57,770 --> 00:23:58,760
+It's a lot more flexible.
+它更加灵活。
+
+543
+00:23:58,770 --> 00:24:00,160
+It's a lot easier to allocate.
+分配起来要容易得多。
+
+544
+00:24:00,900 --> 00:24:02,690
+But if you have single level page tables,
+但是如果你使用单层页表，
+
+545
+00:24:02,700 --> 00:24:05,370
+you can really fill up your memory of a lot of empty space.
+你可以真正填满你的内存空间中的很多空白位置。
+
+546
+00:24:05,930 --> 00:24:08,240
+We use multilevel paging to get around that,
+我们使用多级分页来解决这个问题，
+
+547
+00:24:08,720 --> 00:24:11,900
+or you could avoid all of this sort of tree walking and use
+或者你可以避免所有这种树遍历的操作，使用
+
+548
+00:24:11,910 --> 00:24:13,220
+an inverted page table,
+一个倒置页表
+
+549
+00:24:13,470 --> 00:24:15,720
+which works pretty great, but has limitations of its own.
+这个工作相当不错，但也有自己的局限性。
+
+550
+00:24:18,700 --> 00:24:23,210
+So enough about the high level strategies and the problem we're trying to solve.
+关于高级策略和我们要解决的问题，就说这么多吧。
+
+551
+00:24:23,420 --> 00:24:24,930
+Let's get into the nitty gritty.
+让我们深入细节。
+
+552
+00:24:24,940 --> 00:24:28,660
+Let's start talking about how you might actually physically implement this.
+让我们开始讨论如何实际物理实现这个问题。
+
+553
+00:24:28,670 --> 00:24:30,500
+How does this work in practice?
+在实践中，这是如何工作的？
+
+554
+00:24:31,890 --> 00:24:37,140
+The thing that is in charge of this is called the mmu this is the part
+负责这个的东西叫做内存管理单元（MMU），它是系统的一部分。
+
+555
+00:24:37,150 --> 00:24:38,340
+of your architecture,
+关于你的架构，
+
+556
+00:24:38,350 --> 00:24:43,750
+the part of your cpu or your chip that is responsible for handling
+处理器或芯片的部分，负责处理
+
+557
+00:24:43,760 --> 00:24:46,510
+this virtual address to physical address translation.
+这是虚拟地址到物理地址的转换。
+
+558
+00:24:46,520 --> 00:24:48,630
+So we call that the memory management unit.
+所以我们称之为内存管理单元。
+
+559
+00:24:49,040 --> 00:24:53,870
+Everyone just says in mu it's the one that's in charge of all of this.
+大家都说在操作系统中，它是负责所有这些的那个。
+
+560
+00:24:55,450 --> 00:24:57,480
+So it needs to do different things.
+所以它需要做不同的事情。
+
+561
+00:24:57,490 --> 00:24:59,120
+We're gonna focus on paging.
+我们将专注于分页。
+
+562
+00:24:59,130 --> 00:25:01,840
+So we're gonna focus on page tables probably from now on,
+所以我们从现在开始可能要重点关注页表了，
+
+563
+00:25:01,850 --> 00:25:04,810
+because it's by far the most common approach,
+因为这是迄今为止最常见的方法，
+
+564
+00:25:05,150 --> 00:25:08,990
+at least in the sort of high end or medium end,
+至少在高端或中端领域中，
+
+565
+00:25:09,270 --> 00:25:11,780
+application processors that you're likely to see.
+你可能会看到的应用处理器。
+
+566
+00:25:12,930 --> 00:25:14,520
+If you have page tables,
+如果你有页表，
+
+567
+00:25:14,530 --> 00:25:16,360
+the mmu is gonna have to do the walk.
+MMU（内存管理单元）将需要执行页表遍历操作。
+
+568
+00:25:16,370 --> 00:25:18,560
+So it's gonna walk that tree in hardware.
+所以它将在硬件中遍历那棵树。
+
+569
+00:25:19,210 --> 00:25:20,590
+It reads the page table entry,
+它读取页面表项，
+
+570
+00:25:20,600 --> 00:25:22,990
+the pte from the first level page table,
+来自一级页表的PTE
+
+571
+00:25:23,450 --> 00:25:25,390
+checks all the meta data that it needs.
+检查所有所需的元数据。
+
+572
+00:25:25,600 --> 00:25:29,030
+And then it goes and finds the address in the second level page table.
+然后它会在第二级页表中找到地址。
+
+573
+00:25:29,040 --> 00:25:29,790
+Looks that up.
+查一下吧。
+
+574
+00:25:30,180 --> 00:25:32,090
+It rates as many times as it needs,
+它会根据需要评定多少次。
+
+575
+00:25:32,100 --> 00:25:36,870
+gets the final pte then it can form the actual physical address and send
+获取最终的页表项，然后可以形成实际的物理地址并发送。
+
+576
+00:25:36,880 --> 00:25:39,230
+that request out to the rest of the memory system.
+将该请求发送到内存系统的其他部分。
+
+577
+00:25:39,820 --> 00:25:41,690
+The mmu is just translating logically.
+MMU只是进行逻辑翻译。
+
+578
+00:25:41,700 --> 00:25:44,050
+The cpu doesn't know about physical addresses.
+CPU并不知道物理地址。
+
+579
+00:25:44,060 --> 00:25:47,510
+So the cpu is just issuing virtual addresses.
+所以CPU只是发出虚拟地址。
+
+580
+00:25:47,730 --> 00:25:49,610
+And automatically,
+自动地，
+
+581
+00:25:49,620 --> 00:25:52,810
+the mmu is making them behave like physical addresses.
+MMU（内存管理单元）使它们表现得像物理地址一样。
+
+582
+00:25:56,060 --> 00:25:58,090
+It's doing this every, at least conceptually.
+至少在概念上，它每次都这样做。
+
+583
+00:25:58,100 --> 00:25:59,530
+It's got to do this all the time, right?
+这是必须一直做的事情，对吗？
+
+584
+00:25:59,540 --> 00:26:01,770
+Every single time you do a read or write,
+每次进行读取或写入操作时，
+
+585
+00:26:02,240 --> 00:26:05,530
+that includes fetching the next instruction that mmu has to do
+这包括获取 MMU 需要执行的下一条指令。
+
+586
+00:26:05,540 --> 00:26:09,020
+that translation in order to get to memory.
+将数据加载到内存中的翻译。
+
+587
+00:26:11,480 --> 00:26:14,710
+This is aaa bit more of a physical representation of it.
+这更像是一个物理表示。
+
+588
+00:26:15,160 --> 00:26:17,390
+You can see you've got all these buses floating around,
+你可以看到有很多巴士在四处行驶，
+
+589
+00:26:17,400 --> 00:26:18,540
+so you've got your core,
+所以你已经有了你的核心，
+
+590
+00:26:18,550 --> 00:26:21,140
+you're like core cpu pipeline.
+你就像核心CPU流水线。
+
+591
+00:26:21,450 --> 00:26:22,740
+You've got a bunch of buses,
+你有一大堆公共汽车，
+
+592
+00:26:23,490 --> 00:26:25,600
+and they're going through these hardware blocks.
+他们正在通过这些硬件模块进行处理。
+
+593
+00:26:25,610 --> 00:26:26,760
+And if you take 152,
+如果你选修了152课程，
+
+594
+00:26:26,770 --> 00:26:28,200
+you're gonna see a lot more of this,
+你将会看到更多这样的情况，
+
+595
+00:26:28,410 --> 00:26:30,360
+or maybe some of your digital logic classes.
+或者也可以参加一些数字逻辑课程。
+
+596
+00:26:33,820 --> 00:26:35,070
+A lot of this can take time.
+很多事情需要时间。
+
+597
+00:26:35,490 --> 00:26:38,380
+So loads and stores, if they hit in the cache,
+如果加载和存储命中缓存，
+
+598
+00:26:38,390 --> 00:26:39,540
+can be really fast.
+可以非常快速。
+
+599
+00:26:39,760 --> 00:26:41,790
+Maybe they don't stall the pipeline too bad.
+也许它们不会对流水线造成太大的停顿。
+
+600
+00:26:42,050 --> 00:26:44,400
+But if you miss or you have to go out to physical memory,
+但是如果你错过了或者你必须将数据存储到物理内存中，
+
+601
+00:26:44,410 --> 00:26:47,120
+then your pipeline has to stall and you get those bubbles.
+那么你的流水线就会停顿，并产生气泡。
+
+602
+00:26:47,130 --> 00:26:48,640
+If you remember seeing bubbles.
+如果你记得看到了气泡。
+
+603
+00:26:49,120 --> 00:26:52,180
+I think in 61 c you hit a little bit of that.
+我认为在61次C中，你有一点点接触到了那个。
+
+604
+00:26:52,910 --> 00:26:54,340
+And I can cause problems.
+我可以引起问题。
+
+605
+00:26:55,060 --> 00:26:58,730
+We have to make sure that this translation is really fast.
+我们必须确保这个翻译非常快速。
+
+606
+00:26:58,740 --> 00:27:00,290
+And in a really naive sense,
+从一个非常天真的角度来看，
+
+607
+00:27:00,300 --> 00:27:02,770
+if we didn't do any fancy optimization,
+如果我们没有进行任何复杂的优化，
+
+608
+00:27:03,200 --> 00:27:08,390
+a single loader store could turn into like three or four reads,
+一个单一的加载存储操作可能会变成三到四个读取操作。
+
+609
+00:27:08,400 --> 00:27:09,710
+and then the loader store.
+然后加载器存储。
+
+610
+00:27:10,360 --> 00:27:13,430
+It's multiplying every memory access by like four if you have
+如果你有的话，它会将每次内存访问乘以四。
+
+611
+00:27:13,440 --> 00:27:14,830
+a four level page table.
+一个四级页表。
+
+612
+00:27:15,650 --> 00:27:17,800
+This is a problem and we're gonna have to solve this problem.
+这是一个问题，我们必须解决这个问题。
+
+613
+00:27:19,690 --> 00:27:23,520
+Okay, so this is really, really slow.
+好的，所以这真的非常慢。
+
+614
+00:27:23,530 --> 00:27:28,730
+I unreasonably slow for any high performance cpu what do we do?
+如果一个高性能的CPU在运行时变得异常缓慢，我们应该怎么办？
+
+首先，我们需要确定问题的原因。可能的原因包括硬件故障、软件问题或系统负载过重。
+
+首先，我们可以检查硬件是否正常工作。我们可以运行诊断工具来测试CPU的性能和稳定性。如果发现硬件故障，我们可能需要修复或更换相关组件。
+
+其次，我们可以检查软件方面的问题。我们可以使用系统监视工具来查看CPU的使用率和进程活动。如果发现某个进程占用了大量的CPU资源，我们可以尝试终止该进程或优化其代码。
+
+最后，如果系统负载过重，我们可以考虑优化系统配置。这可能包括增加内存、优化磁盘访问、调整进程调度策略等。
+
+总之，解决CPU性能下降的问题需要综合考虑硬件、软件和系统配置等多个方面。如果问题仍然存在，我们可能需要进一步调查或寻求专业的技术支持。
+
+615
+00:27:29,030 --> 00:27:31,250
+If we have some sort of data access,
+如果我们有某种数据访问方式，
+
+616
+00:27:31,620 --> 00:27:34,240
+we do that data access multiple times,
+我们多次进行数据访问。
+
+617
+00:27:34,580 --> 00:27:36,230
+and we want to make it faster.
+我们希望让它变得更快。
+
+618
+00:27:36,240 --> 00:27:40,010
+So I already kind of spoiled the answer here by switching slides.
+所以我在切换幻灯片时已经有点泄露答案了。
+
+619
+00:27:40,360 --> 00:27:41,590
+This is caching.
+这是缓存。
+
+620
+00:27:41,600 --> 00:27:46,510
+Caching is one of those like fundamental core computer science concepts
+缓存是那种基本的核心计算机科学概念之一。
+
+621
+00:27:46,520 --> 00:27:49,120
+that just comes out again and again and again.
+这只是一次又一次地发生。
+
+622
+00:27:49,490 --> 00:27:51,600
+You're gonna see caching everywhere.
+你会在各个地方看到缓存的存在。
+
+623
+00:27:51,610 --> 00:27:52,720
+It's just everywhere.
+它无处不在。
+
+624
+00:27:53,250 --> 00:27:57,400
+So that's what we're gonna have to deal with, is caching.
+所以我们将不得不处理的是缓存。
+
+625
+00:27:58,410 --> 00:28:00,120
+That's the trick we're gonna use to solve this.
+这就是我们要用来解决这个问题的技巧。
+
+626
+00:28:00,130 --> 00:28:03,240
+So i'm gonna spend a little bit of time now reviewing caching.
+现在我要花一点时间来复习缓存。
+
+627
+00:28:04,110 --> 00:28:08,580
+I know you learned a little bit about this in 61 c if you've taken like 152
+如果你修过152课程的话，我知道你在61c课程中已经学了一点关于这个的知识。
+
+628
+00:28:08,590 --> 00:28:09,140
+or something,
+或者其他什么东西，
+
+629
+00:28:09,150 --> 00:28:11,300
+you're gonna see caching in a lot more detail.
+你将会更详细地了解缓存。
+
+630
+00:28:11,840 --> 00:28:15,020
+But i'm gonna take some time now to refresh your memory,
+但是现在我要花一些时间来提醒你一下，
+
+631
+00:28:15,030 --> 00:28:16,470
+because catching is super important.
+因为捕捉异常非常重要。
+
+632
+00:28:16,830 --> 00:28:18,270
+And you're gonna see it.
+你会看到的。
+
+633
+00:28:18,590 --> 00:28:19,780
+Just in this lecture alone,
+仅仅在这一堂课中，
+
+634
+00:28:19,790 --> 00:28:25,610
+we're gonna see three examples of caching just in this lecture alone.
+在这节课中，我们将看到三个缓存的例子。
+
+635
+00:28:25,910 --> 00:28:27,880
+Then every class you're gonna see it.
+那么每一节课你都会看到它。
+
+636
+00:28:29,290 --> 00:28:31,360
+A cache is a smaller,
+缓存是一个较小的、快速的存储器，用于存储最常访问的数据。它位于主存和处理器之间，可以提高数据访问速度和系统性能。当处理器需要访问数据时，它首先检查缓存中是否存在该数据。如果存在，处理器可以直接从缓存中获取数据，而不需要访问主存。这样可以节省时间和能量消耗。如果缓存中不存在所需的数据，处理器将从主存中获取数据，并将其存储到缓存中，以便将来的访问。缓存的设计和管理是操作系统和计算机体系结构中的重要问题，可以通过使用不同的缓存策略来优化性能。
+
+637
+00:28:31,370 --> 00:28:35,430
+faster memory in which we store copies of some original data.
+更快的内存，用于存储一些原始数据的副本。
+
+638
+00:28:37,500 --> 00:28:39,500
+It's everywhere, like I just said.
+就像我刚才说的那样，它无处不在。
+
+639
+00:28:39,850 --> 00:28:43,840
+And it really only works if you have some sort of locality.
+只有在存在某种局部性的情况下，它才能真正发挥作用。
+
+640
+00:28:43,850 --> 00:28:44,860
+So basically,
+基本上，
+
+641
+00:28:44,870 --> 00:28:49,470
+you have to be able to predict whether you're gonna reuse some memory.
+你必须能够预测是否会重复使用某些内存。
+
+642
+00:28:49,900 --> 00:28:50,980
+If you can predict it,
+如果你能预测它，
+
+643
+00:28:51,320 --> 00:28:52,460
+then caches are gonna work.
+那么缓存将会起作用。
+
+644
+00:28:52,710 --> 00:28:56,650
+If you have completely unpredictable access is then the cache isn't gonna work.
+如果访问是完全不可预测的，那么缓存就无法起作用。
+
+645
+00:28:56,660 --> 00:28:58,130
+Is what do you store in the cache?
+缓存中存储的是什么内容？
+
+646
+00:28:58,140 --> 00:29:00,010
+Every single one is like totally random.
+每一个都完全是随机的。
+
+647
+00:29:00,690 --> 00:29:01,930
+They won't work in that case,
+在那种情况下，它们不会起作用。
+
+648
+00:29:01,940 --> 00:29:03,250
+but as long as you have,
+但只要你有的话，
+
+649
+00:29:03,260 --> 00:29:04,350
+some locality catches are great.
+一些本地的捕获非常棒。
+
+650
+00:29:07,650 --> 00:29:10,840
+Here's a metric, there's a metric that's really important to keep in mind.
+这里有一个度量标准，有一个非常重要的度量标准需要牢记在心。
+
+651
+00:29:11,320 --> 00:29:12,110
+This is another one.
+这是另一个。
+
+652
+00:29:12,120 --> 00:29:13,270
+It's sort of like the iron law.
+这有点像铁律。
+
+653
+00:29:13,280 --> 00:29:16,310
+There's a bunch of these equations that seem really dumb or like.
+这里有一堆看起来很愚蠢或奇怪的方程式。
+
+654
+00:29:17,450 --> 00:29:18,720
+And elsa, right?
+还有艾尔莎，对吗？
+
+655
+00:29:19,650 --> 00:29:20,520
+They're almost dumb, right?
+他们几乎是愚蠢的，对吗？
+
+656
+00:29:20,530 --> 00:29:23,880
+They're just obvious like of this is the time.
+它们就像是显而易见的，就像现在这个时刻一样。
+
+657
+00:29:24,300 --> 00:29:25,770
+But they're easy to forget,
+但是它们很容易被忘记，
+
+658
+00:29:25,780 --> 00:29:30,010
+and they're really helpful for thinking and like understanding how systems work.
+它们对于思考和理解系统运作方式非常有帮助。
+
+659
+00:29:30,680 --> 00:29:33,370
+In this case, we're talking about average access time,
+在这种情况下，我们正在讨论平均访问时间。
+
+660
+00:29:33,380 --> 00:29:37,070
+so that is the hit rate times the hit time,
+所以这就是命中率乘以命中时间，
+
+661
+00:29:37,580 --> 00:29:40,260
+plus the miss rate times the miss time,
+加上缺失率乘以缺失时间，
+
+662
+00:29:40,510 --> 00:29:42,370
+is gonna be your average access time.
+平均访问时间将会是多少。
+
+663
+00:29:42,380 --> 00:29:45,850
+So on average, a memory access is gonna take that much time.
+平均而言，一个内存访问需要那么多时间。
+
+664
+00:29:46,850 --> 00:29:47,920
+So keep that in mind,
+请记住这一点，
+
+665
+00:29:48,460 --> 00:29:52,480
+you may be asked to do that on homeworks or tests or things.
+你可能会被要求在作业、考试或其他任务中进行这样的翻译。
+
+666
+00:29:52,490 --> 00:29:53,100
+It's important.
+这很重要。
+
+667
+00:29:53,670 --> 00:29:55,980
+And I think we're gonna walk through an example here in a second.
+我觉得我们马上要通过一个例子来进行演示。
+
+668
+00:29:57,910 --> 00:30:02,290
+It is we need to put into context a little bit why we're talking
+我们需要稍微将我们的讨论放入背景中来解释一下为什么我们在谈论这个。
+
+669
+00:30:02,300 --> 00:30:04,930
+about cashing and how effective it can.
+关于缓存以及它的有效性。
+
+670
+00:30:05,760 --> 00:30:05,950
+Right?
+对吗？
+
+671
+00:30:05,960 --> 00:30:10,030
+I think humans brains are really bad at reasoning about scale.
+我认为人类的大脑在处理规模问题时表现得很差。
+
+672
+00:30:10,990 --> 00:30:14,740
+We just can't handle things that are like orders of magnitude apart.
+我们只是无法处理相差几个数量级的事物。
+
+673
+00:30:14,750 --> 00:30:15,940
+Our brains just aren't wired for.
+我们的大脑并不适应这个。
+
+674
+00:30:16,940 --> 00:30:19,370
+Here's an attempt to put it into perspective,
+这是一个试图将其放入透视的尝试，
+
+675
+00:30:20,100 --> 00:30:21,410
+an attempt that will probably fail,
+一个很可能会失败的尝试
+
+676
+00:30:21,420 --> 00:30:23,250
+but you should keep these numbers in mind.
+但你应该记住这些数字。
+
+677
+00:30:23,260 --> 00:30:25,250
+That's really important to always have this in your head.
+将这一点牢记在心非常重要。
+
+678
+00:30:26,760 --> 00:30:31,150
+We have multiple ways of storing data in digital logic or a in a computer.
+我们有多种方式来存储数据在数字逻辑或计算机中。
+
+679
+00:30:31,840 --> 00:30:33,950
+The fastest one here is registers,
+这里最快的是寄存器。
+
+680
+00:30:35,200 --> 00:30:36,840
+and also kind of the l one cache.
+还有一种叫做L1缓存。
+
+681
+00:30:36,850 --> 00:30:40,200
+Their l one cache might be a little slower than registers, but it's closed.
+他们的L1缓存可能比寄存器慢一些，但它是封闭的。
+
+682
+00:30:40,580 --> 00:30:47,910
+Both of these are about about the cycle time.
+这两个都是关于循环时间的。
+
+683
+00:30:48,970 --> 00:30:54,280
+These are running about the same speed as like your computer processor cycles.
+这些运行速度大致与您的计算机处理器周期相同。
+
+684
+00:30:55,050 --> 00:30:58,340
+That means that we want to interact with these in hardware.
+这意味着我们希望与这些硬件进行交互。
+
+685
+00:30:58,350 --> 00:31:00,440
+These happen at sort of hardware time.
+这些事件发生在硬件时间上。
+
+686
+00:31:00,740 --> 00:31:01,730
+Scales, right?
+天平，对吗？
+
+687
+00:31:02,710 --> 00:31:05,380
+Then we've got all this stuff in the middle, so we've got all these,
+然后我们还有中间的所有这些东西，所以我们有所有这些，
+
+688
+00:31:05,390 --> 00:31:07,780
+and they're just getting slower and slower and slower.
+它们越来越慢，越来越慢，越来越慢。
+
+689
+00:31:08,280 --> 00:31:11,820
+At some point, we're gonna get all the way to your hard disk.
+在某个时候，我们将会完全访问到你的硬盘。
+
+690
+00:31:12,410 --> 00:31:15,730
+And when you get to your hard disk to a first order approximation,
+当你接触到硬盘时，可以初步近似地说，
+
+691
+00:31:15,740 --> 00:31:20,800
+the amount of time it takes to read from a hard disk is forever.
+从硬盘读取所需的时间是永远的。
+
+692
+00:31:21,670 --> 00:31:23,490
+Like from a hardware perspective.
+从硬件角度来看。
+
+693
+00:31:24,540 --> 00:31:26,460
+It's not even worth thinking about.
+这根本不值得考虑。
+
+694
+00:31:26,470 --> 00:31:30,830
+I it's an absolutely absurd amount of time.
+这是一个绝对荒谬的时间量。
+
+695
+00:31:31,600 --> 00:31:33,970
+I was gonna need bread, but then I cut my finger,
+我本来要买面包的，但是我割伤了手指。
+
+696
+00:31:33,980 --> 00:31:35,410
+so I haven't done that recently.
+所以我最近没有做过那个。
+
+697
+00:31:37,440 --> 00:31:37,690
+Okay.
+好的。
+
+698
+00:31:37,700 --> 00:31:43,220
+So basically think about hard disks as taking infinite time
+基本上，将硬盘视为需要无限时间的设备。
+
+699
+00:31:43,230 --> 00:31:44,580
+from a hardware perspective.
+从硬件角度来看。
+
+700
+00:31:44,880 --> 00:31:46,710
+If i'm cycling at 4 gigahertz,
+如果我以4千兆赫的速度进行循环，
+
+701
+00:31:46,720 --> 00:31:49,830
+10 millisecond is just a ridiculous amount of time.
+10毫秒只是一个荒谬的时间量。
+
+702
+00:31:50,600 --> 00:31:52,910
+When we're gonna go to these time scales,
+我们何时会进入这些时间尺度？
+
+703
+00:31:53,510 --> 00:31:55,100
+we're just gonna deal with it in software.
+我们只需要在软件中处理它。
+
+704
+00:31:55,440 --> 00:31:55,790
+Right?
+对吗？
+
+705
+00:31:55,800 --> 00:31:58,190
+Because it doesn't make sense for the hardware to even deal with it.
+因为对于硬件来说，处理这个问题没有意义。
+
+706
+00:31:58,200 --> 00:31:58,990
+It's so slow.
+太慢了。
+
+707
+00:31:59,470 --> 00:32:00,710
+And then there's this stuff in the middle,
+然后在中间还有这些东西，
+
+708
+00:32:00,720 --> 00:32:03,180
+and all this stuff in the middle are gonna be shades of grey.
+中间的所有东西都会是灰色的阴影。
+
+709
+00:32:03,700 --> 00:32:03,960
+Right?
+对吗？
+
+710
+00:32:03,970 --> 00:32:06,700
+And depending on how you want to deal with this,
+根据你想要如何处理这个问题，
+
+711
+00:32:06,950 --> 00:32:08,380
+you might have hardware deal with it.
+你可能需要处理硬件问题。
+
+712
+00:32:08,390 --> 00:32:09,620
+You might have software deal with it.
+你可以使用软件来处理它。
+
+713
+00:32:09,630 --> 00:32:12,860
+You might have some more complicated mix of things.
+你可能有一些更复杂的混合物。
+
+714
+00:32:13,400 --> 00:32:17,270
+A lot of my research has focused sort of in this space and understanding
+我的很多研究都集中在这个领域，以及对其进行理解。
+
+715
+00:32:17,280 --> 00:32:20,970
+where exactly that barrier between hardware and software can be.
+硬件和软件之间的界限究竟在哪里？
+
+716
+00:32:21,210 --> 00:32:23,230
+And it's a pretty interesting question.
+这是一个非常有趣的问题。
+
+717
+00:32:23,620 --> 00:32:26,650
+But way over here definitely want to deal with that completely
+但是在这里肯定想完全处理那个问题
+
+718
+00:32:26,660 --> 00:32:28,150
+in software way over here.
+在这里以软件方式。
+
+719
+00:32:28,600 --> 00:32:30,800
+Definitely want to deal with that completely in hardware.
+绝对希望完全通过硬件来处理这个问题。
+
+720
+00:32:32,350 --> 00:32:36,020
+There's like millions and millions and millions times difference
+有数百万倍的差异
+
+721
+00:32:36,030 --> 00:32:37,060
+in the performance here.
+在这里的性能表现。
+
+722
+00:32:37,330 --> 00:32:38,980
+So that's why caches are important.
+这就是为什么缓存很重要。
+
+723
+00:32:39,380 --> 00:32:41,780
+L one cache miss is not a big deal.
+一次缓存未命中并不是什么大问题。
+
+724
+00:32:41,790 --> 00:32:42,590
+It's gonna happen.
+这将会发生。
+
+725
+00:32:42,850 --> 00:32:44,440
+You're only gonna lose a cycle or something.
+你只会损失一个周期或者类似的时间。
+
+726
+00:32:44,920 --> 00:32:46,890
+If you try and read something from disk,
+如果你尝试从磁盘上读取某个内容，
+
+727
+00:32:47,570 --> 00:32:48,530
+just give up, right?
+就放弃了，对吗？
+
+728
+00:32:48,540 --> 00:32:51,010
+Like, go, put your laptop away, go home,
+好的，请把你的笔记本电脑收起来，回家吧。
+
+729
+00:32:51,020 --> 00:32:52,440
+come back, right?
+回来了吗？
+
+730
+00:32:52,450 --> 00:32:54,600
+At least the hardware thinks it's like that.
+至少硬件认为是这样的。
+
+731
+00:32:57,300 --> 00:32:59,690
+And then address translation.
+然后是地址转换。
+
+732
+00:33:00,010 --> 00:33:01,470
+Because this is so fast,
+因为这太快了，
+
+733
+00:33:01,480 --> 00:33:03,190
+address translation has to happen.
+需要进行地址转换。
+
+734
+00:33:03,750 --> 00:33:06,460
+Right here has to happen by the time you get into the court.
+在你进入法庭之前，这件事必须发生。
+
+735
+00:33:06,770 --> 00:33:07,860
+So it's got to be fast.
+所以它必须要快速。
+
+736
+00:33:09,200 --> 00:33:10,230
+Worst case scenario,
+最坏情况下，
+
+737
+00:33:10,240 --> 00:33:11,310
+page tables live here,
+页表存放在这里，
+
+738
+00:33:11,320 --> 00:33:13,230
+or maybe even here in extreme cases.
+或者在极端情况下甚至在这里。
+
+739
+00:33:13,240 --> 00:33:15,430
+But for the most part, your page tables are here,
+但大部分情况下，你的页表在这里，
+
+740
+00:33:15,980 --> 00:33:20,030
+we need this caching in order to be able to access them effectively.
+我们需要缓存来有效地访问它们。
+
+741
+00:33:22,300 --> 00:33:22,810
+Okay?
+好的？
+
+742
+00:33:23,840 --> 00:33:24,710
+Just real quick,
+很快地，
+
+743
+00:33:24,720 --> 00:33:27,670
+because I think it's really important to understand this equation.
+因为我认为理解这个方程式非常重要。
+
+744
+00:33:27,680 --> 00:33:29,070
+We're gonna go through an example.
+我们将通过一个例子来说明。
+
+745
+00:33:29,860 --> 00:33:32,570
+Let's take a real example or a made up example.
+让我们举一个真实的例子或虚构的例子。
+
+746
+00:33:32,580 --> 00:33:33,610
+That's real enough.
+那是真实的。
+
+747
+00:33:34,290 --> 00:33:37,120
+And say that it takes about 100 nanoseconds to get to d ram.
+并且说从 CPU 到内存需要大约100纳秒的时间。
+
+748
+00:33:37,130 --> 00:33:38,760
+This is about right?
+这是正确的吗？
+
+749
+00:33:39,320 --> 00:33:43,270
+And then say it takes 1 nanosecond to get to your cash like you're a one.
+然后说它只需要1纳秒就能到达你的现金，就像你是一个一样。
+
+750
+00:33:43,280 --> 00:33:44,820
+Again, it's about, right?
+再次，这是关于，对吗？
+
+751
+00:33:46,090 --> 00:33:48,740
+What's the average memory access time here?
+这里的平均内存访问时间是多少？
+
+752
+00:33:50,630 --> 00:33:53,160
+I'm gonna go through it now just in the interest of time,
+为了节省时间，我现在要开始阅读它了。
+
+753
+00:33:53,170 --> 00:33:56,020
+but this is something that you guys are gonna have to get
+但这是你们必须要解决的事情
+
+754
+00:33:56,030 --> 00:33:57,340
+a little bit comfortable running.
+稍微舒适地运行。
+
+755
+00:34:00,390 --> 00:34:03,020
+Actually, I let people sort of think about this for a second,
+实际上，我让大家稍微思考一下这个问题，
+
+756
+00:34:03,030 --> 00:34:05,020
+and i'm gonna answer this question.
+我会回答这个问题。
+
+757
+00:34:06,520 --> 00:34:08,150
+What do I by letting software deal with it?
+"让软件处理它"是什么意思？
+
+758
+00:34:08,160 --> 00:34:11,590
+We're gonna talk about that in a little more detail later in the lecture.
+我们稍后在讲座中会更详细地讨论这个问题。
+
+759
+00:34:11,960 --> 00:34:12,910
+But basically,
+但基本上，
+
+760
+00:34:12,920 --> 00:34:17,990
+what I mean is that the hardware might notice that it needs to go to disk,
+我的意思是硬件可能会注意到它需要访问磁盘。
+
+761
+00:34:18,000 --> 00:34:21,190
+like it might notice that the data it needs is not available.
+就像它可能会注意到所需的数据不可用一样。
+
+762
+00:34:21,740 --> 00:34:23,660
+And rather than some circuit,
+而不是一些电路，
+
+763
+00:34:23,940 --> 00:34:25,550
+figuring out how to read from the disk.
+弄清如何从磁盘读取数据。
+
+764
+00:34:25,560 --> 00:34:28,390
+So some digital logic issuing requests to the disk,
+所以一些数字逻辑正在向磁盘发出请求，
+
+765
+00:34:28,680 --> 00:34:31,590
+what it's gonna do is it's gonna throw it what's called a trap,
+它将会执行一个叫做"陷阱"的操作。
+
+766
+00:34:32,050 --> 00:34:35,970
+just like how the user process is able to switch back into kernel mode.
+就像用户进程能够切换回内核模式一样。
+
+767
+00:34:36,270 --> 00:34:39,470
+The hardware can decide what I can't deal with this right now.
+硬件可以决定我现在无法处理的事情。
+
+768
+00:34:39,800 --> 00:34:43,290
+I'm gonna run some code that the operating system provided.
+我要运行一些操作系统提供的代码。
+
+769
+00:34:43,630 --> 00:34:45,440
+I'll let that code deal with this.
+我会让那段代码处理这个问题。
+
+770
+00:34:47,360 --> 00:34:49,070
+When we let software deal with it,
+当我们让软件处理时，
+
+771
+00:34:49,080 --> 00:34:51,790
+that means we hand control to the operating system to make
+这意味着我们将控制权交给操作系统来处理。
+
+772
+00:34:51,800 --> 00:34:55,370
+some more complicated decisions than you could in a dedicated
+在专用设备中，你可以做出比现在更复杂的决策。
+
+773
+00:34:55,380 --> 00:34:56,730
+like digital logic circuit.
+就像数字逻辑电路一样。
+
+774
+00:34:58,260 --> 00:35:01,250
+We'll go into more details of this later on.
+我们稍后会详细讨论这个问题。
+
+775
+00:35:01,600 --> 00:35:02,470
+Assuming we get there,
+假设我们能够到达那里，
+
+776
+00:35:04,840 --> 00:35:07,430
+we're looking at the average memory access time.
+我们正在研究平均内存访问时间。
+
+777
+00:35:07,720 --> 00:35:09,710
+This is hit rate times hit time,
+这是命中率乘以命中时间，
+
+778
+00:35:09,720 --> 00:35:11,550
+plus miss rate times miss time.
+加上失效率乘以失效时间。
+
+779
+00:35:12,560 --> 00:35:14,710
+The hit rate plus the miss rate.
+命中率加上失误率。
+
+780
+00:35:14,720 --> 00:35:16,510
+Obviously, they've got a match, right?
+显然，他们找到了匹配的对象，对吧？
+
+781
+00:35:16,520 --> 00:35:18,070
+If I didn't hit, then I missed.
+如果我没有击中，那么我就错过了。
+
+782
+00:35:18,080 --> 00:35:19,870
+If I didn't miss, then I hit.
+如果我没有错过，那么我就命中了。
+
+783
+00:35:20,160 --> 00:35:21,890
+So these are just ratios.
+所以这只是比率。
+
+784
+00:35:22,860 --> 00:35:26,510
+So let's assume that our hit rate in this cache is 90%.
+所以假设我们的缓存命中率是90%。
+
+785
+00:35:27,090 --> 00:35:30,110
+That means that our miss rate is gonna be 10%.
+这意味着我们的缺失率将达到10%。
+
+786
+00:35:31,340 --> 00:35:32,370
+If we hit,
+如果我们撞击，
+
+787
+00:35:32,380 --> 00:35:34,690
+then that means it took us a nanosecond to read.
+那意味着我们花了一纳秒的时间来阅读。
+
+788
+00:35:35,130 --> 00:35:37,570
+So that will be 90% times 1.
+那就是90%乘以1。
+
+789
+00:35:37,920 --> 00:35:39,320
+And then if we missed,
+然后如果我们错过了，
+
+790
+00:35:39,330 --> 00:35:41,400
+it's gonna take us 100 seconds to read,
+我们需要花费100秒来阅读。
+
+791
+00:35:41,950 --> 00:35:44,100
+but I just wrote 101 here.
+但是我刚刚在这里写的是101。
+
+792
+00:35:44,810 --> 00:35:49,540
+So why did I write 101 and not 1 hundred for the miss time?
+那么为什么我在"miss time"中写的是101而不是一百零一呢？
+
+793
+00:35:54,320 --> 00:35:56,120
+Give you guys a few seconds to think about that.
+给你们几秒钟时间考虑一下。
+
+794
+00:36:00,970 --> 00:36:05,420
+So the reason I did that was that in order to notice that I missed,
+我这样做的原因是为了注意到我错过的地方。
+
+795
+00:36:06,000 --> 00:36:07,580
+I had to try in it.
+我不得不尝试一下。
+
+796
+00:36:09,530 --> 00:36:11,030
+So not quite.
+所以不完全正确。
+
+797
+00:36:11,040 --> 00:36:13,500
+So the exactly.
+所以确切地说。
+
+798
+00:36:13,510 --> 00:36:15,250
+So I think brian's got it here.
+所以我认为Brian已经明白了。
+
+799
+00:36:16,390 --> 00:36:19,540
+The trick is that I had to notice that I missed,
+关键是我必须注意到我错过了的地方。
+
+800
+00:36:19,550 --> 00:36:21,540
+and that took a nanosecond all by itself.
+这本身就花了一纳秒的时间。
+
+801
+00:36:21,970 --> 00:36:25,310
+Then I noticed that I missed and then I could start trying to read
+然后我注意到我错过了，然后我可以开始尝试阅读。
+
+802
+00:36:25,320 --> 00:36:26,310
+from the next level,
+从下一个级别开始，
+
+803
+00:36:26,970 --> 00:36:27,390
+right?
+对的？
+
+804
+00:36:27,630 --> 00:36:30,640
+Or actually, that might be what they was trying to get at, too.
+或者实际上，这也可能是他们试图表达的意思。
+
+805
+00:36:31,110 --> 00:36:33,680
+So that's why so you have to keep you have to account for the fact
+这就是为什么你必须考虑到这个事实的原因
+
+806
+00:36:33,690 --> 00:36:37,750
+that missing takes extra time because you have to notice that you missed.
+因为你需要注意到你的错误，所以补漏会花费额外的时间。
+
+807
+00:36:39,710 --> 00:36:43,060
+And so we can look at what happens as you change,
+因此，我们可以看到当您进行更改时会发生什么。
+
+808
+00:36:43,070 --> 00:36:44,540
+hit rates and miss rates.
+命中率和失效率。
+
+809
+00:36:44,970 --> 00:36:48,800
+Notice that a relatively small increase in the hit rate can have
+请注意，命中率的相对小幅增加可能会产生较大的影响。
+
+810
+00:36:48,810 --> 00:36:51,790
+a very large impact on the overall performance.
+对整体性能有非常大的影响。
+
+811
+00:36:52,270 --> 00:36:54,060
+Hit rates become very important.
+命中率变得非常重要。
+
+812
+00:36:59,830 --> 00:37:03,340
+Again, I talked about why caching works gonna move a little bit fast here.
+再次，我要谈一下为什么缓存能够提高速度，这里会稍微快一些。
+
+813
+00:37:04,110 --> 00:37:05,740
+That's kind of an important concept.
+这是一个相当重要的概念。
+
+814
+00:37:06,670 --> 00:37:07,860
+We talked about locality.
+我们讨论了局部性。
+
+815
+00:37:07,870 --> 00:37:11,100
+So caching works because we have predictability.
+缓存的工作原理是因为我们有可预测性。
+
+816
+00:37:11,110 --> 00:37:15,140
+We can guess what memories are likely to be accessed next.
+我们可以猜测接下来可能会被访问的内存。
+
+817
+00:37:15,660 --> 00:37:20,450
+So there's different types of patterns that we might detect.
+所以我们可能会检测到不同类型的模式。
+
+818
+00:37:21,070 --> 00:37:24,790
+And the most common ones are temporal lookout, temporal locality.
+最常见的是时间窗口和时间局部性。
+
+819
+00:37:24,800 --> 00:37:27,150
+So if I read or wrote some address,
+那么如果我读取或写入某个地址，
+
+820
+00:37:27,160 --> 00:37:29,030
+i'm probably gonna read or write it again.
+我可能会再读或再写一遍。
+
+821
+00:37:29,440 --> 00:37:30,140
+Most likely.
+很有可能。
+
+822
+00:37:30,480 --> 00:37:33,390
+Imagine if I have a loop instructions are memory.
+想象一下，如果我有一个循环指令存储在内存中。
+
+823
+00:37:34,070 --> 00:37:35,940
+If you remember your whole von neumann thing,
+如果你还记得冯·诺依曼的整个理论的话，
+
+824
+00:37:35,950 --> 00:37:38,460
+so you're the program itself is memory.
+所以你是指程序本身是存储在内存中的。
+
+825
+00:37:38,470 --> 00:37:41,230
+And if I have a loop in my memory,
+如果我的内存中有一个循环，
+
+826
+00:37:41,510 --> 00:37:44,490
+then i'm gonna be reusing those instructions over and over and over,
+那么我将会一遍又一遍地重复使用这些指令。
+
+827
+00:37:44,500 --> 00:37:45,790
+because I got this loop.
+因为我遇到了这个循环。
+
+828
+00:37:47,080 --> 00:37:48,150
+That's temporal locality.
+这是时间局部性。
+
+829
+00:37:49,330 --> 00:37:50,240
+That's a pretty good guess.
+这是一个相当不错的猜测。
+
+830
+00:37:50,250 --> 00:37:51,320
+That tends to work pretty well.
+那通常效果很好。
+
+831
+00:37:51,330 --> 00:37:52,760
+If I access something recently,
+如果我最近访问了某个东西，
+
+832
+00:37:52,770 --> 00:37:54,280
+i'll probably access it again.
+我可能会再次访问它。
+
+833
+00:37:55,330 --> 00:37:56,850
+The other one is spatial locality.
+另一个是空间局部性。
+
+834
+00:37:57,210 --> 00:37:59,320
+This is like, imagine scanning an array.
+这就像是想象扫描一个数组。
+
+835
+00:37:59,610 --> 00:37:59,670
+Right?
+对吗？
+
+836
+00:37:59,680 --> 00:38:01,870
+If i'm reading an array from start to finish,
+如果我从头到尾读取一个数组，
+
+837
+00:38:02,190 --> 00:38:03,980
+if I read an array from start to finish,
+如果我从头到尾读取一个数组，
+
+838
+00:38:04,240 --> 00:38:06,150
+if I access 1 piece of information,
+如果我访问一条信息，
+
+839
+00:38:06,160 --> 00:38:09,550
+it's pretty likely that i'm gonna read addresses that are nearby.
+很有可能我会读取附近的地址。
+
+840
+00:38:11,700 --> 00:38:12,730
+That is spatial.
+那是空间相关的。
+
+841
+00:38:12,740 --> 00:38:16,170
+Locality stuff tends to cut cluster together physically,
+局部性的东西往往会将集群在物理上聚集在一起。
+
+842
+00:38:16,180 --> 00:38:17,650
+like in the address space.
+就像在地址空间中一样。
+
+843
+00:38:18,150 --> 00:38:19,100
+That's not always true.
+这并不总是正确的。
+
+844
+00:38:19,110 --> 00:38:22,540
+I talked earlier about how hash tables aren't very cash friendly.
+我之前谈到过哈希表在缓存友好性方面并不理想。
+
+845
+00:38:23,030 --> 00:38:23,710
+This is why?
+这是为什么？
+
+846
+00:38:23,720 --> 00:38:26,910
+Because hash tables don't have a lot of spatial locality.
+因为哈希表没有很多的空间局部性。
+
+847
+00:38:27,140 --> 00:38:28,400
+You jump around them a lot.
+你经常在它们之间跳来跳去。
+
+848
+00:38:28,690 --> 00:38:30,820
+And so things that are acts,
+所以，那些是行为的事物，
+
+849
+00:38:30,830 --> 00:38:35,730
+things that are physically near each other aren't necessarily accessed together.
+物理上靠近的事物并不一定会被同时访问。
+
+850
+00:38:36,730 --> 00:38:39,810
+But then having an array or a table lookup or something like that,
+但是有一个数组或者表格查找之类的东西，
+
+851
+00:38:39,820 --> 00:38:41,450
+you have more spatial localities,
+你有更多的空间局部性。
+
+852
+00:38:41,460 --> 00:38:43,050
+so they tend to behave a little nicer.
+所以他们倾向于表现得更友善一些。
+
+853
+00:38:46,510 --> 00:38:46,520
+Right?
+对吗？
+
+854
+00:38:46,530 --> 00:38:51,230
+And then the final thing here is that we have multiple levels,
+最后一点是我们有多个层级，
+
+855
+00:38:51,240 --> 00:38:55,920
+and so we can stack these together in order to keep track of things.
+因此，我们可以将这些堆叠在一起，以便跟踪事物。
+
+856
+00:38:58,920 --> 00:39:00,940
+So what is the trick here?
+这里有什么诀窍吗？
+
+857
+00:39:00,950 --> 00:39:02,820
+Why was I just talking about caching?
+为什么我刚才在谈论缓存？
+
+858
+00:39:03,430 --> 00:39:05,870
+Translations are slow, really painful.
+翻译工作很慢，真的很痛苦。
+
+859
+00:39:06,220 --> 00:39:07,680
+And the trick we're gonna do,
+我们要做的魔术是，
+
+860
+00:39:07,690 --> 00:39:11,260
+the trick we always do is we're just gonna slap a cache on it.
+我们经常使用的技巧就是给它加上一个缓存。
+
+861
+00:39:11,770 --> 00:39:12,070
+Right?
+对吗？
+
+862
+00:39:12,080 --> 00:39:13,590
+Caches are everywhere,
+缓存无处不在，
+
+863
+00:39:13,600 --> 00:39:14,870
+and this is no exception.
+而这个也不例外。
+
+864
+00:39:15,480 --> 00:39:20,310
+We're gonna stick a cache on the mmu and now every time we do a translation,
+我们将在MMU上添加一个缓存，这样每次进行翻译时，
+
+865
+00:39:20,480 --> 00:39:22,930
+we're gonna save that translation in this cache.
+我们将把这个翻译保存在缓存中。
+
+866
+00:39:23,360 --> 00:39:24,560
+Now the cache is smaller,
+现在缓存变小了，
+
+867
+00:39:24,570 --> 00:39:26,000
+and it's faster to access.
+而且访问速度更快。
+
+868
+00:39:26,250 --> 00:39:28,090
+So we don't have to do all this table locking.
+所以我们不需要进行所有这些表锁定。
+
+869
+00:39:28,100 --> 00:39:29,690
+We can just look it up in the cache.
+我们可以直接在缓存中查找。
+
+870
+00:39:30,330 --> 00:39:31,940
+And the cache is relatively simple.
+而缓存相对简单。
+
+871
+00:39:31,950 --> 00:39:33,830
+It's just gonna have the virtual page.
+它只会有虚拟页面。
+
+872
+00:39:34,190 --> 00:39:34,450
+Right?
+对吗？
+
+873
+00:39:35,020 --> 00:39:36,530
+That's what you're using to look up.
+这是你正在使用来查找的工具。
+
+874
+00:39:37,180 --> 00:39:38,770
+That's gonna have the physical frame number.
+这将具有物理帧号码。
+
+875
+00:39:38,780 --> 00:39:40,370
+That's the answer you want.
+那是你想要的答案。
+
+876
+00:39:40,770 --> 00:39:43,440
+Then it's also gonna cache a bunch of other like metadata.
+然后它还会缓存一堆其他的元数据。
+
+877
+00:39:43,450 --> 00:39:46,160
+So pt es have a bunch of extra information in them,
+所以pt es中有很多额外的信息。
+
+878
+00:39:46,170 --> 00:39:49,290
+like whether this mapping is currently valid,
+比如这个映射是否当前有效，
+
+879
+00:39:49,300 --> 00:39:51,690
+or whether you're allowed to read or write to it.
+或者你是否被允许读取或写入它。
+
+880
+00:39:52,280 --> 00:39:53,830
+It hasn't been accessed recently.
+最近没有被访问过。
+
+881
+00:39:53,840 --> 00:39:55,110
+There's much a little metadata.
+有一些很小的元数据。
+
+882
+00:39:55,650 --> 00:39:57,600
+We'll show you a picture at the end of the slides,
+在幻灯片的最后，我们会展示给你一张图片。
+
+883
+00:39:57,610 --> 00:40:00,640
+but a lot of little data that you want to keep around to keep track
+但是有很多小数据需要保留以进行跟踪。
+
+884
+00:40:00,650 --> 00:40:02,000
+of extra information.
+额外信息。
+
+885
+00:40:02,930 --> 00:40:03,880
+That's what you're caching.
+这是你正在缓存的内容。
+
+886
+00:40:04,270 --> 00:40:04,950
+So keep in mind here.
+请记住这一点。
+
+887
+00:40:04,960 --> 00:40:06,910
+This is not caching data.
+这不是缓存数据。
+
+888
+00:40:07,360 --> 00:40:10,750
+This has nothing to do with what's actually in the page, right?
+这与页面实际内容无关，对吗？
+
+889
+00:40:10,760 --> 00:40:11,910
+We're not caching.
+我们没有进行缓存。
+
+890
+00:40:11,920 --> 00:40:13,910
+The information contained in the page.
+页面中包含的信息。
+
+891
+00:40:13,920 --> 00:40:16,520
+All we're caching is meta data.
+我们只缓存元数据。
+
+892
+00:40:16,530 --> 00:40:19,200
+We're catching information about the page.
+我们正在获取页面的信息。
+
+893
+00:40:19,790 --> 00:40:21,190
+So that's what we're trying to cash here.
+所以这就是我们试图兑现的东西。
+
+894
+00:40:21,200 --> 00:40:23,710
+And it's gonna save us every time we hit in this cache.
+每当我们在这个缓存中命中时，它都会为我们节省时间。
+
+895
+00:40:23,720 --> 00:40:25,180
+We get to avoid walking the table.
+我们可以避免遍历表格。
+
+896
+00:40:25,490 --> 00:40:26,530
+And that's pretty nice.
+这真的很不错。
+
+897
+00:40:28,340 --> 00:40:28,720
+Okay.
+好的。
+
+898
+00:40:30,770 --> 00:40:35,260
+This cache, for largely historical reasons is referred to as a translation.
+出于很大程度上的历史原因，这个缓存被称为“翻译”。
+
+899
+00:40:35,270 --> 00:40:36,180
+Look aside buffer.
+旁路缓冲区
+
+900
+00:40:36,790 --> 00:40:39,340
+It's just a fancy word for a cash.
+这只是一个对现金的华丽说法而已。
+
+901
+00:40:39,860 --> 00:40:41,700
+Turns out it's a very old idea.
+原来这是一个非常古老的想法。
+
+902
+00:40:42,830 --> 00:40:45,620
+They came up with it quite a long time ago.
+他们很久以前就想出来了。
+
+903
+00:40:45,890 --> 00:40:48,080
+Before the word cash was really coined,
+在“现金”这个词真正出现之前，
+
+904
+00:40:48,640 --> 00:40:49,960
+it has kind of a funny name.
+它有点滑稽的名字。
+
+905
+00:40:51,740 --> 00:40:54,400
+But either way, it's storing these translations.
+但无论如何，它都会存储这些翻译。
+
+906
+00:40:55,250 --> 00:40:56,740
+If we hit in that cache,
+如果我们在缓存中命中，
+
+907
+00:40:56,750 --> 00:40:59,450
+we get to avoid all these slow look up.
+我们可以避免所有这些慢速查找。
+
+908
+00:40:59,460 --> 00:41:00,730
+So that's really nice.
+那真的很好。
+
+909
+00:41:01,200 --> 00:41:02,060
+Like I said,
+就像我说的一样，
+
+910
+00:41:02,070 --> 00:41:06,690
+it was invented actually quite a long time ago before the word cache
+在“缓存”这个词出现之前，实际上它已经被发明了相当长的时间。
+
+911
+00:41:06,700 --> 00:41:08,450
+was even being commonly used.
+甚至开始普遍使用。
+
+912
+00:41:08,680 --> 00:41:10,350
+Hence the funny name.
+因此有了这个有趣的名字。
+
+913
+00:41:11,280 --> 00:41:14,950
+And we call it the tob so I don't think anybody ever says translation.
+我们称之为tob，所以我认为没有人会说翻译。
+
+914
+00:41:14,960 --> 00:41:16,230
+Look aside buffer out loud.
+向旁路缓冲区大声输出。
+
+915
+00:41:16,240 --> 00:41:19,780
+They only ever say tob you have to get used to hearing that word.
+他们总是说你必须习惯听到那个词。
+
+916
+00:41:20,340 --> 00:41:23,370
+But keep in mind, tlb is just a funny word for cache.
+但请记住，tlb只是缓存的一个有趣的词。
+
+917
+00:41:23,380 --> 00:41:25,690
+It's a cache for your page table, lookouts,
+这是一个用于页面表的缓存，注意。
+
+918
+00:41:25,700 --> 00:41:26,770
+a cache for her,
+一个适用于她的缓存
+
+919
+00:41:26,910 --> 00:41:29,210
+for virtual to physical translations.
+用于虚拟到物理地址的转换。
+
+920
+00:41:31,470 --> 00:41:32,140
+How does this work?
+这是如何工作的？
+
+921
+00:41:32,150 --> 00:41:34,060
+Let's go through just sort of a flow diagram,
+让我们简单地浏览一下流程图，
+
+922
+00:41:34,070 --> 00:41:35,940
+a workflow of how this actually goes.
+实际操作的工作流程。
+
+923
+00:41:36,790 --> 00:41:39,620
+Cpu is gonna ask for a virtual address.
+CPU将要请求一个虚拟地址。
+
+924
+00:41:40,190 --> 00:41:43,430
+It's gonna try and find it in the tob or the mmu is gonna try and find it
+它将尝试在Tob（Translation Lookaside Buffer）中找到它，或者MMU（Memory Management Unit）将尝试找到它。
+
+925
+00:41:43,440 --> 00:41:45,930
+in the tob if it does,
+如果在TOB中存在的话，
+
+926
+00:41:45,940 --> 00:41:46,370
+great,
+太好了，
+
+927
+00:41:46,670 --> 00:41:47,220
+immediately,
+立即，
+
+928
+00:41:47,230 --> 00:41:50,140
+it's just gonna push that request all the way through to physical memory,
+它将直接将该请求推送到物理内存中，
+
+929
+00:41:50,150 --> 00:41:51,380
+and everything's on theory.
+而且一切都只是理论。
+
+930
+00:41:52,190 --> 00:41:54,260
+If it's not, so there's nothing cashed,
+如果不是的话，那就没有任何缓存。
+
+931
+00:41:54,270 --> 00:41:56,060
+then you're gonna have to go to the interview.
+那么你就需要去参加面试了。
+
+932
+00:41:56,600 --> 00:42:00,350
+The mmu is going to have to go back and forth to memory a couple times
+MMU将不得不多次在内存和其他地方之间来回切换
+
+933
+00:42:00,360 --> 00:42:01,470
+to walk that table.
+遍历那个表格。
+
+934
+00:42:02,010 --> 00:42:04,880
+But once it's walked the table and it's looked up the translation,
+但是一旦它遍历了表格并查找到了翻译，
+
+935
+00:42:05,220 --> 00:42:08,950
+it can save that translation and the tlb and then go and do the translation
+它可以保存该翻译和TLB，然后进行翻译。
+
+936
+00:42:08,960 --> 00:42:12,120
+for the cpu and everything starts back up.
+对于CPU和所有其他组件，一切都重新启动。
+
+937
+00:42:15,340 --> 00:42:17,170
+Why does this work and does it work?
+为什么这个能够工作，它确实能够工作吗？
+
+938
+00:42:18,330 --> 00:42:20,000
+It's a question of page locality.
+这是一个页面局部性的问题。
+
+939
+00:42:20,830 --> 00:42:21,840
+Is there locality?
+有局部性吗？
+
+940
+00:42:21,850 --> 00:42:23,880
+Or is the caching gonna work?
+缓存会起作用吗？
+
+941
+00:42:23,890 --> 00:42:25,240
+Is their spatial locality?
+它们有空间局部性吗？
+
+942
+00:42:25,250 --> 00:42:26,600
+Is their temporal locality?
+它们有时间局部性吗？
+
+943
+00:42:27,230 --> 00:42:28,250
+It turns out there is.
+原来是有的。
+
+944
+00:42:28,540 --> 00:42:30,940
+So it turns out that physical memory,
+原来如此，原来物理内存，
+
+945
+00:42:31,590 --> 00:42:33,220
+the pages in physical memory,
+物理内存中的页面
+
+946
+00:42:33,230 --> 00:42:35,020
+tend to have quite a lot of locality.
+往往具有相当多的局部性。
+
+947
+00:42:35,030 --> 00:42:35,660
+Actually,
+实际上，
+
+948
+00:42:36,160 --> 00:42:38,960
+the biggest, a really big source of this is your code.
+其中最大的、真正大的问题源自于你的代码。
+
+949
+00:42:39,320 --> 00:42:39,520
+Right?
+对吗？
+
+950
+00:42:39,530 --> 00:42:40,280
+Code is data.
+代码即数据。
+
+951
+00:42:40,290 --> 00:42:41,640
+I talked about this before.
+我之前已经谈过这个问题了。
+
+952
+00:42:42,180 --> 00:42:43,770
+When you're reading a program,
+当你阅读一个程序时，
+
+953
+00:42:43,780 --> 00:42:45,170
+like when you're running a program,
+就像当你运行一个程序时，
+
+954
+00:42:45,390 --> 00:42:48,770
+the instructions that make up that program are all close together.
+组成该程序的指令都很接近。
+
+955
+00:42:48,780 --> 00:42:50,050
+So that's spatial locality.
+这就是空间局部性。
+
+956
+00:42:50,870 --> 00:42:52,390
+And they tend to get reused a lot.
+它们往往会被频繁重复使用。
+
+957
+00:42:53,000 --> 00:42:55,350
+You have a loop, you're reusing the instructions.
+你有一个循环，你正在重复使用这些指令。
+
+958
+00:42:55,360 --> 00:42:57,190
+If you call into functions,
+如果你调用函数，
+
+959
+00:42:57,200 --> 00:43:01,040
+one of the whole points of having sub routines or functions is that you
+拥有子程序或函数的一个主要目的是让你能够将代码分解为可重复使用的模块，从而提高代码的可读性和可维护性。
+
+960
+00:43:01,050 --> 00:43:04,820
+only have one copy of that code and you call into it lots of times
+只有一份那段代码，你会多次调用它。
+
+961
+00:43:04,990 --> 00:43:07,940
+tons and tons of temporal locality and code.
+大量的时间局部性和代码。
+
+962
+00:43:08,420 --> 00:43:10,540
+You also have other spatial and temporal locality.
+你还具有其他的空间和时间局部性。
+
+963
+00:43:10,550 --> 00:43:13,240
+Your stack gets reused again and again and again.
+你的栈会一次又一次地被重复使用。
+
+964
+00:43:14,030 --> 00:43:16,020
+A lot of this sort of hard data stuff.
+很多这种硬数据的东西。
+
+965
+00:43:16,450 --> 00:43:18,520
+The heap is more variable,
+堆是更加可变的。
+
+966
+00:43:18,530 --> 00:43:20,560
+whether or not your heap has locality.
+你的堆是否具有局部性。
+
+967
+00:43:20,570 --> 00:43:22,060
+It's the same reasons.
+这是相同的原因。
+
+968
+00:43:22,070 --> 00:43:24,420
+It has cash locality in your data caches.
+它在数据缓存中具有现金局部性。
+
+969
+00:43:25,340 --> 00:43:28,400
+It's up to you to write a program that has good cash locality,
+由你来编写一个具有良好现金局部性的程序。
+
+970
+00:43:28,630 --> 00:43:35,780
+but it tends to and all the tricks that we play for caches apply to tl bs
+但是它往往会，而且我们为缓存所使用的所有技巧也适用于TLB。
+
+971
+00:43:35,790 --> 00:43:36,260
+as well.
+也是。
+
+972
+00:43:36,270 --> 00:43:37,620
+They're just a cache.
+它们只是缓存。
+
+973
+00:43:38,320 --> 00:43:40,710
+Maybe they got a few different decisions you might make,
+也许他们有一些你可能会做出的不同决策。
+
+974
+00:43:40,720 --> 00:43:41,790
+but ultimately,
+但最终，
+
+975
+00:43:41,800 --> 00:43:43,670
+their caches and all the same tricks work.
+它们的缓存和所有相同的技巧都适用。
+
+976
+00:43:44,230 --> 00:43:46,570
+We can have a multilevel tlb if we want.
+如果我们想要的话，我们可以使用多级TLB。
+
+977
+00:43:49,200 --> 00:43:50,430
+We've been talking for a while.
+我们已经聊了一段时间了。
+
+978
+00:43:50,440 --> 00:43:51,510
+I'm gonna take a break.
+我要休息一下。
+
+979
+00:43:52,150 --> 00:43:54,340
+I'm gonna get some water and do a stretch,
+我要去喝点水并做一些伸展运动。
+
+980
+00:43:55,940 --> 00:43:58,790
+and I will allow others to do the same.
+我会允许其他人也这样做。
+
+981
+00:43:59,240 --> 00:44:01,260
+We're gonna take a 2 minute break.
+我们将休息2分钟。
+
+982
+00:44:01,820 --> 00:44:03,770
+I'll be back at 1:28.
+我会在1:28回来。
+
+983
+00:44:03,970 --> 00:44:05,140
+Here's a bunch of announcements.
+这里有一些公告。
+
+984
+00:44:06,230 --> 00:44:08,800
+I'm just sort of stepping in for today.
+我只是今天临时替补一下。
+
+985
+00:44:08,810 --> 00:44:11,600
+So I have no idea what any of these announcements mean.
+所以我完全不知道这些公告的意思。
+
+986
+00:44:12,160 --> 00:44:13,530
+It's just what young gave me.
+这只是年轻人给我的。
+
+987
+00:44:13,540 --> 00:44:17,530
+So talk to your t as or whatever128 will be back.
+所以和你的助教或者其他人交流，他们会回来的。
+
+988
+00:44:40,710 --> 00:44:42,980
+While we're waiting, you guys can ask questions and stuff.
+在等待期间，你们可以提问和讨论。
+
+989
+00:44:44,300 --> 00:44:44,650
+If you want
+如果你想要的话
+
+990
+00:46:02,070 --> 00:46:04,550
+ok and we're back,
+好的，我们回来了，
+
+991
+00:46:04,560 --> 00:46:09,090
+it's a quick break a lot of content to cover.
+这是一个快速的休息，有很多内容要涵盖。
+
+992
+00:46:10,400 --> 00:46:10,840
+Okay?
+好的？
+
+993
+00:46:12,760 --> 00:46:14,350
+Starting again,
+重新开始，
+
+994
+00:46:14,360 --> 00:46:17,930
+let's start moving on.
+让我们开始继续前进吧。
+
+995
+00:46:18,770 --> 00:46:19,220
+Okay?
+好的？
+
+996
+00:46:19,660 --> 00:46:23,700
+We talked about catching a lot real handy to keep this in mind.
+我们谈到了很多实用的技巧，记住这些对你很有帮助。
+
+997
+00:46:23,710 --> 00:46:25,980
+This is a concept that comes up again and again.
+这是一个反复出现的概念。
+
+998
+00:46:26,460 --> 00:46:28,020
+So let's talk about,
+那么让我们来谈谈，
+
+999
+00:46:29,520 --> 00:46:30,710
+we talked about why caches work.
+我们讨论了缓存的工作原理。
+
+1000
+00:46:31,120 --> 00:46:34,610
+You talk about temporal locality and and spatial locality.
+你提到了时间局部性和空间局部性。
+
+1001
+00:46:34,820 --> 00:46:37,270
+So let's talk about what makes cache is not work,
+让我们来讨论一下缓存失效的原因。
+
+1002
+00:46:37,880 --> 00:46:39,950
+what makes us miss in the cache.
+在缓存中出现缺失的原因是什么？
+
+1003
+00:46:39,960 --> 00:46:41,150
+So let's categorize them.
+那么让我们对它们进行分类。
+
+1004
+00:46:42,170 --> 00:46:47,200
+So recall the one of the types of cache miss that you can get is called compulsory.
+所以回想一下，你可能遇到的一种缓存未命中类型被称为强制性未命中。
+
+1005
+00:46:47,610 --> 00:46:50,580
+This means it's a myth that you really just can't do anything about.
+这意味着这只是一个无法解决的神话。
+
+1006
+00:46:51,000 --> 00:46:51,270
+Right?
+对吗？
+
+1007
+00:46:51,280 --> 00:46:53,890
+Like, i've never seen this data before, therefore,
+就像，我以前从未见过这些数据，因此，
+
+1008
+00:46:53,900 --> 00:46:55,010
+I don't have a cache,
+我没有缓存。
+
+1009
+00:46:55,530 --> 00:46:58,950
+so called compulsory misses are mostly unavoidable.
+所谓的强制缺失大多是不可避免的。
+
+1010
+00:46:58,960 --> 00:47:02,740
+There's some tricks you can do with what's called prefetching,
+可以通过一些被称为预取的技巧来实现一些操作。
+
+1011
+00:47:03,420 --> 00:47:06,030
+where you try and guess what you might need in the future.
+你尝试猜测未来可能需要的东西。
+
+1012
+00:47:06,860 --> 00:47:10,330
+And that's really the only way that you can avoid compulsory misses.
+这确实是唯一可以避免强制缺失的方法。
+
+1013
+00:47:11,770 --> 00:47:13,690
+Another one is called capacity misses.
+另一个称为容量缺失（capacity misses）。
+
+1014
+00:47:14,330 --> 00:47:15,160
+In this case,
+在这种情况下，
+
+1015
+00:47:16,370 --> 00:47:18,080
+I basically just ran out of space.
+我基本上只是用完了空间。
+
+1016
+00:47:18,090 --> 00:47:20,680
+I have cashed everything, I can cash,
+我已经兑现了我能兑现的一切。
+
+1017
+00:47:20,690 --> 00:47:22,120
+I have no more room.
+我没有多余的空间了。
+
+1018
+00:47:22,410 --> 00:47:25,060
+I had to kick something out of my cash because I ran out of room.
+我不得不从我的现金中拿出一些东西，因为我没有足够的空间了。
+
+1019
+00:47:25,850 --> 00:47:28,240
+And therefore I missed the next time you tried to read it.
+因此，我错过了你尝试阅读它的下一次机会。
+
+1020
+00:47:28,650 --> 00:47:30,530
+I saw this data, I cashed it,
+我看到了这个数据，我将其存入现金。
+
+1021
+00:47:30,540 --> 00:47:33,350
+and then I ran out of room and I had to kick it out again.
+然后我用完了空间，不得不再次清理出来。
+
+1022
+00:47:34,110 --> 00:47:37,730
+The way you deal with capacity misses is you make your cash bigger,
+处理容量缺失的方法是增加缓存的大小。
+
+1023
+00:47:38,060 --> 00:47:40,610
+and you make it bigger and bigger and everything's great.
+你让它变得越来越大，一切都很棒。
+
+1024
+00:47:40,980 --> 00:47:43,940
+But keep in mind as you make your cash bigger, it gets slower.
+但要记住，随着现金的增加，速度会变慢。
+
+1025
+00:47:43,950 --> 00:47:46,700
+So there's a point where you don't want to make the cash.
+有一个点，你不想赚钱了。
+
+1026
+00:47:49,430 --> 00:47:50,690
+Another one conflict.
+又一个冲突。
+
+1027
+00:47:51,280 --> 00:47:53,580
+In this case, with a conflict miss,
+在这种情况下，发生了冲突缺失。
+
+1028
+00:47:54,490 --> 00:47:55,680
+i've seen the data before,
+我之前已经看过这些数据了，
+
+1029
+00:47:55,690 --> 00:47:57,280
+so it's not compulsory.
+所以这不是强制性的。
+
+1030
+00:47:58,220 --> 00:48:02,050
+I have enough capacity for it so that i've empty space in my cache,
+我有足够的容量，所以我的缓存中有空余空间。
+
+1031
+00:48:02,060 --> 00:48:02,970
+I could store it.
+我可以存储它。
+
+1032
+00:48:03,430 --> 00:48:06,580
+But because of the algorithm and the data structures I chose,
+但是由于我选择的算法和数据结构，
+
+1033
+00:48:06,950 --> 00:48:09,700
+because of the way I chose to design my cache,
+由于我选择设计缓存的方式，
+
+1034
+00:48:10,530 --> 00:48:11,800
+I had to kick something out.
+我不得不将某物踢出去。
+
+1035
+00:48:12,520 --> 00:48:15,750
+We're gonna go into those details again here in a minute about what sort
+我们马上要详细讨论一下关于什么类型的细节。
+
+1036
+00:48:15,760 --> 00:48:19,390
+of algorithms you might choose and why those might have conflict misses,
+你可能选择的算法以及为什么会产生冲突缺失。
+
+1037
+00:48:19,400 --> 00:48:20,750
+even if there was enough room.
+即使有足够的空间。
+
+1038
+00:48:21,620 --> 00:48:25,390
+The bottom line here is that ii couldn't store it,
+这里的关键是无法存储它。
+
+1039
+00:48:25,400 --> 00:48:27,030
+because the algorithms I chose,
+因为我选择的算法，
+
+1040
+00:48:27,690 --> 00:48:29,640
+there's different ways of dealing with conflict misses.
+处理冲突缺失有不同的方法。
+
+1041
+00:48:29,650 --> 00:48:32,480
+You can make the cache figure so that you're less likely to have one
+你可以调整缓存设置，这样就不太可能出现缓存失效的情况。
+
+1042
+00:48:32,490 --> 00:48:33,600
+of these conflicts,
+这些冲突中的一个，
+
+1043
+00:48:34,020 --> 00:48:35,610
+or you can change your algorithm.
+或者你可以改变你的算法。
+
+1044
+00:48:35,620 --> 00:48:38,040
+You can make your algorithm a little more sophisticated.
+你可以让你的算法更加复杂一些。
+
+1045
+00:48:38,770 --> 00:48:41,280
+And then you're less likely to have conflicts.
+然后你就不太可能发生冲突了。
+
+1046
+00:48:42,410 --> 00:48:43,050
+There's one more,
+还有一个。
+
+1047
+00:48:43,060 --> 00:48:46,330
+and I don't think this was talked about very much in 61 c if at all.
+我不认为在61c课程中有很多关于这个问题的讨论，如果有的话也很少。
+
+1048
+00:48:46,770 --> 00:48:50,760
+It's been a few years since I since I taught that class,
+我已经有几年没有教过这门课了。
+
+1049
+00:48:50,770 --> 00:48:54,290
+but the last one here is called coherence.
+但是这里的最后一个被称为一致性。
+
+1050
+00:48:54,860 --> 00:49:00,090
+This is one that's gonna come up a lot in tlb this is kind of a big one
+这是一个在TLB中经常出现的问题，这是一个比较重要的问题。
+
+1051
+00:49:00,100 --> 00:49:02,650
+for tlbs what?
+对于TLB（Translation Lookaside Buffer）是什么？
+
+1052
+00:49:02,660 --> 00:49:07,180
+A coherence one is basically that a cache is a copy.
+一致性（coherence）是指缓存是一个副本的概念。
+
+1053
+00:49:07,530 --> 00:49:08,970
+So I have a copy of data,
+所以我有一份数据的副本，
+
+1054
+00:49:08,980 --> 00:49:12,180
+but the data that's up in like, say, main memory,
+但是，比如说，存储在主存中的数据，
+
+1055
+00:49:12,190 --> 00:49:13,300
+that's the real data.
+这是真实的数据。
+
+1056
+00:49:13,530 --> 00:49:13,600
+Right?
+对吗？
+
+1057
+00:49:13,610 --> 00:49:17,290
+That's the official official,
+这是官方的官方。
+
+1058
+00:49:17,300 --> 00:49:20,420
+real ground truth of what that data is.
+真实的真相是这些数据的本质。
+
+1059
+00:49:20,430 --> 00:49:22,860
+And my cache is just like a copy of that.
+我的缓存就像是那个的副本。
+
+1060
+00:49:23,920 --> 00:49:28,040
+If somebody changes that data in main memory, for whatever reason,
+如果有人以任何原因更改了主存储器中的数据，
+
+1061
+00:49:28,050 --> 00:49:29,720
+some other cpu does it,
+其他的CPU会这样做。
+
+1062
+00:49:29,730 --> 00:49:33,320
+or some other process or circuit or trigger or whatever did it?
+还是其他进程、电路、触发器或其他什么东西做的？
+
+1063
+00:49:33,720 --> 00:49:35,300
+If it changes for some reason,
+如果出于某种原因发生了变化，
+
+1064
+00:49:36,590 --> 00:49:38,800
+then I have to invalidate my cache.
+那么我需要使我的缓存失效。
+
+1065
+00:49:39,210 --> 00:49:40,250
+I have to tell the cache.
+我需要告诉缓存。
+
+1066
+00:49:41,030 --> 00:49:43,040
+You have a copy of this data, but it's not true anymore.
+你有这份数据的副本，但它已经不再准确了。
+
+1067
+00:49:43,050 --> 00:49:45,020
+You need to throw it out and read the new data.
+你需要将其丢弃并读取新的数据。
+
+1068
+00:49:45,600 --> 00:49:47,140
+So that's called a coherence miss.
+这被称为一次一致性失效。
+
+1069
+00:49:48,140 --> 00:49:54,410
+This is one that doesn't show up much in data caches for single cpu systems.
+这在单CPU系统的数据缓存中很少出现。
+
+1070
+00:49:54,720 --> 00:49:57,350
+But if you have multiple cp us, it happens a lot.
+但是如果你有多个CPU，这种情况经常发生。
+
+1071
+00:49:58,870 --> 00:50:02,530
+If you have things like tl bs,
+如果你有类似的问题，请提供更多的上下文信息。
+
+1072
+00:50:03,570 --> 00:50:04,420
+have it more often,
+更频繁地拥有它
+
+1073
+00:50:04,430 --> 00:50:09,130
+because there's more things that change page table entries until these are
+因为有更多的事情会改变页表条目，直到这些事情完成。
+
+1074
+00:50:09,140 --> 00:50:11,300
+kind of separate from the data cache.
+与数据缓存有点分离。
+
+1075
+00:50:11,570 --> 00:50:13,160
+But we'll go into that more detail.
+但我们会更详细地讨论这个问题。
+
+1076
+00:50:14,890 --> 00:50:22,310
+False sharing is a particularly degenerate cause of coherence misses.
+伪共享是一种特别严重的一致性失效原因。
+
+1077
+00:50:23,030 --> 00:50:24,340
+This is a question in the chat.
+这是一个聊天中的问题。
+
+1078
+00:50:27,380 --> 00:50:31,490
+Basically, false sharing causes unnecessary coherence misses,
+基本上，伪共享会导致不必要的一致性失效。
+
+1079
+00:50:31,500 --> 00:50:34,490
+but you can have coherence misses that don't involve false sharing.
+但是你可能会遇到不涉及虚假共享的一致性缺失。
+
+1080
+00:50:34,900 --> 00:50:36,180
+So if you have true sharing,
+如果你有真正的共享功能，
+
+1081
+00:50:36,750 --> 00:50:37,000
+right?
+对的？
+
+1082
+00:50:37,640 --> 00:50:37,900
+Like,
+就像，
+
+1083
+00:50:38,650 --> 00:50:40,430
+so let's say i'm sharing,
+那么假设我正在分享，
+
+1084
+00:50:40,800 --> 00:50:42,990
+like you see this a lot in locks, like when you're right,
+在锁上经常会看到这种情况，就像当你正确时，
+
+1085
+00:50:43,000 --> 00:50:45,410
+when you're implementing walks, this is really common.
+当你实现遍历时，这是非常常见的。
+
+1086
+00:50:45,420 --> 00:50:47,570
+You have lots and lots of entities, let's say,
+你有很多实体，比如说，
+
+1087
+00:50:47,580 --> 00:50:49,330
+lots and lots of different cores.
+很多很多不同的核心。
+
+1088
+00:50:49,660 --> 00:50:52,170
+They're all trying to read and write the same piece of memory.
+他们都在尝试读写同一块内存。
+
+1089
+00:50:52,180 --> 00:50:53,430
+Maybe it's to set a lock,
+也许是为了设置一个锁，
+
+1090
+00:50:53,440 --> 00:50:54,480
+maybe it's just to communicate.
+也许只是为了沟通。
+
+1091
+00:50:55,020 --> 00:50:55,440
+Right?
+对吗？
+
+1092
+00:50:55,450 --> 00:50:56,640
+That's real sharing.
+这是真正的分享。
+
+1093
+00:50:57,260 --> 00:51:00,010
+And that would cause lots and lots of coherence misses.
+这将导致大量的一致性缺失。
+
+1094
+00:51:00,380 --> 00:51:03,820
+What happens with false sharing is that caches store an entire line
+虚假共享发生时，缓存会存储整个缓存行。
+
+1095
+00:51:03,830 --> 00:51:05,660
+at a time you store blocks.
+一次存储多个数据块。
+
+1096
+00:51:06,050 --> 00:51:06,170
+Right?
+对吗？
+
+1097
+00:51:06,180 --> 00:51:07,290
+You store cache line.
+你存储缓存行。
+
+1098
+00:51:08,470 --> 00:51:12,410
+Let's say that you're not actually sharing data like core zero is writing
+假设你实际上并不共享数据，就像核心零在写入数据一样。
+
+1099
+00:51:12,420 --> 00:51:13,310
+the first byte.
+第一个字节。
+
+1100
+00:51:13,320 --> 00:51:15,410
+Core one is writing the next byte,
+核心一正在写入下一个字节。
+
+1101
+00:51:15,420 --> 00:51:17,110
+core two is writing the next byte.
+核心二正在写入下一个字节。
+
+1102
+00:51:18,000 --> 00:51:19,310
+So they're not sharing data,
+所以他们不共享数据，
+
+1103
+00:51:19,690 --> 00:51:21,820
+but they are sharing the same cache line.
+但它们共享同一缓存行。
+
+1104
+00:51:21,830 --> 00:51:23,920
+So they're saying sharing the same block.
+他们的意思是共享同一个块。
+
+1105
+00:51:24,250 --> 00:51:25,620
+So that's why it's called false sharing.
+所以这就是为什么它被称为伪共享。
+
+1106
+00:51:25,830 --> 00:51:34,000
+The caches can only detect conflicts or coherence issues on a cache line granularity.
+缓存只能以缓存行为单位检测冲突或一致性问题。
+
+1107
+00:51:34,550 --> 00:51:35,940
+You're not actually sharing data,
+你实际上并没有共享数据，
+
+1108
+00:51:35,950 --> 00:51:37,900
+but you are sharing the same cache line,
+但是你们共享同一缓存行，
+
+1109
+00:51:37,910 --> 00:51:40,350
+and that's causing a bunch of coherence misses.
+这导致了大量的一致性失效。
+
+1110
+00:51:42,870 --> 00:51:43,860
+Albert asks,
+阿尔伯特问道，
+
+1111
+00:51:44,390 --> 00:51:47,700
+how do we know if there's been a coherence miss?
+我们如何知道是否发生了一次一致性失效？
+
+1112
+00:51:48,180 --> 00:51:49,780
+That is an excellent question.
+这是一个很好的问题。
+
+1113
+00:51:52,710 --> 00:51:54,620
+So there's a famous quote that I love.
+所以有一句我喜欢的名言。
+
+1114
+00:51:55,820 --> 00:51:59,450
+I'm sorry, I can't think of the originator of the code off top my head,
+抱歉，我无法立即想起代码的原始作者。
+
+1115
+00:51:59,460 --> 00:52:02,810
+but he says there's only two hard problems in computer science,
+但他说计算机科学中只有两个难题，
+
+1116
+00:52:03,170 --> 00:52:05,600
+naming things and cash invalidation.
+命名事物和现金作废。
+
+1117
+00:52:06,580 --> 00:52:07,810
+The answer to your question,
+你的问题的答案是
+
+1118
+00:52:07,820 --> 00:52:11,530
+albert is that it is an extremely difficult and complicated problem.
+阿尔伯特说这是一个非常困难和复杂的问题。
+
+1119
+00:52:12,040 --> 00:52:15,120
+One that makes my head spin when I try and understand it,
+当我试图理解它时，它让我头晕。
+
+1120
+00:52:15,410 --> 00:52:18,250
+and one over which many ph ds have been written.
+而且，许多博士学位论文已经就此撰写完成。
+
+1121
+00:52:19,370 --> 00:52:22,610
+So cash coherence is hard,
+所以现金一致性很难实现。
+
+1122
+00:52:23,010 --> 00:52:24,230
+very tricky to do.
+非常棘手。
+
+1123
+00:52:24,790 --> 00:52:26,660
+And if you take 152,
+如果你选择修读152课程，
+
+1124
+00:52:26,870 --> 00:52:29,130
+they'll go into it in quite a lot of detail.
+他们会详细讨论这个问题。
+
+1125
+00:52:29,710 --> 00:52:33,060
+The different algorithms they use to detect coherence methods.
+它们用于检测一致性方法的不同算法。
+
+1126
+00:52:33,900 --> 00:52:35,130
+That's for data caches.
+这是关于数据缓存的。
+
+1127
+00:52:35,540 --> 00:52:38,850
+And I particularly think 152 is a great class,
+我特别认为152是一门很棒的课程。
+
+1128
+00:52:38,860 --> 00:52:39,890
+and you'll learn a ton.
+你会学到很多东西。
+
+1129
+00:52:39,900 --> 00:52:40,570
+If you take it.
+如果你接受它。
+
+1130
+00:52:41,360 --> 00:52:45,790
+To bs are interesting because they tend not to participate in all those schemes,
+因为它们往往不参与所有那些计划，所以两个bs很有趣。
+
+1131
+00:52:46,620 --> 00:52:50,450
+because the only time the data changes is when the operating system
+因为数据发生变化的唯一时刻是操作系统运行时。
+
+1132
+00:52:50,460 --> 00:52:52,970
+chose to change the page tables.
+选择更改页表。
+
+1133
+00:52:54,100 --> 00:52:57,890
+To bs tend to rely on manual cash invalidation.
+商业银行往往依赖手动现金作废。
+
+1134
+00:52:58,630 --> 00:53:01,720
+I know risk five does or at least all the risk five implementation i'm
+我了解RISC-V，或者至少了解所有的RISC-V实现。
+
+1135
+00:53:01,730 --> 00:53:02,720
+familiar with do.
+熟悉做什么。
+
+1136
+00:53:03,610 --> 00:53:06,720
+And i'm pretty sure x 86 does as well.
+我相当确定x86也是这样的。
+
+1137
+00:53:07,080 --> 00:53:07,670
+In this case,
+在这种情况下，
+
+1138
+00:53:07,680 --> 00:53:12,070
+the os has to tell the cpuai invalidated this line go and throw it out.
+操作系统需要告诉CPU，该行数据已失效，请将其丢弃。
+
+1139
+00:53:12,550 --> 00:53:13,560
+In that case,
+在这种情况下，
+
+1140
+00:53:13,570 --> 00:53:16,890
+there's like the operating system is manually detecting it.
+操作系统正在手动检测它。
+
+1141
+00:53:17,400 --> 00:53:18,840
+But for data caches,
+但对于数据缓存来说，
+
+1142
+00:53:18,850 --> 00:53:20,280
+it gets very complicated.
+它变得非常复杂。
+
+1143
+00:53:20,290 --> 00:53:21,840
+And for distributed systems, too.
+对于分布式系统也是如此。
+
+1144
+00:53:22,170 --> 00:53:23,460
+If you take a database class,
+如果你上数据库课的话，
+
+1145
+00:53:23,470 --> 00:53:28,210
+you'll learn about dealing with cache coherence in like a distributed systems,
+你将学习如何处理分布式系统中的缓存一致性问题。
+
+1146
+00:53:28,220 --> 00:53:28,970
+networked cluster,
+网络集群
+
+1147
+00:53:28,980 --> 00:53:30,110
+kind of perspective.
+视角的一种。
+
+1148
+00:53:30,280 --> 00:53:31,180
+It's the same problem.
+是同样的问题。
+
+1149
+00:53:31,520 --> 00:53:32,290
+Slightly different constants.
+略有不同的常数。
+
+1150
+00:53:32,630 --> 00:53:34,600
+The solutions are a little different.
+解决方案有些不同。
+
+1151
+00:53:39,710 --> 00:53:43,700
+We're gonna go through a quick here overview of caching.
+我们将快速浏览一下缓存的概述。
+
+1152
+00:53:43,710 --> 00:53:44,020
+Again.
+再次。
+
+1153
+00:53:44,030 --> 00:53:44,660
+This is,
+这是，
+
+1154
+00:53:45,510 --> 00:53:48,900
+I think, largely a duplicate of what you learned in 61 c but obviously,
+我认为，这在很大程度上是你在61c中学到的内容的重复，但显然
+
+1155
+00:53:48,910 --> 00:53:50,380
+that was quite a long time ago.
+那是相当久以前的事了。
+
+1156
+00:53:50,390 --> 00:53:54,940
+And 61 c is a ridiculous class Where you learn way too many things in one shot.
+而且，CS161课程是一门荒谬的课程，你需要在一次学习中学习太多的东西。
+
+1157
+00:53:54,950 --> 00:53:56,420
+So it's worth revisiting.
+所以值得重新审视一下。
+
+1158
+00:53:57,710 --> 00:53:59,580
+How do we find blocks?
+我们如何找到块？
+
+1159
+00:53:59,710 --> 00:54:00,500
+We're using blocks.
+我们正在使用块。
+
+1160
+00:54:00,510 --> 00:54:02,260
+Sometimes we use the word cache line.
+有时候我们会使用缓存行这个词。
+
+1161
+00:54:02,950 --> 00:54:04,920
+How do we actually find them in the cache?
+我们实际上如何在缓存中找到它们？
+
+1162
+00:54:05,270 --> 00:54:07,240
+Most caches are organized this way.
+大多数缓存都是以这种方式组织的。
+
+1163
+00:54:07,250 --> 00:54:09,160
+This is aa definitely, by far,
+这绝对是迄今为止的最佳选择。
+
+1164
+00:54:09,170 --> 00:54:11,240
+the most typical way to organize a cash.
+组织现金的最典型方式是什么？
+
+1165
+00:54:11,520 --> 00:54:13,460
+I guess in theory, there's other options,
+我想理论上还有其他选择。
+
+1166
+00:54:13,830 --> 00:54:17,920
+but i'm not really aware of anybody that does them in hardware in a way
+但我并不真正了解有谁以硬件的方式进行这些操作
+
+1167
+00:54:17,930 --> 00:54:19,000
+that's different than this.
+这与此不同。
+
+1168
+00:54:19,650 --> 00:54:25,000
+So what you do is it's very similar to what we've been seeing for virtual
+所以你所做的事情与我们一直看到的虚拟化非常相似。
+
+1169
+00:54:25,010 --> 00:54:26,480
+to physical translations.
+物理翻译。
+
+1170
+00:54:27,150 --> 00:54:28,740
+I've got my address here.
+我这里有我的地址。
+
+1171
+00:54:29,550 --> 00:54:31,380
+This is the top part of the address.
+这是地址的顶部部分。
+
+1172
+00:54:33,530 --> 00:54:35,720
+This is whatever i'm asking for.
+这是我所要求的任何东西。
+
+1173
+00:54:36,390 --> 00:54:39,810
+There's also a part, and this is the offset within the line.
+还有一个部分，这是在行内的偏移量。
+
+1174
+00:54:40,390 --> 00:54:43,660
+I'm storing a block or a cache line.
+我正在存储一个块或者缓存行。
+
+1175
+00:54:43,670 --> 00:54:44,820
+It's some fixed size.
+它是固定大小的。
+
+1176
+00:54:44,830 --> 00:54:46,300
+It's bigger than a byte.
+它比一个字节大。
+
+1177
+00:54:47,170 --> 00:54:49,400
+Maybe it's 64bytes, whatever it is.
+可能是64字节，不管是什么。
+
+1178
+00:54:49,780 --> 00:54:51,690
+I've got a 64 byte cache line,
+我有一个64字节的缓存行。
+
+1179
+00:54:51,700 --> 00:54:55,090
+so i'm gonna need some offset to figure out which byte that is.
+所以我需要一些偏移量来确定是哪个字节。
+
+1180
+00:54:58,350 --> 00:55:00,180
+Then you've got the block address,
+然后你就得到了块地址，
+
+1181
+00:55:00,190 --> 00:55:03,300
+and the block address is gonna help you figure out which cache line it is.
+块地址将帮助你确定它属于哪个缓存行。
+
+1182
+00:55:03,310 --> 00:55:04,020
+You're looking at.
+你正在看着。
+
+1183
+00:55:04,710 --> 00:55:07,260
+Typically, we break this blog address in the two parts.
+通常，我们将这个博客地址分为两部分。
+
+1184
+00:55:07,270 --> 00:55:08,740
+We'll call one the index,
+我们将其中一个称为索引，
+
+1185
+00:55:08,750 --> 00:55:10,300
+and we'll call one the tag.
+我们将其中一个称为标签。
+
+1186
+00:55:10,650 --> 00:55:14,880
+The index is the one we're actually gonna use to find the block in our cache.
+索引是我们实际上要用来在缓存中找到块的。
+
+1187
+00:55:14,890 --> 00:55:18,200
+And the tag is the one we're gonna use to make sure it's the block we think
+而且标签是我们将使用的，以确保它是我们认为的那个块。
+
+1188
+00:55:18,210 --> 00:55:18,760
+it is.
+是的。
+
+1189
+00:55:19,230 --> 00:55:20,780
+So caches are very,
+所以缓存非常重要，
+
+1190
+00:55:20,790 --> 00:55:22,220
+very similar to hash tables.
+非常类似于哈希表。
+
+1191
+00:55:22,230 --> 00:55:26,690
+And a lot of what you can learn learned about hash tables also will help
+而且你所学到的关于哈希表的知识也会有所帮助。
+
+1192
+00:55:26,700 --> 00:55:28,740
+you understand caches.
+你了解缓存。
+
+1193
+00:55:29,340 --> 00:55:32,290
+This tag is like in a hash table,
+这个标签类似于哈希表中的标签。
+
+1194
+00:55:32,590 --> 00:55:34,110
+you hash the value,
+你对该值进行哈希处理，
+
+1195
+00:55:34,700 --> 00:55:36,090
+and you use that to find it.
+你可以使用这个来找到它。
+
+1196
+00:55:36,490 --> 00:55:40,060
+Then you compare the actual value against what you found to make
+然后你将实际值与你找到的值进行比较
+
+1197
+00:55:40,070 --> 00:55:42,900
+sure it's the one you wanted and not just like a conflict.
+确定这是你想要的，而不仅仅是一个冲突。
+
+1198
+00:55:43,300 --> 00:55:43,980
+Same thing here.
+这里也是一样的。
+
+1199
+00:55:48,860 --> 00:55:51,250
+One of the options we could do is called direct map.
+我们可以选择的一种方案叫做直接映射。
+
+1200
+00:55:52,070 --> 00:55:53,540
+In a direct map cache,
+在直接映射缓存中，
+
+1201
+00:55:54,620 --> 00:55:59,780
+we are going to have exactly one place that we could put any particular address.
+我们将会有一个确切的位置来存放任何特定的地址。
+
+1202
+00:56:00,270 --> 00:56:01,670
+So in a way,
+从某种意义上说，
+
+1203
+00:56:02,320 --> 00:56:06,830
+you're going to use the index to choose exactly one slot.
+你将使用索引来选择一个槽位。
+
+1204
+00:56:09,770 --> 00:56:10,880
+Let's see.
+让我们看看。
+
+1205
+00:56:12,040 --> 00:56:14,230
+If i've got a one kilobyte direct map cache,
+如果我有一个一千字节的直接映射缓存，
+
+1206
+00:56:14,240 --> 00:56:15,790
+I got32 byte blocks.
+我得到了32字节的块。
+
+1207
+00:56:16,400 --> 00:56:17,560
+There's an index,
+有一个索引，
+
+1208
+00:56:17,570 --> 00:56:21,460
+and i'm gonna use that index to pick a particular line,
+然后我将使用该索引来选择特定的行，
+
+1209
+00:56:21,470 --> 00:56:25,440
+a particular place in this cache that I want.
+我想要缓存中的特定位置。
+
+1210
+00:56:26,060 --> 00:56:29,170
+So let's say that the index here is one.
+所以假设这里的索引是一。
+
+1211
+00:56:29,810 --> 00:56:34,280
+We're gonna use that to select one of these entries.
+我们将使用它来选择其中一个条目。
+
+1212
+00:56:35,220 --> 00:56:36,890
+Then we're gonna compare the tags.
+然后我们将比较这些标签。
+
+1213
+00:56:36,900 --> 00:56:40,330
+So i'm gonna make sure that the tag I have in my cache is, in fact,
+所以我要确保我在缓存中的标签确实是
+
+1214
+00:56:40,580 --> 00:56:42,580
+same one as the address i'm looking for.
+和我正在寻找的地址相同。
+
+1215
+00:56:42,950 --> 00:56:43,860
+And then if so,
+如果是这样的话，
+
+1216
+00:56:43,870 --> 00:56:46,780
+i'm gonna use the byte select to pick a particular byte
+我将使用字节选择来选择特定的字节。
+
+1217
+00:56:46,790 --> 00:56:49,130
+out of that cache line to return.
+超出该缓存行的数据返回。
+
+1218
+00:56:49,950 --> 00:56:50,820
+This is direct map.
+这是直接映射。
+
+1219
+00:56:51,150 --> 00:56:55,060
+The important thing here about direct map is that you have exactly one option.
+关于直接映射的重要一点是你只有一个选项。
+
+1220
+00:56:55,700 --> 00:57:01,090
+This index has exactly as many bits as you have entries in the cache.
+这个索引的位数与缓存中的条目数量完全相同。
+
+1221
+00:57:02,090 --> 00:57:03,110
+It's just a direct index.
+这只是一个直接索引。
+
+1222
+00:57:03,120 --> 00:57:05,700
+If it's one, we go to the index number one.
+如果是一个，我们就去索引号为一的位置。
+
+1223
+00:57:05,710 --> 00:57:07,540
+If it was two, we'd go to index number two.
+如果是两个的话，我们会去到索引号为二的位置。
+
+1224
+00:57:08,430 --> 00:57:09,200
+That's direct map.
+这是直接映射。
+
+1225
+00:57:10,350 --> 00:57:14,340
+Direct map has the issue of direct map is that it's got lots and lots
+直接映射的问题是它的映射空间非常有限。
+
+1226
+00:57:14,350 --> 00:57:15,780
+of conflict misses.
+冲突错过的机会。
+
+1227
+00:57:16,220 --> 00:57:19,930
+Since I only have one option about where i'm gonna put a piece of data,
+由于我只有一个选项来确定我要放置数据的位置，
+
+1228
+00:57:20,260 --> 00:57:22,010
+it's pretty likely that somebody's already there,
+很有可能已经有人在那里了，
+
+1229
+00:57:22,020 --> 00:57:26,650
+and i'm gonna have to kick them out in order to fit the new thing.
+我将不得不把他们赶出去，以便为新事物腾出空间。
+
+1230
+00:57:27,000 --> 00:57:28,510
+They have lots and lots of conflict misses,
+他们有很多很多的冲突缺失。
+
+1231
+00:57:28,520 --> 00:57:31,070
+because you only have one choice about where you're gonna put anything.
+因为你只有一个选择，关于你要把任何东西放在哪里。
+
+1232
+00:57:32,070 --> 00:57:35,250
+What we do instead is we come up with set associative.
+我们所做的是采用集合关联。
+
+1233
+00:57:36,010 --> 00:57:37,600
+In a set associative cache,
+在一个组相联缓存中，
+
+1234
+00:57:37,610 --> 00:57:39,400
+we give ourselves more options.
+我们给自己更多选择。
+
+1235
+00:57:39,770 --> 00:57:43,400
+Instead of having exactly one place that we could put a particular piece
+不再只有一个特定位置可以放置一个特定的零件
+
+1236
+00:57:43,410 --> 00:57:43,960
+of data,
+数据的
+
+1237
+00:57:43,970 --> 00:57:46,480
+we have in places that we could put it.
+我们有可以放置它的地方。
+
+1238
+00:57:47,790 --> 00:57:52,870
+So you can think of this as having two direct map caches side by side,
+你可以将其想象为两个并排的直接映射缓存。
+
+1239
+00:57:53,340 --> 00:57:54,340
+sort of conceptually,
+在概念上，
+
+1240
+00:57:54,470 --> 00:57:56,420
+you can think I have two direct map caches,
+你可以认为我有两个直接映射缓存。
+
+1241
+00:57:56,830 --> 00:57:58,780
+but i've set them next to each other.
+但是我已经将它们放在一起了。
+
+1242
+00:57:58,790 --> 00:58:01,460
+So each is half the size of my total cache,
+所以每个的大小是我的总缓存的一半，
+
+1243
+00:58:02,190 --> 00:58:04,060
+but I now have more options.
+但是现在我有更多的选择。
+
+1244
+00:58:04,510 --> 00:58:05,500
+We do the same thing.
+我们做同样的事情。
+
+1245
+00:58:05,510 --> 00:58:11,340
+I'm gonna use that cache index to pick which line in one of these caches it
+我将使用缓存索引来选择其中一个缓存中的哪一行。
+
+1246
+00:58:11,350 --> 00:58:11,860
+is.
+是。
+
+1247
+00:58:12,470 --> 00:58:14,750
+But i'm gonna have to check two tags.
+但是我需要检查两个标签。
+
+1248
+00:58:15,460 --> 00:58:18,250
+If i'm a two way set associate of cache,
+如果我是一个两路组相联的缓存，
+
+1249
+00:58:18,510 --> 00:58:21,090
+then I have to check two tags at the same time.
+那么我需要同时检查两个标签。
+
+1250
+00:58:22,100 --> 00:58:24,320
+And then I get to pick whichever one matches if any.
+然后我可以选择与之匹配的任何一个，如果有的话。
+
+1251
+00:58:25,270 --> 00:58:28,950
+So the set associative caches are giving us more options were
+因此，组相联缓存为我们提供了更多的选项。
+
+1252
+00:58:28,960 --> 00:58:31,050
+less likely to have a cache miss,
+更不容易发生缓存未命中，
+
+1253
+00:58:31,360 --> 00:58:31,590
+right?
+对的？
+
+1254
+00:58:31,600 --> 00:58:34,590
+Because the data that could go here, but this is full.
+因为这里可以放置的数据已经满了。
+
+1255
+00:58:34,600 --> 00:58:37,530
+So I guess we'll just put it here since this one's not full.
+那么我猜我们就把它放在这里，因为这个还没有满。
+
+1256
+00:58:38,190 --> 00:58:39,260
+So we have options,
+所以我们有几个选择，
+
+1257
+00:58:39,270 --> 00:58:41,660
+and that's gonna reduce conflict missiles.
+这将减少冲突导弹的数量。
+
+1258
+00:58:42,120 --> 00:58:43,880
+But a there's a cost.
+但是这是有代价的。
+
+1259
+00:58:44,180 --> 00:58:45,340
+The cost is complexity.
+代价是复杂性。
+
+1260
+00:58:46,300 --> 00:58:52,290
+If you remember your larger sim project from 61 c like imagine writing
+如果你还记得你在61c课程中的大型模拟项目，就想象一下写作。
+
+1261
+00:58:52,300 --> 00:58:55,330
+a marks that could handle like a thousand inputs,
+一个能够处理上千个输入的标记。
+
+1262
+00:58:55,970 --> 00:58:58,560
+just think about how narrowly that mucks would look.
+想想看那些泥巴会有多狭窄。
+
+1263
+00:58:59,110 --> 00:58:59,300
+Right?
+对吗？
+
+1264
+00:58:59,310 --> 00:59:01,620
+It would have just the billions of wires.
+它将仅包含数十亿根电线。
+
+1265
+00:59:01,630 --> 00:59:02,540
+It would be huge.
+这将是巨大的。
+
+1266
+00:59:02,550 --> 00:59:06,340
+It would be like completely impractical to implement on like a physical chip.
+在物理芯片上实现这样的功能几乎是不切实际的。
+
+1267
+00:59:07,020 --> 00:59:10,750
+There are a limit to how many ways you can have before this stuff
+在这些东西之前有一定的限制方式。
+
+1268
+00:59:10,760 --> 00:59:12,110
+starts getting so complicated,
+开始变得如此复杂，
+
+1269
+00:59:12,120 --> 00:59:13,710
+that your cycle time goes out the window.
+你的周期时间就会被抛弃了。
+
+1270
+00:59:15,730 --> 00:59:16,480
+You can do it.
+你能做到的。
+
+1271
+00:59:17,090 --> 00:59:18,760
+In the extreme, we could say, all right,
+在极端情况下，我们可以说，好的，
+
+1272
+00:59:19,250 --> 00:59:20,480
+what ii don't care.
+我不在乎。
+
+1273
+00:59:20,490 --> 00:59:24,320
+My cache is small enough that multiplexer isn't gonna be too unreasonable.
+我的缓存足够小，使用多路复用器不会太过于不合理。
+
+1274
+00:59:25,050 --> 00:59:28,600
+Why not have as many ways as I have lines?
+为什么不像我有的行数那样有很多种方式呢？
+
+1275
+00:59:29,180 --> 00:59:29,950
+In this case,
+在这种情况下，
+
+1276
+00:59:29,960 --> 00:59:36,830
+the whole thing is that the entire address part of your address,
+整个问题是你地址的完整地址部分。
+
+1277
+00:59:36,840 --> 00:59:39,670
+the entire selector part up here, is your tag.
+这里的整个选择器部分是你的标签。
+
+1278
+00:59:39,680 --> 00:59:42,150
+You just don't even have an index, right?
+你是指你们根本没有索引吗？
+
+1279
+00:59:42,160 --> 00:59:45,740
+You just search the entire cache simultaneously to find your tag.
+你只需同时搜索整个缓存以找到你的标签。
+
+1280
+00:59:46,580 --> 00:59:48,690
+And these work, if the cache is small enough,
+如果缓存足够小，这些工作就会起效。
+
+1281
+00:59:48,700 --> 00:59:50,930
+you can get away with a fully associative cache.
+你可以使用全关联缓存来解决。
+
+1282
+00:59:51,260 --> 00:59:54,370
+But it starts to wear out pretty fast, right?
+但是它很快就开始磨损了，对吗？
+
+1283
+00:59:54,380 --> 00:59:57,570
+You're not gonna have like even a multiple kilobyte cache.
+你将不会拥有多达几千字节的缓存。
+
+1284
+00:59:57,800 --> 01:00:00,190
+You couldn't have direct or a fully associative.
+你不能同时拥有直接映射和全关联映射。
+
+1285
+01:00:00,930 --> 01:00:03,140
+It just wouldn't be possible to implement hardware.
+实现硬件是不可能的。
+
+1286
+01:00:07,980 --> 01:00:08,250
+Let's see.
+让我们看看。
+
+1287
+01:00:08,260 --> 01:00:12,000
+So let's put them all together and kind of compare and contrast what
+那么让我们把它们整合在一起，进行比较和对比一下。
+
+1288
+01:00:12,010 --> 01:00:12,750
+would happen here.
+这里会发生什么。
+
+1289
+01:00:13,420 --> 01:00:18,760
+So let's say i'm trying to put block number one, I guess,
+那么假设我正在尝试放置第一个块，我猜是这样的，
+
+1290
+01:00:19,170 --> 01:00:20,240
+or two, whatever.
+或者两个，随便。
+
+1291
+01:00:20,250 --> 01:00:22,740
+I'm trying to put this block here into a cache.
+我正在尝试将这个块放入缓存中。
+
+1292
+01:00:23,360 --> 01:00:24,470
+If it's direct mapped,
+如果是直接映射的话，
+
+1293
+01:00:25,580 --> 01:00:27,650
+i'm putting block number12.
+我正在放置块号为12的块。
+
+1294
+01:00:28,260 --> 01:00:31,280
+I'm gonna look at what the index here is.
+我要看一下这里的索引是什么。
+
+1295
+01:00:31,290 --> 01:00:31,880
+12.
+12. 十二。
+
+1296
+01:00:31,890 --> 01:00:34,440
+I've got eight blocks in my cache.
+我的缓存中有八个块。
+
+1297
+01:00:34,910 --> 01:00:39,080
+I need to split 12 up into eight potential places.
+我需要将12分成八个部分。
+
+1298
+01:00:39,410 --> 01:00:40,780
+So I do 12 mod eight.
+所以我要计算12除以8的余数。
+
+1299
+01:00:41,270 --> 01:00:45,910
+That's mod in binary is the same as just like picking some bits.
+在二进制中，取模运算就像是选择一些位。
+
+1300
+01:00:46,650 --> 01:00:47,840
+Turns out 12 mod eight.
+结果是12除以8的余数。
+
+1301
+01:00:47,850 --> 01:00:50,310
+That's three or four s four.
+这是三个或四个s四。
+
+1302
+01:00:50,900 --> 01:00:51,930
+We're gonna find it.
+我们会找到它的。
+
+1303
+01:00:52,290 --> 01:00:55,800
+Direct map said associative.
+直接映射和关联映射。
+
+1304
+01:00:55,810 --> 01:00:57,810
+I have fewer slots.
+我有更少的插槽。
+
+1305
+01:00:57,820 --> 01:00:58,210
+Now.
+现在。
+
+1306
+01:00:58,680 --> 01:01:01,090
+I I have four sets, right?
+我有四个集合，对吗？
+
+1307
+01:01:01,100 --> 01:01:02,770
+Because i'm two ways set associated.
+因为我是双向集合关联的。
+
+1308
+01:01:02,780 --> 01:01:04,050
+So I have four sets.
+所以我有四个集合。
+
+1309
+01:01:04,060 --> 01:01:07,040
+Each set has four entries,
+每个集合有四个条目。
+
+1310
+01:01:07,050 --> 01:01:08,450
+4×4.
+4×4等于16。
+
+1311
+01:01:09,110 --> 01:01:10,870
+Or they have two entries.
+或者它们有两个条目。
+
+1312
+01:01:11,100 --> 01:01:12,190
+Each set has two entries.
+每个集合有两个条目。
+
+1313
+01:01:12,200 --> 01:01:13,070
+I have four sets.
+我有四个集合。
+
+1314
+01:01:13,620 --> 01:01:14,950
+You have eight lines total.
+你总共有八行。
+
+1315
+01:01:15,540 --> 01:01:19,830
+In this case, i'm gonna do 12 mod four and pick which set it is in.
+在这种情况下，我将执行 12 mod 4 并确定它属于哪个集合。
+
+1316
+01:01:20,650 --> 01:01:22,920
+In this case, turns out it's in set zero.
+在这种情况下，结果是在集合零中。
+
+1317
+01:01:23,280 --> 01:01:27,670
+Then i'm gonna compare both tags simultaneously and pick whichever one it is.
+然后我将同时比较这两个标签，并选择其中的一个。
+
+1318
+01:01:28,550 --> 01:01:30,140
+And then for fully associative,
+然后对于全关联的情况，
+
+1319
+01:01:30,150 --> 01:01:32,260
+i'm not even gonna bother looking at the address.
+我甚至都不打算看地址。
+
+1320
+01:01:32,270 --> 01:01:36,470
+I'm just gonna compare that address against every single line until I find it.
+我只需要将该地址与每一行进行比较，直到找到它为止。
+
+1321
+01:01:40,180 --> 01:01:44,770
+So that was a quick kind of whirlwind review of cash organization.
+那就是对现金组织的一个快速而概括性的回顾。
+
+1322
+01:01:45,210 --> 01:01:48,550
+You can go back and kind of follow that along a little slower.
+你可以回头再慢慢跟着做一遍。
+
+1323
+01:01:48,560 --> 01:01:49,850
+It's worth keeping in mind.
+值得记住。
+
+1324
+01:01:49,860 --> 01:01:50,630
+It's worth remembering.
+值得记住。
+
+1325
+01:01:51,240 --> 01:01:52,750
+Caches are really important.
+缓存非常重要。
+
+1326
+01:01:53,550 --> 01:01:57,940
+The next question you have with the cache is about what happens to it.
+你对于缓存的下一个问题是关于它的运作方式。
+
+1327
+01:01:57,950 --> 01:02:01,560
+When you miss for direct map cache,
+当你错过直接映射缓存时，
+
+1328
+01:02:01,570 --> 01:02:02,720
+there's really no choice.
+真的没有选择。
+
+1329
+01:02:03,010 --> 01:02:03,400
+Right?
+对吗？
+
+1330
+01:02:03,410 --> 01:02:06,320
+Like if I have to replace a blog,
+如果我需要替换一个博客，
+
+1331
+01:02:06,330 --> 01:02:07,760
+I only had one option.
+我只有一个选择。
+
+1332
+01:02:07,770 --> 01:02:09,440
+So that's the one i'm gonna kick out.
+那就是我要踢出去的那个人。
+
+1333
+01:02:09,450 --> 01:02:12,520
+Whoever was in my slot gets kicked out, and I go there.
+谁曾经占据我的位置就会被踢出去，然后我会去那里。
+
+1334
+01:02:13,030 --> 01:02:16,350
+Your only option for set associative,
+你唯一的选择是集合关联。
+
+1335
+01:02:16,360 --> 01:02:17,470
+we have a choice.
+我们有选择的权利。
+
+1336
+01:02:18,160 --> 01:02:19,630
+I have multiple ways.
+我有多种方法。
+
+1337
+01:02:19,640 --> 01:02:21,910
+I have multiple sets in my cache,
+我的缓存中有多个集合。
+
+1338
+01:02:22,230 --> 01:02:26,960
+which if every entry in that set is full, who do I kick out?
+如果集合中的每个条目都已满，我应该踢出谁？
+
+1339
+01:02:27,250 --> 01:02:29,360
+I can cook out any of them and still be correct.
+我可以将它们中的任何一个翻译成中文，而且都是正确的。
+
+1340
+01:02:29,910 --> 01:02:33,920
+Which one do I choose two big strategies here?
+在这里，我应该选择哪个大策略？
+
+1341
+01:02:34,260 --> 01:02:35,450
+Can do it totally randomly?
+可以完全随机吗？
+
+1342
+01:02:35,760 --> 01:02:36,860
+Not the worst idea.
+不是最糟糕的主意。
+
+1343
+01:02:37,340 --> 01:02:40,850
+Or I could do it using the least recently used algorithm.
+或者我可以使用最近最少使用算法来完成。
+
+1344
+01:02:42,010 --> 01:02:44,400
+This ends up being pretty true in practice,
+在实践中，这事实上是相当正确的。
+
+1345
+01:02:44,410 --> 01:02:45,760
+like the thing I used,
+像我使用的那个东西
+
+1346
+01:02:45,770 --> 01:02:50,460
+the longest to go in the past is the one i'm least likely to use in the future.
+过去中最长的路程是我将来最不可能使用的。
+
+1347
+01:02:50,760 --> 01:02:53,180
+So whichever one hasn't been used recently,
+所以无论哪个最近没有被使用过，
+
+1348
+01:02:53,550 --> 01:02:55,340
+that's probably a good choice to kick out.
+这可能是一个不错的选择来开除他。
+
+1349
+01:02:58,960 --> 01:03:02,720
+We can go through some examples here.
+我们可以在这里进行一些例子。
+
+1350
+01:03:02,730 --> 01:03:05,240
+I we don't need to look at these numbers too detailed.
+我们不需要过于详细地查看这些数字。
+
+1351
+01:03:05,560 --> 01:03:07,840
+You can come back and stare at these, if you'd like.
+如果你愿意，你可以回来盯着这些东西看。
+
+1352
+01:03:08,070 --> 01:03:11,200
+But the trend here is multiple things.
+但这里的趋势是多方面的。
+
+1353
+01:03:11,210 --> 01:03:14,120
+So you can see that as you increase the associative city,
+你可以看到，当你增加关联度时，
+
+1354
+01:03:14,690 --> 01:03:15,850
+so when we go this way,
+那么当我们这样做时，
+
+1355
+01:03:16,440 --> 01:03:17,750
+miss rates go down,
+缺失率下降，
+
+1356
+01:03:18,030 --> 01:03:19,090
+as you go this way.
+随着你继续前进。
+
+1357
+01:03:19,290 --> 01:03:21,500
+And as you go this way, as the cache gets bigger,
+随着缓存的增大，你继续这样做，
+
+1358
+01:03:21,510 --> 01:03:22,900
+miss rates also go down.
+缺失率也会降低。
+
+1359
+01:03:23,620 --> 01:03:27,510
+So this is removing conflict misses.
+这是在解决冲突缺失问题。
+
+1360
+01:03:27,520 --> 01:03:29,750
+This is removing capacity misses.
+这是在消除容量缺失。
+
+1361
+01:03:30,130 --> 01:03:30,540
+Right?
+对吗？
+
+1362
+01:03:31,370 --> 01:03:35,440
+There's a question here about how we keep track of lru the way you keep
+这里有一个关于如何跟踪最近最少使用（LRU）的问题，就像你们的方式一样。
+
+1363
+01:03:35,450 --> 01:03:39,710
+track of lru is you assign how like a shift register,
+LRU（最近最少使用）的跟踪方式类似于一个移位寄存器，你可以将其分配给不同的位置。
+
+1364
+01:03:40,000 --> 01:03:41,550
+you basically have a few bits.
+你基本上只有几个比特。
+
+1365
+01:03:42,030 --> 01:03:44,220
+If I have a two way set associative cache,
+如果我有一个两路组相联缓存，
+
+1366
+01:03:44,230 --> 01:03:46,480
+I can have1 bit in there.
+我可以在那里放一个比特。
+
+1367
+01:03:46,760 --> 01:03:49,480
+And every time I read from that line, I set the bit,
+每次我从那一行读取时，我都会设置该位。
+
+1368
+01:03:50,080 --> 01:03:51,790
+and I set the bit,
+然后我设置了该位。
+
+1369
+01:03:51,800 --> 01:03:52,870
+and I clear the other bit.
+然后我清除了其他位。
+
+1370
+01:03:53,560 --> 01:03:55,470
+If I read from set zero,
+如果我从零集合中读取，
+
+1371
+01:03:55,480 --> 01:03:58,350
+then I said it's recently used bit to one.
+然后我说将它的最近使用位设置为1。
+
+1372
+01:03:58,670 --> 01:04:03,110
+And I said way ones that false.
+我说的是错误的。
+
+1373
+01:04:03,820 --> 01:04:04,130
+Right?
+对吗？
+
+1374
+01:04:04,570 --> 01:04:05,720
+I can just alternate.
+我可以交替进行。
+
+1375
+01:04:05,730 --> 01:04:08,120
+If you have four, you can you do it that way,
+如果你有四个，你可以这样做。
+
+1376
+01:04:08,130 --> 01:04:11,010
+but you basically have a counter next to every line,
+但基本上你在每一行旁边都有一个计数器，
+
+1377
+01:04:11,020 --> 01:04:13,170
+and you update the counter on every absence.
+并且你在每次缺席时更新计数器。
+
+1378
+01:04:13,710 --> 01:04:15,200
+And that helps you keep track of all of you.
+这有助于你跟踪你们所有人的情况。
+
+1379
+01:04:15,460 --> 01:04:16,210
+There's other tricks, too.
+还有其他技巧。
+
+1380
+01:04:16,220 --> 01:04:18,970
+You can do things that shift registers and whatever you can do
+你可以做一些移位寄存器和其他你能做的事情。
+
+1381
+01:04:18,980 --> 01:04:20,580
+approximate lru if it's cheaper,
+如果更便宜的话，使用近似最近最少使用（Approximate LRU）算法。
+
+1382
+01:04:22,030 --> 01:04:24,850
+that when you don't have too many sets,
+当你没有太多的集合时，
+
+1383
+01:04:24,860 --> 01:04:28,960
+it's pretty easy just to have a couple counters that you update on every access.
+很简单，只需要有几个计数器，在每次访问时更新它们即可。
+
+1384
+01:04:33,420 --> 01:04:34,490
+What happens on a right?
+在计算机操作系统中，"right" 通常指的是权限或访问权限。当一个用户拥有某个对象的 "right" 时，他可以执行特定的操作或访问特定的资源。这些操作和资源的具体内容取决于操作系统和应用程序的设计。例如，一个用户可能拥有读取文件的权限，这意味着他可以查看文件的内容。另一个用户可能拥有写入文件的权限，这意味着他可以修改文件的内容。权限的分配和管理是操作系统中的重要任务之一，它有助于保护系统的安全性和数据的完整性。
+
+1385
+01:04:34,580 --> 01:04:36,530
+This is another aspect of cache design,
+这是缓存设计的另一个方面，
+
+1386
+01:04:36,540 --> 01:04:38,250
+another design choice we have.
+我们还有另一个设计选择。
+
+1387
+01:04:39,640 --> 01:04:43,390
+We have what happens when I need to write data the cache.
+当我需要写入缓存时会发生什么？
+
+1388
+01:04:43,400 --> 01:04:45,870
+So reading data from the cache is no big deal.
+从缓存中读取数据并不是什么大问题。
+
+1389
+01:04:46,540 --> 01:04:49,050
+That's what we've been talking about pretty much this whole time.
+这就是我们几乎整个时间都在讨论的内容。
+
+1390
+01:04:49,370 --> 01:04:51,530
+But what happens when we want to modify that data?
+但是当我们想要修改那些数据时会发生什么呢？
+
+1391
+01:04:52,450 --> 01:04:54,360
+One strategy is called right through.
+一种策略被称为"直通"。
+
+1392
+01:04:54,640 --> 01:04:56,670
+So in a write through crap cash,
+在写透方式的缓存中，
+
+1393
+01:04:56,680 --> 01:04:59,830
+every time I write to my cash,
+每次我写入现金时，
+
+1394
+01:05:00,060 --> 01:05:01,680
+I also write to the higher levels, too.
+我也会写给高级别的人。
+
+1395
+01:05:01,690 --> 01:05:04,760
+So I write to the next tier of the cache at the same time.
+所以我同时将数据写入下一层缓存。
+
+1396
+01:05:06,180 --> 01:05:11,170
+The reason this works is that I I can return as soon as the data is sort
+这个方法能够工作的原因是一旦数据排序完成，我就可以立即返回。
+
+1397
+01:05:11,180 --> 01:05:12,540
+of being written.
+正在被编写的过程中。
+
+1398
+01:05:13,770 --> 01:05:18,050
+I can stick it in a queue and just have faith that it will get written.
+我可以将它放入队列中，并相信它会被写入。
+
+1399
+01:05:18,060 --> 01:05:18,730
+Eventually.
+最终。
+
+1400
+01:05:19,250 --> 01:05:20,630
+When we're doing right through,
+当我们一直做正确的事情时，
+
+1401
+01:05:20,640 --> 01:05:23,150
+we're not limited by the latency of the cache.
+我们不受缓存的延迟限制。
+
+1402
+01:05:23,160 --> 01:05:26,010
+We're only limited by the bandwidth cache.
+我们只受到带宽缓存的限制。
+
+1403
+01:05:26,360 --> 01:05:30,100
+It turns out bandwidth is a lot easier to achieve than latency.
+事实证明，带宽比延迟更容易实现。
+
+1404
+01:05:30,780 --> 01:05:32,000
+But it still has a problem.
+但它仍然存在一个问题。
+
+1405
+01:05:32,010 --> 01:05:34,500
+It's still using a ton of bandwidth to do that.
+这仍然需要大量的带宽来完成。
+
+1406
+01:05:34,510 --> 01:05:37,600
+We're writing a ton of data and keep in mind.
+我们正在写入大量的数据并牢记在心。
+
+1407
+01:05:39,690 --> 01:05:42,160
+Locality is a thing that's the whole reason caches work.
+局部性是缓存起作用的主要原因。
+
+1408
+01:05:42,810 --> 01:05:45,040
+If we wrote to an address once,
+如果我们曾经写过一次到某个地址，
+
+1409
+01:05:45,050 --> 01:05:47,120
+we're probably gonna write to it again soon.
+我们很可能很快会再次写入它。
+
+1410
+01:05:48,080 --> 01:05:50,680
+Why should we be wasting all of this bandwidth?
+为什么我们要浪费这么多带宽呢？
+
+1411
+01:05:51,180 --> 01:05:53,090
+Writing over and over and over?
+一遍又一遍地写？
+
+1412
+01:05:53,100 --> 01:05:55,090
+If we're just like it, a rating on the line?
+如果我们就像它一样，评分会受到影响吗？
+
+1413
+01:05:55,820 --> 01:05:58,120
+The way to avoid that is called right back.
+避免这种情况的方法被称为回调。
+
+1414
+01:05:58,380 --> 01:05:59,520
+And a right back cache,
+还有一个右侧后备缓存，
+
+1415
+01:05:59,530 --> 01:06:03,790
+what we do is we only bother storing the cache line that we've written to.
+我们所做的就是只存储我们写入的缓存行。
+
+1416
+01:06:03,800 --> 01:06:09,870
+We only bother writing it back to the higher level layers in our hierarchy.
+我们只需要将它写回到我们层次结构中更高级的层级。
+
+1417
+01:06:10,170 --> 01:06:11,330
+If it gets evicted,
+如果它被驱逐出去，
+
+1418
+01:06:12,270 --> 01:06:16,500
+when we come in with a new line and we said we have to kick this block
+当我们遇到一个新行时，我们说我们必须将这个块删除。
+
+1419
+01:06:16,510 --> 01:06:17,820
+out this cache line out,
+将这个缓存行移出
+
+1420
+01:06:18,460 --> 01:06:20,050
+but we've modified it.
+但是我们已经进行了修改。
+
+1421
+01:06:21,010 --> 01:06:21,230
+Great.
+太好了。
+
+1422
+01:06:21,560 --> 01:06:24,120
+Now we have to write it back as we evicted.
+现在我们需要将它写回到被驱逐的位置。
+
+1423
+01:06:24,750 --> 01:06:25,910
+So that's called right back.
+那就叫做"回调"。
+
+1424
+01:06:26,500 --> 01:06:28,610
+The way you do that is the same trick.
+你做这件事的方法是一样的诀窍。
+
+1425
+01:06:28,700 --> 01:06:32,530
+As I was just explaining for lru you just keep an extra bit around.
+正如我刚刚解释的那样，对于LRU算法，你只需要保留一个额外的位。
+
+1426
+01:06:32,980 --> 01:06:33,140
+Right?
+对吗？
+
+1427
+01:06:33,150 --> 01:06:34,860
+You set a bit if you've written to it.
+如果你已经对某个位进行了写操作，那么你就将该位设置为1。
+
+1428
+01:06:36,080 --> 01:06:37,350
+So if that bit is set,
+所以如果那个位被设置了，
+
+1429
+01:06:37,360 --> 01:06:38,830
+then i've written to it.
+那么我已经写入了。
+
+1430
+01:06:38,840 --> 01:06:39,790
+I need to write it back.
+我需要将它写回去。
+
+1431
+01:06:43,050 --> 01:06:44,480
+This is what I just said.
+这是我刚刚说的话。
+
+1432
+01:06:45,200 --> 01:06:52,220
+But the bottom line here is that there's issues with right amplification,
+但关键问题在于正确放大存在问题，
+
+1433
+01:06:53,130 --> 01:06:56,560
+that if I with a right through cache,
+如果我使用一个正确的缓存，
+
+1434
+01:06:57,820 --> 01:06:59,450
+when I evict a line,
+当我驱逐一行时，
+
+1435
+01:06:59,460 --> 01:07:00,850
+it doesn't cost me anything.
+这对我没有任何费用。
+
+1436
+01:07:00,860 --> 01:07:02,770
+So there's no additional work.
+所以没有额外的工作。
+
+1437
+01:07:03,330 --> 01:07:03,650
+Done it.
+已完成。
+
+1438
+01:07:03,960 --> 01:07:06,350
+That's required in order to evict a line.
+这是为了驱逐一行而必需的。
+
+1439
+01:07:06,360 --> 01:07:08,750
+You get to just delete it right away.
+你可以立即删除它。
+
+1440
+01:07:08,860 --> 01:07:10,420
+No thought, just meant it's gone.
+没有想法，只是意味着它已经消失了。
+
+1441
+01:07:11,040 --> 01:07:12,230
+Because I already wrote it higher up.
+因为我已经在上面写过了。
+
+1442
+01:07:12,240 --> 01:07:14,120
+So I can just delete it whenever I want,
+所以我可以随时删除它，
+
+1443
+01:07:14,130 --> 01:07:15,170
+and it won't break anything.
+而且它不会破坏任何东西。
+
+1444
+01:07:15,800 --> 01:07:17,240
+But with a right back cache,
+但是有了正确的后备缓存，
+
+1445
+01:07:17,250 --> 01:07:18,480
+it's more complicated.
+这更加复杂。
+
+1446
+01:07:18,710 --> 01:07:18,860
+Right?
+对吗？
+
+1447
+01:07:18,870 --> 01:07:20,100
+If I need to evict a line,
+如果我需要驱逐一行，
+
+1448
+01:07:20,110 --> 01:07:23,420
+now i've got to figure out it was dirty.
+现在我得弄清楚它是怎么弄脏的。
+
+1449
+01:07:23,430 --> 01:07:24,780
+Let's figure out where to store it.
+让我们找出存储它的位置。
+
+1450
+01:07:24,790 --> 01:07:25,300
+Now.
+现在。
+
+1451
+01:07:26,000 --> 01:07:27,880
+It messes things up a little bit.
+这会稍微搞乱一些事情。
+
+1452
+01:07:28,570 --> 01:07:29,870
+But the real problem, though,
+但是，真正的问题是，
+
+1453
+01:07:29,880 --> 01:07:31,470
+is that with the right through cache,
+这是指使用正确的直通缓存吗？
+
+1454
+01:07:33,470 --> 01:07:35,140
+you could get hung up on bandwidth.
+你可能会受到带宽的限制。
+
+1455
+01:07:35,330 --> 01:07:39,860
+So I could spend way too much time doing rights that didn't even have to happen.
+所以我可能会花太多时间去做根本不必要的事情。
+
+1456
+01:07:40,710 --> 01:07:44,620
+And maybe that interferes with my ability to read or write data that
+也许这会干扰我读取或写入数据的能力
+
+1457
+01:07:44,630 --> 01:07:45,780
+actually needed to be written.
+实际上需要被书写。
+
+1458
+01:07:46,890 --> 01:07:48,640
+So pros and cons, I think, right?
+所以，我认为是优点和缺点，对吗？
+
+1459
+01:07:48,650 --> 01:07:49,600
+Backs are more common,
+背部更常见，
+
+1460
+01:07:49,610 --> 01:07:53,600
+but depending on the organization of your cash and the relative speeds of things,
+但这取决于你的现金组织方式和事物的相对速度。
+
+1461
+01:07:53,920 --> 01:07:54,030
+right?
+对的吗？
+
+1462
+01:07:54,040 --> 01:07:59,540
+Through my be a reasonable choice.
+选择通过我可能是一个合理的选择。
+
+1463
+01:07:59,550 --> 01:07:59,850
+Okay?
+好的？
+
+1464
+01:08:00,540 --> 01:08:02,270
+A lot of stuff here, man,
+这里有很多东西，伙计。
+
+1465
+01:08:02,280 --> 01:08:06,540
+a lot of stuff caches are a really rich thing.
+很多东西都会被缓存，缓存是一种非常有价值的东西。
+
+1466
+01:08:06,870 --> 01:08:10,180
+There's a a lot of different strategies around caches,
+关于缓存，有很多不同的策略。
+
+1467
+01:08:10,940 --> 01:08:13,990
+coming back to the theme of this whole lecture,
+回到整个讲座的主题
+
+1468
+01:08:14,000 --> 01:08:17,170
+which is virtual memory.
+虚拟内存是一种计算机操作系统的技术，它允许将物理内存和磁盘空间结合使用，以扩展可用的内存容量。通过虚拟内存，操作系统可以将正在运行的程序所需的数据和指令存储在物理内存中的一部分，而将不常用的数据和指令存储在磁盘上。当程序需要访问被存储在磁盘上的数据时，操作系统会将其加载到物理内存中，以便程序可以继续执行。虚拟内存的使用可以提高系统的性能和效率，并允许同时运行更多的程序。
+
+1469
+01:08:17,180 --> 01:08:18,650
+We have to ask the question,
+我们必须提出这个问题，
+
+1470
+01:08:19,020 --> 01:08:22,970
+what are the addresses that we're using to look stuff up in the cache?
+我们在缓存中查找东西时使用的地址是什么？
+
+1471
+01:08:22,980 --> 01:08:25,770
+Are we looking things up with physical addresses?
+我们是使用物理地址来查找东西吗？
+
+1472
+01:08:25,780 --> 01:08:27,690
+Or are we looking things up with virtual addresses?
+还是我们正在使用虚拟地址查找东西？
+
+1473
+01:08:30,120 --> 01:08:31,670
+With a physical cache?
+使用物理缓存吗？
+
+1474
+01:08:31,930 --> 01:08:35,260
+The way you would have to implement that is you'd have to figure out what
+实现这个的方式是你需要弄清楚什么
+
+1475
+01:08:35,270 --> 01:08:36,460
+the physical address is.
+物理地址是。
+
+1476
+01:08:36,470 --> 01:08:37,100
+First,
+首先，
+
+1477
+01:08:37,630 --> 01:08:39,570
+once you've figured out the physical address,
+一旦你确定了物理地址，
+
+1478
+01:08:39,580 --> 01:08:42,480
+then you can ask the cash to go ahead and look it up.
+那你可以请现金继续查找。
+
+1479
+01:08:43,480 --> 01:08:45,510
+That would be a physically index cache.
+这将是一个物理索引缓存。
+
+1480
+01:08:46,240 --> 01:08:47,880
+With a virtually indexed cache.
+使用虚拟索引缓存。
+
+1481
+01:08:47,890 --> 01:08:50,240
+I could access the cache directly.
+我可以直接访问缓存。
+
+1482
+01:08:50,570 --> 01:08:54,340
+I would only need to access the tob if i'm going higher up in the memory.
+只有当我在内存中向上访问时，才需要访问tob。
+
+1483
+01:08:55,070 --> 01:08:55,510
+Right?
+对吗？
+
+1484
+01:08:56,080 --> 01:08:59,630
+I could have a cache that only keeps track of virtual addresses,
+我可以有一个只跟踪虚拟地址的缓存。
+
+1485
+01:08:59,960 --> 01:09:02,870
+and that saves me having to go through the interview every time i'd be
+这样就不用每次都参加面试了，这样可以节省我的时间。
+
+1486
+01:09:02,880 --> 01:09:04,760
+able to just read and write from it directly.
+能够直接从中读取和写入数据。
+
+1487
+01:09:05,240 --> 01:09:06,190
+So that's pretty slick.
+这真是相当棒。
+
+1488
+01:09:06,200 --> 01:09:07,150
+That seems really nice.
+那听起来真的很不错。
+
+1489
+01:09:07,710 --> 01:09:09,230
+But it has problems, right?
+但是它有问题，对吗？
+
+1490
+01:09:10,140 --> 01:09:11,930
+It adds a lot of challenges.
+这增加了很多挑战。
+
+1491
+01:09:12,520 --> 01:09:15,660
+One is remember this whole right through right back thing.
+记住这个整个的右边到右边的事情。
+
+1492
+01:09:15,900 --> 01:09:17,460
+If I wanna write to this,
+如果我想要写这个的话，
+
+1493
+01:09:17,470 --> 01:09:19,740
+so if this cache needs to write to memory,
+如果这个缓存需要写入内存，
+
+1494
+01:09:20,070 --> 01:09:24,230
+it then has to go through this mmu through this tlb and that can be kind
+然后它必须通过内存管理单元（MMU）和转译后备缓冲（TLB）进行处理，这可能是一种方式。
+
+1495
+01:09:24,240 --> 01:09:24,590
+of messy.
+混乱的。
+
+1496
+01:09:26,440 --> 01:09:27,830
+The bigger problem here, though,
+然而，这里的更大问题是，
+
+1497
+01:09:27,840 --> 01:09:31,700
+a much bigger issue is that this cache,
+一个更大的问题是这个缓存，
+
+1498
+01:09:31,710 --> 01:09:33,540
+because it's during virtual addresses,
+因为它涉及虚拟地址，
+
+1499
+01:09:33,890 --> 01:09:36,340
+the cache is only valid for one process.
+缓存只对一个进程有效。
+
+1500
+01:09:36,880 --> 01:09:38,160
+If I switch processes,
+如果我切换进程，
+
+1501
+01:09:38,170 --> 01:09:39,880
+the cache is like totally wrong now,
+缓存现在完全错误。
+
+1502
+01:09:40,400 --> 01:09:40,520
+right?
+对的？
+
+1503
+01:09:40,530 --> 01:09:42,480
+Because it was keeping track of virtual address.
+因为它正在跟踪虚拟地址。
+
+1504
+01:09:43,410 --> 01:09:45,840
+That's a real problem with virtually address caches.
+这是虚拟地址缓存的一个真正问题。
+
+1505
+01:09:45,850 --> 01:09:47,440
+There's tricks you can do.
+有一些技巧可以做。
+
+1506
+01:09:47,450 --> 01:09:51,940
+You can store which process that particular cache line corresponded to.
+你可以存储特定缓存行对应的进程信息。
+
+1507
+01:09:52,450 --> 01:09:54,200
+There's a lot of different things you can do.
+有很多不同的事情你可以做。
+
+1508
+01:09:54,730 --> 01:09:56,320
+None of them are pretty right.
+它们都不太正确。
+
+1509
+01:09:56,330 --> 01:09:57,480
+They're all kind of messy,
+它们都有点凌乱，
+
+1510
+01:09:57,730 --> 01:10:00,680
+and they all have their own caveats and problems.
+它们都有各自的注意事项和问题。
+
+1511
+01:10:01,630 --> 01:10:03,380
+It's very tricky to pull this off,
+这个很棘手，
+
+1512
+01:10:03,390 --> 01:10:06,740
+but it does make sense if you're willing to write all the complex circuitry,
+但如果你愿意编写所有复杂的电路，这是有道理的。
+
+1513
+01:10:06,750 --> 01:10:08,460
+if you're willing to make those tradeoffs.
+如果你愿意做出这些权衡。
+
+1514
+01:10:09,000 --> 01:10:10,740
+If your workload supports it,
+如果你的工作量允许的话，
+
+1515
+01:10:10,970 --> 01:10:13,280
+maybe a virtually index cache makes sense.
+也许虚拟索引缓存是有意义的。
+
+1516
+01:10:13,690 --> 01:10:16,000
+I think physically indexed is more common.
+我认为物理索引更常见。
+
+1517
+01:10:16,620 --> 01:10:18,690
+Ii wish I could tell you off the top of my head,
+我希望我能立刻告诉你，
+
+1518
+01:10:18,700 --> 01:10:19,970
+what risk five does,
+"Risk five" refers to the RISC-V instruction set architecture (ISA). RISC-V is an open-source, extensible ISA designed for use in computer processors. It aims to provide a simple and modular design that allows for flexibility and customization. The "risk five" phrase is likely a typo or a misinterpretation of "RISC-V."
+
+1519
+01:10:20,220 --> 01:10:21,410
+what i'm not risk five,
+我不冒险五。
+
+1520
+01:10:21,420 --> 01:10:24,410
+what the rocket core implementation of risk five does.
+RISC-V的火箭核心实现是什么。
+
+1521
+01:10:24,880 --> 01:10:29,030
+I believe that their l one is some sort of goofy hybrid
+我相信他们的L1缓存是某种奇怪的混合体。
+
+1522
+01:10:29,040 --> 01:10:32,630
+where the mmu and tlb are super tightly integrated into the cache.
+在这种情况下，内存管理单元（MMU）和转换后备缓冲（TLB）与缓存紧密集成在一起。
+
+1523
+01:10:32,640 --> 01:10:35,040
+So it's somewhat virtually indexed,
+所以它在某种程度上是虚拟索引的。
+
+1524
+01:10:35,330 --> 01:10:37,480
+but I i'm not 100% sure how that work.
+但是我不确定那是如何工作的。
+
+1525
+01:10:40,130 --> 01:10:40,140
+Okay.
+好的。
+
+1526
+01:10:40,150 --> 01:10:41,530
+But for the most part,
+但大部分情况下，
+
+1527
+01:10:41,540 --> 01:10:43,210
+we're gonna talk about physically indexed,
+我们将讨论物理索引化。
+
+1528
+01:10:43,220 --> 01:10:45,450
+because that's definitely the most common design.
+因为这绝对是最常见的设计。
+
+1529
+01:10:48,310 --> 01:10:52,180
+So all of this talk about caches,
+所以关于缓存的所有讨论，
+
+1530
+01:10:52,500 --> 01:10:56,670
+all of this that we just spent a bunch of time talking about was in service
+我们刚刚花了很多时间讨论的所有内容都是为了服务。
+
+1531
+01:10:56,680 --> 01:10:57,510
+of tl bs.
+这是一个不合适的表达，我无法为您翻译。如果您有其他需要翻译的内容，请告诉我。
+
+1532
+01:10:58,330 --> 01:11:00,130
+This lecture, still,
+本讲座，仍然，
+
+1533
+01:11:00,180 --> 01:11:02,410
+in theory is about virtual addresses.
+理论上是关于虚拟地址的。
+
+1534
+01:11:03,310 --> 01:11:06,290
+Let's get back to why we brought this up in the first place.
+让我们回到我们最初提出这个问题的原因。
+
+1535
+01:11:07,390 --> 01:11:08,700
+And that is tail beats.
+这就是尾巴的拍打动作。
+
+1536
+01:11:09,280 --> 01:11:11,510
+Again, remember, tob is a cache.
+再次提醒，tob是一个缓存。
+
+1537
+01:11:11,520 --> 01:11:13,270
+It's just a cache of translations.
+这只是一个翻译的缓存。
+
+1538
+01:11:13,800 --> 01:11:18,570
+It's just a cache that keeps track of those virtual to physical mapping.
+这只是一个缓存，用于跟踪虚拟地址到物理地址的映射。
+
+1539
+01:11:20,370 --> 01:11:25,020
+What are the properties we want out of atlb the first one
+我们希望从atlb中获得的属性是什么？首先是什么？
+
+1540
+01:11:25,030 --> 01:11:28,060
+and really important one here is speed.
+而这里真正重要的一个因素是速度。
+
+1541
+01:11:28,910 --> 01:11:32,060
+Tob needs to be accessed on every single instruction
+Tob需要在每条指令中被访问到。
+
+1542
+01:11:32,070 --> 01:11:34,700
+and sometimes multiple times per instruction.
+有时候甚至一条指令会执行多次。
+
+1543
+01:11:35,490 --> 01:11:38,640
+It's very important that the tlbc fast.
+TLB 快速工作非常重要。
+
+1544
+01:11:40,540 --> 01:11:43,810
+So that means maybe we want to keep it direct mapped or loss
+这意味着我们可能希望保持直接映射或损失。
+
+1545
+01:11:43,820 --> 01:11:45,730
+of suitability or something like that.
+适用性或类似的东西。
+
+1546
+01:11:46,070 --> 01:11:48,440
+But we'll see why that maybe isn't the greatest idea.
+但是我们会看到为什么这可能不是最好的主意。
+
+1547
+01:11:50,390 --> 01:11:52,440
+The other issue is that we want to keep conflicts down.
+另一个问题是我们希望尽量减少冲突。
+
+1548
+01:11:52,450 --> 01:11:53,360
+I we always do.
+我们总是这样做。
+
+1549
+01:11:54,560 --> 01:11:59,160
+But the problem is that like missing in atob is pretty painful, right?
+但问题是，像在 atob 中丢失的东西是相当痛苦的，对吗？
+
+1550
+01:11:59,170 --> 01:12:01,440
+Walking those page tables is really slow.
+遍历这些页表真的很慢。
+
+1551
+01:12:01,450 --> 01:12:03,690
+So the miss time here is not pretty.
+这里的错过时间不太好。
+
+1552
+01:12:04,930 --> 01:12:07,410
+And the hit time is dictated by the clock cycle.
+命中时间由时钟周期决定。
+
+1553
+01:12:07,730 --> 01:12:11,420
+So again, we needed to be really fast in the common case,
+所以再次强调，在常见情况下我们需要非常快速。
+
+1554
+01:12:11,660 --> 01:12:13,610
+but we wanted to not miss very often.
+但我们希望尽量不要经常错过。
+
+1555
+01:12:14,940 --> 01:12:17,330
+The trade off between those two properties is
+这两个属性之间的权衡是
+
+1556
+01:12:17,340 --> 01:12:20,970
+what hardware designers and architects spend a lot of their time doing is
+硬件设计师和架构师花费大量时间的工作是
+
+1557
+01:12:20,980 --> 01:12:23,290
+deciding how to trade off these goals.
+决定如何权衡这些目标。
+
+1558
+01:12:24,910 --> 01:12:25,910
+Oops, right.
+哎呀，对了。
+
+1559
+01:12:34,230 --> 01:12:35,270
+I don't know what i'm doing here,
+我不知道我在这里做什么，
+
+1560
+01:12:36,400 --> 01:12:37,720
+whatever moving on.
+无论如何，继续前进。
+
+1561
+01:12:38,090 --> 01:12:40,330
+The question is, how big do we make it?
+问题是，我们要把它做多大？
+
+1562
+01:12:40,760 --> 01:12:42,440
+In what organization do we use?
+我们在哪个组织中使用？
+
+1563
+01:12:42,760 --> 01:12:46,830
+In practice, people usually make tl bs fast by keeping them small.
+在实践中，人们通常通过保持任务小而快速地完成它们。
+
+1564
+01:12:47,800 --> 01:12:51,550
+That's the trick that hardware designers tend to use when they try and make
+这是硬件设计师在尝试制造时常常使用的技巧。
+
+1565
+01:12:51,560 --> 01:12:52,900
+atlb fast.
+atlb快速。
+
+1566
+01:12:53,810 --> 01:12:55,040
+Because it's small.
+因为它很小。
+
+1567
+01:12:55,400 --> 01:12:57,480
+They get to be highly associative.
+它们具有高度的关联性。
+
+1568
+01:12:57,990 --> 01:12:59,430
+And because they're highly associative,
+由于它们具有高度关联性，
+
+1569
+01:12:59,440 --> 01:13:01,170
+their miss rate is pretty low.
+他们的缺失率非常低。
+
+1570
+01:13:02,030 --> 01:13:03,380
+This is just a trade off, right?
+这只是一个权衡取舍，对吗？
+
+1571
+01:13:03,390 --> 01:13:05,020
+You can make a lot of different decisions,
+你可以做出许多不同的决策，
+
+1572
+01:13:05,030 --> 01:13:07,420
+but the hardware designers who have done all the math,
+但是硬件设计师已经完成了所有的数学计算，
+
+1573
+01:13:07,430 --> 01:13:08,980
+they've done all the profiling,
+他们已经完成了所有的性能分析。
+
+1574
+01:13:09,230 --> 01:13:10,130
+all the experiments,
+所有的实验，
+
+1575
+01:13:10,140 --> 01:13:14,330
+they decided that what this is probably the best way to make the teal be work,
+他们决定这可能是使蓝绿色工作的最佳方式。
+
+1576
+01:13:14,340 --> 01:13:15,370
+the way we want it to.
+我们希望的方式。
+
+1577
+01:13:18,260 --> 01:13:18,500
+Right?
+对吗？
+
+1578
+01:13:18,510 --> 01:13:19,140
+Again,
+请再说一遍。
+
+1579
+01:13:19,900 --> 01:13:22,780
+because it's a cache, we can do all the same tricks with caches.
+因为它是一个缓存，我们可以使用与缓存相同的技巧。
+
+1580
+01:13:23,110 --> 01:13:23,410
+Right?
+对吗？
+
+1581
+01:13:23,420 --> 01:13:26,660
+We can have a multilevel tob why not right?
+我们可以有一个多级的Tob，为什么不呢？
+
+1582
+01:13:26,670 --> 01:13:27,910
+We have multi level caches.
+我们有多级缓存。
+
+1583
+01:13:27,920 --> 01:13:29,660
+Why not have multi level to be?
+为什么不将多级别作为一个选择？
+
+1584
+01:13:29,670 --> 01:13:30,410
+It'll still work.
+它仍然可以工作。
+
+1585
+01:13:30,940 --> 01:13:31,340
+Right?
+对吗？
+
+1586
+01:13:31,820 --> 01:13:33,820
+So we can look at this example.
+那么我们可以看一下这个例子。
+
+1587
+01:13:33,830 --> 01:13:36,120
+I think I want to just get through more content.
+我想我只想尽快学完更多的内容。
+
+1588
+01:13:36,990 --> 01:13:38,880
+But ultimately,
+但最终，
+
+1589
+01:13:39,330 --> 01:13:41,520
+atob is gonna store a virtual address,
+atob将存储一个虚拟地址。
+
+1590
+01:13:41,530 --> 01:13:43,480
+a physical address, and metadata.
+一个物理地址和元数据。
+
+1591
+01:13:44,110 --> 01:13:44,530
+Right?
+对吗？
+
+1592
+01:13:45,470 --> 01:13:48,260
+I guess 1 piece of meta data worth mentioning here,
+这里有一个值得提及的元数据。
+
+1593
+01:13:48,550 --> 01:13:51,850
+there's two particularly important ones here that we'll talk about later.
+这里有两个特别重要的，我们稍后会讨论。
+
+1594
+01:13:52,200 --> 01:13:56,440
+One is asid that is the address space identifier.
+"asid" 是地址空间标识符的缩写。
+
+1595
+01:13:57,350 --> 01:14:00,180
+We want to be able to support multiple processes.
+我们希望能够支持多个进程。
+
+1596
+01:14:00,570 --> 01:14:03,200
+This asid is what we use to keep track of that.
+这个asid是我们用来跟踪那个的。
+
+1597
+01:14:03,650 --> 01:14:08,290
+You can think of this kind of like the kind of like a pointer or the index
+你可以将这种情况类比为指针或索引的一种形式
+
+1598
+01:14:08,780 --> 01:14:09,730
+of the page table.
+页表的一部分。
+
+1599
+01:14:09,990 --> 01:14:14,060
+So it's like a process id who does this virtual address belong to.
+这个虚拟地址属于哪个进程的进程ID。
+
+1600
+01:14:14,740 --> 01:14:16,740
+And then the other one that's important here is the valid bit.
+这里还有一个重要的部分是有效位。
+
+1601
+01:14:18,000 --> 01:14:21,620
+So the valid bit tells us whether or not this mapping actually exists.
+有效位告诉我们这个映射是否真实存在。
+
+1602
+01:14:22,090 --> 01:14:23,840
+So we might have a page table entry,
+所以我们可能有一个页表项，
+
+1603
+01:14:23,850 --> 01:14:28,120
+but that page table entry might not point me where real or maybe it's been revoked,
+但是这个页表项可能不会指向真实的位置，或者可能已经被撤销了。
+
+1604
+01:14:28,130 --> 01:14:29,320
+or maybe it's been changed.
+或者可能已经被改变了。
+
+1605
+01:14:29,620 --> 01:14:32,440
+A lot of different reasons why it might not be valid, but we have to know.
+有很多不同的原因可能导致它无效，但我们必须知道。
+
+1606
+01:14:33,290 --> 01:14:36,360
+And that's gonna prevent us from doing the translation if it's not valid.
+如果这不是有效的话，那将阻止我们进行翻译。
+
+1607
+01:14:41,790 --> 01:14:46,460
+Just so you understand the to bs are tightly integrated into the core.
+只是为了让你明白，这两个部分紧密集成在核心中。
+
+1608
+01:14:46,860 --> 01:14:48,610
+They have to be really fast.
+它们必须非常快速。
+
+1609
+01:14:48,620 --> 01:14:50,330
+They have to be very close to the core.
+它们必须非常靠近核心。
+
+1610
+01:14:51,090 --> 01:14:53,560
+We have actual different stages,
+我们有实际的不同阶段。
+
+1611
+01:14:53,570 --> 01:14:57,420
+different designs of the tlb there's parts of it that are spread
+TLB的不同设计中，有一些部分是分散的。
+
+1612
+01:14:57,430 --> 01:15:00,410
+around different parts of your core.
+在你的核心的不同部分周围。
+
+1613
+01:15:00,420 --> 01:15:04,190
+So actually implementing tl bs is quite a very interesting digital logic.
+实际上，实现tl bs是非常有趣的数字逻辑。
+
+1614
+01:15:04,610 --> 01:15:05,920
+Here, architecture question.
+这里是一个关于架构的问题。
+
+1615
+01:15:09,360 --> 01:15:12,070
+There's all sorts of tricks you can do.
+有很多技巧可以尝试。
+
+1616
+01:15:13,290 --> 01:15:13,660
+Again,
+请再说一遍。
+
+1617
+01:15:13,990 --> 01:15:16,920
+just your computer architects are full of this kind of thing where they
+只是你们的计算机架构师们对这种事情充满了热情，他们
+
+1618
+01:15:16,930 --> 01:15:19,160
+have all these little tricks that make things faster.
+有很多小技巧可以让事情变得更快。
+
+1619
+01:15:20,050 --> 01:15:20,880
+For example,
+例如，
+
+1620
+01:15:23,260 --> 01:15:30,440
+you can imagine that you have a physically addressed cash and atlb maybe we
+你可以想象你有一个有物理地址的高速缓存和地址转换后备缓冲区（ATLB）。
+
+1621
+01:15:30,450 --> 01:15:33,140
+can play a trick and do something in parallel.
+可以耍个小聪明，同时做一些事情。
+
+1622
+01:15:36,570 --> 01:15:37,720
+We can maybe overlap.
+我们可能会有重叠的时间。
+
+1623
+01:15:37,730 --> 01:15:40,600
+So i'm gonna show an example here of how that might work.
+我这里要展示一个例子，说明可能是如何工作的。
+
+1624
+01:15:41,480 --> 01:15:45,510
+You might imagine that i've got this address here that i'm trying to translate.
+你可以想象一下，我这里有一个地址，我正在尝试翻译它。
+
+1625
+01:15:46,090 --> 01:15:47,820
+It turns out that the, say,
+结果表明，假设
+
+1626
+01:15:48,120 --> 01:15:49,270
+these top bits here,
+这里的高位比特
+
+1627
+01:15:49,280 --> 01:15:50,430
+these top 20 bits,
+这前20位
+
+1628
+01:15:50,600 --> 01:15:51,990
+that's the virtual page number.
+那是虚拟页号。
+
+1629
+01:15:52,380 --> 01:15:54,370
+That's the only thing that tob needs to look up.
+这是 tob 需要查找的唯一事项。
+
+1630
+01:15:54,380 --> 01:15:54,650
+Right?
+对吗？
+
+1631
+01:15:54,660 --> 01:15:56,250
+The tob doesn't care about this chunk.
+Tob 对这个块不关心。
+
+1632
+01:15:56,680 --> 01:15:58,440
+It only cares about the virtual patient.
+它只关心虚拟病人。
+
+1633
+01:15:59,140 --> 01:16:01,450
+We'll send that to the tob it'll start translating.
+我们会将这个发送给tob，它会开始翻译。
+
+1634
+01:16:02,060 --> 01:16:04,610
+And if we have the right size of caches,
+如果我们有合适大小的缓存，
+
+1635
+01:16:04,620 --> 01:16:05,850
+if everything lines up,
+如果一切都对齐，
+
+1636
+01:16:06,120 --> 01:16:08,580
+we might be able to have the index here,
+我们可能可以在这里放置索引。
+
+1637
+01:16:08,890 --> 01:16:10,060
+be these lower bits,
+这些是低位。
+
+1638
+01:16:10,070 --> 01:16:12,060
+and we can send that to the physical cache.
+然后我们可以将数据发送到物理缓存中。
+
+1639
+01:16:12,640 --> 01:16:16,110
+Then now the physical cache tries to find a line.
+现在物理缓存尝试查找一行。
+
+1640
+01:16:16,360 --> 01:16:18,470
+The tob tries to find the translation.
+tob试图找到翻译。
+
+1641
+01:16:18,750 --> 01:16:20,730
+And then once they've actually done it,
+然后一旦他们真正完成了这件事，
+
+1642
+01:16:20,870 --> 01:16:24,650
+we can trick, we can look at the tag and the physical page number.
+我们可以进行欺骗，我们可以查看标签和物理页号。
+
+1643
+01:16:24,660 --> 01:16:26,690
+And if they match, we have a hit.
+如果它们匹配，我们就有一个命中。
+
+1644
+01:16:27,220 --> 01:16:28,480
+So it's a dirty little trick,
+所以这是一个卑鄙的小把戏，
+
+1645
+01:16:28,810 --> 01:16:30,760
+and it works if all the numbers line up.
+如果所有的数字都对齐，它就能正常工作。
+
+1646
+01:16:31,180 --> 01:16:33,610
+But as soon as the caches don't line up, it stops working.
+但是一旦缓存不对齐，它就停止工作了。
+
+1647
+01:16:35,890 --> 01:16:37,030
+That's a little tricks.
+这有点小技巧。
+
+1648
+01:16:37,320 --> 01:16:39,110
+Highly recommend taking 152.
+强烈推荐选修152课程。
+
+1649
+01:16:39,120 --> 01:16:40,990
+If you're interested in all of these tricks,
+如果你对所有这些技巧感兴趣的话，
+
+1650
+01:16:41,000 --> 01:16:42,190
+because there's a ton of them,
+因为有很多个。
+
+1651
+01:16:47,310 --> 01:16:49,220
+we only have a minute left.
+我们只剩下一分钟了。
+
+1652
+01:16:53,260 --> 01:16:55,690
+Let's talk about context switches, and then we'll finish.
+让我们谈谈上下文切换，然后我们就结束了。
+
+1653
+01:16:56,120 --> 01:16:58,290
+So what happens when I change the process?
+当我改变进程时会发生什么？
+
+1654
+01:16:59,630 --> 01:17:01,030
+If I switch processes?
+如果我切换进程？
+
+1655
+01:17:01,700 --> 01:17:06,810
+I have to be careful to keep track of which process this tob entry goes to.
+我必须小心地跟踪这个tob条目属于哪个进程。
+
+1656
+01:17:07,360 --> 01:17:12,110
+Maybe I flush the entire tire tlb if I didn't keep track of address spaces,
+如果我没有跟踪地址空间，可能会清除整个TLB。
+
+1657
+01:17:12,120 --> 01:17:13,590
+we saw in the rs 3,000,
+我们在 RS 3,000 中看到了。
+
+1658
+01:17:13,600 --> 01:17:17,370
+which is just an older processor that they do keep track of addresses a lot
+这只是一个较旧的处理器，它确实会频繁跟踪地址。
+
+1659
+01:17:17,380 --> 01:17:17,810
+of tricks,
+的技巧
+
+1660
+01:17:17,820 --> 01:17:19,790
+a lot of different ways you could do it.
+有很多不同的方法可以做到这一点。
+
+1661
+01:17:20,750 --> 01:17:22,700
+But you have to pick one.
+但是你必须选择一个。
+
+1662
+01:17:23,060 --> 01:17:27,590
+Either you invalidate the whole tob on each context switch, which is slow,
+要么在每次上下文切换时使整个缓存失效，这样会很慢，
+
+1663
+01:17:27,600 --> 01:17:28,390
+but simple,
+但是简单的，
+
+1664
+01:17:28,750 --> 01:17:29,400
+or you create,
+或者你创建，
+
+1665
+01:17:29,410 --> 01:17:33,540
+you keep a process id in the tob that might slow down the hit time
+在标签目录表（TOB）中保存进程ID可能会降低命中时间。
+
+1666
+01:17:33,550 --> 01:17:38,550
+of the tob but it won't have all these misses when you context switch.
+但是当你进行上下文切换时，它不会有所有这些缺失。
+
+1667
+01:17:40,380 --> 01:17:41,570
+And then this is the last one.
+然后这是最后一个。
+
+1668
+01:17:41,580 --> 01:17:42,930
+This is what I was talking about.
+这就是我所说的。
+
+1669
+01:17:43,220 --> 01:17:46,750
+It's possible for the os to change page tables on you.
+操作系统有可能在你的操作过程中更改页表。
+
+1670
+01:17:47,050 --> 01:17:47,170
+Right?
+对吗？
+
+1671
+01:17:47,180 --> 01:17:48,210
+It does it all the time.
+它一直这样做。
+
+1672
+01:17:48,710 --> 01:17:49,460
+If you do,
+如果你愿意的话，
+
+1673
+01:17:49,470 --> 01:17:53,380
+then you have to go and invalidate the tlb those coherence misses
+那么你需要去使TLB失效，以解决这些一致性错误。
+
+1674
+01:17:53,390 --> 01:17:55,340
+that the tl bs really have to deal with.
+助教们确实需要处理这些烦人的事情。
+
+1675
+01:17:56,130 --> 01:17:59,520
+This is a really big design decision in operating systems.
+这是操作系统中一个非常重要的设计决策。
+
+1676
+01:17:59,530 --> 01:18:04,270
+Operating systems spend a lot of mental energy trying to understand this
+操作系统花费了大量的精力来理解这一点
+
+1677
+01:18:04,280 --> 01:18:06,580
+and make this not happen too often.
+并且尽量减少这种情况的发生。
+
+1678
+01:18:10,580 --> 01:18:12,370
+Yeah, so i'm gonna end it there,
+好的，那我就到这里结束了。
+
+1679
+01:18:13,260 --> 01:18:14,930
+because we're out of time.
+因为我们没有时间了。
+
+1680
+01:18:15,340 --> 01:18:17,670
+I'll let the next lecture kind of do this.
+我会在下一堂课上详细讲解这个问题。
+
+1681
+01:18:17,680 --> 01:18:20,790
+This is a great slide to start the next lecture on anyways.
+这是一个很好的幻灯片，可以用来开始下一堂课。
+
+1682
+01:18:21,810 --> 01:18:23,430
+You guys will start with this overview,
+你们将从这个概述开始。
+
+1683
+01:18:23,440 --> 01:18:27,430
+and then you can get into more interesting stuff around paging.
+然后你可以深入研究与分页相关的更有趣的内容。
+
+1684
+01:18:28,640 --> 01:18:32,010
+People asked about what happens when software has to deal with the disk.
+人们询问的是当软件需要处理磁盘时会发生什么。
+
+1685
+01:18:32,330 --> 01:18:33,000
+All that stuff.
+所有那些东西。
+
+1686
+01:18:33,010 --> 01:18:35,810
+You can look forward to that in the next lecture.
+你可以期待在下一堂课上会讲到这个。
+
+1687
+01:18:36,390 --> 01:18:38,500
+So i'll end it there, I think, right of time.
+所以我想我会在这里结束了，是时候了。
+
+1688
+01:18:39,310 --> 01:18:43,900
+And i'll stick around for a few minutes if anybody wants to ask questions.
+如果有人有问题，我会再待几分钟。
+
+1689
+01:18:44,250 --> 01:18:47,220
+And then i'll end off the recording.
+然后我会结束录音。
+
+1690
+01:18:47,990 --> 01:18:48,830
+So thanks for
+感谢您的帮助。
+
+1691
+01:19:23,920 --> 01:19:24,020
+listening.
+听着。
+

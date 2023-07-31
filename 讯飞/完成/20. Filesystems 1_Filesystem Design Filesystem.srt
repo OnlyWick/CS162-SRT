@@ -1,0 +1,6533 @@
+1
+00:00:08,460 --> 00:00:09,290
+Hello, everyone.
+大家好。
+
+2
+00:00:09,900 --> 00:00:11,850
+Welcome to today's lecture.
+欢迎来到今天的讲座。
+
+3
+00:00:11,860 --> 00:00:17,090
+And today we are going to wrap up the discussion about the performance,
+今天我们将结束关于性能的讨论。
+
+4
+00:00:17,100 --> 00:00:21,330
+and then we are going to spend the main bulk of the lecture on file systems.
+然后我们将在讲座的主要部分讨论文件系统。
+
+5
+00:00:26,510 --> 00:00:27,660
+Let me start.
+让我开始吧。
+
+6
+00:00:30,130 --> 00:00:33,540
+So just to recap from last week,
+上周的内容简要回顾一下，
+
+7
+00:00:34,350 --> 00:00:38,410
+last week, we talk a little bit about performance.
+上周，我们稍微讨论了一下性能问题。
+
+8
+00:00:39,570 --> 00:00:43,280
+This is one way to model the performance, in particular,
+这是一种建模性能的方法，特别是
+
+9
+00:00:43,290 --> 00:00:45,040
+for something like a network.
+对于像网络这样的东西。
+
+10
+00:00:46,470 --> 00:00:48,900
+We are talking then that, for instance,
+我们在讨论的是，例如，
+
+11
+00:00:48,910 --> 00:00:54,820
+if you send a packet with a certain number of b beats, say,
+如果您发送一个带有特定数量的b节拍的数据包，比如说，
+
+12
+00:00:54,830 --> 00:00:58,760
+small b the network capacity,
+小b网络容量
+
+13
+00:00:58,770 --> 00:01:02,830
+it's b capital b beats per second.
+它是大写字母B，表示每秒节拍数。
+
+14
+00:01:03,530 --> 00:01:08,650
+Then this is a formula for latency a you have a factor s which
+那么这是一个关于延迟的公式，其中有一个因子s。
+
+15
+00:01:08,660 --> 00:01:13,340
+is overhead to send that packet,
+发送该数据包会产生开销。
+
+16
+00:01:14,720 --> 00:01:16,910
+for instance, of the system call.
+例如，系统调用的例子。
+
+17
+00:01:18,140 --> 00:01:20,710
+And then plus a variable part,
+然后再加上一个可变部分，
+
+18
+00:01:20,720 --> 00:01:27,700
+which is b is a number of it in the packet over the capacity of the link,
+b是指在数据包中超过链路容量的数量。
+
+19
+00:01:28,340 --> 00:01:35,730
+capital b this formula also works reasonably well for transferring data
+这个公式对于数据传输也相当有效。
+
+20
+00:01:35,740 --> 00:01:36,450
+from the disk.
+从磁盘中。
+
+21
+00:01:37,580 --> 00:01:38,890
+In this case,
+在这种情况下，
+
+22
+00:01:38,900 --> 00:01:43,340
+a thick the s it's represent the rotational latency,
+厚度表示的是旋转延迟。
+
+23
+00:01:43,350 --> 00:01:44,420
+plastic time.
+塑料时间。
+
+24
+00:01:47,190 --> 00:01:50,500
+This is one, and this is a formula for the latency.
+这是一个，这是一个用于计算延迟的公式。
+
+25
+00:01:50,510 --> 00:01:54,250
+And you see, here is shown on this plot with a blue line.
+你看，这个图上用蓝线表示出来了。
+
+26
+00:01:55,860 --> 00:02:00,130
+The intercept of the blue line with the y axis represents the s in this case,
+蓝线与y轴的截距代表了这种情况下的s。
+
+27
+00:02:00,140 --> 00:02:02,320
+it's1,000 micro seconds.
+这是1,000微秒。
+
+28
+00:02:02,330 --> 00:02:04,030
+And then here,
+然后在这里，
+
+29
+00:02:05,390 --> 00:02:08,960
+the slope represent the bandwidth of the particular link.
+斜率代表特定链路的带宽。
+
+30
+00:02:09,780 --> 00:02:11,050
+In this particular case,
+在这种特殊情况下，
+
+31
+00:02:11,060 --> 00:02:14,650
+we are going to have a link of 100 garbage per second.
+我们每秒将有100个垃圾链接。
+
+32
+00:02:15,090 --> 00:02:18,610
+S was 1,000 micro seconds or 1 million seconds.
+S是1,000微秒或1百万秒。
+
+33
+00:02:20,580 --> 00:02:25,720
+Then b is here on the y axis.
+然后b在y轴上。
+
+34
+00:02:28,750 --> 00:02:31,630
+B it's 5,000 beats.
+B 是 5,000 拍。
+
+35
+00:02:31,640 --> 00:02:39,040
+Then then you are going to get the corresponding 5,000 of our
+那么你将会得到我们对应的5,000份。
+
+36
+00:02:41,290 --> 00:02:44,050
+I think that should be bytes is 5,000.
+我认为应该是字节为5,000。
+
+37
+00:02:44,180 --> 00:02:45,570
+It's 5,000,
+是5,000。
+
+38
+00:02:46,210 --> 00:02:49,230
+55100,000÷12 hundred one,
+55100,000÷12百一等于45,916.67
+
+39
+00:02:49,240 --> 00:02:53,360
+2121hundred twenty five megabytes per second.
+2121兆字节每秒。
+
+40
+00:02:53,760 --> 00:02:57,910
+That will give you 4,000 micro seconds or 4 millisecond.
+这将给你 4,000 微秒或 4 毫秒。
+
+41
+00:02:58,410 --> 00:03:01,010
+If you are to s which is 1 millisecond,
+如果你要设置s为1毫秒，
+
+42
+00:03:01,020 --> 00:03:08,670
+you are going to get 5 millisecond or 5,000 microsecond ok and then the other
+你将获得5毫秒或5,000微秒，好的，然后还有其他的。
+
+43
+00:03:08,680 --> 00:03:12,230
+important matrix here is the effective bandwidth,
+重要的矩阵在这里是有效带宽。
+
+44
+00:03:12,240 --> 00:03:13,230
+which is basically,
+基本上，
+
+45
+00:03:13,920 --> 00:03:15,950
+if i'm sending a packet of this length,
+如果我发送一个这样长度的数据包，
+
+46
+00:03:16,260 --> 00:03:18,290
+what is the effective boundaries for that?
+这个的有效边界是什么？
+
+47
+00:03:18,300 --> 00:03:19,370
+Sending that packet?
+正在发送该数据包吗？
+
+48
+00:03:19,380 --> 00:03:21,330
+And that obviously is a packet size.
+这显然是一个数据包的大小。
+
+49
+00:03:21,340 --> 00:03:23,490
+In this case, b over the time,
+在这种情况下，b随时间变化。
+
+50
+00:03:23,500 --> 00:03:25,410
+it takes to send a packet,
+发送一个数据包所需的时间
+
+51
+00:03:25,420 --> 00:03:28,720
+which it does includes as the fix overhead.
+其中包括了修复的开销。
+
+52
+00:03:28,730 --> 00:03:30,400
+And this is a formula,
+这是一个公式，
+
+53
+00:03:30,640 --> 00:03:37,090
+b b capital b times s over b small b plus one.
+b b 大写 B 乘以 s 除以小写 b 加一。
+
+54
+00:03:40,280 --> 00:03:42,910
+You notice that if s is zero,
+你注意到如果 s 是零，
+
+55
+00:03:43,240 --> 00:03:48,550
+then the effective bandwidth is equal with capital b which is expected,
+那么有效带宽就等于大写的B，这是预期的。
+
+56
+00:03:48,700 --> 00:03:49,060
+right?
+对的吗？
+
+57
+00:03:49,440 --> 00:03:51,560
+Because there is no fixed overhead.
+因为没有固定的开销。
+
+58
+00:03:51,790 --> 00:03:53,350
+Then the effective bandwidth,
+然后是有效带宽，
+
+59
+00:03:53,360 --> 00:03:56,970
+you can send data as fast as the capacitor of the link.
+你可以以链路的电容速度发送数据。
+
+60
+00:03:58,690 --> 00:04:04,080
+One important metric here is about its 1/2 power bandwidth.
+这里的一个重要指标是其1/2功率带宽。
+
+61
+00:04:04,460 --> 00:04:06,820
+And half power boundary is a way to think about it.
+半功率边界是一种思考的方式。
+
+62
+00:04:07,300 --> 00:04:13,200
+Is basically what is the size of the packet?
+基本上，数据包的大小是多少？
+
+63
+00:04:13,210 --> 00:04:13,840
+In this case,
+在这种情况下，
+
+64
+00:04:13,850 --> 00:04:19,230
+I need to send such that the effective boundary is to be half
+我需要发送这样的东西，使得有效边界减半。
+
+65
+00:04:19,240 --> 00:04:22,040
+of the capacity of the league.
+联盟的能力范围。
+
+66
+00:04:23,030 --> 00:04:25,790
+The overhead is not that very high overhead.
+开销并不是非常高。
+
+67
+00:04:25,800 --> 00:04:27,390
+It just cuts my effective.
+这只是削减了我的效果。
+
+68
+00:04:27,400 --> 00:04:29,780
+My capacity to have.
+我的容量。
+
+69
+00:04:30,350 --> 00:04:33,960
+Right here is red.
+这里是红色的。
+
+70
+00:04:34,470 --> 00:04:38,590
+You can see this curve with red is the effective bandwidth,
+你可以看到这条红色曲线代表的是有效带宽。
+
+71
+00:04:38,890 --> 00:04:46,100
+again, versus the capacity of the link when the number of bits,
+再次，当比特数增加时，与链路容量相比。
+
+72
+00:04:48,240 --> 00:04:50,110
+when the number of vc zero,
+当 VC 的数量为零时，
+
+73
+00:04:50,490 --> 00:04:53,560
+obviously, here you have effective bandwidth.
+显然，这里你有有效带宽。
+
+74
+00:04:55,290 --> 00:04:55,760
+It's zero.
+是零。
+
+75
+00:04:58,210 --> 00:04:59,920
+On this plot, here on the right,
+在这个图上，右边的部分，
+
+76
+00:05:00,210 --> 00:05:02,480
+this is a plot which has two y axis.
+这是一个具有两个Y轴的图表。
+
+77
+00:05:02,490 --> 00:05:04,960
+On the left hand side is the latency, is a blue one.
+左侧是延迟，用蓝色表示。
+
+78
+00:05:05,450 --> 00:05:07,310
+The blue curve of the blue line,
+蓝线的蓝色曲线。
+
+79
+00:05:07,320 --> 00:05:08,350
+and the right hand side,
+右侧部分，
+
+80
+00:05:08,360 --> 00:05:12,830
+you are going to have the bandwidth effective bandwidth, which is a red.
+你将拥有带宽有效带宽，这是一个红色的。
+
+81
+00:05:14,270 --> 00:05:15,180
+Any questions?
+有任何问题吗？
+
+82
+00:05:24,220 --> 00:05:27,810
+Next, remember that we also did a little bit of queuing theory,
+接下来，记住我们还学习了一点排队论。
+
+83
+00:05:27,820 --> 00:05:29,730
+mostly providing you some formula,
+主要为您提供一些公式，
+
+84
+00:05:30,100 --> 00:05:31,730
+just summarize them here.
+请在这里简要总结它们。
+
+85
+00:05:33,630 --> 00:05:36,420
+This is topic it's covered.
+这是所涵盖的主题。
+
+86
+00:05:41,710 --> 00:05:46,480
+This is part of the exam,
+这是考试的一部分。
+
+87
+00:05:46,490 --> 00:05:54,760
+the midterm topics sub you may get the problem,
+期中考试的主题可能会涉及以下问题：
+
+88
+00:05:55,350 --> 00:06:01,160
+which is about doing theory or about performers.
+这个问题是关于理论还是关于表演者的。
+
+89
+00:06:01,170 --> 00:06:02,160
+I have performance.
+我有性能问题。
+
+90
+00:06:05,060 --> 00:06:05,560
+Anyway,
+无论如何，
+
+91
+00:06:06,080 --> 00:06:06,580
+here,
+这里，
+
+92
+00:06:07,100 --> 00:06:12,240
+you remember that this is a a queuing model.
+你记得这是一个排队模型。
+
+93
+00:06:12,250 --> 00:06:12,920
+Obviously,
+显然，
+
+94
+00:06:13,650 --> 00:06:16,280
+it's called the queuing model for a reason.
+它被称为排队模型是有原因的。
+
+95
+00:06:16,290 --> 00:06:17,400
+It has a queue.
+它有一个队列。
+
+96
+00:06:18,030 --> 00:06:21,740
+You have a bunch of requests here with the arrival rate,
+这里有一堆请求，附带到达速率，
+
+97
+00:06:21,750 --> 00:06:24,270
+lambda a lambda is a number of requests,
+lambda是一种请求的数量。
+
+98
+00:06:24,280 --> 00:06:28,240
+average number of requests per second arriving to the cure.
+每秒到达治疗中心的平均请求数量。
+
+99
+00:06:29,370 --> 00:06:33,200
+The requests are removed from the queue as fast as they can be processed
+请求会尽快从队列中移除，只要它们能够被处理。
+
+100
+00:06:33,210 --> 00:06:33,960
+by a server.
+由服务器完成。
+
+101
+00:06:34,770 --> 00:06:38,200
+And the server process each request as a service rate,
+服务器按照服务速率处理每个请求。
+
+102
+00:06:38,210 --> 00:06:42,830
+mu mu is over and over the service time.
+牛牛一次又一次超过了服务时间。
+
+103
+00:06:45,170 --> 00:06:47,720
+How long it takes to service a particular request?
+处理一个特定请求需要多长时间？
+
+104
+00:06:48,420 --> 00:06:52,690
+The way to think about if the server takes 100 million seconds to server request,
+如果服务器花费1亿秒来处理请求的方式思考，
+
+105
+00:06:53,210 --> 00:06:54,340
+then obviously, mu,
+那么显然，mu，
+
+106
+00:06:54,350 --> 00:06:58,520
+it's 1 second over 100 million seconds is then,
+1秒是1亿秒的1/100000000
+
+107
+00:06:58,970 --> 00:07:02,850
+because you're gonna set of ten requests per second.
+因为你将每秒发送十个请求。
+
+108
+00:07:06,630 --> 00:07:12,260
+So then another important parameter is square coefficient of variance
+另一个重要的参数是方差的平方系数。
+
+109
+00:07:13,100 --> 00:07:15,010
+to characterize the systems.
+对系统进行特征化。
+
+110
+00:07:16,620 --> 00:07:18,380
+The several utilization,
+多种利用方式
+
+111
+00:07:18,390 --> 00:07:26,370
+the several realization is basically the average arrival rate
+几种实现方式基本上是平均到达率。
+
+112
+00:07:26,610 --> 00:07:29,630
+over the average service rate.
+超过平均服务速率。
+
+113
+00:07:30,230 --> 00:07:32,560
+And fundamentally,
+从根本上说，
+
+114
+00:07:32,570 --> 00:07:36,230
+you do want these parameters to be less than one,
+你希望这些参数小于一。
+
+115
+00:07:37,710 --> 00:07:44,280
+because this would mean that the system is in the stable regime that
+这意味着系统处于稳定状态
+
+116
+00:07:44,290 --> 00:07:45,960
+and the stable regime,
+稳定的政权
+
+117
+00:07:45,970 --> 00:07:49,320
+if the arrival rate is slower,
+如果到达速率较慢，
+
+118
+00:07:49,550 --> 00:07:54,580
+then the service capacity about how fast the set the request can be set.
+服务能力指的是处理请求的速度有多快。
+
+119
+00:07:55,140 --> 00:07:57,170
+If you send more, obviously,
+如果你发送更多的信息，显然，
+
+120
+00:07:57,400 --> 00:07:59,580
+the system will not be in a stable region,
+系统将不会处于稳定状态。
+
+121
+00:07:59,850 --> 00:08:03,370
+which means that the queries,
+这意味着查询，
+
+122
+00:08:03,740 --> 00:08:06,090
+the cure were growing different indefinitely,
+治疗方法不断地不同地发展着。
+
+123
+00:08:06,670 --> 00:08:06,900
+right?
+对的？
+
+124
+00:08:06,910 --> 00:08:08,740
+As more request comes in.
+随着更多的请求到来。
+
+125
+00:08:09,040 --> 00:08:14,320
+And the subsystem cannot keep up with serving these requests.
+子系统无法跟上处理这些请求的速度。
+
+126
+00:08:14,780 --> 00:08:15,270
+Okay?
+好的？
+
+127
+00:08:15,980 --> 00:08:17,410
+All the results, typically,
+通常情况下，所有的结果
+
+128
+00:08:17,420 --> 00:08:18,850
+in the queuing theory,
+在排队论中，
+
+129
+00:08:18,860 --> 00:08:21,220
+assume that raw is great,
+假设raw是很棒的，
+
+130
+00:08:21,230 --> 00:08:22,260
+is less than one.
+小于一。
+
+131
+00:08:23,410 --> 00:08:27,270
+Then the parameters you have to compute is at times you spend in the queue.
+你需要计算的参数是你在队列中花费的时间。
+
+132
+00:08:27,950 --> 00:08:30,700
+Do we know how long it takes a request to be settled?
+我们知道一个请求需要多长时间才能解决吗？
+
+133
+00:08:31,270 --> 00:08:33,240
+He still is on the settle.
+他仍然在安顿中。
+
+134
+00:08:34,110 --> 00:08:37,920
+So now we need to understand how long it takes a request to in
+现在我们需要了解一个请求需要多长时间才能完成。
+
+135
+00:08:39,090 --> 00:08:40,440
+is going to spend in the queue.
+将要在队列中花费的时间。
+
+136
+00:08:40,450 --> 00:08:41,760
+So then by adding that,
+那么，通过添加那个，
+
+137
+00:08:41,770 --> 00:08:45,360
+do we know the service time for the queuing time?
+我们知道排队时间的服务时间吗？
+
+138
+00:08:45,370 --> 00:08:49,090
+We know how much a request trend in the entire system,
+我们知道整个系统中请求的趋势有多大。
+
+139
+00:08:49,100 --> 00:08:52,210
+which is what matters from the user perspective.
+从用户的角度来看，这才是最重要的。
+
+140
+00:08:53,850 --> 00:08:55,440
+And then we also went to,
+然后我们还去了，
+
+141
+00:08:55,810 --> 00:08:57,480
+we learn about the little law.
+我们学习了利特尔定律。
+
+142
+00:08:58,280 --> 00:09:03,080
+The little law is allows you to compute the queue line of by
+小定律允许你计算队列的长度。
+
+143
+00:09:03,090 --> 00:09:05,880
+just multiplying the mean arrival rate
+只需将平均到达率相乘即可。
+
+144
+00:09:06,290 --> 00:09:08,800
+plus times this spending,
+加上这笔支出，
+
+145
+00:09:09,370 --> 00:09:14,700
+the time times the time average time spent in the queue.
+时间乘以平均排队时间，得到在队列中花费的平均时间。
+
+146
+00:09:16,850 --> 00:09:20,400
+This are some of the results we went over last time.
+这是我们上次讨论过的一些结果。
+
+147
+00:09:20,810 --> 00:09:21,040
+Again.
+再次。
+
+148
+00:09:21,050 --> 00:09:24,620
+This is a recap, which may help you for the tomorrow's midterm.
+这是一个复习，可能会对你明天的期中考试有帮助。
+
+149
+00:09:25,530 --> 00:09:30,480
+Tq is for mmiq which is, remember,
+Tq 是为了 mmiq，记住，
+
+150
+00:09:30,860 --> 00:09:34,070
+mmq is one of the simplest queues out there.
+mmq 是最简单的队列之一。
+
+151
+00:09:34,080 --> 00:09:38,430
+It has one is for means that it has one server.
+这句话的意思是它有一个服务器。
+
+152
+00:09:38,740 --> 00:09:42,740
+And the first time refers to the distribution of the arrival rate.
+第一次指的是到达率的分布。
+
+153
+00:09:43,300 --> 00:09:46,650
+This means that into the intervals
+这意味着将其分成间隔
+
+154
+00:09:46,660 --> 00:09:52,540
+between two consecutive requests arriving is exponentially distributed.
+两个连续请求到达之间的时间间隔服从指数分布。
+
+155
+00:09:52,770 --> 00:09:56,530
+Or it's also called poisson distribution of the arrival rate.
+或者也被称为泊松分布的到达率。
+
+156
+00:09:56,960 --> 00:09:59,960
+And also, the service time is exponentially distributed.
+而且，服务时间是指数分布的。
+
+157
+00:09:59,970 --> 00:10:04,440
+It's, again, the time it takes the set of its exponentially distributed.
+这是指它的指数分布集合所需的时间。
+
+158
+00:10:05,300 --> 00:10:10,420
+The formula here is the set of a times row over one minus row
+这里的公式是 a 乘以行向量除以一减去行向量。
+
+159
+00:10:11,060 --> 00:10:13,100
+for a more general cure.
+为了一个更普遍的解决方案。
+
+160
+00:10:13,110 --> 00:10:15,570
+Where is a serving time?
+服务时间在哪里？
+
+161
+00:10:15,790 --> 00:10:16,390
+It's general.
+这是一般的情况。
+
+162
+00:10:16,770 --> 00:10:21,570
+It just characterized by this c we know only about the square coefficient
+这个特征只有这个c系数的平方项我们知道
+
+163
+00:10:21,580 --> 00:10:22,310
+of variance.
+方差分析
+
+164
+00:10:24,470 --> 00:10:26,020
+You have a very similar formula.
+你有一个非常相似的公式。
+
+165
+00:10:26,030 --> 00:10:29,780
+Only the second parameters in the formula is different.
+公式中只有第二个参数不同。
+
+166
+00:10:30,310 --> 00:10:35,540
+But the real main point to notice about this formula are this last term,
+但是关于这个公式真正需要注意的是最后一项，
+
+167
+00:10:35,550 --> 00:10:37,740
+which is rho over one or minus rho.
+rho over one is equal to rho, while minus rho is equal to negative rho.
+
+168
+00:10:38,370 --> 00:10:40,700
+This capture what I said earlier,
+这是我之前说的内容的概括。
+
+169
+00:10:40,930 --> 00:10:45,250
+that if raw is should be less than one,
+如果原始值(raw)应该小于1，
+
+170
+00:10:45,260 --> 00:10:47,890
+that if it's equal or greater than one,
+如果它等于或大于一，
+
+171
+00:10:48,210 --> 00:10:51,130
+then the system will not be in a stable region.
+那么系统将不会处于稳定状态。
+
+172
+00:10:52,770 --> 00:10:57,400
+This is a plot showing you roughly how the response time
+这是一个大致显示响应时间的图表。
+
+173
+00:10:57,410 --> 00:11:00,020
+and the service time is looking
+服务时间正在查看中
+
+174
+00:11:00,890 --> 00:11:04,120
+versus a throughput or utilization versus row.
+与吞吐量或利用率相比，与行数相比。
+
+175
+00:11:04,130 --> 00:11:08,280
+So on the x axis is basically row is from zero, say, to one.
+在x轴上，基本上行从零到一。
+
+176
+00:11:08,290 --> 00:11:10,080
+And this is a response time.
+这是一个响应时间。
+
+177
+00:11:10,090 --> 00:11:12,800
+The response time is a queuing time for the service time.
+响应时间是服务时间的排队时间。
+
+178
+00:11:14,350 --> 00:11:16,420
+A as a role goes to on.
+A作为一个角色继续前进。
+
+179
+00:11:16,430 --> 00:11:19,260
+This is going to be dominated by the queuing time,
+这将主要受到排队时间的影响。
+
+180
+00:11:19,270 --> 00:11:21,700
+because the queuing time is going to grow.
+因为排队时间会增长。
+
+181
+00:11:22,060 --> 00:11:26,150
+A one row gets close to one,
+一行趋近于一。
+
+182
+00:11:26,500 --> 00:11:28,120
+then this goes to infinity.
+那么这将趋向无穷大。
+
+183
+00:11:32,060 --> 00:11:33,010
+Any questions?
+有任何问题吗？
+
+184
+00:11:48,630 --> 00:11:51,900
+Now let's talk about how we are going to optimize the performance.
+现在让我们来讨论一下如何优化性能。
+
+185
+00:11:54,980 --> 00:11:56,610
+What are the ways to optimize it?
+有哪些优化的方法？
+
+186
+00:11:57,060 --> 00:12:00,650
+And this is what we are going to discuss over the next several slides.
+接下来几张幻灯片我们将讨论的内容如下。
+
+187
+00:12:01,050 --> 00:12:02,310
+And again,
+再一次，
+
+188
+00:12:02,320 --> 00:12:05,990
+if you look about io for an io device,
+如果你在寻找关于IO设备的IO方面的信息，
+
+189
+00:12:06,000 --> 00:12:07,750
+you are going to have the user strategy.
+你将要拥有用户策略。
+
+190
+00:12:07,760 --> 00:12:09,390
+This is where the program is running.
+程序正在运行的地方。
+
+191
+00:12:09,750 --> 00:12:12,380
+Then you see, you are going to send requests,
+那么你要发送请求，
+
+192
+00:12:12,840 --> 00:12:14,960
+say, read or write from this particular file,
+操作这个特定文件，可以进行读取或写入操作。
+
+193
+00:12:14,970 --> 00:12:17,660
+which is from that part of one particular device.
+这是来自某个特定设备的部分。
+
+194
+00:12:18,160 --> 00:12:20,250
+And these requests are cured,
+这些请求已经处理完成，
+
+195
+00:12:20,730 --> 00:12:23,000
+then are submitted to a controller.
+然后被提交给控制器。
+
+196
+00:12:23,210 --> 00:12:27,030
+And the controller is going to program the other device to read and write
+控制器将编程其他设备进行读写操作。
+
+197
+00:12:27,040 --> 00:12:28,190
+the particular data,
+特定的数据
+
+198
+00:12:32,080 --> 00:12:33,790
+how you are going to improve this system.
+你打算如何改进这个系统。
+
+199
+00:12:34,930 --> 00:12:36,880
+There are a few ways, one speed, right?
+有几种方法，其中一种是速度，对吗？
+
+200
+00:12:36,890 --> 00:12:38,520
+You can make everything faster.
+你可以让一切变得更快。
+
+201
+00:12:38,530 --> 00:12:40,400
+Each of these components, you can make it faster.
+你可以加快这些组件中的每一个速度。
+
+202
+00:12:40,410 --> 00:12:42,360
+You reduce the overhead of the context switching.
+你减少了上下文切换的开销。
+
+203
+00:12:42,370 --> 00:12:48,260
+You have also some context switching here of the controller of the device
+在这里还有一些设备控制器的上下文切换。
+
+204
+00:12:48,270 --> 00:12:50,180
+that I do buy a discreet
+我确实购买了一个谨慎的东西。
+
+205
+00:12:50,190 --> 00:12:52,590
+or taste faster with a lower sick time.
+或者以更快的速度品尝，并且病假时间更短。
+
+206
+00:12:53,620 --> 00:12:58,460
+Another way is parallel is is basically you can paralyze,
+另一种方法是并行化，基本上你可以将其并行化。
+
+207
+00:12:58,470 --> 00:13:01,950
+you can have inside.
+你可以进去。
+
+208
+00:13:02,520 --> 00:13:03,830
+You can have multiple queues.
+你可以拥有多个队列。
+
+209
+00:13:03,840 --> 00:13:05,590
+If the queue of selection are expensive.
+如果选择队列很昂贵。
+
+210
+00:13:05,920 --> 00:13:07,380
+Or instead of an aisle device,
+或者，可以使用一个过道设备，
+
+211
+00:13:07,390 --> 00:13:09,340
+you may have a multiply a device.
+你可能有一个多功能设备。
+
+212
+00:13:10,640 --> 00:13:11,530
+You can, for instance,
+例如，你可以
+
+213
+00:13:12,650 --> 00:13:14,100
+probably you can have two disks,
+可能你可以有两个硬盘，
+
+214
+00:13:14,110 --> 00:13:17,070
+and then you are going to strive the data across disks.
+然后你将努力将数据分布在多个磁盘上。
+
+215
+00:13:17,520 --> 00:13:18,690
+So therefore,
+因此，
+
+216
+00:13:19,890 --> 00:13:22,240
+or you just partition the data between disks,
+或者你只需将数据在磁盘之间进行分区。
+
+217
+00:13:22,790 --> 00:13:26,180
+when different requests can run at the same time on,
+当不同的请求可以同时运行时，
+
+218
+00:13:26,190 --> 00:13:29,860
+if they are going to request data on different disks,
+如果他们要在不同的磁盘上请求数据，
+
+219
+00:13:31,310 --> 00:13:32,270
+then it's overlapped.
+那么它就重叠了。
+
+220
+00:13:33,060 --> 00:13:33,460
+Right?
+对吗？
+
+221
+00:13:34,660 --> 00:13:38,170
+And this applies to different parts of this kind of pipeline.
+这适用于这种类型的流水线的不同部分。
+
+222
+00:13:38,510 --> 00:13:39,650
+For instance, for the thread,
+例如，对于线程，
+
+223
+00:13:39,660 --> 00:13:40,970
+you send a request,
+你发送了一个请求，
+
+224
+00:13:40,980 --> 00:13:42,050
+you are waiting for the request.
+你正在等待请求。
+
+225
+00:13:42,060 --> 00:13:44,970
+You can do some useful work instead of just wait.
+你可以做一些有用的工作，而不仅仅是等待。
+
+226
+00:13:46,560 --> 00:13:49,530
+The same thing here is like for the controller,
+对于控制器来说，情况也是一样的。
+
+227
+00:13:49,540 --> 00:13:54,800
+as you program the current request and your programs that io device to ask
+在编写当前请求和与I/O设备通信的程序时，请按照以下步骤进行操作。
+
+228
+00:13:54,810 --> 00:13:57,380
+three to satisfy the current request.
+满足当前请求需要三个。
+
+229
+00:13:57,610 --> 00:14:00,360
+Once you do that and you send the request to our device,
+一旦你完成这个操作并将请求发送到我们的设备上，
+
+230
+00:14:00,590 --> 00:14:02,270
+then you can process the next request.
+那么你可以处理下一个请求。
+
+231
+00:14:04,250 --> 00:14:08,790
+The one important aspect here is that one way you to look at this pipeline,
+这里的一个重要方面是你看待这个流水线的方式。
+
+232
+00:14:08,800 --> 00:14:10,630
+say you want to improve the performance here,
+说你想要提高这里的性能，
+
+233
+00:14:10,640 --> 00:14:11,910
+what you are going to do,
+你要做什么？
+
+234
+00:14:12,040 --> 00:14:15,790
+the engineering way to look about and or soft engineering way.
+工程化的方式来看待和软件工程化的方式。
+
+235
+00:14:16,130 --> 00:14:20,030
+The sound way to do it is to look what is a bottlenecks are,
+正确的做法是查看瓶颈所在。
+
+236
+00:14:20,040 --> 00:14:20,950
+which is a bottleneck,
+哪个是瓶颈？
+
+237
+00:14:20,960 --> 00:14:23,340
+which is a slower spot in this chain,
+在这个链条中，哪个环节是较慢的？
+
+238
+00:14:23,680 --> 00:14:27,390
+then you are going to focus on that bottleneck part to improve the performance.
+那么你将专注于优化那个瓶颈部分以提高性能。
+
+239
+00:14:27,400 --> 00:14:31,230
+Because if you improve the performance of something which is already fast,
+因为如果你提高已经很快的东西的性能，
+
+240
+00:14:32,650 --> 00:14:36,730
+not the slowest link on in the chain,
+不是链条中最慢的环节，
+
+241
+00:14:36,950 --> 00:14:41,400
+then the engine performance will not improve much.
+那么引擎性能不会有太大的改善。
+
+242
+00:14:42,360 --> 00:14:46,040
+Remember, the queues are here to absorb the burst.
+记住，队列的作用是吸收突发的任务。
+
+243
+00:14:46,290 --> 00:14:49,680
+The queues is that because the requests are not going,
+队列是因为请求没有进行。
+
+244
+00:14:50,030 --> 00:14:52,680
+where are equally distanced in time?
+在时间上等距离的地方在哪里？
+
+245
+00:14:53,060 --> 00:14:57,720
+They can arrive a in aa bunch of requests at the same time.
+他们可以同时到达一大批请求。
+
+246
+00:14:58,120 --> 00:15:01,830
+The controller cannot settle this bunch of requests at the same time.
+控制器无法同时处理这一批请求。
+
+247
+00:15:02,070 --> 00:15:03,180
+So you need to incure them,
+所以你需要承担它们的费用
+
+248
+00:15:03,190 --> 00:15:04,650
+because if they don't have a queue,
+因为如果他们没有队列，
+
+249
+00:15:04,660 --> 00:15:05,700
+you need to drop on.
+你需要放弃它。
+
+250
+00:15:05,710 --> 00:15:06,540
+The floor is request.
+请按下电梯按钮。
+
+251
+00:15:07,700 --> 00:15:11,760
+You are going to fail satisfying these requests.
+你将无法满足这些要求。
+
+252
+00:15:12,730 --> 00:15:15,920
+And finally, another things we didn't discuss last time,
+最后，还有一些上次我们没有讨论到的事情。
+
+253
+00:15:16,120 --> 00:15:19,310
+it is one other techniques in these kind of systems.
+这是这类系统中的另一种技术。
+
+254
+00:15:19,510 --> 00:15:22,980
+Its the admission control basically says, look,
+这是关于准入控制的基本说法，它的意思是，看，
+
+255
+00:15:22,990 --> 00:15:25,100
+and it's an admission control.
+这是一个入场控制。
+
+256
+00:15:25,110 --> 00:15:27,220
+Why you have a mission control in general,
+为什么一般情况下会有一个任务控制中心？
+
+257
+00:15:27,740 --> 00:15:32,820
+is that you basically admission control say that I refuse to,
+这基本上是说我拒绝接受你的入场控制。
+
+258
+00:15:32,830 --> 00:15:34,900
+i'm telling you this request I cannot handle.
+我告诉你，我无法处理这个请求。
+
+259
+00:15:36,530 --> 00:15:42,240
+So the thread asked wants to submit a request and i'm saying the controller
+所以线程要求提交一个请求，我正在说控制器。
+
+260
+00:15:42,250 --> 00:15:44,210
+or the queue itself,
+或者队列本身，
+
+261
+00:15:44,520 --> 00:15:48,130
+saying I can no longer in queue this request on come later.
+抱歉，我无法再将此请求排队，您可以稍后再来。
+
+262
+00:15:49,920 --> 00:15:55,790
+This also typically happens if we want to ensure to limit to provide
+如果我们想确保限制提供，通常也会发生这种情况。
+
+263
+00:15:55,800 --> 00:15:57,760
+guarantees in terms
+保证条款
+
+264
+00:15:57,770 --> 00:16:00,350
+of the or end to end latency,
+端到端延迟的起始或结束部分
+
+265
+00:16:00,690 --> 00:16:04,700
+of end to end response time in order to provide.
+为了提供端到端响应时间的准确性。
+
+266
+00:16:04,710 --> 00:16:07,900
+So basically saying, if i'm going to accept the request,
+基本上就是说，如果我要接受这个请求，
+
+267
+00:16:07,910 --> 00:16:13,470
+i'm going to guarantee that i'm going to serve this request and say100 millisecond.
+我将保证在100毫秒内完成这个请求。
+
+268
+00:16:14,200 --> 00:16:14,530
+Right?
+对吗？
+
+269
+00:16:15,380 --> 00:16:16,770
+If I cannot,
+如果我不能，
+
+270
+00:16:17,140 --> 00:16:20,350
+I if there is no admission controls and I cannot make that guarantee
+如果没有入场控制，我无法保证。
+
+271
+00:16:20,360 --> 00:16:23,970
+because if there are a a lot of quest coming,
+因为如果有很多问题到来，
+
+272
+00:16:24,350 --> 00:16:26,610
+which is exceeds the capacity of my system,
+这超出了我的系统容量。
+
+273
+00:16:26,620 --> 00:16:31,640
+I cannot guarantee that each request is going to be processed within 100 millisecond.
+我不能保证每个请求都能在100毫秒内处理完成。
+
+274
+00:16:35,430 --> 00:16:36,620
+Admission control.
+入场控制。
+
+275
+00:16:37,010 --> 00:16:40,170
+Place is hand in hand with limiting the delay.
+地点与限制延迟紧密相连。
+
+276
+00:16:41,220 --> 00:16:46,750
+If you want to have guarantees on the end to end delay.
+如果你想要对端到端延迟有保证。
+
+277
+00:16:53,600 --> 00:16:54,370
+Any questions?
+有任何问题吗？
+
+278
+00:17:07,670 --> 00:17:12,830
+Can you give an example from real life where the admission control is employed?
+可以给一个现实生活中使用入场控制的例子吗？
+
+279
+00:17:40,280 --> 00:17:41,680
+Any example,
+任何例子，
+
+280
+00:18:13,130 --> 00:18:15,280
+the red lights on the entrance of the highway?
+高速公路入口处的红灯？
+
+281
+00:18:15,660 --> 00:18:17,650
+That's exactly, that's a great example.
+没错，这是个很好的例子。
+
+282
+00:18:18,660 --> 00:18:19,890
+And real time systems,
+实时系统，
+
+283
+00:18:20,260 --> 00:18:22,850
+although I was that I wouldn't call it real timeline,
+虽然我知道这并不是真正的时间线，但我不会称之为真实的时间线。
+
+284
+00:18:22,860 --> 00:18:25,130
+red lights on the entrance of the highway.
+高速公路入口处的红灯。
+
+285
+00:18:25,580 --> 00:18:26,690
+That's a great example.
+这是一个很好的例子。
+
+286
+00:18:26,700 --> 00:18:29,250
+And there are many other examples, like, for instance,
+还有许多其他的例子，比如，
+
+287
+00:18:29,260 --> 00:18:36,490
+in during when there are more restriction on during covet during the pandemics,
+在疫情期间，对于疫情期间的限制更加严格时，
+
+288
+00:18:37,590 --> 00:18:40,880
+some shops, you limit the number of customers who are inside.
+有些商店会限制店内顾客的数量。
+
+289
+00:18:41,430 --> 00:18:45,430
+So in order to make sure that they can keep distance among themselves,
+为了确保他们能够保持彼此之间的距离，
+
+290
+00:18:45,440 --> 00:18:47,590
+there are even more obvious examples.
+还有更明显的例子。
+
+291
+00:18:47,920 --> 00:18:49,550
+Like when you fly on a plane,
+就像你乘坐飞机时，
+
+292
+00:18:49,560 --> 00:18:50,710
+here is a mission control.
+这是一个任务控制中心。
+
+293
+00:18:50,720 --> 00:18:51,590
+It's your seat, right?
+这是你的座位，对吗？
+
+294
+00:18:51,600 --> 00:18:52,150
+You cannot.
+你不能。
+
+295
+00:18:52,630 --> 00:18:56,950
+It's not like in a bus in which there is no mission control anyone can get in.
+这不像在公交车上，没有任务控制，任何人都可以上车。
+
+296
+00:18:58,580 --> 00:19:00,130
+Ii guess it's a natural one,
+我猜这是一种自然的现象。
+
+297
+00:19:00,420 --> 00:19:02,750
+no longer people who are no longer fit in a bus
+不再适合乘坐公共汽车的人们
+
+298
+00:19:02,760 --> 00:19:06,940
+and that's a natural push back mechanism.
+这是一种自然的反弹机制。
+
+299
+00:19:08,150 --> 00:19:13,130
+But there are many examples in real life when you are having this.
+但在现实生活中有很多例子可以说明这一点。
+
+300
+00:19:13,860 --> 00:19:21,980
+So to speak admission control back like cross white list.
+所谓的准入控制回到了类似于交叉白名单的方式。
+
+301
+00:19:22,310 --> 00:19:23,280
+That's a great one.
+太棒了。
+
+302
+00:19:25,040 --> 00:19:25,810
+Richard, that's great.
+Richard，太棒了。
+
+303
+00:19:27,780 --> 00:19:28,420
+Thank you.
+谢谢你。
+
+304
+00:19:30,740 --> 00:19:32,630
+So any that is performance highest.
+所以任何一个性能最高的。
+
+305
+00:19:32,640 --> 00:19:34,590
+Remember, obviously, one,
+记住，显然，一个，
+
+306
+00:19:34,600 --> 00:19:37,980
+there are sequential reads where and this is sample.
+这里有连续读取的地方，这是一个示例。
+
+307
+00:19:37,990 --> 00:19:42,710
+And we are going to see this is for the next few slides.
+接下来几张幻灯片我们将会看到这个内容。
+
+308
+00:19:43,160 --> 00:19:44,000
+There is another one.
+还有一个。
+
+309
+00:19:44,010 --> 00:19:45,400
+There is so much work.
+工作量真的很大。
+
+310
+00:19:46,530 --> 00:19:48,690
+You get so many requests you can piggyback.
+你收到了很多请求，你可以一起处理。
+
+311
+00:19:49,310 --> 00:19:51,470
+Basically, you can have so many requests,
+基本上，你可以有很多请求，
+
+312
+00:19:51,480 --> 00:19:57,150
+but can the order the request says that you can serve
+但是请求的顺序是否可以决定你能否提供服务？
+
+313
+00:19:57,160 --> 00:19:59,270
+this request much more effectively?
+这个请求更有效吗？
+
+314
+00:20:01,160 --> 00:20:03,350
+We'll see that a lot a in a bit.
+我们一会儿会看到很多这样的事情。
+
+315
+00:20:04,080 --> 00:20:07,610
+Now, if the system is mostly idle,
+现在，如果系统大部分时间处于空闲状态，
+
+316
+00:20:08,560 --> 00:20:10,260
+it's perfectly fine to be inefficient.
+效率低下是完全可以接受的。
+
+317
+00:20:10,270 --> 00:20:11,580
+No one cares, right?
+没人在乎，对吧？
+
+318
+00:20:13,520 --> 00:20:14,830
+And burst.
+并且爆发。
+
+319
+00:20:15,070 --> 00:20:16,470
+This is an important point, right?
+这是一个重要的观点，对吗？
+
+320
+00:20:16,480 --> 00:20:17,770
+When you have a bust,
+当你遇到困境时，
+
+321
+00:20:17,780 --> 00:20:20,630
+meaning that you get more requires and the system can handle.
+意思是你会得到更多的需求，而系统可以处理。
+
+322
+00:20:20,640 --> 00:20:27,420
+So you need to choose us is boss's threat or should be threat there,
+所以你需要选择我们是老板的威胁还是应该威胁我们。
+
+323
+00:20:27,770 --> 00:20:29,520
+because they can increase the latency, right?
+因为它们可以增加延迟，对吗？
+
+324
+00:20:29,880 --> 00:20:31,380
+Because it increases requests.
+因为它增加了请求。
+
+325
+00:20:31,860 --> 00:20:36,290
+But it's also an opportunity because you can do this figure backing you can.
+但这也是一个机会，因为你可以做这个图形的支持。
+
+326
+00:20:36,590 --> 00:20:38,430
+Again, the audience, the request, as we'll see,
+再次强调，观众，请求，正如我们将看到的，
+
+327
+00:20:38,440 --> 00:20:42,760
+in a few slides where you can do batching meetings,
+在几张幻灯片中，您可以进行会议批处理。
+
+328
+00:20:44,230 --> 00:20:45,230
+you can, for instance,
+例如，你可以
+
+329
+00:20:45,240 --> 00:20:46,270
+you have many requests.
+你有很多请求。
+
+330
+00:20:46,280 --> 00:20:49,870
+You can go on context switching or a function calls.
+你可以进行上下文切换或函数调用。
+
+331
+00:20:50,080 --> 00:20:53,950
+You can think about you can do one context switching to handle multiple
+你可以考虑使用上下文切换来处理多个任务。
+
+332
+00:20:53,960 --> 00:20:55,590
+of these requests at the same time.
+同时处理这些请求。
+
+333
+00:20:56,140 --> 00:20:59,130
+You are mortar is a context switching across multiple requests.
+您的意思是"您的砂浆是在多个请求之间进行上下文切换"吗？
+
+334
+00:21:00,460 --> 00:21:03,010
+You can also waste the space for speed.
+你也可以为了速度而浪费空间。
+
+335
+00:21:04,840 --> 00:21:06,630
+For instance, you can,
+例如，你可以，
+
+336
+00:21:09,240 --> 00:21:13,390
+when you write on the disk,
+当你向磁盘写入数据时，
+
+337
+00:21:13,970 --> 00:21:20,020
+like, let's see, what will be a a good examples.
+好的，让我想想，有哪些好的例子呢。
+
+338
+00:21:20,860 --> 00:21:21,890
+You can have,
+你可以拥有，
+
+339
+00:21:22,830 --> 00:21:23,620
+you can have,
+你可以拥有，
+
+340
+00:21:25,310 --> 00:21:26,900
+for instance, for base tables.
+例如，对于基本表。
+
+341
+00:21:27,670 --> 00:21:30,860
+For page tables, you can have additional hash maps,
+对于页表，你可以有额外的哈希映射。
+
+342
+00:21:32,610 --> 00:21:38,330
+which are going to keep in order to locate to map
+为了定位到地图上的位置，需要保留哪些信息？
+
+343
+00:21:40,790 --> 00:21:46,710
+the virtual pages to the page numbers to the physical page numbers.
+将虚拟页映射到页号和物理页号。
+
+344
+00:21:46,970 --> 00:21:51,110
+Another way to do it is to increase the size of the tlb another way
+另一种方法是增加 TLB 的大小。
+
+345
+00:21:51,120 --> 00:21:53,610
+to increase the performance in what you learn in,
+提高你所学习的领域的表现
+
+346
+00:21:53,620 --> 00:21:56,360
+we learn in the past is to increase the cache size.
+我们过去学到的是增加缓存大小。
+
+347
+00:21:57,930 --> 00:22:01,680
+In order to reduce to also improve the performance,
+为了减少并提高性能，
+
+348
+00:22:01,690 --> 00:22:04,880
+but for improve system performance,
+但是为了提高系统性能，
+
+349
+00:22:04,890 --> 00:22:06,000
+program performance,
+程序性能
+
+350
+00:22:06,270 --> 00:22:09,010
+you can also increase the memory size.
+你还可以增加内存大小。
+
+351
+00:22:10,830 --> 00:22:12,740
+There is a ballet anomaly with,
+这里有一个芭蕾舞的异常情况。
+
+352
+00:22:13,100 --> 00:22:18,410
+as you now for a certain a patriots replacement of policies,
+正如你所知，对于某个爱国者政策的替代方案，
+
+353
+00:22:18,890 --> 00:22:21,220
+increasing the size of the memory,
+增加内存的大小
+
+354
+00:22:21,230 --> 00:22:23,560
+of the size of the cash,
+现金的金额大小
+
+355
+00:22:23,770 --> 00:22:28,260
+doesn't necessarily reduce the number of false space faults.
+并不一定减少虚假空间错误的数量。
+
+356
+00:22:28,930 --> 00:22:29,960
+But in general,
+但是一般来说，
+
+357
+00:22:30,350 --> 00:22:34,010
+for many of these pay replacement policy,
+对于许多这些支付替代政策来说，
+
+358
+00:22:34,020 --> 00:22:40,400
+like alu that's increasing the memory size,
+像ALU这样的东西可以增加内存的大小，
+
+359
+00:22:40,730 --> 00:22:46,160
+always, really doesn't will likely decrease,
+总是，真的不太可能减少。
+
+360
+00:22:46,170 --> 00:22:48,560
+most likely will decrease the number of page four.
+很可能会减少第四页的数量。
+
+361
+00:22:49,240 --> 00:22:52,750
+You set a few examples where you can have increase the number of the space
+你可以举几个例子来增加空间的数量。
+
+362
+00:22:52,800 --> 00:22:58,060
+to or increase the space and to improve the speed.
+扩大空间并提高速度。
+
+363
+00:23:00,180 --> 00:23:03,650
+And other techniques are reduced overheads through user level drivers.
+另外一种技术是通过用户级驱动程序减少开销。
+
+364
+00:23:03,660 --> 00:23:06,690
+So basically, if you can implement the function,
+基本上，如果你能实现这个函数，
+
+365
+00:23:06,700 --> 00:23:08,390
+it is a user level,
+这是一个用户级别的操作。
+
+366
+00:23:08,400 --> 00:23:13,320
+you may avoid the context switching because you don't need operating system
+你可以避免上下文切换，因为你不需要操作系统。
+
+367
+00:23:13,550 --> 00:23:15,730
+in order to handle these requests.
+为了处理这些请求。
+
+368
+00:23:18,130 --> 00:23:19,430
+And the other one is,
+另一个是，
+
+369
+00:23:19,440 --> 00:23:20,830
+like I mentioned earlier,
+正如我之前提到的，
+
+370
+00:23:21,040 --> 00:23:22,150
+the overlap.
+重叠。
+
+371
+00:23:22,160 --> 00:23:26,550
+So are you goodbye while you are doing waiting for an hour to complete?
+你是在等一个小时才能完成吗？那么你现在要离开了吗？
+
+372
+00:23:26,840 --> 00:23:28,950
+You are doing the useful of more useful work.
+你正在做更有用的工作。
+
+373
+00:23:28,960 --> 00:23:32,030
+And this can happen in multiple levels.
+这种情况可以发生在多个层次上。
+
+374
+00:23:32,040 --> 00:23:39,910
+It can happen in as your operating system when our operating system on a thread
+当我们的操作系统在一个线程上运行时，这种情况可能会发生。
+
+375
+00:23:39,920 --> 00:23:42,910
+is blog on aiod by on io request,
+这句话的意思是"在IO请求上，通过异步IO进行博客操作"。
+
+376
+00:23:43,290 --> 00:23:45,160
+is going to switch it out.
+将要进行切换。
+
+377
+00:23:45,170 --> 00:23:50,280
+It putting the thread on the waiting queue and is going to schedule.
+它将线程放入等待队列并准备进行调度。
+
+378
+00:23:50,290 --> 00:23:53,160
+The operating system is going to schedule a new thread,
+操作系统将要调度一个新的线程。
+
+379
+00:23:53,600 --> 00:23:55,070
+which is on the ridicule.
+这是荒谬的。
+
+380
+00:23:59,660 --> 00:24:04,960
+So now we are going to look into a beetle into the disk schedule,
+现在我们要研究一下磁盘调度中的一种算法，叫做"beetle"。
+
+381
+00:24:05,950 --> 00:24:06,310
+right?
+对的？
+
+382
+00:24:06,730 --> 00:24:07,750
+The disk, remember,
+磁盘，记住，
+
+383
+00:24:07,760 --> 00:24:09,230
+is quite complicated.
+相当复杂。
+
+384
+00:24:09,630 --> 00:24:11,170
+I do has multiple plates.
+我确实有多个盘子。
+
+385
+00:24:13,810 --> 00:24:16,760
+Each place has two surfaces up, down,
+每个地方有两个表面，上面和下面。
+
+386
+00:24:17,270 --> 00:24:20,490
+and then you have cylinders and sectors.
+然后你有柱面和扇区。
+
+387
+00:24:21,600 --> 00:24:27,390
+So when a request comes in from the operating system to read or write
+当操作系统发出读取或写入请求时
+
+388
+00:24:27,400 --> 00:24:28,310
+on the disk,
+在磁盘上
+
+389
+00:24:28,870 --> 00:24:30,040
+is going to tell you,
+将要告诉你，
+
+390
+00:24:30,050 --> 00:24:34,330
+typically is telling you what is a cylinder, the face,
+通常会告诉你什么是圆柱体、面、
+
+391
+00:24:36,130 --> 00:24:36,840
+the surface,
+表面
+
+392
+00:24:37,570 --> 00:24:39,760
+and what is the second.
+第二个是什么？
+
+393
+00:24:40,520 --> 00:24:40,870
+Right?
+对吗？
+
+394
+00:24:41,530 --> 00:24:42,720
+Here we are talking,
+我们在这里交谈，
+
+395
+00:24:42,730 --> 00:24:44,520
+we are considering a similar example,
+我们正在考虑一个类似的例子，
+
+396
+00:24:44,530 --> 00:24:47,880
+or you have the just a cylinder and the sector.
+或者你只有一个圆柱和扇区。
+
+397
+00:24:49,390 --> 00:24:51,540
+Is this how the request to look like?
+请求是这样的吗？
+
+398
+00:24:52,230 --> 00:24:52,740
+In this case,
+在这种情况下，
+
+399
+00:24:52,750 --> 00:24:55,860
+you have two numbers for it requires a cylinder and the sector.
+你需要提供两个数字，一个是柱面号，另一个是扇区号。
+
+400
+00:24:56,410 --> 00:24:59,890
+The request also is going to specify what is a read and write.
+该请求还将指定什么是读和写操作。
+
+401
+00:25:00,410 --> 00:25:04,510
+And because this is slow,
+而且由于这很慢，
+
+402
+00:25:05,320 --> 00:25:10,600
+more likely you are going to have some requests which are cute.
+更有可能的是，你会收到一些可爱的请求。
+
+403
+00:25:11,120 --> 00:25:11,580
+Okay.
+好的。
+
+404
+00:25:12,730 --> 00:25:14,570
+Now, the interesting aspect here,
+现在，这里的有趣之处是，
+
+405
+00:25:14,580 --> 00:25:17,160
+the requests are, in general, are independent,
+请求通常是独立的。
+
+406
+00:25:17,170 --> 00:25:18,640
+are in general independent.
+一般来说是独立的。
+
+407
+00:25:19,510 --> 00:25:23,890
+So now the question is how you are going to serve this request?
+现在的问题是你打算如何处理这个请求？
+
+408
+00:25:26,400 --> 00:25:27,960
+A simpler story is five,
+一个更简单的故事是五个。
+
+409
+00:25:29,850 --> 00:25:30,050
+right?
+对的吗？
+
+410
+00:25:32,370 --> 00:25:34,890
+You send the request in the order when you arrive.
+您在到达时按顺序发送请求。
+
+411
+00:25:36,670 --> 00:25:41,210
+This is fair among the request that is fair with respect to the order
+这是一个公平的请求，就顺序而言是公平的。
+
+412
+00:25:41,220 --> 00:25:42,650
+in the submit the request.
+在提交请求中。
+
+413
+00:25:43,890 --> 00:25:46,420
+But it can be very long six.
+但是六个可能会很长。
+
+414
+00:25:46,430 --> 00:25:46,940
+Why?
+为了方便中文用户理解和使用，我将英文翻译成中文。这样可以提供更好的帮助和支持。
+
+415
+00:25:47,340 --> 00:25:56,510
+Because the head can go randomly from one cylinder or one track to another.
+因为磁头可以随机地从一个柱面或一个磁道移动到另一个。
+
+416
+00:25:57,310 --> 00:25:57,590
+Right?
+对吗？
+
+417
+00:26:00,730 --> 00:26:05,310
+You don't run that, because you remember the sick time is very expensive,
+你不要运行它，因为你记得生病的时间是非常昂贵的。
+
+418
+00:26:08,580 --> 00:26:10,300
+as well, as, you know,
+同样，就像你知道的那样，
+
+419
+00:26:11,060 --> 00:26:12,100
+rotational latency.
+旋转延迟。
+
+420
+00:26:12,110 --> 00:26:15,760
+So you don't want to go to,
+所以你不想去？
+
+421
+00:26:15,770 --> 00:26:17,360
+do you want to be smarter than that?
+你想比那个更聪明吗？
+
+422
+00:26:17,890 --> 00:26:20,040
+That'll be a smart way to do it, right?
+这是一个明智的做法，对吗？
+
+423
+00:26:20,050 --> 00:26:22,080
+If you want to minimize a sick time,
+如果你想尽量减少生病的时间，
+
+424
+00:26:22,540 --> 00:26:24,010
+why is yourself a request?
+为什么你是一个请求？
+
+425
+00:26:24,640 --> 00:26:26,640
+You are in a certain position on the disk.
+你当前位于磁盘上的某个位置。
+
+426
+00:26:28,150 --> 00:26:31,700
+You want to look in the cure and take the request.
+你想查看疗程并接受请求。
+
+427
+00:26:31,710 --> 00:26:32,780
+It's closest to you,
+它离你最近，
+
+428
+00:26:32,790 --> 00:26:34,460
+because if the request is closest to you,
+因为如果请求离您最近，
+
+429
+00:26:34,470 --> 00:26:35,740
+are going to minimize the sector.
+你们打算将扇区最小化。
+
+430
+00:26:37,370 --> 00:26:39,640
+This is short a 6 time.
+这是第6次短暂的。
+
+431
+00:26:41,300 --> 00:26:41,730
+First, right?
+首先，对吗？
+
+432
+00:26:42,050 --> 00:26:47,110
+You pick the request that it closes to the head on the disk.
+你选择离磁盘头最近的请求进行处理。
+
+433
+00:26:52,330 --> 00:26:53,360
+In general,
+一般来说，
+
+434
+00:26:53,370 --> 00:26:56,400
+you also need to include the rotational delay,
+你还需要考虑旋转延迟。
+
+435
+00:26:57,010 --> 00:26:58,900
+not only the sick time,
+不仅仅是病假时间，
+
+436
+00:26:59,160 --> 00:27:01,770
+but for now, let's simplify it only to sick time.
+但现在，让我们只把它简化为病假时间。
+
+437
+00:27:04,430 --> 00:27:08,320
+So now the sick will reduce the time if you look.
+所以现在如果你看的话，病人的时间会减少。
+
+438
+00:27:08,850 --> 00:27:10,970
+But what is not good?
+但是什么不好？
+
+439
+00:27:10,980 --> 00:27:12,470
+It's got mainly to starvation.
+这主要是由于饥饿引起的。
+
+440
+00:27:12,480 --> 00:27:13,370
+Like, for instance,
+例如，
+
+441
+00:27:13,380 --> 00:27:18,760
+if a lot of requests come and they are clustered close by,
+如果有很多请求同时到达且它们在空间上聚集在一起，
+
+442
+00:27:19,920 --> 00:27:23,370
+then according to these disciplines,
+根据这些规定，
+
+443
+00:27:23,380 --> 00:27:25,270
+you are shorter, sick time.
+你身材较矮，生病时间较长。
+
+444
+00:27:25,280 --> 00:27:28,950
+First, you are going to serve this request and the request,
+首先，您需要处理此请求和请求内容。
+
+445
+00:27:28,960 --> 00:27:30,670
+which is farther a lot,
+哪个更远很多，
+
+446
+00:27:30,960 --> 00:27:32,350
+which is a farmer.
+这是一个农民。
+
+447
+00:27:33,230 --> 00:27:33,790
+Like for instance,
+例如，
+
+448
+00:27:35,200 --> 00:27:36,870
+at the edge of the disk,
+在磁盘的边缘位置，
+
+449
+00:27:38,530 --> 00:27:41,420
+may wait for a long time to be service.
+可能需要很长时间才能得到服务。
+
+450
+00:27:44,120 --> 00:27:44,520
+Make sense?
+有意义吗？
+
+451
+00:27:44,530 --> 00:27:46,530
+So you're downtown that.
+所以你在市中心那里。
+
+452
+00:27:46,540 --> 00:27:48,000
+So again,
+所以再次，
+
+453
+00:27:48,330 --> 00:27:50,730
+greater very sick time, but it's unfair.
+非常不幸，生病的时间更长了，但这是不公平的。
+
+454
+00:27:51,540 --> 00:27:52,470
+Can cause salvation.
+可以带来拯救。
+
+455
+00:27:54,630 --> 00:27:56,460
+One solution to that is cap.
+其中一个解决方案是使用容量限制。
+
+456
+00:27:58,000 --> 00:27:59,240
+It's a pretty nice solution.
+这是一个相当不错的解决方案。
+
+457
+00:27:59,620 --> 00:28:00,850
+These are what you see here.
+这些是你在这里看到的。
+
+458
+00:28:00,860 --> 00:28:02,830
+These numbers think about.
+这些数字让人思考。
+
+459
+00:28:02,840 --> 00:28:04,680
+These are trucks or cylinders.
+这些是卡车或圆柱体。
+
+460
+00:28:06,800 --> 00:28:07,050
+Right?
+对吗？
+
+461
+00:28:07,060 --> 00:28:09,170
+A cylinder is all the tracks,
+一个柱面是所有的磁道，
+
+462
+00:28:09,900 --> 00:28:12,740
+which are under the heads on different bladders.
+这些位于不同膀胱上的头部下方。
+
+463
+00:28:12,750 --> 00:28:18,450
+So scan is basically you start going into one direction,
+扫描基本上是你开始朝一个方向前进，
+
+464
+00:28:18,720 --> 00:28:23,110
+either to the issues of the disk or to the inside of the disk.
+可能是与磁盘的问题有关，也可能是与磁盘内部有关。
+
+465
+00:28:23,970 --> 00:28:30,020
+You are only going to set the request in the direction you are going.
+你只需要将请求设置为你要前往的方向。
+
+466
+00:28:31,710 --> 00:28:32,050
+Right?
+对吗？
+
+467
+00:28:33,190 --> 00:28:34,900
+You send the request on, say,
+你可以将请求发送出去，比如说，
+
+468
+00:28:34,910 --> 00:28:36,180
+track 53.
+第53轨道。
+
+469
+00:28:36,990 --> 00:28:40,100
+Then you look in the queue and you have multiple requests,
+然后你查看队列，发现有多个请求。
+
+470
+00:28:40,110 --> 00:28:45,200
+say you pick the one which is closest to you in the direction you are going
+选择离你当前行进方向最近的一个。
+
+471
+00:28:45,210 --> 00:28:46,600
+is 3037.
+是3037。
+
+472
+00:28:47,360 --> 00:28:49,770
+Then the next one,
+接下来的一个是，
+
+473
+00:28:50,370 --> 00:28:51,890
+it's 14 and so forth.
+这是14，等等。
+
+474
+00:28:51,900 --> 00:28:53,890
+And in these times, for instance,
+在这些时候，例如，
+
+475
+00:28:54,500 --> 00:28:57,850
+if when yourself the request 53,
+如果当你自己请求53时，
+
+476
+00:28:58,600 --> 00:29:00,360
+you get the request 65.
+你收到了请求 65。
+
+477
+00:29:01,080 --> 00:29:04,980
+This is closest to you according to the shelter 6 time first yourself,
+根据庇护所的时间表，这是离你最近的时间。请先自己确认一下。
+
+478
+00:29:04,990 --> 00:29:05,860
+this request,
+这个请求，
+
+479
+00:29:07,850 --> 00:29:13,050
+because it's not in the request on track 65 is not in the direction
+因为在轨道65上的请求没有在指定的方向上。
+
+480
+00:29:13,060 --> 00:29:13,890
+of your movement.
+您的移动方式。
+
+481
+00:29:14,280 --> 00:29:15,400
+You are going to ignore it.
+你将会忽略它。
+
+482
+00:29:17,470 --> 00:29:21,690
+You go until the last request in your direction,
+你一直进行，直到你所负责的最后一个请求。
+
+483
+00:29:21,700 --> 00:29:23,170
+and then after reverse,
+然后在反转之后，
+
+484
+00:29:26,710 --> 00:29:28,820
+here, I say, no starvation,
+我在这里说，没有饥饿现象。
+
+485
+00:29:28,830 --> 00:29:32,100
+but still retain a flavor of shortest 6 times.
+但仍保留了最短的6倍的特点。
+
+486
+00:29:32,110 --> 00:29:32,460
+First.
+首先。
+
+487
+00:29:32,530 --> 00:29:33,150
+Why is that?
+为什么这样做呢？
+
+488
+00:29:34,480 --> 00:29:35,560
+Tell me why is that?
+告诉我为什么会这样？
+
+489
+00:29:36,730 --> 00:29:40,260
+Why do we still have a problem with this one with cap?
+为什么我们在这个带有容量限制的问题上仍然存在困扰？
+
+490
+00:29:44,870 --> 00:29:45,420
+By the way,
+顺便说一下，
+
+491
+00:29:46,510 --> 00:29:47,900
+it's called elevator algorithm.
+它被称为电梯算法。
+
+492
+00:29:53,420 --> 00:29:57,980
+Can you think about that scan?
+你能考虑一下那个扫描吗？
+
+493
+00:29:58,460 --> 00:30:00,640
+Excavate any unfairness.
+挖掘出任何不公平之处。
+
+494
+00:30:04,340 --> 00:30:04,950
+And why?
+为什么？
+
+495
+00:30:04,960 --> 00:30:05,230
+If
+如果
+
+496
+00:30:25,770 --> 00:30:28,520
+I listen to say you may never embarrasses,
+我听说你可能从不尴尬
+
+497
+00:30:28,750 --> 00:30:31,080
+does keep arriving at the same spot.
+不断到达相同的位置。
+
+498
+00:30:31,090 --> 00:30:33,570
+So basically on the same track, that's true.
+基本上是在同一个轨道上，没错。
+
+499
+00:30:33,580 --> 00:30:36,560
+That's a pretty edge case.
+这是一个非常特殊的情况。
+
+500
+00:30:39,140 --> 00:30:40,170
+It's a good asset,
+这是一个很好的资产。
+
+501
+00:30:40,180 --> 00:30:41,370
+but it's a little bit edge.
+但这有点边缘。
+
+502
+00:30:41,380 --> 00:30:49,120
+What else can you think about some other requests which will get preferential
+还有哪些其他请求可能会得到优先处理？
+
+503
+00:30:49,130 --> 00:30:56,330
+treatment if they are in some region of the disk versus others.
+对于磁盘的不同区域，它们的处理方式也会有所不同。
+
+504
+00:31:11,840 --> 00:31:13,590
+Carol, ask a question,
+Carol，你有问题吗？
+
+505
+00:31:13,600 --> 00:31:16,270
+how do we define the initial direction for a scan?
+我们如何定义扫描的初始方向？
+
+506
+00:31:19,420 --> 00:31:21,500
+I guess I it's a good question.
+我猜这是一个很好的问题。
+
+507
+00:31:21,510 --> 00:31:24,270
+I think ii don't know,
+我想我不知道。
+
+508
+00:31:24,280 --> 00:31:25,470
+but I don't think it matters.
+但我认为这并不重要。
+
+509
+00:31:25,940 --> 00:31:26,650
+You can,
+你可以。
+
+510
+00:31:27,220 --> 00:31:31,390
+you can choose any anyone initially?
+你可以最初选择任何一个吗？
+
+511
+00:31:37,690 --> 00:31:38,270
+Yeah.
+是的。
+
+512
+00:31:40,470 --> 00:31:42,540
+There is more data on the outer rings.
+外环上有更多的数据。
+
+513
+00:31:42,550 --> 00:31:43,460
+So traveling,
+旅行，
+
+514
+00:31:45,750 --> 00:31:46,580
+it's favored.
+它受到青睐。
+
+515
+00:31:47,640 --> 00:31:47,650
+Yeah,
+是的，
+
+516
+00:31:48,240 --> 00:31:49,100
+you are, right?
+是的，我是。
+
+517
+00:31:49,690 --> 00:31:51,130
+It's like, let me see.
+就像，让我看看。
+
+518
+00:31:51,140 --> 00:31:52,580
+It's also a question here.
+这里也有一个问题。
+
+519
+00:31:55,820 --> 00:31:56,890
+It's the same question.
+这是同一个问题。
+
+520
+00:31:57,150 --> 00:31:59,210
+So carl, it's, again, the answer to your question.
+所以卡尔，这是你的问题的答案。
+
+521
+00:31:59,220 --> 00:32:00,710
+I already find the initial directions.
+我已经找到了初始的指示。
+
+522
+00:32:01,790 --> 00:32:03,140
+I think it doesn't matter.
+我认为这没关系。
+
+523
+00:32:03,450 --> 00:32:04,410
+You can,
+你可以。
+
+524
+00:32:06,020 --> 00:32:07,530
+but I I do not know,
+但是我不知道。
+
+525
+00:32:07,540 --> 00:32:09,010
+and I don't see a reason.
+我看不出有任何理由。
+
+526
+00:32:09,620 --> 00:32:10,930
+So that's very important.
+所以这非常重要。
+
+527
+00:32:13,930 --> 00:32:15,210
+Going back now,
+现在返回，
+
+528
+00:32:15,940 --> 00:32:20,910
+it is going back about when this scan is not fair.
+当这个扫描不公平时，它会退回去。
+
+529
+00:32:21,490 --> 00:32:22,980
+So hearing one is not fair,
+所以听一个是不公平的，
+
+530
+00:32:23,950 --> 00:32:33,060
+which requests are fate out of for each request,
+每个请求中有哪些是命运的？
+
+531
+00:32:33,990 --> 00:32:37,250
+thus can provide advantage, favor them.
+因此可以提供优势，对他们有利。
+
+532
+00:32:45,650 --> 00:32:47,670
+So here the request in the middle,
+所以在这里是请求的中间部分，
+
+533
+00:32:49,870 --> 00:32:51,990
+you get quicker to the request in the middle.
+你在中间的请求上更快地响应。
+
+534
+00:32:53,730 --> 00:32:54,170
+Right?
+对吗？
+
+535
+00:32:55,380 --> 00:32:57,450
+Like, for instance, I can't go to a request.
+比如，我无法处理一个请求。
+
+536
+00:32:57,460 --> 00:33:02,310
+I say it takes1 million seconds to go from one and to another.
+我说从一个地方到另一个地方需要100万秒。
+
+537
+00:33:03,220 --> 00:33:03,580
+Right?
+对吗？
+
+538
+00:33:04,460 --> 00:33:06,920
+If I missed a request, arrives here,
+如果我错过了一个请求，它会到达这里。
+
+539
+00:33:07,890 --> 00:33:14,570
+just after the scan has passed in that direction, just I missed it.
+就在扫描朝那个方向通过后，我刚刚错过了它。
+
+540
+00:33:15,980 --> 00:33:18,570
+I say, goes 0.5 million seconds to one.
+我说，0.5百万秒等于多少。
+
+541
+00:33:18,900 --> 00:33:22,130
+And I know it turns 0.5 million seconds to come to me.
+我知道它需要500,000秒才能到达我这里。
+
+542
+00:33:23,210 --> 00:33:24,590
+I wait for 1 millisecond.
+我等待1毫秒。
+
+543
+00:33:25,480 --> 00:33:27,620
+But if this happens when i'm at the edge,
+但如果这发生在我处于边缘的时候，
+
+544
+00:33:29,490 --> 00:33:37,640
+so I just missed the hat which now goes towards the inside of the disk,
+所以我刚刚错过了帽子，现在它朝向磁盘的内部。
+
+545
+00:33:38,400 --> 00:33:40,120
+then you have to wait for 2 millisecond.
+那么你需要等待2毫秒。
+
+546
+00:33:41,010 --> 00:33:43,640
+Need to wait 1 millisecond to go all the way to the inside
+需要等待1毫秒才能完全进入内部。
+
+547
+00:33:43,650 --> 00:33:45,080
+and 1 millisecond to go back.
+并且需要1毫秒返回。
+
+548
+00:33:46,310 --> 00:33:48,230
+Again, I am over simplifying things here,
+再次强调，我在这里过于简化了事情。
+
+549
+00:33:48,240 --> 00:33:49,750
+but just give you a sense.
+但只是给你一个概念。
+
+550
+00:33:50,110 --> 00:33:54,670
+So scan favors the request which are in the middle,
+因此，扫描算法更倾向于处理位于中间的请求。
+
+551
+00:33:58,390 --> 00:33:58,750
+right?
+对的？
+
+552
+00:33:58,760 --> 00:34:01,990
+And not the request which are at the edges.
+而不是位于边缘的请求。
+
+553
+00:34:02,980 --> 00:34:04,610
+What is the solution here?
+这里的解决方案是什么？
+
+554
+00:34:04,620 --> 00:34:07,530
+While the solution is circular scan or the sea scan?
+解决方案是循环扫描还是海扫描？
+
+555
+00:34:08,410 --> 00:34:11,100
+This basically just go one direction.
+这基本上只是朝一个方向前进。
+
+556
+00:34:13,110 --> 00:34:14,250
+So say, go always,
+所以说，继续前进，
+
+557
+00:34:15,300 --> 00:34:17,410
+you sell the request only in one direction.
+你只提供单向的请求。
+
+558
+00:34:18,180 --> 00:34:19,530
+When you are done,
+完成后，
+
+559
+00:34:20,740 --> 00:34:25,890
+results immediately go to all the other age and start serving them again.
+结果立即传递给所有其他年龄段，并重新开始为它们提供服务。
+
+560
+00:34:31,140 --> 00:34:32,810
+That's kind of what it is.
+这有点像是这样的。
+
+561
+00:34:34,310 --> 00:34:36,550
+But I say, if I missed, if I request,
+但是我说，如果我错过了，如果我请求，
+
+562
+00:34:36,870 --> 00:34:39,870
+I just misses the head.
+我刚刚错过了头部。
+
+563
+00:34:40,370 --> 00:34:42,270
+No matter what the request is,
+无论请求是什么，
+
+564
+00:34:43,170 --> 00:34:43,900
+on the average,
+平均而言，
+
+565
+00:34:43,910 --> 00:34:48,830
+is going to wait for the same time for the hat to come to be back,
+将等待相同的时间，直到帽子回来。
+
+566
+00:34:48,840 --> 00:34:49,510
+to be self.
+成为自我。
+
+567
+00:34:54,850 --> 00:34:57,040
+This is not biased towards the pages in the middle.
+这不对中间的页面有偏见。
+
+568
+00:35:02,730 --> 00:35:08,260
+Finally, I mentioned that you can hide the latency.
+最后，我提到你可以隐藏延迟。
+
+569
+00:35:10,250 --> 00:35:14,120
+How do you hide the io latency?
+如何隐藏IO延迟？
+
+570
+00:35:14,680 --> 00:35:17,490
+If the blocking interface is a way to already discussed,
+如果阻塞接口已经讨论过的话，
+
+571
+00:35:17,500 --> 00:35:18,530
+you have a block,
+你有一个块。
+
+572
+00:35:18,540 --> 00:35:19,690
+read and write,
+读和写
+
+573
+00:35:20,520 --> 00:35:22,900
+system call, you put process operating system,
+系统调用，是将进程操作系统的一种方式。
+
+574
+00:35:22,910 --> 00:35:27,450
+put processors to sleep until the data is ready.
+将处理器置于休眠状态，直到数据准备就绪。
+
+575
+00:35:27,710 --> 00:35:30,250
+The request is served.
+请求已处理。
+
+576
+00:35:30,990 --> 00:35:32,230
+And during this time,
+在此期间，
+
+577
+00:35:32,240 --> 00:35:34,110
+the operating system schedules,
+操作系统进行调度，
+
+578
+00:35:34,850 --> 00:35:36,320
+tasks already tasks,
+任务已经完成。
+
+579
+00:35:38,040 --> 00:35:43,880
+which out of can use acpu non blocking interfaces?
+哪些接口可以使用非阻塞方式使用CPU？
+
+580
+00:35:43,890 --> 00:35:44,600
+Don't wait.
+不要等待。
+
+581
+00:35:44,930 --> 00:35:46,400
+Basically, this, you remember,
+基本上，这个，你记得的，
+
+582
+00:35:46,410 --> 00:35:52,680
+this is a interface in which are just going to issues and requests.
+这是一个界面，只用于发布问题和请求。
+
+583
+00:35:53,510 --> 00:35:56,420
+But then returns immediately.
+但是立即返回。
+
+584
+00:35:58,890 --> 00:36:01,550
+You just after you return, you do something else.
+你刚回来后，你可以做其他事情。
+
+585
+00:36:03,530 --> 00:36:03,920
+Right?
+对吗？
+
+586
+00:36:04,690 --> 00:36:09,270
+Then later you need to go and see whether you got the data or
+然后稍后你需要去查看你是否收到了数据。
+
+587
+00:36:13,370 --> 00:36:15,080
+you wrote the data to the canon.
+你将数据写入了佳能相机。
+
+588
+00:36:16,700 --> 00:36:19,010
+I synchronous interface is stimulated.
+同步接口被激活。
+
+589
+00:36:20,540 --> 00:36:22,940
+Again, it's like in the non blocking interface,
+再次强调，就像在非阻塞接口中一样，
+
+590
+00:36:23,670 --> 00:36:26,780
+it returns immediately the request,
+它立即返回请求。
+
+591
+00:36:26,790 --> 00:36:28,380
+because in this case, for instance,
+因为在这种情况下，例如，
+
+592
+00:36:28,390 --> 00:36:29,620
+when you get the data,
+当你获取到数据时，
+
+593
+00:36:29,870 --> 00:36:30,910
+you allocate the buffer,
+你分配缓冲区，
+
+594
+00:36:30,920 --> 00:36:33,010
+you give the pointer as a buffer.
+你将指针作为缓冲区。
+
+595
+00:36:33,290 --> 00:36:34,870
+And there is a operating system,
+还有一个操作系统，
+
+596
+00:36:34,880 --> 00:36:39,640
+basically put the data when available starting from this pointer,
+基本上，从这个指针开始，将数据放入当数据可用时。
+
+597
+00:36:40,750 --> 00:36:41,590
+right in the buffer.
+在缓冲区中。
+
+598
+00:36:43,240 --> 00:36:47,480
+And then let me know when you send the data is the same.
+然后在你发送数据时，请告诉我数据是否相同。
+
+599
+00:36:48,150 --> 00:36:48,470
+Right?
+对吗？
+
+600
+00:36:48,480 --> 00:36:51,280
+You are going to create a buffer.
+你将要创建一个缓冲区。
+
+601
+00:36:51,290 --> 00:36:52,400
+You are going there,
+你要去那里。
+
+602
+00:36:52,410 --> 00:36:53,560
+you are going to want,
+你会想要的。
+
+603
+00:36:54,010 --> 00:36:57,120
+you are where you put the data or you want to send,
+你是指你想要存储或发送数据的位置吗？
+
+604
+00:36:57,580 --> 00:37:03,660
+then you give to the kernel to the os in the right operation,
+然后你将正确的操作传递给操作系统的内核。
+
+605
+00:37:03,670 --> 00:37:04,740
+in the right system call,
+在正确的系统调用中，
+
+606
+00:37:04,750 --> 00:37:10,000
+you gives a pointer of the buffer you want to be transferred.
+你提供了一个要传输的缓冲区的指针。
+
+607
+00:37:21,970 --> 00:37:25,910
+So now recall the entire era here for the aisle.
+现在回忆一下整个时代，为过道做准备。
+
+608
+00:37:28,210 --> 00:37:29,780
+This is a top part,
+这是一个顶部部分。
+
+609
+00:37:30,160 --> 00:37:31,630
+a which appraisal pre,
+一项评估前的准备工作
+
+610
+00:37:31,640 --> 00:37:38,340
+which provides api and the abstraction to the applications.
+它提供了应用程序的API和抽象层。
+
+611
+00:37:39,040 --> 00:37:41,440
+Whether it's streams or it's a block,
+无论是流还是块，
+
+612
+00:37:42,250 --> 00:37:46,450
+api plus the system calls open,
+API加上系统调用open，
+
+613
+00:37:46,690 --> 00:37:48,050
+read, write, and clouds.
+读取、写入和云存储。
+
+614
+00:37:49,970 --> 00:37:52,200
+Then at the bottom were so covered.
+然后底部被完全覆盖了。
+
+615
+00:37:52,210 --> 00:37:52,800
+Last time.
+上次。
+
+616
+00:37:52,810 --> 00:37:55,600
+This is about aisle drivers, controllers, right?
+是的，这是关于过道驱动程序和控制器的问题。
+
+617
+00:37:56,010 --> 00:37:59,360
+These are the drivers which are interacting with the physical device.
+这些是与物理设备进行交互的驱动程序。
+
+618
+00:37:59,710 --> 00:38:02,480
+Read and write the data to the physical device.
+将数据读取和写入物理设备。
+
+619
+00:38:03,970 --> 00:38:08,520
+The middle is a system which kind of makes a conversion, in some sense,
+中间是一种系统，从某种意义上说，它进行了一种转换。
+
+620
+00:38:08,530 --> 00:38:14,450
+from the api which is provided to the application by the operating system.
+通过操作系统提供给应用程序的API。
+
+621
+00:38:14,850 --> 00:38:17,510
+And the api of the aisle driver,
+走廊驱动程序的API
+
+622
+00:38:18,040 --> 00:38:20,150
+which is a block interface in general,
+一般情况下，块接口是什么？
+
+623
+00:38:23,210 --> 00:38:24,280
+more precisely,
+更准确地说，
+
+624
+00:38:24,510 --> 00:38:27,720
+for the api for the higher level for the application.
+用于应用程序的更高级别的API。
+
+625
+00:38:28,260 --> 00:38:34,910
+You typically have a variable size buffer for the file system,
+通常情况下，文件系统会使用可变大小的缓冲区。
+
+626
+00:38:35,580 --> 00:38:37,160
+which are going to talk more about this.
+将要更多地讨论这个话题。
+
+627
+00:38:37,170 --> 00:38:39,510
+You are going to have blocks,
+你将会拥有一些数据块。
+
+628
+00:38:39,520 --> 00:38:41,510
+but the blocks are logically indexed.
+但是这些块是逻辑上索引的。
+
+629
+00:38:41,520 --> 00:38:43,710
+These are where the data is stored,
+这些是数据存储的位置，
+
+630
+00:38:44,530 --> 00:38:44,740
+right?
+对的？
+
+631
+00:38:44,750 --> 00:38:45,980
+Logically indexed,
+逻辑索引化
+
+632
+00:38:45,990 --> 00:38:51,660
+meaning that the index in the operating system is not the same index,
+意思是操作系统中的索引与原索引不同。
+
+633
+00:38:52,140 --> 00:38:56,690
+which of that block on the physical device.
+这个块位于物理设备上的哪个位置？
+
+634
+00:38:58,660 --> 00:39:02,310
+This is done by the harder device and by their controllers,
+这是由更复杂的设备和它们的控制器完成的。
+
+635
+00:39:02,870 --> 00:39:04,840
+mapping from this block device,
+从这个块设备的映射
+
+636
+00:39:04,850 --> 00:39:07,750
+from the operating system to the blocks,
+从操作系统到块
+
+637
+00:39:07,760 --> 00:39:10,840
+all the sectors on the harvey stripes.
+哈维条纹上的所有扇区。
+
+638
+00:39:11,390 --> 00:39:15,620
+Remember that the blocks in the operating system are typically have
+请记住，操作系统中的块通常是具有以下特点的：
+
+639
+00:39:16,000 --> 00:39:18,790
+like 20 four kilobytes.
+像是20个四千字节。
+
+640
+00:39:19,850 --> 00:39:23,510
+And sectors on the hardest drives are smaller.
+硬盘上的扇区更小。
+
+641
+00:39:23,940 --> 00:39:26,250
+There are 512 bytes.
+有512字节。
+
+642
+00:39:26,640 --> 00:39:31,110
+So you have typical, you can have eight sectors for each,
+所以你有典型的情况，每个可以有八个扇区。
+
+643
+00:39:31,840 --> 00:39:33,680
+but a block requires eight sectors.
+但是一个块需要八个扇区。
+
+644
+00:39:35,470 --> 00:39:37,150
+And you have an ssd you remember,
+你有一个固态硬盘，你记得吗？
+
+645
+00:39:37,160 --> 00:39:39,270
+you have these flash translation layers,
+你有这些闪存转换层。
+
+646
+00:39:39,630 --> 00:39:44,410
+which again, maps a logical index of the blocks to the physical blocks.
+再次，它将块的逻辑索引映射到物理块。
+
+647
+00:39:46,500 --> 00:39:49,710
+That's pretty much what you have and also have your asian pages.
+这基本上就是你所拥有的，还有你的亚洲页面。
+
+648
+00:39:55,340 --> 00:39:58,570
+Let's look, now we are going to start looking more a little bit,
+让我们来看看，现在我们要开始更仔细地看一下，
+
+649
+00:39:58,580 --> 00:40:00,190
+more depths to the file system.
+更深入的文件系统。
+
+650
+00:40:02,120 --> 00:40:04,670
+One way to define it, like I mentioned,
+一种定义它的方法，就像我之前提到的，
+
+651
+00:40:04,680 --> 00:40:12,620
+it's a layer of the operating system that maps is
+这是操作系统的一层，用于映射
+
+652
+00:40:12,630 --> 00:40:15,500
+the api provided to the application,
+提供给应用程序的API
+
+653
+00:40:15,510 --> 00:40:16,860
+which is files,
+这是文件。
+
+654
+00:40:16,870 --> 00:40:18,140
+directories,
+目录
+
+655
+00:40:18,480 --> 00:40:21,700
+a stream of bytes into lower level,
+将字节流转换为较低级别的数据
+
+656
+00:40:21,710 --> 00:40:24,100
+api of the io devices,
+输入/输出设备的API
+
+657
+00:40:24,110 --> 00:40:26,060
+which is a block interface.
+这是一个块接口。
+
+658
+00:40:29,380 --> 00:40:30,900
+There are a few things here.
+这里有几件事情。
+
+659
+00:40:31,690 --> 00:40:33,760
+This needs to be done the operating system.
+这需要在操作系统中完成。
+
+660
+00:40:34,890 --> 00:40:36,800
+And that's naming,
+这就是命名。
+
+661
+00:40:38,310 --> 00:40:40,830
+you need to find file by name.
+你需要根据文件名查找文件。
+
+662
+00:40:40,840 --> 00:40:46,060
+You don't give to the osa block where the data is.
+你没有给出数据所在的osa块。
+
+663
+00:40:47,400 --> 00:40:55,630
+You let operating system worry about mapping between the file name and the block.
+你让操作系统来处理文件名和块之间的映射。
+
+664
+00:40:57,100 --> 00:40:58,810
+This is part of the organization.
+这是组织的一部分。
+
+665
+00:40:58,820 --> 00:41:04,970
+Also part of the organization is about the file names are typically within directories.
+组织的一部分还涉及文件名通常位于目录中。
+
+666
+00:41:05,980 --> 00:41:09,150
+So you need also to locate the file name within a particular directory,
+所以你还需要在特定目录中定位文件名。
+
+667
+00:41:12,120 --> 00:41:13,720
+also need to provide protection.
+还需要提供保护措施。
+
+668
+00:41:14,650 --> 00:41:16,280
+We enforce access restriction.
+我们执行访问限制。
+
+669
+00:41:16,290 --> 00:41:17,120
+When do you do that?
+你什么时候做那件事？
+
+670
+00:41:17,130 --> 00:41:18,160
+When you open the file?
+你什么时候打开这个文件？
+
+671
+00:41:18,170 --> 00:41:18,760
+Typically?
+通常情况下？
+
+672
+00:41:20,010 --> 00:41:21,230
+Those finally reliability,
+最终的可靠性，
+
+673
+00:41:21,240 --> 00:41:25,120
+why do you still store the data on the disk?
+为什么你们仍然将数据存储在磁盘上？
+
+674
+00:41:25,950 --> 00:41:28,490
+Because it's durable.
+因为它耐用。
+
+675
+00:41:29,040 --> 00:41:35,550
+You want to survive data to survive when there are crashes or when
+当发生崩溃或断电时，您希望数据能够存活下来。
+
+676
+00:41:35,560 --> 00:41:37,800
+your laptop is followed out.
+你的笔记本电脑坏了。
+
+677
+00:41:42,230 --> 00:41:45,970
+So from the user perspective,
+从用户的角度来看，
+
+678
+00:41:45,980 --> 00:41:51,130
+then I have some data structures which I want to restore
+那么我有一些数据结构需要恢复
+
+679
+00:41:51,140 --> 00:41:53,050
+those data structure beautifully.
+那些数据结构设计得非常优雅。
+
+680
+00:41:54,650 --> 00:41:56,100
+That's what I want as a user.
+作为用户，这正是我想要的。
+
+681
+00:41:58,050 --> 00:41:59,490
+That was a file system.
+那是一个文件系统。
+
+682
+00:41:59,500 --> 00:42:00,650
+I should offer me.
+我应该提供自己。
+
+683
+00:42:03,820 --> 00:42:05,470
+Now, from the system views,
+现在，从系统的角度来看，
+
+684
+00:42:07,230 --> 00:42:09,980
+i'm talking here about the call interface.
+我在这里谈论的是调用接口。
+
+685
+00:42:10,880 --> 00:42:18,310
+The api is the boundary of the boundary between the operating system and
+API是操作系统和应用程序之间的边界。
+
+686
+00:42:18,930 --> 00:42:22,210
+the user face.
+用户界面。
+
+687
+00:42:23,910 --> 00:42:30,190
+The system sees what it doesn't have any idea about what data structure
+系统看到了它对数据结构一无所知
+
+688
+00:42:30,200 --> 00:42:31,510
+the application has.
+该应用程序具有。
+
+689
+00:42:32,430 --> 00:42:36,140
+It just see a bunch of bites,
+它只是看到一堆字节。
+
+690
+00:42:37,000 --> 00:42:38,280
+a collection of bites,
+一组字节
+
+691
+00:42:39,300 --> 00:42:42,850
+the system of then it has needs to take this collection of bytes,
+然后系统需要将这些字节进行处理。
+
+692
+00:42:42,860 --> 00:42:48,140
+this bunch of bytes and write them on the this device,
+将这一串字节写入该设备。
+
+693
+00:42:48,150 --> 00:42:51,030
+on the device hardest drive.
+在设备的硬盘上。
+
+694
+00:42:54,830 --> 00:42:57,750
+Then the system view that it's inside the kernel.
+然后系统视图是在内核中。
+
+695
+00:42:57,760 --> 00:43:01,660
+This is the one which interfaces to the devices.
+这是与设备进行接口的部分。
+
+696
+00:43:02,510 --> 00:43:04,780
+It takes a collection of block,
+它接受一个块的集合。
+
+697
+00:43:05,450 --> 00:43:07,350
+and it sees a collection of,
+它看到了一组，
+
+698
+00:43:07,360 --> 00:43:12,750
+instead of takes a collection of bytes and map them to a collection of blocks.
+不再接收一系列字节并将其映射为一系列块。
+
+699
+00:43:13,190 --> 00:43:16,200
+The collection of blocks are still logically identified.
+这些块的集合仍然在逻辑上被标识。
+
+700
+00:43:18,060 --> 00:43:18,980
+Logically, again,
+再次逻辑上来说，
+
+701
+00:43:18,990 --> 00:43:24,950
+means that is either identification is not the physical identification,
+意味着身份识别不是指物理识别，
+
+702
+00:43:25,300 --> 00:43:28,090
+or these blocks are on the disk.
+或者这些块在磁盘上。
+
+703
+00:43:36,420 --> 00:43:37,530
+And like I mentioned,
+正如我之前提到的，
+
+704
+00:43:37,540 --> 00:43:40,730
+the block size is typically greater than sector size.
+块大小通常大于扇区大小。
+
+705
+00:43:43,110 --> 00:43:45,660
+Let's see what happens when, for instance,
+让我们看看当某种情况发生时会发生什么，例如，
+
+706
+00:43:47,470 --> 00:43:51,040
+the user says to the operating system,
+用户对操作系统说，
+
+707
+00:43:51,050 --> 00:43:57,050
+I want buys between 2 and 12 from this file.
+我想从这个文件中购买2到12之间的物品。
+
+708
+00:44:02,360 --> 00:44:06,530
+The operating system has to face the block corresponding to those bytes,
+操作系统必须面对与这些字节对应的块。
+
+709
+00:44:07,560 --> 00:44:12,440
+and just returns the correct portion to the operating system to the application.
+并且只将正确的部分返回给操作系统，再返回给应用程序。
+
+710
+00:44:14,240 --> 00:44:18,290
+What about on the right by two between two and 12?
+在右边，从2到12之间的位置呢？
+
+711
+00:44:19,030 --> 00:44:20,950
+You fetch the block from the disk.
+你从磁盘中获取数据块。
+
+712
+00:44:20,960 --> 00:44:23,030
+You modify the relevant portion,
+你需要修改相关部分，
+
+713
+00:44:23,040 --> 00:44:25,330
+and you write down the block, the block.
+你把块写下来，块。
+
+714
+00:44:25,340 --> 00:44:28,260
+So you take for writing these 10 bytes,
+所以你需要写入这10个字节，
+
+715
+00:44:28,830 --> 00:44:29,790
+you get the block,
+你获得了这个块。
+
+716
+00:44:31,990 --> 00:44:33,390
+which is four kilobytes,
+这是四千字节。
+
+717
+00:44:34,400 --> 00:44:35,950
+update these 10 bytes,
+更新这10个字节。
+
+718
+00:44:36,420 --> 00:44:38,170
+and then ride back the four kilobytes.
+然后将四千字节的数据传送回来。
+
+719
+00:44:41,390 --> 00:44:47,480
+So every sink between the operating system and the devices is a block ground.
+所以操作系统和设备之间的每个接口都是一个块接地。
+
+720
+00:44:50,100 --> 00:44:50,500
+Large.
+大的。
+
+721
+00:44:50,920 --> 00:44:59,370
+Therefore, if you you all always are going to pay the overhead of reading
+因此，如果你们总是要承担阅读的开销
+
+722
+00:44:59,380 --> 00:45:02,000
+and writing blocks as a blog analytic.
+并将写作块作为博客分析。
+
+723
+00:45:08,090 --> 00:45:14,970
+So let's it's again a file system.
+所以让我们再来说一下文件系统。
+
+724
+00:45:14,980 --> 00:45:17,370
+You have directories and files.
+你有目录和文件。
+
+725
+00:45:18,470 --> 00:45:23,080
+Director, you can think about that the user visible index,
+主管，您可以考虑一下用户可见的索引，
+
+726
+00:45:25,400 --> 00:45:27,230
+mapping names to files.
+将名称映射到文件。
+
+727
+00:45:28,340 --> 00:45:34,400
+And the disk is just a linear of array of sectors.
+而磁盘只是一个扇区的线性数组。
+
+728
+00:45:34,410 --> 00:45:35,280
+You can look, right?
+你可以看，对吗？
+
+729
+00:45:35,290 --> 00:45:36,880
+It's a sectors on,
+这是一个扇区上的问题。
+
+730
+00:45:37,660 --> 00:45:40,050
+you have a bunch of sectors on a track.
+你在一条磁道上有一堆扇区。
+
+731
+00:45:40,620 --> 00:45:44,330
+You have a bunch of tracks on a face of a bladder.
+你在膀胱的一个表面上有一堆轨道。
+
+732
+00:45:44,800 --> 00:45:45,950
+And then for each bladder,
+然后对于每个膀胱，
+
+733
+00:45:45,960 --> 00:45:47,310
+you have two faces.
+你有两个面孔。
+
+734
+00:45:47,640 --> 00:45:50,470
+And then for a harvest drive,
+然后进行一次收获驱动活动，
+
+735
+00:45:50,480 --> 00:45:52,790
+you have multiple bladders.
+你有多个膀胱。
+
+736
+00:45:56,270 --> 00:46:00,030
+Therefore, a sector is defined by,
+因此，一个扇区的定义是，
+
+737
+00:46:00,040 --> 00:46:01,470
+like I mentioned earlier on,
+就像我之前提到的那样，
+
+738
+00:46:01,480 --> 00:46:02,670
+by the cylinder,
+按照柱面
+
+739
+00:46:02,680 --> 00:46:04,840
+the surface, and the sector.
+表面和扇区。
+
+740
+00:46:07,210 --> 00:46:09,680
+Now, the main.protects from this slide,
+现在，main.protects 从这个幻灯片中保护。
+
+741
+00:46:09,690 --> 00:46:17,540
+and it's re emphasizing what I said earlier on is that in the operating system
+这再次强调了我之前所说的，在操作系统中。
+
+742
+00:46:17,810 --> 00:46:20,920
+doesn't track at the level,
+不在该级别进行跟踪
+
+743
+00:46:21,440 --> 00:46:23,990
+the sector using their physical identifier.
+使用物理标识符来定位扇区。
+
+744
+00:46:24,000 --> 00:46:25,070
+The physical identifier.
+物理标识符。
+
+745
+00:46:25,080 --> 00:46:28,110
+Again, here is a cylinder surface and sector on the disk.
+这是一个磁盘上的圆柱体表面和扇区。
+
+746
+00:46:30,120 --> 00:46:32,950
+Instead, you have a logical block addressing.
+相反，你有一个逻辑块地址。
+
+747
+00:46:32,960 --> 00:46:33,790
+And typically,
+通常情况下，
+
+748
+00:46:33,800 --> 00:46:38,850
+now the controller translate this logical block addressing
+现在控制器将这个逻辑块地址进行翻译。
+
+749
+00:46:39,590 --> 00:46:43,360
+to the physical block addressing is something similar.
+对于物理块寻址，有类似的方法。
+
+750
+00:46:44,400 --> 00:46:48,940
+A with virtual addresses,
+带有虚拟地址的A，
+
+751
+00:46:49,590 --> 00:46:56,800
+the way that the operating system is responsible for translating.
+操作系统负责翻译的方式。
+
+752
+00:46:57,310 --> 00:46:59,900
+The virtual address is the physical addresses.
+虚拟地址是物理地址。
+
+753
+00:47:08,820 --> 00:47:09,730
+A it's a good.
+这是很好的。
+
+754
+00:47:10,030 --> 00:47:13,060
+Let me ask answer this question from allison.
+让我来回答Allison的问题。
+
+755
+00:47:13,640 --> 00:47:17,790
+Why don't we build devices and let us go lower?
+为什么我们不构建设备，让我们的技术更加先进？
+
+756
+00:47:17,800 --> 00:47:19,590
+Basically, ii guess,
+基本上，我猜
+
+757
+00:47:19,600 --> 00:47:22,270
+lower the priority of rights and rights?
+降低权限和权利的优先级？
+
+758
+00:47:27,730 --> 00:47:30,130
+I guess this is a very good question,
+我觉得这是一个非常好的问题，
+
+759
+00:47:30,140 --> 00:47:32,790
+and the answer is the overhead.
+答案是开销。
+
+760
+00:47:34,320 --> 00:47:35,290
+So you are correct.
+所以你是正确的。
+
+761
+00:47:37,660 --> 00:47:38,370
+Allison,
+艾莉森，
+
+762
+00:47:38,980 --> 00:47:40,910
+this is because efficiency.
+这是因为效率。
+
+763
+00:47:41,990 --> 00:47:45,830
+Remember, again, just think about the hardest drives.
+记住，再次思考一下最困难的驱动器。
+
+764
+00:47:46,380 --> 00:47:48,440
+If you remember, the hardest drives.
+如果你还记得的话，是指最难的驱动器。
+
+765
+00:47:49,120 --> 00:47:50,590
+In the last lecture,
+在上一堂课中，
+
+766
+00:47:50,600 --> 00:47:52,070
+there is some example.
+这里有一些例子。
+
+767
+00:47:54,310 --> 00:47:58,750
+The seek and rotational latency were like89 million seconds.
+寻道和旋转延迟大约为8900万秒。
+
+768
+00:47:59,340 --> 00:48:01,170
+The time to transfer a block,
+传输一个数据块所需的时间，
+
+769
+00:48:01,180 --> 00:48:03,250
+even if the block or as a sector,
+即使是作为一个块或扇区，
+
+770
+00:48:03,260 --> 00:48:05,410
+even if the sector is 500, 12 bytes,
+即使扇区大小为500，每个扇区12字节，
+
+771
+00:48:05,420 --> 00:48:06,490
+is not only 1 byte,
+不仅仅是1个字节。
+
+772
+00:48:07,310 --> 00:48:09,400
+was much less than only second.
+远远不及仅仅是第二名。
+
+773
+00:48:11,000 --> 00:48:17,500
+So the time to transfer to randomly access and transfer a sector is dwarfed
+因此，随机访问和传输一个扇区所需的时间微不足道。
+
+774
+00:48:17,730 --> 00:48:19,800
+by the rotation latency,
+通过旋转延迟，
+
+775
+00:48:19,810 --> 00:48:21,080
+by the fixed overhead.
+通过固定开销。
+
+776
+00:48:21,090 --> 00:48:24,070
+Let a rotation latency and seek that.
+让我们来解释一下旋转延迟和寻道时间。
+
+777
+00:48:27,010 --> 00:48:29,910
+So is that because of that is always an overhead?
+那是因为它总是有额外开销的原因吗？
+
+778
+00:48:30,280 --> 00:48:34,530
+Another way to think about is here it is another way to think about.
+另一种思考方式是这样的，这是另一种思考方式。
+
+779
+00:48:34,540 --> 00:48:39,080
+And maybe let me just and to connect the dots here.
+或许让我来串联一下这些点吧。
+
+780
+00:48:42,610 --> 00:48:44,050
+Remember this slide.
+记住这张幻灯片。
+
+781
+00:48:45,910 --> 00:48:47,210
+Look here at this formula.
+看这个公式。
+
+782
+00:48:53,900 --> 00:48:55,730
+The smaller the bees,
+蜜蜂越小，
+
+783
+00:48:59,540 --> 00:49:01,700
+the less the effective bandwidth is.
+带宽越小，效率越低。
+
+784
+00:49:05,550 --> 00:49:07,150
+If b is very small,
+如果b非常小，
+
+785
+00:49:08,200 --> 00:49:10,160
+s will dominate the fixed overhead.
+固定开销将主导。
+
+786
+00:49:10,930 --> 00:49:12,010
+This is just overhead.
+这只是额外开销。
+
+787
+00:49:12,290 --> 00:49:13,410
+It's useless work.
+这是无用的工作。
+
+788
+00:49:16,030 --> 00:49:17,740
+And the smaller the bees,
+蜜蜂越小，
+
+789
+00:49:18,990 --> 00:49:20,790
+the lower the effective bandwidth is,
+有效带宽越低，
+
+790
+00:49:20,800 --> 00:49:22,830
+look at the red curve here.
+看一下这里的红色曲线。
+
+791
+00:49:25,680 --> 00:49:26,680
+So that's what you have.
+那就是你所拥有的。
+
+792
+00:49:32,130 --> 00:49:34,570
+Each request, pressing each request as a fixed overhead.
+每个请求，将每个请求视为固定开销。
+
+793
+00:49:36,320 --> 00:49:37,990
+Even if this is on,
+即使这个开着，
+
+794
+00:49:38,000 --> 00:49:39,190
+let me go here.
+让我去这里。
+
+795
+00:49:39,470 --> 00:49:41,500
+Even if these devices is solid,
+即使这些设备是坚固的，
+
+796
+00:49:42,130 --> 00:49:45,540
+its ssd not this drive.
+是固态硬盘（SSD），不是这个驱动器。
+
+797
+00:49:46,280 --> 00:49:47,950
+There is an overhead for controller,
+控制器有一定的开销。
+
+798
+00:49:47,960 --> 00:49:50,230
+is an overhead or contact switching and things like that.
+是一种开销或接触切换等操作。
+
+799
+00:49:53,370 --> 00:49:54,920
+Okay, hopefully answer your questions.
+好的，希望能回答你的问题。
+
+800
+00:50:01,460 --> 00:50:02,900
+Okay, let's go back.
+好的，让我们回到之前的话题。
+
+801
+00:50:05,440 --> 00:50:07,430
+What do you need for file system needs?
+文件系统需要什么？
+
+802
+00:50:07,440 --> 00:50:09,510
+What do you know if you design a file system?
+如果你设计一个文件系统，你需要了解以下内容：
+
+1. 文件系统的基本概念：了解文件系统的定义、功能和特性，以及文件和目录的组织结构。
+
+2. 存储管理：了解如何管理文件在存储介质上的存储和访问，包括磁盘分区、块分配和文件的物理存储。
+
+3. 文件操作：了解如何创建、打开、读取、写入、关闭和删除文件，以及文件的权限和保护机制。
+
+4. 目录管理：了解如何创建、删除和重命名目录，以及如何在目录中组织和管理文件。
+
+5. 文件系统的一致性和恢复：了解如何确保文件系统的一致性，包括事务处理、日志记录和崩溃恢复。
+
+6. 文件系统的性能优化：了解如何提高文件系统的性能，包括缓存、预读取、延迟分配和空间回收等技术。
+
+7. 文件系统的安全性：了解如何保护文件系统的安全性，包括访问控制、加密和防止数据丢失或损坏的措施。
+
+8. 文件系统的扩展性：了解如何设计一个可扩展的文件系统，以适应不断增长的存储需求。
+
+9. 文件系统的兼容性：了解如何设计一个与现有操作系统和应用程序兼容的文件系统。
+
+10. 文件系统的测试和调试：了解如何测试和调试文件系统，以确保其正确性和稳定性。
+
+设计一个文件系统需要综合考虑以上各个方面，并根据具体需求和限制做出相应的设计决策。
+
+803
+00:50:09,520 --> 00:50:11,110
+Or do you need to be careful about?
+或者你需要小心些吗？
+
+804
+00:50:15,330 --> 00:50:19,250
+You need basically to track which for a file,
+你基本上需要追踪一个文件的哪些内容。
+
+805
+00:50:19,260 --> 00:50:22,600
+which are the blocks containing the data from that file,
+哪些块包含了该文件的数据？
+
+806
+00:50:22,610 --> 00:50:23,360
+you need to track it.
+你需要追踪它。
+
+807
+00:50:25,510 --> 00:50:28,340
+You need to for a particular file,
+你需要查找一个特定的文件。
+
+808
+00:50:28,880 --> 00:50:33,560
+you need to now to know which directory contains it.
+你需要知道它所在的目录。
+
+809
+00:50:37,450 --> 00:50:40,120
+And then you need to track the few free disk blocks,
+然后你需要跟踪少量的空闲磁盘块。
+
+810
+00:50:40,130 --> 00:50:42,440
+because if you write something new in a file,
+因为如果你在文件中写入新内容，
+
+811
+00:50:42,450 --> 00:50:46,020
+you need to know which blocks are free, are empty.
+你需要知道哪些块是空闲的，是空的。
+
+812
+00:50:48,990 --> 00:50:51,820
+And then you also need to decide or to maintain this information.
+然后你还需要决定或维护这些信息。
+
+813
+00:50:51,830 --> 00:50:54,940
+And the answer this information has to be persistent,
+而且这些信息的答案必须是持久的。
+
+814
+00:50:56,400 --> 00:50:57,830
+because it's persistent.
+因为它是持久的。
+
+815
+00:50:57,840 --> 00:50:59,750
+You have to maintain it on the disk.
+你需要将它保存在磁盘上。
+
+816
+00:51:04,080 --> 00:51:07,000
+So it's, again,
+所以，再次，
+
+817
+00:51:07,010 --> 00:51:11,420
+data structures on the disk is different from the data structure in memory.
+磁盘上的数据结构与内存中的数据结构是不同的。
+
+818
+00:51:11,920 --> 00:51:14,070
+The application, you have a data structure.
+这个应用程序中有一个数据结构。
+
+819
+00:51:15,340 --> 00:51:18,930
+The disk, or even the operating system is unaware,
+磁盘甚至操作系统本身都不知道
+
+820
+00:51:18,940 --> 00:51:24,950
+completely oblivious about the data structure you have in your program.
+完全不知道你程序中的数据结构。
+
+821
+00:51:26,110 --> 00:51:28,020
+It just sees a bunch of bytes,
+它只是看到一堆字节。
+
+822
+00:51:29,350 --> 00:51:31,210
+and later, a bunch of blocks.
+然后，一堆块。
+
+823
+00:51:32,500 --> 00:51:33,430
+That's what it is.
+就是这样。
+
+824
+00:51:37,270 --> 00:51:39,750
+Again, because you access a block at a time,
+由于您一次访问一个块，所以
+
+825
+00:51:40,250 --> 00:51:41,560
+is not very existing.
+不是非常存在。
+
+826
+00:51:41,570 --> 00:51:45,620
+Access are not very efficient for when you access just a bite.
+当你只访问一个字节时，访问速度并不高效。
+
+827
+00:51:47,620 --> 00:51:48,850
+And obviously,
+显然，
+
+828
+00:51:49,690 --> 00:51:50,700
+like I mentioned,
+就像我之前提到的那样，
+
+829
+00:51:50,920 --> 00:51:52,010
+when you write to a disk,
+当你向磁盘写入数据时，
+
+830
+00:51:52,240 --> 00:51:53,630
+you expect to be durable.
+你期望它具有耐久性。
+
+831
+00:51:53,640 --> 00:51:54,990
+That's why you write to a disk.
+这就是为什么要将数据写入磁盘。
+
+832
+00:51:55,000 --> 00:51:56,910
+Otherwise you keep the things in memory.
+否则，你将把这些东西保存在内存中。
+
+833
+00:51:58,150 --> 00:51:59,300
+But here you need to be careful.
+但是在这里你需要小心。
+
+834
+00:51:59,310 --> 00:52:01,420
+You cannot assume that if you write or disk,
+你不能假设如果你写入或读取磁盘，
+
+835
+00:52:01,750 --> 00:52:03,020
+if you say I wrote,
+如果你说我写了，
+
+836
+00:52:03,030 --> 00:52:05,020
+ii call a right operation.
+我调用了一个正确的操作。
+
+837
+00:52:05,970 --> 00:52:06,950
+Everything is fine.
+一切都好。
+
+838
+00:52:07,870 --> 00:52:08,440
+Why is that?
+为什么这样做呢？
+
+839
+00:52:11,060 --> 00:52:15,760
+Tell me why if I just call the right operation to a five,
+告诉我，如果我只是对一个数字五调用正确的操作，为什么会这样？
+
+840
+00:52:18,470 --> 00:52:26,410
+I cannot be completely sure that the date I wrote has been
+我无法完全确定我写的日期是否准确。
+
+841
+00:52:26,870 --> 00:52:28,490
+stored durably on the disk.
+持久地存储在磁盘上。
+
+842
+00:52:38,660 --> 00:52:41,920
+If you remember, we discussed early on about buffer cash.
+如果你还记得的话，我们之前讨论过缓冲现金。
+
+843
+00:52:43,320 --> 00:52:46,750
+The data is not stored directly on the disk is stored in a buffer.
+数据不直接存储在磁盘上，而是存储在缓冲区中。
+
+844
+00:52:50,190 --> 00:52:52,760
+If after you submit the request,
+如果在您提交请求之后，
+
+845
+00:52:53,620 --> 00:52:55,500
+the obligation fails,
+义务失败
+
+846
+00:52:57,390 --> 00:52:58,820
+the operating system fails.
+操作系统失败。
+
+847
+00:52:59,910 --> 00:53:01,470
+The data may be lost.
+数据可能会丢失。
+
+848
+00:53:03,310 --> 00:53:03,500
+Right?
+对吗？
+
+849
+00:53:03,510 --> 00:53:04,100
+You need to call.
+你需要打电话。
+
+850
+00:53:04,110 --> 00:53:08,220
+What do you need to call in order to make sure the data when goes to the risk?
+为了确保数据在传输过程中不受风险影响，您需要调用什么？
+
+851
+00:53:09,680 --> 00:53:14,570
+What system called you are going to invoke flush.
+你要调用哪个系统来执行 flush 操作？
+
+852
+00:53:15,760 --> 00:53:16,330
+Very good.
+非常好。
+
+853
+00:53:18,800 --> 00:53:24,000
+Although I would wish also to have more people answering these questions.
+虽然我希望有更多的人来回答这些问题。
+
+854
+00:53:25,410 --> 00:53:27,230
+So again,
+所以再次，
+
+855
+00:53:27,240 --> 00:53:30,020
+it's not a wrong answer.
+这不是一个错误的答案。
+
+856
+00:53:30,030 --> 00:53:31,460
+It's about discussing it.
+这是关于讨论它的事情。
+
+857
+00:53:31,470 --> 00:53:38,510
+And you'll remember much easier if we have this kind of discussions
+如果我们进行这种讨论，你会更容易记住。
+
+858
+00:53:39,290 --> 00:53:44,420
+rather than me just talking and talking and talking and being boring.
+与其我一直在说个不停，让人感到无聊，不如...
+
+859
+00:53:46,810 --> 00:53:47,280
+So,
+所以，
+
+860
+00:53:48,700 --> 00:53:49,210
+okay,
+好的，没问题。
+
+861
+00:53:50,290 --> 00:53:52,250
+a few announcements very well.
+一些公告非常好。
+
+862
+00:53:52,620 --> 00:53:54,720
+Tomorrow this is 11:03.
+明天是11点03分。
+
+863
+00:53:55,640 --> 00:54:00,430
+Let me just think tomorrow we have the exam.
+让我想一想，明天我们有考试。
+
+864
+00:54:02,260 --> 00:54:04,710
+I wish you the best of luck.
+祝你好运。
+
+865
+00:54:05,750 --> 00:54:12,170
+All the materials is up to and included the last lecture, not this lecture,
+所有的材料都是截止到上一堂课的，不包括本次课程。
+
+866
+00:54:14,230 --> 00:54:15,620
+the project deadline,
+项目截止日期
+
+867
+00:54:16,420 --> 00:54:17,260
+it was pushed.
+已经被推送。
+
+868
+00:54:17,270 --> 00:54:22,890
+So now you have a little bit, more time.
+现在你有一点点更多的时间了。
+
+869
+00:54:25,190 --> 00:54:26,890
+So hopefully this really helps you.
+希望这真的对你有所帮助。
+
+870
+00:54:33,560 --> 00:54:34,150
+Okay?
+好的？
+
+871
+00:54:37,870 --> 00:54:39,550
+Again, let's go delete,
+再次，让我们去删除，
+
+872
+00:54:39,560 --> 00:54:42,110
+even deeper talking about the file system.
+更深入地讨论文件系统。
+
+873
+00:54:44,520 --> 00:54:46,470
+So again, a few core elements,
+所以，再次强调，有几个核心要素，
+
+874
+00:54:48,040 --> 00:54:49,560
+the file system design,
+文件系统设计
+
+875
+00:54:49,570 --> 00:54:51,480
+if you are talking about the performance,
+如果你在谈论性能，
+
+876
+00:54:52,510 --> 00:54:53,930
+the dominant factor, remember,
+主导因素，记住，
+
+877
+00:54:53,940 --> 00:54:55,250
+you are talking about.
+你在说什么？
+
+878
+00:54:55,680 --> 00:54:56,790
+This is a bottleneck.
+这是一个瓶颈。
+
+879
+00:54:57,140 --> 00:54:59,700
+The bottleneck a is a disk performance.
+瓶颈是磁盘性能。
+
+880
+00:55:01,450 --> 00:55:05,610
+The disk was better provide the best performance when we
+在我们使用时，磁盘提供了最佳的性能。
+
+881
+00:55:05,620 --> 00:55:07,410
+sequentially read and write data,
+顺序读取和写入数据
+
+882
+00:55:07,420 --> 00:55:09,740
+because we avoid sick times,
+因为我们要避免生病的时间。
+
+883
+00:55:09,750 --> 00:55:15,040
+and rotational latency is you're going to maximize these operations.
+而旋转延迟是你要最大化这些操作的关键。
+
+884
+00:55:18,230 --> 00:55:19,500
+Remember, we can,
+记住，我们可以，
+
+885
+00:55:20,580 --> 00:55:22,010
+it's a file systems,
+这是一个文件系统。
+
+886
+00:55:22,020 --> 00:55:24,410
+abstraction provided in unix.
+在Unix中提供的抽象化。
+
+887
+00:55:26,010 --> 00:55:28,280
+You need to its open, close,
+你需要打开它，关闭它。
+
+888
+00:55:28,290 --> 00:55:29,600
+and in between read, write,
+在读取和写入之间，
+
+889
+00:55:29,610 --> 00:55:33,870
+you cannot read and write to a disk without a file system,
+没有文件系统，你无法读写磁盘。
+
+890
+00:55:34,440 --> 00:55:35,680
+without a file,
+没有文件，
+
+891
+00:55:36,060 --> 00:55:39,690
+without opening and closing that file.
+在不打开和关闭该文件的情况下。
+
+892
+00:55:40,620 --> 00:55:45,670
+The cool thing about this is that you can perform the protection, checks,
+这个很酷的地方是你可以执行保护、检查操作，
+
+893
+00:55:45,680 --> 00:55:46,270
+admission,
+录取
+
+894
+00:55:46,280 --> 00:55:47,350
+control,
+控制，掌控，控制权
+
+895
+00:55:48,070 --> 00:55:51,420
+and or at the open.
+在打开时。
+
+896
+00:55:52,570 --> 00:55:53,630
+When you open the file.
+当您打开文件时。
+
+897
+00:55:54,100 --> 00:55:57,790
+Otherwise you'd have to check for protection.
+否则你就需要检查保护机制。
+
+898
+00:55:58,100 --> 00:55:59,900
+Every time you access that file,
+每次访问该文件时，
+
+899
+00:56:04,300 --> 00:56:07,130
+the size of the file is variable.
+文件的大小是可变的。
+
+900
+00:56:08,680 --> 00:56:10,070
+When you start writing,
+当你开始写作时，
+
+901
+00:56:10,520 --> 00:56:11,680
+you start this one block.
+你开始这个块。
+
+902
+00:56:13,580 --> 00:56:15,700
+We need more than and one sector.
+我们需要不止一个扇区。
+
+903
+00:56:16,380 --> 00:56:17,320
+We need more.
+我们需要更多。
+
+904
+00:56:17,920 --> 00:56:20,320
+You are going, the file system is going to allocate more.
+系统将要分配更多的文件系统空间。
+
+905
+00:56:21,370 --> 00:56:22,730
+So you don't need to predefine.
+所以你不需要预先定义。
+
+906
+00:56:22,740 --> 00:56:23,890
+This is very important.
+这非常重要。
+
+907
+00:56:23,900 --> 00:56:25,130
+You take it as a giver,
+你把它当作一个给予者，
+
+908
+00:56:28,170 --> 00:56:31,370
+But it's not another design is like,
+但它并不是另一种设计，就像这样，
+
+909
+00:56:31,870 --> 00:56:34,850
+you would just allocate space on the disk.
+你只需要在磁盘上分配空间。
+
+910
+00:56:34,860 --> 00:56:35,890
+And before you start,
+在你开始之前，
+
+911
+00:56:38,370 --> 00:56:38,560
+right?
+对的？
+
+912
+00:56:38,570 --> 00:56:40,200
+And why is that natural?
+为什么这是自然的呢？
+
+913
+00:56:41,010 --> 00:56:42,040
+It can be natural,
+它可以是自然的，
+
+914
+00:56:42,050 --> 00:56:48,390
+because how do you do it in when in in your favorite programming language
+因为你最喜欢的编程语言中如何实现这个功能？
+
+915
+00:56:48,400 --> 00:56:49,470
+like c right?
+像 C 一样吗？
+
+916
+00:56:50,260 --> 00:56:52,450
+How do you manipulate the memory?
+你如何操作内存？
+
+917
+00:56:52,460 --> 00:56:54,370
+How do you manipulate the storage of memory?
+你如何操作内存的存储？
+
+918
+00:56:56,180 --> 00:56:57,370
+Before you read,
+阅读之前，
+
+919
+00:56:57,380 --> 00:57:00,050
+or before you write some data?
+还是在写入数据之前？
+
+920
+00:57:00,960 --> 00:57:01,630
+What do you need to?
+你需要什么帮助？
+
+921
+00:57:01,640 --> 00:57:01,750
+Do?
+做什么？
+
+922
+00:57:01,760 --> 00:57:04,490
+You need to allocate memory?
+你需要分配内存吗？
+
+923
+00:57:05,150 --> 00:57:07,320
+I'm a lock or see a lock.
+我是一个锁或者看到一个锁。
+
+924
+00:57:08,740 --> 00:57:09,850
+You allocate first,
+你先分配
+
+925
+00:57:10,550 --> 00:57:11,300
+and then write.
+然后写下来。
+
+926
+00:57:12,430 --> 00:57:13,340
+Here is not needed.
+这里不需要。
+
+927
+00:57:13,350 --> 00:57:20,670
+You just write the operating system and the file system, in particular,
+你只需要编写操作系统和文件系统，特别是：
+
+928
+00:57:20,680 --> 00:57:25,900
+will take care of growing the size of the file is needed.
+如果需要的话，会负责增加文件的大小。
+
+929
+00:57:29,260 --> 00:57:31,000
+The files are organizing directory.
+这些文件是组织目录。
+
+930
+00:57:31,010 --> 00:57:35,200
+You have a directory structured and these directory structure,
+你有一个目录结构和这些目录结构。
+
+931
+00:57:35,210 --> 00:57:37,640
+the date the directories is and file.
+目录和文件的日期。
+
+932
+00:57:38,290 --> 00:57:39,880
+It's also stored on the disk.
+它也存储在磁盘上。
+
+933
+00:57:41,250 --> 00:57:48,070
+And then you need to allocate when you allocate fire,
+然后当你分配火时，你需要进行分配。
+
+934
+00:57:48,080 --> 00:57:49,350
+when you allocate.
+当你分配内存时。
+
+935
+00:57:50,690 --> 00:57:53,640
+I think we are going to see that in the next lecture,
+我认为我们将在下一堂课中看到这一点。
+
+936
+00:57:54,850 --> 00:57:59,140
+when we allocate there are more sectors on the disk,
+当我们分配空间时，磁盘上会有更多的扇区。
+
+937
+00:57:59,690 --> 00:58:01,960
+you want to allocate them continuously.
+你想要连续地分配它们。
+
+938
+00:58:03,180 --> 00:58:03,820
+Why is that?
+为什么这样做呢？
+
+939
+00:58:04,260 --> 00:58:05,730
+Because when you read the data,
+因为当你读取数据时，
+
+940
+00:58:06,510 --> 00:58:12,490
+if the data was written on a bunch of sectors which is contiguous,
+如果数据被连续写入一组扇区中，
+
+941
+00:58:12,500 --> 00:58:16,760
+you maximize the sequential access is,
+你要最大化顺序访问。
+
+942
+00:58:17,580 --> 00:58:18,020
+right?
+是的，正确的。
+
+943
+00:58:18,950 --> 00:58:20,520
+Sequential read in this case,
+在这种情况下，进行顺序读取，
+
+944
+00:58:21,030 --> 00:58:22,550
+which improve the performance.
+这将提高性能。
+
+945
+00:58:26,380 --> 00:58:29,150
+So here, how things look like under the hood a little bit?
+这里，我们来稍微了解一下底层的情况是怎样的？
+
+946
+00:58:31,520 --> 00:58:32,800
+On one at one end,
+在一端上，
+
+947
+00:58:32,810 --> 00:58:36,160
+you I have the file pass which is the file pass,
+你好，我有一个名为"pass"的文件，这个文件是密码文件。
+
+948
+00:58:36,660 --> 00:58:42,750
+is a name of the file prefect prefix by the directory past name,
+文件名是否由目录前缀和过去的名称完美前缀
+
+949
+00:58:44,700 --> 00:58:49,460
+whether that or the files is residing in which the directory pass.
+无论是哪个文件还是目录路径中的文件，都需要确定它们所在的位置。
+
+950
+00:58:52,780 --> 00:58:53,930
+On the other end,
+另一方面，
+
+951
+00:58:53,940 --> 00:58:57,090
+you have data blocks which are stored on the disc in sectors.
+你有存储在磁盘扇区中的数据块。
+
+952
+00:58:58,360 --> 00:59:01,830
+You need somehow to map from the file pass to the data blocks.
+你需要以某种方式将文件路径映射到数据块。
+
+953
+00:59:03,210 --> 00:59:06,800
+This is what the operating system file system is involved.
+这是操作系统文件系统所涉及的内容。
+
+954
+00:59:09,640 --> 00:59:10,950
+You take the file pass.
+你拿走了文件的密码。
+
+955
+00:59:10,960 --> 00:59:13,510
+It is going to point in some directory structure.
+它将指向某个目录结构。
+
+956
+00:59:13,520 --> 00:59:15,970
+You are going to find the file.
+你要找到这个文件。
+
+957
+00:59:16,690 --> 00:59:20,390
+The file is going to be as you are going to identify by a number.
+该文件将通过一个编号进行标识。
+
+958
+00:59:20,400 --> 00:59:21,390
+It's called I number.
+它被称为I号。
+
+959
+00:59:22,990 --> 00:59:27,560
+And this I number is going to point to us data structure,
+而这个数字将指向我们的数据结构。
+
+960
+00:59:27,570 --> 00:59:28,910
+which is called I note,
+它被称为I笔记
+
+961
+00:59:29,980 --> 00:59:37,270
+which repeat which contains all the the informations about that file,
+其中包含有关该文件的所有信息的重复部分。
+
+962
+00:59:37,610 --> 00:59:40,280
+like for permissions, protection, permissions,
+像权限、保护、权限这样的东西。
+
+963
+00:59:42,140 --> 00:59:46,900
+also information about the blocks or the data in the file is stored.
+还存储了关于文件中的块或数据的信息。
+
+964
+00:59:47,370 --> 00:59:48,160
+This is the I node.
+这是 I 节点。
+
+965
+00:59:51,140 --> 00:59:53,570
+Here is another view you remember about this.
+这是你对此事的另一个观点。
+
+966
+00:59:53,580 --> 00:59:55,970
+So he had many lectures ago.
+他在很多讲座之前提到过这个。
+
+967
+00:59:57,290 --> 00:59:59,520
+This is a view from the process perspective.
+这是从进程角度的视角。
+
+968
+01:00:01,370 --> 01:00:02,840
+Here you have a process,
+这里有一个进程，
+
+969
+01:00:03,740 --> 01:00:05,540
+you have threads, registers,
+你有线程、寄存器、
+
+970
+01:00:06,340 --> 01:00:07,870
+and you have the address space.
+你拥有地址空间。
+
+971
+01:00:09,330 --> 01:00:11,480
+Then when you open a file,
+然后当你打开一个文件时，
+
+972
+01:00:11,490 --> 01:00:18,930
+you get the file descriptors points to a data structure here,
+在这里，你获得了指向一个数据结构的文件描述符指针。
+
+973
+01:00:19,560 --> 01:00:21,330
+which is in the operating summits.
+这是在操作峰会中。
+
+974
+01:00:21,650 --> 01:00:23,110
+Really, at the end of the day,
+说实话，到了最后，
+
+975
+01:00:23,120 --> 01:00:24,910
+you are going to have the I note.
+你将要拿到I笔记。
+
+976
+01:00:27,100 --> 01:00:28,900
+But anyway, the file description here,
+但无论如何，这里是文件的描述：
+
+977
+01:00:29,430 --> 01:00:33,000
+in this case, you have a file name,
+在这种情况下，你有一个文件名。
+
+978
+01:00:34,290 --> 01:00:40,770
+and you have position what the position in the file,
+你需要确定文件中的位置。
+
+979
+01:00:40,780 --> 01:00:42,890
+what is the position you are going to read and write?
+你将要读取和写入的位置是什么？
+
+980
+01:00:47,550 --> 01:00:56,670
+Then this is going to read from file descriptor three and into this buffer.
+然后这将从文件描述符三读取数据，并存入该缓冲区中。
+
+981
+01:00:58,300 --> 01:01:05,380
+And you are going to copy the data from position 100 in the file.
+你需要从文件中的位置100复制数据。
+
+982
+01:01:10,040 --> 01:01:12,690
+So from position 100 or five,
+所以从位置100或者五开始，
+
+983
+01:01:13,120 --> 01:01:15,320
+identified by the script or three,
+由脚本或三个标识符识别。
+
+984
+01:01:15,790 --> 01:01:17,700
+read data into this buffer.
+将数据读入该缓冲区。
+
+985
+01:01:20,160 --> 01:01:22,750
+But really is the way you need to think about this,
+但实际上，这是你需要思考的方式，
+
+986
+01:01:22,760 --> 01:01:23,870
+that instead of this file,
+而不是这个文件，
+
+987
+01:01:23,880 --> 01:01:25,190
+you are going to have I number,
+你将会拥有一个I数字。
+
+988
+01:01:25,200 --> 01:01:26,590
+like I mentioned from here,
+就像我之前在这里提到的一样，
+
+989
+01:01:26,600 --> 01:01:28,830
+you just leave your point directly to this.
+你直接表达你的观点就好。
+
+990
+01:01:29,780 --> 01:01:32,010
+I number points to an eye note.
+I number points to an eye note.
+我将数字标记为眼睛注释。
+
+991
+01:01:34,040 --> 01:01:36,170
+But let me ask you this question.
+但是让我问你这个问题。
+
+992
+01:01:37,440 --> 01:01:40,580
+Why do you think instead of food or text?
+为什么你认为我会选择食物而不是文字？
+
+993
+01:01:41,070 --> 01:01:44,490
+Here I should just skip the eye number,
+这里我应该跳过眼睛的编号。
+
+994
+01:01:46,080 --> 01:01:46,500
+right?
+对的吗？
+
+995
+01:01:48,140 --> 01:01:52,750
+Which is how and identified by the operating system of that particular file.
+这是由操作系统识别和标识特定文件的方式。
+
+996
+01:01:54,300 --> 01:01:54,840
+Why?
+为了帮助更多的学生理解和学习操作系统课程，我作为助教会将英文内容翻译成中文。这样可以让更多的学生受益，并提供更好的学习体验。
+
+997
+01:01:54,850 --> 01:01:56,680
+I know, but now not full text.
+我知道，但现在没有完整的文本。
+
+998
+01:02:08,660 --> 01:02:09,820
+Let me help you a little bit.
+让我帮你一点忙。
+
+999
+01:02:10,220 --> 01:02:18,130
+Look at this picture while I numbers and not
+看着这张图片，我看到的是数字而不是
+
+1000
+01:02:19,620 --> 01:02:20,430
+file up text.
+请上传文本文件。
+
+1001
+01:02:30,250 --> 01:02:32,920
+I don't want to name my fallacy random numbers.
+我不想给我的谬误随机取名字。
+
+1002
+01:02:33,650 --> 01:02:35,120
+It's again, you don't name.
+这是再次发来的消息，你没有署名。
+
+1003
+01:02:35,970 --> 01:02:38,280
+It's let me very, very clear here.
+这让我非常非常清楚。
+
+1004
+01:02:41,060 --> 01:02:42,610
+From the operating system,
+从操作系统角度来看，
+
+1005
+01:02:43,300 --> 01:02:44,770
+from your application perspective,
+从您的应用程序角度来看，
+
+1006
+01:02:45,900 --> 01:02:47,050
+you open a file.
+你打开了一个文件。
+
+1007
+01:02:47,580 --> 01:02:48,900
+When you open a file,
+当你打开一个文件时，
+
+1008
+01:02:48,910 --> 01:02:50,250
+you open food or texts.
+你可以打开食物或者文字。
+
+1009
+01:02:50,930 --> 01:02:52,890
+And back, you don't get a file descriptor.
+而且，你不会得到一个文件描述符。
+
+1010
+01:02:55,010 --> 01:02:59,430
+So the file descriptors points to a data structure,
+因此，文件描述符指向一个数据结构，
+
+1011
+01:03:00,160 --> 01:03:01,660
+which is open file description.
+打开文件描述符（Open File Description）是一个在操作系统中用于标识和访问打开文件的整数值。每当应用程序打开一个文件时，操作系统会为该文件分配一个唯一的文件描述符。通过使用文件描述符，应用程序可以对文件进行读取、写入和其他操作。文件描述符是操作系统中文件管理的重要概念之一。
+
+1012
+01:03:01,970 --> 01:03:03,030
+This is in the kernel.
+这是在内核中。
+
+1013
+01:03:03,040 --> 01:03:05,370
+You see everything which is below this dotted line.
+你可以看到这条虚线以下的所有内容。
+
+1014
+01:03:05,380 --> 01:03:09,680
+It's in the kernel here.
+这是在内核中。
+
+1015
+01:03:09,690 --> 01:03:11,280
+And I show you this example.
+我给你展示这个例子。
+
+1016
+01:03:11,290 --> 01:03:15,240
+I will show you that this file is a food or text, right?
+我会向您展示这个文件是食物还是文本，对吗？
+
+1017
+01:03:15,250 --> 01:03:16,720
+Because this is what you opened.
+因为这是你打开的。
+
+1018
+01:03:17,650 --> 01:03:22,180
+But what we are saying here is that we really don't want to keep
+但我们在这里说的是，我们真的不想保留
+
+1019
+01:03:22,190 --> 01:03:23,860
+in the open file descriptor,
+在打开的文件描述符中，
+
+1020
+01:03:23,870 --> 01:03:24,660
+food or text.
+食物或文本。
+
+1021
+01:03:24,670 --> 01:03:28,470
+Instead, I want to keep the eye number of the food or text.
+相反，我想保留食物或文本的眼睛数量。
+
+1022
+01:03:29,230 --> 01:03:33,100
+The question, why do I want to keep I number here in this data structure?
+为什么我想要在这个数据结构中保留一个I数字？
+
+1023
+01:03:33,110 --> 01:03:34,260
+Instead of food or text?
+而不是食物或文字？
+
+1024
+01:03:42,330 --> 01:03:43,850
+File dot text is directory,
+文件 dot text 是一个目录。
+
+1025
+01:03:43,860 --> 01:03:45,130
+the directory independent.
+独立的目录
+
+1026
+01:03:45,620 --> 01:03:46,650
+That's a very good point.
+这是一个非常好的观点。
+
+1027
+01:03:46,660 --> 01:03:47,210
+Let's say.
+假设吧。
+
+1028
+01:03:47,220 --> 01:03:48,250
+It's not for dot text.
+这不是用于点文本的。
+
+1029
+01:03:48,610 --> 01:03:49,690
+Is the entire pathway.
+整个路径。
+
+1030
+01:03:54,750 --> 01:03:54,990
+Yes,
+是的，
+
+1031
+01:03:55,520 --> 01:03:57,070
+the jasper is correct.
+Jasper 是正确的。
+
+1032
+01:03:58,260 --> 01:04:01,270
+Save that the first translation step, it's exact.
+保存第一步的翻译，它是准确的。
+
+1033
+01:04:03,230 --> 01:04:04,220
+You see,
+你看到，
+
+1034
+01:04:07,030 --> 01:04:11,110
+I open the file and I get the file descriptor.
+我打开文件并获得了文件描述符。
+
+1035
+01:04:11,120 --> 01:04:14,980
+So then I want,
+那么我想要，
+
+1036
+01:04:14,990 --> 01:04:19,390
+if I keep the I number instead of file pass,
+如果我保留I节点号而不是文件路径的话，
+
+1037
+01:04:20,370 --> 01:04:22,530
+then i'd save this translation step.
+那么我会保存这个翻译步骤。
+
+1038
+01:04:22,540 --> 01:04:25,730
+Otherwise, whenever I am going to access a file,
+否则，每当我要访问一个文件时，
+
+1039
+01:04:27,270 --> 01:04:30,110
+I need to do this translation because I have filed a text.
+我需要进行这个翻译，因为我需要整理一篇文本。
+
+1040
+01:04:30,120 --> 01:04:31,990
+I need to do the translation to get the I number.
+我需要进行翻译以获取I号码。
+
+1041
+01:04:33,460 --> 01:04:34,790
+So I save this step.
+所以我保存这个步骤。
+
+1042
+01:04:37,050 --> 01:04:37,620
+Very good.
+非常好。
+
+1043
+01:04:40,260 --> 01:04:42,480
+Let me just go a little bit quicker.
+让我稍微快一点。
+
+1044
+01:04:44,530 --> 01:04:48,920
+You have a fine line in a particular directory,
+你在一个特定目录中有一条精细的线。
+
+1045
+01:04:49,330 --> 01:04:51,320
+in a particular directory, you are going,
+在一个特定的目录中，你要去的是
+
+1046
+01:04:51,330 --> 01:04:52,520
+the file name is going.
+文件名是going。
+
+1047
+01:04:52,530 --> 01:04:57,350
+It's you can think about a it's a bunch of entries in these directories.
+你可以将其想象成这些目录中的一系列条目。
+
+1048
+01:04:57,520 --> 01:04:59,910
+The file name offset is by going to tell you,
+文件名偏移量是通过查看来告诉你的。
+
+1049
+01:04:59,920 --> 01:05:02,230
+the offset is going to tell you and what is the particle?
+偏移量会告诉你什么，粒子是什么？
+
+1050
+01:05:02,240 --> 01:05:04,270
+What is the entry for my particular file?
+我的特定文件的入口是什么？
+
+1051
+01:05:04,920 --> 01:05:06,390
+Then for file numbers,
+那么对于文件编号，
+
+1052
+01:05:06,400 --> 01:05:09,350
+you are going to have file number offset.
+你需要有文件号和偏移量。
+
+1053
+01:05:09,840 --> 01:05:12,200
+Basically, this is what it's I number.
+基本上，这就是 I 节点的含义。
+
+1054
+01:05:12,760 --> 01:05:14,350
+The eye number is.
+眼睛的编号是。
+
+1055
+01:05:14,360 --> 01:05:15,950
+You have an index structure,
+你有一个索引结构，
+
+1056
+01:05:16,480 --> 01:05:18,590
+which is indexed by itself.
+这个索引是以它自己为索引的。
+
+1057
+01:05:18,600 --> 01:05:20,990
+I node, each entering this index structure.
+I节点，每个进入该索引结构。
+
+1058
+01:05:21,000 --> 01:05:25,030
+It's an I node which represents all the information associated with that file.
+这是一个表示与该文件相关的所有信息的I节点。
+
+1059
+01:05:25,650 --> 01:05:29,040
+The index in that index structure is the I number.
+该索引结构中的索引是I号。
+
+1060
+01:05:31,540 --> 01:05:31,700
+Right?
+对吗？
+
+1061
+01:05:31,790 --> 01:05:32,380
+You have.
+你有。
+
+1062
+01:05:34,370 --> 01:05:39,390
+And the open operation performed his name resolution,
+并且打开操作执行了名称解析。
+
+1063
+01:05:39,720 --> 01:05:42,790
+basically translating the file name into the file number.
+将文件名基本上翻译为文件编号。
+
+1064
+01:05:43,960 --> 01:05:47,510
+And the read and write operations are only referring to the file number.
+读取和写入操作仅涉及文件编号。
+
+1065
+01:05:47,520 --> 01:05:49,590
+So you avoid the first translation step.
+所以你可以跳过第一步的翻译。
+
+1066
+01:05:51,250 --> 01:05:56,070
+You use a file number as an index to locate the I node.
+你使用文件号作为索引来定位I节点。
+
+1067
+01:05:56,080 --> 01:05:58,230
+And the I node is going to leave you to the blocks.
+然后I节点将把你交给块。
+
+1068
+01:05:58,240 --> 01:05:59,710
+We'll see, there are a few examples.
+我们会看到的，有一些例子。
+
+1069
+01:06:00,170 --> 01:06:00,910
+You have three come.
+你有三个选择。
+
+1070
+01:06:00,920 --> 01:06:03,110
+Four components is a directory.
+四个组件构成一个目录。
+
+1071
+01:06:04,310 --> 01:06:07,800
+The index structure is a storage blocks and free space map.
+索引结构是存储块和空闲空间映射。
+
+1072
+01:06:07,810 --> 01:06:08,790
+Remember about that?
+还记得那件事吗？
+
+1073
+01:06:11,270 --> 01:06:12,970
+How do you get the file number?
+你如何获取文件编号？
+
+1074
+01:06:14,570 --> 01:06:18,440
+You have to look in the directory structure in the directory structure.
+你需要在目录结构中查找目录结构。
+
+1075
+01:06:19,500 --> 01:06:21,290
+I told you that in directory structure,
+我告诉过你，在目录结构中，
+
+1076
+01:06:21,300 --> 01:06:23,450
+you have entries associated with each file.
+每个文件都有关联的条目。
+
+1077
+01:06:23,910 --> 01:06:26,630
+Each entry I didn't tell you what each entry contains,
+每个条目我没有告诉你每个条目包含什么内容，
+
+1078
+01:06:26,640 --> 01:06:28,430
+but each entry i'm telling you,
+但是每个条目我都告诉你，
+
+1079
+01:06:28,440 --> 01:06:31,190
+now each entry a it's a topple,
+现在每个条目都是一个元组，
+
+1080
+01:06:33,170 --> 01:06:37,180
+which contain its maps a file name to the file number.
+其中包含将文件名映射到文件号的映射。
+
+1081
+01:06:38,080 --> 01:06:40,160
+Again, when i'm talking about file number,
+再次，当我谈论文件编号时，
+
+1082
+01:06:40,480 --> 01:06:46,640
+I am also final file number is the same like I number.
+我的最终文件编号也和我的学号一样。
+
+1083
+01:06:50,810 --> 01:06:56,680
+This file number can be a file or another directory.
+这个文件号可以是一个文件或者另一个目录。
+
+1084
+01:07:00,020 --> 01:07:05,720
+The operation system starts a mapping in the directory and interpret this format.
+操作系统在目录中启动一个映射，并解释这个格式。
+
+1085
+01:07:08,190 --> 01:07:12,620
+This double or the mapping between file name and file number is
+这个双重映射是文件名和文件编号之间的映射。
+
+1086
+01:07:12,630 --> 01:07:13,620
+for directory entry.
+对于目录项。
+
+1087
+01:07:16,550 --> 01:07:21,100
+It's very important to feel to understand like again that the way we
+再次感受到理解的重要性，我们的方式
+
+1088
+01:07:21,110 --> 01:07:22,660
+manipulate the directory,
+操作目录，
+
+1089
+01:07:23,160 --> 01:07:25,550
+although in unix, a directory,
+尽管在Unix中，一个目录，
+
+1090
+01:07:25,560 --> 01:07:26,590
+just another five,
+再来五个。
+
+1091
+01:07:29,930 --> 01:07:34,520
+is different despite the fact that at the lower level is directory,
+尽管在较低层级上是目录，但它仍然是不同的。
+
+1092
+01:07:34,530 --> 01:07:35,440
+just another files,
+只是另一个文件。
+
+1093
+01:07:35,450 --> 01:07:37,920
+the way you manipulate the directory is different than the way you
+处理目录的方式与你处理的方式不同
+
+1094
+01:07:37,930 --> 01:07:41,860
+manipulated a file.
+操作了一个文件。
+
+1095
+01:07:43,380 --> 01:07:43,790
+Right?
+对吗？
+
+1096
+01:07:43,800 --> 01:07:46,190
+You cannot just use the read operation on the file.
+你不能仅仅使用读取操作来操作文件。
+
+1097
+01:07:46,560 --> 01:07:48,390
+You need to have special operations.
+你需要进行特殊操作。
+
+1098
+01:07:49,660 --> 01:07:51,170
+Redirectory create directory,
+Redirectory 创建目录,
+
+1099
+01:07:52,400 --> 01:07:53,970
+or make directory and so forth.
+或者创建目录等等。
+
+1100
+01:07:55,090 --> 01:07:57,540
+But let me ask you this question.
+但是让我问你这个问题。
+
+1101
+01:07:58,150 --> 01:08:01,460
+I why don't I again,
+为什么我不再试一次呢？
+
+1102
+01:08:01,770 --> 01:08:03,300
+since at the lower level,
+由于在较低层次上，
+
+1103
+01:08:04,290 --> 01:08:07,130
+the directory is just another file.
+目录只是另一个文件。
+
+1104
+01:08:08,110 --> 01:08:12,150
+Why don't I allow the application to do read and write some directors?
+为什么我不允许应用程序读写某些目录？
+
+1105
+01:08:29,540 --> 01:08:30,460
+It's dangerous,
+这很危险。
+
+1106
+01:08:31,230 --> 01:08:31,570
+right?
+对的？
+
+1107
+01:08:32,290 --> 01:08:34,290
+You can override if you override these mappings,
+如果你覆盖了这些映射关系，你就可以进行覆盖操作。
+
+1108
+01:08:36,700 --> 01:08:37,570
+you messings up,
+你搞砸了。
+
+1109
+01:08:38,670 --> 01:08:41,810
+because these mapping are maintained by the operating system.
+因为这些映射是由操作系统维护的。
+
+1110
+01:08:43,210 --> 01:08:43,640
+Right?
+对吗？
+
+1111
+01:08:45,690 --> 01:08:46,930
+It's for the same reason.
+这是同样的原因。
+
+1112
+01:08:46,940 --> 01:08:54,460
+You don't allow your process to arbitrarily modify kernel data structures
+你不允许进程随意修改内核数据结构。
+
+1113
+01:08:56,030 --> 01:08:59,790
+that this is how the directory looks like.
+这是目录的样子。
+
+1114
+01:08:59,800 --> 01:09:00,910
+Everyone knows that.
+每个人都知道。
+
+1115
+01:09:03,130 --> 01:09:07,820
+So directories are typically organized as trees,
+因此，目录通常被组织成树形结构，
+
+1116
+01:09:09,560 --> 01:09:10,470
+directory trees.
+目录树
+
+1117
+01:09:12,070 --> 01:09:15,620
+The leaves in the trees are files.
+树上的叶子是文件。
+
+1118
+01:09:16,650 --> 01:09:18,960
+The interior now is in the trees,
+现在室内是在树林中。
+
+1119
+01:09:19,600 --> 01:09:22,240
+including the root are directories.
+包括根目录在内，都是目录。
+
+1120
+01:09:27,880 --> 01:09:28,830
+Like I said,
+就像我说的一样，
+
+1121
+01:09:31,170 --> 01:09:34,280
+you do not allow the application to manipulate,
+你不允许应用程序进行操作。
+
+1122
+01:09:34,290 --> 01:09:36,640
+to read and write directly on the directories.
+直接读写目录。
+
+1123
+01:09:37,350 --> 01:09:38,910
+Instead to manipulate directories,
+而不是操作目录，
+
+1124
+01:09:38,920 --> 01:09:42,310
+you have special function called system calls,
+你有一个特殊的功能叫做系统调用。
+
+1125
+01:09:44,490 --> 01:09:44,880
+right?
+对的？
+
+1126
+01:09:45,820 --> 01:09:47,330
+Make beer or remove beer,
+酿造啤酒或清除啤酒,
+
+1127
+01:09:49,290 --> 01:09:50,600
+create a directory.
+创建一个目录。
+
+1128
+01:09:53,340 --> 01:09:56,370
+Already dear to traverse the directory structure.
+已经亲爱地遍历了目录结构。
+
+1129
+01:09:57,800 --> 01:09:59,230
+This is from the command line.
+这是来自命令行。
+
+1130
+01:09:59,240 --> 01:10:00,790
+You can use from the command line.
+你可以从命令行中使用。
+
+1131
+01:10:01,510 --> 01:10:03,090
+But you also can use them.
+但是你也可以使用它们。
+
+1132
+01:10:03,100 --> 01:10:04,330
+You have lipstick support.
+你有口红支持。
+
+1133
+01:10:04,340 --> 01:10:06,500
+You can have also use a library.
+你也可以使用一个库。
+
+1134
+01:10:06,960 --> 01:10:13,980
+So you can use this programmatic from your application link and unlink.
+所以你可以从你的应用程序中使用这个编程接口来链接和取消链接。
+
+1135
+01:10:15,580 --> 01:10:19,740
+This allows you to actually break actually this hierarchy.
+这实际上允许您打破这种层次结构。
+
+1136
+01:10:20,710 --> 01:10:23,400
+Actually, you can have a name of a file.
+实际上，你可以给一个文件取一个名字。
+
+1137
+01:10:23,410 --> 01:10:26,060
+You can have a file,
+你可以拥有一个文件。
+
+1138
+01:10:26,620 --> 01:10:29,500
+a name pointing to an existing file.
+一个指向已存在文件的名称。
+
+1139
+01:10:31,220 --> 01:10:31,710
+Right?
+对吗？
+
+1140
+01:10:31,970 --> 01:10:34,930
+So you have a file with a namesake food or text.
+所以你有一个与食物或文本同名的文件。
+
+1141
+01:10:35,610 --> 01:10:41,510
+Now I can have another name called full one dot s pointing to the same file.
+现在我可以给它另一个名字，叫做full.one.s，指向同一个文件。
+
+1142
+01:10:42,310 --> 01:10:43,370
+We'll learn more about that.
+我们将会更多地了解这个。
+
+1143
+01:10:46,400 --> 01:10:47,470
+Just to give you a sense.
+只是为了让你有个概念。
+
+1144
+01:10:47,480 --> 01:10:51,850
+Now, let's assume that about the overhead which are involved,
+现在，让我们假设涉及的开销。
+
+1145
+01:10:52,820 --> 01:10:56,950
+let's assume that we want to access to resolve this,
+假设我们想要解决这个问题，
+
+1146
+01:10:58,590 --> 01:11:01,540
+to get the I number of the file count,
+获取文件计数的I号码。
+
+1147
+01:11:05,050 --> 01:11:05,440
+right?
+对的？
+
+1148
+01:11:06,440 --> 01:11:09,940
+And then to access the file count.
+然后访问文件计数。
+
+1149
+01:11:10,540 --> 01:11:11,700
+So what do we need to do here?
+那么我们在这里需要做什么？
+
+1150
+01:11:13,080 --> 01:11:17,540
+First of all, we need to locate the root of the director.
+首先，我们需要定位目录的根目录。
+
+1151
+01:11:18,490 --> 01:11:21,720
+We need to start searching from somewhere from the root of the directory.
+我们需要从目录的根目录开始搜索。
+
+1152
+01:11:22,810 --> 01:11:25,890
+And the root for how do we do that?
+那么我们如何做到呢？
+
+1153
+01:11:26,220 --> 01:11:27,330
+Fortunately,
+幸运的是，
+
+1154
+01:11:27,710 --> 01:11:28,830
+by convention,
+按照惯例，
+
+1155
+01:11:28,840 --> 01:11:32,200
+the operating system as the file system,
+操作系统作为文件系统，
+
+1156
+01:11:32,680 --> 01:11:36,130
+put the route directory,
+将路由目录放在这里。
+
+1157
+01:11:36,140 --> 01:11:39,120
+the route in a fixed position on the disk.
+磁盘上的固定位置路径。
+
+1158
+01:11:41,440 --> 01:11:42,430
+You access this block,
+你访问了这个块。
+
+1159
+01:11:43,610 --> 01:11:44,500
+data block forward.
+数据块转发。
+
+1160
+01:11:45,520 --> 01:11:46,940
+In the data block, the road,
+在数据块中，道路，
+
+1161
+01:11:46,950 --> 01:11:50,900
+you have you have this kind of directory entries,
+你有这种类型的目录条目，
+
+1162
+01:11:50,910 --> 01:11:52,460
+file entries in that directory.
+该目录中的文件条目。
+
+1163
+01:11:52,470 --> 01:11:53,580
+Is that a directory?
+这是一个目录吗？
+
+1164
+01:11:55,110 --> 01:11:57,910
+You are going to have to locate mike,
+你需要找到迈克。
+
+1165
+01:11:59,290 --> 01:11:59,630
+right?
+对的吗？
+
+1166
+01:12:00,940 --> 01:12:02,050
+How you do that?
+你是如何做到的？
+
+1167
+01:12:02,060 --> 01:12:03,250
+You can linearly search.
+你可以进行线性搜索。
+
+1168
+01:12:03,260 --> 01:12:06,680
+Typically, the number of entries in the directory is small.
+通常情况下，目录中的条目数量较少。
+
+1169
+01:12:09,350 --> 01:12:10,550
+Now, once you locate,
+现在，一旦你找到位置，
+
+1170
+01:12:11,590 --> 01:12:14,040
+you read the file header for mike,
+你读取了Mike的文件头。
+
+1171
+01:12:14,810 --> 01:12:16,300
+because how do you know that?
+因为你怎么知道呢？
+
+1172
+01:12:16,570 --> 01:12:25,050
+Because the entry for my tells you what is the file number or four directory,
+因为my的条目告诉你文件号或四个目录的内容。
+
+1173
+01:12:25,060 --> 01:12:25,910
+mike.
+迈克。
+
+1174
+01:12:27,000 --> 01:12:27,800
+So from that,
+从那个角度来看，
+
+1175
+01:12:27,810 --> 01:12:37,140
+you go and it read again the first data block in my you search for the book,
+你继续前进并重新读取我在你搜索书籍时的第一个数据块。
+
+1176
+01:12:37,480 --> 01:12:39,140
+the self, my is going to gain.
+自我，我的目标是获得成长。
+
+1177
+01:12:39,150 --> 01:12:39,900
+It's a director.
+这是一个导演。
+
+1178
+01:12:39,910 --> 01:12:47,710
+It's going to keep a bunch of directory file entries.
+它将保存一系列目录文件条目。
+
+1179
+01:12:51,730 --> 01:12:53,370
+You read the header for the book.
+你阅读了这本书的封面。
+
+1180
+01:12:53,380 --> 01:12:55,360
+Again, you find book.
+再次，你找到了书。
+
+1181
+01:12:56,560 --> 01:12:57,260
+The book entry,
+这本书的条目，
+
+1182
+01:12:57,270 --> 01:13:01,870
+the book entry is going to have the file number associated with a book.
+图书条目将与图书关联的文件编号。
+
+1183
+01:13:04,500 --> 01:13:09,530
+Directory use that in order to read the header for book.
+使用目录来读取书的标题。
+
+1184
+01:13:10,200 --> 01:13:12,760
+And then you read the first data block for a book,
+然后你读取了一本书的第一个数据块。
+
+1185
+01:13:13,750 --> 01:13:15,110
+you search for account,
+你要搜索账户。
+
+1186
+01:13:16,500 --> 01:13:17,620
+you find count,
+你需要找到计数。
+
+1187
+01:13:18,390 --> 01:13:23,140
+and the count is you get the file number for count.
+并且计数是你获得计数的文件编号。
+
+1188
+01:13:24,170 --> 01:13:26,130
+There is a file header for account.
+账户有一个文件头。
+
+1189
+01:13:26,900 --> 01:13:27,840
+And now you are done.
+现在你已经完成了。
+
+1190
+01:13:29,450 --> 01:13:31,640
+So how many axis is?
+这个问题不太清楚，请提供更多的背景信息。你是在问什么轴？是指坐标轴吗？
+
+1191
+01:13:32,360 --> 01:13:34,640
+1234567,
+一百二十三万四千五百六十七
+
+1192
+01:13:36,010 --> 01:13:37,520
+just to do this resolution.
+只是为了完成这个决议。
+
+1193
+01:13:39,320 --> 01:13:47,120
+Now you see how important is to keep in the description of the file to keep I
+现在你明白了在文件描述中保持一致性的重要性。
+
+1194
+01:13:47,130 --> 01:13:55,120
+number for the file number instead of just the file name.
+将文件名替换为文件编号。
+
+1195
+01:13:56,420 --> 01:14:00,190
+Because I save the next time after I open it.
+因为我在打开后保存了下一次的时间。
+
+1196
+01:14:01,030 --> 01:14:02,750
+The next time when I do a read and write,
+下次当我进行读写操作时，
+
+1197
+01:14:02,760 --> 01:14:07,910
+I save seven axis and that expensive.
+我保存了七个轴，而且很贵。
+
+1198
+01:14:16,800 --> 01:14:23,410
+You also have the notion of current directories and the current directories.
+你还有当前目录和当前目录的概念。
+
+1199
+01:14:25,050 --> 01:14:30,880
+It's if you just refer to the file name without ignoring the past name,
+如果你只是引用文件名而不忽略之前的名称，那么就是这样。
+
+1200
+01:14:30,890 --> 01:14:33,640
+you are referring that you assume that in the current director,
+你是在指你假设在当前目录下。
+
+1201
+01:14:34,750 --> 01:14:35,850
+the current directory,
+当前目录
+
+1202
+01:14:35,860 --> 01:14:36,960
+it's already cached.
+已经缓存了。
+
+1203
+01:14:37,670 --> 01:14:40,810
+So it's one way with to reduce this number of counts.
+所以有一种方法可以减少这个计数的数量。
+
+1204
+01:14:44,990 --> 01:14:48,500
+This is how happened the file structure in the memory.
+这是文件在内存中的结构发生的方式。
+
+1205
+01:14:49,870 --> 01:14:52,090
+And this is a user space,
+这是一个用户空间，
+
+1206
+01:14:52,100 --> 01:14:53,130
+a kernel memory,
+内核内存
+
+1207
+01:14:53,140 --> 01:14:54,490
+and it's a secondary story.
+这是一个次要的故事。
+
+1208
+01:14:54,500 --> 01:14:57,710
+This is what happened on the disk.
+这是磁盘上发生的情况。
+
+1209
+01:14:59,220 --> 01:15:02,370
+You have read when you read a file descriptor,
+当你读取一个文件描述符时，你已经读取了
+
+1210
+01:15:03,030 --> 01:15:07,690
+this a file descriptor paying points into this per process open file paper.
+这是一个文件描述符，用于将点数支付到每个进程打开的文件纸上。
+
+1211
+01:15:08,800 --> 01:15:10,850
+This each of this entry,
+这是每个条目中的每个部分。
+
+1212
+01:15:11,260 --> 01:15:14,940
+it's information associated with that file.
+这是与该文件相关的信息。
+
+1213
+01:15:15,760 --> 01:15:22,090
+And what you are going to get here is a file number and the sick position
+在这里，您将获得一个文件号和病人的位置信息。
+
+1214
+01:15:24,500 --> 01:15:28,630
+of the current position in the file.
+当前位置在文件中的偏移量。
+
+1215
+01:15:29,800 --> 01:15:32,240
+You see this grazing here.
+你看到这里的放牧吗？
+
+1216
+01:15:33,020 --> 01:15:34,240
+It's again, recently.
+最近又是这样。
+
+1217
+01:15:34,530 --> 01:15:37,580
+Let me show you just to connect the dots.
+让我给你展示一下如何连接这些点。
+
+1218
+01:15:40,170 --> 01:15:40,470
+Oops.
+哎呀。
+
+1219
+01:15:44,740 --> 01:15:45,450
+Is this one?
+这个是吗？
+
+1220
+01:15:47,870 --> 01:15:50,070
+The information in that gray area?
+那个灰色区域中的信息是什么？
+
+1221
+01:15:50,080 --> 01:15:52,350
+Is this open file description?
+这是一个打开的文件描述符吗？
+
+1222
+01:15:54,260 --> 01:15:54,550
+Right?
+对吗？
+
+1223
+01:15:54,560 --> 01:15:56,950
+The I number and the position is a file.
+I节点号和位置是一个文件。
+
+1224
+01:16:01,340 --> 01:16:02,580
+This is what is here.
+这是这里的内容。
+
+1225
+01:16:05,740 --> 01:16:09,520
+The I number points you to the I node.
+I号码指向I节点。
+
+1226
+01:16:11,560 --> 01:16:13,120
+This is the open file tables,
+这是打开文件表。
+
+1227
+01:16:13,130 --> 01:16:16,490
+and the I node has protection bids.
+I节点具有保护位。
+
+1228
+01:16:17,120 --> 01:16:22,540
+And then also has all these maintains all these data blocks.
+然后还需要维护所有这些数据块。
+
+1229
+01:16:23,690 --> 01:16:25,280
+And all this is maintained,
+而所有这些都是被维护的，
+
+1230
+01:16:25,660 --> 01:16:27,470
+is maintained also on the disk.
+也在磁盘上维护。
+
+1231
+01:16:27,480 --> 01:16:29,670
+I know the Information is maintained on the disk,
+我知道信息是存储在磁盘上的。
+
+1232
+01:16:29,680 --> 01:16:39,670
+because it maintains the association between that file number and the blocks,
+因为它维护了文件编号与块之间的关联关系，
+
+1233
+01:16:39,680 --> 01:16:42,790
+data blocks where the data of the file is located.
+数据块是存储文件数据的地方。
+
+1234
+01:16:43,640 --> 01:16:45,300
+It must be on the disk.
+它必须在磁盘上。
+
+1235
+01:16:45,310 --> 01:16:47,540
+It must be durable because it must persist.
+它必须耐用，因为它必须持久存在。
+
+1236
+01:16:47,970 --> 01:16:53,580
+After you've finish your program after the program ends.
+在程序结束后，你可以完成你的程序。
+
+1237
+01:16:58,360 --> 01:17:00,230
+We talk about all of these things.
+我们谈论所有这些事情。
+
+1238
+01:17:01,160 --> 01:17:05,320
+I'm going to end up with this a few interesting data.
+我最终会得到一些有趣的数据。
+
+1239
+01:17:05,960 --> 01:17:09,830
+And then we are going to continue next time with the file system.
+然后我们下次将继续讲解文件系统。
+
+1240
+01:17:09,840 --> 01:17:11,130
+So this is a study.
+这是一项研究。
+
+1241
+01:17:11,470 --> 01:17:12,500
+It was 13,
+是13点。
+
+1242
+01:17:12,510 --> 01:17:13,900
+14 years ago,
+14年前，
+
+1243
+01:17:14,470 --> 01:17:16,980
+but it still is very relevant.
+但它仍然非常相关。
+
+1244
+01:17:17,980 --> 01:17:23,920
+And this is the point here is the following.
+这里的重点是接下来的内容。
+
+1245
+01:17:24,580 --> 01:17:29,010
+So what this study is looking over 5 years and is looking
+这项研究将持续5年，并进行观察。
+
+1246
+01:17:29,020 --> 01:17:31,730
+about how the distribution of the file lengths.
+关于文件长度的分布情况。
+
+1247
+01:17:32,920 --> 01:17:38,570
+And that's the Information about statistics about the files in a file system.
+这是关于文件系统中文件统计信息的信息。
+
+1248
+01:17:39,830 --> 01:17:46,910
+The first important one is basically show you what is the size of the file,
+第一个重要的是基本上展示了文件的大小。
+
+1249
+01:17:46,920 --> 01:17:51,720
+the distribution of the file sizes for a file system.
+文件系统中文件大小的分布。
+
+1250
+01:17:53,250 --> 01:17:55,160
+Basically, what this tells you,
+基本上，这告诉你的是，
+
+1251
+01:17:55,170 --> 01:18:01,060
+this is on the x axis of file sites and the number of files on the y axis.
+这是文件站点的 x 轴和文件数量的 y 轴。
+
+1252
+01:18:02,790 --> 01:18:04,180
+This is for different girls,
+这是给不同的女孩们的。
+
+1253
+01:18:04,190 --> 01:18:05,460
+is for different years.
+是针对不同年份的。
+
+1254
+01:18:05,750 --> 01:18:07,090
+So you have something similar,
+所以你有类似的东西，
+
+1255
+01:18:07,100 --> 01:18:09,190
+although as a years pass,
+尽管随着时间的推移，
+
+1256
+01:18:09,200 --> 01:18:10,990
+you have more and more files.
+你有越来越多的文件。
+
+1257
+01:18:11,370 --> 01:18:11,800
+Right?
+对吗？
+
+1258
+01:18:12,490 --> 01:18:14,030
+The main point here is,
+这里的主要观点是，
+
+1259
+01:18:14,040 --> 01:18:17,490
+this is showing that most of the files are small,
+这显示大部分文件都很小，
+
+1260
+01:18:17,500 --> 01:18:19,930
+not is that the x axis is log scale.
+不是x轴是对数刻度。
+
+1261
+01:18:21,030 --> 01:18:22,620
+These are very small, right?
+这些很小，对吗？
+
+1262
+01:18:22,630 --> 01:18:27,340
+For instance, most of the files are 512 kilobytes or less.
+例如，大多数文件的大小为512千字节或更小。
+
+1263
+01:18:29,040 --> 01:18:30,620
+There are very few large files.
+有非常少的大文件。
+
+1264
+01:18:32,500 --> 01:18:34,970
+So most of the files are small files.
+大部分文件都是小文件。
+
+1265
+01:18:35,370 --> 01:18:37,300
+However, if you look,
+然而，如果你仔细观察，
+
+1266
+01:18:37,920 --> 01:18:41,530
+but if I'm taking some piece of data,
+但是如果我正在获取一些数据，
+
+1267
+01:18:41,540 --> 01:18:44,130
+and I'm asking the question from the files,
+我从文件中提出这个问题。
+
+1268
+01:18:44,570 --> 01:18:46,820
+from all the file system, I'm taking a piece of data.
+从所有的文件系统中，我正在提取一段数据。
+
+1269
+01:18:47,140 --> 01:18:48,450
+And I'm asking the question,
+而我正在提出问题，
+
+1270
+01:18:49,270 --> 01:18:55,540
+what is the size of the file which contains this piece of data?
+包含这段数据的文件大小是多少？
+
+1271
+01:18:55,550 --> 01:19:00,400
+Then this is the answer I'm going to get.
+那么这就是我将要得到的答案。
+
+1272
+01:19:00,410 --> 01:19:05,400
+And basically, you see now that most of the data is contains in big files.
+基本上，你现在可以看到大部分的数据都包含在大文件中。
+
+1273
+01:19:06,930 --> 01:19:08,720
+The majority of files is small,
+大部分文件都很小，
+
+1274
+01:19:11,060 --> 01:19:13,270
+but the man,
+但是那个人，
+
+1275
+01:19:13,280 --> 01:19:17,230
+the big files are responsible for most of the data.
+大文件负责大部分数据。
+
+1276
+01:19:17,730 --> 01:19:18,210
+Okay?
+好的？
+
+1277
+01:19:19,020 --> 01:19:22,200
+I am going to end up with a question to you.
+我将要向你提出一个问题。
+
+1278
+01:19:22,970 --> 01:19:24,150
+It's a fun question.
+这是一个有趣的问题。
+
+1279
+01:19:24,160 --> 01:19:25,510
+You see,
+你看，
+
+1280
+01:19:25,750 --> 01:19:28,490
+you see here that on this kind of this distribution,
+你可以看到，在这种分布上，
+
+1281
+01:19:28,500 --> 01:19:29,900
+you have two picks.
+你有两个选择。
+
+1282
+01:19:29,910 --> 01:19:36,070
+You have AA pick around 2 megabytes and another peak around one gigabyte.
+你有一个大约2兆字节的峰值和另一个大约1千兆字节的峰值。
+
+1283
+01:19:38,030 --> 01:19:41,000
+You have why do you think you have these topics?
+你为什么认为你有这些话题？
+
+1284
+01:19:41,010 --> 01:19:43,860
+Why do you think what this one gigabyte?
+你为什么认为这是一个千兆字节？
+
+1285
+01:19:47,770 --> 01:19:49,150
+What do you think causes?
+你认为是什么原因导致的？
+
+1286
+01:19:54,290 --> 01:19:55,900
+And by the way, in 2000,
+顺便说一下，2000年的时候，
+
+1287
+01:19:56,420 --> 01:19:57,570
+it wasn't such a big,
+这不是一个很大的问题，
+
+1288
+01:19:57,830 --> 01:20:01,110
+but as a time goes, went on, passes passed,
+但随着时间的流逝，过去了，过去的时光已经过去了。
+
+1289
+01:20:01,690 --> 01:20:02,410
+you have this big?
+你有这个大吗？
+
+1290
+01:20:09,240 --> 01:20:09,870
+Let's see.
+让我们看看。
+
+1291
+01:20:11,870 --> 01:20:14,630
+Yes, that sounds very good to answer here, right?
+是的，这听起来很好，我可以在这里回答问题吗？
+
+1292
+01:20:15,200 --> 01:20:16,470
+We know, right?
+我们知道，对吧？
+
+1293
+01:20:16,480 --> 01:20:17,670
+It's like,
+就像是，
+
+1294
+01:20:19,240 --> 01:20:22,540
+especially that was peer to peer system and you write about it.
+尤其是那个点对点系统，你写了关于它的内容。
+
+1295
+01:20:23,890 --> 01:20:26,020
+Yes, this is one reason is media.
+是的，这是一个原因，即媒体。
+
+1296
+01:20:26,620 --> 01:20:32,390
+The other reason this is a lot bigger and bigger files are also binary files.
+另一个原因是文件越来越大，而且这些文件也是二进制文件。
+
+1297
+01:20:33,100 --> 01:20:35,130
+The executive become bigger over time.
+随着时间的推移，执行文件变得越来越大。
+
+1298
+01:20:36,510 --> 01:20:38,730
+That's excellent answers.
+这是非常出色的答案。
+
+1299
+01:20:40,710 --> 01:20:42,780
+With this, we are going to stop here.
+到此为止，我们要停下来了。
+
+1300
+01:20:43,300 --> 01:20:45,980
+Again, good luck to the middle of tomorrow,
+再次祝你明天中间好运，
+
+1301
+01:20:45,990 --> 01:20:48,940
+and i'll see you again on Saturday.
+我会在周六再见到你。
+
+1302
+01:20:50,640 --> 01:20:51,100
+Thank you.
+谢谢你。
+
